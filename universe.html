@@ -98,8 +98,8 @@
   .brier .node.flag .tag { color:var(--accent); }
   .brier .node.agent { border-color:rgba(94,151,200,.55); background:linear-gradient(180deg,#ffffff,#f1f7fc); box-shadow:0 12px 34px -16px rgba(94,151,200,.45); }
   .brier .node.agent .tag { color:var(--blue); }
-  .brier .pair { display:flex; gap:14px; align-items:stretch; width:min(620px,98%); }
-  .brier .pair > .node { width:auto; flex:1 1 0; }
+  .brier .pair { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:stretch; width:min(620px,98%); }
+  .brier .pair > .node { width:auto; margin-top:0; }
   .brier .pair > .node p { font-size:.78rem; }
 
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
@@ -124,7 +124,7 @@
     .wires, .seam, .rails{ display:none; }
     .brier .head{ align-items:flex-start; text-align:left; }
     .axiom .node, .brier .node{ width:100%; }
-    .brier .pair{ flex-direction:column; width:100%; }
+    .brier .pair{ grid-template-columns:1fr; width:100%; }
     .legend{ position:static; transform:none; margin:18px auto; }
   }
 </style>
