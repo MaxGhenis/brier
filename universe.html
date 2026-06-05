@@ -38,9 +38,6 @@
   }
   .axiom .nodes { align-items:flex-end; padding-right:clamp(20px,5.5vw,92px); }
 
-  .cite { position:absolute; inset:0; z-index:1; pointer-events:none; font-family:"JetBrains Mono",monospace; color:#78716c; }
-  .cite span { position:absolute; font-size:11px; letter-spacing:.01em; white-space:nowrap; }
-  .cite span::before { content:"●"; color:#b45309; opacity:.5; margin-right:6px; font-size:8px; vertical-align:1px; }
 
   /* ===================== BRIER (cool, Clear Horizon) ===================== */
   .brier {
@@ -136,7 +133,6 @@
 
   <!-- ===================== AXIOM ===================== -->
   <section class="half axiom">
-    <div class="cite" id="cite"></div>
     <div class="head">
       <span class="axlogo">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 440" role="img" aria-label="Axiom Foundation">
@@ -244,19 +240,6 @@
   const stage = document.getElementById('stage');
   const svg = document.getElementById('wires');
   const NS = 'http://www.w3.org/2000/svg';
-
-  // citation constellation on the Axiom side
-  (function(){
-    const cites = ['26 USC § 32','TCGA 1992 s.222','Pub. L. 116-260','ITA 2007 s.118',
-      '26 USC § 951A','FA 2024 s.27','20 USC § 1087','26 CFR § 1.1502','42 USC § 1396',
-      'ITEPA 2003 s.62','26 USC § 24'];
-    const box = document.getElementById('cite');
-    const pos = [[60,15],[72,29],[44,45],[66,57],[50,71],[74,81],[57,90],[80,51],[46,23],[68,67],[54,37]];
-    cites.forEach((c,i)=>{ const s=document.createElement('span');
-      s.textContent=c; s.style.left=pos[i][0]+'%'; s.style.top=pos[i][1]+'%';
-      s.style.opacity = (0.12 + (i%3)*0.05).toFixed(2);
-      box.appendChild(s); });
-  })();
 
   const edges = [
     ['corpus','encoder','flow'],
