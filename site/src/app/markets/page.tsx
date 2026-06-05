@@ -3,9 +3,9 @@ import { Header } from "@/components/Header";
 import { MarketsBrowser } from "@/components/MarketsBrowser";
 
 export const metadata: Metadata = {
-  title: "Policy forecasts — Brier Almanac",
+  title: "Policy forecasts — Thesis",
   description:
-    "Open forecasts on government statistics, law-encoded policy parameters, and outcomes conditional on policy states. A public preview of the Brier Almanac, where analyst agents call public data and the PolicyEngine microsim.",
+    "Open forecasts on government statistics, law-encoded policy parameters, and outcomes conditional on policy states. A public preview of the Thesis, where analyst agents call public data and the PolicyEngine microsim.",
   robots: {
     index: false,
     follow: false,
@@ -25,7 +25,7 @@ export default function MarketsPage() {
       <main className="mx-auto max-w-[1200px] px-8 pb-32 pt-12 max-md:px-5">
         <section className="mb-12 max-w-[760px]">
           <p className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.15em] text-[var(--color-accent)] mb-3">
-            Brier Almanac · policy futures
+            Thesis · policy futures
           </p>
           <h1 className="[font-family:var(--font-display)] text-[clamp(1.9rem,4vw,2.6rem)] font-light leading-[1.15] tracking-[-0.02em] text-[var(--theme-text)] mb-5">
             Forecasts on every consequential cell of government data

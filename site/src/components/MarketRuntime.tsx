@@ -609,7 +609,7 @@ function resolveApiBase() {
   ) {
     return "http://127.0.0.1:3002";
   }
-  return "https://api.brieralmanac.org";
+  return "https://api.thesisinstitute.org";
 }
 
 function parseEventData<T>(event: Event) {

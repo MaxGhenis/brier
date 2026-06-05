@@ -11,7 +11,7 @@ function ForecastPrototype() {
       <section className="mb-12 grid grid-cols-[minmax(0,760px)_minmax(240px,1fr)] gap-10 max-lg:grid-cols-1">
         <div>
           <p className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.15em] text-[var(--color-accent)] mb-3">
-            Brier Almanac · policy futures
+            Thesis · policy futures
           </p>
           <h1 className="[font-family:var(--font-display)] text-[clamp(2rem,4.5vw,3.1rem)] font-light leading-[1.08] tracking-[-0.02em] text-[var(--theme-text)] mb-5">
             Forecasts on every consequential cell of government data
@@ -44,7 +44,7 @@ function ForecastPrototype() {
                 Live API paths
               </dt>
               <dd className="text-[var(--theme-text)]">
-                CPI-U and two CTC cells stream through api.brieralmanac.org.
+                CPI-U and two CTC cells stream through api.thesisinstitute.org.
               </dd>
             </div>
             <div>
@@ -158,19 +158,19 @@ function Footer() {
           GitHub
         </a>
         <a
-          href="https://brier.institute"
+          href="https://thesisinstitute.org"
           className="text-[#6B7C89] no-underline hover:text-[#14202B] transition-colors"
         >
-          Brier Institute
+          Thesis Institute
         </a>
       </div>
       <p className="mt-6 text-[0.75rem] text-[#94A3AF]">
         A program of{" "}
         <a
-          href="https://brier.institute"
+          href="https://thesisinstitute.org"
           className="text-[#6B7C89] no-underline hover:text-[#14202B] transition-colors"
         >
-          Brier Institute
+          Thesis Institute
         </a>
       </p>
     </footer>

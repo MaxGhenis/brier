@@ -6,13 +6,13 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         has: [{ type: "host", value: "farness.ai" }],
-        destination: "https://brieralmanac.org/:path*",
+        destination: "https://app.thesisinstitute.org/:path*",
         permanent: true,
       },
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.farness.ai" }],
-        destination: "https://brieralmanac.org/:path*",
+        destination: "https://app.thesisinstitute.org/:path*",
         permanent: true,
       },
     ];
