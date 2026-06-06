@@ -33,21 +33,6 @@ export function Header({
         </div>
         <nav className="flex gap-7 items-center max-md:gap-4">
           <Link
-            href="/thesis"
-            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
-              activePage === "thesis"
-                ? "text-[#A94E80]"
-                : "text-[var(--theme-text-muted)]"
-            }`}
-            style={
-              activePage !== "thesis"
-                ? { color: "var(--theme-text-muted)" }
-                : undefined
-            }
-          >
-            Thesis
-          </Link>
-          <Link
             href="/forecasts"
             className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline ${
               activePage === "forecasts"
