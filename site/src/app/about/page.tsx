@@ -58,16 +58,15 @@ export default function AboutPage() {
           </section>
 
           <section>
-            <h2>Deterministic and predictive</h2>
+            <h2>Built on Axiom</h2>
             <p>
-              Public outcomes have two halves.{" "}
-              <strong>Axiom</strong> encodes the law as open, executable code —
-              what the rules <em>are</em>, computed exactly.{" "}
-              <strong>Thesis</strong> forecasts the uncertain world conditioned
-              on those rules — what will <em>happen</em>. One manufactures
-              certainty from statute; the other quantifies honest doubt about the
-              future. Together they answer the question neither can alone:{" "}
-              <em>what will this policy actually produce?</em>
+              The Thesis Institute does one thing: forecast. The deterministic
+              half — encoding the law as open, executable code, computed
+              exactly — is <strong>Axiom</strong>, a separate sister project.
+              Thesis builds on it, forecasting the uncertain world conditioned on
+              those rules: what will <em>happen</em>. Axiom says what the rules{" "}
+              <em>are</em>; Thesis says what they&apos;ll produce. We predict —
+              we don&apos;t encode the law.
             </p>
           </section>
 
