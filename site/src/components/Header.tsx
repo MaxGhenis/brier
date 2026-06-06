@@ -4,7 +4,7 @@ import { BrierLogoMark } from "./BrierLogo";
 export function Header({
   activePage,
 }: {
-  activePage?: "docs" | "thesis" | "paper" | "forecasts";
+  activePage?: "docs" | "thesis" | "paper" | "forecasts" | "about";
 }) {
   return (
     <header
@@ -46,6 +46,21 @@ export function Header({
             }
           >
             Forecasts
+          </Link>
+          <Link
+            href="/about"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "about"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "about"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            About
           </Link>
           <a
             href="/paper"

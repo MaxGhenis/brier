@@ -21,7 +21,7 @@ export function BrierLogoMark({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
-      aria-label="Brier"
+      aria-label="Thesis"
     >
       {/* Glow halo — rose at low opacity */}
       <circle
@@ -67,7 +67,7 @@ export function BrierWordmark({ size = 28 }: { size?: number }) {
   return (
     <span className="inline-flex items-center gap-[0.4em]">
       <BrierLogoMark size={size} />
-      <span className="tracking-[0.02em] lowercase">brier</span>
+      <span className="tracking-[0.02em] lowercase">thesis</span>
     </span>
   );
 }
