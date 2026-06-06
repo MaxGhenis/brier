@@ -63,21 +63,6 @@ export function Header({
             About
           </Link>
           <a
-            href="/paper"
-            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
-              activePage === "paper"
-                ? "text-[#A94E80]"
-                : "text-[var(--theme-text-muted)]"
-            }`}
-            style={
-              activePage !== "paper"
-                ? { color: "var(--theme-text-muted)" }
-                : undefined
-            }
-          >
-            Research
-          </a>
-          <a
             href="https://github.com/MaxGhenis/brier"
             className="no-underline transition-colors duration-200 hover:no-underline"
             style={{ color: "var(--theme-text-muted)" }}
