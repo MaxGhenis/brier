@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 
 export const metadata = {
-  title: "About — Thesis Institute",
+  title: "About — The Thesis Institute",
   description:
     "Thesis builds open, calibrated forecasts of public outcomes — every prediction scored against reality, grounded in encoded law, and open all the way down.",
 };
@@ -13,7 +13,7 @@ export default function AboutPage() {
       <article className="max-w-[680px] mx-auto px-8">
         <header className="text-center py-24 border-b border-[var(--theme-border)] mb-24 animate-[fade-up_0.6s_ease-out] max-[600px]:py-16">
           <p className="[font-family:var(--font-mono)] text-[0.65rem] tracking-[0.15em] uppercase text-accent mb-4">
-            About Thesis Institute
+            About The Thesis Institute
           </p>
           <h1 className="[font-family:var(--font-display)] text-[clamp(2rem,5vw,3rem)] font-light leading-[1.2] mb-8 tracking-[-0.02em]">
             Forecasts, scored against reality.

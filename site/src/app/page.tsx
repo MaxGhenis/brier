@@ -161,7 +161,7 @@ function Footer() {
           href="https://thesisinstitute.org"
           className="text-[#6B7C89] no-underline hover:text-[#14202B] transition-colors"
         >
-          Thesis Institute
+          The Thesis Institute
         </a>
       </div>
       <p className="mt-6 text-[0.75rem] text-[#94A3AF]">
@@ -170,7 +170,7 @@ function Footer() {
           href="https://thesisinstitute.org"
           className="text-[#6B7C89] no-underline hover:text-[#14202B] transition-colors"
         >
-          Thesis Institute
+          The Thesis Institute
         </a>
       </p>
     </footer>
