@@ -58,15 +58,17 @@ export default function AboutPage() {
           </section>
 
           <section>
-            <h2>Built on Axiom</h2>
+            <h2>Rules-as-code in the loop</h2>
             <p>
-              The Thesis Institute does one thing: forecast. The deterministic
-              half — encoding the law as open, executable code, computed
-              exactly — is <strong>Axiom</strong>, a separate sister project.
-              Thesis builds on it, forecasting the uncertain world conditioned on
-              those rules: what will <em>happen</em>. Axiom says what the rules{" "}
-              <em>are</em>; Thesis says what they&apos;ll produce. We predict —
-              we don&apos;t encode the law.
+              Not everything that shapes an outcome is uncertain — some of it is
+              fixed by statute. <strong>Axiom</strong>, a separate open project,
+              encodes law as executable rules-as-code and computes those parts
+              exactly. Brier agents draw on it as a tool: where a forecast turns
+              on a rule rather than a judgment call, Axiom supplies the exact
+              figure, and once a policy is enacted its computed result can settle
+              the forecast in the ledger. <strong>PolicyEngine</strong>, the
+              microsimulation instrument in the Thesis stack, runs on the same
+              encoded rules — two distinct projects, deliberately connected.
             </p>
           </section>
 
