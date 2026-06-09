@@ -39,6 +39,11 @@ brier show <id>         # Show decision details (supports prefix match)
 brier score [id]        # Score a decision's actual outcomes (interactive)
 brier calibration       # Show calibration statistics
 brier pending           # Alias for list --pending
+brier forecast-draft <id-or-question>  # Draft a forecast/market pack (alias: market-draft)
+brier setup {claude,codex}    # Install the skill + register the MCP server
+brier doctor {claude,codex}   # Check skill/MCP installation health
+brier uninstall {claude,codex}  # Remove skill + MCP registration
+brier install-skill {claude,codex}  # Install just the packaged SKILL.md
 ```
 
 ### Site (Next.js)
@@ -47,9 +52,13 @@ brier pending           # Alias for list --pending
 cd site
 bun install
 bun run dev      # Development server
-bun run build    # Build for production (static export)
+bun run build    # Build for production (standard Vercel SSG, not a static export)
 bun run test     # Run vitest tests
 ```
+
+Production deploys of the site and forecast-api go ONLY through the
+self-verifying scripts in `~/thesis-institute` (`deploy-app.sh`); never run a
+bare `vercel --prod` from a checkout or worktree.
 
 ### Paper
 
@@ -77,7 +86,10 @@ python3 -m brier.experiments stability --strongest-validation --model gpt-5.2  #
 
 ### Site (`site/`)
 
-Next.js App Router site with Tailwind CSS v4, statically exported for deployment.
+Next.js App Router site with Tailwind CSS v4, deployed to Vercel as the
+`brier-almanac` project behind app.thesisinstitute.org (standard SSG build —
+all forecast pages prerender from `src/data/markets.ts`; four live cells
+stream from forecast-api at runtime).
 
 ## Key Design Decisions
 
