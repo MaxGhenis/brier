@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 72,
+  "rationale": "Analysis B builds an elaborate framework with KPIs, numeric forecasts, and review triggers, yet never actually states a recommended option\u2014the most fundamental output of a decision analysis. Analysis A at least commits to a clear recommendation (simplest parameterization that materially improves fit), even though it lacks revisit triggers and quantitative support. Failing to deliver a recommendation is a more serious omission than missing supporting details, because the entire purpose of the analysis is to guide a choice.",
+  "largest_missing_consideration_a": "No revisit trigger or concrete quantitative benchmarks for deciding when the simple parameterization is no longer sufficient and complexity should be increased.",
+  "largest_missing_consideration_b": "No clear recommended option is stated, making the analysis incomplete as a decision guide despite its detailed framework and KPIs.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No revisit trigger or concrete quantitative benchmarks for deciding when the simple parameterization is no longer sufficient and complexity should be increased.\",\n  \"largest_missing_consideration_b\": \"No clear recommended option is stated, making the analysis incomplete as a decision guide despite its detailed framework and KPIs.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Analysis B builds an elaborate framework with KPIs, numeric forecasts, and review triggers, yet never actually states a recommended option\u2014the most fundamental output of a decision analysis. Analysis A at least commits to a clear recommendation (simplest parameterization that materially improves fit), even though it lacks revisit triggers and quantitative support. Failing to deliver a recommendation is a more serious omission than missing supporting details, because the entire purpose of the analysis is to guide a choice.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "less_undermined_condition": "naive",
+  "confidence": 74,
+  "rationale": "A is less undermined because its recommendation fits the stated constraints and is more robust to generic critiques. It explicitly acknowledges rewrite tail risk, opportunity cost, and the value of existing system knowledge, while proposing a lower-regret near-term step. Its biggest weakness is lack of concrete stop/go triggers. B\u2019s middle path sounds attractive, but under these critique lenses it is more exposed to hidden dependencies, implementation fragility, stakeholder drag, and prolonged timing risk from running migration complexity over multiple quarters. B would likely need more revision to justify feasibility and switching costs.",
+  "most_damaging_critique_a": "It under-specifies execution and revisit triggers: without explicit guardrails, incremental hardening can devolve into endless patching, preserve hidden dependencies, and fail to reduce incidents enough to avoid a later rewrite.",
+  "most_damaging_critique_b": "Strangler migration may underestimate hidden coupling, dual-run complexity, and switching costs; it also extends timing risk over 2\u20133 quarters while still consuming scarce senior engineers and delaying roadmap work.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"It under-specifies execution and revisit triggers: without explicit guardrails, incremental hardening can devolve into endless patching, preserve hidden dependencies, and fail to reduce incidents enough to avoid a later rewrite.\",\n  \"most_damaging_critique_b\": \"Strangler migration may underestimate hidden coupling, dual-run complexity, and switching costs; it also extends timing risk over 2\u20133 quarters while still consuming scarce senior engineers and delaying roadmap work.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 74,\n  \"rationale\": \"A is less undermined because its recommendation fits the stated constraints and is more robust to generic critiques. It explicitly acknowledges rewrite tail risk, opportunity cost, and the value of existing system knowledge, while proposing a lower-regret near-term step. Its biggest weakness is lack of concrete stop/go triggers. B\u2019s middle path sounds attractive, but under these critique lenses it is more exposed to hidden dependencies, implementation fragility, stakeholder drag, and prolonged timing risk from running migration complexity over multiple quarters. B would likely need more revision to justify feasibility and switching costs.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 86,
+  "rationale": "Both analyses favor a middle path, but A most seriously fails to specify what evidence would justify acting now versus continuing incremental fixes. Without explicit thresholds or revisit triggers, the recommendation is hard to operationalize. B also omits important evaluation of the buy/reframe path, but that is narrower because its default recommendation remains Option C.",
+  "largest_missing_consideration_a": "A clear decision threshold tied to incident severity/cost and a trigger for when patching becomes unacceptable",
+  "largest_missing_consideration_b": "The organizational and vendor-dependency implications of Option D, including lock-in, compliance, and migration risk",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"A clear decision threshold tied to incident severity/cost and a trigger for when patching becomes unacceptable\",\n  \"largest_missing_consideration_b\": \"The organizational and vendor-dependency implications of Option D, including lock-in, compliance, and migration risk\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 86,\n  \"rationale\": \"Both analyses favor a middle path, but A most seriously fails to specify what evidence would justify acting now versus continuing incremental fixes. Without explicit thresholds or revisit triggers, the recommendation is hard to operationalize. B also omits important evaluation of the buy/reframe path, but that is narrower because its default recommendation remains Option C.\"\n}"
+}

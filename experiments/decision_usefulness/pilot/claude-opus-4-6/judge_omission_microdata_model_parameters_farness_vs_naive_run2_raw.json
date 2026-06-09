@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 88,
+  "rationale": "A is thorough but optimizes mainly for average microdata accuracy and burden, underweighting task-specific fitness (e.g., reforms needing behavioral realism). B\u2019s bigger gap is failing to quantify the tradeoff at all: no forecasted accuracy/runtime, no thresholds, and no decision rule for when added complexity is worth it. That makes B much less decision-useful despite sensible advice.",
+  "largest_missing_consideration_a": "Whether the chosen parameter strategy is fit for the model\u2019s actual decision use-cases and required outputs, not just average benchmark accuracy",
+  "largest_missing_consideration_b": "The need for explicit quantitative decision criteria and expected-value comparison of options rather than a qualitative tiered recommendation",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the chosen parameter strategy is fit for the model\u2019s actual decision use-cases and required outputs, not just average benchmark accuracy\",\n  \"largest_missing_consideration_b\": \"The need for explicit quantitative decision criteria and expected-value comparison of options rather than a qualitative tiered recommendation\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 88,\n  \"rationale\": \"A is thorough but optimizes mainly for average microdata accuracy and burden, underweighting task-specific fitness (e.g., reforms needing behavioral realism). B\u2019s bigger gap is failing to quantify the tradeoff at all: no forecasted accuracy/runtime, no thresholds, and no decision rule for when added complexity is worth it. That makes B much less decision-useful despite sensible advice.\"\n}"
+}

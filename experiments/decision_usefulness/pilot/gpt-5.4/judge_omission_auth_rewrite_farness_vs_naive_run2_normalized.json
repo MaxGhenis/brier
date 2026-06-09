@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 90,
+  "rationale": "Analysis A is thorough with forecasts, multiple options, CIs, and review triggers; its main gap is not explicitly modeling security/compliance risk as a KPI. Analysis B reaches a similar conclusion but provides almost no analytical structure \u2014 no KPIs, no quantified forecasts, no outside-view evidence, no review plan. The absence of any quantitative framework in B is a far more serious omission because it leaves the recommendation unsupported and unverifiable.",
+  "largest_missing_consideration_a": "No consideration of the security/compliance risk dimension \u2014 repeated auth incidents may signal vulnerabilities that create breach or regulatory exposure, which could dominate all other KPIs and change the optimal path entirely.",
+  "largest_missing_consideration_b": "No quantitative forecasts, KPIs, confidence intervals, option enumeration, or structured review plan \u2014 the analysis lacks the analytical rigor needed to compare options and make a defensible decision.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of the security/compliance risk dimension \u2014 repeated auth incidents may signal vulnerabilities that create breach or regulatory exposure, which could dominate all other KPIs and change the optimal path entirely.\",\n  \"largest_missing_consideration_b\": \"No quantitative forecasts, KPIs, confidence intervals, option enumeration, or structured review plan \u2014 the analysis lacks the analytical rigor needed to compare options and make a defensible decision.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 90,\n  \"rationale\": \"Analysis A is thorough with forecasts, multiple options, CIs, and review triggers; its main gap is not explicitly modeling security/compliance risk as a KPI. Analysis B reaches a similar conclusion but provides almost no analytical structure \u2014 no KPIs, no quantified forecasts, no outside-view evidence, no review plan. The absence of any quantitative framework in B is a far more serious omission because it leaves the recommendation unsupported and unverifiable.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "naive",
+  "confidence": 68,
+  "rationale": "A is incomplete, but its recommendation survives the critique lenses with less revision: it directly accounts for opportunity cost, implementation fragility of auth rewrites, and reversibility by avoiding a big-bang move. Its main weakness is whether incremental fixes are enough. B\u2019s recommendation is plausible, but more exposed to hidden dependencies, incentive misalignment, timing risk, and switching-cost creep because strangler migrations often require strong architectural seams and long-lived coordination. Since the question is which recommendation is less undermined\u2014not which writeup is prettier\u2014A needs fewer substantive changes to remain defensible.",
+  "most_damaging_critique_a": "Incremental hardening may fail if incidents stem from architectural flaws or hidden coupling; the trigger is vague and delayed, risking repeated outages while senior engineers still get dragged into reactive work.",
+  "most_damaging_critique_b": "Strangler migration depends on clean seams, stable interfaces, and sustained cross-team discipline over 2\u20133 quarters; hidden dependencies and stakeholder drift can turn it into a prolonged dual-stack burden.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Incremental hardening may fail if incidents stem from architectural flaws or hidden coupling; the trigger is vague and delayed, risking repeated outages while senior engineers still get dragged into reactive work.\",\n  \"most_damaging_critique_b\": \"Strangler migration depends on clean seams, stable interfaces, and sustained cross-team discipline over 2\u20133 quarters; hidden dependencies and stakeholder drift can turn it into a prolonged dual-stack burden.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 68,\n  \"rationale\": \"A is incomplete, but its recommendation survives the critique lenses with less revision: it directly accounts for opportunity cost, implementation fragility of auth rewrites, and reversibility by avoiding a big-bang move. Its main weakness is whether incremental fixes are enough. B\u2019s recommendation is plausible, but more exposed to hidden dependencies, incentive misalignment, timing risk, and switching-cost creep because strangler migrations often require strong architectural seams and long-lived coordination. Since the question is which recommendation is less undermined\u2014not which writeup is prettier\u2014A needs fewer substantive changes to remain defensible.\"\n}"
+}

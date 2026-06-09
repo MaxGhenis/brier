@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 91,
+  "rationale": "A is comparatively complete on delivery risk, cost, and reliability, but underweights auth-specific security/compliance consequences. B gives sensible tactical advice, yet never defines measurable success, compares concrete options, or quantifies opportunity cost versus incident reduction. That makes it much weaker as a decision analysis because it cannot reliably distinguish whether to harden, migrate, or rewrite.",
+  "largest_missing_consideration_a": "Security/compliance risk of changing authentication architecture, including breach, audit, and regulatory implications",
+  "largest_missing_consideration_b": "Explicit decision criteria and quantified tradeoff framework (KPIs, options, forecasts) to choose among paths",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk of changing authentication architecture, including breach, audit, and regulatory implications\",\n  \"largest_missing_consideration_b\": \"Explicit decision criteria and quantified tradeoff framework (KPIs, options, forecasts) to choose among paths\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 91,\n  \"rationale\": \"A is comparatively complete on delivery risk, cost, and reliability, but underweights auth-specific security/compliance consequences. B gives sensible tactical advice, yet never defines measurable success, compares concrete options, or quantifies opportunity cost versus incident reduction. That makes it much weaker as a decision analysis because it cannot reliably distinguish whether to harden, migrate, or rewrite.\"\n}"
+}

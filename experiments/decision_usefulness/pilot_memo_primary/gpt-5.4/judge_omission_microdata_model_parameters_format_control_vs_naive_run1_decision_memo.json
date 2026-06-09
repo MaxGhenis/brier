@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "format_control",
+  "confidence": 72,
+  "rationale": "Analysis A's caveat appears internally contradictory\u2014listing cons (overfitting, slower runtime, maintenance burden) that logically apply to high complexity but attributing them to the recommended targeted approach. This misattribution undermines the entire risk assessment. Analysis B's omission of operationalizable thresholds is significant but less damaging, since the directional logic is at least internally consistent. A's confused risk framing could lead to poor implementation decisions.",
+  "largest_missing_consideration_a": "The key caveat incorrectly attributes cons like overfitting, slower runtime, and maintenance burden to the recommended targeted complexity strategy rather than to the rejected maximal complexity alternative, failing to identify genuine risks of the recommended option such as difficulty determining where to target complexity.",
+  "largest_missing_consideration_b": "No concrete criteria or quantitative thresholds for what constitutes 'material improvement' in microdata accuracy, making it impossible to operationalize the recommendation or know when added complexity is justified versus not.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"The key caveat incorrectly attributes cons like overfitting, slower runtime, and maintenance burden to the recommended targeted complexity strategy rather than to the rejected maximal complexity alternative, failing to identify genuine risks of the recommended option such as difficulty determining where to target complexity.\",\n  \"largest_missing_consideration_b\": \"No concrete criteria or quantitative thresholds for what constitutes 'material improvement' in microdata accuracy, making it impossible to operationalize the recommendation or know when added complexity is justified versus not.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"Analysis A's caveat appears internally contradictory\u2014listing cons (overfitting, slower runtime, maintenance burden) that logically apply to high complexity but attributing them to the recommended targeted approach. This misattribution undermines the entire risk assessment. Analysis B's omission of operationalizable thresholds is significant but less damaging, since the directional logic is at least internally consistent. A's confused risk framing could lead to poor implementation decisions.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 62,
+  "rationale": "Both recommend a hybrid and both are incomplete, but B survives the critique lenses better. B explicitly names an 8\u201312 week revisit trigger (addressing reversibility/switching cost), defines KPIs (enabling detection of failure), and acknowledges ownership confusion risks upfront. A lacks any revisit trigger, quantitative grounding, or implementation specifics, making it highly fragile under implementation fragility, hidden dependency, and opportunity cost critiques. B's forecasts are assumption-laden but at least falsifiable. A's recommendation would require substantially more revision once these critique lenses are applied.",
+  "most_damaging_critique_a": "No revisit trigger, no quantitative support, and no implementation details mean the hybrid recommendation is fragile\u2014there's no way to detect failure or course-correct, making switching costs invisible until too late.",
+  "most_damaging_critique_b": "The hybrid's acknowledged risks (unclear ownership, double work, escalation confusion) are precisely the implementation fragility points that undermine the recommendation, and the forecasts rest on assumed ambiguity levels with no empirical grounding.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit trigger, no quantitative support, and no implementation details mean the hybrid recommendation is fragile\u2014there's no way to detect failure or course-correct, making switching costs invisible until too late.\",\n  \"most_damaging_critique_b\": \"The hybrid's acknowledged risks (unclear ownership, double work, escalation confusion) are precisely the implementation fragility points that undermine the recommendation, and the forecasts rest on assumed ambiguity levels with no empirical grounding.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both recommend a hybrid and both are incomplete, but B survives the critique lenses better. B explicitly names an 8\u201312 week revisit trigger (addressing reversibility/switching cost), defines KPIs (enabling detection of failure), and acknowledges ownership confusion risks upfront. A lacks any revisit trigger, quantitative grounding, or implementation specifics, making it highly fragile under implementation fragility, hidden dependency, and opportunity cost critiques. B's forecasts are assumption-laden but at least falsifiable. A's recommendation would require substantially more revision once these critique lenses are applied.\"\n}\n```"
+}

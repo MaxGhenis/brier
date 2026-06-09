@@ -1,0 +1,32 @@
+{
+  "case_id": "wealth_tax_outreach",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 78,
+  "rationale": "Both analyses reach essentially the same recommendation (staged validator-first then journalist/social), but Analysis A is far more auditable and revisitable. It defines two explicit, operationalized KPIs, expands the option set to six (including a hybrid), provides quantified point estimates with confidence intervals in comparable tables, and explicitly lists assumptions behind the forecasts. Analysis B offers stronger qualitative reasoning about failure modes (credibility collapse, bad-faith social attacks, debate dynamics) and better outside-view grounding on how polarized policy tools actually get received. However, it lacks any quantified forecasts, doesn't formally define KPIs, and its recommendation traceability is weaker\u2014you can't audit why one option beats another numerically. For a careful decision-maker wanting to compare and revisit, A is substantially more useful.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 1,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 78,\n  \"rationale\": \"Both analyses reach essentially the same recommendation (staged validator-first then journalist/social), but Analysis A is far more auditable and revisitable. It defines two explicit, operationalized KPIs, expands the option set to six (including a hybrid), provides quantified point estimates with confidence intervals in comparable tables, and explicitly lists assumptions behind the forecasts. Analysis B offers stronger qualitative reasoning about failure modes (credibility collapse, bad-faith social attacks, debate dynamics) and better outside-view grounding on how polarized policy tools actually get received. However, it lacks any quantified forecasts, doesn't formally define KPIs, and its recommendation traceability is weaker\u2014you can't audit why one option beats another numerically. For a careful decision-maker wanting to compare and revisit, A is substantially more useful.\"\n}\n```"
+}

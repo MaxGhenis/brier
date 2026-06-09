@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "less_undermined_condition": "naive",
+  "confidence": 72,
+  "rationale": "A is less undermined because its core recommendation already internalizes major non-framework critiques: opportunity cost of senior engineers, implementation fragility of auth rewrites, and timing risk. Its biggest weakness is weak escalation specificity, but the recommendation itself needs limited revision. B is sensible, yet more exposed to hidden dependencies and reversibility costs from a strangle transition, and it lacks concrete triggers for when stabilization should end and partial rewrite should begin. That makes B more likely to require substantive revision after applying these critique lenses.",
+  "most_damaging_critique_a": "Incremental hardening may underinvest if failures stem from architecture-wide coupling; 15\u201320% allocation can be too weak, prolong incidents while hidden dependencies and roadmap pressure keep the team stuck in a fragile middle state.",
+  "most_damaging_critique_b": "Stabilize-then-decide risks adding a delay layer without clear decision thresholds; parallel partial rewrite can increase complexity, hidden dependencies, and switching costs while stakeholders still absorb ongoing incident risk.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Incremental hardening may underinvest if failures stem from architecture-wide coupling; 15\u201320% allocation can be too weak, prolong incidents while hidden dependencies and roadmap pressure keep the team stuck in a fragile middle state.\",\n  \"most_damaging_critique_b\": \"Stabilize-then-decide risks adding a delay layer without clear decision thresholds; parallel partial rewrite can increase complexity, hidden dependencies, and switching costs while stakeholders still absorb ongoing incident risk.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"A is less undermined because its core recommendation already internalizes major non-framework critiques: opportunity cost of senior engineers, implementation fragility of auth rewrites, and timing risk. Its biggest weakness is weak escalation specificity, but the recommendation itself needs limited revision. B is sensible, yet more exposed to hidden dependencies and reversibility costs from a strangle transition, and it lacks concrete triggers for when stabilization should end and partial rewrite should begin. That makes B more likely to require substantive revision after applying these critique lenses.\"\n}"
+}

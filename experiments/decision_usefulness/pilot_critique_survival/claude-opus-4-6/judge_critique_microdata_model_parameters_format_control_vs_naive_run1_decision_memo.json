@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "less_undermined_condition": "format_control",
+  "confidence": 72,
+  "rationale": "Both converge on moderate/selective complexity, but B is less undermined because it explicitly addresses reversibility and sequencing: start lean, add complexity later if validated. That directly reduces switching-cost and tail-risk concerns. A\u2019s recommendation relies on a sensitivity-analysis step that itself may be fragile, and it lacks guardrails against hidden dependencies and implementation sprawl. B is still incomplete on triggers and criteria, but its core recommendation would need less revision after applying the critique lenses because the staged approach better handles uncertainty, maintenance burden, and the risk of overcommitting to complexity.",
+  "most_damaging_critique_a": "Implementation depends on first running sensitivity analysis and identifying material parameters, but gives no governance for runtime budgets, dependency mapping, or rollback if selective complexity spreads and maintenance costs escalate.",
+  "most_damaging_critique_b": "The recommendation is only weakly operationalized: no criteria for when to deepen parameters, so stakeholder pressure for accuracy improvements could cause drift toward complexity without clear stopping rules or opportunity-cost discipline.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Implementation depends on first running sensitivity analysis and identifying material parameters, but gives no governance for runtime budgets, dependency mapping, or rollback if selective complexity spreads and maintenance costs escalate.\",\n  \"most_damaging_critique_b\": \"The recommendation is only weakly operationalized: no criteria for when to deepen parameters, so stakeholder pressure for accuracy improvements could cause drift toward complexity without clear stopping rules or opportunity-cost discipline.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Both converge on moderate/selective complexity, but B is less undermined because it explicitly addresses reversibility and sequencing: start lean, add complexity later if validated. That directly reduces switching-cost and tail-risk concerns. A\u2019s recommendation relies on a sensitivity-analysis step that itself may be fragile, and it lacks guardrails against hidden dependencies and implementation sprawl. B is still incomplete on triggers and criteria, but its core recommendation would need less revision after applying the critique lenses because the staged approach better handles uncertainty, maintenance burden, and the risk of overcommitting to complexity.\"\n}"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 98,
+  "rationale": "B is far more useful for an auditable decision: it defines measurable KPIs, compares options with explicit forecasts, uses outside-view anchors, names failure modes, and ties its recommendation to expected throughput/error tradeoffs plus a review rule. It also expands the option set in a decision-relevant way. Its weaknesses are some messy structure and partially unsupported external claims, but it still clearly helps a careful human compare and revisit the decision. A is too incomplete to support decision-making: no KPIs, no option set, no recommendation, and almost no forecast or evidence.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 98,\n  \"rationale\": \"B is far more useful for an auditable decision: it defines measurable KPIs, compares options with explicit forecasts, uses outside-view anchors, names failure modes, and ties its recommendation to expected throughput/error tradeoffs plus a review rule. It also expands the option set in a decision-relevant way. Its weaknesses are some messy structure and partially unsupported external claims, but it still clearly helps a careful human compare and revisit the decision. A is too incomplete to support decision-making: no KPIs, no option set, no recommendation, and almost no forecast or evidence.\"\n}"
+}

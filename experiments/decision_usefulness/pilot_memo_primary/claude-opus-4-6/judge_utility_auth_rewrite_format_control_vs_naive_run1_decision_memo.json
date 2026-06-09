@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "naive",
+  "confidence": 88,
+  "rationale": "A is more decision-useful because it clearly recommends incremental hardening over a full rewrite, explains why auth rewrites are unusually risky, and gives a practical near-term sequence: incident analysis, then targeted fixes or subsystem replacement. It also handles uncertainty better by noting that root-cause data is needed before committing. B names a plausible hybrid path, but its rationale is muddled, alternatives are poorly compared, and key sections are misfilled or repetitive. Neither provides strong quantitative support, but A\u2019s time ranges and root-cause framing are more actionable and discriminative.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 3,
+    "overall_usefulness": 4
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 2,
+    "quantitative_support": 2,
+    "overall_usefulness": 2
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 4\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 2\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"A is more decision-useful because it clearly recommends incremental hardening over a full rewrite, explains why auth rewrites are unusually risky, and gives a practical near-term sequence: incident analysis, then targeted fixes or subsystem replacement. It also handles uncertainty better by noting that root-cause data is needed before committing. B names a plausible hybrid path, but its rationale is muddled, alternatives are poorly compared, and key sections are misfilled or repetitive. Neither provides strong quantitative support, but A\u2019s time ranges and root-cause framing are more actionable and discriminative.\"\n}"
+}

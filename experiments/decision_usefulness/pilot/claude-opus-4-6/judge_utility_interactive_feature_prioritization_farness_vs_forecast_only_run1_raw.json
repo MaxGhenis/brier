@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 94,
+  "rationale": "Analysis A is much easier to audit and revisit. It defines KPIs more concretely, evaluates explicit two-feature combinations, uses clearer outside-view reference classes and mechanism-based reasoning, and includes stronger disconfirming evidence plus conditional pivots (e.g., if load time is already bad, choose speed). Analysis B is useful but thinner: its forecasts mix marginal and combined effects, outside-view support is mostly asserted rather than grounded, and failure modes are less developed. A better supports a careful decision-maker because the recommendation is more traceable from assumptions to estimates to contingencies.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 94,\n  \"rationale\": \"Analysis A is much easier to audit and revisit. It defines KPIs more concretely, evaluates explicit two-feature combinations, uses clearer outside-view reference classes and mechanism-based reasoning, and includes stronger disconfirming evidence plus conditional pivots (e.g., if load time is already bad, choose speed). Analysis B is useful but thinner: its forecasts mix marginal and combined effects, outside-view support is mostly asserted rather than grounded, and failure modes are less developed. A better supports a careful decision-maker because the recommendation is more traceable from assumptions to estimates to contingencies.\"\n}"
+}

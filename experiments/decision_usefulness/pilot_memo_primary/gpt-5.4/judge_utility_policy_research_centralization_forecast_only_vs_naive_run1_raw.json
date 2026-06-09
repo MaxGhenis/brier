@@ -1,0 +1,30 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 92,
+  "rationale": "Both reach similar conclusions, but A is far more useful to a decision-maker. A distinguishes two meaningfully different hybrid models (embedded-primary vs. centralized-primary), provides quantitative forecasts with confidence intervals on the two KPIs that matter, explicitly states assumptions that could invalidate the recommendation, and gives concrete escalation triggers. B recommends 'hybrid' generically without differentiating sub-variants, offers no quantitative grounding, and doesn't address uncertainty. A's quantitative estimates\u2014while necessarily approximate\u2014give a decision-maker something to calibrate against their own context, and the explicit assumptions section lets them judge applicability. B reads as solid advice but lacks discriminative depth.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 2,
+    "quantitative_support": 1,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 92,\n  \"rationale\": \"Both reach similar conclusions, but A is far more useful to a decision-maker. A distinguishes two meaningfully different hybrid models (embedded-primary vs. centralized-primary), provides quantitative forecasts with confidence intervals on the two KPIs that matter, explicitly states assumptions that could invalidate the recommendation, and gives concrete escalation triggers. B recommends 'hybrid' generically without differentiating sub-variants, offers no quantitative grounding, and doesn't address uncertainty. A's quantitative estimates\u2014while necessarily approximate\u2014give a decision-maker something to calibrate against their own context, and the explicit assumptions section lets them judge applicability. B reads as solid advice but lacks discriminative depth.\"\n}\n```"
+}

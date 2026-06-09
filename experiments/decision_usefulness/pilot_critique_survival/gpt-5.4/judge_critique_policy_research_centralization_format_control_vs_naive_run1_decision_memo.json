@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 55,
+  "rationale": "Both writeups recommend a hybrid without specifying implementation mechanics, revisit triggers, or quantitative evidence\u2014making both vulnerable to implementation fragility and hidden dependency critiques. However, Writeup B at least articulates the trade-offs between embedded and centralized models, names specific failure modes (policy drift, duplicated work), and explains why a pure model fails on one dimension. This slightly better reasoning means B would require less revision when challenged on incentive/stakeholder response and opportunity cost, since it already acknowledges the downsides of alternatives. Writeup A is too skeletal to survive any serious critique lens.",
+  "most_damaging_critique_a": "Implementation fragility: no revisit trigger, no quantitative support, and no concrete description of how the hybrid actually works\u2014making it nearly impossible to implement or course-correct.",
+  "most_damaging_critique_b": "Implementation fragility: despite more reasoning, the hybrid setup lacks concrete governance, role boundaries, escalation paths, or switching-cost analysis, leaving it equally fragile to operationalize.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"Implementation fragility: no revisit trigger, no quantitative support, and no concrete description of how the hybrid actually works\u2014making it nearly impossible to implement or course-correct.\",\n  \"most_damaging_critique_b\": \"Implementation fragility: despite more reasoning, the hybrid setup lacks concrete governance, role boundaries, escalation paths, or switching-cost analysis, leaving it equally fragile to operationalize.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 55,\n  \"rationale\": \"Both writeups recommend a hybrid without specifying implementation mechanics, revisit triggers, or quantitative evidence\u2014making both vulnerable to implementation fragility and hidden dependency critiques. However, Writeup B at least articulates the trade-offs between embedded and centralized models, names specific failure modes (policy drift, duplicated work), and explains why a pure model fails on one dimension. This slightly better reasoning means B would require less revision when challenged on incentive/stakeholder response and opportunity cost, since it already acknowledges the downsides of alternatives. Writeup A is too skeletal to survive any serious critique lens.\"\n}\n```"
+}

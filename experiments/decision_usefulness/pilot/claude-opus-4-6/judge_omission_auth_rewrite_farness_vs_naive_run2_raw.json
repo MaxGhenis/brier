@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "farness",
+  "confidence": 89,
+  "rationale": "A is thorough on cost and reliability but underweights the most consequential dimension in auth decisions: security/regulatory exposure during migration and after cutover. In authentication, a rare breach can dominate many incident-count gains. B\u2019s omission matters, but its recommendation still fits a common default under uncertainty. A\u2019s recommendation toward managed/platform migration could be badly wrong if security, compliance, or migration-risk constraints are decisive.",
+  "largest_missing_consideration_a": "The security/compliance risk of changing authentication itself\u2014especially migration-induced vulnerabilities and breach impact\u2014was not treated as a primary decision criterion.",
+  "largest_missing_consideration_b": "It lacks an explicit estimate of the business/user impact of the current incidents, so it cannot tell whether incremental hardening is sufficient or too slow.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"The security/compliance risk of changing authentication itself\u2014especially migration-induced vulnerabilities and breach impact\u2014was not treated as a primary decision criterion.\",\n  \"largest_missing_consideration_b\": \"It lacks an explicit estimate of the business/user impact of the current incidents, so it cannot tell whether incremental hardening is sufficient or too slow.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 89,\n  \"rationale\": \"A is thorough on cost and reliability but underweights the most consequential dimension in auth decisions: security/regulatory exposure during migration and after cutover. In authentication, a rare breach can dominate many incident-count gains. B\u2019s omission matters, but its recommendation still fits a common default under uncertainty. A\u2019s recommendation toward managed/platform migration could be badly wrong if security, compliance, or migration-risk constraints are decisive.\"\n}"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 92,
+  "rationale": "B is more useful for an auditable decision. Its KPIs are more operationalized, it gives clearer option definitions, includes outside-view base rates with caveats, and ties recommendation to explicit failure modes and review gates. It also explains when the recommendation should change, which helps revisiting later. A has a plausible recommendation and mentions a valuable fourth option, but key pieces are missing or malformed: weak KPI definitions, no real outside-view support, incomplete forecast table, and less traceable reasoning from assumptions to recommendation.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 3,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 3
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 3\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 92,\n  \"rationale\": \"B is more useful for an auditable decision. Its KPIs are more operationalized, it gives clearer option definitions, includes outside-view base rates with caveats, and ties recommendation to explicit failure modes and review gates. It also explains when the recommendation should change, which helps revisiting later. A has a plausible recommendation and mentions a valuable fourth option, but key pieces are missing or malformed: weak KPI definitions, no real outside-view support, incomplete forecast table, and less traceable reasoning from assumptions to recommendation.\"\n}"
+}

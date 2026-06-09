@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 68,
+  "rationale": "Both analyses reach essentially the same recommendation\u2014start simple, add complexity only where validated. Analysis A is stronger because it explicitly enumerates four distinct options (minimal, maximum, targeted, modular) before recommending a hybrid, making the decision more auditable and the recommendation more traceable. It also provides richer failure-mode coverage (overfitting, false precision, maintenance risk, transparency erosion) and clearly explains why each alternative was rejected. Analysis B is more concise and actionable with its tiered inclusion criteria, giving it an edge on forecast specificity, but its option set is implicit rather than explicit, making it harder to revisit or challenge the reasoning later.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 3,
+    "outside_view": 3,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 4,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 68,\n  \"rationale\": \"Both analyses reach essentially the same recommendation\u2014start simple, add complexity only where validated. Analysis A is stronger because it explicitly enumerates four distinct options (minimal, maximum, targeted, modular) before recommending a hybrid, making the decision more auditable and the recommendation more traceable. It also provides richer failure-mode coverage (overfitting, false precision, maintenance risk, transparency erosion) and clearly explains why each alternative was rejected. Analysis B is more concise and actionable with its tiered inclusion criteria, giving it an edge on forecast specificity, but its option set is implicit rather than explicit, making it harder to revisit or challenge the reasoning later.\"\n}\n```"
+}

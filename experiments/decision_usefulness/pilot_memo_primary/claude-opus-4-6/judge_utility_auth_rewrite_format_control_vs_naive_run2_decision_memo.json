@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "naive",
+  "confidence": 82,
+  "rationale": "B is more useful despite missing some structure. It gives a clearer substantive recommendation (incremental hardening over rewrite), explains why the live alternatives differ, and highlights an important auth-specific caveat: rewrite risk includes security regressions and likely exceeds a quarter once safe migration is included. It also includes a concrete resource allocation suggestion and an escalation trigger, even if incomplete. A gestures at a sensible phased path, but key fields are muddled, alternatives are confused, and the quantitative/supporting details are fragmented rather than decision-driving. For a careful decision-maker, B better distinguishes rewrite-now vs incremental paths and gives more actionable reasoning.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 2,
+    "overall_usefulness": 3
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 3,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 3\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 82,\n  \"rationale\": \"B is more useful despite missing some structure. It gives a clearer substantive recommendation (incremental hardening over rewrite), explains why the live alternatives differ, and highlights an important auth-specific caveat: rewrite risk includes security regressions and likely exceeds a quarter once safe migration is included. It also includes a concrete resource allocation suggestion and an escalation trigger, even if incomplete. A gestures at a sensible phased path, but key fields are muddled, alternatives are confused, and the quantitative/supporting details are fragmented rather than decision-driving. For a careful decision-maker, B better distinguishes rewrite-now vs incremental paths and gives more actionable reasoning.\"\n}"
+}

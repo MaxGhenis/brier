@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 99,
+  "rationale": "Analysis A provides a comprehensive decision framework: clearly defined KPIs (unique visitors and cost per acquired visitor), seven distinct options with quantified point estimates and 80% confidence intervals, six pairwise combinations with forecasts, a conditional recommendation tree based on partnership feasibility, and explicit assumptions. While the numeric estimates are necessarily speculative without domain-specific data, they make tradeoffs auditable and comparable. Analysis B is essentially empty\u2014it provides a single conditional heuristic about mobile load time with no KPIs, no option enumeration, no forecasts, and no traceable recommendation. It offers virtually no decision support.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 1
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 1\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 99,\n  \"rationale\": \"Analysis A provides a comprehensive decision framework: clearly defined KPIs (unique visitors and cost per acquired visitor), seven distinct options with quantified point estimates and 80% confidence intervals, six pairwise combinations with forecasts, a conditional recommendation tree based on partnership feasibility, and explicit assumptions. While the numeric estimates are necessarily speculative without domain-specific data, they make tradeoffs auditable and comparable. Analysis B is essentially empty\u2014it provides a single conditional heuristic about mobile load time with no KPIs, no option enumeration, no forecasts, and no traceable recommendation. It offers virtually no decision support.\"\n}\n```"
+}

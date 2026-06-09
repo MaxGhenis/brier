@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "winner_condition": "forecast_only",
+  "confidence": 99,
+  "rationale": "Analysis B is effectively empty\u2014no KPIs, no options, no forecasts, no recommendation. Analysis A provides clear primary and secondary KPIs, a comprehensive option set (seven individual options plus six pairwise combinations), specific point estimates with 80% confidence intervals, a conditional recommendation that traces directly from the forecasts, and some coverage of failure modes (e.g., partnerships being aspirational vs. secured). Its main weaknesses are limited outside-view grounding and somewhat fabricated-feeling numeric estimates, but it still vastly outperforms a blank analysis on every dimension.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 1
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 1\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 99,\n  \"rationale\": \"Analysis B is effectively empty\u2014no KPIs, no options, no forecasts, no recommendation. Analysis A provides clear primary and secondary KPIs, a comprehensive option set (seven individual options plus six pairwise combinations), specific point estimates with 80% confidence intervals, a conditional recommendation that traces directly from the forecasts, and some coverage of failure modes (e.g., partnerships being aspirational vs. secured). Its main weaknesses are limited outside-view grounding and somewhat fabricated-feeling numeric estimates, but it still vastly outperforms a blank analysis on every dimension.\"\n}\n```"
+}

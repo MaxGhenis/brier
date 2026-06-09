@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 90,
+  "rationale": "A optimizes almost entirely on two KPIs and underweights the biggest auth-specific consequence: security/compliance exposure, which can dominate reliability and staffing tradeoffs. B is broader and includes outside-view evidence, but still underexamines lock-in/rollback risk for Option D. That omission matters, yet it is less fundamental than ignoring auth\u2019s core security stakes.",
+  "largest_missing_consideration_a": "Security/compliance risk and breach impact from auth failures, not just incident count and engineer time",
+  "largest_missing_consideration_b": "Migration reversibility and rollback/exit risk, especially for adopting a managed auth vendor",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk and breach impact from auth failures, not just incident count and engineer time\",\n  \"largest_missing_consideration_b\": \"Migration reversibility and rollback/exit risk, especially for adopting a managed auth vendor\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 90,\n  \"rationale\": \"A optimizes almost entirely on two KPIs and underweights the biggest auth-specific consequence: security/compliance exposure, which can dominate reliability and staffing tradeoffs. B is broader and includes outside-view evidence, but still underexamines lock-in/rollback risk for Option D. That omission matters, yet it is less fundamental than ignoring auth\u2019s core security stakes.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 62,
+  "rationale": "Both writeups are incomplete, but Writeup B's core recommendation\u2014start simple, add complexity only where payoff is clear\u2014is inherently more robust to implementation fragility, reversibility concerns, and tail-risk critiques because it minimizes switching costs and maintenance burden by default. Writeup A promises rigorous quantitative scaffolding (KPIs, confidence intervals, base rates) yet delivers almost none of it; under an implementation-fragility lens this is more damaging because teams would attempt to follow a framework that doesn't actually exist. B's practical incrementalism survives critique better despite lacking formal structure.",
+  "most_damaging_critique_a": "Implementation fragility: the writeup promises explicit KPIs, quantified forecasts, and confidence intervals but appears truncated and never delivers them, making the recommendation hollow and impossible to act on.",
+  "most_damaging_critique_b": "Hidden dependencies: no revisit trigger, no quantitative threshold for 'materially improves,' and no stated caveat means stakeholders lack guardrails to detect when the simple parameterization silently degrades accuracy.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"Implementation fragility: the writeup promises explicit KPIs, quantified forecasts, and confidence intervals but appears truncated and never delivers them, making the recommendation hollow and impossible to act on.\",\n  \"most_damaging_critique_b\": \"Hidden dependencies: no revisit trigger, no quantitative threshold for 'materially improves,' and no stated caveat means stakeholders lack guardrails to detect when the simple parameterization silently degrades accuracy.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both writeups are incomplete, but Writeup B's core recommendation\u2014start simple, add complexity only where payoff is clear\u2014is inherently more robust to implementation fragility, reversibility concerns, and tail-risk critiques because it minimizes switching costs and maintenance burden by default. Writeup A promises rigorous quantitative scaffolding (KPIs, confidence intervals, base rates) yet delivers almost none of it; under an implementation-fragility lens this is more damaging because teams would attempt to follow a framework that doesn't actually exist. B's practical incrementalism survives critique better despite lacking formal structure.\"\n}\n```"
+}

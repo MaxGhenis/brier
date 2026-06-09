@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 72,
+  "rationale": "A is more useful for choosing among live alternatives because it compares multiple concrete paths, including a strong \u201cother path\u201d beyond rewrite vs patch, and ties them to explicit tradeoffs in incidents and engineering cost. Its numbers are rough, but they sharpen the decision and caveats are reasonably handled. B gives very practical next steps and a sensible staged approach, but it under-compares alternatives and offers little quantitative basis for deciding when rewrite vs hardening is best. If the goal is immediate execution, B is strong; for the stated decision, A better supports selection among options.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 4,
+    "quantitative_support": 4,
+    "overall_usefulness": 4
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 4,
+    "quantitative_support": 2,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 4\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"A is more useful for choosing among live alternatives because it compares multiple concrete paths, including a strong \u201cother path\u201d beyond rewrite vs patch, and ties them to explicit tradeoffs in incidents and engineering cost. Its numbers are rough, but they sharpen the decision and caveats are reasonably handled. B gives very practical next steps and a sensible staged approach, but it under-compares alternatives and offers little quantitative basis for deciding when rewrite vs hardening is best. If the goal is immediate execution, B is strong; for the stated decision, A better supports selection among options.\"\n}"
+}

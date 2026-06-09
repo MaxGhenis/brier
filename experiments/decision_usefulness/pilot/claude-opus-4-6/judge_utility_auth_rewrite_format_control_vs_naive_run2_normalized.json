@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "format_control",
+  "confidence": 97,
+  "rationale": "B is far more useful for an auditable decision. It names a fuller option set, distinguishes full rewrite vs partial rewrite vs stabilize-then-decide, and gives a staged recommendation tied to observable evidence. Its forecast is still somewhat qualitative and its outside-view support is thin, but it is actionable and revisitable. A is structurally incomplete: options, recommendation, outside-view, and review plan are mostly missing or misplaced, making it hard for a careful decision-maker to compare paths or audit the reasoning later.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 97,\n  \"rationale\": \"B is far more useful for an auditable decision. It names a fuller option set, distinguishes full rewrite vs partial rewrite vs stabilize-then-decide, and gives a staged recommendation tied to observable evidence. Its forecast is still somewhat qualitative and its outside-view support is thin, but it is actionable and revisitable. A is structurally incomplete: options, recommendation, outside-view, and review plan are mostly missing or misplaced, making it hard for a careful decision-maker to compare paths or audit the reasoning later.\"\n}"
+}

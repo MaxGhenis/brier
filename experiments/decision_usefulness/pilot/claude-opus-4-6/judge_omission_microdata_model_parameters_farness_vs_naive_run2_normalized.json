@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 92,
+  "rationale": "Analysis A is fairly complete but underweights decision-context heterogeneity: average WMAPE may miss cases where behavioral realism is essential. Analysis B\u2019s main gap is more fundamental: it does not actually analyze the decision with explicit options, KPIs, forecasts, or expected trade-offs, so it cannot support a parameter-strategy choice.",
+  "largest_missing_consideration_a": "Whether the chosen strategy is robust to policy-use cases where behavioral responses materially affect decision quality, not just average benchmark fit and maintenance hours",
+  "largest_missing_consideration_b": "A quantified comparison of concrete parameter-strategy options with forecasts/trade-offs, rather than only proposing a sensitivity-analysis process",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the chosen strategy is robust to policy-use cases where behavioral responses materially affect decision quality, not just average benchmark fit and maintenance hours\",\n  \"largest_missing_consideration_b\": \"A quantified comparison of concrete parameter-strategy options with forecasts/trade-offs, rather than only proposing a sensitivity-analysis process\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 92,\n  \"rationale\": \"Analysis A is fairly complete but underweights decision-context heterogeneity: average WMAPE may miss cases where behavioral realism is essential. Analysis B\u2019s main gap is more fundamental: it does not actually analyze the decision with explicit options, KPIs, forecasts, or expected trade-offs, so it cannot support a parameter-strategy choice.\"\n}"
+}

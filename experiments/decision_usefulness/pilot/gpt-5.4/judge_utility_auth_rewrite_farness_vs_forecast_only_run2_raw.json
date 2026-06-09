@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 85,
+  "rationale": "Both analyses reach the same recommendation with the same option set, but A is substantially more useful for a decision-maker. A explicitly states outside-view base rates and reference classes before forecasting, provides detailed failure modes per option, lists specific disconfirming evidence that would flip the recommendation, includes a concrete 6-week review protocol with decision rules, and offers actionable next steps. B covers the essentials competently but lacks the outside-view grounding, failure-mode enumeration, review checkpoints, and conditional decision rules that make A auditable and revisitable. A's additional depth is genuinely decision-relevant, not just verbose.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 85,\n  \"rationale\": \"Both analyses reach the same recommendation with the same option set, but A is substantially more useful for a decision-maker. A explicitly states outside-view base rates and reference classes before forecasting, provides detailed failure modes per option, lists specific disconfirming evidence that would flip the recommendation, includes a concrete 6-week review protocol with decision rules, and offers actionable next steps. B covers the essentials competently but lacks the outside-view grounding, failure-mode enumeration, review checkpoints, and conditional decision rules that make A auditable and revisitable. A's additional depth is genuinely decision-relevant, not just verbose.\"\n}\n```"
+}

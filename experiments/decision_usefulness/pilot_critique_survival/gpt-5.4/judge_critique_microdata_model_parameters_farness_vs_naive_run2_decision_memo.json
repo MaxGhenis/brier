@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 68,
+  "rationale": "Writeup A never states a recommendation, which is fatal under implementation fragility and switching-cost lenses: stakeholders cannot act on it, and any eventual choice will require full re-deliberation. Writeup B's recommendation\u2014start simple, add complexity only when justified\u2014is actionable and inherently more reversible (low switching cost to add parameters later). B's weaknesses (no revisit trigger, no quantitative support) are real but less structurally damaging than A's absence of a decision. B would require less revision to survive the applied critique lenses.",
+  "most_damaging_critique_a": "No concrete recommendation is provided, making implementation fragile\u2014teams cannot act on it without further interpretation, increasing the risk of inconsistent adoption and hidden dependency on unstated assumptions.",
+  "most_damaging_critique_b": "No revisit trigger or quantitative support means there is no mechanism to detect when the simple parameterization becomes inadequate, creating tail risk of silently degrading accuracy over time.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No concrete recommendation is provided, making implementation fragile\u2014teams cannot act on it without further interpretation, increasing the risk of inconsistent adoption and hidden dependency on unstated assumptions.\",\n  \"most_damaging_critique_b\": \"No revisit trigger or quantitative support means there is no mechanism to detect when the simple parameterization becomes inadequate, creating tail risk of silently degrading accuracy over time.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 68,\n  \"rationale\": \"Writeup A never states a recommendation, which is fatal under implementation fragility and switching-cost lenses: stakeholders cannot act on it, and any eventual choice will require full re-deliberation. Writeup B's recommendation\u2014start simple, add complexity only when justified\u2014is actionable and inherently more reversible (low switching cost to add parameters later). B's weaknesses (no revisit trigger, no quantitative support) are real but less structurally damaging than A's absence of a decision. B would require less revision to survive the applied critique lenses.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 93,
+  "rationale": "Analysis A covers speed, quality, handoff latency, inconsistency, and review triggers, but underweights how much authoritative consistency may matter if policies are ambiguous. Analysis B\u2019s core recommendation depends on centralization being faster, yet it largely ignores queue delays, implementer blocking, and rework from asynchronous handoffs\u2014the main mechanism likely to determine actual throughput. That omission is more fundamental because it directly challenges B\u2019s headline ranking.",
+  "largest_missing_consideration_a": "Whether policy ambiguity/novelty and cross-policy consistency needs make a single authoritative interpretation function more important than local speed.",
+  "largest_missing_consideration_b": "The blocking and handoff latency cost of centralization\u2014i.e., implementer wait time and context-switching drag that can erase any theoretical speed gains.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether policy ambiguity/novelty and cross-policy consistency needs make a single authoritative interpretation function more important than local speed.\",\n  \"largest_missing_consideration_b\": \"The blocking and handoff latency cost of centralization\u2014i.e., implementer wait time and context-switching drag that can erase any theoretical speed gains.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 93,\n  \"rationale\": \"Analysis A covers speed, quality, handoff latency, inconsistency, and review triggers, but underweights how much authoritative consistency may matter if policies are ambiguous. Analysis B\u2019s core recommendation depends on centralization being faster, yet it largely ignores queue delays, implementer blocking, and rework from asynchronous handoffs\u2014the main mechanism likely to determine actual throughput. That omission is more fundamental because it directly challenges B\u2019s headline ranking.\"\n}"
+}

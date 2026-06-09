@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 62,
+  "rationale": "Both analyses are incomplete\u2014A neglects capacity/scaling risks and B neglects a revisit trigger. However, a missing revisit trigger is more operationally dangerous: without one, a poorly performing model persists indefinitely. Analysis A at least specifies when to reassess. That said, both omissions are significant, keeping confidence moderate.",
+  "largest_missing_consideration_a": "No consideration of team capacity constraints, knowledge-management overhead, or the cost of context-switching when embedded researchers must support multiple implementers simultaneously under time pressure.",
+  "largest_missing_consideration_b": "No revisit trigger or explicit decision-reversal criteria, meaning the team has no mechanism to detect if the chosen model is failing and needs adjustment.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of team capacity constraints, knowledge-management overhead, or the cost of context-switching when embedded researchers must support multiple implementers simultaneously under time pressure.\",\n  \"largest_missing_consideration_b\": \"No revisit trigger or explicit decision-reversal criteria, meaning the team has no mechanism to detect if the chosen model is failing and needs adjustment.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both analyses are incomplete\u2014A neglects capacity/scaling risks and B neglects a revisit trigger. However, a missing revisit trigger is more operationally dangerous: without one, a poorly performing model persists indefinitely. Analysis A at least specifies when to reassess. That said, both omissions are significant, keeping confidence moderate.\"\n}\n```"
+}

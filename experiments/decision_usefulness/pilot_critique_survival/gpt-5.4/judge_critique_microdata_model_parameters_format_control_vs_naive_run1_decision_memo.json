@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 55,
+  "rationale": "Both writeups are incomplete and lack quantitative support and revisit triggers. However, Writeup A contains an internal contradiction: it recommends targeted complexity but lists complexity drawbacks as cons, undermining implementation clarity. Writeup B's recommendation\u2014start simple, add complexity only with clear payoff\u2014is more robust to implementation fragility and incentive critiques because it defaults to lower risk and naturally accommodates iterative expansion. Its missing alternative is a gap, but the core recommendation requires less revision under the applied critique lenses than A's self-contradictory framing.",
+  "most_damaging_critique_a": "The writeup labels minimal parameterization as the alternative but then lists complexity downsides (slower runtime, overfitting) as cons of the recommended targeted complexity approach, creating internal contradiction and implementation confusion.",
+  "most_damaging_critique_b": "No main alternative is stated, no revisit triggers or quantitative thresholds are given, making it impossible to know when to switch strategies\u2014high switching cost risk if the parsimonious baseline proves insufficient.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"The writeup labels minimal parameterization as the alternative but then lists complexity downsides (slower runtime, overfitting) as cons of the recommended targeted complexity approach, creating internal contradiction and implementation confusion.\",\n  \"most_damaging_critique_b\": \"No main alternative is stated, no revisit triggers or quantitative thresholds are given, making it impossible to know when to switch strategies\u2014high switching cost risk if the parsimonious baseline proves insufficient.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 55,\n  \"rationale\": \"Both writeups are incomplete and lack quantitative support and revisit triggers. However, Writeup A contains an internal contradiction: it recommends targeted complexity but lists complexity drawbacks as cons, undermining implementation clarity. Writeup B's recommendation\u2014start simple, add complexity only with clear payoff\u2014is more robust to implementation fragility and incentive critiques because it defaults to lower risk and naturally accommodates iterative expansion. Its missing alternative is a gap, but the core recommendation requires less revision under the applied critique lenses than A's self-contradictory framing.\"\n}\n```"
+}

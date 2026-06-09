@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 72,
+  "rationale": "Both reach the same recommendation and are structurally similar. A is stronger because it enumerates more live options (5 vs implicitly 3), including managed/external auth and partial extraction, giving the decision-maker more to evaluate. A's 'Key considerations' section is more discriminative\u2014it explicitly distinguishes incident types (isolated defects vs systemic vs scaling vs security vs operational) and explains how each changes the recommendation. A also better addresses behavior preservation risk and team capacity prerequisites. B's 4\u20136 week checkpoint is a nice concrete touch, but overall B reads as a compressed subset of A's reasoning. Neither provides meaningful quantitative support.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 2,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 2,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"Both reach the same recommendation and are structurally similar. A is stronger because it enumerates more live options (5 vs implicitly 3), including managed/external auth and partial extraction, giving the decision-maker more to evaluate. A's 'Key considerations' section is more discriminative\u2014it explicitly distinguishes incident types (isolated defects vs systemic vs scaling vs security vs operational) and explains how each changes the recommendation. A also better addresses behavior preservation risk and team capacity prerequisites. B's 4\u20136 week checkpoint is a nice concrete touch, but overall B reads as a compressed subset of A's reasoning. Neither provides meaningful quantitative support.\"\n}\n```"
+}

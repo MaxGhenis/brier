@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 90,
+  "rationale": "A underweights the possibility that repeated auth incidents signal an existential security problem, but it at least discusses breach risk and escalation triggers. B\u2019s bigger flaw is evaluating options mainly by endpoint KPIs and effort, which can make rewrite/strangler/managed paths look better while obscuring transition-period outage and security risk\u2014the central issue in auth migrations.",
+  "largest_missing_consideration_a": "Whether the incidents indicate a latent security/compliance risk whose downside dominates roadmap cost.",
+  "largest_missing_consideration_b": "The near-term migration and cutover risk profile over time, not just the Q+4 endpoint incident rate.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the incidents indicate a latent security/compliance risk whose downside dominates roadmap cost.\",\n  \"largest_missing_consideration_b\": \"The near-term migration and cutover risk profile over time, not just the Q+4 endpoint incident rate.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 90,\n  \"rationale\": \"A underweights the possibility that repeated auth incidents signal an existential security problem, but it at least discusses breach risk and escalation triggers. B\u2019s bigger flaw is evaluating options mainly by endpoint KPIs and effort, which can make rewrite/strangler/managed paths look better while obscuring transition-period outage and security risk\u2014the central issue in auth migrations.\"\n}"
+}

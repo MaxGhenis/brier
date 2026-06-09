@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 52,
+  "rationale": "Analysis B is impressively thorough on method comparison but never questions whether the input microdata itself is reliable enough to justify the precision it forecasts. If the underlying survey or admin data has significant non-response bias, linkage errors, or imputation artifacts, then the WMAPE differences between options D, C, and B may be dominated by data quality noise rather than parameterization choices. Analysis A's omission of team/tooling constraints is significant but more easily remedied during implementation. B's omission is more fundamental because it could invalidate the entire quantitative comparison framework.",
+  "largest_missing_consideration_a": "No consideration of the specific institutional context\u2014team expertise, existing codebase/tooling constraints, and stakeholder requirements (e.g., legal audit mandates, reproducibility standards)\u2014which could make the recommended progressive strategy infeasible or suboptimal.",
+  "largest_missing_consideration_b": "No consideration of how input microdata quality, coverage gaps, and weighting/imputation errors interact with parameter strategy choice\u2014poor underlying data could make accuracy gains from sophisticated parameterization illusory regardless of the method chosen.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of the specific institutional context\u2014team expertise, existing codebase/tooling constraints, and stakeholder requirements (e.g., legal audit mandates, reproducibility standards)\u2014which could make the recommended progressive strategy infeasible or suboptimal.\",\n  \"largest_missing_consideration_b\": \"No consideration of how input microdata quality, coverage gaps, and weighting/imputation errors interact with parameter strategy choice\u2014poor underlying data could make accuracy gains from sophisticated parameterization illusory regardless of the method chosen.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Analysis B is impressively thorough on method comparison but never questions whether the input microdata itself is reliable enough to justify the precision it forecasts. If the underlying survey or admin data has significant non-response bias, linkage errors, or imputation artifacts, then the WMAPE differences between options D, C, and B may be dominated by data quality noise rather than parameterization choices. Analysis A's omission of team/tooling constraints is significant but more easily remedied during implementation. B's omission is more fundamental because it could invalidate the entire quantitative comparison framework.\"\n}\n```"
+}

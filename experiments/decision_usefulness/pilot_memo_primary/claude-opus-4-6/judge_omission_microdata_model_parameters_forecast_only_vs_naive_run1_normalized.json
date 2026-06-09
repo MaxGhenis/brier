@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 98,
+  "rationale": "Analysis A is fairly complete but optimizes mainly for benchmark-fitting accuracy and cost, without checking whether that translates into better policy-relevant outputs or generalizes out of sample. Analysis B omits essentially the entire analysis structure, so its missing consideration is much more serious.",
+  "largest_missing_consideration_a": "Whether higher microdata fit actually improves the policy outputs that matter most, via validation on downstream distributional/fiscal results and out-of-sample robustness.",
+  "largest_missing_consideration_b": "A complete decision analysis is missing: no options, KPIs, forecasts, evidence, recommendation, or review plan.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether higher microdata fit actually improves the policy outputs that matter most, via validation on downstream distributional/fiscal results and out-of-sample robustness.\",\n  \"largest_missing_consideration_b\": \"A complete decision analysis is missing: no options, KPIs, forecasts, evidence, recommendation, or review plan.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 98,\n  \"rationale\": \"Analysis A is fairly complete but optimizes mainly for benchmark-fitting accuracy and cost, without checking whether that translates into better policy-relevant outputs or generalizes out of sample. Analysis B omits essentially the entire analysis structure, so its missing consideration is much more serious.\"\n}"
+}

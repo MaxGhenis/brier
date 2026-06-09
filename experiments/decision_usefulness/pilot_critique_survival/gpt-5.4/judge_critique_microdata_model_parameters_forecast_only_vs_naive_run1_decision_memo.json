@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "naive",
+  "confidence": 62,
+  "rationale": "Both writeups are severely incomplete. Writeup A at least commits to a concrete recommendation (parsimonious baseline, add complexity only with clear payoff), which can be acted on and iteratively revised. Writeup B offers a structured analytic framework and mentions quantitative KPIs, but never lands on a recommendation\u2014meaning every critique lens (implementation fragility, reversibility, opportunity cost) hits harder because there is no decision to defend. A decision that is vague but directionally actionable survives stress-testing better than a framework with no conclusion.",
+  "most_damaging_critique_a": "No revisit triggers, no quantitative thresholds, and no stated alternatives make it impossible to judge when the 'simplest parameterization' becomes inadequate\u2014high implementation fragility and hidden dependency on unstated accuracy benchmarks.",
+  "most_damaging_critique_b": "No actual recommendation is provided, so there is nothing concrete to implement, reverse, or stress-test against stakeholder responses\u2014the analysis is a framework without a decision, making it operationally vacuous.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit triggers, no quantitative thresholds, and no stated alternatives make it impossible to judge when the 'simplest parameterization' becomes inadequate\u2014high implementation fragility and hidden dependency on unstated accuracy benchmarks.\",\n  \"most_damaging_critique_b\": \"No actual recommendation is provided, so there is nothing concrete to implement, reverse, or stress-test against stakeholder responses\u2014the analysis is a framework without a decision, making it operationally vacuous.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Both writeups are severely incomplete. Writeup A at least commits to a concrete recommendation (parsimonious baseline, add complexity only with clear payoff), which can be acted on and iteratively revised. Writeup B offers a structured analytic framework and mentions quantitative KPIs, but never lands on a recommendation\u2014meaning every critique lens (implementation fragility, reversibility, opportunity cost) hits harder because there is no decision to defend. A decision that is vague but directionally actionable survives stress-testing better than a framework with no conclusion.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "format_control",
+  "confidence": 75,
+  "rationale": "Both analyses reach the same recommendation with similar reasoning. B is more useful to a decision-maker because it explicitly structures the three options upfront, systematically evaluates each against multiple named considerations (speed vs. consistency, governance, staffing, knowledge reuse, feedback loops), and clearly states when the recommendation would NOT apply (small org, highly localized work, extreme inconsistency risk). This makes B more auditable and revisitable. B's failure-mode and boundary-condition coverage is notably stronger\u2014it identifies that hybrid requires more operating discipline and specifies when each pure model might actually be preferable. A is solid but covers fewer dimensions and is less systematic in its comparison.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 3,
+    "forecast_specificity": 3,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 3,
+    "outside_view": 2,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 75,\n  \"rationale\": \"Both analyses reach the same recommendation with similar reasoning. B is more useful to a decision-maker because it explicitly structures the three options upfront, systematically evaluates each against multiple named considerations (speed vs. consistency, governance, staffing, knowledge reuse, feedback loops), and clearly states when the recommendation would NOT apply (small org, highly localized work, extreme inconsistency risk). This makes B more auditable and revisitable. B's failure-mode and boundary-condition coverage is notably stronger\u2014it identifies that hybrid requires more operating discipline and specifies when each pure model might actually be preferable. A is solid but covers fewer dimensions and is less systematic in its comparison.\"\n}\n```"
+}

@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 55,
+  "rationale": "Both writeups arrive at essentially the same recommendation (stabilize/patch incrementally with a migration plan) and both are truncated, making full evaluation difficult. Writeup B edges ahead because it attempts to define KPIs (incident hours), names a structured framework with explicit forecasts, provides a clearer revisit trigger (6 weeks + 12-week hard checkpoint), and references a strangler pattern \u2014 giving slightly more discriminative reasoning between alternatives. Writeup A is more concise but offers less analytical scaffolding. Neither provides strong quantitative support or thorough comparative reasoning between the three options. The margin is slim given both are incomplete.",
+  "scores_a": {
+    "action_guidance": 3,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 2,
+    "quantitative_support": 2,
+    "overall_usefulness": 3
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 3,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 3\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 55,\n  \"rationale\": \"Both writeups arrive at essentially the same recommendation (stabilize/patch incrementally with a migration plan) and both are truncated, making full evaluation difficult. Writeup B edges ahead because it attempts to define KPIs (incident hours), names a structured framework with explicit forecasts, provides a clearer revisit trigger (6 weeks + 12-week hard checkpoint), and references a strangler pattern \u2014 giving slightly more discriminative reasoning between alternatives. Writeup A is more concise but offers less analytical scaffolding. Neither provides strong quantitative support or thorough comparative reasoning between the three options. The margin is slim given both are incomplete.\"\n}\n```"
+}

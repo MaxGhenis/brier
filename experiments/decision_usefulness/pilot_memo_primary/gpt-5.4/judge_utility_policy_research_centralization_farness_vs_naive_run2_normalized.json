@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "Analysis A is essentially a stub\u2014no KPIs, no options enumerated, no forecasts, no recommendation, no review plan. It offers only a brief disconfirming-evidence snippet. Analysis B provides clearly defined and resolvable KPIs (median days, 30-day defect rate), expands the option set to five concrete alternatives, gives numeric point estimates with 80% confidence intervals in a comparable table, grounds expectations in relevant reference classes (software teams, legal ops, knowledge work), covers failure modes for every option, and traces the recommendation (triage model) directly back to the forecast table. It also includes a concrete review plan with decision rules. Despite some formatting artifacts, B is vastly more useful for auditing and acting on the decision.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 95,\n  \"rationale\": \"Analysis A is essentially a stub\u2014no KPIs, no options enumerated, no forecasts, no recommendation, no review plan. It offers only a brief disconfirming-evidence snippet. Analysis B provides clearly defined and resolvable KPIs (median days, 30-day defect rate), expands the option set to five concrete alternatives, gives numeric point estimates with 80% confidence intervals in a comparable table, grounds expectations in relevant reference classes (software teams, legal ops, knowledge work), covers failure modes for every option, and traces the recommendation (triage model) directly back to the forecast table. It also includes a concrete review plan with decision rules. Despite some formatting artifacts, B is vastly more useful for auditing and acting on the decision.\"\n}\n```"
+}

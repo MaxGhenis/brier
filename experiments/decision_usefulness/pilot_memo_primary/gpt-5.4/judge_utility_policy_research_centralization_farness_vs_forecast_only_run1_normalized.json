@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "Analysis B is substantially more useful across every dimension. KPIs are explicitly defined with units, resolution methods, and measurement windows. The option set is expanded from 3 to 5 with meaningful distinctions (e.g., centralized-with-tooling). Forecasts include clear assumptions and per-option reasoning. Three reference classes ground the outside view. Disconfirming evidence is structured per-option with specific conditions under which each could win, plus five overall scenarios where the recommendation fails. The recommendation is directly traceable to forecast comparisons with explicit tradeoff math. Analysis A provides a forecast table but lacks KPI definitions, outside-view grounding, a clear recommendation, and a review plan.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 3,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 2
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 2\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 95,\n  \"rationale\": \"Analysis B is substantially more useful across every dimension. KPIs are explicitly defined with units, resolution methods, and measurement windows. The option set is expanded from 3 to 5 with meaningful distinctions (e.g., centralized-with-tooling). Forecasts include clear assumptions and per-option reasoning. Three reference classes ground the outside view. Disconfirming evidence is structured per-option with specific conditions under which each could win, plus five overall scenarios where the recommendation fails. The recommendation is directly traceable to forecast comparisons with explicit tradeoff math. Analysis A provides a forecast table but lacks KPI definitions, outside-view grounding, a clear recommendation, and a review plan.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 68,
+  "rationale": "Both writeups favor the same path and both are weak on revisit triggers, alternatives, and concrete critique handling. A\u2019s strongest visible caveat focuses mainly on rewrite risk, not on whether the recommended strangler path itself is fragile, dependency-heavy, or costly in opportunity terms. B is also thin, but it at least acknowledges a conditional alternative that could absorb opportunity-cost or timing-risk concerns if build-vs-buy becomes superior. That makes B slightly less undermined under framework-agnostic critiques, though only narrowly.",
+  "most_damaging_critique_a": "Strangler migration may inherit the current system\u2019s hidden dependencies and prolong dual-run complexity, while lacking clear stakeholder, timing, and revisit conditions; the recommendation could need substantial revision once implementation fragility is examined.",
+  "most_damaging_critique_b": "The Option D branch is underspecified, so stakeholder response, switching costs, and hidden vendor or integration dependencies could materially change the recommendation despite the default toward Option C.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Strangler migration may inherit the current system\u2019s hidden dependencies and prolong dual-run complexity, while lacking clear stakeholder, timing, and revisit conditions; the recommendation could need substantial revision once implementation fragility is examined.\",\n  \"most_damaging_critique_b\": \"The Option D branch is underspecified, so stakeholder response, switching costs, and hidden vendor or integration dependencies could materially change the recommendation despite the default toward Option C.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 68,\n  \"rationale\": \"Both writeups favor the same path and both are weak on revisit triggers, alternatives, and concrete critique handling. A\u2019s strongest visible caveat focuses mainly on rewrite risk, not on whether the recommended strangler path itself is fragile, dependency-heavy, or costly in opportunity terms. B is also thin, but it at least acknowledges a conditional alternative that could absorb opportunity-cost or timing-risk concerns if build-vs-buy becomes superior. That makes B slightly less undermined under framework-agnostic critiques, though only narrowly.\"\n}"
+}

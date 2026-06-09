@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "tie",
+  "confidence": 86,
+  "rationale": "Both analyses are strong on engineering tradeoffs but underweight a key decision driver. A treats auth mostly as reliability/roadmap risk and doesn't explicitly ask whether incidents expose security or compliance failures, which could force urgent rewrite. B similarly omits an explicit threshold for current business/customer harm beyond incident counts. Either omission could change the recommendation materially, and neither is clearly more severe without more context.",
+  "largest_missing_consideration_a": "Security/compliance risk: whether incidents indicate exploitable auth flaws that require immediate architectural remediation, not just reliability improvements",
+  "largest_missing_consideration_b": "Business impact of continued incidents during the hardening period, including whether current auth instability is already unacceptable for customers or revenue",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk: whether incidents indicate exploitable auth flaws that require immediate architectural remediation, not just reliability improvements\",\n  \"largest_missing_consideration_b\": \"Business impact of continued incidents during the hardening period, including whether current auth instability is already unacceptable for customers or revenue\",\n  \"which_analysis_has_more_serious_omission\": \"tie\",\n  \"confidence\": 86,\n  \"rationale\": \"Both analyses are strong on engineering tradeoffs but underweight a key decision driver. A treats auth mostly as reliability/roadmap risk and doesn't explicitly ask whether incidents expose security or compliance failures, which could force urgent rewrite. B similarly omits an explicit threshold for current business/customer harm beyond incident counts. Either omission could change the recommendation materially, and neither is clearly more severe without more context.\"\n}"
+}

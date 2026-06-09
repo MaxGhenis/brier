@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "more_serious_omission_condition": "naive",
+  "confidence": 95,
+  "rationale": "Analysis A is barely an analysis\u2014it lacks options, KPIs, evidence, a recommendation, and a review plan, offering only a single conditional check. Analysis B is thorough with well-reasoned options, trade-offs, and a clear recommendation, though it omits a concrete review plan with measurable targets. A's omission is far more serious because it provides almost no actionable guidance.",
+  "largest_missing_consideration_a": "No options, KPIs, recommendation, or structured reasoning were provided\u2014essentially the entire analysis is missing beyond a single conditional heuristic about load time.",
+  "largest_missing_consideration_b": "No review plan or success metrics with concrete targets (e.g., unique visitors, shares, embed counts) to evaluate whether the chosen features actually drove first-month reach, making it impossible to learn and course-correct after launch.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No options, KPIs, recommendation, or structured reasoning were provided\u2014essentially the entire analysis is missing beyond a single conditional heuristic about load time.\",\n  \"largest_missing_consideration_b\": \"No review plan or success metrics with concrete targets (e.g., unique visitors, shares, embed counts) to evaluate whether the chosen features actually drove first-month reach, making it impossible to learn and course-correct after launch.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 95,\n  \"rationale\": \"Analysis A is barely an analysis\u2014it lacks options, KPIs, evidence, a recommendation, and a review plan, offering only a single conditional check. Analysis B is thorough with well-reasoned options, trade-offs, and a clear recommendation, though it omits a concrete review plan with measurable targets. A's omission is far more serious because it provides almost no actionable guidance.\"\n}\n```"
+}

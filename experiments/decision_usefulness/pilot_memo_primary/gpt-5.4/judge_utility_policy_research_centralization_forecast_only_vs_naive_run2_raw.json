@@ -1,0 +1,30 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 82,
+  "rationale": "Both reach the same recommendation (hybrid with central standards + embedded support), but A is substantially more useful. A defines explicit KPIs, provides point estimates with 80% confidence intervals across four options, surfaces a fourth option (triage model) as a fallback, and clearly states the assumptions that could invalidate the forecast. B gives solid qualitative reasoning and practical operating rules but lacks any quantitative grounding or uncertainty handling. The numbers in A\u2014while necessarily approximate\u2014give a decision-maker something concrete to calibrate against their own context and to stress-test. A also explicitly ranks the fallback option, improving action guidance under constraints.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 2,
+    "quantitative_support": 1,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Both reach the same recommendation (hybrid with central standards + embedded support), but A is substantially more useful. A defines explicit KPIs, provides point estimates with 80% confidence intervals across four options, surfaces a fourth option (triage model) as a fallback, and clearly states the assumptions that could invalidate the forecast. B gives solid qualitative reasoning and practical operating rules but lacks any quantitative grounding or uncertainty handling. The numbers in A\u2014while necessarily approximate\u2014give a decision-maker something concrete to calibrate against their own context and to stress-test. A also explicitly ranks the fallback option, improving action guidance under constraints.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 84,
+  "rationale": "A optimizes mainly against aggregate benchmark accuracy and cost, but misses decision-critical fit-for-purpose targeting: microsimulation settings should be chosen based on the intended policy questions, since complexity may help some reforms and hurt others. B at least explicitly notes this as a disconfirming case. B\u2019s omission is real, but less serious because maintenance burden can often be assessed later, while choosing the wrong accuracy target can invalidate the recommendation upfront.",
+  "largest_missing_consideration_a": "Whether the added complexity actually improves accuracy on the specific policy outputs and reform scenarios the model will be used for, rather than only on aggregate benchmarks.",
+  "largest_missing_consideration_b": "Maintenance burden and implementation complexity are not directly measured; runtime is an incomplete proxy for long-run upkeep, debugging risk, and staff dependency.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the added complexity actually improves accuracy on the specific policy outputs and reform scenarios the model will be used for, rather than only on aggregate benchmarks.\",\n  \"largest_missing_consideration_b\": \"Maintenance burden and implementation complexity are not directly measured; runtime is an incomplete proxy for long-run upkeep, debugging risk, and staff dependency.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 84,\n  \"rationale\": \"A optimizes mainly against aggregate benchmark accuracy and cost, but misses decision-critical fit-for-purpose targeting: microsimulation settings should be chosen based on the intended policy questions, since complexity may help some reforms and hurt others. B at least explicitly notes this as a disconfirming case. B\u2019s omission is real, but less serious because maintenance burden can often be assessed later, while choosing the wrong accuracy target can invalidate the recommendation upfront.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 62,
+  "rationale": "Analysis A's omission is more serious because without quantitative decision criteria, the entire progressive strategy is subjective and unactionable\u2014teams cannot reliably determine when to escalate tiers. Analysis B at least provides explicit KPIs, point estimates, and confidence intervals that give concrete guidance. However, B's neglect of input data quality is also significant since garbage-in-garbage-out can undermine all its careful forecasts. A's omission is more fundamental because it undermines the core operability of the recommendation.",
+  "largest_missing_consideration_a": "No concrete metrics or quantitative criteria for deciding when a parameter improvement is 'meaningful' enough to include, making the tiered strategy difficult to operationalize consistently.",
+  "largest_missing_consideration_b": "No consideration of how parameter choices interact with the underlying microdata quality\u2014if input data have significant measurement error, missing values, or sampling bias, added model complexity may amplify rather than correct inaccuracies.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No concrete metrics or quantitative criteria for deciding when a parameter improvement is 'meaningful' enough to include, making the tiered strategy difficult to operationalize consistently.\",\n  \"largest_missing_consideration_b\": \"No consideration of how parameter choices interact with the underlying microdata quality\u2014if input data have significant measurement error, missing values, or sampling bias, added model complexity may amplify rather than correct inaccuracies.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Analysis A's omission is more serious because without quantitative decision criteria, the entire progressive strategy is subjective and unactionable\u2014teams cannot reliably determine when to escalate tiers. Analysis B at least provides explicit KPIs, point estimates, and confidence intervals that give concrete guidance. However, B's neglect of input data quality is also significant since garbage-in-garbage-out can undermine all its careful forecasts. A's omission is more fundamental because it undermines the core operability of the recommendation.\"\n}\n```"
+}

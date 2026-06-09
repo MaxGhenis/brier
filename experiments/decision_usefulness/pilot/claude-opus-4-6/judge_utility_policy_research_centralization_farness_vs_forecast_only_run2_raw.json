@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "A is much more useful for an auditable decision. Its KPIs are operationalized, options are richer, forecasts include assumptions and confidence intervals, and it provides explicit outside-view anchors plus concrete failure modes. The recommendation is traceable to mechanisms and includes a review plan with trigger thresholds, making it easier to revisit later. B is readable and comparable, but its forecasts are weakly grounded, lacks real outside-view support, gives little disconfirming evidence, and its recommendation depends on assumptions that are not stress-tested.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 3
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 95,\n  \"rationale\": \"A is much more useful for an auditable decision. Its KPIs are operationalized, options are richer, forecasts include assumptions and confidence intervals, and it provides explicit outside-view anchors plus concrete failure modes. The recommendation is traceable to mechanisms and includes a review plan with trigger thresholds, making it easier to revisit later. B is readable and comparable, but its forecasts are weakly grounded, lacks real outside-view support, gives little disconfirming evidence, and its recommendation depends on assumptions that are not stress-tested.\"\n}"
+}

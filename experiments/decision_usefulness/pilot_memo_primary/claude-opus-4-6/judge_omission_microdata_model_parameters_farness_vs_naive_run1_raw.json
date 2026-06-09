@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "naive",
+  "confidence": 93,
+  "rationale": "Analysis A assumes parameter complexity is the main lever for microdata accuracy, but in tax-benefit microsimulation the biggest gains often come from correcting data deficiencies such as weights, take-up, and income under-coverage. Missing that can misframe the whole decision. Analysis B is stronger on accuracy drivers, but its runtime\u2248maintenance assumption is a notable simplification rather than a fundamental miss.",
+  "largest_missing_consideration_a": "Whether the main accuracy bottleneck is actually microdata calibration/coverage error (weights, under-reporting, non-take-up, missing top incomes) rather than policy-parameter detail.",
+  "largest_missing_consideration_b": "That maintenance burden is not well proxied by runtime; implementation/update complexity and legal-rule change frequency should be assessed separately.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the main accuracy bottleneck is actually microdata calibration/coverage error (weights, under-reporting, non-take-up, missing top incomes) rather than policy-parameter detail.\",\n  \"largest_missing_consideration_b\": \"That maintenance burden is not well proxied by runtime; implementation/update complexity and legal-rule change frequency should be assessed separately.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 93,\n  \"rationale\": \"Analysis A assumes parameter complexity is the main lever for microdata accuracy, but in tax-benefit microsimulation the biggest gains often come from correcting data deficiencies such as weights, take-up, and income under-coverage. Missing that can misframe the whole decision. Analysis B is stronger on accuracy drivers, but its runtime\u2248maintenance assumption is a notable simplification rather than a fundamental miss.\"\n}"
+}

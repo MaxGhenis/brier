@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "farness",
+  "confidence": 88,
+  "rationale": "A analyzes reliability and engineer cost well but underweights the most consequential auth-specific factor: security/compliance risk. For authentication, a rewrite or migration can create catastrophic breach exposure that should be a top-level KPI, not a side note. B at least explicitly flags security-breach risk, though it lacks quantified incident/business impact. That omission matters, but A\u2019s is more serious because it could recommend the wrong path by optimizing around incidents and staffing while missing the highest-stakes downside.",
+  "largest_missing_consideration_a": "The security/compliance blast radius of auth changes\u2014especially breach risk and migration-induced vulnerabilities\u2014is not treated as a primary decision criterion.",
+  "largest_missing_consideration_b": "The current incident severity and business impact are not quantified, so it may underreact if auth failures are already imposing intolerable customer/revenue/security costs.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"The security/compliance blast radius of auth changes\u2014especially breach risk and migration-induced vulnerabilities\u2014is not treated as a primary decision criterion.\",\n  \"largest_missing_consideration_b\": \"The current incident severity and business impact are not quantified, so it may underreact if auth failures are already imposing intolerable customer/revenue/security costs.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"A analyzes reliability and engineer cost well but underweights the most consequential auth-specific factor: security/compliance risk. For authentication, a rewrite or migration can create catastrophic breach exposure that should be a top-level KPI, not a side note. B at least explicitly flags security-breach risk, though it lacks quantified incident/business impact. That omission matters, but A\u2019s is more serious because it could recommend the wrong path by optimizing around incidents and staffing while missing the highest-stakes downside.\"\n}"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "winner_condition": "farness",
+  "confidence": 94,
+  "rationale": "Analysis A is much more useful for an auditable decision: it defines measurable KPIs, compares multiple concrete options, gives forecast ranges, uses outside-view reference classes, names failure modes, and ties its recommendation to explicit thresholds and review checkpoints. It is imperfectly structured and some tables are garbled, but the decision logic is still recoverable. Analysis B has sensible advice, especially the diagnostic-first approach, but it lacks explicit KPIs, comparable forecasts, outside-view grounding, and a fully traceable recommendation. For a careful human who may revisit the decision later, A provides far better scaffolding.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 3,
+    "forecast_specificity": 2,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 3
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 94,\n  \"rationale\": \"Analysis A is much more useful for an auditable decision: it defines measurable KPIs, compares multiple concrete options, gives forecast ranges, uses outside-view reference classes, names failure modes, and ties its recommendation to explicit thresholds and review checkpoints. It is imperfectly structured and some tables are garbled, but the decision logic is still recoverable. Analysis B has sensible advice, especially the diagnostic-first approach, but it lacks explicit KPIs, comparable forecasts, outside-view grounding, and a fully traceable recommendation. For a careful human who may revisit the decision later, A provides far better scaffolding.\"\n}"
+}

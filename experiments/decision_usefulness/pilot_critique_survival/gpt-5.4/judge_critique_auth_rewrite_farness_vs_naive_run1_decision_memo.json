@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 72,
+  "rationale": "Writeup A's recommendation to rewrite now is heavily undermined by tail risk (reintroducing security bugs), implementation fragility (quarter-long rewrite of security-critical code), opportunity cost (senior engineers off roadmap), and high switching costs if the rewrite stalls. Writeup B's stabilize-and-contain approach is more resilient to these critiques: it preserves operational familiarity, limits blast radius, and defers irreversible commitment. B's main weakness\u2014lacking a concrete revisit trigger\u2014is a real gap but is far less damaging than A's exposure to catastrophic auth failures during a rewrite. B would require less revision overall.",
+  "most_damaging_critique_a": "A full rewrite of a security-critical system carries severe tail risk: reintroducing subtle auth vulnerabilities during the rewrite quarter, with high switching costs if the rewrite stalls or fails midway.",
+  "most_damaging_critique_b": "No explicit revisit trigger or escalation criteria means the incremental approach could drift indefinitely, accumulating technical debt without a forcing function to transition to the targeted redesign.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"A full rewrite of a security-critical system carries severe tail risk: reintroducing subtle auth vulnerabilities during the rewrite quarter, with high switching costs if the rewrite stalls or fails midway.\",\n  \"most_damaging_critique_b\": \"No explicit revisit trigger or escalation criteria means the incremental approach could drift indefinitely, accumulating technical debt without a forcing function to transition to the targeted redesign.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Writeup A's recommendation to rewrite now is heavily undermined by tail risk (reintroducing security bugs), implementation fragility (quarter-long rewrite of security-critical code), opportunity cost (senior engineers off roadmap), and high switching costs if the rewrite stalls. Writeup B's stabilize-and-contain approach is more resilient to these critiques: it preserves operational familiarity, limits blast radius, and defers irreversible commitment. B's main weakness\u2014lacking a concrete revisit trigger\u2014is a real gap but is far less damaging than A's exposure to catastrophic auth failures during a rewrite. B would require less revision overall.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 78,
+  "rationale": "A is more useful overall because it considers a fuller option set, includes explicit outside-view anchors, gives comparative expected values, and adds a concrete revisit/checkpoint framework. Its structure is messy and some sections are duplicated or incomplete, which hurts auditability. B is cleaner and easier to read, with clearer assumptions, but it lacks outside-view grounding and gives less support for why its forecasts should be trusted. For a careful decision-maker who wants something to compare and revisit later, A provides more decision-relevant substance despite weaker presentation.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 78,\n  \"rationale\": \"A is more useful overall because it considers a fuller option set, includes explicit outside-view anchors, gives comparative expected values, and adds a concrete revisit/checkpoint framework. Its structure is messy and some sections are duplicated or incomplete, which hurts auditability. B is cleaner and easier to read, with clearer assumptions, but it lacks outside-view grounding and gives less support for why its forecasts should be trusted. For a careful decision-maker who wants something to compare and revisit later, A provides more decision-relevant substance despite weaker presentation.\"\n}"
+}

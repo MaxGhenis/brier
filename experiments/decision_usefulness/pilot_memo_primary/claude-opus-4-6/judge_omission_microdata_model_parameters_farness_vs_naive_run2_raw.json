@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 92,
+  "rationale": "A is thorough on quantified tradeoffs but underweights requirements scoping: some use cases may require behavioral realism regardless of average WMAPE. B gives sensible process advice, yet never quantifies the tradeoff or defines stopping rules, so it cannot actually support a decision between parameter strategies. That makes B\u2019s omission more serious.",
+  "largest_missing_consideration_a": "Whether the chosen parameter strategy is fit for the model\u2019s actual decision use cases and required outputs, not just average benchmark accuracy",
+  "largest_missing_consideration_b": "The need for explicit quantitative decision criteria and forecasts (expected accuracy gains, runtime/maintenance costs, and trigger thresholds) to choose among strategies",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the chosen parameter strategy is fit for the model\u2019s actual decision use cases and required outputs, not just average benchmark accuracy\",\n  \"largest_missing_consideration_b\": \"The need for explicit quantitative decision criteria and forecasts (expected accuracy gains, runtime/maintenance costs, and trigger thresholds) to choose among strategies\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 92,\n  \"rationale\": \"A is thorough on quantified tradeoffs but underweights requirements scoping: some use cases may require behavioral realism regardless of average WMAPE. B gives sensible process advice, yet never quantifies the tradeoff or defines stopping rules, so it cannot actually support a decision between parameter strategies. That makes B\u2019s omission more serious.\"\n}"
+}

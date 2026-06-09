@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 91,
+  "rationale": "A at least reports absolute WMAPE and distinguishes production vs deep-dive use, though it underweights decision-context dependence. B optimizes relative MAE reduction and burden multiples without stating baseline error or fitness-for-purpose thresholds in absolute terms, so a recommended option could still be unusably inaccurate. That omission is more fundamental to choosing a parameter strategy.",
+  "largest_missing_consideration_a": "Whether the model will be used for policy changes that require behavioral-response validity, not just benchmark fit",
+  "largest_missing_consideration_b": "The absolute baseline accuracy/error level and whether any option is accurate enough for the intended use, rather than only relative improvement",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the model will be used for policy changes that require behavioral-response validity, not just benchmark fit\",\n  \"largest_missing_consideration_b\": \"The absolute baseline accuracy/error level and whether any option is accurate enough for the intended use, rather than only relative improvement\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 91,\n  \"rationale\": \"A at least reports absolute WMAPE and distinguishes production vs deep-dive use, though it underweights decision-context dependence. B optimizes relative MAE reduction and burden multiples without stating baseline error or fitness-for-purpose thresholds in absolute terms, so a recommended option could still be unusably inaccurate. That omission is more fundamental to choosing a parameter strategy.\"\n}"
+}

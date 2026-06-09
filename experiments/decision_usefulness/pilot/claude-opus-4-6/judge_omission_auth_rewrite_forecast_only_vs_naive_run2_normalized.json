@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 89,
+  "rationale": "Analysis A never really performs the decision analysis: options, recommendation, and review plan are missing, so it cannot weigh rewrite vs incremental vs alternatives. Analysis B is much stronger, but its main gap is treating auth mostly as a reliability/capacity problem rather than explicitly modeling security and compliance consequences, which are especially important for authentication.",
+  "largest_missing_consideration_a": "A clear comparison of concrete options with quantified tradeoffs, especially the security/compliance impact of auth failures versus roadmap delay.",
+  "largest_missing_consideration_b": "The downside severity of auth incidents is under-modeled: it optimizes incident count and engineer time, but not breach/security/compliance blast radius or migration risk during transition.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"A clear comparison of concrete options with quantified tradeoffs, especially the security/compliance impact of auth failures versus roadmap delay.\",\n  \"largest_missing_consideration_b\": \"The downside severity of auth incidents is under-modeled: it optimizes incident count and engineer time, but not breach/security/compliance blast radius or migration risk during transition.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 89,\n  \"rationale\": \"Analysis A never really performs the decision analysis: options, recommendation, and review plan are missing, so it cannot weigh rewrite vs incremental vs alternatives. Analysis B is much stronger, but its main gap is treating auth mostly as a reliability/capacity problem rather than explicitly modeling security and compliance consequences, which are especially important for authentication.\"\n}"
+}

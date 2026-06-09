@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 91,
+  "rationale": "Analysis A gives sensible tactics but never defines options, KPIs, or thresholds grounded in business value, so it cannot really decide among paths. Analysis B is more complete, but it reduces outcomes mostly to incident count and engineer time, underweighting tail-risk from auth failures such as breaches, fraud, or compliance exposure. That omission matters, but A\u2019s lack of explicit decision framework is more fundamental.",
+  "largest_missing_consideration_a": "Explicit decision criteria/KPIs tying reliability gains to business impact and acceptable incident risk",
+  "largest_missing_consideration_b": "Security/compliance risk severity, including breach/regulatory downside beyond incident count",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Explicit decision criteria/KPIs tying reliability gains to business impact and acceptable incident risk\",\n  \"largest_missing_consideration_b\": \"Security/compliance risk severity, including breach/regulatory downside beyond incident count\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 91,\n  \"rationale\": \"Analysis A gives sensible tactics but never defines options, KPIs, or thresholds grounded in business value, so it cannot really decide among paths. Analysis B is more complete, but it reduces outcomes mostly to incident count and engineer time, underweighting tail-risk from auth failures such as breaches, fraud, or compliance exposure. That omission matters, but A\u2019s lack of explicit decision framework is more fundamental.\"\n}"
+}

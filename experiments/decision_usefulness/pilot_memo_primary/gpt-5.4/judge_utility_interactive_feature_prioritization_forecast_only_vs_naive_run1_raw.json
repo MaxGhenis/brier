@@ -1,0 +1,30 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 80,
+  "rationale": "Both reach similar conclusions, but B is substantially more useful. B expands the option set (adding launch amplification stack, novel hook, SEO), evaluates pairs rather than individual features (which matches the actual decision), provides conditional recommendations based on partnership feasibility, and surfaces key assumptions explicitly. The quantitative estimates in B are fabricated and should be treated skeptically, but they still help the decision-maker think about relative magnitudes and uncertainty ranges. B's conditional decision tree (if partnerships feasible \u2192 X, else \u2192 Y) is more actionable than A's single recommendation. A is cleaner and more concise but less discriminating between scenarios the decision-maker might face.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 3,
+    "quantitative_support": 2,
+    "overall_usefulness": 4
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 4\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 80,\n  \"rationale\": \"Both reach similar conclusions, but B is substantially more useful. B expands the option set (adding launch amplification stack, novel hook, SEO), evaluates pairs rather than individual features (which matches the actual decision), provides conditional recommendations based on partnership feasibility, and surfaces key assumptions explicitly. The quantitative estimates in B are fabricated and should be treated skeptically, but they still help the decision-maker think about relative magnitudes and uncertainty ranges. B's conditional decision tree (if partnerships feasible \u2192 X, else \u2192 Y) is more actionable than A's single recommendation. A is cleaner and more concise but less discriminating between scenarios the decision-maker might face.\"\n}\n```"
+}

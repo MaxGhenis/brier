@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "more_serious_omission_condition": "naive",
+  "confidence": 62,
+  "rationale": "Analysis B explicitly includes the external/managed auth option and covers a broader option space. Analysis A's omission of the 'buy vs. build' alternative is more serious because it narrows the solution space unnecessarily\u2014if the auth needs are largely commodity, outsourcing could be strictly superior to any internal rewrite or patch strategy. Analysis B's omission of team morale/retention risk is meaningful but less likely to change the recommendation fundamentally.",
+  "largest_missing_consideration_a": "No consideration of adopting a managed or external authentication solution, which could eliminate the build-vs-rebuild dilemma entirely for commodity auth concerns.",
+  "largest_missing_consideration_b": "No consideration of the human/organizational dynamics\u2014team morale erosion from repeatedly firefighting a known-broken system, which affects retention and willingness to own the auth layer long-term.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of adopting a managed or external authentication solution, which could eliminate the build-vs-rebuild dilemma entirely for commodity auth concerns.\",\n  \"largest_missing_consideration_b\": \"No consideration of the human/organizational dynamics\u2014team morale erosion from repeatedly firefighting a known-broken system, which affects retention and willingness to own the auth layer long-term.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Analysis B explicitly includes the external/managed auth option and covers a broader option space. Analysis A's omission of the 'buy vs. build' alternative is more serious because it narrows the solution space unnecessarily\u2014if the auth needs are largely commodity, outsourcing could be strictly superior to any internal rewrite or patch strategy. Analysis B's omission of team morale/retention risk is meaningful but less likely to change the recommendation fundamentally.\"\n}\n```"
+}

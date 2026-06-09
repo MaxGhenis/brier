@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "format_control",
+  "confidence": 72,
+  "rationale": "Both analyses reach the same default recommendation (performance + shareability) with similar reasoning. B is more useful to a decision-maker because it explicitly enumerates all options with sub-bullets, surfaces conditional logic more clearly (earned vs. shared vs. bought reach), names when shareability would underperform (output not socially expressive), and provides a cleaner practical decision rule with branching conditions. A is tighter and well-structured but covers fewer failure modes and doesn't explore the option space as thoroughly. B's conditional framing makes the recommendation easier to audit and adapt to the team's actual situation.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 3,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 3,
+    "outside_view": 3,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Both analyses reach the same default recommendation (performance + shareability) with similar reasoning. B is more useful to a decision-maker because it explicitly enumerates all options with sub-bullets, surfaces conditional logic more clearly (earned vs. shared vs. bought reach), names when shareability would underperform (output not socially expressive), and provides a cleaner practical decision rule with branching conditions. A is tighter and well-structured but covers fewer failure modes and doesn't explore the option space as thoroughly. B's conditional framing makes the recommendation easier to audit and adapt to the team's actual situation.\"\n}\n```"
+}

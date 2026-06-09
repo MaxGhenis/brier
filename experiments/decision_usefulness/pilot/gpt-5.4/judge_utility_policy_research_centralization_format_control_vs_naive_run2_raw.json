@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 78,
+  "rationale": "Both reach the same recommendation, but Analysis A is substantially more useful for auditing and revisiting the decision. Its 'Key considerations' section (7 factors including variability, cost of inconsistency, maturity of documentation, skill mix, auditability) gives a decision-maker concrete dimensions to evaluate their own context against, making the recommendation traceable and conditional rather than generic. A also explicitly identifies when the hybrid recommendation would NOT apply (low-risk/simple policies \u2192 embedded; highly regulated \u2192 lean centralized). B offers practical operating rules which are useful but more implementation-focused than decision-focused. B's failure-mode and disconfirming coverage is thinner\u2014it lacks the nuanced conditional reasoning that makes A more auditable.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 3,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 3,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 78,\n  \"rationale\": \"Both reach the same recommendation, but Analysis A is substantially more useful for auditing and revisiting the decision. Its 'Key considerations' section (7 factors including variability, cost of inconsistency, maturity of documentation, skill mix, auditability) gives a decision-maker concrete dimensions to evaluate their own context against, making the recommendation traceable and conditional rather than generic. A also explicitly identifies when the hybrid recommendation would NOT apply (low-risk/simple policies \u2192 embedded; highly regulated \u2192 lean centralized). B offers practical operating rules which are useful but more implementation-focused than decision-focused. B's failure-mode and disconfirming coverage is thinner\u2014it lacks the nuanced conditional reasoning that makes A more auditable.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "format_control",
+  "confidence": 97,
+  "rationale": "B is far more useful for an auditable decision: it defines the objective, enumerates options, explains tradeoffs, gives conditional recommendations, and covers key failure modes like weak partner certainty and load-time gating. A has only one unsupported claim about load time and leaves nearly every decision component blank, so it does not help compare alternatives or revisit the reasoning later. Neither analysis is strong on outside-view grounding, and B lacks quantified forecasts, but B still clearly outperforms A on decision usefulness.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 2,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 3,
+    "outside_view": 1,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 97,\n  \"rationale\": \"B is far more useful for an auditable decision: it defines the objective, enumerates options, explains tradeoffs, gives conditional recommendations, and covers key failure modes like weak partner certainty and load-time gating. A has only one unsupported claim about load time and leaves nearly every decision component blank, so it does not help compare alternatives or revisit the reasoning later. Neither analysis is strong on outside-view grounding, and B lacks quantified forecasts, but B still clearly outperforms A on decision usefulness.\"\n}"
+}

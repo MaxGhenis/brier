@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 92,
+  "rationale": "Analysis A is fairly complete on delivery, reliability, migration, and team tradeoffs; its biggest gap is treating auth mostly as reliability rather than also a security/compliance domain. Analysis B\u2019s omission is more serious because it lacks core decision structure: no clear options set, no recommendation, and no explicit thresholds or review plan for choosing among paths. That makes it much less actionable.",
+  "largest_missing_consideration_a": "Explicit security/compliance risk: whether incidents or proposed changes could create auth vulnerabilities, regulatory exposure, or breach risk beyond reliability impact.",
+  "largest_missing_consideration_b": "A concrete decision framework with options and trigger thresholds\u2014especially when to escalate from incremental work to a partial/full rewrite.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Explicit security/compliance risk: whether incidents or proposed changes could create auth vulnerabilities, regulatory exposure, or breach risk beyond reliability impact.\",\n  \"largest_missing_consideration_b\": \"A concrete decision framework with options and trigger thresholds\u2014especially when to escalate from incremental work to a partial/full rewrite.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 92,\n  \"rationale\": \"Analysis A is fairly complete on delivery, reliability, migration, and team tradeoffs; its biggest gap is treating auth mostly as reliability rather than also a security/compliance domain. Analysis B\u2019s omission is more serious because it lacks core decision structure: no clear options set, no recommendation, and no explicit thresholds or review plan for choosing among paths. That makes it much less actionable.\"\n}"
+}

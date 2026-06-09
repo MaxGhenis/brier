@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "Both analyses reach similar conclusions (stabilize + strangler over full rewrite), but B is dramatically more useful for a decision-maker. B defines explicit KPIs with resolution criteria, enumerates four distinct options, provides numeric forecasts with confidence intervals enabling direct comparison, grounds reasoning in outside-view base rates for rewrite projects, systematically covers disconfirming evidence and failure modes for every option, and traces the recommendation directly back to forecast numbers. B also includes review dates and decision rules for revisiting. A gives sound advice but reads as expert opinion without auditable structure\u2014a decision-maker cannot easily compare options, challenge assumptions, or revisit the reasoning later.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 1,
+    "outside_view": 3,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 2
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 2\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 95,\n  \"rationale\": \"Both analyses reach similar conclusions (stabilize + strangler over full rewrite), but B is dramatically more useful for a decision-maker. B defines explicit KPIs with resolution criteria, enumerates four distinct options, provides numeric forecasts with confidence intervals enabling direct comparison, grounds reasoning in outside-view base rates for rewrite projects, systematically covers disconfirming evidence and failure modes for every option, and traces the recommendation directly back to forecast numbers. B also includes review dates and decision rules for revisiting. A gives sound advice but reads as expert opinion without auditable structure\u2014a decision-maker cannot easily compare options, challenge assumptions, or revisit the reasoning later.\"\n}\n```"
+}

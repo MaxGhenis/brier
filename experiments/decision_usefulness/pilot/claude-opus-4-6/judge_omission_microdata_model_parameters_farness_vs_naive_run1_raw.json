@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 94,
+  "rationale": "A gives a plausible tiered-complexity strategy but under-specifies the objective function: 'accuracy' can mean different targets. B\u2019s bigger flaw is scope drift\u2014it answers a different question by substituting calibration/behavioural-model choices for parameter-setting complexity. That mismatch makes its recommendation less responsive to the stated decision, so B has the more serious omission.",
+  "largest_missing_consideration_a": "Whether the chosen parameter detail matches the model\u2019s actual use case and validation target (aggregate fiscal totals vs distributional/incidence accuracy for specific reforms).",
+  "largest_missing_consideration_b": "That the decision scenario is about parameterization detail within a static tax-benefit model, but the analysis reframes it as choosing calibration and behavioural modules instead.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the chosen parameter detail matches the model\u2019s actual use case and validation target (aggregate fiscal totals vs distributional/incidence accuracy for specific reforms).\",\n  \"largest_missing_consideration_b\": \"That the decision scenario is about parameterization detail within a static tax-benefit model, but the analysis reframes it as choosing calibration and behavioural modules instead.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 94,\n  \"rationale\": \"A gives a plausible tiered-complexity strategy but under-specifies the objective function: 'accuracy' can mean different targets. B\u2019s bigger flaw is scope drift\u2014it answers a different question by substituting calibration/behavioural-model choices for parameter-setting complexity. That mismatch makes its recommendation less responsive to the stated decision, so B has the more serious omission.\"\n}"
+}

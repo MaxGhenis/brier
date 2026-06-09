@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 62,
+  "rationale": "Both analyses miss important factors, but Analysis A's omission is more serious. Security and compliance risk in an authentication layer can be existential \u2014 a breach or regulatory penalty dwarfs incident-hours and roadmap percentages. Analysis B at least flags security/compliance as a condition that would change the recommendation and lists key-person departure as disconfirming evidence, partially covering both gaps. Analysis A never mentions security, compliance, or personnel risk at all, leaving a larger blind spot in a domain where those considerations could dominate the decision.",
+  "largest_missing_consideration_a": "No consideration of security/compliance risk \u2014 repeated auth incidents may signal vulnerabilities that carry breach, regulatory, or liability consequences far exceeding incident-hours and roadmap metrics.",
+  "largest_missing_consideration_b": "No consideration of team morale, attrition, and knowledge-concentration risk \u2014 the analysis notes the system is 'understood' but never examines what happens if key engineers burn out or leave, which could invalidate the 'understood' advantage underpinning every option.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of security/compliance risk \u2014 repeated auth incidents may signal vulnerabilities that carry breach, regulatory, or liability consequences far exceeding incident-hours and roadmap metrics.\",\n  \"largest_missing_consideration_b\": \"No consideration of team morale, attrition, and knowledge-concentration risk \u2014 the analysis notes the system is 'understood' but never examines what happens if key engineers burn out or leave, which could invalidate the 'understood' advantage underpinning every option.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Both analyses miss important factors, but Analysis A's omission is more serious. Security and compliance risk in an authentication layer can be existential \u2014 a breach or regulatory penalty dwarfs incident-hours and roadmap percentages. Analysis B at least flags security/compliance as a condition that would change the recommendation and lists key-person departure as disconfirming evidence, partially covering both gaps. Analysis A never mentions security, compliance, or personnel risk at all, leaving a larger blind spot in a domain where those considerations could dominate the decision.\"\n}\n```"
+}

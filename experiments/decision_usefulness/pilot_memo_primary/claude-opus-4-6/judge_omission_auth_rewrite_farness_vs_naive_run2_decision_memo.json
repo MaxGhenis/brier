@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "naive",
+  "confidence": 88,
+  "rationale": "Analysis A sensibly weighs engineering cost and rewrite risk, but it underplays the core question: are repeated auth incidents creating breach/compliance risk that makes delay unacceptable? That omission could reverse the recommendation. Analysis B\u2019s gap is important, but feasibility and lock-in concerns around a managed/OSS platform are more implementation-specific and less likely than A\u2019s omission to invalidate the entire decision.",
+  "largest_missing_consideration_a": "Whether the current incidents indicate an unacceptable security/compliance exposure that changes the cost-benefit calculus",
+  "largest_missing_consideration_b": "The migration/vendor-lock-in and compliance feasibility of moving auth to a managed/OSS platform given product-specific requirements",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the current incidents indicate an unacceptable security/compliance exposure that changes the cost-benefit calculus\",\n  \"largest_missing_consideration_b\": \"The migration/vendor-lock-in and compliance feasibility of moving auth to a managed/OSS platform given product-specific requirements\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"Analysis A sensibly weighs engineering cost and rewrite risk, but it underplays the core question: are repeated auth incidents creating breach/compliance risk that makes delay unacceptable? That omission could reverse the recommendation. Analysis B\u2019s gap is important, but feasibility and lock-in concerns around a managed/OSS platform are more implementation-specific and less likely than A\u2019s omission to invalidate the entire decision.\"\n}"
+}

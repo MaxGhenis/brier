@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "less_undermined_condition": "format_control",
+  "confidence": 72,
+  "rationale": "B is less undermined because it better handles reversibility, timing risk, and hidden dependencies: stabilize first, improve observability, and defer irreversible commitment until the system is better understood. Its biggest weakness is lack of explicit thresholds and risk of duplicated effort, but that usually requires less revision than A\u2019s stronger assumption that a few targeted fixes will solve recurring auth incidents. If that assumption fails, A needs a more substantial strategy change. B also better anticipates stakeholder and roadmap constraints by reducing immediate disruption while preserving an option to rewrite later.",
+  "most_damaging_critique_a": "It assumes incidents cluster into a few fixable root causes; if failures stem from deep architectural coupling or hidden dependencies, incremental hardening may consume months and still leave roadmap drag and reliability risk unresolved.",
+  "most_damaging_critique_b": "It risks paying twice: stabilization work plus later rewrite, without a clear trigger for when incidents are 'acceptable' or how to prevent the scoped rewrite from expanding once roadmap pressure returns.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"It assumes incidents cluster into a few fixable root causes; if failures stem from deep architectural coupling or hidden dependencies, incremental hardening may consume months and still leave roadmap drag and reliability risk unresolved.\",\n  \"most_damaging_critique_b\": \"It risks paying twice: stabilization work plus later rewrite, without a clear trigger for when incidents are 'acceptable' or how to prevent the scoped rewrite from expanding once roadmap pressure returns.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"B is less undermined because it better handles reversibility, timing risk, and hidden dependencies: stabilize first, improve observability, and defer irreversible commitment until the system is better understood. Its biggest weakness is lack of explicit thresholds and risk of duplicated effort, but that usually requires less revision than A\u2019s stronger assumption that a few targeted fixes will solve recurring auth incidents. If that assumption fails, A needs a more substantial strategy change. B also better anticipates stakeholder and roadmap constraints by reducing immediate disruption while preserving an option to rewrite later.\"\n}"
+}

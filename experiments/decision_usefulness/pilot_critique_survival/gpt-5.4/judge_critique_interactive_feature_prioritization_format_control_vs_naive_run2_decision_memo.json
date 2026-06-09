@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 82,
+  "rationale": "Writeup A is fundamentally incomplete\u2014it names only one of the two required features and provides no caveat, revisit trigger, or rationale beyond a heading. Under implementation fragility critique, it collapses entirely. Writeup B names both features (load time + shareability), explains the growth-loop logic connecting them, and explicitly addresses the opportunity cost of distribution partnerships with a conditional revisit note. While B lacks quantitative support and a formal revisit trigger, its recommendation survives the critique lenses with far less required revision than A's half-specified plan.",
+  "most_damaging_critique_a": "Writeup A recommends shareability but never names the second feature, leaving half the implementation plan undefined. This creates severe implementation fragility\u2014teams cannot execute on an incomplete recommendation.",
+  "most_damaging_critique_b": "No revisit trigger or quantitative support means the team lacks signals to course-correct if load time improvements yield diminishing returns or if the shareability loop underperforms, creating timing risk.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"Writeup A recommends shareability but never names the second feature, leaving half the implementation plan undefined. This creates severe implementation fragility\u2014teams cannot execute on an incomplete recommendation.\",\n  \"most_damaging_critique_b\": \"No revisit trigger or quantitative support means the team lacks signals to course-correct if load time improvements yield diminishing returns or if the shareability loop underperforms, creating timing risk.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 82,\n  \"rationale\": \"Writeup A is fundamentally incomplete\u2014it names only one of the two required features and provides no caveat, revisit trigger, or rationale beyond a heading. Under implementation fragility critique, it collapses entirely. Writeup B names both features (load time + shareability), explains the growth-loop logic connecting them, and explicitly addresses the opportunity cost of distribution partnerships with a conditional revisit note. While B lacks quantitative support and a formal revisit trigger, its recommendation survives the critique lenses with far less required revision than A's half-specified plan.\"\n}\n```"
+}

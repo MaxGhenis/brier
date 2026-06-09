@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "naive",
+  "confidence": 72,
+  "rationale": "A is more decision-useful because it gives a clearer implementation path and a more auditable logic for how to choose parameter complexity: sensitivity analysis, selective detail, benchmark validation, then stop at diminishing returns. That makes the recommendation easier to revisit later. B has a more complete option set and slightly better failure-mode coverage, but its recommendation is less operationally resolved and somewhat splits between Option 2 and Option 4. A better connects the stated goal to concrete selection criteria and a practical stopping rule.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 3,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"A is more decision-useful because it gives a clearer implementation path and a more auditable logic for how to choose parameter complexity: sensitivity analysis, selective detail, benchmark validation, then stop at diminishing returns. That makes the recommendation easier to revisit later. B has a more complete option set and slightly better failure-mode coverage, but its recommendation is less operationally resolved and somewhat splits between Option 2 and Option 4. A better connects the stated goal to concrete selection criteria and a practical stopping rule.\"\n}"
+}

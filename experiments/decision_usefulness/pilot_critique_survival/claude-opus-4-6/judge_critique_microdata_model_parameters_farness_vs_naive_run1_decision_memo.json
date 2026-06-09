@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "less_undermined_condition": "farness",
+  "confidence": 78,
+  "rationale": "A is imperfect but still gives a concrete strategy tied to the stated objective and some quantitative evidence on accuracy/runtime tradeoffs. Its main weakness is implementation fragility around the behavioural module. B\u2019s recommendation is broadly sensible, but it remains so generic that non-framework critiques bite harder: hidden dependencies, opportunity cost, and reversibility cannot be evaluated because the actual parameter strategy is not specified. Since the task is to prefer the writeup needing less revision after these critiques, A is less undermined.",
+  "most_damaging_critique_a": "Selective behavioural module adds hidden dependencies, calibration fragility, and maintenance/timing risk; without a clear alternative baseline or revisit trigger, the hybrid could lock in complexity with uncertain marginal accuracy gains.",
+  "most_damaging_critique_b": "Recommendation is too underspecified to assess switching costs, stakeholder response, or hidden dependencies; the upfront sensitivity-analysis step may delay delivery and still leave parameter choices vulnerable to ad hoc scope creep.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Selective behavioural module adds hidden dependencies, calibration fragility, and maintenance/timing risk; without a clear alternative baseline or revisit trigger, the hybrid could lock in complexity with uncertain marginal accuracy gains.\",\n  \"most_damaging_critique_b\": \"Recommendation is too underspecified to assess switching costs, stakeholder response, or hidden dependencies; the upfront sensitivity-analysis step may delay delivery and still leave parameter choices vulnerable to ad hoc scope creep.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 78,\n  \"rationale\": \"A is imperfect but still gives a concrete strategy tied to the stated objective and some quantitative evidence on accuracy/runtime tradeoffs. Its main weakness is implementation fragility around the behavioural module. B\u2019s recommendation is broadly sensible, but it remains so generic that non-framework critiques bite harder: hidden dependencies, opportunity cost, and reversibility cannot be evaluated because the actual parameter strategy is not specified. Since the task is to prefer the writeup needing less revision after these critiques, A is less undermined.\"\n}"
+}

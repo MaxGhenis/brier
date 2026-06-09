@@ -1,0 +1,30 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "naive",
+  "confidence": 75,
+  "rationale": "Writeup A provides a clear two-feature recommendation (faster load time + shareability) with reasoning for why each matters and how they interact as a growth loop. It also explicitly addresses why distribution partnerships\u2014a plausible alternative\u2014might not be the right pick, with a conditional caveat about when to reconsider. Writeup B appears truncated, recommending shareability but cutting off mid-explanation of the second feature. It lists tactical implementation details for shareability but lacks comparative reasoning across alternatives and provides no uncertainty handling. Neither offers quantitative support. A is more useful despite both being incomplete.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 1,
+    "overall_usefulness": 3
+  },
+  "scores_b": {
+    "action_guidance": 2,
+    "comparative_reasoning": 1,
+    "uncertainty_handling": 1,
+    "quantitative_support": 1,
+    "overall_usefulness": 2
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 3\n  },\n  \"scores_b\": {\n    \"action_guidance\": 2,\n    \"comparative_reasoning\": 1,\n    \"uncertainty_handling\": 1,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 2\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 75,\n  \"rationale\": \"Writeup A provides a clear two-feature recommendation (faster load time + shareability) with reasoning for why each matters and how they interact as a growth loop. It also explicitly addresses why distribution partnerships\u2014a plausible alternative\u2014might not be the right pick, with a conditional caveat about when to reconsider. Writeup B appears truncated, recommending shareability but cutting off mid-explanation of the second feature. It lists tactical implementation details for shareability but lacks comparative reasoning across alternatives and provides no uncertainty handling. Neither offers quantitative support. A is more useful despite both being incomplete.\"\n}\n```"
+}

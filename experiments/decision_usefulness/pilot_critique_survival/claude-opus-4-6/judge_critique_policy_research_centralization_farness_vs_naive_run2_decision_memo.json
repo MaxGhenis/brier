@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "less_undermined_condition": "farness",
+  "confidence": 72,
+  "rationale": "A is incomplete, but its recommendation is at least concrete enough to critique and refine: the main revisions would be around handoff timing, fallback support, and dependency management. B\u2019s recommendation is less undermined by framework issues only if the operating model were specified, but it is not; the missing ownership model creates implementation fragility, hidden dependencies, and incentive problems that could fundamentally change the recommendation. Since the task is to prefer the writeup needing less revision after generic critiques, A survives better despite its gaps.",
+  "most_damaging_critique_a": "The pair-then-release handoff is fragile: context may decay after week two, creating hidden dependencies on researchers and costly switching if policy ambiguity emerges later, forcing re-engagement and slowing delivery.",
+  "most_damaging_critique_b": "Hybrid is too underspecified to implement: unclear ownership, escalation paths, and incentives can recreate both duplication and inconsistency, making stakeholder behavior and coordination failure the main risk.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"The pair-then-release handoff is fragile: context may decay after week two, creating hidden dependencies on researchers and costly switching if policy ambiguity emerges later, forcing re-engagement and slowing delivery.\",\n  \"most_damaging_critique_b\": \"Hybrid is too underspecified to implement: unclear ownership, escalation paths, and incentives can recreate both duplication and inconsistency, making stakeholder behavior and coordination failure the main risk.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"A is incomplete, but its recommendation is at least concrete enough to critique and refine: the main revisions would be around handoff timing, fallback support, and dependency management. B\u2019s recommendation is less undermined by framework issues only if the operating model were specified, but it is not; the missing ownership model creates implementation fragility, hidden dependencies, and incentive problems that could fundamentally change the recommendation. Since the task is to prefer the writeup needing less revision after generic critiques, A survives better despite its gaps.\"\n}"
+}

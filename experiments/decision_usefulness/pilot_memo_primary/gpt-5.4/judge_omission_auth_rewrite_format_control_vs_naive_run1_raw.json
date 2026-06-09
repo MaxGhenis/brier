@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 52,
+  "rationale": "Both analyses are strong and similar in structure. Analysis A at least acknowledges execution risk of staged work and considers externalization seriously. Analysis B's omission is slightly more serious because it recommends a phased migration path without examining whether the team can sustain the organizational discipline required \u2014 a common failure mode where teams end up stuck maintaining two half-finished systems indefinitely, which is worse than either the status quo or a committed rewrite.",
+  "largest_missing_consideration_a": "No consideration of team capacity, morale, and retention risk \u2014 senior engineers repeatedly firefighting a messy system may burn out or leave, which would destroy the tacit knowledge the analysis relies on preserving.",
+  "largest_missing_consideration_b": "No consideration of whether the organization has the discipline and capacity to actually execute a phased migration \u2014 staged replacements of security-critical systems require sustained commitment, coordination, and dual-system operational burden that many teams underestimate or abandon midway.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of team capacity, morale, and retention risk \u2014 senior engineers repeatedly firefighting a messy system may burn out or leave, which would destroy the tacit knowledge the analysis relies on preserving.\",\n  \"largest_missing_consideration_b\": \"No consideration of whether the organization has the discipline and capacity to actually execute a phased migration \u2014 staged replacements of security-critical systems require sustained commitment, coordination, and dual-system operational burden that many teams underestimate or abandon midway.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Both analyses are strong and similar in structure. Analysis A at least acknowledges execution risk of staged work and considers externalization seriously. Analysis B's omission is slightly more serious because it recommends a phased migration path without examining whether the team can sustain the organizational discipline required \u2014 a common failure mode where teams end up stuck maintaining two half-finished systems indefinitely, which is worse than either the status quo or a committed rewrite.\"\n}\n```"
+}

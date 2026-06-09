@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 93,
+  "rationale": "A is narrow but internally coherent: it optimizes reliability vs capacity and at least considers migration risk and managed-service constraints. Its biggest omission is that auth decisions are also driven by security/compliance, not just incidents. B\u2019s larger failure is misframing the economics: its rewrite cost forecast contradicts the scenario (\u20183\u20134 senior engineers for at least a quarter\u2019) and therefore understates the main tradeoff. That distorts the recommendation more seriously than A\u2019s omitted dimension.",
+  "largest_missing_consideration_a": "Security/compliance risk of the auth layer, including breach likelihood and audit/regulatory exposure",
+  "largest_missing_consideration_b": "The true opportunity cost and execution risk of a rewrite are badly understated by unrealistically low engineer-quarter estimates",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk of the auth layer, including breach likelihood and audit/regulatory exposure\",\n  \"largest_missing_consideration_b\": \"The true opportunity cost and execution risk of a rewrite are badly understated by unrealistically low engineer-quarter estimates\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 93,\n  \"rationale\": \"A is narrow but internally coherent: it optimizes reliability vs capacity and at least considers migration risk and managed-service constraints. Its biggest omission is that auth decisions are also driven by security/compliance, not just incidents. B\u2019s larger failure is misframing the economics: its rewrite cost forecast contradicts the scenario (\u20183\u20134 senior engineers for at least a quarter\u2019) and therefore understates the main tradeoff. That distorts the recommendation more seriously than A\u2019s omitted dimension.\"\n}"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "Analysis A gives sound qualitative advice but lacks defined KPIs, explicit options, numeric forecasts, or structured failure-mode coverage\u2014making it hard to audit or revisit. Analysis B defines two resolvable KPIs with units and resolution criteria, expands the option set to four distinct strategies, provides point estimates with 80% CIs for each, grounds forecasts in outside-view reference classes, systematically identifies disconfirming evidence and failure modes per option, and traces the recommendation directly back to the forecast table. The numeric specificity is necessarily illustrative, but it gives the decision-maker concrete thresholds to check later, which is exactly what makes a decision analysis useful.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 2,
+    "forecast_specificity": 1,
+    "outside_view": 2,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 3
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 3\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 95,\n  \"rationale\": \"Analysis A gives sound qualitative advice but lacks defined KPIs, explicit options, numeric forecasts, or structured failure-mode coverage\u2014making it hard to audit or revisit. Analysis B defines two resolvable KPIs with units and resolution criteria, expands the option set to four distinct strategies, provides point estimates with 80% CIs for each, grounds forecasts in outside-view reference classes, systematically identifies disconfirming evidence and failure modes per option, and traces the recommendation directly back to the forecast table. The numeric specificity is necessarily illustrative, but it gives the decision-maker concrete thresholds to check later, which is exactly what makes a decision analysis useful.\"\n}\n```"
+}

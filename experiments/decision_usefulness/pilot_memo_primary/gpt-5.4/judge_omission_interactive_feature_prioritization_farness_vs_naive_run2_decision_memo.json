@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "farness",
+  "confidence": 82,
+  "rationale": "Analysis A fails at the most fundamental level: it never actually recommends which two features to build, rendering it useless as a decision analysis despite having a framework. Analysis B at least delivers a clear, reasoned recommendation (faster load time + shareability) with a logical rationale, even though it lacks quantitative backing. A missing decision is more serious than a missing estimate.",
+  "largest_missing_consideration_a": "No concrete recommendation of which two features to prioritize; the analysis provides a framework and KPIs but never actually makes a decision.",
+  "largest_missing_consideration_b": "No quantitative support or estimates for how much each feature would contribute to first-month reach, making the recommendation hard to validate or compare against alternatives.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No concrete recommendation of which two features to prioritize; the analysis provides a framework and KPIs but never actually makes a decision.\",\n  \"largest_missing_consideration_b\": \"No quantitative support or estimates for how much each feature would contribute to first-month reach, making the recommendation hard to validate or compare against alternatives.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Analysis A fails at the most fundamental level: it never actually recommends which two features to build, rendering it useless as a decision analysis despite having a framework. Analysis B at least delivers a clear, reasoned recommendation (faster load time + shareability) with a logical rationale, even though it lacks quantitative backing. A missing decision is more serious than a missing estimate.\"\n}\n```"
+}

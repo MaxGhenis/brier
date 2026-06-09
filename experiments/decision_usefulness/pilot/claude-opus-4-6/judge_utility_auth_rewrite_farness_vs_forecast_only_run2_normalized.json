@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 82,
+  "rationale": "A is more useful because it considers a fuller option set, includes explicit outside-view anchors, gives comparative forecasts across options, and adds a concrete revisit trigger with leading indicators. Its formatting is messy and some tables are incomplete, which hurts auditability, but the underlying decision support is stronger. B is cleaner and more internally coherent, with a solid recommendation for C and useful assumptions, but it lacks outside-view grounding and provides less support for revisiting the decision later. For a careful decision-maker, A better supports comparison and future audit despite its presentation flaws.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"A is more useful because it considers a fuller option set, includes explicit outside-view anchors, gives comparative forecasts across options, and adds a concrete revisit trigger with leading indicators. Its formatting is messy and some tables are incomplete, which hurts auditability, but the underlying decision support is stronger. B is cleaner and more internally coherent, with a solid recommendation for C and useful assumptions, but it lacks outside-view grounding and provides less support for revisiting the decision later. For a careful decision-maker, A better supports comparison and future audit despite its presentation flaws.\"\n}"
+}

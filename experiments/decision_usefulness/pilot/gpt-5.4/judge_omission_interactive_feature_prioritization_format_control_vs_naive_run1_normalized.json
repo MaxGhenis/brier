@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "more_serious_omission_condition": "naive",
+  "confidence": 95,
+  "rationale": "Analysis A is barely an analysis\u2014it provides a single conditional heuristic with no options, KPIs, evidence, or recommendation, making it almost entirely uninformative for the decision. Analysis B is thorough and well-reasoned but omits a concrete review plan with measurable thresholds and timelines, which is a meaningful but far less severe gap than having no substantive analysis at all.",
+  "largest_missing_consideration_a": "The analysis is essentially empty\u2014it lacks defined options, KPIs, evidence, a recommendation, and a review plan, so the most critical omission is a complete decision framework comparing the candidate features against the stated reach objective.",
+  "largest_missing_consideration_b": "No review plan or success metrics with thresholds were defined, so there is no way to evaluate whether the chosen features actually drove first-month reach or to trigger a course correction during the launch window.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"The analysis is essentially empty\u2014it lacks defined options, KPIs, evidence, a recommendation, and a review plan, so the most critical omission is a complete decision framework comparing the candidate features against the stated reach objective.\",\n  \"largest_missing_consideration_b\": \"No review plan or success metrics with thresholds were defined, so there is no way to evaluate whether the chosen features actually drove first-month reach or to trigger a course correction during the launch window.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 95,\n  \"rationale\": \"Analysis A is barely an analysis\u2014it provides a single conditional heuristic with no options, KPIs, evidence, or recommendation, making it almost entirely uninformative for the decision. Analysis B is thorough and well-reasoned but omits a concrete review plan with measurable thresholds and timelines, which is a meaningful but far less severe gap than having no substantive analysis at all.\"\n}\n```"
+}

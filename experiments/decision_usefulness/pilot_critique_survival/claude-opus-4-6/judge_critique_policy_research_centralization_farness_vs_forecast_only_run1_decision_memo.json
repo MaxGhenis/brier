@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 74,
+  "rationale": "A\u2019s recommendation is more exposed to implementation fragility, hidden dependencies, and switching-cost risk because it requires a deliberate transition between structures during a time-critical effort. If the central phase or cutoff is misjudged, both speed and accuracy can suffer. B\u2019s recommendation is less ambitious and more reversible: it keeps the current embedded model while adding a lighter coordination layer. Its main weaknesses are incentive-driven underuse of the knowledge base and limited gains versus stronger centralization, but those critiques usually require less revision to the recommendation than A\u2019s structural and timing risks.",
+  "most_damaging_critique_a": "Phased Hybrid adds a midstream operating-model switch exactly when speed matters, creating coordination overhead, retraining, and handoff risk; success depends on correctly timing the 30% cutoff and on a knowledge base being usable early.",
+  "most_damaging_critique_b": "Embedded + shared knowledge base may preserve local context but underdelivers on speed if duplication remains high; it relies on voluntary documentation quality and weekly sync discipline, with weak incentives to keep shared artifacts current.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Phased Hybrid adds a midstream operating-model switch exactly when speed matters, creating coordination overhead, retraining, and handoff risk; success depends on correctly timing the 30% cutoff and on a knowledge base being usable early.\",\n  \"most_damaging_critique_b\": \"Embedded + shared knowledge base may preserve local context but underdelivers on speed if duplication remains high; it relies on voluntary documentation quality and weekly sync discipline, with weak incentives to keep shared artifacts current.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 74,\n  \"rationale\": \"A\u2019s recommendation is more exposed to implementation fragility, hidden dependencies, and switching-cost risk because it requires a deliberate transition between structures during a time-critical effort. If the central phase or cutoff is misjudged, both speed and accuracy can suffer. B\u2019s recommendation is less ambitious and more reversible: it keeps the current embedded model while adding a lighter coordination layer. Its main weaknesses are incentive-driven underuse of the knowledge base and limited gains versus stronger centralization, but those critiques usually require less revision to the recommendation than A\u2019s structural and timing risks.\"\n}"
+}

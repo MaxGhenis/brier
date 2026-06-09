@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 92,
+  "rationale": "Analysis A is more useful to audit and revisit. It defines resolvable KPIs, expands the option set well, gives comparable point estimates and intervals, and explicitly grounds forecasts in outside-view reference classes. It also surfaces failure modes with probabilities and includes review criteria for updating the decision later. Analysis B is solid but thinner: weaker outside-view support, less explicit disconfirmation, and a recommendation that is somewhat less traceable to quantified tradeoffs. A better supports a careful human decision-maker.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 92,\n  \"rationale\": \"Analysis A is more useful to audit and revisit. It defines resolvable KPIs, expands the option set well, gives comparable point estimates and intervals, and explicitly grounds forecasts in outside-view reference classes. It also surfaces failure modes with probabilities and includes review criteria for updating the decision later. Analysis B is solid but thinner: weaker outside-view support, less explicit disconfirmation, and a recommendation that is somewhat less traceable to quantified tradeoffs. A better supports a careful human decision-maker.\"\n}"
+}

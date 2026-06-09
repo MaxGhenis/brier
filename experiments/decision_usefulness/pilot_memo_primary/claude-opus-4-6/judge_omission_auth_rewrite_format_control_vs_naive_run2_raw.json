@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 84,
+  "rationale": "A is broad and balanced, but underplays that auth incidents may indicate security/compliance exposure. B mentions security risk from rewrites, yet misses the core decision driver: quantifying the business cost of ongoing auth failures against roadmap slippage. Without that, its recommendation for incremental hardening rests mostly on engineering intuition rather than the actual severity of the tradeoff.",
+  "largest_missing_consideration_a": "Explicit security/compliance risk assessment of the auth incidents and whether vulnerabilities\u2014not just reliability issues\u2014require urgent architectural change",
+  "largest_missing_consideration_b": "Customer/business impact of continued incidents versus roadmap delay, including quantified cost of outages and stakeholder tolerance",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Explicit security/compliance risk assessment of the auth incidents and whether vulnerabilities\u2014not just reliability issues\u2014require urgent architectural change\",\n  \"largest_missing_consideration_b\": \"Customer/business impact of continued incidents versus roadmap delay, including quantified cost of outages and stakeholder tolerance\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 84,\n  \"rationale\": \"A is broad and balanced, but underplays that auth incidents may indicate security/compliance exposure. B mentions security risk from rewrites, yet misses the core decision driver: quantifying the business cost of ongoing auth failures against roadmap slippage. Without that, its recommendation for incremental hardening rests mostly on engineering intuition rather than the actual severity of the tradeoff.\"\n}"
+}

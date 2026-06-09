@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "farness",
+  "confidence": 84,
+  "rationale": "A treats the decision as a two-KPI optimization and underweights the most existential auth-specific factor: security/compliance/regulatory exposure from any rewrite or migration. In authentication, a rare security failure can dominate incident-count and staffing considerations. B omits build-vs-buy, but still captures a sensible middle path and emphasizes diagnosis before commitment. Missing managed auth matters, but missing security as a primary decision criterion in auth is more serious.",
+  "largest_missing_consideration_a": "Security/compliance risk of changing authentication, not just reliability and engineer cost",
+  "largest_missing_consideration_b": "The option to adopt managed/external auth or otherwise change the problem via build-vs-buy",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk of changing authentication, not just reliability and engineer cost\",\n  \"largest_missing_consideration_b\": \"The option to adopt managed/external auth or otherwise change the problem via build-vs-buy\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 84,\n  \"rationale\": \"A treats the decision as a two-KPI optimization and underweights the most existential auth-specific factor: security/compliance/regulatory exposure from any rewrite or migration. In authentication, a rare security failure can dominate incident-count and staffing considerations. B omits build-vs-buy, but still captures a sensible middle path and emphasizes diagnosis before commitment. Missing managed auth matters, but missing security as a primary decision criterion in auth is more serious.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 62,
+  "rationale": "Analysis A presents partial quantitative data (accuracy KPI only, with an empty cost table) but never reaches a recommendation, leaving the decision unresolved. Analysis B lacks quantitative rigor but at least provides a coherent, actionable recommendation with clear qualitative criteria and acknowledges overfitting risk. A's omission is more serious because a decision analysis without a recommendation or complete data fails its core purpose, whereas B's qualitative approach, while less rigorous, still guides action.",
+  "largest_missing_consideration_a": "No explicit recommendation or decision logic connecting the KPI forecasts to a choice; operational cost KPI table is empty, making the analysis incomplete and unable to support a trade-off decision.",
+  "largest_missing_consideration_b": "No quantitative forecasts or measurable KPIs to evaluate whether the recommended progressive refinement strategy actually achieves the stated accuracy goal or to compare options objectively.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit recommendation or decision logic connecting the KPI forecasts to a choice; operational cost KPI table is empty, making the analysis incomplete and unable to support a trade-off decision.\",\n  \"largest_missing_consideration_b\": \"No quantitative forecasts or measurable KPIs to evaluate whether the recommended progressive refinement strategy actually achieves the stated accuracy goal or to compare options objectively.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Analysis A presents partial quantitative data (accuracy KPI only, with an empty cost table) but never reaches a recommendation, leaving the decision unresolved. Analysis B lacks quantitative rigor but at least provides a coherent, actionable recommendation with clear qualitative criteria and acknowledges overfitting risk. A's omission is more serious because a decision analysis without a recommendation or complete data fails its core purpose, whereas B's qualitative approach, while less rigorous, still guides action.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 58,
+  "rationale": "Both recommend essentially the same strangler/stabilize-first path, so the core recommendation survives similar critiques. However, B is slightly less undermined because it specifies concrete revisit triggers (6-week and 12-week checkpoints), which directly addresses reversibility and switching cost concerns. B also attempts quantitative KPIs, giving stakeholders something to anchor on even if the baselines are assumed. A's lack of explicit escalation criteria is a more structurally damaging gap\u2014it leaves the organization vulnerable to indefinite patching drift with no forcing function, which is a real implementation fragility and opportunity cost problem.",
+  "most_damaging_critique_a": "No explicit revisit trigger or escalation criteria means the incremental patching could drift indefinitely, accumulating switching costs and hidden dependencies without a forcing function to reassess.",
+  "most_damaging_critique_b": "The quantitative forecasts rest on assumed baselines ('meaningful pain but not total collapse') with no actual data, making the elaborate numerical framework fragile and potentially misleading to stakeholders.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No explicit revisit trigger or escalation criteria means the incremental patching could drift indefinitely, accumulating switching costs and hidden dependencies without a forcing function to reassess.\",\n  \"most_damaging_critique_b\": \"The quantitative forecasts rest on assumed baselines ('meaningful pain but not total collapse') with no actual data, making the elaborate numerical framework fragile and potentially misleading to stakeholders.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 58,\n  \"rationale\": \"Both recommend essentially the same strangler/stabilize-first path, so the core recommendation survives similar critiques. However, B is slightly less undermined because it specifies concrete revisit triggers (6-week and 12-week checkpoints), which directly addresses reversibility and switching cost concerns. B also attempts quantitative KPIs, giving stakeholders something to anchor on even if the baselines are assumed. A's lack of explicit escalation criteria is a more structurally damaging gap\u2014it leaves the organization vulnerable to indefinite patching drift with no forcing function, which is a real implementation fragility and opportunity cost problem.\"\n}\n```"
+}

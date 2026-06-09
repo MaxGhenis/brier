@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 90,
+  "rationale": "Analysis B is superior on nearly every dimension. KPIs include explicit resolution instructions (sample size, measurement window, handoff standard). The option set is more complete with the tiger-team addition and clearer differentiation between hybrid variants. Forecasts are grounded in explicit reference classes and outside-view reasoning rather than appearing from nowhere. Disconfirming evidence is systematically covered per option with named failure modes and conditions under which each option would win. The recommendation is directly traceable to forecast tables with a concrete fallback option, review date, decision rules, and escalation-rate diagnostics. Analysis A is competent but lacks outside-view grounding, failure-mode depth, and post-decision audit mechanisms.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 90,\n  \"rationale\": \"Analysis B is superior on nearly every dimension. KPIs include explicit resolution instructions (sample size, measurement window, handoff standard). The option set is more complete with the tiger-team addition and clearer differentiation between hybrid variants. Forecasts are grounded in explicit reference classes and outside-view reasoning rather than appearing from nowhere. Disconfirming evidence is systematically covered per option with named failure modes and conditions under which each option would win. The recommendation is directly traceable to forecast tables with a concrete fallback option, review date, decision rules, and escalation-rate diagnostics. Analysis A is competent but lacks outside-view grounding, failure-mode depth, and post-decision audit mechanisms.\"\n}\n```"
+}

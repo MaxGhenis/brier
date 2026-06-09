@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 62,
+  "rationale": "Analysis A, while missing organizational/morale factors, at least provides a structured framework with numeric forecasts and explicit review gates. Analysis B's omission is more serious: it recommends a path without ever asking how bad the current incidents actually are. If incidents are escalating in severity or frequency, or carry existential security/revenue risk, the 'stabilize first' recommendation could be dangerously underweighted. The absence of any severity/trend assessment means the recommendation is essentially ungrounded in the problem's actual urgency.",
+  "largest_missing_consideration_a": "No consideration of the people/organizational dynamics: team morale and attrition risk from prolonged work on a frustrating legacy system, or conversely from a demoralizing stalled rewrite \u2014 engineer retention is a major hidden cost that could dominate the decision.",
+  "largest_missing_consideration_b": "No assessment of the current incident severity, frequency, or trend \u2014 without knowing whether incidents are worsening, stable, or improving, and whether they carry meaningful customer/revenue/security impact, the recommendation lacks grounding to calibrate urgency and investment level.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of the people/organizational dynamics: team morale and attrition risk from prolonged work on a frustrating legacy system, or conversely from a demoralizing stalled rewrite \u2014 engineer retention is a major hidden cost that could dominate the decision.\",\n  \"largest_missing_consideration_b\": \"No assessment of the current incident severity, frequency, or trend \u2014 without knowing whether incidents are worsening, stable, or improving, and whether they carry meaningful customer/revenue/security impact, the recommendation lacks grounding to calibrate urgency and investment level.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Analysis A, while missing organizational/morale factors, at least provides a structured framework with numeric forecasts and explicit review gates. Analysis B's omission is more serious: it recommends a path without ever asking how bad the current incidents actually are. If incidents are escalating in severity or frequency, or carry existential security/revenue risk, the 'stabilize first' recommendation could be dangerously underweighted. The absence of any severity/trend assessment means the recommendation is essentially ungrounded in the problem's actual urgency.\"\n}\n```"
+}

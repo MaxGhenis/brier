@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 90,
+  "rationale": "Analysis A is thorough with KPIs, forecasts, multiple options, base rates, failure modes, and a review plan; its main gap is not explicitly modeling security/compliance risk. Analysis B reaches a similar conclusion but provides almost no analytical structure \u2014 no KPIs, no forecasts, no outside-view evidence, no review plan. The absence of quantitative reasoning and structured comparison in B is a far more serious omission than A's missing security dimension.",
+  "largest_missing_consideration_a": "No consideration of the security/compliance risk dimension \u2014 repeated auth incidents may signal vulnerabilities that create breach or regulatory exposure, which could dominate all other KPIs and change the optimal path entirely.",
+  "largest_missing_consideration_b": "No quantitative forecasts, KPIs, option enumeration, outside-view base rates, or structured review plan \u2014 the analysis lacks nearly all analytical scaffolding needed to rigorously compare options and make a defensible decision.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of the security/compliance risk dimension \u2014 repeated auth incidents may signal vulnerabilities that create breach or regulatory exposure, which could dominate all other KPIs and change the optimal path entirely.\",\n  \"largest_missing_consideration_b\": \"No quantitative forecasts, KPIs, option enumeration, outside-view base rates, or structured review plan \u2014 the analysis lacks nearly all analytical scaffolding needed to rigorously compare options and make a defensible decision.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 90,\n  \"rationale\": \"Analysis A is thorough with KPIs, forecasts, multiple options, base rates, failure modes, and a review plan; its main gap is not explicitly modeling security/compliance risk. Analysis B reaches a similar conclusion but provides almost no analytical structure \u2014 no KPIs, no forecasts, no outside-view evidence, no review plan. The absence of quantitative reasoning and structured comparison in B is a far more serious omission than A's missing security dimension.\"\n}\n```"
+}

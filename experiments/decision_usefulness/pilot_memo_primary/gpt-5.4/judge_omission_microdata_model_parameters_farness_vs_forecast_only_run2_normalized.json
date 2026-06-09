@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 82,
+  "rationale": "Analysis A is severely incomplete: it defines an operational cost KPI but provides no forecasts for it, offers no recommendation, no outside-view evidence, no disconfirming evidence, and no review plan. Analysis B, while also missing some numeric forecasts for all options, provides a rich framework with outside-view anchors, disconfirming evidence, failure modes, a clear recommendation, and a detailed review plan. A's omission of the cost KPI data makes the core tradeoff unanalyzable.",
+  "largest_missing_consideration_a": "No operational cost forecasts were provided for KPI 2, making it impossible to evaluate the accuracy-vs-burden tradeoff that is central to the decision.",
+  "largest_missing_consideration_b": "No explicit forecasts for Options B, C, and D were provided for both KPIs, making comparative evaluation across all options incomplete despite the analytical framework being thorough.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No operational cost forecasts were provided for KPI 2, making it impossible to evaluate the accuracy-vs-burden tradeoff that is central to the decision.\",\n  \"largest_missing_consideration_b\": \"No explicit forecasts for Options B, C, and D were provided for both KPIs, making comparative evaluation across all options incomplete despite the analytical framework being thorough.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Analysis A is severely incomplete: it defines an operational cost KPI but provides no forecasts for it, offers no recommendation, no outside-view evidence, no disconfirming evidence, and no review plan. Analysis B, while also missing some numeric forecasts for all options, provides a rich framework with outside-view anchors, disconfirming evidence, failure modes, a clear recommendation, and a detailed review plan. A's omission of the cost KPI data makes the core tradeoff unanalyzable.\"\n}\n```"
+}

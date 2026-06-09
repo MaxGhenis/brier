@@ -1,0 +1,30 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "format_control",
+  "confidence": 78,
+  "rationale": "Both reach the same default recommendation (load time + shareability), but B is substantially more useful for actual decision-making. B provides a clear conditional decision rule (choose partnerships if you have committed partners, otherwise shareability) that A only hints at in an exception block. B's comparative reasoning is more thorough\u2014it explains when each option wins and why, including the critical nuance that shareability only works if the output is inherently share-worthy. B's uncertainty handling is superior, explicitly mapping different launch scenarios to different feature choices rather than burying contingencies. Neither provides quantitative support, so they tie there.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 2,
+    "overall_usefulness": 4
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 2,
+    "overall_usefulness": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 4\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 78,\n  \"rationale\": \"Both reach the same default recommendation (load time + shareability), but B is substantially more useful for actual decision-making. B provides a clear conditional decision rule (choose partnerships if you have committed partners, otherwise shareability) that A only hints at in an exception block. B's comparative reasoning is more thorough\u2014it explains when each option wins and why, including the critical nuance that shareability only works if the output is inherently share-worthy. B's uncertainty handling is superior, explicitly mapping different launch scenarios to different feature choices rather than burying contingencies. Neither provides quantitative support, so they tie there.\"\n}\n```"
+}

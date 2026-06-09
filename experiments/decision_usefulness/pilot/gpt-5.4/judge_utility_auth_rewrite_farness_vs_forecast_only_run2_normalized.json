@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 92,
+  "rationale": "Analysis A is substantially more complete and useful. KPIs are clearly defined with units and resolution criteria. All four options have numeric forecasts with 80% CIs on both KPIs, presented in a comparable table. Outside-view reasoning cites specific reference classes (rewrite failure rates, SRE experience). Disconfirming evidence is thorough\u2014listing conditions that would flip the recommendation and failure modes per option. The recommendation traces directly to forecasts, includes a concrete 6-8 week action plan, and specifies a review schedule with decision rules. Analysis B is fragmentary: missing recommendation, review plan, outside-view grounding, and only partially presents forecasts for one KPI.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 3,
+    "forecast_specificity": 3,
+    "outside_view": 2,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 2
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 2\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 92,\n  \"rationale\": \"Analysis A is substantially more complete and useful. KPIs are clearly defined with units and resolution criteria. All four options have numeric forecasts with 80% CIs on both KPIs, presented in a comparable table. Outside-view reasoning cites specific reference classes (rewrite failure rates, SRE experience). Disconfirming evidence is thorough\u2014listing conditions that would flip the recommendation and failure modes per option. The recommendation traces directly to forecasts, includes a concrete 6-8 week action plan, and specifies a review schedule with decision rules. Analysis B is fragmentary: missing recommendation, review plan, outside-view grounding, and only partially presents forecasts for one KPI.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "Analysis B is superior on every evaluation dimension. It defines two explicit, measurable KPIs with resolution criteria. It expands the option set to eight candidates and evaluates multiple pairs with point estimates and 80% confidence intervals, making options directly comparable. It provides outside-view base rates and benchmarks. Its disconfirming evidence section systematically challenges every major option, including its own recommendation. The recommendation is fully traceable back to the forecasts, with clear conditions for switching. Analysis A offers sound intuition but lacks quantified forecasts, formal KPIs, systematic option comparison, and structured failure-mode analysis\u2014making it much harder to audit or revisit.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 1,
+    "outside_view": 2,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 3
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 3\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 95,\n  \"rationale\": \"Analysis B is superior on every evaluation dimension. It defines two explicit, measurable KPIs with resolution criteria. It expands the option set to eight candidates and evaluates multiple pairs with point estimates and 80% confidence intervals, making options directly comparable. It provides outside-view base rates and benchmarks. Its disconfirming evidence section systematically challenges every major option, including its own recommendation. The recommendation is fully traceable back to the forecasts, with clear conditions for switching. Analysis A offers sound intuition but lacks quantified forecasts, formal KPIs, systematic option comparison, and structured failure-mode analysis\u2014making it much harder to audit or revisit.\"\n}\n```"
+}

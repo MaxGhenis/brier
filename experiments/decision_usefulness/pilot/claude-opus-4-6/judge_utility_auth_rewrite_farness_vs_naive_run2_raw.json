@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 93,
+  "rationale": "B is much more useful for a careful decision-maker because it defines measurable KPIs, expands the option set beyond rewrite-vs-patch, gives comparable forecasts with uncertainty ranges, and makes the recommendation auditable. A has sensible strategic advice and a good escalation-trigger idea, but it lacks explicit metrics, quantified comparisons, and outside-view support. B is easier to revisit later because the assumptions, checkpoints, and failure modes are visible and testable. Its numeric claims may be somewhat shaky, so I did not give a perfect outside-view score, but overall it better supports disciplined decision-making.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 2,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 93,\n  \"rationale\": \"B is much more useful for a careful decision-maker because it defines measurable KPIs, expands the option set beyond rewrite-vs-patch, gives comparable forecasts with uncertainty ranges, and makes the recommendation auditable. A has sensible strategic advice and a good escalation-trigger idea, but it lacks explicit metrics, quantified comparisons, and outside-view support. B is easier to revisit later because the assumptions, checkpoints, and failure modes are visible and testable. Its numeric claims may be somewhat shaky, so I did not give a perfect outside-view score, but overall it better supports disciplined decision-making.\"\n}"
+}

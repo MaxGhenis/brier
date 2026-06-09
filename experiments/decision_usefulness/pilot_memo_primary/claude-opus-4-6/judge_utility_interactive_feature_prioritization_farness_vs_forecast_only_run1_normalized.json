@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 82,
+  "rationale": "B is more useful to a careful decision-maker because it provides more outside-view grounding, clearer failure modes, and a concrete review/checkpoint plan. A\u2019s core recommendation is plausible and somewhat traceable, but key option comparisons and evidence are missing or malformed, making it harder to audit. B is imperfect\u2014its recommendation leans on incomplete comparative forecasts and introduces an extra option somewhat opaquely\u2014but it better surfaces conditional dependencies (speed threshold, share-worthiness, embed complexity) that materially affect the decision.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 3,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 3,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 3
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 3\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 82,\n  \"rationale\": \"B is more useful to a careful decision-maker because it provides more outside-view grounding, clearer failure modes, and a concrete review/checkpoint plan. A\u2019s core recommendation is plausible and somewhat traceable, but key option comparisons and evidence are missing or malformed, making it harder to audit. B is imperfect\u2014its recommendation leans on incomplete comparative forecasts and introduces an extra option somewhat opaquely\u2014but it better surfaces conditional dependencies (speed threshold, share-worthiness, embed complexity) that materially affect the decision.\"\n}"
+}

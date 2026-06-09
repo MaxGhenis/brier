@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 88,
+  "rationale": "A reduces the decision to incidents and engineer time, but for authentication the biggest omitted dimension is security/compliance downside; a rewrite, patch, or vendor move can materially change breach and regulatory risk. B at least discusses compliance feasibility and failure modes, though it still underexplores a staged 'stabilize first, decide second' path. Missing security risk in auth is the more serious omission.",
+  "largest_missing_consideration_a": "Security/compliance risk of auth changes, including breach exposure and audit/regulatory implications",
+  "largest_missing_consideration_b": "Decision reversibility and immediate risk-reduction actions (e.g., stabilization sprint, kill-switches, observability) before committing to a migration path",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk of auth changes, including breach exposure and audit/regulatory implications\",\n  \"largest_missing_consideration_b\": \"Decision reversibility and immediate risk-reduction actions (e.g., stabilization sprint, kill-switches, observability) before committing to a migration path\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"A reduces the decision to incidents and engineer time, but for authentication the biggest omitted dimension is security/compliance downside; a rewrite, patch, or vendor move can materially change breach and regulatory risk. B at least discusses compliance feasibility and failure modes, though it still underexplores a staged 'stabilize first, decide second' path. Missing security risk in auth is the more serious omission.\"\n}"
+}

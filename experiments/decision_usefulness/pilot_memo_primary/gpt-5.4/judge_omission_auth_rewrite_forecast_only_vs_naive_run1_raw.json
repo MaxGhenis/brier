@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 62,
+  "rationale": "Analysis A's omission of the vendor/platform option is a meaningful gap because it excludes a structurally different solution that could dominate the recommended approach on both KPIs. Analysis B at least includes that option and provides a broader decision framework. However, B's omission of team health and attrition risk is also significant\u2014sustained incident load can cause senior engineer departures that worsen all options. A's omission is slightly more serious because it narrows the option space, while B's omission is an underweighted factor rather than a missing alternative.",
+  "largest_missing_consideration_a": "Failed to consider replacing the auth layer with a managed identity/auth vendor or external platform, which could eliminate the structural maintenance burden entirely.",
+  "largest_missing_consideration_b": "Failed to consider the human/organizational cost of ongoing incident burden on team morale, on-call fatigue, and attrition risk, which could make the true cost of slower approaches much higher than the roadmap-percentage metric captures.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"Failed to consider replacing the auth layer with a managed identity/auth vendor or external platform, which could eliminate the structural maintenance burden entirely.\",\n  \"largest_missing_consideration_b\": \"Failed to consider the human/organizational cost of ongoing incident burden on team morale, on-call fatigue, and attrition risk, which could make the true cost of slower approaches much higher than the roadmap-percentage metric captures.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Analysis A's omission of the vendor/platform option is a meaningful gap because it excludes a structurally different solution that could dominate the recommended approach on both KPIs. Analysis B at least includes that option and provides a broader decision framework. However, B's omission of team health and attrition risk is also significant\u2014sustained incident load can cause senior engineer departures that worsen all options. A's omission is slightly more serious because it narrows the option space, while B's omission is an underweighted factor rather than a missing alternative.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "farness",
+  "confidence": 72,
+  "rationale": "Analysis A's omission is more serious because the entire purpose of a decision analysis is to recommend a course of action. Despite providing a framework and KPIs, it never actually answers the question of which two features to build. Analysis B at least attempts quantitative comparison of options. However, B's lack of caveats and revisit triggers is also a significant gap, making this a close call.",
+  "largest_missing_consideration_a": "No explicit recommendation of which two features to prioritize \u2014 the analysis frames the decision and lists KPIs but never actually commits to a choice among shareability, customization, distribution partnerships, faster load time, or other options.",
+  "largest_missing_consideration_b": "No key caveat or revisit trigger \u2014 the analysis lacks any stated conditions under which the recommendation should be reconsidered and fails to flag major risks or assumptions that could invalidate its quantitative estimates.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit recommendation of which two features to prioritize \u2014 the analysis frames the decision and lists KPIs but never actually commits to a choice among shareability, customization, distribution partnerships, faster load time, or other options.\",\n  \"largest_missing_consideration_b\": \"No key caveat or revisit trigger \u2014 the analysis lacks any stated conditions under which the recommendation should be reconsidered and fails to flag major risks or assumptions that could invalidate its quantitative estimates.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"Analysis A's omission is more serious because the entire purpose of a decision analysis is to recommend a course of action. Despite providing a framework and KPIs, it never actually answers the question of which two features to build. Analysis B at least attempts quantitative comparison of options. However, B's lack of caveats and revisit triggers is also a significant gap, making this a close call.\"\n}\n```"
+}

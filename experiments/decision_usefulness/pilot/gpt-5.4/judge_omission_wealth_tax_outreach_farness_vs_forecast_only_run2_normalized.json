@@ -1,0 +1,18 @@
+{
+  "case_id": "wealth_tax_outreach",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 72,
+  "rationale": "Analysis A produces numerical forecasts without any reference-class anchoring or outside-view evidence, undermining the reliability of every estimate and the recommendation built on them. Analysis B explicitly addresses base rates and reference classes, and while it acknowledges timing risk in its disconfirming section, it doesn't fully integrate it into the recommendation. The absence of empirical grounding in A is more structurally damaging than B's underweighting of timing, since B at least flags the issue.",
+  "largest_missing_consideration_a": "No outside-view base rates or reference classes were consulted to anchor the forecasts, making the numerical estimates ungrounded.",
+  "largest_missing_consideration_b": "No consideration of political timing constraints\u2014e.g., upcoming legislative sessions, ballot deadlines, or news cycles\u2014that could make the slower staged approach miss a critical window of relevance.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No outside-view base rates or reference classes were consulted to anchor the forecasts, making the numerical estimates ungrounded.\",\n  \"largest_missing_consideration_b\": \"No consideration of political timing constraints\u2014e.g., upcoming legislative sessions, ballot deadlines, or news cycles\u2014that could make the slower staged approach miss a critical window of relevance.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"Analysis A produces numerical forecasts without any reference-class anchoring or outside-view evidence, undermining the reliability of every estimate and the recommendation built on them. Analysis B explicitly addresses base rates and reference classes, and while it acknowledges timing risk in its disconfirming section, it doesn't fully integrate it into the recommendation. The absence of empirical grounding in A is more structurally damaging than B's underweighting of timing, since B at least flags the issue.\"\n}\n```"
+}

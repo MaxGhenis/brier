@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 90,
+  "rationale": "Analysis A is fairly complete but optimizes mainly for reliability incidents and engineer effort; it underweights the asymmetric security/compliance and customer-trust consequences of auth failures. Analysis B gives sensible next steps, but it never turns them into an actual decision framework with options, KPIs, forecasts, or trade-offs, so it cannot answer the stated question. That makes B\u2019s omission more serious.",
+  "largest_missing_consideration_a": "Security/compliance risk and user-impact severity of auth failures, not just incident count and engineer time",
+  "largest_missing_consideration_b": "A concrete comparison of options with quantified decision criteria (including roadmap/opportunity cost), rather than only a diagnostic process",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk and user-impact severity of auth failures, not just incident count and engineer time\",\n  \"largest_missing_consideration_b\": \"A concrete comparison of options with quantified decision criteria (including roadmap/opportunity cost), rather than only a diagnostic process\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 90,\n  \"rationale\": \"Analysis A is fairly complete but optimizes mainly for reliability incidents and engineer effort; it underweights the asymmetric security/compliance and customer-trust consequences of auth failures. Analysis B gives sensible next steps, but it never turns them into an actual decision framework with options, KPIs, forecasts, or trade-offs, so it cannot answer the stated question. That makes B\u2019s omission more serious.\"\n}"
+}

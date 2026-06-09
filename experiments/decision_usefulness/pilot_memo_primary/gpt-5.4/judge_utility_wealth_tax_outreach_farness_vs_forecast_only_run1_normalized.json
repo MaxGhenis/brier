@@ -1,0 +1,32 @@
+{
+  "case_id": "wealth_tax_outreach",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 90,
+  "rationale": "Both reach the same recommendation, but A is far more auditable. A's KPIs have explicit inclusion criteria and resolution methods; B's are vaguely defined. A provides detailed outside-view reference classes and base-rate reasoning; B offers none. A systematically covers disconfirming evidence for every option and explicitly argues against its own recommendation with four specific reasons it could be wrong. B's disconfirming coverage is minimal. A includes a concrete review plan with diagnostic checks; B has none. A's option-by-option mechanism explanations make the forecast differences traceable; B's reasoning is thinner and harder to revisit.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 90,\n  \"rationale\": \"Both reach the same recommendation, but A is far more auditable. A's KPIs have explicit inclusion criteria and resolution methods; B's are vaguely defined. A provides detailed outside-view reference classes and base-rate reasoning; B offers none. A systematically covers disconfirming evidence for every option and explicitly argues against its own recommendation with four specific reasons it could be wrong. B's disconfirming coverage is minimal. A includes a concrete review plan with diagnostic checks; B has none. A's option-by-option mechanism explanations make the forecast differences traceable; B's reasoning is thinner and harder to revisit.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "less_undermined_condition": "naive",
+  "confidence": 68,
+  "rationale": "A is underspecified, but its recommendation is structurally simpler and more reversible: start simple, add only where gains are demonstrated. Under the critique lenses, that creates less tail risk, fewer hidden dependencies, and lower switching cost than B\u2019s adaptive/tiered strategy. B shows more measurement detail, but the recommendation itself appears more fragile operationally because it relies on ongoing calibration infrastructure, current admin data, and managing a production default alongside a more adaptive layer. That likely needs more revision to address implementation fragility and stakeholder/incentive issues.",
+  "most_damaging_critique_a": "Implementation depends on sensitivity analysis and proof of accuracy gains, but no stopping rule, benchmark, or governance is specified; complexity can creep in ad hoc and create hidden maintenance and runtime costs.",
+  "most_damaging_critique_b": "Adaptive/tiered setup may lock in dual-track complexity and hidden dependencies on fresh administrative data, increasing switching and maintenance burden if calibration inputs lag or stakeholder priorities shift.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Implementation depends on sensitivity analysis and proof of accuracy gains, but no stopping rule, benchmark, or governance is specified; complexity can creep in ad hoc and create hidden maintenance and runtime costs.\",\n  \"most_damaging_critique_b\": \"Adaptive/tiered setup may lock in dual-track complexity and hidden dependencies on fresh administrative data, increasing switching and maintenance burden if calibration inputs lag or stakeholder priorities shift.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 68,\n  \"rationale\": \"A is underspecified, but its recommendation is structurally simpler and more reversible: start simple, add only where gains are demonstrated. Under the critique lenses, that creates less tail risk, fewer hidden dependencies, and lower switching cost than B\u2019s adaptive/tiered strategy. B shows more measurement detail, but the recommendation itself appears more fragile operationally because it relies on ongoing calibration infrastructure, current admin data, and managing a production default alongside a more adaptive layer. That likely needs more revision to address implementation fragility and stakeholder/incentive issues.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "forecast_only",
+  "confidence": 84,
+  "rationale": "A is more undermined because its recommendation appears to shift to a managed/OSS platform without adequately confronting hidden dependencies, switching costs, procurement/security review, and stakeholder incentives. Those critiques could force a different recommendation entirely. B recommends a strangler migration, which better fits the scenario\u2019s core tradeoff: improve reliability while avoiding a risky big-bang rewrite and limiting immediate roadmap disruption. Critiques around fragility, dual-stack complexity, and timing risk still matter, but they mostly imply tighter milestones, staffing, and revisit triggers\u2014not a wholesale change in direction.",
+  "most_damaging_critique_a": "Managed/OSS auth introduces major hidden dependencies\u2014vendor fit, migration complexity, compliance, lock-in, and integration changes\u2014without addressing stakeholder response or rollback path; recommendation may need substantial reframing before execution.",
+  "most_damaging_critique_b": "Strangler migration still risks prolonged dual-running, senior-engineer drag, and unclear ownership, but these are implementation/timing concerns that usually refine scope and sequencing rather than overturn the recommendation.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Managed/OSS auth introduces major hidden dependencies\u2014vendor fit, migration complexity, compliance, lock-in, and integration changes\u2014without addressing stakeholder response or rollback path; recommendation may need substantial reframing before execution.\",\n  \"most_damaging_critique_b\": \"Strangler migration still risks prolonged dual-running, senior-engineer drag, and unclear ownership, but these are implementation/timing concerns that usually refine scope and sequencing rather than overturn the recommendation.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 84,\n  \"rationale\": \"A is more undermined because its recommendation appears to shift to a managed/OSS platform without adequately confronting hidden dependencies, switching costs, procurement/security review, and stakeholder incentives. Those critiques could force a different recommendation entirely. B recommends a strangler migration, which better fits the scenario\u2019s core tradeoff: improve reliability while avoiding a risky big-bang rewrite and limiting immediate roadmap disruption. Critiques around fragility, dual-stack complexity, and timing risk still matter, but they mostly imply tighter milestones, staffing, and revisit triggers\u2014not a wholesale change in direction.\"\n}"
+}

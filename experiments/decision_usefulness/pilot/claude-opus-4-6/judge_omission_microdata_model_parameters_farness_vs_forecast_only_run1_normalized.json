@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 93,
+  "rationale": "A already includes an operational cost index that captures runtime plus maintenance, but it underweights scenario-specific validity. B handles targeted vs non-targeted accuracy and has a review loop, yet it omits a core part of the stated tradeoff: maintenance burden. Since the scenario explicitly says complexity raises runtime and maintenance, leaving maintenance out of the KPI set is the more serious omission.",
+  "largest_missing_consideration_a": "Whether the chosen parameter strategy preserves accuracy on the actual decision-relevant outputs and reform scenarios, not just fit to calibration benchmarks.",
+  "largest_missing_consideration_b": "Maintenance burden and implementation complexity as an explicit KPI alongside runtime, including analyst skill requirements and debugging risk.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the chosen parameter strategy preserves accuracy on the actual decision-relevant outputs and reform scenarios, not just fit to calibration benchmarks.\",\n  \"largest_missing_consideration_b\": \"Maintenance burden and implementation complexity as an explicit KPI alongside runtime, including analyst skill requirements and debugging risk.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 93,\n  \"rationale\": \"A already includes an operational cost index that captures runtime plus maintenance, but it underweights scenario-specific validity. B handles targeted vs non-targeted accuracy and has a review loop, yet it omits a core part of the stated tradeoff: maintenance burden. Since the scenario explicitly says complexity raises runtime and maintenance, leaving maintenance out of the KPI set is the more serious omission.\"\n}"
+}

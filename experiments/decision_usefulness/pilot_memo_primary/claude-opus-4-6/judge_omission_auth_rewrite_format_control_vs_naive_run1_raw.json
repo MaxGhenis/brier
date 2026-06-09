@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "format_control",
+  "confidence": 86,
+  "rationale": "Both analyses cover technical risk, opportunity cost, and rewrite hazards well. The biggest gap in A is that it treats auth incidents mainly as reliability problems, not explicitly as potential security/compliance exposures that could force urgent action. In an authentication layer, that can dominate all other considerations. B at least mentions trust boundaries and architecture being fundamentally broken, though it still underplays contingency planning while delaying a rewrite.",
+  "largest_missing_consideration_a": "Security/compliance risk: whether incidents indicate exploitable auth flaws that require immediate architectural remediation regardless of roadmap cost",
+  "largest_missing_consideration_b": "Business continuity/contingency planning if another major auth incident occurs during the hardening period",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk: whether incidents indicate exploitable auth flaws that require immediate architectural remediation regardless of roadmap cost\",\n  \"largest_missing_consideration_b\": \"Business continuity/contingency planning if another major auth incident occurs during the hardening period\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 86,\n  \"rationale\": \"Both analyses cover technical risk, opportunity cost, and rewrite hazards well. The biggest gap in A is that it treats auth incidents mainly as reliability problems, not explicitly as potential security/compliance exposures that could force urgent action. In an authentication layer, that can dominate all other considerations. B at least mentions trust boundaries and architecture being fundamentally broken, though it still underplays contingency planning while delaying a rewrite.\"\n}"
+}

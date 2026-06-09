@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 90,
+  "rationale": "A is more useful for an auditable decision: it states a workable KPI, lays out a fuller option set, and gives a clear recommendation tied to concrete steps. B has some good instincts\u2014especially root-cause analysis, observability, and rewrite triggers\u2014but it omits explicit KPIs, options, and a formal recommendation, making comparison and later review harder. Neither analysis provides real outside-view evidence, and both are weak on true disconfirming evidence, but A still better supports a careful human deciding among rewrite, patching, or a hybrid path.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 2,
+    "forecast_specificity": 3,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 2
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 2\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 90,\n  \"rationale\": \"A is more useful for an auditable decision: it states a workable KPI, lays out a fuller option set, and gives a clear recommendation tied to concrete steps. B has some good instincts\u2014especially root-cause analysis, observability, and rewrite triggers\u2014but it omits explicit KPIs, options, and a formal recommendation, making comparison and later review harder. Neither analysis provides real outside-view evidence, and both are weak on true disconfirming evidence, but A still better supports a careful human deciding among rewrite, patching, or a hybrid path.\"\n}"
+}

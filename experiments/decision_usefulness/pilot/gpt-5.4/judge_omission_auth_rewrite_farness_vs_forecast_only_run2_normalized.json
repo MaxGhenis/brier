@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 52,
+  "rationale": "Analysis A's missing review plan is a significant process gap but is relatively easy to add. Analysis B is far more thorough overall, yet its omission of security and compliance risk is substantively more dangerous for an authentication system decision: auth failures can trigger breaches, regulatory penalties, and customer trust damage that dwarf operational incident-hours. Both analyses treat auth purely as a reliability problem, but B's greater depth makes this blind spot more consequential since it could lead to confidently choosing an option that leaves critical security exposure unaddressed.",
+  "largest_missing_consideration_a": "No review plan or decision checkpoint to detect if the stabilize-first approach is stalling or if conditions change, making it impossible to course-correct",
+  "largest_missing_consideration_b": "No consideration of security/compliance risk as a KPI or constraint \u2014 auth incidents may carry breach, regulatory, or customer-trust consequences that incident-hours and engineer-weeks fail to capture",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No review plan or decision checkpoint to detect if the stabilize-first approach is stalling or if conditions change, making it impossible to course-correct\",\n  \"largest_missing_consideration_b\": \"No consideration of security/compliance risk as a KPI or constraint \u2014 auth incidents may carry breach, regulatory, or customer-trust consequences that incident-hours and engineer-weeks fail to capture\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Analysis A's missing review plan is a significant process gap but is relatively easy to add. Analysis B is far more thorough overall, yet its omission of security and compliance risk is substantively more dangerous for an authentication system decision: auth failures can trigger breaches, regulatory penalties, and customer trust damage that dwarf operational incident-hours. Both analyses treat auth purely as a reliability problem, but B's greater depth makes this blind spot more consequential since it could lead to confidently choosing an option that leaves critical security exposure unaddressed.\"\n}\n```"
+}

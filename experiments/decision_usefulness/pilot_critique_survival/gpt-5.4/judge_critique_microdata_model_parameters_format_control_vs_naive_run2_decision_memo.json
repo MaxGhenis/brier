@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "less_undermined_condition": "naive",
+  "confidence": 58,
+  "rationale": "Both writeups lack quantitative support and revisit triggers, but Writeup A's recommendation\u2014start simple, add complexity only when materially justified\u2014is more operationally concrete and inherently more reversible. If the simple specification proves insufficient, adding parameters is straightforward. Writeup B's 'balanced' recommendation is undermined by implementation fragility: without explicit thresholds defining what 'balanced' means, stakeholders can interpret it to justify nearly any parameterization, creating hidden dependency on subjective judgment. Writeup A's main weakness (no revisit trigger) is real but less structurally damaging than B's definitional ambiguity, which affects every downstream implementation decision.",
+  "most_damaging_critique_a": "No revisit trigger or switching cost analysis means the team has no structured way to know when simplicity becomes inadequate, risking delayed upgrades and costly late-stage rework.",
+  "most_damaging_critique_b": "\"Balanced parameterization\" is vague with no quantitative thresholds or implementation criteria, making it fragile to interpret\u2014different team members may implement wildly different parameter sets under the same label.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit trigger or switching cost analysis means the team has no structured way to know when simplicity becomes inadequate, risking delayed upgrades and costly late-stage rework.\",\n  \"most_damaging_critique_b\": \"\\\"Balanced parameterization\\\" is vague with no quantitative thresholds or implementation criteria, making it fragile to interpret\u2014different team members may implement wildly different parameter sets under the same label.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 58,\n  \"rationale\": \"Both writeups lack quantitative support and revisit triggers, but Writeup A's recommendation\u2014start simple, add complexity only when materially justified\u2014is more operationally concrete and inherently more reversible. If the simple specification proves insufficient, adding parameters is straightforward. Writeup B's 'balanced' recommendation is undermined by implementation fragility: without explicit thresholds defining what 'balanced' means, stakeholders can interpret it to justify nearly any parameterization, creating hidden dependency on subjective judgment. Writeup A's main weakness (no revisit trigger) is real but less structurally damaging than B's definitional ambiguity, which affects every downstream implementation decision.\"\n}\n```"
+}

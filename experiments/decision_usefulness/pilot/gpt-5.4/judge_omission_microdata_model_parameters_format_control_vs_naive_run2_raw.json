@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 52,
+  "rationale": "Both analyses converge on balanced/progressive parameterization and share similar reasoning. Analysis A at least nods toward stakeholder transparency and decision relevance. Analysis B, despite its practical stopping rules, never considers that different end-users or policy questions may require different parameter strategies\u2014treating the problem as purely a statistical fit exercise. This is a slightly more serious omission because ignoring use-case variation can lead to a well-validated model that still fails its intended audience. Analysis A's lack of formal validation metrics is also notable but less consequential given its qualitative framing.",
+  "largest_missing_consideration_a": "No mention of a formal validation protocol or quantitative criteria (e.g., goodness-of-fit metrics, benchmark comparisons) for deciding when added complexity is justified versus not.",
+  "largest_missing_consideration_b": "No consideration of stakeholder or end-user requirements\u2014different policy questions or audiences may demand different levels of detail, meaning the 'right' parameterization depends on intended use cases, not just statistical fit.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No mention of a formal validation protocol or quantitative criteria (e.g., goodness-of-fit metrics, benchmark comparisons) for deciding when added complexity is justified versus not.\",\n  \"largest_missing_consideration_b\": \"No consideration of stakeholder or end-user requirements\u2014different policy questions or audiences may demand different levels of detail, meaning the 'right' parameterization depends on intended use cases, not just statistical fit.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Both analyses converge on balanced/progressive parameterization and share similar reasoning. Analysis A at least nods toward stakeholder transparency and decision relevance. Analysis B, despite its practical stopping rules, never considers that different end-users or policy questions may require different parameter strategies\u2014treating the problem as purely a statistical fit exercise. This is a slightly more serious omission because ignoring use-case variation can lead to a well-validated model that still fails its intended audience. Analysis A's lack of formal validation metrics is also notable but less consequential given its qualitative framing.\"\n}\n```"
+}

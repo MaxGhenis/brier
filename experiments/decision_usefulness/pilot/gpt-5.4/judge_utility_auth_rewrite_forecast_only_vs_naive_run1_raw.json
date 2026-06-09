@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 92,
+  "rationale": "Both analyses reach similar conclusions (stabilize-first, then targeted rebuild), but A is far more useful for decision-making. A defines explicit KPIs with success criteria, expands the option set to four distinct paths including vendor/platform, provides quantified forecasts with confidence intervals enabling comparison, clearly states falsifiable assumptions, and specifies conditions under which the recommendation would change. B reads as solid engineering advice but lacks measurable KPIs, provides no forecasts, and blends patching with targeted redesign without clearly distinguishing them as separate options. A is auditable and revisitable; B is not.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 1,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 92,\n  \"rationale\": \"Both analyses reach similar conclusions (stabilize-first, then targeted rebuild), but A is far more useful for decision-making. A defines explicit KPIs with success criteria, expands the option set to four distinct paths including vendor/platform, provides quantified forecasts with confidence intervals enabling comparison, clearly states falsifiable assumptions, and specifies conditions under which the recommendation would change. B reads as solid engineering advice but lacks measurable KPIs, provides no forecasts, and blends patching with targeted redesign without clearly distinguishing them as separate options. A is auditable and revisitable; B is not.\"\n}\n```"
+}

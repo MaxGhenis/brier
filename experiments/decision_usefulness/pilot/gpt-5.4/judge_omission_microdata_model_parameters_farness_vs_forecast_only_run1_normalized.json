@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 78,
+  "rationale": "Analysis A is substantially incomplete: it presents no explicit recommendation, no outside-view evidence, no review plan, and an incomplete options list\u2014making it difficult to act on. Analysis B is thorough and well-structured; its main gap (team capability feasibility) is acknowledged as a contingency but not formally assessed. A's omissions are more fundamental because they undermine the entire decision-support purpose of the analysis.",
+  "largest_missing_consideration_a": "No explicit recommendation or clear option set was provided, and the analysis lacks outside-view base rates or reference classes to anchor its forecasts, making the point estimates poorly grounded.",
+  "largest_missing_consideration_b": "The analysis does not consider the team's existing technical capacity and skill set as a constraint on feasibility of the recommended hierarchical/regularized strategy (Option D), which could make the recommendation impractical if the team lacks Bayesian/hierarchical modeling expertise.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit recommendation or clear option set was provided, and the analysis lacks outside-view base rates or reference classes to anchor its forecasts, making the point estimates poorly grounded.\",\n  \"largest_missing_consideration_b\": \"The analysis does not consider the team's existing technical capacity and skill set as a constraint on feasibility of the recommended hierarchical/regularized strategy (Option D), which could make the recommendation impractical if the team lacks Bayesian/hierarchical modeling expertise.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 78,\n  \"rationale\": \"Analysis A is substantially incomplete: it presents no explicit recommendation, no outside-view evidence, no review plan, and an incomplete options list\u2014making it difficult to act on. Analysis B is thorough and well-structured; its main gap (team capability feasibility) is acknowledged as a contingency but not formally assessed. A's omissions are more fundamental because they undermine the entire decision-support purpose of the analysis.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "format_control",
+  "confidence": 78,
+  "rationale": "Analysis A is strong operationally but never directly evaluates whether the incidents imply unacceptable security, fraud, or compliance exposure\u2014arguably the most important dimension for authentication. Analysis B is less complete structurally, but it still captures the core strategic logic: diagnose, harden, instrument, and set rewrite triggers. Missing recommendation/KPIs matters, but missing security-risk framing in an auth decision is more serious.",
+  "largest_missing_consideration_a": "Explicit security/compliance risk assessment of the auth incidents and rewrite path",
+  "largest_missing_consideration_b": "A concrete decision framework with KPIs/options and an explicit recommendation",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Explicit security/compliance risk assessment of the auth incidents and rewrite path\",\n  \"largest_missing_consideration_b\": \"A concrete decision framework with KPIs/options and an explicit recommendation\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 78,\n  \"rationale\": \"Analysis A is strong operationally but never directly evaluates whether the incidents imply unacceptable security, fraud, or compliance exposure\u2014arguably the most important dimension for authentication. Analysis B is less complete structurally, but it still captures the core strategic logic: diagnose, harden, instrument, and set rewrite triggers. Missing recommendation/KPIs matters, but missing security-risk framing in an auth decision is more serious.\"\n}"
+}

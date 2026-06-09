@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 84,
+  "rationale": "A\u2019s main gap is implementation discipline: it recommends adaptivity without clear thresholds or stopping rules. B\u2019s bigger omission is strategic fit: it jumps to a behavioural module even though the objective is microdata accuracy, and behavioural complexity may add runtime/maintenance without improving benchmark fit or being empirically identifiable. That mismatch with the core decision objective is more serious.",
+  "largest_missing_consideration_a": "Whether the adaptive/tiered strategy can be operationalized with explicit decision rules and governance for when to add complexity versus stop tuning",
+  "largest_missing_consideration_b": "Whether adding a behavioural module is actually necessary and identifiable given the stated primary goal of microdata accuracy against administrative benchmarks",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the adaptive/tiered strategy can be operationalized with explicit decision rules and governance for when to add complexity versus stop tuning\",\n  \"largest_missing_consideration_b\": \"Whether adding a behavioural module is actually necessary and identifiable given the stated primary goal of microdata accuracy against administrative benchmarks\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 84,\n  \"rationale\": \"A\u2019s main gap is implementation discipline: it recommends adaptivity without clear thresholds or stopping rules. B\u2019s bigger omission is strategic fit: it jumps to a behavioural module even though the objective is microdata accuracy, and behavioural complexity may add runtime/maintenance without improving benchmark fit or being empirically identifiable. That mismatch with the core decision objective is more serious.\"\n}"
+}

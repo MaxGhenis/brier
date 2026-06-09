@@ -1,0 +1,30 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 90,
+  "rationale": "Both reach similar conclusions (moderate complexity with targeted tuning), but B is far more useful for actual decision-making. B defines explicit KPIs, expands the option set to four distinct strategies, provides point estimates with 80% CIs for each, and clearly articulates the marginal tradeoffs between options (e.g., A\u2192B vs B\u2192C). It also specifies when alternative options would be preferred, giving conditional guidance. A offers sound general advice but remains abstract\u2014no quantitative benchmarks, no explicit comparison between alternatives, and no uncertainty quantification. The quantitative estimates in B, while necessarily approximate, give a decision-maker concrete anchors for evaluating tradeoffs.",
+  "scores_a": {
+    "action_guidance": 3,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 2,
+    "quantitative_support": 1,
+    "overall_usefulness": 2
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 4,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 2\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 90,\n  \"rationale\": \"Both reach similar conclusions (moderate complexity with targeted tuning), but B is far more useful for actual decision-making. B defines explicit KPIs, expands the option set to four distinct strategies, provides point estimates with 80% CIs for each, and clearly articulates the marginal tradeoffs between options (e.g., A\u2192B vs B\u2192C). It also specifies when alternative options would be preferred, giving conditional guidance. A offers sound general advice but remains abstract\u2014no quantitative benchmarks, no explicit comparison between alternatives, and no uncertainty quantification. The quantitative estimates in B, while necessarily approximate, give a decision-maker concrete anchors for evaluating tradeoffs.\"\n}\n```"
+}

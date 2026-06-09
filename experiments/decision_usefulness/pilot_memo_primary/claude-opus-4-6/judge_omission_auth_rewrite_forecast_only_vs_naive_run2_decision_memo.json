@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 88,
+  "rationale": "Analysis A mostly reaches a sensible default but fails to specify a concrete, quantified trigger for switching from patching to larger intervention. Analysis B\u2019s bigger gap is assuming a strangler approach is implementable without testing whether the auth layer can actually be cleanly wrapped, decomposed, and migrated given current coupling, compliance, and team capacity. If that feasibility is wrong, its recommendation collapses.",
+  "largest_missing_consideration_a": "A clear decision threshold with quantified incident/security impact versus roadmap cost",
+  "largest_missing_consideration_b": "The organizational feasibility and prerequisite architecture for a strangler migration",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"A clear decision threshold with quantified incident/security impact versus roadmap cost\",\n  \"largest_missing_consideration_b\": \"The organizational feasibility and prerequisite architecture for a strangler migration\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 88,\n  \"rationale\": \"Analysis A mostly reaches a sensible default but fails to specify a concrete, quantified trigger for switching from patching to larger intervention. Analysis B\u2019s bigger gap is assuming a strangler approach is implementable without testing whether the auth layer can actually be cleanly wrapped, decomposed, and migrated given current coupling, compliance, and team capacity. If that feasibility is wrong, its recommendation collapses.\"\n}"
+}

@@ -1,0 +1,30 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 89,
+  "rationale": "A is more decision-useful because it compares concrete two-feature combinations directly, identifies a strong non-obvious alternative (embed mode), and gives conditional guidance tied to observable thresholds (e.g., if mobile load time >4s, switch to speed). It also handles uncertainty better by naming failure modes, disconfirming evidence, and when its recommendation would reverse. B is solid and concise, but its pairwise analysis is thinner, some quantitative claims feel less grounded, and it gives less operational guidance for adapting based on the product\u2019s actual constraints.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 4,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 89,\n  \"rationale\": \"A is more decision-useful because it compares concrete two-feature combinations directly, identifies a strong non-obvious alternative (embed mode), and gives conditional guidance tied to observable thresholds (e.g., if mobile load time >4s, switch to speed). It also handles uncertainty better by naming failure modes, disconfirming evidence, and when its recommendation would reverse. B is solid and concise, but its pairwise analysis is thinner, some quantitative claims feel less grounded, and it gives less operational guidance for adapting based on the product\u2019s actual constraints.\"\n}"
+}

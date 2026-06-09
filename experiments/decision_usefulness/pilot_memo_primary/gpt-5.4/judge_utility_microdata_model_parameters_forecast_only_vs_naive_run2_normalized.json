@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 55,
+  "rationale": "Analysis A provides a coherent qualitative recommendation (progressive refinement) with practical heuristics and good failure-mode coverage (overfitting, maintenance fragility), but lacks defined KPIs, named options, or any quantitative forecasts\u2014making it hard to audit or compare. Analysis B defines measurable KPIs (WMAPE, analyst-hours), names four discrete options, and provides point estimates with 80% CIs, enabling direct comparison. However, B's forecasts are self-described as 'illustrative,' it lacks outside-view grounding, disconfirming evidence, and a final recommendation. On balance, B's structured quantitative framework is more useful for a careful decision-maker despite its incompleteness, as it provides an auditable scaffold A entirely lacks.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 2,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 2
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 2\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 55,\n  \"rationale\": \"Analysis A provides a coherent qualitative recommendation (progressive refinement) with practical heuristics and good failure-mode coverage (overfitting, maintenance fragility), but lacks defined KPIs, named options, or any quantitative forecasts\u2014making it hard to audit or compare. Analysis B defines measurable KPIs (WMAPE, analyst-hours), names four discrete options, and provides point estimates with 80% CIs, enabling direct comparison. However, B's forecasts are self-described as 'illustrative,' it lacks outside-view grounding, disconfirming evidence, and a final recommendation. On balance, B's structured quantitative framework is more useful for a careful decision-maker despite its incompleteness, as it provides an auditable scaffold A entirely lacks.\"\n}\n```"
+}

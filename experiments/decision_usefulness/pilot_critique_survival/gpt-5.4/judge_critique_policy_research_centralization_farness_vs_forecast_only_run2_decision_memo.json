@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "farness",
+  "confidence": 68,
+  "rationale": "Both writeups appear truncated and incomplete, but Writeup A at least commits to a hybrid recommendation with quantitative estimates, a revisit trigger (6 weeks / 20-30 items), and an explicit key caveat about escalation logic. Writeup B never states a recommendation and lacks a revisit trigger, making it essentially unactionable under any critique lens\u2014particularly reversibility/switching cost and implementation fragility. While A has real vulnerabilities around hidden dependencies (escalation classification criteria), it provides enough structure to be revised rather than rebuilt. B would require near-total revision after applying these critiques.",
+  "most_damaging_critique_a": "Implementation fragility: the hybrid model depends on correctly classifying which items escalate to central researchers\u2014misclassification thresholds are unspecified, creating a hidden dependency that could silently degrade both speed and accuracy.",
+  "most_damaging_critique_b": "Reversibility and switching cost: no recommendation is actually stated, no revisit trigger is defined, and no escalation criteria are specified, making it impossible to evaluate whether the chosen path can be course-corrected if it fails.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"Implementation fragility: the hybrid model depends on correctly classifying which items escalate to central researchers\u2014misclassification thresholds are unspecified, creating a hidden dependency that could silently degrade both speed and accuracy.\",\n  \"most_damaging_critique_b\": \"Reversibility and switching cost: no recommendation is actually stated, no revisit trigger is defined, and no escalation criteria are specified, making it impossible to evaluate whether the chosen path can be course-corrected if it fails.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 68,\n  \"rationale\": \"Both writeups appear truncated and incomplete, but Writeup A at least commits to a hybrid recommendation with quantitative estimates, a revisit trigger (6 weeks / 20-30 items), and an explicit key caveat about escalation logic. Writeup B never states a recommendation and lacks a revisit trigger, making it essentially unactionable under any critique lens\u2014particularly reversibility/switching cost and implementation fragility. While A has real vulnerabilities around hidden dependencies (escalation classification criteria), it provides enough structure to be revised rather than rebuilt. B would require near-total revision after applying these critiques.\"\n}\n```"
+}

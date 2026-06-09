@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 88,
+  "rationale": "Both reach a similar conclusion (stabilize then targeted rebuild), but A is substantially more useful. A explicitly enumerates four options (including vendor/platform), provides quantitative forecasts with confidence intervals across two well-chosen KPIs, clearly states when you'd choose each alternative, and lists falsifiable assumptions. B gives solid qualitative reasoning and practical steps but lacks comparative structure\u2014it doesn't rigorously weigh alternatives against each other, offers no quantitative grounding, and handles uncertainty only implicitly through escalation triggers. A's 'when I would choose differently' section and explicit assumptions give a decision-maker much better tools to adapt the recommendation to their specific context.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 1,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"Both reach a similar conclusion (stabilize then targeted rebuild), but A is substantially more useful. A explicitly enumerates four options (including vendor/platform), provides quantitative forecasts with confidence intervals across two well-chosen KPIs, clearly states when you'd choose each alternative, and lists falsifiable assumptions. B gives solid qualitative reasoning and practical steps but lacks comparative structure\u2014it doesn't rigorously weigh alternatives against each other, offers no quantitative grounding, and handles uncertainty only implicitly through escalation triggers. A's 'when I would choose differently' section and explicit assumptions give a decision-maker much better tools to adapt the recommendation to their specific context.\"\n}\n```"
+}

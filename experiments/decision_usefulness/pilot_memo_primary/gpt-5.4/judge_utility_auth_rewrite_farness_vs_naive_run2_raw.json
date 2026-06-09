@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 82,
+  "rationale": "Both reach the same recommendation (stabilize-first/strangler), but B is substantially more useful. B expands the option set (adding vendor/managed auth), provides numeric forecasts with confidence intervals across two well-chosen KPIs, explicitly compares all four options in a summary table, identifies specific disconfirming evidence that would change the recommendation, details failure modes per option, and sets concrete review checkpoints with decision rules. The quantitative estimates, while necessarily rough, give the decision-maker anchors for discussion. A is solid and concise but lacks comparative depth, quantitative grounding, and the structured review/escalation criteria that make B more actionable for a real decision-maker.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 2,
+    "overall_usefulness": 4
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 4\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 82,\n  \"rationale\": \"Both reach the same recommendation (stabilize-first/strangler), but B is substantially more useful. B expands the option set (adding vendor/managed auth), provides numeric forecasts with confidence intervals across two well-chosen KPIs, explicitly compares all four options in a summary table, identifies specific disconfirming evidence that would change the recommendation, details failure modes per option, and sets concrete review checkpoints with decision rules. The quantitative estimates, while necessarily rough, give the decision-maker anchors for discussion. A is solid and concise but lacks comparative depth, quantitative grounding, and the structured review/escalation criteria that make B more actionable for a real decision-maker.\"\n}\n```"
+}

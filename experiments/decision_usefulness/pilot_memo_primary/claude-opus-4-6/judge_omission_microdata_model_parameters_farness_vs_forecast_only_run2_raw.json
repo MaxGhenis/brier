@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 88,
+  "rationale": "A assumes forecasted accuracy gains from more calibration are real and durable, but does not explicitly address overfitting, parameter instability, or validation on future/out-of-sample data\u2014the core risk when optimizing for microdata accuracy. B does discuss mis-specification and overfitting, but underweights setup feasibility and fixed transition costs for its recommended adaptive strategy. Missing the validity of the accuracy gains is more serious than missing implementation cost detail.",
+  "largest_missing_consideration_a": "Whether the added calibration complexity actually improves out-of-sample accuracy over time rather than overfitting to current benchmarks",
+  "largest_missing_consideration_b": "The one-time implementation cost and feasibility of building/maintaining the adaptive dual-mode workflow",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the added calibration complexity actually improves out-of-sample accuracy over time rather than overfitting to current benchmarks\",\n  \"largest_missing_consideration_b\": \"The one-time implementation cost and feasibility of building/maintaining the adaptive dual-mode workflow\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"A assumes forecasted accuracy gains from more calibration are real and durable, but does not explicitly address overfitting, parameter instability, or validation on future/out-of-sample data\u2014the core risk when optimizing for microdata accuracy. B does discuss mis-specification and overfitting, but underweights setup feasibility and fixed transition costs for its recommended adaptive strategy. Missing the validity of the accuracy gains is more serious than missing implementation cost detail.\"\n}"
+}

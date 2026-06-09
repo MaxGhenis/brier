@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 97,
+  "rationale": "B is far more useful for an auditable decision. It defines measurable KPIs, expands the option set beyond rewrite vs patch, gives comparative forecasts with time/cost tradeoffs, uses reference classes, and ties its recommendation to explicit assumptions and review triggers. It is imperfect\u2014some citations are loose, some tables appear truncated, and the review-plan field is mislabeled\u2014but it still makes the decision easier to compare and revisit. A is fragmentary: options are mostly absent, KPIs are malformed, forecasts are not quantified, outside-view support is missing, and no clear recommendation or review plan is provided.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 2,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 97,\n  \"rationale\": \"B is far more useful for an auditable decision. It defines measurable KPIs, expands the option set beyond rewrite vs patch, gives comparative forecasts with time/cost tradeoffs, uses reference classes, and ties its recommendation to explicit assumptions and review triggers. It is imperfect\u2014some citations are loose, some tables appear truncated, and the review-plan field is mislabeled\u2014but it still makes the decision easier to compare and revisit. A is fragmentary: options are mostly absent, KPIs are malformed, forecasts are not quantified, outside-view support is missing, and no clear recommendation or review plan is provided.\"\n}"
+}

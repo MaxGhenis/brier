@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "naive",
+  "confidence": 88,
+  "rationale": "A is more decision-useful because it gives a clearer immediate path, distinguishes structured hardening from ad hoc patching, and sets an explicit decision trigger for when to escalate to a rewrite. That trigger and the suggested success metric make its uncertainty handling more actionable. B is solid and broader in option framing, but its recommendation is less discriminative: it effectively recommends a future rewrite without enough evidence threshold for when that is warranted. A better helps a careful decision-maker act now while preserving the rewrite option if facts support it.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 2,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"A is more decision-useful because it gives a clearer immediate path, distinguishes structured hardening from ad hoc patching, and sets an explicit decision trigger for when to escalate to a rewrite. That trigger and the suggested success metric make its uncertainty handling more actionable. B is solid and broader in option framing, but its recommendation is less discriminative: it effectively recommends a future rewrite without enough evidence threshold for when that is warranted. A better helps a careful decision-maker act now while preserving the rewrite option if facts support it.\"\n}"
+}

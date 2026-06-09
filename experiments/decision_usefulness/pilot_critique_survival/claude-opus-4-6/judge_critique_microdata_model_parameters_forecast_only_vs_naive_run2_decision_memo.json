@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 74,
+  "rationale": "Both writeups omit caveats, revisit triggers, and concrete alternatives. But under framework-agnostic critiques, A\u2019s recommendation is more exposed: hybrid/adaptive schemes are implementation-fragile, create hidden dependencies, and are harder to reverse once tier-specific logic accumulates. Its partial metrics do not resolve those risks. B is also underspecified, especially on quantitative thresholds and governance against complexity creep, but its core recommendation is inherently more reversible and lower-risk: begin simple, add only where sensitivity shows value. That means fewer revisions are needed to survive critiques about fragility, switching cost, and tail risk.",
+  "most_damaging_critique_a": "Adaptive/tiered hybrid hides dependency and switching costs: once tiers and bespoke calibrations are embedded, maintenance and debugging can sprawl, and no guardrails show when added complexity stops paying off.",
+  "most_damaging_critique_b": "Progressive complexity lacks explicit stopping rules or quantified thresholds, so stakeholder pressure can cause incremental creep and undercut the intended simplicity without proving enough accuracy gain.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Adaptive/tiered hybrid hides dependency and switching costs: once tiers and bespoke calibrations are embedded, maintenance and debugging can sprawl, and no guardrails show when added complexity stops paying off.\",\n  \"most_damaging_critique_b\": \"Progressive complexity lacks explicit stopping rules or quantified thresholds, so stakeholder pressure can cause incremental creep and undercut the intended simplicity without proving enough accuracy gain.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 74,\n  \"rationale\": \"Both writeups omit caveats, revisit triggers, and concrete alternatives. But under framework-agnostic critiques, A\u2019s recommendation is more exposed: hybrid/adaptive schemes are implementation-fragile, create hidden dependencies, and are harder to reverse once tier-specific logic accumulates. Its partial metrics do not resolve those risks. B is also underspecified, especially on quantitative thresholds and governance against complexity creep, but its core recommendation is inherently more reversible and lower-risk: begin simple, add only where sensitivity shows value. That means fewer revisions are needed to survive critiques about fragility, switching cost, and tail risk.\"\n}"
+}

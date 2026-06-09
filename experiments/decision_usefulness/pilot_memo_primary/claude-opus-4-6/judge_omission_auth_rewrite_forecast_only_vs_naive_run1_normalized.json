@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 91,
+  "rationale": "Analysis A gives sensible process advice but never defines options, KPIs, or a recommendation threshold grounded in business impact, so it cannot really decide. Analysis B is more complete, but its biggest gap is treating auth mainly as an uptime/cost problem; catastrophic security or compliance risk could dominate the choice. Missing core decision criteria in A is the more serious omission.",
+  "largest_missing_consideration_a": "Explicit decision criteria/KPIs tying reliability gains to business impact and acceptable incident risk",
+  "largest_missing_consideration_b": "Security/compliance risk of the auth layer, including breach and regulatory downside beyond incident counts",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Explicit decision criteria/KPIs tying reliability gains to business impact and acceptable incident risk\",\n  \"largest_missing_consideration_b\": \"Security/compliance risk of the auth layer, including breach and regulatory downside beyond incident counts\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 91,\n  \"rationale\": \"Analysis A gives sensible process advice but never defines options, KPIs, or a recommendation threshold grounded in business impact, so it cannot really decide. Analysis B is more complete, but its biggest gap is treating auth mainly as an uptime/cost problem; catastrophic security or compliance risk could dominate the choice. Missing core decision criteria in A is the more serious omission.\"\n}"
+}

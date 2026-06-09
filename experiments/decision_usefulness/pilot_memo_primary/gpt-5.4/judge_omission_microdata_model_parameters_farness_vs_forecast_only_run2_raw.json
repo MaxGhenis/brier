@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 52,
+  "rationale": "Both analyses omit important considerations. Analysis A at least touches on auditability and interpretation concerns within its failure modes and mechanisms, while Analysis B never addresses transparency, reproducibility, or stakeholder communication requirements. For tax-benefit microsimulations used in policy settings, the ability to explain and audit model behavior to non-technical stakeholders is a critical constraint that can override pure accuracy-cost tradeoffs. Analysis B's omission is slightly more serious because it lacks this governance dimension entirely.",
+  "largest_missing_consideration_a": "No consideration of how parameter strategy affects the accuracy of specific policy-relevant outputs (e.g., distributional impacts of a reform) versus aggregate fit \u2014 stakeholder use cases and downstream policy decisions should shape which errors matter most.",
+  "largest_missing_consideration_b": "No consideration of model transparency and auditability requirements \u2014 tax-benefit microsimulations often must be explainable to policymakers and subject to external review, and parameter complexity directly affects the ability to audit, reproduce, and communicate results.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of how parameter strategy affects the accuracy of specific policy-relevant outputs (e.g., distributional impacts of a reform) versus aggregate fit \u2014 stakeholder use cases and downstream policy decisions should shape which errors matter most.\",\n  \"largest_missing_consideration_b\": \"No consideration of model transparency and auditability requirements \u2014 tax-benefit microsimulations often must be explainable to policymakers and subject to external review, and parameter complexity directly affects the ability to audit, reproduce, and communicate results.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Both analyses omit important considerations. Analysis A at least touches on auditability and interpretation concerns within its failure modes and mechanisms, while Analysis B never addresses transparency, reproducibility, or stakeholder communication requirements. For tax-benefit microsimulations used in policy settings, the ability to explain and audit model behavior to non-technical stakeholders is a critical constraint that can override pure accuracy-cost tradeoffs. Analysis B's omission is slightly more serious because it lacks this governance dimension entirely.\"\n}\n```"
+}

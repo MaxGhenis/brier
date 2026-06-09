@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 82,
+  "rationale": "Analysis A fails to provide a recommendation or even clearly state alternatives, making it incomplete as a decision analysis\u2014it's essentially just a KPI definition exercise. Analysis B at least recommends an option and expands the option set, though it underweights the opportunity cost of diverting senior engineers from roadmap work. A's omission is more fundamental because a decision analysis without a decision is not actionable.",
+  "largest_missing_consideration_a": "No recommended option or alternative is stated, so the analysis entirely omits a concrete decision recommendation and comparison of trade-offs between rewrite, patching, and hybrid approaches.",
+  "largest_missing_consideration_b": "No serious consideration of the opportunity cost and risk to roadmap commitments\u2014pulling senior engineers for a quarter could delay revenue-critical features, and the analysis lacks quantification of that business impact against reliability gains.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No recommended option or alternative is stated, so the analysis entirely omits a concrete decision recommendation and comparison of trade-offs between rewrite, patching, and hybrid approaches.\",\n  \"largest_missing_consideration_b\": \"No serious consideration of the opportunity cost and risk to roadmap commitments\u2014pulling senior engineers for a quarter could delay revenue-critical features, and the analysis lacks quantification of that business impact against reliability gains.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Analysis A fails to provide a recommendation or even clearly state alternatives, making it incomplete as a decision analysis\u2014it's essentially just a KPI definition exercise. Analysis B at least recommends an option and expands the option set, though it underweights the opportunity cost of diverting senior engineers from roadmap work. A's omission is more fundamental because a decision analysis without a decision is not actionable.\"\n}\n```"
+}

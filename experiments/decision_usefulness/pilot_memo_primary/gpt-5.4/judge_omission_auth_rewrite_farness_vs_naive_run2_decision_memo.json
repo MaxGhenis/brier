@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "naive",
+  "confidence": 62,
+  "rationale": "Both analyses converge on a stabilize-then-migrate path, but Analysis A lacks a concrete revisit trigger, meaning the team could patch indefinitely without ever committing to the architectural fix. This is the classic 'permanent temporary solution' failure mode. Analysis B at least sets a 6-week and 12-week checkpoint. However, B's omission of engineer retention risk is also significant since repeated incident toil on a system everyone knows is broken is a major attrition driver that could undermine any plan.",
+  "largest_missing_consideration_a": "No explicit revisit trigger or conditions under which the incremental patching strategy should be abandoned in favor of a rewrite, risking indefinite deferral.",
+  "largest_missing_consideration_b": "No consideration of team morale and attrition risk \u2014 senior engineers repeatedly firefighting a messy system they know needs rewriting may leave, which would make either path harder.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit revisit trigger or conditions under which the incremental patching strategy should be abandoned in favor of a rewrite, risking indefinite deferral.\",\n  \"largest_missing_consideration_b\": \"No consideration of team morale and attrition risk \u2014 senior engineers repeatedly firefighting a messy system they know needs rewriting may leave, which would make either path harder.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Both analyses converge on a stabilize-then-migrate path, but Analysis A lacks a concrete revisit trigger, meaning the team could patch indefinitely without ever committing to the architectural fix. This is the classic 'permanent temporary solution' failure mode. Analysis B at least sets a 6-week and 12-week checkpoint. However, B's omission of engineer retention risk is also significant since repeated incident toil on a system everyone knows is broken is a major attrition driver that could undermine any plan.\"\n}\n```"
+}

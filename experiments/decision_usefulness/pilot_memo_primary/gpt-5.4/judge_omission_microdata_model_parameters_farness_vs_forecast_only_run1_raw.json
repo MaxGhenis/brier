@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 55,
+  "rationale": "Analysis A at least discusses governance, explainability, and staff dependency risks, partially addressing institutional constraints. Analysis B's omission is more serious because the entire accuracy forecast hinges on data quality and sample size\u2014if the microdata are thin or noisy, moderate complexity could overfit just as badly as high complexity, fundamentally undermining the recommendation. Without assessing data adequacy, the forecasted accuracy differences lack grounding.",
+  "largest_missing_consideration_a": "No consideration of stakeholder/policy constraints such as legal or regulatory requirements for transparency, auditability, and reproducibility that may rule out hierarchical/regularized methods regardless of their statistical merits.",
+  "largest_missing_consideration_b": "No consideration of data quality, sample size limitations, or the characteristics of the underlying microdata\u2014the forecasts assume a well-specified model without assessing whether the input data can actually support the parameterization strategies being compared.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of stakeholder/policy constraints such as legal or regulatory requirements for transparency, auditability, and reproducibility that may rule out hierarchical/regularized methods regardless of their statistical merits.\",\n  \"largest_missing_consideration_b\": \"No consideration of data quality, sample size limitations, or the characteristics of the underlying microdata\u2014the forecasts assume a well-specified model without assessing whether the input data can actually support the parameterization strategies being compared.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 55,\n  \"rationale\": \"Analysis A at least discusses governance, explainability, and staff dependency risks, partially addressing institutional constraints. Analysis B's omission is more serious because the entire accuracy forecast hinges on data quality and sample size\u2014if the microdata are thin or noisy, moderate complexity could overfit just as badly as high complexity, fundamentally undermining the recommendation. Without assessing data adequacy, the forecasted accuracy differences lack grounding.\"\n}\n```"
+}

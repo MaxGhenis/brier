@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 96,
+  "rationale": "B is far more useful for an auditable decision. It defines decision-relevant KPIs, distinguishes multiple options, gives comparative forecasts with estimates and confidence intervals, states assumptions, and ties its recommendation to those comparisons. A contains some sensible advice, but key sections are missing or malformed: no clear option set, no usable forecasts, no recommendation, and almost no way to compare paths. Neither analysis provides real outside-view evidence, so both score poorly there. B\u2019s main weakness is lack of external grounding and no review plan, but it still makes the decision substantially easier to inspect and revisit.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 96,\n  \"rationale\": \"B is far more useful for an auditable decision. It defines decision-relevant KPIs, distinguishes multiple options, gives comparative forecasts with estimates and confidence intervals, states assumptions, and ties its recommendation to those comparisons. A contains some sensible advice, but key sections are missing or malformed: no clear option set, no usable forecasts, no recommendation, and almost no way to compare paths. Neither analysis provides real outside-view evidence, so both score poorly there. B\u2019s main weakness is lack of external grounding and no review plan, but it still makes the decision substantially easier to inspect and revisit.\"\n}"
+}

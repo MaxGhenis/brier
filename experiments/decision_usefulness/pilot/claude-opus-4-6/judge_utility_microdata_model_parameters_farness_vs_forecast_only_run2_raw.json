@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 93,
+  "rationale": "B is more useful for an auditable decision. Its KPIs are more operationalized, forecasts are tied to explicit units and reference classes, and it gives stronger outside-view grounding with literature-based base rates. It also does a much better job surfacing failure modes, including when the recommended strategy would be wrong. The recommendation is easier to revisit later because B includes implementation triggers and review thresholds. A is coherent and concise, but its thresholds and forecasts feel more asserted than grounded, and it lacks explicit disconfirming evidence.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 93,\n  \"rationale\": \"B is more useful for an auditable decision. Its KPIs are more operationalized, forecasts are tied to explicit units and reference classes, and it gives stronger outside-view grounding with literature-based base rates. It also does a much better job surfacing failure modes, including when the recommended strategy would be wrong. The recommendation is easier to revisit later because B includes implementation triggers and review thresholds. A is coherent and concise, but its thresholds and forecasts feel more asserted than grounded, and it lacks explicit disconfirming evidence.\"\n}"
+}

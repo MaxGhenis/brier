@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "more_serious_omission_condition": "format_control",
+  "confidence": 68,
+  "rationale": "Both analyses converge on a similar stabilize-then-redesign recommendation and both lack revisit triggers. However, Analysis A at least provides a rough timeline (4\u20138 weeks) and some quantitative framing, while Analysis B offers no quantitative support whatsoever\u2014no incident rates, cost estimates, or effort sizing. Without numbers, stakeholders cannot evaluate trade-offs or hold the plan accountable, making B's omission more consequential for decision quality.",
+  "largest_missing_consideration_a": "No explicit revisit trigger or criteria for escalating from incremental patching to targeted redesign if incidents worsen or patching proves insufficient.",
+  "largest_missing_consideration_b": "No quantitative support\u2014lacks any estimate of incident frequency, cost of incidents, expected effort for each phase, or thresholds that would justify changing course.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit revisit trigger or criteria for escalating from incremental patching to targeted redesign if incidents worsen or patching proves insufficient.\",\n  \"largest_missing_consideration_b\": \"No quantitative support\u2014lacks any estimate of incident frequency, cost of incidents, expected effort for each phase, or thresholds that would justify changing course.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 68,\n  \"rationale\": \"Both analyses converge on a similar stabilize-then-redesign recommendation and both lack revisit triggers. However, Analysis A at least provides a rough timeline (4\u20138 weeks) and some quantitative framing, while Analysis B offers no quantitative support whatsoever\u2014no incident rates, cost estimates, or effort sizing. Without numbers, stakeholders cannot evaluate trade-offs or hold the plan accountable, making B's omission more consequential for decision quality.\"\n}\n```"
+}

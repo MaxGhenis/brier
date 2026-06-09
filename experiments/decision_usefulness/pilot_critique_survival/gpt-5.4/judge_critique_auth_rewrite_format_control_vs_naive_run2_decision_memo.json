@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "less_undermined_condition": "naive",
+  "confidence": 62,
+  "rationale": "Both recommendations are substantively similar\u2014incremental patching with eventual migration\u2014and both lack explicit revisit triggers. However, Writeup A provides concrete quantitative checkpoints (4\u20136 week review of incident rate, change failure rate, engineer effort), which partially addresses implementation fragility and timing risk. Writeup B offers no quantitative support and its phased approach ('stabilize then staged replacement') has more hidden dependencies on undefined transition criteria, making it more vulnerable to indefinite drift and stakeholder misalignment. A's specificity on measurement makes it slightly more robust under these critique lenses.",
+  "most_damaging_critique_a": "No revisit trigger or switching cost analysis means the incremental patching could drift indefinitely, accumulating technical debt without a clear escalation point forcing the migration plan to activate.",
+  "most_damaging_critique_b": "No quantitative support, no revisit triggers, and vague phasing make 'stabilize then staged replacement' highly fragile to implement\u2014teams lack concrete criteria to transition between phases or detect stalling.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit trigger or switching cost analysis means the incremental patching could drift indefinitely, accumulating technical debt without a clear escalation point forcing the migration plan to activate.\",\n  \"most_damaging_critique_b\": \"No quantitative support, no revisit triggers, and vague phasing make 'stabilize then staged replacement' highly fragile to implement\u2014teams lack concrete criteria to transition between phases or detect stalling.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 62,\n  \"rationale\": \"Both recommendations are substantively similar\u2014incremental patching with eventual migration\u2014and both lack explicit revisit triggers. However, Writeup A provides concrete quantitative checkpoints (4\u20136 week review of incident rate, change failure rate, engineer effort), which partially addresses implementation fragility and timing risk. Writeup B offers no quantitative support and its phased approach ('stabilize then staged replacement') has more hidden dependencies on undefined transition criteria, making it more vulnerable to indefinite drift and stakeholder misalignment. A's specificity on measurement makes it slightly more robust under these critique lenses.\"\n}\n```"
+}

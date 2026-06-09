@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 62,
+  "rationale": "Both analyses cover similar ground with comparable KPIs, option sets, and forecasts. Analysis A has stronger disconfirming evidence and failure-mode coverage, plus an explicit outside-view section and a review plan. However, A is badly formatted\u2014it reads like a corrupted output with duplicated headers, orphaned bullet points, and structural noise that would make it harder for a decision-maker to audit and revisit. Analysis B is cleaner, adds a useful cost-per-visitor KPI, presents single-option AND paired forecasts in a scannable structure, and its recommendation logic is easier to trace. B also clearly states the key exception (poor load time) that would flip the recommendation. For practical decision-making utility, B wins despite A's deeper failure-mode analysis.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both analyses cover similar ground with comparable KPIs, option sets, and forecasts. Analysis A has stronger disconfirming evidence and failure-mode coverage, plus an explicit outside-view section and a review plan. However, A is badly formatted\u2014it reads like a corrupted output with duplicated headers, orphaned bullet points, and structural noise that would make it harder for a decision-maker to audit and revisit. Analysis B is cleaner, adds a useful cost-per-visitor KPI, presents single-option AND paired forecasts in a scannable structure, and its recommendation logic is easier to trace. B also clearly states the key exception (poor load time) that would flip the recommendation. For practical decision-making utility, B wins despite A's deeper failure-mode analysis.\"\n}\n```"
+}

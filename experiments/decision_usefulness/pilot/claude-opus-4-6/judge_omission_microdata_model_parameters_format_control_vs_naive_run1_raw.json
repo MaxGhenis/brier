@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "more_serious_omission_condition": "naive",
+  "confidence": 84,
+  "rationale": "A focuses on sensitivity and aggregate benchmarking but does not explicitly ask what accuracy is required for intended outputs, especially subgroup or tail estimates where simplifications can fail despite good aggregates. B is broader and closer to complete, though it underplays the hard ceiling imposed by microdata limitations. Missing fit-to-purpose accuracy criteria is the more serious omission because it can lead to choosing the wrong complexity even with careful validation.",
+  "largest_missing_consideration_a": "Whether the chosen parameterization can support the specific downstream use cases and required level of subgroup/distributional accuracy, not just aggregate fit",
+  "largest_missing_consideration_b": "Explicit treatment of data quality and identifiability limits\u2014some policy detail cannot improve accuracy if the microdata lack the variables needed to estimate or apply it reliably",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the chosen parameterization can support the specific downstream use cases and required level of subgroup/distributional accuracy, not just aggregate fit\",\n  \"largest_missing_consideration_b\": \"Explicit treatment of data quality and identifiability limits\u2014some policy detail cannot improve accuracy if the microdata lack the variables needed to estimate or apply it reliably\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 84,\n  \"rationale\": \"A focuses on sensitivity and aggregate benchmarking but does not explicitly ask what accuracy is required for intended outputs, especially subgroup or tail estimates where simplifications can fail despite good aggregates. B is broader and closer to complete, though it underplays the hard ceiling imposed by microdata limitations. Missing fit-to-purpose accuracy criteria is the more serious omission because it can lead to choosing the wrong complexity even with careful validation.\"\n}"
+}

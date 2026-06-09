@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 72,
+  "rationale": "Both recommend a hybrid setup, but Writeup B is less undermined because it specifies a concrete revisit trigger (6 weeks/20-30 items), defines escalation logic (most items handled locally, ambiguous ones escalate), and provides testable predictions even if the numbers are speculative. Under implementation fragility and reversibility critiques, A collapses\u2014it offers no mechanism to detect failure or switch approaches. B's false precision is a real weakness, but the surrounding structure (KPIs, escalation criteria, review cadence) means the recommendation survives critique with modest revision rather than wholesale rework.",
+  "most_damaging_critique_a": "No revisit trigger, no quantitative support, and no implementation details make this recommendation highly fragile\u2014any stakeholder pushback or unexpected dependency would require near-total revision.",
+  "most_damaging_critique_b": "Quantitative estimates (4.5 days, 12% defect rate) appear fabricated without empirical grounding; false precision creates hidden dependency on assumptions that may not survive contact with reality.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit trigger, no quantitative support, and no implementation details make this recommendation highly fragile\u2014any stakeholder pushback or unexpected dependency would require near-total revision.\",\n  \"most_damaging_critique_b\": \"Quantitative estimates (4.5 days, 12% defect rate) appear fabricated without empirical grounding; false precision creates hidden dependency on assumptions that may not survive contact with reality.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Both recommend a hybrid setup, but Writeup B is less undermined because it specifies a concrete revisit trigger (6 weeks/20-30 items), defines escalation logic (most items handled locally, ambiguous ones escalate), and provides testable predictions even if the numbers are speculative. Under implementation fragility and reversibility critiques, A collapses\u2014it offers no mechanism to detect failure or switch approaches. B's false precision is a real weakness, but the surrounding structure (KPIs, escalation criteria, review cadence) means the recommendation survives critique with modest revision rather than wholesale rework.\"\n}\n```"
+}

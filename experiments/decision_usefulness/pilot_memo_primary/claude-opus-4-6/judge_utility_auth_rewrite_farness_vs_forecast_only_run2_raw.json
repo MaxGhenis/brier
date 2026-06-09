@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 88,
+  "rationale": "A is more decision-useful because it gives a clearer recommendation hierarchy, stronger discrimination among options, and more operational next steps. It handles uncertainty better with explicit failure modes, probabilities, review triggers, and a fallback path if the preferred option is infeasible. Its quantitative framing is also more informative, including expected-value style comparison and hidden-cost discussion. B is solid and concise, but its recommendation is less fully defended, especially on why C beats D, and it offers fewer concrete checkpoints for execution and reassessment.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 4,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"A is more decision-useful because it gives a clearer recommendation hierarchy, stronger discrimination among options, and more operational next steps. It handles uncertainty better with explicit failure modes, probabilities, review triggers, and a fallback path if the preferred option is infeasible. Its quantitative framing is also more informative, including expected-value style comparison and hidden-cost discussion. B is solid and concise, but its recommendation is less fully defended, especially on why C beats D, and it offers fewer concrete checkpoints for execution and reassessment.\"\n}"
+}

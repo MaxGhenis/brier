@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "less_undermined_condition": "naive",
+  "confidence": 82,
+  "rationale": "A is incomplete, but its recommendation is less exposed under the requested critique lenses. It explicitly recognizes implementation fragility, roadmap opportunity cost, and tail risk of rewriting auth, and proposes a reversible path with bounded investment. Its biggest weakness is an underspecified escalation trigger. B\u2019s recommendation depends on substantial hidden dependencies: vendor/OSS fit, migration complexity, compliance/security review, lock-in, and organizational adoption. Those create larger switching costs and stakeholder-response risks, and the writeup provides little scenario-specific support to absorb those critiques. So B would need more revision to survive these non-framework critiques.",
+  "most_damaging_critique_a": "Incremental hardening may underinvest in systemic auth flaws; the trigger is vague and delayed, so incidents can persist while hidden architectural dependencies and cumulative opportunity cost keep growing.",
+  "most_damaging_critique_b": "Managed/OSS auth introduces major hidden dependencies, migration and vendor switching costs, and stakeholder/security review friction; the writeup gives little concrete evidence this path fits current constraints or timing risk.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Incremental hardening may underinvest in systemic auth flaws; the trigger is vague and delayed, so incidents can persist while hidden architectural dependencies and cumulative opportunity cost keep growing.\",\n  \"most_damaging_critique_b\": \"Managed/OSS auth introduces major hidden dependencies, migration and vendor switching costs, and stakeholder/security review friction; the writeup gives little concrete evidence this path fits current constraints or timing risk.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"A is incomplete, but its recommendation is less exposed under the requested critique lenses. It explicitly recognizes implementation fragility, roadmap opportunity cost, and tail risk of rewriting auth, and proposes a reversible path with bounded investment. Its biggest weakness is an underspecified escalation trigger. B\u2019s recommendation depends on substantial hidden dependencies: vendor/OSS fit, migration complexity, compliance/security review, lock-in, and organizational adoption. Those create larger switching costs and stakeholder-response risks, and the writeup provides little scenario-specific support to absorb those critiques. So B would need more revision to survive these non-framework critiques.\"\n}"
+}

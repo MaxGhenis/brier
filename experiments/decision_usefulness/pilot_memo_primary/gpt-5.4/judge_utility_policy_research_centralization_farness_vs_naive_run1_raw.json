@@ -1,0 +1,30 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 90,
+  "rationale": "Both reach the same recommendation (hybrid), but B is far more useful to a decision-maker. B expands the option set meaningfully (5 variants vs 3), provides explicit KPIs with measurable definitions, gives point estimates with confidence intervals for each option, identifies specific disconfirming conditions that would change the recommendation, and includes a concrete review plan with decision rules. The quantitative estimates, while necessarily approximate, make the tradeoffs between speed and accuracy tangible and comparable. B also handles uncertainty better by naming exactly when the recommendation would be wrong. A is competent but generic\u2014it reads like standard consulting advice without the discriminative detail needed to commit confidently.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 2,
+    "quantitative_support": 1,
+    "overall_usefulness": 3
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 3\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 90,\n  \"rationale\": \"Both reach the same recommendation (hybrid), but B is far more useful to a decision-maker. B expands the option set meaningfully (5 variants vs 3), provides explicit KPIs with measurable definitions, gives point estimates with confidence intervals for each option, identifies specific disconfirming conditions that would change the recommendation, and includes a concrete review plan with decision rules. The quantitative estimates, while necessarily approximate, make the tradeoffs between speed and accuracy tangible and comparable. B also handles uncertainty better by naming exactly when the recommendation would be wrong. A is competent but generic\u2014it reads like standard consulting advice without the discriminative detail needed to commit confidently.\"\n}\n```"
+}

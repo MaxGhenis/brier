@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 91,
+  "rationale": "Analysis A is more useful for an auditable decision. It defines measurable KPIs with review thresholds, expands the option set in decision-relevant ways, gives comparable forecasts with point estimates and intervals, cites outside-view anchors, and includes explicit failure modes plus a review decision rule. Analysis B is cleaner but much less grounded: no outside-view support, little disconfirming evidence, and weaker traceability from assumptions to recommendation. B\u2019s KPIs are reasonable, but A better supports later audit, comparison, and revision.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 3
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 91,\n  \"rationale\": \"Analysis A is more useful for an auditable decision. It defines measurable KPIs with review thresholds, expands the option set in decision-relevant ways, gives comparable forecasts with point estimates and intervals, cites outside-view anchors, and includes explicit failure modes plus a review decision rule. Analysis B is cleaner but much less grounded: no outside-view support, little disconfirming evidence, and weaker traceability from assumptions to recommendation. B\u2019s KPIs are reasonable, but A better supports later audit, comparison, and revision.\"\n}"
+}

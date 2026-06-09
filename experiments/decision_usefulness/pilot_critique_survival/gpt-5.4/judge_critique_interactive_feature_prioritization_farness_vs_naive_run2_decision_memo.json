@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 82,
+  "rationale": "Writeup A is essentially an empty template\u2014it names no recommended features, provides no actual rationale, and offers no actionable guidance. Under every critique lens (implementation fragility, opportunity cost, reversibility), the absence of a concrete recommendation is fatal; there is nothing to implement or stress-test. Writeup B makes a clear, defensible pick (load time + shareability) with reasoning about growth loops and channel-agnostic benefits. Its main vulnerability\u2014assuming load time is actually a bottleneck\u2014is a real but addressable gap. B would require far less revision to become actionable.",
+  "most_damaging_critique_a": "Implementation fragility: Writeup A never actually recommends specific features. It presents a framework skeleton with KPI headers but no decisive rationale, making it impossible to implement or evaluate against any critique lens.",
+  "most_damaging_critique_b": "Hidden dependencies: The recommendation assumes load time is a bottleneck without evidence. If the interactive already loads fast enough, the feature slot is wasted\u2014an opportunity cost that could have gone to distribution partnerships or customization.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"Implementation fragility: Writeup A never actually recommends specific features. It presents a framework skeleton with KPI headers but no decisive rationale, making it impossible to implement or evaluate against any critique lens.\",\n  \"most_damaging_critique_b\": \"Hidden dependencies: The recommendation assumes load time is a bottleneck without evidence. If the interactive already loads fast enough, the feature slot is wasted\u2014an opportunity cost that could have gone to distribution partnerships or customization.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 82,\n  \"rationale\": \"Writeup A is essentially an empty template\u2014it names no recommended features, provides no actual rationale, and offers no actionable guidance. Under every critique lens (implementation fragility, opportunity cost, reversibility), the absence of a concrete recommendation is fatal; there is nothing to implement or stress-test. Writeup B makes a clear, defensible pick (load time + shareability) with reasoning about growth loops and channel-agnostic benefits. Its main vulnerability\u2014assuming load time is actually a bottleneck\u2014is a real but addressable gap. B would require far less revision to become actionable.\"\n}\n```"
+}

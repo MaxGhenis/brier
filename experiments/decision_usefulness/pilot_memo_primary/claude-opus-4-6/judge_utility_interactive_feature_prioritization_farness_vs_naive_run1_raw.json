@@ -1,0 +1,30 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "winner_condition": "farness",
+  "confidence": 92,
+  "rationale": "A is much more useful for an actual decision-maker because it compares multiple live two-feature combinations, introduces a plausible omitted option (embed mode), gives conditional recommendations based on load-time and content type, and explicitly handles failure modes and uncertainty. Its quantitative framing is imperfect but materially helps discriminate between alternatives. B is concise and sensible, but it under-analyzes customization by partly folding it into shareability, gives limited uncertainty handling, and offers much weaker quantitative support. B would help as a quick heuristic; A would better support a careful launch decision.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 2,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 92,\n  \"rationale\": \"A is much more useful for an actual decision-maker because it compares multiple live two-feature combinations, introduces a plausible omitted option (embed mode), gives conditional recommendations based on load-time and content type, and explicitly handles failure modes and uncertainty. Its quantitative framing is imperfect but materially helps discriminate between alternatives. B is concise and sensible, but it under-analyzes customization by partly folding it into shareability, gives limited uncertainty handling, and offers much weaker quantitative support. B would help as a quick heuristic; A would better support a careful launch decision.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 52,
+  "rationale": "Both analyses omit similar concerns, but Analysis B's omission is slightly more serious because it presents a concrete phased plan without questioning whether the organization can sustain execution across phases. Analysis A at least acknowledges opportunity cost and provides conditional triggers for changing course. Analysis B's practical plan risks becoming a permanent 'patch and defer' cycle if organizational follow-through isn't assessed, which is the exact failure mode the scenario implies may already be happening.",
+  "largest_missing_consideration_a": "No consideration of team capacity, morale, and retention risk \u2014 senior engineers repeatedly firefighting a messy system may burn out or leave, which would destroy the tacit knowledge the analysis relies on preserving.",
+  "largest_missing_consideration_b": "No consideration of whether the organization has the discipline and capacity to actually execute a phased migration \u2014 staged replacements of authentication systems require sustained commitment, and without assessing team bandwidth, competing priorities, and organizational follow-through, the plan may stall after stabilization, leaving the team in a permanent patching loop.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of team capacity, morale, and retention risk \u2014 senior engineers repeatedly firefighting a messy system may burn out or leave, which would destroy the tacit knowledge the analysis relies on preserving.\",\n  \"largest_missing_consideration_b\": \"No consideration of whether the organization has the discipline and capacity to actually execute a phased migration \u2014 staged replacements of authentication systems require sustained commitment, and without assessing team bandwidth, competing priorities, and organizational follow-through, the plan may stall after stabilization, leaving the team in a permanent patching loop.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Both analyses omit similar concerns, but Analysis B's omission is slightly more serious because it presents a concrete phased plan without questioning whether the organization can sustain execution across phases. Analysis A at least acknowledges opportunity cost and provides conditional triggers for changing course. Analysis B's practical plan risks becoming a permanent 'patch and defer' cycle if organizational follow-through isn't assessed, which is the exact failure mode the scenario implies may already be happening.\"\n}\n```"
+}

@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "naive",
+  "confidence": 62,
+  "rationale": "Both writeups reach essentially the same conclusion (stabilize + staged/targeted replacement rather than full rewrite), and both are poorly structured in the extracted form. However, Writeup B provides slightly more discriminative reasoning\u2014explicitly noting why a full rewrite is risky (auth is security-critical, operational familiarity has value), and offers a concrete near-term timeframe (4\u20138 weeks) for initial stabilization. Writeup A's key caveat and decisive rationale are duplicated text, and it lacks any revisit triggers or quantitative anchors. Neither is strong, but B gives a decision-maker marginally more to act on.",
+  "scores_a": {
+    "action_guidance": 2,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 1,
+    "quantitative_support": 1,
+    "overall_usefulness": 2
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 2,
+    "quantitative_support": 2,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 2,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 1,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 2\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both writeups reach essentially the same conclusion (stabilize + staged/targeted replacement rather than full rewrite), and both are poorly structured in the extracted form. However, Writeup B provides slightly more discriminative reasoning\u2014explicitly noting why a full rewrite is risky (auth is security-critical, operational familiarity has value), and offers a concrete near-term timeframe (4\u20138 weeks) for initial stabilization. Writeup A's key caveat and decisive rationale are duplicated text, and it lacks any revisit triggers or quantitative anchors. Neither is strong, but B gives a decision-maker marginally more to act on.\"\n}\n```"
+}

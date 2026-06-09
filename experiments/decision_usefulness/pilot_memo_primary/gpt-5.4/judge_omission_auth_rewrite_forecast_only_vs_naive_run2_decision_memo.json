@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 72,
+  "rationale": "Analysis A at least commits to a clear recommendation and provides a review checkpoint, even if it lacks a formal revisit trigger. Analysis B fails to state a recommended option at all, which is the most fundamental requirement of a decision analysis. Without a clear recommendation, stakeholders cannot act on it, making it structurally incomplete as a decision aid despite offering useful KPI framing.",
+  "largest_missing_consideration_a": "No explicit revisit trigger or conditions under which the incremental patching strategy should be abandoned in favor of a full rewrite, risking indefinite accumulation of tech debt.",
+  "largest_missing_consideration_b": "No clear recommended option or decisive commitment to a path, making it a diagnostic framework rather than an actionable decision analysis.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit revisit trigger or conditions under which the incremental patching strategy should be abandoned in favor of a full rewrite, risking indefinite accumulation of tech debt.\",\n  \"largest_missing_consideration_b\": \"No clear recommended option or decisive commitment to a path, making it a diagnostic framework rather than an actionable decision analysis.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Analysis A at least commits to a clear recommendation and provides a review checkpoint, even if it lacks a formal revisit trigger. Analysis B fails to state a recommended option at all, which is the most fundamental requirement of a decision analysis. Without a clear recommendation, stakeholders cannot act on it, making it structurally incomplete as a decision aid despite offering useful KPI framing.\"\n}\n```"
+}

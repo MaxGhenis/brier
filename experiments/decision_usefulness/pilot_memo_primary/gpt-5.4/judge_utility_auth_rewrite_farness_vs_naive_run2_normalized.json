@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "winner_condition": "farness",
+  "confidence": 97,
+  "rationale": "Analysis A is dramatically more useful. It defines two concrete, resolvable KPIs with units; expands the option set to four realistic alternatives; provides numeric point estimates and 80% confidence intervals for each option on each KPI; grounds forecasts in outside-view base rates about rewrite risk; thoroughly covers disconfirming evidence and failure modes per option; and traces the recommendation directly back to the forecast comparison table. It also includes a concrete review plan with decision rules. Analysis B reaches a similar conclusion but provides almost no structure\u2014no KPIs, no options enumerated, no forecasts, no review plan\u2014making it nearly impossible to audit, compare, or revisit.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 97,\n  \"rationale\": \"Analysis A is dramatically more useful. It defines two concrete, resolvable KPIs with units; expands the option set to four realistic alternatives; provides numeric point estimates and 80% confidence intervals for each option on each KPI; grounds forecasts in outside-view base rates about rewrite risk; thoroughly covers disconfirming evidence and failure modes per option; and traces the recommendation directly back to the forecast comparison table. It also includes a concrete review plan with decision rules. Analysis B reaches a similar conclusion but provides almost no structure\u2014no KPIs, no options enumerated, no forecasts, no review plan\u2014making it nearly impossible to audit, compare, or revisit.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 78,
+  "rationale": "Both analyses reach essentially the same recommendation (progressive/targeted complexity with modular structure), but Analysis A is substantially more useful for a decision-maker. It explicitly enumerates four distinct options with pros/cons, making the decision auditable and revisitable. Its key considerations section covers important failure modes (overfitting, false precision, maintenance risk, transparency) that Analysis B only briefly mentions. Analysis A's KPIs are more nuanced, distinguishing types of accuracy. Analysis B's tiered approach is practical but lacks the explicit option comparison needed to justify the choice. Neither provides forecasts or outside-view evidence, so both score poorly there. A's completeness and traceability give it a clear edge.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 2,
+    "outside_view": 1,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 2,
+    "forecast_specificity": 2,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 78,\n  \"rationale\": \"Both analyses reach essentially the same recommendation (progressive/targeted complexity with modular structure), but Analysis A is substantially more useful for a decision-maker. It explicitly enumerates four distinct options with pros/cons, making the decision auditable and revisitable. Its key considerations section covers important failure modes (overfitting, false precision, maintenance risk, transparency) that Analysis B only briefly mentions. Analysis A's KPIs are more nuanced, distinguishing types of accuracy. Analysis B's tiered approach is practical but lacks the explicit option comparison needed to justify the choice. Neither provides forecasts or outside-view evidence, so both score poorly there. A's completeness and traceability give it a clear edge.\"\n}\n```"
+}

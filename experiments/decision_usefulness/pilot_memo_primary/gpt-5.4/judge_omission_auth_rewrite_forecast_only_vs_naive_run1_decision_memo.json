@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 82,
+  "rationale": "Analysis A never actually makes a decision or compares alternatives\u2014it only defines a KPI, which is a fragment of a decision framework, not a decision analysis. Analysis B at least reaches a clear recommendation with qualitative reasoning, though it lacks quantitative cost-benefit comparison. A missing recommendation is a more fundamental omission than missing quantification, since the entire purpose of the analysis is to guide a choice.",
+  "largest_missing_consideration_a": "Fails to recommend a specific course of action or compare alternatives; provides only a measurement framework without actually analyzing the decision.",
+  "largest_missing_consideration_b": "Does not quantify the cost of continued incidents (revenue loss, customer churn, engineering toil) versus the opportunity cost of pulling senior engineers off roadmap work, making the trade-off assertion unsubstantiated.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"Fails to recommend a specific course of action or compare alternatives; provides only a measurement framework without actually analyzing the decision.\",\n  \"largest_missing_consideration_b\": \"Does not quantify the cost of continued incidents (revenue loss, customer churn, engineering toil) versus the opportunity cost of pulling senior engineers off roadmap work, making the trade-off assertion unsubstantiated.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Analysis A never actually makes a decision or compares alternatives\u2014it only defines a KPI, which is a fragment of a decision framework, not a decision analysis. Analysis B at least reaches a clear recommendation with qualitative reasoning, though it lacks quantitative cost-benefit comparison. A missing recommendation is a more fundamental omission than missing quantification, since the entire purpose of the analysis is to guide a choice.\"\n}\n```"
+}

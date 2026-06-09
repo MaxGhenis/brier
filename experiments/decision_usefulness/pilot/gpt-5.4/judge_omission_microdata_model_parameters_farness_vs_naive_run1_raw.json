@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 62,
+  "rationale": "Analysis B provides precise quantitative forecasts (WMAPE differences of ~1-3 percentage points across options) without acknowledging that input microdata quality sets a floor on achievable accuracy. If the underlying data has substantial measurement error, nonresponse bias, or imputation noise, the forecasted differences between options may be within data noise, making the elaborate option comparison misleading. Analysis A's omission of institutional context is significant but less likely to invalidate its core logic, since its progressive approach is inherently adaptable.",
+  "largest_missing_consideration_a": "No consideration of the specific institutional context\u2014team expertise, existing codebase/tooling constraints, and stakeholder requirements (e.g., auditability, legal mandates for certain parameter detail)\u2014which could make the recommended progressive strategy infeasible or force a different starting point.",
+  "largest_missing_consideration_b": "No consideration of how the quality, completeness, and representativeness of the underlying microdata itself (e.g., survey nonresponse, linkage errors, imputation artifacts) constrains achievable accuracy gains from any parameter strategy, potentially rendering the forecasted WMAPE differences illusory.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of the specific institutional context\u2014team expertise, existing codebase/tooling constraints, and stakeholder requirements (e.g., auditability, legal mandates for certain parameter detail)\u2014which could make the recommended progressive strategy infeasible or force a different starting point.\",\n  \"largest_missing_consideration_b\": \"No consideration of how the quality, completeness, and representativeness of the underlying microdata itself (e.g., survey nonresponse, linkage errors, imputation artifacts) constrains achievable accuracy gains from any parameter strategy, potentially rendering the forecasted WMAPE differences illusory.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Analysis B provides precise quantitative forecasts (WMAPE differences of ~1-3 percentage points across options) without acknowledging that input microdata quality sets a floor on achievable accuracy. If the underlying data has substantial measurement error, nonresponse bias, or imputation noise, the forecasted differences between options may be within data noise, making the elaborate option comparison misleading. Analysis A's omission of institutional context is significant but less likely to invalidate its core logic, since its progressive approach is inherently adaptable.\"\n}\n```"
+}

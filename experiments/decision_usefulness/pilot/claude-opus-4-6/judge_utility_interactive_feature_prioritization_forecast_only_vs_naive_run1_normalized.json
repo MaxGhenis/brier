@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 97,
+  "rationale": "B is far more useful for an auditable decision: it defines success metrics, gives a baseline, compares options with point estimates and intervals, states assumptions, and ties its recommendation to those forecasts. It is imperfect\u2014options are only partially enumerated, outside-view evidence is asserted rather than cited, and disconfirming evidence is mostly embedded as assumptions/failure modes. A provides only one generic claim about load time and leaves nearly every decision-relevant field blank, so it does not support comparison or revisiting the decision later.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 97,\n  \"rationale\": \"B is far more useful for an auditable decision: it defines success metrics, gives a baseline, compares options with point estimates and intervals, states assumptions, and ties its recommendation to those forecasts. It is imperfect\u2014options are only partially enumerated, outside-view evidence is asserted rather than cited, and disconfirming evidence is mostly embedded as assumptions/failure modes. A provides only one generic claim about load time and leaves nearly every decision-relevant field blank, so it does not support comparison or revisiting the decision later.\"\n}"
+}

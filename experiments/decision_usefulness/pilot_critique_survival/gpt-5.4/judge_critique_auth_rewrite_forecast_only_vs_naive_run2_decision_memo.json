@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 68,
+  "rationale": "Both writeups lack revisit triggers and clear alternatives. However, Writeup B states an actionable recommendation (no full rewrite, structured stabilization), which survives implementation fragility critique better than A's missing recommendation. B also names a concrete review checkpoint (4\u20136 weeks with specific metrics), partially addressing timing risk. A's KPI framing is useful but without a stated decision it cannot guide action. Under incentive/stakeholder response, B's explicit stance gives leadership something to commit to, while A's ambiguity invites scope creep. B requires less revision to become operationally sound.",
+  "most_damaging_critique_a": "No clear recommendation is stated, making implementation fragile\u2014teams cannot act on ambiguous direction, and without a revisit trigger the approach risks drifting indefinitely with no accountability checkpoint.",
+  "most_damaging_critique_b": "No explicit revisit trigger or switching-cost analysis means the team could stay in 'incremental patch' mode indefinitely, never reaching the migration plan, accumulating hidden dependencies on the messy system.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No clear recommendation is stated, making implementation fragile\u2014teams cannot act on ambiguous direction, and without a revisit trigger the approach risks drifting indefinitely with no accountability checkpoint.\",\n  \"most_damaging_critique_b\": \"No explicit revisit trigger or switching-cost analysis means the team could stay in 'incremental patch' mode indefinitely, never reaching the migration plan, accumulating hidden dependencies on the messy system.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 68,\n  \"rationale\": \"Both writeups lack revisit triggers and clear alternatives. However, Writeup B states an actionable recommendation (no full rewrite, structured stabilization), which survives implementation fragility critique better than A's missing recommendation. B also names a concrete review checkpoint (4\u20136 weeks with specific metrics), partially addressing timing risk. A's KPI framing is useful but without a stated decision it cannot guide action. Under incentive/stakeholder response, B's explicit stance gives leadership something to commit to, while A's ambiguity invites scope creep. B requires less revision to become operationally sound.\"\n}\n```"
+}

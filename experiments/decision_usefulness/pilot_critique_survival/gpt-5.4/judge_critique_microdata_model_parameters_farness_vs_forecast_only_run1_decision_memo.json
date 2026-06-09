@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 62,
+  "rationale": "Both writeups are severely incomplete, but Writeup B at least defines a KPI (WMAPE), sets a concrete revisit trigger (3 months or first validation cycle), and gestures toward a structured comparison with confidence intervals. Writeup A provides no recommendation, no revisit trigger, and truncated content\u2014leaving nothing to implement or critique constructively. Under implementation fragility and reversibility lenses, B survives slightly better because it offers at least some operational scaffolding, whereas A would require near-total revision to become actionable.",
+  "most_damaging_critique_a": "No recommendation, no revisit trigger, and truncated quantitative support make implementation impossible\u2014there is nothing concrete to implement, reverse, or stress-test against stakeholder responses.",
+  "most_damaging_critique_b": "The recommendation option restates the question rather than naming a specific parameter strategy, creating hidden dependency on unstated choices and making incentive/stakeholder alignment and reversibility impossible to evaluate.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No recommendation, no revisit trigger, and truncated quantitative support make implementation impossible\u2014there is nothing concrete to implement, reverse, or stress-test against stakeholder responses.\",\n  \"most_damaging_critique_b\": \"The recommendation option restates the question rather than naming a specific parameter strategy, creating hidden dependency on unstated choices and making incentive/stakeholder alignment and reversibility impossible to evaluate.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both writeups are severely incomplete, but Writeup B at least defines a KPI (WMAPE), sets a concrete revisit trigger (3 months or first validation cycle), and gestures toward a structured comparison with confidence intervals. Writeup A provides no recommendation, no revisit trigger, and truncated content\u2014leaving nothing to implement or critique constructively. Under implementation fragility and reversibility lenses, B survives slightly better because it offers at least some operational scaffolding, whereas A would require near-total revision to become actionable.\"\n}\n```"
+}

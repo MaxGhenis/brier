@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 88,
+  "rationale": "Analysis B is substantially more useful for a careful decision-maker. It defines explicit KPIs (unique visitors, cost per visitor), expands the option set beyond what was asked, provides point estimates with confidence intervals for every single option and every plausible pair, and makes the recommendation directly traceable to those forecasts. It also clearly lists assumptions that could invalidate the recommendation. Analysis A gives sound intuitive reasoning and a clean heuristic, but lacks quantified comparisons, explicit KPIs, and systematic option coverage. The numeric forecasts in B, while necessarily approximate, make the decision auditable and revisitable in a way A's qualitative logic cannot. B also better handles the partnership question as a conditional rather than dismissing it.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 1,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 3,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 88,\n  \"rationale\": \"Analysis B is substantially more useful for a careful decision-maker. It defines explicit KPIs (unique visitors, cost per visitor), expands the option set beyond what was asked, provides point estimates with confidence intervals for every single option and every plausible pair, and makes the recommendation directly traceable to those forecasts. It also clearly lists assumptions that could invalidate the recommendation. Analysis A gives sound intuitive reasoning and a clean heuristic, but lacks quantified comparisons, explicit KPIs, and systematic option coverage. The numeric forecasts in B, while necessarily approximate, make the decision auditable and revisitable in a way A's qualitative logic cannot. B also better handles the partnership question as a conditional rather than dismissing it.\"\n}\n```"
+}

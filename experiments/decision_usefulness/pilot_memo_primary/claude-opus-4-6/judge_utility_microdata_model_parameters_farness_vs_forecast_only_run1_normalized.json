@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 72,
+  "rationale": "B is more useful overall because it defines the option set more clearly and gives directly comparable point estimates and intervals across all options, making tradeoffs easier to audit. Its operational-cost KPI better captures maintenance burden than A\u2019s runtime-only KPI. A has stronger outside-view grounding and a better concrete review protocol, but its tables are incomplete/misaligned and the option set is less explicitly laid out. For a careful decision-maker choosing parameter strategy, B makes the comparison cleaner and the recommendation easier to revisit, despite weaker citation-based grounding.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 3,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"B is more useful overall because it defines the option set more clearly and gives directly comparable point estimates and intervals across all options, making tradeoffs easier to audit. Its operational-cost KPI better captures maintenance burden than A\u2019s runtime-only KPI. A has stronger outside-view grounding and a better concrete review protocol, but its tables are incomplete/misaligned and the option set is less explicitly laid out. For a careful decision-maker choosing parameter strategy, B makes the comparison cleaner and the recommendation easier to revisit, despite weaker citation-based grounding.\"\n}"
+}

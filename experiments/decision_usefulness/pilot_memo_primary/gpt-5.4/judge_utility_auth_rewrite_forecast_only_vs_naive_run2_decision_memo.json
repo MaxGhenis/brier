@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "naive",
+  "confidence": 55,
+  "rationale": "Both writeups converge on the same hybrid approach: stabilize incrementally now, defer a full rewrite. Writeup A is slightly more useful because it states a clear recommendation upfront ('do not do a full rewrite now'), names the decisive rationale (auth rewrites create new failure modes), and provides a concrete revisit checkpoint (4\u20136 weeks, with specific metrics). Writeup B offers useful KPI framing and a slightly more detailed stabilization checklist (observability, runbooks, dependency cleanup), but lacks a stated recommendation and revisit trigger. Neither does strong comparative reasoning between alternatives. A's clearer action guidance and caveat handling give it a marginal edge.",
+  "scores_a": {
+    "action_guidance": 3,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 3,
+    "quantitative_support": 3,
+    "overall_usefulness": 3
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 2,
+    "quantitative_support": 3,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 3\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 55,\n  \"rationale\": \"Both writeups converge on the same hybrid approach: stabilize incrementally now, defer a full rewrite. Writeup A is slightly more useful because it states a clear recommendation upfront ('do not do a full rewrite now'), names the decisive rationale (auth rewrites create new failure modes), and provides a concrete revisit checkpoint (4\u20136 weeks, with specific metrics). Writeup B offers useful KPI framing and a slightly more detailed stabilization checklist (observability, runbooks, dependency cleanup), but lacks a stated recommendation and revisit trigger. Neither does strong comparative reasoning between alternatives. A's clearer action guidance and caveat handling give it a marginal edge.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "farness",
+  "confidence": 84,
+  "rationale": "Analysis A is strong on options and forecasting but reduces the decision to reliability incidents and engineer time, omitting the highest-stakes dimension in auth: security/compliance failure risk. That can dominate both KPIs. Analysis B is lighter-weight, but its main gap is operational contingency planning during the hardening period, which is important yet usually less existential than auth security exposure.",
+  "largest_missing_consideration_a": "Security/compliance risk of changing authentication behavior, including breach/regulatory exposure beyond incident counts",
+  "largest_missing_consideration_b": "A concrete fallback/containment plan for the next incident wave while hardening proceeds",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk of changing authentication behavior, including breach/regulatory exposure beyond incident counts\",\n  \"largest_missing_consideration_b\": \"A concrete fallback/containment plan for the next incident wave while hardening proceeds\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 84,\n  \"rationale\": \"Analysis A is strong on options and forecasting but reduces the decision to reliability incidents and engineer time, omitting the highest-stakes dimension in auth: security/compliance failure risk. That can dominate both KPIs. Analysis B is lighter-weight, but its main gap is operational contingency planning during the hardening period, which is important yet usually less existential than auth security exposure.\"\n}"
+}

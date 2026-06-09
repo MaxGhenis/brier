@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "naive",
+  "confidence": 72,
+  "rationale": "A is more decision-useful because it gives a clearer conditional policy: diagnose incidents, harden targeted areas, add observability, and set explicit rewrite triggers (e.g. incident reduction threshold). That makes the recommendation easier to audit and revisit. B has a slightly better option set and useful considerations, but its recommendation is less crisply tied to measurable decision gates and is somewhat internally split between targeted rebuild and later rewrite. A better distinguishes root-cause fixing from ad hoc patching and states what evidence would overturn its recommendation.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 3,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"A is more decision-useful because it gives a clearer conditional policy: diagnose incidents, harden targeted areas, add observability, and set explicit rewrite triggers (e.g. incident reduction threshold). That makes the recommendation easier to audit and revisit. B has a slightly better option set and useful considerations, but its recommendation is less crisply tied to measurable decision gates and is somewhat internally split between targeted rebuild and later rewrite. A better distinguishes root-cause fixing from ad hoc patching and states what evidence would overturn its recommendation.\"\n}"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "Analysis A is substantially more complete and useful. It defines both KPIs with explicit formulas and resolution criteria, expands the option set to five well-differentiated strategies, provides point estimates and 80% CIs for all options on both KPIs, grounds forecasts in three concrete reference classes, details specific failure modes and disconfirming evidence per option, traces a clear recommendation to the numeric forecasts, and includes a structured review plan with checkpoints. Analysis B is fragmentary\u2014missing outside-view grounding, a recommendation, a review plan, and complete KPI 2 forecasts\u2014making it far less actionable for auditing or revisiting the decision.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 3,
+    "forecast_specificity": 3,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 95,\n  \"rationale\": \"Analysis A is substantially more complete and useful. It defines both KPIs with explicit formulas and resolution criteria, expands the option set to five well-differentiated strategies, provides point estimates and 80% CIs for all options on both KPIs, grounds forecasts in three concrete reference classes, details specific failure modes and disconfirming evidence per option, traces a clear recommendation to the numeric forecasts, and includes a structured review plan with checkpoints. Analysis B is fragmentary\u2014missing outside-view grounding, a recommendation, a review plan, and complete KPI 2 forecasts\u2014making it far less actionable for auditing or revisiting the decision.\"\n}\n```"
+}

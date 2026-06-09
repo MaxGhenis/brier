@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 42,
+  "rationale": "Both analyses omit important factors. Analysis A at least discusses data quality as disconfirming evidence and addresses failure modes more thoroughly. Analysis B never considers that input data limitations could make moderate complexity overfit just as badly as high complexity, which could fundamentally change its recommendation. Since the entire ranking depends on diminishing-returns assumptions that are only valid when data quality supports the added parameters, B's omission is slightly more consequential to its bottom-line recommendation.",
+  "largest_missing_consideration_a": "No consideration of how parameter strategy affects the accuracy of specific policy reform simulations (the primary use case of tax-benefit models), as opposed to static validation fit \u2014 a strategy optimized for aggregate WMAPE may still badly misestimate the distributional impact of a proposed policy change.",
+  "largest_missing_consideration_b": "No consideration of how input microdata quality and sample size interact with parameter complexity \u2014 if the underlying survey data have high sampling error or measurement error for key subgroups, added complexity may degrade rather than improve true accuracy, fundamentally altering the option rankings.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of how parameter strategy affects the accuracy of specific policy reform simulations (the primary use case of tax-benefit models), as opposed to static validation fit \u2014 a strategy optimized for aggregate WMAPE may still badly misestimate the distributional impact of a proposed policy change.\",\n  \"largest_missing_consideration_b\": \"No consideration of how input microdata quality and sample size interact with parameter complexity \u2014 if the underlying survey data have high sampling error or measurement error for key subgroups, added complexity may degrade rather than improve true accuracy, fundamentally altering the option rankings.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 42,\n  \"rationale\": \"Both analyses omit important factors. Analysis A at least discusses data quality as disconfirming evidence and addresses failure modes more thoroughly. Analysis B never considers that input data limitations could make moderate complexity overfit just as badly as high complexity, which could fundamentally change its recommendation. Since the entire ranking depends on diminishing-returns assumptions that are only valid when data quality supports the added parameters, B's omission is slightly more consequential to its bottom-line recommendation.\"\n}\n```"
+}

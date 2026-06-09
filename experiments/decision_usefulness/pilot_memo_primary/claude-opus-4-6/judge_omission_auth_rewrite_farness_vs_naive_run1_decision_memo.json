@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "naive",
+  "confidence": 91,
+  "rationale": "A gives sensible engineering advice but underweights the possibility that repeated auth incidents are not just reliability pain but material security/compliance exposure, which could override its incremental recommendation. B\u2019s omission is execution realism for the migration path, but that is less fundamental than failing to assess whether the problem is severe enough to mandate a faster or different response.",
+  "largest_missing_consideration_a": "Whether the incidents indicate a security/compliance risk that changes the acceptable timeline and may force immediate architectural action",
+  "largest_missing_consideration_b": "Whether the organization can realistically execute a long strangler migration given team capacity, ownership continuity, and migration complexity",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the incidents indicate a security/compliance risk that changes the acceptable timeline and may force immediate architectural action\",\n  \"largest_missing_consideration_b\": \"Whether the organization can realistically execute a long strangler migration given team capacity, ownership continuity, and migration complexity\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 91,\n  \"rationale\": \"A gives sensible engineering advice but underweights the possibility that repeated auth incidents are not just reliability pain but material security/compliance exposure, which could override its incremental recommendation. B\u2019s omission is execution realism for the migration path, but that is less fundamental than failing to assess whether the problem is severe enough to mandate a faster or different response.\"\n}"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "Both analyses reach the same recommendation (stabilize-first/strangler), but B is dramatically more useful for a decision-maker. B defines two resolvable KPIs with units and measurement methods, expands to four options (including vendor/managed auth), provides numeric point estimates and 80% confidence intervals enabling direct comparison, grounds forecasts in outside-view base rates about rewrites and auth migrations, thoroughly covers failure modes and disconfirming evidence per option, and includes explicit review dates with decision rules. A gives sound qualitative advice but lacks measurable KPIs, numeric forecasts, or structured comparability\u2014making it harder to audit, revisit, or hold accountable later.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 1,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 3
+  },
+  "scores_b": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 3\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 95,\n  \"rationale\": \"Both analyses reach the same recommendation (stabilize-first/strangler), but B is dramatically more useful for a decision-maker. B defines two resolvable KPIs with units and measurement methods, expands to four options (including vendor/managed auth), provides numeric point estimates and 80% confidence intervals enabling direct comparison, grounds forecasts in outside-view base rates about rewrites and auth migrations, thoroughly covers failure modes and disconfirming evidence per option, and includes explicit review dates with decision rules. A gives sound qualitative advice but lacks measurable KPIs, numeric forecasts, or structured comparability\u2014making it harder to audit, revisit, or hold accountable later.\"\n}\n```"
+}

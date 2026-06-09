@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 58,
+  "rationale": "Both analyses are thorough and closely aligned. Analysis A at least touches on validation guiding choices and out-of-sample performance, implicitly gesturing at uncertainty. Analysis B's omission of uncertainty quantification and sensitivity analysis is more serious because its entire framework rests on 'demonstrable accuracy gains,' yet without formal uncertainty propagation there is no rigorous basis for that judgment. Analysis A's governance gap is real but somewhat less consequential for analytical soundness.",
+  "largest_missing_consideration_a": "No discussion of stakeholder or institutional governance processes for deciding where complexity is warranted\u2014who decides, how disagreements are resolved, and how decisions are documented over time.",
+  "largest_missing_consideration_b": "No consideration of how the parameter strategy interacts with uncertainty quantification\u2014without propagating parameter uncertainty or conducting sensitivity analysis, you cannot reliably judge whether added complexity genuinely improves accuracy or just fits noise.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No discussion of stakeholder or institutional governance processes for deciding where complexity is warranted\u2014who decides, how disagreements are resolved, and how decisions are documented over time.\",\n  \"largest_missing_consideration_b\": \"No consideration of how the parameter strategy interacts with uncertainty quantification\u2014without propagating parameter uncertainty or conducting sensitivity analysis, you cannot reliably judge whether added complexity genuinely improves accuracy or just fits noise.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 58,\n  \"rationale\": \"Both analyses are thorough and closely aligned. Analysis A at least touches on validation guiding choices and out-of-sample performance, implicitly gesturing at uncertainty. Analysis B's omission of uncertainty quantification and sensitivity analysis is more serious because its entire framework rests on 'demonstrable accuracy gains,' yet without formal uncertainty propagation there is no rigorous basis for that judgment. Analysis A's governance gap is real but somewhat less consequential for analytical soundness.\"\n}\n```"
+}

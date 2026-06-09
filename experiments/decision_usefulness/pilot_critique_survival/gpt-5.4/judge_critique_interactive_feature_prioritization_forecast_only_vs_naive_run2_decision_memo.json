@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "naive",
+  "confidence": 68,
+  "rationale": "Both writeups are incomplete, but Writeup A delivers a clear, defensible recommendation (fast load time + shareability) with a concrete rationale about why these two features compound across all channels. It also flags the main alternative (distribution partnerships) and when it would change the answer. Writeup B promises a richer analytic structure\u2014KPIs, confidence intervals\u2014but is truncated before delivering them, so under critique lenses like implementation fragility, hidden dependencies, and tail risk, there is literally nothing to evaluate. A's recommendation survives scrutiny better because it at least exists in full and addresses the core tradeoffs.",
+  "most_damaging_critique_a": "No revisit trigger or quantitative support means the team cannot detect if the load-time/shareability loop underperforms, leaving no structured pivot path and high switching cost if the bet is wrong.",
+  "most_damaging_critique_b": "The writeup is truncated: KPIs, caveats, and confidence intervals are incomplete, so stakeholders cannot actually verify the quantitative claims or identify hidden dependencies underlying the point estimates.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit trigger or quantitative support means the team cannot detect if the load-time/shareability loop underperforms, leaving no structured pivot path and high switching cost if the bet is wrong.\",\n  \"most_damaging_critique_b\": \"The writeup is truncated: KPIs, caveats, and confidence intervals are incomplete, so stakeholders cannot actually verify the quantitative claims or identify hidden dependencies underlying the point estimates.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 68,\n  \"rationale\": \"Both writeups are incomplete, but Writeup A delivers a clear, defensible recommendation (fast load time + shareability) with a concrete rationale about why these two features compound across all channels. It also flags the main alternative (distribution partnerships) and when it would change the answer. Writeup B promises a richer analytic structure\u2014KPIs, confidence intervals\u2014but is truncated before delivering them, so under critique lenses like implementation fragility, hidden dependencies, and tail risk, there is literally nothing to evaluate. A's recommendation survives scrutiny better because it at least exists in full and addresses the core tradeoffs.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 62,
+  "rationale": "Both analyses omit transition costs, but Analysis B's core value proposition is its quantitative rigor \u2014 and the point estimates and confidence intervals are fabricated without disclosed evidence. This is more dangerous than A's omission because it creates false confidence in a specific recommendation. Decision-makers may trust the numbers and skip validation. A's omission is significant but more obvious and less likely to mislead, since A frames its advice as directional guidance rather than precise forecasting.",
+  "largest_missing_consideration_a": "No explicit consideration of transition/implementation costs, disruption risk, or the current organizational starting state \u2014 the recommendation assumes a greenfield setup and ignores that switching to a hybrid model itself takes time and may slow encoding during the transition, directly undermining the 'as quickly as possible' goal.",
+  "largest_missing_consideration_b": "The numerical forecasts (turnaround times, defect rates) are presented with false precision and no empirical grounding \u2014 they appear invented rather than derived from base rates, team data, or comparable cases, which risks anchoring the decision on unreliable estimates and masking deep uncertainty about which option actually performs best.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit consideration of transition/implementation costs, disruption risk, or the current organizational starting state \u2014 the recommendation assumes a greenfield setup and ignores that switching to a hybrid model itself takes time and may slow encoding during the transition, directly undermining the 'as quickly as possible' goal.\",\n  \"largest_missing_consideration_b\": \"The numerical forecasts (turnaround times, defect rates) are presented with false precision and no empirical grounding \u2014 they appear invented rather than derived from base rates, team data, or comparable cases, which risks anchoring the decision on unreliable estimates and masking deep uncertainty about which option actually performs best.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both analyses omit transition costs, but Analysis B's core value proposition is its quantitative rigor \u2014 and the point estimates and confidence intervals are fabricated without disclosed evidence. This is more dangerous than A's omission because it creates false confidence in a specific recommendation. Decision-makers may trust the numbers and skip validation. A's omission is significant but more obvious and less likely to mislead, since A frames its advice as directional guidance rather than precise forecasting.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "winner_condition": "format_control",
+  "confidence": 72,
+  "rationale": "Both analyses reach essentially the same recommendation (balanced/progressive parameterization), but B is more structured and auditable. B explicitly names three distinct options (maximum, balanced, minimal), making the decision space clear and comparable. B articulates key considerations more systematically\u2014data quality limits, maintenance over time, transparency\u2014each tied to the option evaluation. A lacks named options and KPIs, reading more like general advice. Neither provides forecasts or outside-view evidence, but B's clearer option framing and richer failure-mode discussion make it more useful for a decision-maker to audit and revisit.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 2,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 3
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 2,
+    "outside_view": 1,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 3\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Both analyses reach essentially the same recommendation (balanced/progressive parameterization), but B is more structured and auditable. B explicitly names three distinct options (maximum, balanced, minimal), making the decision space clear and comparable. B articulates key considerations more systematically\u2014data quality limits, maintenance over time, transparency\u2014each tied to the option evaluation. A lacks named options and KPIs, reading more like general advice. Neither provides forecasts or outside-view evidence, but B's clearer option framing and richer failure-mode discussion make it more useful for a decision-maker to audit and revisit.\"\n}\n```"
+}

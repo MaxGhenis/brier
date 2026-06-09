@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "naive",
+  "confidence": 91,
+  "rationale": "A gives a clear recommendation aligned to the scenario: harden incrementally now, reserve fixed capacity, and escalate if incidents stay high. It directly weighs rewrite cost, roadmap impact, and auth-specific regression/security risk. Its trigger is imperfectly stated but still useful. B names an alternative, but the excerpt provides little decision logic for why managed/OSS auth beats patching or a rewrite here. Its quantitative support is mostly generic timelines and anecdotal stall rates, not decision-calibrating evidence tied to this case. For a careful decision-maker, A is much more actionable and discriminative.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 4,
+    "quantitative_support": 3,
+    "overall_usefulness": 4
+  },
+  "scores_b": {
+    "action_guidance": 2,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 2,
+    "quantitative_support": 2,
+    "overall_usefulness": 2
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 4\n  },\n  \"scores_b\": {\n    \"action_guidance\": 2,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 2\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 91,\n  \"rationale\": \"A gives a clear recommendation aligned to the scenario: harden incrementally now, reserve fixed capacity, and escalate if incidents stay high. It directly weighs rewrite cost, roadmap impact, and auth-specific regression/security risk. Its trigger is imperfectly stated but still useful. B names an alternative, but the excerpt provides little decision logic for why managed/OSS auth beats patching or a rewrite here. Its quantitative support is mostly generic timelines and anecdotal stall rates, not decision-calibrating evidence tied to this case. For a careful decision-maker, A is much more actionable and discriminative.\"\n}"
+}

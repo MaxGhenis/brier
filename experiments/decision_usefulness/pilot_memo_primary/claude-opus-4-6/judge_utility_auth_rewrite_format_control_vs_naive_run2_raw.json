@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 82,
+  "rationale": "A is more decision-useful because it lays out the live alternatives explicitly, recommends a staged path, and gives a concrete near-term sequence: incident review, hardening sprint, reassessment, then partial rewrite if warranted. It handles uncertainty better by tying the choice to incident concentration and architectural evidence, not just a general anti-rewrite stance. B is strong and adds a useful escalation trigger plus a modest quantitative element (15\u201320%, X incidents/month), but it is less discriminative among options and less explicit about when to choose partial rewrite versus stabilization only. A better supports a careful decision-maker facing real tradeoffs.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 2,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 3,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"A is more decision-useful because it lays out the live alternatives explicitly, recommends a staged path, and gives a concrete near-term sequence: incident review, hardening sprint, reassessment, then partial rewrite if warranted. It handles uncertainty better by tying the choice to incident concentration and architectural evidence, not just a general anti-rewrite stance. B is strong and adds a useful escalation trigger plus a modest quantitative element (15\u201320%, X incidents/month), but it is less discriminative among options and less explicit about when to choose partial rewrite versus stabilization only. A better supports a careful decision-maker facing real tradeoffs.\"\n}"
+}

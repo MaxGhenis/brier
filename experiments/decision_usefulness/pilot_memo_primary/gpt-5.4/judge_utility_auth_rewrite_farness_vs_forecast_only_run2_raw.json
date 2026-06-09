@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 82,
+  "rationale": "Both reach the same recommendation with similar quantitative structure, but A is substantially more useful to a decision-maker. A provides: (1) concrete 6-step action plan for the next 6-8 weeks, (2) explicit review dates with decision rules at checkpoints, (3) detailed disconfirming evidence that would flip the recommendation, (4) thorough failure modes per option, (5) outside-view base rates grounding the forecasts, and (6) clear conditions under which the rewrite becomes correct. B is a competent, cleaner summary but lacks the actionable specificity, review cadence, and conditional reasoning that make A genuinely more helpful for execution.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 3,
+    "quantitative_support": 4,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Both reach the same recommendation with similar quantitative structure, but A is substantially more useful to a decision-maker. A provides: (1) concrete 6-step action plan for the next 6-8 weeks, (2) explicit review dates with decision rules at checkpoints, (3) detailed disconfirming evidence that would flip the recommendation, (4) thorough failure modes per option, (5) outside-view base rates grounding the forecasts, and (6) clear conditions under which the rewrite becomes correct. B is a competent, cleaner summary but lacks the actionable specificity, review cadence, and conditional reasoning that make A genuinely more helpful for execution.\"\n}\n```"
+}

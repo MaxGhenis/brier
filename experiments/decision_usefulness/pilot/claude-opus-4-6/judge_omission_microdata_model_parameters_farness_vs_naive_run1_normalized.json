@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "naive",
+  "confidence": 98,
+  "rationale": "Analysis A is essentially empty, so its biggest omission is the entire decision analysis itself. Analysis B is substantially developed, but it underweights a key feasibility dependency: the quality and availability of external calibration/validation data needed for Option D to work in practice. That matters, but it is far less severe than A\u2019s near-total absence of analysis.",
+  "largest_missing_consideration_a": "No explicit options, KPIs, evidence, or recommendation\u2014so it never evaluates the core accuracy-versus-complexity trade-off at all.",
+  "largest_missing_consideration_b": "Whether the available administrative benchmarks and calibration data are sufficient and reliable enough to support the proposed recalibration/take-up tuning and validate claimed accuracy gains.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"No explicit options, KPIs, evidence, or recommendation\u2014so it never evaluates the core accuracy-versus-complexity trade-off at all.\",\n  \"largest_missing_consideration_b\": \"Whether the available administrative benchmarks and calibration data are sufficient and reliable enough to support the proposed recalibration/take-up tuning and validate claimed accuracy gains.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 98,\n  \"rationale\": \"Analysis A is essentially empty, so its biggest omission is the entire decision analysis itself. Analysis B is substantially developed, but it underweights a key feasibility dependency: the quality and availability of external calibration/validation data needed for Option D to work in practice. That matters, but it is far less severe than A\u2019s near-total absence of analysis.\"\n}"
+}

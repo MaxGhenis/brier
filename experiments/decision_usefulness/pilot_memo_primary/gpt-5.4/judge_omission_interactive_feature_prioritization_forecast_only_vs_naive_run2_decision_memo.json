@@ -1,0 +1,18 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 62,
+  "rationale": "Analysis B provides quantitative scaffolding but critically omits caveats and revisit triggers, which means decision-makers have no guardrails for when assumptions break down. Analysis A's lack of quantification is a real gap, but it at least flags a key caveat (partnership readiness) and offers a coherent qualitative rationale. An analysis with numbers but no stated conditions for invalidation can create false precision and overconfidence, which is arguably more dangerous for a time-pressured launch decision.",
+  "largest_missing_consideration_a": "No quantitative estimates or scenario modeling to compare the expected reach impact of each feature combination, making the recommendation rely entirely on qualitative intuition.",
+  "largest_missing_consideration_b": "No key caveat or revisit trigger identified, meaning the analysis lacks guidance on when its quantitative estimates would be invalidated or when the recommendation should change.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No quantitative estimates or scenario modeling to compare the expected reach impact of each feature combination, making the recommendation rely entirely on qualitative intuition.\",\n  \"largest_missing_consideration_b\": \"No key caveat or revisit trigger identified, meaning the analysis lacks guidance on when its quantitative estimates would be invalidated or when the recommendation should change.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Analysis B provides quantitative scaffolding but critically omits caveats and revisit triggers, which means decision-makers have no guardrails for when assumptions break down. Analysis A's lack of quantification is a real gap, but it at least flags a key caveat (partnership readiness) and offers a coherent qualitative rationale. An analysis with numbers but no stated conditions for invalidation can create false precision and overconfidence, which is arguably more dangerous for a time-pressured launch decision.\"\n}\n```"
+}

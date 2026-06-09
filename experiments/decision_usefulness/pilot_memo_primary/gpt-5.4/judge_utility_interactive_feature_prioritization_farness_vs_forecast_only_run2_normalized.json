@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 58,
+  "rationale": "Analysis A has stronger disconfirming evidence, failure modes, outside-view grounding, and a review plan\u2014but it is severely undermined by formatting artifacts (duplicated headers, orphaned bullet points, fragmented sections) that make it hard to audit and trust. Analysis B is cleaner, more scannable, and easier to act on. B includes cost-per-visitor as a secondary KPI (useful guard-rail), presents both single-option and paired forecasts in a consistent comparable format, and states assumptions clearly. B's recommendation is easier to trace back to forecasts. A's deeper failure-mode coverage is valuable but partially lost in the noise. B better serves a careful decision-maker despite less disconfirming depth.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 4,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 3,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 58,\n  \"rationale\": \"Analysis A has stronger disconfirming evidence, failure modes, outside-view grounding, and a review plan\u2014but it is severely undermined by formatting artifacts (duplicated headers, orphaned bullet points, fragmented sections) that make it hard to audit and trust. Analysis B is cleaner, more scannable, and easier to act on. B includes cost-per-visitor as a secondary KPI (useful guard-rail), presents both single-option and paired forecasts in a consistent comparable format, and states assumptions clearly. B's recommendation is easier to trace back to forecasts. A's deeper failure-mode coverage is valuable but partially lost in the noise. B better serves a careful decision-maker despite less disconfirming depth.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "wealth_tax_outreach",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 78,
+  "rationale": "Both analyses reach essentially the same recommendation (staged validator \u2192 journalist \u2192 public), but B is far more auditable. B defines two explicit KPIs, evaluates six options side-by-side with point estimates and confidence intervals, and traces the recommendation directly to forecast superiority on both KPIs. A reads more like advisory prose\u2014it names phases but never systematically compares options or quantifies expected outcomes. B's forecasts are arguably fabricated precision, but they still make the reasoning transparent and revisitable. Neither analysis provides real outside-view evidence or base rates. B's explicit assumptions section and broader option set give a decision-maker more to challenge and verify.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 2,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 2
+  },
+  "scores_b": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 2\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 78,\n  \"rationale\": \"Both analyses reach essentially the same recommendation (staged validator \u2192 journalist \u2192 public), but B is far more auditable. B defines two explicit KPIs, evaluates six options side-by-side with point estimates and confidence intervals, and traces the recommendation directly to forecast superiority on both KPIs. A reads more like advisory prose\u2014it names phases but never systematically compares options or quantifies expected outcomes. B's forecasts are arguably fabricated precision, but they still make the reasoning transparent and revisitable. Neither analysis provides real outside-view evidence or base rates. B's explicit assumptions section and broader option set give a decision-maker more to challenge and verify.\"\n}\n```"
+}

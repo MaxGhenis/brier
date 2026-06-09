@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 88,
+  "rationale": "Auth-layer decisions hinge not only on incident frequency and engineering cost but on security blast radius, compliance exposure, and customer-trust risk. Analysis A treats incidents mainly as operational pain and opportunity cost, which could badly underweight urgent rewrite/offload needs if failures threaten breaches or regulatory issues. Analysis B also underweights security severity, but at least flags catastrophic incidents as an assumption and expands the option set. Its bigger flaw is shaky quantification, but A misses the more decision-critical dimension.",
+  "largest_missing_consideration_a": "Whether the incidents indicate a security/compliance risk or breach exposure, not just reliability pain",
+  "largest_missing_consideration_b": "The credibility of its quantified forecasts and KPI weighting given little evidence about incident severity, security risk, or estimate basis",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the incidents indicate a security/compliance risk or breach exposure, not just reliability pain\",\n  \"largest_missing_consideration_b\": \"The credibility of its quantified forecasts and KPI weighting given little evidence about incident severity, security risk, or estimate basis\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"Auth-layer decisions hinge not only on incident frequency and engineering cost but on security blast radius, compliance exposure, and customer-trust risk. Analysis A treats incidents mainly as operational pain and opportunity cost, which could badly underweight urgent rewrite/offload needs if failures threaten breaches or regulatory issues. Analysis B also underweights security severity, but at least flags catastrophic incidents as an assumption and expands the option set. Its bigger flaw is shaky quantification, but A misses the more decision-critical dimension.\"\n}"
+}

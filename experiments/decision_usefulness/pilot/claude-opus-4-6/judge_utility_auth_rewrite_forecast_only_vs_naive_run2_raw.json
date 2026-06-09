@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 91,
+  "rationale": "A is much more useful for an auditable decision: it defines explicit KPIs, expands the option set beyond rewrite-vs-patch, gives comparable forecasts with uncertainty, and states assumptions that could overturn the recommendation. B has sensible reasoning and good failure-mode awareness, but it lacks resolvable KPIs and quantified forecasts, so it is harder to compare options or revisit later. While A\u2019s numbers are partly judgmental, they still make the tradeoffs inspectable and updateable.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 2,
+    "option_completeness": 3,
+    "forecast_specificity": 2,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 91,\n  \"rationale\": \"A is much more useful for an auditable decision: it defines explicit KPIs, expands the option set beyond rewrite-vs-patch, gives comparable forecasts with uncertainty, and states assumptions that could overturn the recommendation. B has sensible reasoning and good failure-mode awareness, but it lacks resolvable KPIs and quantified forecasts, so it is harder to compare options or revisit later. While A\u2019s numbers are partly judgmental, they still make the tradeoffs inspectable and updateable.\"\n}"
+}

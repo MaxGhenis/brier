@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "naive",
+  "confidence": 82,
+  "rationale": "Analysis A lacks the fundamental scaffolding of a decision analysis: no KPIs, no quantified forecasts, no explicit option comparison, and no review plan with decision rules. It reads as an opinion rather than an analysis. Analysis B is thorough and structured but overlooks organizational/people factors (burnout from chronic incidents, attrition risk, leadership stamina for a phased program) that frequently determine whether the recommended strangler approach succeeds or devolves. A's omission is more serious because without measurable criteria you cannot evaluate any path.",
+  "largest_missing_consideration_a": "No quantified forecasts, KPIs, or structured comparison of options \u2014 the analysis jumps to a recommendation without measurable criteria for evaluating tradeoffs or knowing when the chosen path is failing.",
+  "largest_missing_consideration_b": "No consideration of the human/organizational dynamics \u2014 team morale and attrition risk from chronic incident burden versus rewrite fatigue, and whether the team actually has the sustained leadership commitment and discipline to execute a multi-quarter strangler migration.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No quantified forecasts, KPIs, or structured comparison of options \u2014 the analysis jumps to a recommendation without measurable criteria for evaluating tradeoffs or knowing when the chosen path is failing.\",\n  \"largest_missing_consideration_b\": \"No consideration of the human/organizational dynamics \u2014 team morale and attrition risk from chronic incident burden versus rewrite fatigue, and whether the team actually has the sustained leadership commitment and discipline to execute a multi-quarter strangler migration.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Analysis A lacks the fundamental scaffolding of a decision analysis: no KPIs, no quantified forecasts, no explicit option comparison, and no review plan with decision rules. It reads as an opinion rather than an analysis. Analysis B is thorough and structured but overlooks organizational/people factors (burnout from chronic incidents, attrition risk, leadership stamina for a phased program) that frequently determine whether the recommended strangler approach succeeds or devolves. A's omission is more serious because without measurable criteria you cannot evaluate any path.\"\n}\n```"
+}

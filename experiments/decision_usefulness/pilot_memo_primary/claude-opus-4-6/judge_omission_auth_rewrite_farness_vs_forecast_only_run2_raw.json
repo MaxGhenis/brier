@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 88,
+  "rationale": "Both analyses focus on incidents and engineer time, but auth is a security-critical system. Analysis A especially underweights security/compliance consequences and feasibility constraints, which could dominate the decision and rule out options. Analysis B at least mentions compliance blockers and security lead involvement, though it still misses a concrete immediate stabilization option while evaluating longer-term paths.",
+  "largest_missing_consideration_a": "Security/compliance risk of auth changes, including breach impact and regulatory constraints",
+  "largest_missing_consideration_b": "Near-term risk mitigation path short of migration/rewrite, such as an immediate stabilization and observability hardening plan",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk of auth changes, including breach impact and regulatory constraints\",\n  \"largest_missing_consideration_b\": \"Near-term risk mitigation path short of migration/rewrite, such as an immediate stabilization and observability hardening plan\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"Both analyses focus on incidents and engineer time, but auth is a security-critical system. Analysis A especially underweights security/compliance consequences and feasibility constraints, which could dominate the decision and rule out options. Analysis B at least mentions compliance blockers and security lead involvement, though it still misses a concrete immediate stabilization option while evaluating longer-term paths.\"\n}"
+}

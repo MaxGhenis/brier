@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 97,
+  "rationale": "Analysis A is essentially a stub\u2014it provides a single disconfirming note about distribution partnerships but offers no KPIs, no enumerated options, no forecasts, and no recommendation. Analysis B defines clear KPIs (unique visitors, cost per visitor), enumerates six individual options and six pairwise combinations, provides point estimates with 80% confidence intervals for each, states explicit assumptions, identifies key exceptions (e.g., poor load time), and traces the recommendation directly to the forecasts. While B's numbers are fabricated anchors rather than grounded in cited outside-view data, they still make the decision auditable and comparable. B is vastly more useful for an actual decision-maker.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 2,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 97,\n  \"rationale\": \"Analysis A is essentially a stub\u2014it provides a single disconfirming note about distribution partnerships but offers no KPIs, no enumerated options, no forecasts, and no recommendation. Analysis B defines clear KPIs (unique visitors, cost per visitor), enumerates six individual options and six pairwise combinations, provides point estimates with 80% confidence intervals for each, states explicit assumptions, identifies key exceptions (e.g., poor load time), and traces the recommendation directly to the forecasts. While B's numbers are fabricated anchors rather than grounded in cited outside-view data, they still make the decision auditable and comparable. B is vastly more useful for an actual decision-maker.\"\n}\n```"
+}

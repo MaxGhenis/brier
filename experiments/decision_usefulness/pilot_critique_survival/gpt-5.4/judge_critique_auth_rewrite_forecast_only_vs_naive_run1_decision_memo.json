@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "less_undermined_condition": "naive",
+  "confidence": 88,
+  "rationale": "Writeup A doesn't actually make a recommendation\u2014it only defines KPIs. Under every critique lens (implementation fragility, opportunity cost, reversibility, etc.), there's nothing substantive to evaluate because no decision is rendered. Writeup B makes a clear, defensible recommendation (stabilize-and-contain with targeted redesign), acknowledges the value of operational familiarity, and addresses tail risk around security-critical rewrites. While B is vulnerable to deferred-action drift and lacks an explicit revisit trigger, it at least provides an actionable path that can be stress-tested. B requires far less revision to become a usable decision.",
+  "most_damaging_critique_a": "Writeup A provides no actual recommendation, no implementation plan, and no alternative\u2014just KPI definitions. There is nothing concrete to implement, making it entirely fragile under any implementation or stakeholder critique.",
+  "most_damaging_critique_b": "The stabilize-and-contain approach risks becoming permanent incrementalism with no clear revisit trigger, allowing technical debt to compound while the targeted redesign is perpetually deferred\u2014a hidden dependency on sustained organizational discipline.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"Writeup A provides no actual recommendation, no implementation plan, and no alternative\u2014just KPI definitions. There is nothing concrete to implement, making it entirely fragile under any implementation or stakeholder critique.\",\n  \"most_damaging_critique_b\": \"The stabilize-and-contain approach risks becoming permanent incrementalism with no clear revisit trigger, allowing technical debt to compound while the targeted redesign is perpetually deferred\u2014a hidden dependency on sustained organizational discipline.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 88,\n  \"rationale\": \"Writeup A doesn't actually make a recommendation\u2014it only defines KPIs. Under every critique lens (implementation fragility, opportunity cost, reversibility, etc.), there's nothing substantive to evaluate because no decision is rendered. Writeup B makes a clear, defensible recommendation (stabilize-and-contain with targeted redesign), acknowledges the value of operational familiarity, and addresses tail risk around security-critical rewrites. While B is vulnerable to deferred-action drift and lacks an explicit revisit trigger, it at least provides an actionable path that can be stress-tested. B requires far less revision to become a usable decision.\"\n}\n```"
+}

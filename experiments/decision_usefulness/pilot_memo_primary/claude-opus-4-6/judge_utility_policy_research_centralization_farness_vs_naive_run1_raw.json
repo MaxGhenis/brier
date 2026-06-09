@@ -1,0 +1,30 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "winner_condition": "farness",
+  "confidence": 95,
+  "rationale": "A is much more decision-useful: it compares live alternatives directly, adds plausible variants, quantifies throughput/error tradeoffs, states assumptions, identifies conditions that would flip the recommendation, and gives concrete review checkpoints. B is clear and practical, but mostly asserts that hybrid balances tradeoffs without estimating magnitudes, probabilities, or failure modes. Its caveats are thin and its recommendation is less discriminative because \u201chybrid\u201d is broad. For a careful human deciding under speed/accuracy pressure, A provides stronger guidance and better handles uncertainty.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 2,
+    "quantitative_support": 1,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 95,\n  \"rationale\": \"A is much more decision-useful: it compares live alternatives directly, adds plausible variants, quantifies throughput/error tradeoffs, states assumptions, identifies conditions that would flip the recommendation, and gives concrete review checkpoints. B is clear and practical, but mostly asserts that hybrid balances tradeoffs without estimating magnitudes, probabilities, or failure modes. Its caveats are thin and its recommendation is less discriminative because \u201chybrid\u201d is broad. For a careful human deciding under speed/accuracy pressure, A provides stronger guidance and better handles uncertainty.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "forecast_only",
+  "confidence": 68,
+  "rationale": "Both writeups are weakened by ambiguity around how the adaptive strategy is implemented, when tiers change, and what dependencies or stakeholder behaviors could derail it. A is more undermined because it recommends D while effectively naming B as production default, creating a muddled recommendation with higher revision needs around governance, reversibility, and implementation. B is still incomplete, but its explicit thresholds for accuracy gain and operational burden make the recommendation somewhat more resilient to critique on opportunity cost and runtime/maintenance tradeoffs. So B would need less revision after applying these non-framework-specific critiques.",
+  "most_damaging_critique_a": "Adaptive/tiered with B as default is operationally ambiguous and may create hidden maintenance dependencies, inconsistent stakeholder use, and switching friction without clear triggers for when to escalate beyond targeted calibration.",
+  "most_damaging_critique_b": "Hybrid recommendation is also vague, but its explicit burden cap and accuracy threshold still leave unresolved hidden dependencies, governance for switching tiers, and risk that complexity grows faster than measured gains.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Adaptive/tiered with B as default is operationally ambiguous and may create hidden maintenance dependencies, inconsistent stakeholder use, and switching friction without clear triggers for when to escalate beyond targeted calibration.\",\n  \"most_damaging_critique_b\": \"Hybrid recommendation is also vague, but its explicit burden cap and accuracy threshold still leave unresolved hidden dependencies, governance for switching tiers, and risk that complexity grows faster than measured gains.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 68,\n  \"rationale\": \"Both writeups are weakened by ambiguity around how the adaptive strategy is implemented, when tiers change, and what dependencies or stakeholder behaviors could derail it. A is more undermined because it recommends D while effectively naming B as production default, creating a muddled recommendation with higher revision needs around governance, reversibility, and implementation. B is still incomplete, but its explicit thresholds for accuracy gain and operational burden make the recommendation somewhat more resilient to critique on opportunity cost and runtime/maintenance tradeoffs. So B would need less revision after applying these non-framework-specific critiques.\"\n}"
+}

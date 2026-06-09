@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "raw",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 52,
+  "rationale": "Both analyses are thorough and closely aligned. Analysis A explicitly addresses data quality as a constraint on useful detail, while Analysis B's tiered approach implicitly assumes the microdata can reliably support subgroup-level validation without discussing data source limitations. Analysis B also lacks discussion of transparency and explainability to stakeholders. However, Analysis A omits governance processes. B's omission is slightly more serious because data quality awareness is foundational to the entire tiered strategy it proposes\u2014without it, the inclusion criteria lack grounding.",
+  "largest_missing_consideration_a": "No discussion of stakeholder or institutional governance processes for deciding where complexity is warranted\u2014who makes the judgment calls, how disagreements are resolved, and how decisions are documented over time.",
+  "largest_missing_consideration_b": "No consideration of how the parameter strategy interacts with the specific characteristics and limitations of the underlying microdata source (e.g., survey vs. administrative data, sample size, imputation, linkage quality), which fundamentally determines what level of detail is supportable.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No discussion of stakeholder or institutional governance processes for deciding where complexity is warranted\u2014who makes the judgment calls, how disagreements are resolved, and how decisions are documented over time.\",\n  \"largest_missing_consideration_b\": \"No consideration of how the parameter strategy interacts with the specific characteristics and limitations of the underlying microdata source (e.g., survey vs. administrative data, sample size, imputation, linkage quality), which fundamentally determines what level of detail is supportable.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Both analyses are thorough and closely aligned. Analysis A explicitly addresses data quality as a constraint on useful detail, while Analysis B's tiered approach implicitly assumes the microdata can reliably support subgroup-level validation without discussing data source limitations. Analysis B also lacks discussion of transparency and explainability to stakeholders. However, Analysis A omits governance processes. B's omission is slightly more serious because data quality awareness is foundational to the entire tiered strategy it proposes\u2014without it, the inclusion criteria lack grounding.\"\n}\n```"
+}

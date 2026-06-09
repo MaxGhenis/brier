@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 88,
+  "rationale": "Both reach the same core recommendation (stabilize + strangler over full rewrite), but B is substantially more useful. B expands the option set to four distinct alternatives and compares them systematically. Its numeric forecasts with confidence intervals, while necessarily approximate, make the tradeoffs between incident reduction and roadmap cost concrete and debatable. B's disconfirming evidence section explicitly identifies conditions that would overturn the recommendation\u2014critical for a careful decision-maker. The 6-week and 12-week review gates with decision rules give actionable follow-through. A is solid and concise but lacks comparative depth, quantitative grounding, and structured uncertainty handling.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 1,
+    "overall_usefulness": 3
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 3\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 88,\n  \"rationale\": \"Both reach the same core recommendation (stabilize + strangler over full rewrite), but B is substantially more useful. B expands the option set to four distinct alternatives and compares them systematically. Its numeric forecasts with confidence intervals, while necessarily approximate, make the tradeoffs between incident reduction and roadmap cost concrete and debatable. B's disconfirming evidence section explicitly identifies conditions that would overturn the recommendation\u2014critical for a careful decision-maker. The 6-week and 12-week review gates with decision rules give actionable follow-through. A is solid and concise but lacks comparative depth, quantitative grounding, and structured uncertainty handling.\"\n}\n```"
+}

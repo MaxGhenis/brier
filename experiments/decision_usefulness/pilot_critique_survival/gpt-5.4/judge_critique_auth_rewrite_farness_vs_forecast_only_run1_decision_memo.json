@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 72,
+  "rationale": "Writeup A never commits to a recommendation, so every critique lens (implementation fragility, opportunity cost, reversibility, etc.) exposes a fatal gap: there's nothing concrete to evaluate or act on. Writeup B's 'rewrite now' recommendation is genuinely vulnerable to implementation fragility, opportunity cost of pulling seniors off roadmap, and tail risk during the transition period. However, it at least provides a revisit trigger at 6 and 12 weeks, which partially addresses reversibility and timing risk. A recommendation that can be stress-tested and revised is strictly more useful than one that doesn't exist. B survives critique better despite real weaknesses.",
+  "most_damaging_critique_a": "No recommendation is actually made, so there is nothing to implement, no reversibility to assess, and no stakeholder response to anticipate\u2014rendering the writeup inactionable.",
+  "most_damaging_critique_b": "A full rewrite carries high implementation fragility and tail risk: mid-rewrite, the team runs two auth systems simultaneously, doubling attack surface and incident exposure during the quarter-long transition window.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No recommendation is actually made, so there is nothing to implement, no reversibility to assess, and no stakeholder response to anticipate\u2014rendering the writeup inactionable.\",\n  \"most_damaging_critique_b\": \"A full rewrite carries high implementation fragility and tail risk: mid-rewrite, the team runs two auth systems simultaneously, doubling attack surface and incident exposure during the quarter-long transition window.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Writeup A never commits to a recommendation, so every critique lens (implementation fragility, opportunity cost, reversibility, etc.) exposes a fatal gap: there's nothing concrete to evaluate or act on. Writeup B's 'rewrite now' recommendation is genuinely vulnerable to implementation fragility, opportunity cost of pulling seniors off roadmap, and tail risk during the transition period. However, it at least provides a revisit trigger at 6 and 12 weeks, which partially addresses reversibility and timing risk. A recommendation that can be stress-tested and revised is strictly more useful than one that doesn't exist. B survives critique better despite real weaknesses.\"\n}\n```"
+}

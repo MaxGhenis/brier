@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "more_serious_omission_condition": "farness",
+  "confidence": 52,
+  "rationale": "Analysis A's missing engineering-cost KPI is a significant gap but is partially addressed qualitatively. Analysis B is far more thorough overall, yet for an authentication system its complete omission of security/compliance/breach risk as a KPI or decision factor is arguably more dangerous: a single auth breach can dwarf all incident-hour and engineering-week costs combined. Both omissions are serious, but B's gap is more consequential given the domain, though the margin is slim because A has more structural gaps.",
+  "largest_missing_consideration_a": "No explicit options list was provided, and the analysis lacks a second KPI measuring engineering cost/capacity consumed, making it impossible to properly evaluate the roadmap trade-off it claims to care about.",
+  "largest_missing_consideration_b": "No consideration of the security/compliance risk dimension \u2014 auth incidents may carry breach, regulatory, or customer-trust consequences that dwarf both incident-hours and engineering-weeks, yet this is never quantified or included as a KPI.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No explicit options list was provided, and the analysis lacks a second KPI measuring engineering cost/capacity consumed, making it impossible to properly evaluate the roadmap trade-off it claims to care about.\",\n  \"largest_missing_consideration_b\": \"No consideration of the security/compliance risk dimension \u2014 auth incidents may carry breach, regulatory, or customer-trust consequences that dwarf both incident-hours and engineering-weeks, yet this is never quantified or included as a KPI.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Analysis A's missing engineering-cost KPI is a significant gap but is partially addressed qualitatively. Analysis B is far more thorough overall, yet for an authentication system its complete omission of security/compliance/breach risk as a KPI or decision factor is arguably more dangerous: a single auth breach can dwarf all incident-hour and engineering-week costs combined. Both omissions are serious, but B's gap is more consequential given the domain, though the margin is slim because A has more structural gaps.\"\n}\n```"
+}

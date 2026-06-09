@@ -1,0 +1,30 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_naive",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "farness",
+  "winner_condition": "farness",
+  "confidence": 88,
+  "rationale": "Both reach similar conclusions (progressive/adaptive complexity), but B is far more useful to a decision-maker. B explicitly defines four options, provides concrete (if illustrative) KPI forecasts with confidence intervals, identifies specific disconfirming evidence and failure modes per option, gives a practical decision rule with numeric thresholds, includes a fallback recommendation, and specifies review triggers. A offers sound but generic advice\u2014'add complexity only where it helps'\u2014without discriminating between alternatives quantitatively or addressing when the recommendation might fail. The numeric estimates in B, while necessarily approximate, give the decision-maker calibration points that A entirely lacks. B's governance caveat and fallback to Option B adds realistic nuance.",
+  "scores_a": {
+    "action_guidance": 3,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 2,
+    "quantitative_support": 1,
+    "overall_usefulness": 2
+  },
+  "scores_b": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 5,
+    "quantitative_support": 4,
+    "overall_usefulness": 5
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 2,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 2\n  },\n  \"scores_b\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 5,\n    \"quantitative_support\": 4,\n    \"overall_usefulness\": 5\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 88,\n  \"rationale\": \"Both reach similar conclusions (progressive/adaptive complexity), but B is far more useful to a decision-maker. B explicitly defines four options, provides concrete (if illustrative) KPI forecasts with confidence intervals, identifies specific disconfirming evidence and failure modes per option, gives a practical decision rule with numeric thresholds, includes a fallback recommendation, and specifies review triggers. A offers sound but generic advice\u2014'add complexity only where it helps'\u2014without discriminating between alternatives quantitatively or addressing when the recommendation might fail. The numeric estimates in B, while necessarily approximate, give the decision-maker calibration points that A entirely lacks. B's governance caveat and fallback to Option B adds realistic nuance.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "farness_vs_naive",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "naive",
+  "left_condition": "farness",
+  "right_condition": "naive",
+  "winner_condition": "naive",
+  "confidence": 55,
+  "rationale": "Both analyses are nearly empty, with almost every field marked as 'Not provided.' Neither offers KPIs, option sets, outside-view evidence, disconfirming evidence, or a traceable recommendation. The only differentiator is that Analysis B includes a single conditional forecast ('Will mobile users see value in under 2\u20133 seconds? \u2192 if no, choose faster load time'), which provides a tiny but nonzero piece of actionable decision logic. This marginally helps a decision-maker compared to Analysis A, which provides absolutely nothing beyond restating the question. The margin is extremely slim, hence low confidence.",
+  "scores_a": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 1
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 2,
+    "outside_view": 1,
+    "disconfirming_evidence": 1,
+    "recommendation_traceability": 1
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 1\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 1,\n    \"recommendation_traceability\": 1\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 55,\n  \"rationale\": \"Both analyses are nearly empty, with almost every field marked as 'Not provided.' Neither offers KPIs, option sets, outside-view evidence, disconfirming evidence, or a traceable recommendation. The only differentiator is that Analysis B includes a single conditional forecast ('Will mobile users see value in under 2\u20133 seconds? \u2192 if no, choose faster load time'), which provides a tiny but nonzero piece of actionable decision logic. This marginally helps a decision-maker compared to Analysis A, which provides absolutely nothing beyond restating the question. The margin is extremely slim, hence low confidence.\"\n}\n```"
+}

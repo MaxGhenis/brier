@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "farness",
+  "confidence": 82,
+  "rationale": "Analysis A is stronger overall, but both analyses optimize mainly for incident frequency and engineer time. A\u2019s biggest miss is not explicitly valuing security/compliance downside in an auth system, where one severe flaw can dominate all other KPIs. B\u2019s main omission is weaker evidentiary grounding: it lacks outside-view support for its numbers. Missing catastrophic auth risk is more decision-distorting than missing citation rigor, so A has the more serious omission.",
+  "largest_missing_consideration_a": "Security/compliance risk severity beyond incident counts, including breach exposure and audit obligations",
+  "largest_missing_consideration_b": "Outside-view evidence and calibrated base rates supporting its forecasts",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk severity beyond incident counts, including breach exposure and audit obligations\",\n  \"largest_missing_consideration_b\": \"Outside-view evidence and calibrated base rates supporting its forecasts\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Analysis A is stronger overall, but both analyses optimize mainly for incident frequency and engineer time. A\u2019s biggest miss is not explicitly valuing security/compliance downside in an auth system, where one severe flaw can dominate all other KPIs. B\u2019s main omission is weaker evidentiary grounding: it lacks outside-view support for its numbers. Missing catastrophic auth risk is more decision-distorting than missing citation rigor, so A has the more serious omission.\"\n}"
+}

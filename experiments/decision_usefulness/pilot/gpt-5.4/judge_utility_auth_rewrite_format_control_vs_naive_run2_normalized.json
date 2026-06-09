@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 92,
+  "rationale": "Analysis A is substantially more useful. It enumerates five distinct options (patch, full rewrite, stabilize-then-stage, partial extraction, managed solution), provides a detailed taxonomy of incident root causes that helps the decision-maker diagnose their situation, clearly traces the recommendation back to the reasoning, and offers a concrete practical path. Analysis B reaches a similar conclusion but is skeletal\u2014no explicit options, no KPIs, minimal failure-mode coverage, and the recommendation lacks the structured reasoning needed to audit or revisit the decision. Both lack quantitative forecasts and outside-view data, but A's richer consideration set makes it far more actionable.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 5,
+    "forecast_specificity": 1,
+    "outside_view": 2,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 2,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 2
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 2,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 2\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 92,\n  \"rationale\": \"Analysis A is substantially more useful. It enumerates five distinct options (patch, full rewrite, stabilize-then-stage, partial extraction, managed solution), provides a detailed taxonomy of incident root causes that helps the decision-maker diagnose their situation, clearly traces the recommendation back to the reasoning, and offers a concrete practical path. Analysis B reaches a similar conclusion but is skeletal\u2014no explicit options, no KPIs, minimal failure-mode coverage, and the recommendation lacks the structured reasoning needed to audit or revisit the decision. Both lack quantitative forecasts and outside-view data, but A's richer consideration set makes it far more actionable.\"\n}\n```"
+}

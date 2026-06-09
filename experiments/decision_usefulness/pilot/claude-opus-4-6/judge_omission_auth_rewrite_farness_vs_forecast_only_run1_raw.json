@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 93,
+  "rationale": "A is fairly complete on delivery risk, alternatives, and base rates, but it still treats auth mostly as a reliability problem rather than also a security/compliance one. B\u2019s bigger flaw is that its engineering-cost forecasts are implausibly low relative to the scenario (\u20183\u20134 senior engineers for at least a quarter\u2019) and therefore distort the decision. That omission directly affects the core tradeoff the analysis is supposed to evaluate.",
+  "largest_missing_consideration_a": "Security/compliance risk from auth failures or migration, not just reliability incidents",
+  "largest_missing_consideration_b": "Underestimation of total engineering opportunity cost and reactive toil, especially for rewrite and patch paths",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Security/compliance risk from auth failures or migration, not just reliability incidents\",\n  \"largest_missing_consideration_b\": \"Underestimation of total engineering opportunity cost and reactive toil, especially for rewrite and patch paths\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 93,\n  \"rationale\": \"A is fairly complete on delivery risk, alternatives, and base rates, but it still treats auth mostly as a reliability problem rather than also a security/compliance one. B\u2019s bigger flaw is that its engineering-cost forecasts are implausibly low relative to the scenario (\u20183\u20134 senior engineers for at least a quarter\u2019) and therefore distort the decision. That omission directly affects the core tradeoff the analysis is supposed to evaluate.\"\n}"
+}

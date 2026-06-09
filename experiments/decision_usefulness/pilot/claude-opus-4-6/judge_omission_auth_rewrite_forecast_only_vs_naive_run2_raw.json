@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 93,
+  "rationale": "Both analyses underweight tail-risk: auth failures can cause breaches, account takeover, or compliance exposure. A at least explicitly notes security-breach risk and uses it qualitatively. B\u2019s framework is more problematic because it formalizes the decision around only two KPIs\u2014incident count and engineer time\u2014thereby excluding the highest-stakes consequence from the decision model itself.",
+  "largest_missing_consideration_a": "The actual severity and security/compliance impact of the auth incidents, not just their frequency",
+  "largest_missing_consideration_b": "The downside of a catastrophic security/compliance failure is not modeled; the KPI set reduces auth risk to incident counts and engineer time",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"The actual severity and security/compliance impact of the auth incidents, not just their frequency\",\n  \"largest_missing_consideration_b\": \"The downside of a catastrophic security/compliance failure is not modeled; the KPI set reduces auth risk to incident counts and engineer time\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 93,\n  \"rationale\": \"Both analyses underweight tail-risk: auth failures can cause breaches, account takeover, or compliance exposure. A at least explicitly notes security-breach risk and uses it qualitatively. B\u2019s framework is more problematic because it formalizes the decision around only two KPIs\u2014incident count and engineer time\u2014thereby excluding the highest-stakes consequence from the decision model itself.\"\n}"
+}

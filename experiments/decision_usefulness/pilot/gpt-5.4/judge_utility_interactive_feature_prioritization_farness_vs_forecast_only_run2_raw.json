@@ -1,0 +1,32 @@
+{
+  "case_id": "interactive_feature_prioritization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "raw",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "farness",
+  "confidence": 82,
+  "rationale": "Both analyses are structurally similar and reach comparable conclusions, but A is substantially more useful for a careful decision-maker. A's KPIs are better defined (unique visitors + completed sessions vs. unique visitors + cost-per-visitor, where cost data may not exist). A provides explicit outside-view base rates and reasoning before forecasting. A's disconfirming evidence section is thorough, covering failure modes for every major option, while B only lists assumptions. A includes a concrete review-date protocol with leading indicators, making the decision auditable and revisitable. B adds paid amplification readiness and cost-per-visitor as useful extras, but its forecasts lack the mechanistic grounding and failure-mode scrutiny that make A more trustworthy for actual decision-making.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 5,
+    "forecast_specificity": 5,
+    "outside_view": 5,
+    "disconfirming_evidence": 5,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 5,
+    "forecast_specificity": 4,
+    "outside_view": 3,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 5,\n    \"disconfirming_evidence\": 5,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 5,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 3,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 82,\n  \"rationale\": \"Both analyses are structurally similar and reach comparable conclusions, but A is substantially more useful for a careful decision-maker. A's KPIs are better defined (unique visitors + completed sessions vs. unique visitors + cost-per-visitor, where cost data may not exist). A provides explicit outside-view base rates and reasoning before forecasting. A's disconfirming evidence section is thorough, covering failure modes for every major option, while B only lists assumptions. A includes a concrete review-date protocol with leading indicators, making the decision auditable and revisitable. B adds paid amplification readiness and cost-per-visitor as useful extras, but its forecasts lack the mechanistic grounding and failure-mode scrutiny that make A more trustworthy for actual decision-making.\"\n}\n```"
+}

@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "naive",
+  "confidence": 72,
+  "rationale": "A is more directly useful to a decision-maker because it gives a clear recommendation aligned to the scenario: harden incrementally now, reserve fixed capacity, and escalate if incidents stay high. Its trigger is imperfectly specified but still actionable. B gestures at a potentially strong middle path (strangler migration) and includes uncertainty language, but the excerpt is too incomplete to guide execution: the recommendation depends on missing KPI framing, alternatives are not clearly compared in the visible text, and the quantitative support is mostly structural rather than decision-driving. A\u2019s practical guidance outweighs B\u2019s more analytical framing.",
+  "scores_a": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 3,
+    "quantitative_support": 2,
+    "overall_usefulness": 4
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 4,
+    "uncertainty_handling": 4,
+    "quantitative_support": 3,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 4\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 4,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 3,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 72,\n  \"rationale\": \"A is more directly useful to a decision-maker because it gives a clear recommendation aligned to the scenario: harden incrementally now, reserve fixed capacity, and escalate if incidents stay high. Its trigger is imperfectly specified but still actionable. B gestures at a potentially strong middle path (strangler migration) and includes uncertainty language, but the excerpt is too incomplete to guide execution: the recommendation depends on missing KPI framing, alternatives are not clearly compared in the visible text, and the quantitative support is mostly structural rather than decision-driving. A\u2019s practical guidance outweighs B\u2019s more analytical framing.\"\n}"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 84,
+  "rationale": "A gives sensible caution but lacks the key gating factor: incident severity and security/compliance exposure that could force immediate structural change despite rewrite risk. Without that threshold, its recommendation is under-anchored. B\u2019s omission is important, but feasibility/root-cause validation is more implicit in migration planning and less fatal than ignoring the possibility that current risk is already unacceptable.",
+  "largest_missing_consideration_a": "A clear decision threshold tied to business/security risk\u2014when incidents are severe enough that incremental hardening is no longer acceptable and a rewrite or platform replacement becomes mandatory.",
+  "largest_missing_consideration_b": "Whether the auth incidents stem from requirements/architecture that a strangler migration cannot fix without first identifying root causes and validating feasibility.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"A clear decision threshold tied to business/security risk\u2014when incidents are severe enough that incremental hardening is no longer acceptable and a rewrite or platform replacement becomes mandatory.\",\n  \"largest_missing_consideration_b\": \"Whether the auth incidents stem from requirements/architecture that a strangler migration cannot fix without first identifying root causes and validating feasibility.\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 84,\n  \"rationale\": \"A gives sensible caution but lacks the key gating factor: incident severity and security/compliance exposure that could force immediate structural change despite rewrite risk. Without that threshold, its recommendation is under-anchored. B\u2019s omission is important, but feasibility/root-cause validation is more implicit in migration planning and less fatal than ignoring the possibility that current risk is already unacceptable.\"\n}"
+}

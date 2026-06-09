@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "naive",
+  "confidence": 62,
+  "rationale": "Both writeups are thin and recommend essentially the same hybrid approach (stabilize then migrate). Writeup A has structural issues: the 'key caveat' is a copy of the rationale rather than an actual caveat, and there's no revisit trigger or quantitative support. Writeup B, while also sparse, provides a meaningful caveat about rewrites creating new failure modes in critical systems, and offers a concrete revisit trigger (review incident rate and change failure rate after 4\u20136 weeks). That 4\u20136 week checkpoint with specific metrics gives a decision-maker something actionable. Neither is strong, but B edges ahead on uncertainty handling and quantitative grounding.",
+  "scores_a": {
+    "action_guidance": 2,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 1,
+    "quantitative_support": 1,
+    "overall_usefulness": 2
+  },
+  "scores_b": {
+    "action_guidance": 3,
+    "comparative_reasoning": 2,
+    "uncertainty_handling": 3,
+    "quantitative_support": 2,
+    "overall_usefulness": 3
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"action_guidance\": 2,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 1,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 2\n  },\n  \"scores_b\": {\n    \"action_guidance\": 3,\n    \"comparative_reasoning\": 2,\n    \"uncertainty_handling\": 3,\n    \"quantitative_support\": 2,\n    \"overall_usefulness\": 3\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both writeups are thin and recommend essentially the same hybrid approach (stabilize then migrate). Writeup A has structural issues: the 'key caveat' is a copy of the rationale rather than an actual caveat, and there's no revisit trigger or quantitative support. Writeup B, while also sparse, provides a meaningful caveat about rewrites creating new failure modes in critical systems, and offers a concrete revisit trigger (review incident rate and change failure rate after 4\u20136 weeks). That 4\u20136 week checkpoint with specific metrics gives a decision-maker something actionable. Neither is strong, but B edges ahead on uncertainty handling and quantitative grounding.\"\n}\n```"
+}

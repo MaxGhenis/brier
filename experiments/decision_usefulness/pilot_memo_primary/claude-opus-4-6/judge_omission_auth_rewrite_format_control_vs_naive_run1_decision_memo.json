@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 91,
+  "rationale": "A mostly recommends a phased path but fails to define measurable revisit criteria. B gives sensible incremental advice, but its biggest gap is not testing the key exception: if auth failures materially threaten security, compliance, or major revenue, rewrite-now could be warranted despite delivery cost. Missing that possibility is more serious than A\u2019s lack of explicit triggers.",
+  "largest_missing_consideration_a": "A clear decision threshold tied to incident risk/cost and a trigger for when stabilization is insufficient and rewrite must accelerate.",
+  "largest_missing_consideration_b": "The explicit condition that would justify a full rewrite now\u2014i.e., whether current auth incidents create unacceptable security/compliance/business risk.",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"A clear decision threshold tied to incident risk/cost and a trigger for when stabilization is insufficient and rewrite must accelerate.\",\n  \"largest_missing_consideration_b\": \"The explicit condition that would justify a full rewrite now\u2014i.e., whether current auth incidents create unacceptable security/compliance/business risk.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 91,\n  \"rationale\": \"A mostly recommends a phased path but fails to define measurable revisit criteria. B gives sensible incremental advice, but its biggest gap is not testing the key exception: if auth failures materially threaten security, compliance, or major revenue, rewrite-now could be warranted despite delivery cost. Missing that possibility is more serious than A\u2019s lack of explicit triggers.\"\n}"
+}

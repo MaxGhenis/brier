@@ -1,0 +1,30 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 88,
+  "rationale": "A is more decision-useful because it compares multiple live alternatives directly, including a strong middle path and managed solution, and ties them to explicit KPIs with estimates and caveats. Its recommendation is actionable: run a short managed-solution spike, otherwise pursue strangler migration. B gives sensible advice and a good escalation-trigger concept, but it under-compares alternatives and effectively recommends a hybrid path without clearly distinguishing it from the rewrite/patch choice set. B\u2019s lack of quantitative support makes tradeoffs harder for a careful decision-maker to evaluate.",
+  "scores_a": {
+    "action_guidance": 5,
+    "comparative_reasoning": 5,
+    "uncertainty_handling": 4,
+    "quantitative_support": 5,
+    "overall_usefulness": 5
+  },
+  "scores_b": {
+    "action_guidance": 4,
+    "comparative_reasoning": 3,
+    "uncertainty_handling": 4,
+    "quantitative_support": 1,
+    "overall_usefulness": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"action_guidance\": 5,\n    \"comparative_reasoning\": 5,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 5,\n    \"overall_usefulness\": 5\n  },\n  \"scores_b\": {\n    \"action_guidance\": 4,\n    \"comparative_reasoning\": 3,\n    \"uncertainty_handling\": 4,\n    \"quantitative_support\": 1,\n    \"overall_usefulness\": 4\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 88,\n  \"rationale\": \"A is more decision-useful because it compares multiple live alternatives directly, including a strong middle path and managed solution, and ties them to explicit KPIs with estimates and caveats. Its recommendation is actionable: run a short managed-solution spike, otherwise pursue strangler migration. B gives sensible advice and a good escalation-trigger concept, but it under-compares alternatives and effectively recommends a hybrid path without clearly distinguishing it from the rewrite/patch choice set. B\u2019s lack of quantitative support makes tradeoffs harder for a careful decision-maker to evaluate.\"\n}"
+}

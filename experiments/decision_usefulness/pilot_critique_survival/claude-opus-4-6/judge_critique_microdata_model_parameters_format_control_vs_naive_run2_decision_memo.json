@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "less_undermined_condition": "naive",
+  "confidence": 74,
+  "rationale": "A\u2019s recommendation is simpler and more reversible: begin with a parsimonious baseline and add complexity only when justified. Even though it lacks caveats and triggers, it is less exposed to implementation fragility and stakeholder-driven complexity creep than B. B gestures at a balanced modular strategy, but the recommendation is less crisply bounded and more vulnerable to hidden dependencies, governance overhead, and incentive-driven expansion of modules. Since the task is to prefer the writeup needing less revision after generic critiques, A survives better because its core recommendation remains coherent with fewer assumptions.",
+  "most_damaging_critique_a": "Implementation depends on reliable sensitivity analysis and proof of incremental accuracy gains, but hidden data, validation, and staffing dependencies are unspecified, so the staged approach could stall or drift without clear stopping rules.",
+  "most_damaging_critique_b": "The adaptive/modular recommendation is vague and may invite architecture and governance overhead; without explicit triggers, modules can proliferate, raising switching costs and stakeholder pressure for ever more complexity.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Implementation depends on reliable sensitivity analysis and proof of incremental accuracy gains, but hidden data, validation, and staffing dependencies are unspecified, so the staged approach could stall or drift without clear stopping rules.\",\n  \"most_damaging_critique_b\": \"The adaptive/modular recommendation is vague and may invite architecture and governance overhead; without explicit triggers, modules can proliferate, raising switching costs and stakeholder pressure for ever more complexity.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 74,\n  \"rationale\": \"A\u2019s recommendation is simpler and more reversible: begin with a parsimonious baseline and add complexity only when justified. Even though it lacks caveats and triggers, it is less exposed to implementation fragility and stakeholder-driven complexity creep than B. B gestures at a balanced modular strategy, but the recommendation is less crisply bounded and more vulnerable to hidden dependencies, governance overhead, and incentive-driven expansion of modules. Since the task is to prefer the writeup needing less revision after generic critiques, A survives better because its core recommendation remains coherent with fewer assumptions.\"\n}"
+}

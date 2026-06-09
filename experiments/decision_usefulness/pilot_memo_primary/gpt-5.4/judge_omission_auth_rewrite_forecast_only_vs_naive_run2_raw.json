@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "more_serious_omission_condition": "naive",
+  "confidence": 62,
+  "rationale": "Both analyses miss security/compliance risk assessment, but Analysis A at least provides a structured quantitative framework with KPIs and forecasts that could be extended. Analysis B lacks any measurable success criteria or quantified trade-offs, making it harder to operationalize, course-correct, or defend the recommendation. Without metrics, the 4\u20136 week checkpoint it proposes has no defined basis for decision-making. That said, Analysis A's omission of security risk from its KPIs is also significant for an authentication system.",
+  "largest_missing_consideration_a": "No consideration of security/compliance risk \u2014 repeated auth incidents may signal active vulnerability exposure, and the analysis lacks any KPI or assessment of security posture, breach likelihood, or regulatory consequences that could dominate all other factors.",
+  "largest_missing_consideration_b": "No explicit success metrics or quantified forecasts \u2014 without defined KPIs, confidence intervals, or measurable targets, there is no way to evaluate whether the recommended path is actually working or to compare options rigorously.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"No consideration of security/compliance risk \u2014 repeated auth incidents may signal active vulnerability exposure, and the analysis lacks any KPI or assessment of security posture, breach likelihood, or regulatory consequences that could dominate all other factors.\",\n  \"largest_missing_consideration_b\": \"No explicit success metrics or quantified forecasts \u2014 without defined KPIs, confidence intervals, or measurable targets, there is no way to evaluate whether the recommended path is actually working or to compare options rigorously.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 62,\n  \"rationale\": \"Both analyses miss security/compliance risk assessment, but Analysis A at least provides a structured quantitative framework with KPIs and forecasts that could be extended. Analysis B lacks any measurable success criteria or quantified trade-offs, making it harder to operationalize, course-correct, or defend the recommendation. Without metrics, the 4\u20136 week checkpoint it proposes has no defined basis for decision-making. That said, Analysis A's omission of security risk from its KPIs is also significant for an authentication system.\"\n}\n```"
+}

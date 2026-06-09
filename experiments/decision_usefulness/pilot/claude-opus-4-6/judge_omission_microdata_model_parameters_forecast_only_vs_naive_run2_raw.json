@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 91,
+  "rationale": "A is strategically sound but underplays generalization risk and possible overfitting to benchmark data. B\u2019s bigger flaw is presenting precise MAE gains, burden multiples, confidence intervals, and thresholds without showing where they come from or how the choice changes under different assumptions. That omission undermines the credibility of the entire recommendation more than A\u2019s missing robustness check.",
+  "largest_missing_consideration_a": "Whether the chosen parameters remain robust out-of-sample across policy years/populations rather than just fitting current benchmarks",
+  "largest_missing_consideration_b": "The empirical basis and decision sensitivity of its invented KPI forecasts/thresholds, which could make the recommendation arbitrary",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the chosen parameters remain robust out-of-sample across policy years/populations rather than just fitting current benchmarks\",\n  \"largest_missing_consideration_b\": \"The empirical basis and decision sensitivity of its invented KPI forecasts/thresholds, which could make the recommendation arbitrary\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 91,\n  \"rationale\": \"A is strategically sound but underplays generalization risk and possible overfitting to benchmark data. B\u2019s bigger flaw is presenting precise MAE gains, burden multiples, confidence intervals, and thresholds without showing where they come from or how the choice changes under different assumptions. That omission undermines the credibility of the entire recommendation more than A\u2019s missing robustness check.\"\n}"
+}

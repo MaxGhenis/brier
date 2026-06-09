@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "format_control",
+  "less_undermined_condition": "format_control",
+  "confidence": 55,
+  "rationale": "Both writeups share nearly identical weaknesses: no revisit triggers, no quantitative backing, and risk of the incremental path becoming permanent. However, Writeup B explicitly names a staged replacement as the recommended option distinct from pure patching, giving it slightly more structure to resist incentive drift. Writeup A conflates its recommendation and caveat, making it harder to distinguish patching from redesign intent. Under implementation fragility and incentive-response critiques, B's clearer framing of alternatives provides marginally more resilience, though both would need significant revision.",
+  "most_damaging_critique_a": "No revisit trigger or quantitative support means the 'stabilize-and-contain' approach could drift indefinitely, becoming a permanent patch regime with no accountability mechanism to force the harder redesign work.",
+  "most_damaging_critique_b": "No revisit trigger and no quantitative support make the staged replacement indistinguishable from indefinite patching. Without concrete thresholds, stakeholders lack incentive to fund the transition beyond phase one.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit trigger or quantitative support means the 'stabilize-and-contain' approach could drift indefinitely, becoming a permanent patch regime with no accountability mechanism to force the harder redesign work.\",\n  \"most_damaging_critique_b\": \"No revisit trigger and no quantitative support make the staged replacement indistinguishable from indefinite patching. Without concrete thresholds, stakeholders lack incentive to fund the transition beyond phase one.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 55,\n  \"rationale\": \"Both writeups share nearly identical weaknesses: no revisit triggers, no quantitative backing, and risk of the incremental path becoming permanent. However, Writeup B explicitly names a staged replacement as the recommended option distinct from pure patching, giving it slightly more structure to resist incentive drift. Writeup A conflates its recommendation and caveat, making it harder to distinguish patching from redesign intent. Under implementation fragility and incentive-response critiques, B's clearer framing of alternatives provides marginally more resilience, though both would need significant revision.\"\n}\n```"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 75,
+  "rationale": "Both analyses reach similar conclusions (stabilize-first, then targeted refactor), but B is substantially more auditable. B defines two concrete KPIs (Sev1/Sev2 incident hours/quarter, roadmap delivery %), provides point estimates with 80% confidence intervals across multiple options in a comparison table, and names at least four distinct options (full rewrite, incremental patching, stabilize+refactor, vendor adoption). This makes it far easier for a decision-maker to revisit assumptions, compare tradeoffs, and set review triggers. A's recommendation is reasonable but lacks measurable forecasts, explicit option comparison, or defined KPIs, making it harder to audit or challenge. Neither provides strong outside-view evidence.",
+  "scores_a": {
+    "kpi_clarity": 2,
+    "option_completeness": 2,
+    "forecast_specificity": 1,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 3
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 4,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 2,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 3\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 75,\n  \"rationale\": \"Both analyses reach similar conclusions (stabilize-first, then targeted refactor), but B is substantially more auditable. B defines two concrete KPIs (Sev1/Sev2 incident hours/quarter, roadmap delivery %), provides point estimates with 80% confidence intervals across multiple options in a comparison table, and names at least four distinct options (full rewrite, incremental patching, stabilize+refactor, vendor adoption). This makes it far easier for a decision-maker to revisit assumptions, compare tradeoffs, and set review triggers. A's recommendation is reasonable but lacks measurable forecasts, explicit option comparison, or defined KPIs, making it harder to audit or challenge. Neither provides strong outside-view evidence.\"\n}\n```"
+}

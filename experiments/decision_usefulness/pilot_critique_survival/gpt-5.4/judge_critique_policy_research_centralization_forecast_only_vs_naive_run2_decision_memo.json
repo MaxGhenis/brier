@@ -1,0 +1,18 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "forecast_only",
+  "confidence": 45,
+  "rationale": "Both writeups are incomplete, but B's surviving fragments reveal a more operationally concrete design: default-embedded with escalation to a central pod for high-risk policies. This addresses implementation fragility better (clear default mode, clear escalation trigger) and has lower switching cost (you can adjust the escalation threshold without reorganizing). A's generic hybrid recommendation lacks any mechanism design, making it more vulnerable to incentive misalignment, hidden dependencies between embedded and central roles, and stakeholder confusion. B's quantitative framing, even truncated, signals awareness of tradeoffs. Neither is strong, hence low confidence.",
+  "most_damaging_critique_a": "No revisit trigger, no quantitative support, and no concrete implementation details make this hybrid recommendation fragile\u2014any stakeholder resistance or resource constraint could derail it with no fallback plan.",
+  "most_damaging_critique_b": "The writeup is truncated and incomplete\u2014KPIs, quantitative tables, and the full decision logic are missing, making it impossible to verify whether the escalation-based hybrid actually outperforms alternatives under stress.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No revisit trigger, no quantitative support, and no concrete implementation details make this hybrid recommendation fragile\u2014any stakeholder resistance or resource constraint could derail it with no fallback plan.\",\n  \"most_damaging_critique_b\": \"The writeup is truncated and incomplete\u2014KPIs, quantitative tables, and the full decision logic are missing, making it impossible to verify whether the escalation-based hybrid actually outperforms alternatives under stress.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 45,\n  \"rationale\": \"Both writeups are incomplete, but B's surviving fragments reveal a more operationally concrete design: default-embedded with escalation to a central pod for high-risk policies. This addresses implementation fragility better (clear default mode, clear escalation trigger) and has lower switching cost (you can adjust the escalation threshold without reorganizing). A's generic hybrid recommendation lacks any mechanism design, making it more vulnerable to incentive misalignment, hidden dependencies between embedded and central roles, and stakeholder confusion. B's quantitative framing, even truncated, signals awareness of tradeoffs. Neither is strong, hence low confidence.\"\n}\n```"
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "decision_memo",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "less_undermined_condition": "naive",
+  "confidence": 84,
+  "rationale": "A is less undermined because its recommendation already aligns with several generic critiques: lower implementation fragility, lower switching cost, better reversibility, and less immediate opportunity cost than a migration-heavy path. Its main weakness is lack of explicit revisit triggers and risk of patching too long. B\u2019s strangler approach sounds plausible, but under these framework-agnostic lenses it is more exposed to hidden dependencies, stakeholder coordination problems, dual-system complexity, timing risk, and prolonged resource drain. Since the question asks which recommendation would need less revision after critique, A survives with fewer changes.",
+  "most_damaging_critique_a": "Incremental hardening may underinvest if incidents stem from architectural coupling or compliance/security debt; without explicit triggers to escalate, the team could spend months patching while roadmap drag and outage risk continue.",
+  "most_damaging_critique_b": "Strangler migration depends on stable interfaces, dual-run capacity, and sustained senior attention; auth\u2019s hidden edge cases and migration incentives can create prolonged coexistence, switching costs, and new failure modes that erase expected gains.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Incremental hardening may underinvest if incidents stem from architectural coupling or compliance/security debt; without explicit triggers to escalate, the team could spend months patching while roadmap drag and outage risk continue.\",\n  \"most_damaging_critique_b\": \"Strangler migration depends on stable interfaces, dual-run capacity, and sustained senior attention; auth\u2019s hidden edge cases and migration incentives can create prolonged coexistence, switching costs, and new failure modes that erase expected gains.\",\n  \"less_undermined_analysis\": \"A\",\n  \"confidence\": 84,\n  \"rationale\": \"A is less undermined because its recommendation already aligns with several generic critiques: lower implementation fragility, lower switching cost, better reversibility, and less immediate opportunity cost than a migration-heavy path. Its main weakness is lack of explicit revisit triggers and risk of patching too long. B\u2019s strangler approach sounds plausible, but under these framework-agnostic lenses it is more exposed to hidden dependencies, stakeholder coordination problems, dual-system complexity, timing risk, and prolonged resource drain. Since the question asks which recommendation would need less revision after critique, A survives with fewer changes.\"\n}"
+}

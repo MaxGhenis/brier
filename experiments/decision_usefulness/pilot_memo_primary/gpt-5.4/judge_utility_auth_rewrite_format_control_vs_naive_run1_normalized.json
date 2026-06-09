@@ -1,0 +1,32 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "format_control_vs_naive",
+  "representation": "normalized",
+  "condition_a": "format_control",
+  "condition_b": "naive",
+  "left_condition": "format_control",
+  "right_condition": "naive",
+  "winner_condition": "format_control",
+  "confidence": 90,
+  "rationale": "Analysis A is substantially more useful. It explicitly names four options (patch, full rewrite, staged replacement, narrow replacement/externalization), articulates clear KPIs, provides detailed key considerations covering execution risk, opportunity cost, and the value of tacit knowledge, and traces its recommendation back to those considerations. It also gives a concrete practical path. Analysis B is fragmentary\u2014missing KPIs, options, and a clear recommendation\u2014with only scattered bullet points that appear truncated. Neither analysis provides forecasts or outside-view evidence, but A covers failure modes and disconfirming reasoning far more thoroughly. A is clearly more auditable and actionable.",
+  "scores_a": {
+    "kpi_clarity": 3,
+    "option_completeness": 4,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 1,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 3,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 1,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 90,\n  \"rationale\": \"Analysis A is substantially more useful. It explicitly names four options (patch, full rewrite, staged replacement, narrow replacement/externalization), articulates clear KPIs, provides detailed key considerations covering execution risk, opportunity cost, and the value of tacit knowledge, and traces its recommendation back to those considerations. It also gives a concrete practical path. Analysis B is fragmentary\u2014missing KPIs, options, and a clear recommendation\u2014with only scattered bullet points that appear truncated. Neither analysis provides forecasts or outside-view evidence, but A covers failure modes and disconfirming reasoning far more thoroughly. A is clearly more auditable and actionable.\"\n}\n```"
+}

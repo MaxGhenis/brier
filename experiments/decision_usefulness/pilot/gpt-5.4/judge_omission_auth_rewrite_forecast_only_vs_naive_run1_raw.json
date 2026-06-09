@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "forecast_only",
+  "confidence": 52,
+  "rationale": "Analysis A's omission of the vendor option is notable but partially forgivable since it focuses on execution. Analysis B, despite being more structured, reduces all costs to roadmap percentage and incident counts, completely missing that repeated incidents erode engineer retention and morale\u2014a compounding cost that could dominate the decision over 12 months. If attrition of senior engineers accelerates due to on-call burden, all four options' forecasts become invalid. This is a more serious omission because it undermines the quantitative framework B relies on.",
+  "largest_missing_consideration_a": "Failed to consider replacing the auth layer with a managed identity/auth vendor or external platform, which could eliminate the structural maintenance burden entirely.",
+  "largest_missing_consideration_b": "Failed to consider the human/organizational cost of ongoing incident burden on team morale, on-call fatigue, and attrition risk, which could make the true cost of slower approaches much higher than the roadmap-percentage metric captures.",
+  "raw_judge_response": "```json\n{\n  \"largest_missing_consideration_a\": \"Failed to consider replacing the auth layer with a managed identity/auth vendor or external platform, which could eliminate the structural maintenance burden entirely.\",\n  \"largest_missing_consideration_b\": \"Failed to consider the human/organizational cost of ongoing incident burden on team morale, on-call fatigue, and attrition risk, which could make the true cost of slower approaches much higher than the roadmap-percentage metric captures.\",\n  \"which_analysis_has_more_serious_omission\": \"B\",\n  \"confidence\": 52,\n  \"rationale\": \"Analysis A's omission of the vendor option is notable but partially forgivable since it focuses on execution. Analysis B, despite being more structured, reduces all costs to roadmap percentage and incident counts, completely missing that repeated incidents erode engineer retention and morale\u2014a compounding cost that could dominate the decision over 12 months. If attrition of senior engineers accelerates due to on-call burden, all four options' forecasts become invalid. This is a more serious omission because it undermines the quantitative framework B relies on.\"\n}\n```"
+}

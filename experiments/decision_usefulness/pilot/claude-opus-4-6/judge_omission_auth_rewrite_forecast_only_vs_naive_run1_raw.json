@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "raw",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "naive",
+  "right_condition": "forecast_only",
+  "more_serious_omission_condition": "naive",
+  "confidence": 90,
+  "rationale": "Both analyses underweight security, but A treats auth mainly as an engineering reliability tradeoff and could delay action despite repeated incidents that may signal serious security exposure. B at least considers catastrophic incident cost and alternative architectures, though it still misses explicit security/compliance and vendor-risk evaluation. In auth, breach/regulatory risk can dominate roadmap opportunity cost, so omitting it in A is more serious.",
+  "largest_missing_consideration_a": "Whether the incidents indicate a security/compliance risk or latent breach exposure, not just reliability pain",
+  "largest_missing_consideration_b": "The security/compliance and vendor-risk implications of changing the auth trust boundary, especially with managed-service offload",
+  "raw_judge_response": "{\n  \"largest_missing_consideration_a\": \"Whether the incidents indicate a security/compliance risk or latent breach exposure, not just reliability pain\",\n  \"largest_missing_consideration_b\": \"The security/compliance and vendor-risk implications of changing the auth trust boundary, especially with managed-service offload\",\n  \"which_analysis_has_more_serious_omission\": \"A\",\n  \"confidence\": 90,\n  \"rationale\": \"Both analyses underweight security, but A treats auth mainly as an engineering reliability tradeoff and could delay action despite repeated incidents that may signal serious security exposure. B at least considers catastrophic incident cost and alternative architectures, though it still misses explicit security/compliance and vendor-risk evaluation. In auth, breach/regulatory risk can dominate roadmap opportunity cost, so omitting it in A is more serious.\"\n}"
+}

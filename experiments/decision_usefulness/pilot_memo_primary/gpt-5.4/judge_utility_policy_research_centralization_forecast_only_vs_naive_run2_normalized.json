@@ -1,0 +1,32 @@
+{
+  "case_id": "policy_research_centralization",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "forecast_only_vs_naive",
+  "representation": "normalized",
+  "condition_a": "forecast_only",
+  "condition_b": "naive",
+  "left_condition": "forecast_only",
+  "right_condition": "naive",
+  "winner_condition": "forecast_only",
+  "confidence": 97,
+  "rationale": "Analysis A provides clearly defined, measurable KPIs (median implementation time and first-pass accuracy), four distinct options with point estimates and 80% confidence intervals in comparable tables, a traceable recommendation tied directly to forecast performance, and explicit assumptions that enable auditing. Analysis B is skeletal\u2014it lacks defined KPIs, forecasts, structured option comparison, and a traceable recommendation. While Analysis A could improve on outside-view evidence and deeper failure-mode exploration, it is vastly more useful for a decision-maker needing to compare options, challenge assumptions, and revisit the decision later.",
+  "scores_a": {
+    "kpi_clarity": 5,
+    "option_completeness": 4,
+    "forecast_specificity": 5,
+    "outside_view": 2,
+    "disconfirming_evidence": 3,
+    "recommendation_traceability": 5
+  },
+  "scores_b": {
+    "kpi_clarity": 1,
+    "option_completeness": 2,
+    "forecast_specificity": 1,
+    "outside_view": 1,
+    "disconfirming_evidence": 2,
+    "recommendation_traceability": 1
+  },
+  "raw_judge_response": "```json\n{\n  \"scores_a\": {\n    \"kpi_clarity\": 5,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 5,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 3,\n    \"recommendation_traceability\": 5\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 1,\n    \"option_completeness\": 2,\n    \"forecast_specificity\": 1,\n    \"outside_view\": 1,\n    \"disconfirming_evidence\": 2,\n    \"recommendation_traceability\": 1\n  },\n  \"overall_winner\": \"A\",\n  \"confidence\": 97,\n  \"rationale\": \"Analysis A provides clearly defined, measurable KPIs (median implementation time and first-pass accuracy), four distinct options with point estimates and 80% confidence intervals in comparable tables, a traceable recommendation tied directly to forecast performance, and explicit assumptions that enable auditing. Analysis B is skeletal\u2014it lacks defined KPIs, forecasts, structured option comparison, and a traceable recommendation. While Analysis A could improve on outside-view evidence and deeper failure-mode exploration, it is vastly more useful for a decision-maker needing to compare options, challenge assumptions, and revisit the decision later.\"\n}\n```"
+}

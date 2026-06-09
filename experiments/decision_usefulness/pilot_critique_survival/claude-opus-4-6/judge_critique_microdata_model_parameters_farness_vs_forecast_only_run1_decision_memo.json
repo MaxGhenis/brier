@@ -1,0 +1,18 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 79,
+  "rationale": "B is less undermined because its recommendation is narrower and easier to operationalize: calibrated static enrichment plus one behavioural module has clearer implied scope, lower implementation ambiguity, and more bounded switching costs than A\u2019s broad adaptive/tiered approach. A is more vulnerable to hidden dependencies, governance complexity, and maintenance expansion because the tiering logic is not specified. Both lack explicit revisit triggers and stakeholder-response analysis, but B would likely need less revision to survive generic critiques about fragility, opportunity cost, and reversibility.",
+  "most_damaging_critique_a": "Adaptive tiering is underspecified: hidden dependencies on switching rules, governance, and calibration capacity make implementation fragile, with unclear stakeholder incentives and potentially high maintenance/runtime creep versus simpler options.",
+  "most_damaging_critique_b": "The selective behavioural module may add tail-risk and hidden dependency on weak behavioural assumptions; if policy timing or data shifts, accuracy gains may vanish while switching away becomes costlier.",
+  "raw_judge_response": "{\n  \"most_damaging_critique_a\": \"Adaptive tiering is underspecified: hidden dependencies on switching rules, governance, and calibration capacity make implementation fragile, with unclear stakeholder incentives and potentially high maintenance/runtime creep versus simpler options.\",\n  \"most_damaging_critique_b\": \"The selective behavioural module may add tail-risk and hidden dependency on weak behavioural assumptions; if policy timing or data shifts, accuracy gains may vanish while switching away becomes costlier.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 79,\n  \"rationale\": \"B is less undermined because its recommendation is narrower and easier to operationalize: calibrated static enrichment plus one behavioural module has clearer implied scope, lower implementation ambiguity, and more bounded switching costs than A\u2019s broad adaptive/tiered approach. A is more vulnerable to hidden dependencies, governance complexity, and maintenance expansion because the tiering logic is not specified. Both lack explicit revisit triggers and stakeholder-response analysis, but B would likely need less revision to survive generic critiques about fragility, opportunity cost, and reversibility.\"\n}"
+}

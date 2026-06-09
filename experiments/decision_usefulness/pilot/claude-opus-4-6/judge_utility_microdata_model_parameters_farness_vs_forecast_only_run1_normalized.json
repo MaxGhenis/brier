@@ -1,0 +1,32 @@
+{
+  "case_id": "microdata_model_parameters",
+  "source_model": "claude-opus-4-6",
+  "judge_model": "gpt-5.4",
+  "run_number": 1,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "normalized",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "farness",
+  "right_condition": "forecast_only",
+  "winner_condition": "forecast_only",
+  "confidence": 72,
+  "rationale": "B is more useful for decision-making because it defines the option set more clearly and gives directly comparable forecasts across all options with explicit point estimates and intervals. Its operational-cost KPI better reflects runtime plus maintenance burden, which matches the scenario. A has stronger outside-view grounding and a better concrete review protocol, but its option table is incomplete and some forecast tables are fragmentary, making auditing harder. Both recommend D with reasonable caveats, but B makes the tradeoff structure easier to compare and revisit.",
+  "scores_a": {
+    "kpi_clarity": 4,
+    "option_completeness": 3,
+    "forecast_specificity": 3,
+    "outside_view": 4,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "scores_b": {
+    "kpi_clarity": 4,
+    "option_completeness": 4,
+    "forecast_specificity": 4,
+    "outside_view": 2,
+    "disconfirming_evidence": 4,
+    "recommendation_traceability": 4
+  },
+  "raw_judge_response": "{\n  \"scores_a\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 3,\n    \"forecast_specificity\": 3,\n    \"outside_view\": 4,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"scores_b\": {\n    \"kpi_clarity\": 4,\n    \"option_completeness\": 4,\n    \"forecast_specificity\": 4,\n    \"outside_view\": 2,\n    \"disconfirming_evidence\": 4,\n    \"recommendation_traceability\": 4\n  },\n  \"overall_winner\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"B is more useful for decision-making because it defines the option set more clearly and gives directly comparable forecasts across all options with explicit point estimates and intervals. Its operational-cost KPI better reflects runtime plus maintenance burden, which matches the scenario. A has stronger outside-view grounding and a better concrete review protocol, but its option table is incomplete and some forecast tables are fragmentary, making auditing harder. Both recommend D with reasonable caveats, but B makes the tradeoff structure easier to compare and revisit.\"\n}"
+}

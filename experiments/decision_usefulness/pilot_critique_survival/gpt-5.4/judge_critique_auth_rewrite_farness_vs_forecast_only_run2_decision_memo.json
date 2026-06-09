@@ -1,0 +1,18 @@
+{
+  "case_id": "auth_rewrite",
+  "source_model": "gpt-5.4",
+  "judge_model": "claude-opus-4-6",
+  "run_number": 2,
+  "comparison": "farness_vs_forecast_only",
+  "representation": "decision_memo",
+  "condition_a": "farness",
+  "condition_b": "forecast_only",
+  "left_condition": "forecast_only",
+  "right_condition": "farness",
+  "less_undermined_condition": "farness",
+  "confidence": 72,
+  "rationale": "Both writeups converge on a similar stabilize-then-strangler approach, but Writeup B is more resilient to critique because it names the recommendation explicitly, sets concrete revisit triggers (6 and 12 weeks), and frames quantitative KPIs with baseline assumptions. Writeup A lacks a stated recommendation, revisit triggers, and clear switching-cost reasoning\u2014making it highly vulnerable to implementation fragility and incentive drift critiques. B's main weakness (underspecified checkpoint criteria) is less fatal than A's absence of a committed decision point. B would require less revision under the applied critique lenses.",
+  "most_damaging_critique_a": "No clear recommendation, revisit trigger, or switching cost analysis means the team lacks a concrete commitment point, making implementation fragile and drift toward inaction likely.",
+  "most_damaging_critique_b": "The 6-week and 12-week checkpoints lack explicit criteria for what would trigger abandoning the strangler path in favor of a full rewrite, risking sunk-cost continuation bias.",
+  "raw_judge_response": "```json\n{\n  \"most_damaging_critique_a\": \"No clear recommendation, revisit trigger, or switching cost analysis means the team lacks a concrete commitment point, making implementation fragile and drift toward inaction likely.\",\n  \"most_damaging_critique_b\": \"The 6-week and 12-week checkpoints lack explicit criteria for what would trigger abandoning the strangler path in favor of a full rewrite, risking sunk-cost continuation bias.\",\n  \"less_undermined_analysis\": \"B\",\n  \"confidence\": 72,\n  \"rationale\": \"Both writeups converge on a similar stabilize-then-strangler approach, but Writeup B is more resilient to critique because it names the recommendation explicitly, sets concrete revisit triggers (6 and 12 weeks), and frames quantitative KPIs with baseline assumptions. Writeup A lacks a stated recommendation, revisit triggers, and clear switching-cost reasoning\u2014making it highly vulnerable to implementation fragility and incentive drift critiques. B's main weakness (underspecified checkpoint criteria) is less fatal than A's absence of a committed decision point. B would require less revision under the applied critique lenses.\"\n}\n```"
+}
