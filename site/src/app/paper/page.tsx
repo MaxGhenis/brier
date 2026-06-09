@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import fs from "fs";
 import Script from "next/script";
@@ -44,6 +45,14 @@ function getQuartoContent(): { mainHtml: string; styles: string } {
     };
   }
 }
+
+export const metadata: Metadata = {
+  title: "Stability-under-probing — Thesis",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function PaperPage() {
   const { mainHtml, styles } = getQuartoContent();

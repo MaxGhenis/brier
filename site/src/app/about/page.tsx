@@ -63,7 +63,7 @@ export default function AboutPage() {
               Not everything that shapes an outcome is uncertain — some of it is
               fixed by statute. <strong>Axiom</strong>, a separate open project,
               encodes law as executable rules-as-code and computes those parts
-              exactly. Brier agents draw on it as a tool: where a forecast turns
+              exactly. Thesis agents draw on it as a tool: where a forecast turns
               on a rule rather than a judgment call, Axiom supplies the exact
               figure, and once a policy is enacted its computed result can settle
               the forecast in the ledger. <strong>PolicyEngine</strong>, the

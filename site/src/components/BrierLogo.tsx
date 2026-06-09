@@ -1,8 +1,8 @@
 /**
- * Brier logo mark — "The Vanishing Point"
+ * Thesis logo mark — "The Vanishing Point"
  *
  * Two perspective lines converging toward a luminous focal point.
- * Updated for the "Clear Horizon" palette:
+ * "Clear Horizon" palette:
  * - Lines use Mist-400 (#9FB6C6) — visible on light backgrounds
  * - Dot uses Rose-600 (#A94E80) — brand accent
  */
@@ -56,18 +56,5 @@ export function BrierLogoMark({
       {/* Focal point — Rose-600 vanishing point */}
       <circle cx="21.5" cy="14" r="3.2" fill="#A94E80" />
     </svg>
-  );
-}
-
-/**
- * Full wordmark: logo mark + "brier" text.
- * Newsreader SemiBold, lowercase.
- */
-export function BrierWordmark({ size = 28 }: { size?: number }) {
-  return (
-    <span className="inline-flex items-center gap-[0.4em]">
-      <BrierLogoMark size={size} />
-      <span className="tracking-[0.02em] lowercase">thesis</span>
-    </span>
   );
 }

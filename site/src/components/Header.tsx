@@ -4,7 +4,7 @@ import { BrierLogoMark } from "./BrierLogo";
 export function Header({
   activePage,
 }: {
-  activePage?: "docs" | "thesis" | "paper" | "forecasts" | "about";
+  activePage?: "paper" | "forecasts" | "about";
 }) {
   return (
     <header

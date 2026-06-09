@@ -17,7 +17,7 @@ function ForecastPrototype() {
             Forecasts on every consequential cell of government data
           </h1>
           <p className="text-[1.05rem] leading-[1.65] text-[var(--theme-text-muted)]">
-            Brier analyst agents forecast published government statistics,
+            Thesis analyst agents forecast published government statistics,
             law-encoded policy parameters, and outcomes conditional on policy
             states. Each cell carries a calibrated interval and an audit trail
             of the reasoning behind it.
@@ -94,7 +94,7 @@ function HowItWorks() {
       num: "02",
       title: "The forecast",
       description:
-        "Brier analyst agents predict each cell with a point estimate, a calibrated interval, and a full audit trail of the reasoning, sources, and key drivers behind it — open by construction.",
+        "Thesis analyst agents predict each cell with a point estimate, a calibrated interval, and a full audit trail of the reasoning, sources, and key drivers behind it — open by construction.",
     },
     {
       num: "03",

@@ -5,6 +5,11 @@ const nextConfig: NextConfig = {
     return [
       { source: "/thesis", destination: "/about", permanent: true },
       {
+        source: "/markets/:path*",
+        destination: "/forecasts/:path*",
+        permanent: true,
+      },
+      {
         source: "/:path*",
         has: [{ type: "host", value: "farness.ai" }],
         destination: "https://app.thesisinstitute.org/:path*",

@@ -85,9 +85,12 @@ export function ForecastViz({
               <stop offset="100%" stopColor="var(--color-rose-300)" stopOpacity="0.05" />
             </linearGradient>
           </defs>
-          <path d={densityPath} fill="url(#density-fill)" />
           <path
-            d={densityPath.replace(/L 100 32 L 0 32 Z$/, "")}
+            d={`${densityPath} L 100 32 L 0 32 Z`}
+            fill="url(#density-fill)"
+          />
+          <path
+            d={densityPath}
             stroke="var(--color-accent)"
             strokeWidth="0.4"
             fill="none"
@@ -160,8 +163,8 @@ export function ForecastViz({
 }
 
 function buildDensityPath(center: number, width: number): string {
-  // Construct a smooth bell-curve path in the [0,100] x-range
-  // mapped to the CI window. Tapers to baseline at the edges.
+  // Construct a smooth open bell-curve path in the [0,100] x-range mapped to
+  // the CI window; callers close it against the baseline for the area fill.
   const half = Math.max(width / 2, 4);
   const steps = 48;
   const points: [number, number][] = [];
@@ -173,8 +176,7 @@ function buildDensityPath(center: number, width: number): string {
     const y = baseY - (baseY - peakY) * Math.exp(-3 * t * t);
     points.push([x, y]);
   }
-  const path = points
+  return points
     .map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`)
     .join(" ");
-  return `${path} L 100 32 L 0 32 Z`;
 }
