@@ -791,6 +791,124 @@ export const MARKETS: Market[] = [
     ],
   },
 
+  {
+    slug: "snap-payment-error-rate-fy2025",
+    type: "data",
+    title: "SNAP payment error rate, FY 2025",
+    question:
+      "What will the national SNAP payment error rate be for fiscal year 2025, as published in the USDA FNS quality control release?",
+    unit: "percent",
+    pointEstimate: 10.2,
+    ciLow: 9.3,
+    ciHigh: 11.2,
+    confidence: 0.8,
+    resolutionDate: "2026-06-30",
+    resolutionSource: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to the national combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released the FY 2024 rate on June 30, 2025; the FY 2025 release is expected around June 2026.",
+    dataPointId: "fns.snap.total_payment_error_rate.us.fy2025",
+    historicalContext: [
+      { label: "FY 2023", value: 11.68 },
+      { label: "FY 2024", value: 10.93 },
+    ],
+    drivers: [
+      "OBBBA ties future state cost share to error rates, raising state stakes",
+      "State QC investment and corrective action plans",
+      "High-error states (Alaska, South Carolina) on steep improvement paths",
+      "Caseload churn and policy volatility during FY 2025",
+    ],
+    reasoning: [
+      { kind: "heading", text: "Why this number now moves state budgets" },
+      {
+        kind: "text",
+        text: "The 2025 reconciliation law ties future state cost sharing for SNAP benefits to each state's payment error rate, converting a once-obscure QC statistic into a direct budget exposure. States responded with corrective action plans and QC staffing. This cell is the accuracy pillar of the benefits delivery scorecard.",
+      },
+      {
+        kind: "tool",
+        tool: "ledger.lookup",
+        call: 'ledger.lookup({ source_record_id: "fns.snap.total_payment_error_rate.us.fy2024.official_release" })',
+        result:
+          '{ value: 10.93, unit: "percent", observed_at: "2025-06-30", source: "FNS SNAP Payment Error Rates, FY 2024" }',
+      },
+      {
+        kind: "tool",
+        tool: "fns.lookup",
+        call: 'fns.lookup({ series: "national_payment_error_rate", years: ["fy2023", "fy2024"] })',
+        result: "{ fy2023: 11.68, fy2024: 10.93 }",
+      },
+      {
+        kind: "math",
+        text: "Trend: 11.68 → 10.93 (−0.75pp). Cost-share incentive adds state-level downward pressure; QC arbitration disputes add first-print noise in both directions.",
+      },
+      { kind: "heading", text: "Forecast" },
+      {
+        kind: "text",
+        text: "Continued decline is the modal path: the FY 2024 drop predates the strongest incentives, and several high-error states have already demonstrated large single-year improvements. The upper tail covers QC sampling noise and caseload churn; sub-9 would require improvement at a pace no recent year has shown.",
+      },
+      { kind: "forecast", point: 10.2, ciLow: 9.3, ciHigh: 11.2 },
+    ],
+  },
+
+  {
+    slug: "ca-medicaid-procedural-disenrollment-share-aug-2026",
+    type: "data",
+    title: "California Medicaid procedural disenrollment share, August 2026",
+    question:
+      "What share of California Medicaid beneficiaries disenrolled at renewal in the August 2026 reporting period will be disenrolled for procedural reasons, per the CMS eligibility processing dataset?",
+    unit: "percent",
+    pointEstimate: 93.0,
+    ciLow: 88.5,
+    ciHigh: 95.5,
+    confidence: 0.8,
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to beneficiaries disenrolled for procedural reasons divided by total beneficiaries disenrolled at renewal, California, August 2026 reporting period, original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, computed when CMS first publishes the row (expected roughly three to four months after the period).",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.california.aug_2026",
+    historicalContext: [
+      { label: "May 25", value: 62.9 },
+      { label: "Aug 25", value: 83.8 },
+      { label: "Nov 25", value: 89.7 },
+      { label: "Feb 26", value: 92.7 },
+    ],
+    drivers: [
+      "Ex parte renewal expansion via CalSAWS data matching",
+      "Composition: automation clears the determinably eligible, so residual disenrollments skew procedural",
+      "Notice redesign and renewal outreach efforts",
+      "Month-to-month renewal cohort mix",
+    ],
+    reasoning: [
+      { kind: "heading", text: "The churn metric" },
+      {
+        kind: "text",
+        text: "Procedural disenrollment is the canonical churn statistic: people losing coverage over paperwork rather than ineligibility. It is the trust-and-power pillar of the benefits delivery scorecard, and California is the largest single series in the CMS eligibility processing data.",
+      },
+      {
+        kind: "tool",
+        tool: "ledger.lookup",
+        call: 'ledger.lookup({ source_record_id: "cms.medicaid_pi.beneficiaries_disenrolled_procedural.california.feb_2026.original_submission" })',
+        result: '{ value: 197693, unit: "count", period: "2026-02" }',
+      },
+      {
+        kind: "tool",
+        tool: "ledger.lookup",
+        call: 'ledger.lookup({ source_record_id: "cms.medicaid_pi.beneficiaries_disenrolled_total.california.feb_2026.original_submission" })',
+        result: '{ value: 213206, unit: "count", period: "2026-02" }',
+      },
+      {
+        kind: "math",
+        text: "February 2026: 197,693 / 213,206 = 92.7%. Trailing series: 62.9 (May 25) → 83.8 (Aug 25) → 89.7 (Nov 25) → 92.7 (Feb 26) — rising, decelerating.",
+      },
+      { kind: "heading", text: "Forecast" },
+      {
+        kind: "text",
+        text: "The mechanism is compositional: as ex parte automation renews the determinably eligible without paperwork, the people who still lose coverage are increasingly those who missed a form. That pushes the share toward an asymptote in the mid-90s. The downside tail covers notice reforms or an eligibility-policy change that grows the determined-ineligible denominator.",
+      },
+      { kind: "forecast", point: 93.0, ciLow: 88.5, ciHigh: 95.5 },
+    ],
+  },
+
   // ─── Policy state forecast cells ─────────────────────────────────────────
   {
     slug: "ctc-monthly-max-ty2027",
