@@ -12,6 +12,11 @@ import {
 
 type RuntimeMode = "mock" | "connecting" | "live" | "complete" | "fallback";
 
+// How long the stream may stay completely silent before the page gives up on
+// the live API and replays the static trace. A hung connection never fires
+// onerror, so without this a stuck socket pins the UI on "connecting" forever.
+export const STREAM_WATCHDOG_MS = 10_000;
+
 interface RuntimeForecast {
   pointEstimate: number;
   ciLow: number;
@@ -60,6 +65,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     }
 
     let completed = false;
+    let sawStream = false;
     const source = new EventSource(
       `${resolveApiBase()}/forecasts/${market.slug}/stream`,
     );
@@ -70,7 +76,18 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     setLiveSteps([]);
     setActiveTool(null);
 
+    const watchdog = window.setTimeout(() => {
+      if (sawStream || completed) return;
+      source.close();
+      setError(
+        "The live forecast API did not respond in time. Replaying the static reasoning trace.",
+      );
+      setStatusLabel("mock fallback");
+      setMode("fallback");
+    }, STREAM_WATCHDOG_MS);
+
     source.addEventListener("status", (event) => {
+      sawStream = true;
       const data = parseEventData<{ label?: string; state?: string }>(event);
       if (!data) return;
       setStatusLabel(data.label ?? "live stream running");
@@ -78,6 +95,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     });
 
     source.addEventListener("step", (event) => {
+      sawStream = true;
       const step = parseEventData<ReasoningStep>(event);
       if (!step || !isReasoningStep(step)) return;
       setLiveSteps((prev) => [...prev, step]);
@@ -85,6 +103,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     });
 
     source.addEventListener("tool_start", (event) => {
+      sawStream = true;
       const data = parseEventData<ActiveTool>(event);
       if (!data) return;
       setActiveTool(data);
@@ -93,6 +112,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     });
 
     source.addEventListener("tool_result", (event) => {
+      sawStream = true;
       const data = parseEventData<ActiveTool & { result: string }>(event);
       if (!data) return;
       setActiveTool(null);
@@ -110,6 +130,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     });
 
     source.addEventListener("forecast", (event) => {
+      sawStream = true;
       const forecast = parseEventData<RuntimeForecast>(event);
       if (!forecast) return;
       setLiveForecast(forecast);
@@ -131,6 +152,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     });
 
     source.addEventListener("failure", (event) => {
+      sawStream = true;
       const data = parseEventData<{ message?: string }>(event);
       setError(data?.message ?? "Live forecast failed.");
       setStatusLabel("live API failed");
@@ -139,6 +161,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
     });
 
     source.addEventListener("done", () => {
+      sawStream = true;
       completed = true;
       setMode("complete");
       source.close();
@@ -146,6 +169,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
 
     source.onerror = () => {
       if (completed) return;
+      window.clearTimeout(watchdog);
       setError("Could not connect to the live forecast API.");
       setStatusLabel("mock fallback");
       setMode("fallback");
@@ -154,6 +178,7 @@ export function MarketRuntime({ market }: MarketRuntimeProps) {
 
     return () => {
       completed = true;
+      window.clearTimeout(watchdog);
       source.close();
     };
   }, [market.slug, supportsLive]);
