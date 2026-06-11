@@ -496,10 +496,10 @@ def fig_forest_plot(data):
         ax.set_yticklabels(labels)
         ax.invert_yaxis()
         ax.set_title(MODELS[model_key])
-        ax.set_xlabel("Cohen's d (positive = less updating under farness)")
+        ax.set_xlabel("Cohen's d (positive = less updating under Brier)")
 
     fig.suptitle(
-        "Effect sizes: farness vs naive per scenario (non-adversarial)",
+        "Effect sizes: Brier vs naive per scenario (non-adversarial)",
         fontsize=13,
         y=1.02,
     )
@@ -573,7 +573,7 @@ def fig_convergence(data):
     fig.legend(handles=handles, loc="lower center", ncol=2, frameon=True, fontsize=10)
 
     fig.suptitle(
-        "Selected scenarios: both conditions end near similar values, but farness starts closer",
+        "Selected scenarios: both conditions end near similar values, but Brier starts closer",
         fontsize=13,
         y=1.02,
     )
@@ -584,7 +584,7 @@ def fig_convergence(data):
 
 
 # ---------------------------------------------------------------------------
-# Figure 5: Sycophancy dot plot
+# Figure 5: Sycophancy dot plot (upward pressure)
 # ---------------------------------------------------------------------------
 def fig_sycophancy(data):
     fig, axes = plt.subplots(1, 2, figsize=(10, 4.8), sharey=True)
@@ -639,7 +639,7 @@ def fig_sycophancy(data):
 
     axes[0].set_ylabel("Update magnitude (leads)")
     fig.suptitle(
-        "Sycophancy scenario: run-level updates and condition means",
+        "Upward sycophancy scenario: run-level updates and condition means",
         fontsize=13,
         y=1.02,
     )
@@ -648,6 +648,184 @@ def fig_sycophancy(data):
     fig.savefig(FIG_DIR / "fig_sycophancy.png")
     plt.close(fig)
     print("  Saved fig_sycophancy.png")
+
+
+# ---------------------------------------------------------------------------
+# Figure 6: Directional sycophancy asymmetry (upward vs downward pressure)
+# ---------------------------------------------------------------------------
+def fig_sycophancy_direction(data):
+    """Bar chart contrasting upward and downward sycophantic pressure.
+
+    This is the symmetric-sycophancy result: the same scenario, question, and
+    conditions, with probes that push the estimate either up (toward 3,000) or
+    down (toward 300-400). Resistance is strongly direction-dependent.
+    """
+    up_sc = "adversarial_sycophancy"
+    down_sc = "adversarial_sycophancy_down"
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.8), sharey=True)
+
+    bar_w = 0.38
+    for ax, model_key in zip(axes, MODELS):
+        x = np.arange(len(CONDITIONS), dtype=float)
+        up_means, up_err = [], [[], []]
+        dn_means, dn_err = [], [[], []]
+        for cond in CONDITIONS:
+            up_vals = np.array(
+                [r["update_magnitude"] for r in data[model_key][up_sc][cond]],
+                dtype=float,
+            )
+            dn_vals = np.array(
+                [r["update_magnitude"] for r in data[model_key][down_sc][cond]],
+                dtype=float,
+            )
+            for vals, means, err in (
+                (up_vals, up_means, up_err),
+                (dn_vals, dn_means, dn_err),
+            ):
+                if len(vals) == 0:
+                    means.append(0.0)
+                    err[0].append(0.0)
+                    err[1].append(0.0)
+                    continue
+                m = float(np.mean(vals))
+                lo, hi = bootstrap_mean_ci(vals)
+                means.append(m)
+                err[0].append(m - lo)
+                err[1].append(hi - m)
+
+        ax.bar(
+            x - bar_w / 2,
+            up_means,
+            bar_w,
+            yerr=up_err,
+            color="#4878A8",
+            capsize=3,
+            label="Upward pressure (toward 3,000)",
+            edgecolor="white",
+        )
+        ax.bar(
+            x + bar_w / 2,
+            dn_means,
+            bar_w,
+            yerr=dn_err,
+            color="#C44E52",
+            capsize=3,
+            label="Downward pressure (toward 300-400)",
+            edgecolor="white",
+        )
+        for xi, m in zip(x - bar_w / 2, up_means):
+            ax.text(xi, m + 14, f"{m:.0f}", ha="center", va="bottom", fontsize=8)
+        for xi, m in zip(x + bar_w / 2, dn_means):
+            label = f"{m:.0f}" if m > 0 else "n/a"
+            ax.text(xi, m + 14, label, ha="center", va="bottom", fontsize=8)
+
+        ax.set_xticks(x)
+        ax.set_xticklabels([CONDITION_LABELS[c] for c in CONDITIONS])
+        ax.set_title(MODELS[model_key])
+        ax.set_ylim(0, 720)
+        ax.grid(axis="y", alpha=0.35)
+
+    axes[0].set_ylabel("Mean update magnitude (leads)")
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=2,
+        fontsize=9,
+        frameon=True,
+    )
+    fig.suptitle(
+        "Sycophancy is direction-dependent: both models capitulate to downward pressure",
+        fontsize=13,
+        y=1.02,
+    )
+    fig.tight_layout(rect=[0, 0.07, 1, 1])
+    fig.savefig(FIG_DIR / "fig_sycophancy_direction.png")
+    plt.close(fig)
+    print("  Saved fig_sycophancy_direction.png")
+
+
+# ---------------------------------------------------------------------------
+# Figure 7: Raw update-magnitude distributions by condition (box + points)
+# ---------------------------------------------------------------------------
+def fig_magnitude_distribution(data):
+    """Box plots of raw update magnitude by condition for each model.
+
+    Complements fig_update_magnitude (which shows relative-update means): this
+    shows the full within-scenario raw-magnitude distribution. Because the
+    non-adversarial scenarios all use the same scale family (weeks or
+    percentages) but adversarial sycophancy uses leads, this plot restricts to
+    the 8 primary non-adversarial scenarios so the y-axis is interpretable.
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.8), sharey=False)
+    rng = np.random.default_rng(42)
+
+    for ax, model_key in zip(axes, MODELS):
+        box_data = []
+        for cond in CONDITIONS:
+            vals = get_metric_values(
+                data,
+                model_key,
+                metric="update_magnitude",
+                scenarios=SCENARIOS,
+                condition=cond,
+            )
+            box_data.append(np.asarray(vals, dtype=float))
+
+        positions = np.arange(len(CONDITIONS))
+        bp = ax.boxplot(
+            box_data,
+            positions=positions,
+            widths=0.55,
+            patch_artist=True,
+            showfliers=False,
+            medianprops=dict(color="#37424A", linewidth=1.6),
+            whiskerprops=dict(color="#37424A"),
+            capprops=dict(color="#37424A"),
+        )
+        for patch, cond in zip(bp["boxes"], CONDITIONS):
+            patch.set_facecolor(COLORS[cond])
+            patch.set_alpha(0.55)
+            patch.set_edgecolor("#37424A")
+
+        for i, (vals, cond) in enumerate(zip(box_data, CONDITIONS)):
+            jitter = rng.uniform(-0.16, 0.16, size=len(vals))
+            ax.scatter(
+                np.full(len(vals), i, dtype=float) + jitter,
+                vals,
+                color=COLORS[cond],
+                alpha=0.55,
+                s=16,
+                edgecolors="white",
+                linewidths=0.3,
+                zorder=3,
+            )
+            ax.scatter(
+                i,
+                np.mean(vals),
+                marker="D",
+                color="black",
+                s=28,
+                zorder=4,
+            )
+
+        ax.set_xticks(positions)
+        ax.set_xticklabels([CONDITION_LABELS[c] for c in CONDITIONS])
+        ax.set_title(MODELS[model_key])
+        ax.set_ylabel("Update magnitude (original units)")
+        ax.grid(axis="y", alpha=0.35)
+
+    fig.suptitle(
+        "Raw update-magnitude distributions across the 8 primary scenarios "
+        "(black diamonds = means)",
+        fontsize=12,
+        y=1.02,
+    )
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / "fig_magnitude_distribution.png")
+    plt.close(fig)
+    print("  Saved fig_magnitude_distribution.png")
 
 
 # ---------------------------------------------------------------------------
@@ -669,10 +847,12 @@ def main():
     print("Generating figures...")
     fig_protocol()
     fig_update_magnitude(data)
+    fig_magnitude_distribution(data)
     fig_probe_validation()
     fig_forest_plot(data)
     fig_convergence(data)
     fig_sycophancy(data)
+    fig_sycophancy_direction(data)
     print("Done.")
 
 

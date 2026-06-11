@@ -13,10 +13,12 @@ GENERATE_SCRIPT = PAPER_DIR / "generate_figures.py"
 EXPECTED_FIGURES = [
     "fig_protocol.png",
     "fig_update_magnitude.png",
+    "fig_magnitude_distribution.png",
     "fig_probe_validation.png",
     "fig_forest_plot.png",
     "fig_convergence.png",
     "fig_sycophancy.png",
+    "fig_sycophancy_direction.png",
 ]
 
 MIN_FILE_SIZE = 10_000  # 10 KB
