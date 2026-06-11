@@ -101,8 +101,9 @@ Because the scenario battery mixes weeks, percentages, and leads, pooled inferen
 |--------|------------|------------|
 | Relative update (primary pooled metric) | \|final - initial\| / initial (capped at 10.0) | Framework < Naive |
 | Update magnitude (descriptive within scenario) | \|final - initial\| in original units | Framework < Naive |
-| Initial confidence interval (CI) rate | Proportion with CI in initial response | Framework > Naive |
 | Correct direction rate | Updates in direction implied by probes | Framework >= Naive |
+
+The initial confidence-interval (CI) rate was originally intended as a fourth metric, but all prompt templates request an 80% CI, so it is 100% in every condition and carries no information; it is reported in [Initial confidence-interval rate] for completeness only.
 
 I also define a convergence metric to measure whether naive(probed) converges toward framework(initial). The convergence ratio (@eq-convergence) captures this:
 
@@ -117,7 +118,6 @@ A convergence ratio greater than zero indicates that probing moves naive respons
 | Finding | Interpretation |
 |---------|---------------|
 | Framework has lower update magnitude | Framework is more stable/robust |
-| Framework has higher initial CI rate | Framework quantifies uncertainty upfront |
 | Naive converges toward framework | Framework front-loads considerations that probing extracts |
 | Both update in correct direction | Both respond coherently to evidence |
 
@@ -166,13 +166,13 @@ The primary pooled analysis uses a linear mixed-effects model (**relative update
 
 ### Sample size
 
-Study 1 comprises 11 scenarios across 3 conditions with 6 runs each on 2 models, yielding 396 planned responses (66 per model-condition cell: 8 standard and 3 adversarial scenarios). I collected 191 Claude Opus 4.6 results (7 missing due to transient API errors) and 198 GPT-5.4 results. Study 2 comprises 8 scenarios across 4 conditions and 2 probe batteries with 6 runs each on Claude, yielding 384 results. With n=48 or n=66 per condition cell, scenario-pooled non-parametric tests have substantial power under independence assumptions. However, the repeated runs are stochastic samples over a much smaller set of scenarios; the effective sample size for between-scenario generalization remains closer to 8 or 11 scenarios than to hundreds of responses.
+Study 1 comprises 11 scenarios across 3 conditions with 6 runs each on 2 models, yielding 396 planned responses (66 per model-condition cell: 8 standard and 3 adversarial scenarios). I collected 191 Claude Opus 4.6 results (7 missing, as described in @sec-experimental-design) and 198 GPT-5.4 results. Study 2 comprises 8 scenarios across 4 conditions and 2 probe batteries with 6 runs each on Claude, yielding 384 results. With n=48 or n=66 per condition cell, scenario-pooled non-parametric tests have substantial power under independence assumptions. However, the repeated runs are stochastic samples over a much smaller set of scenarios; the effective sample size for between-scenario generalization remains closer to 8 or 11 scenarios than to hundreds of responses.
 
 ## Results {#sec-results}
 
 ### Overview
 
-I report two studies. Study 1 contains 191 stability results for Claude Opus 4.6 (7 missing due to transient API errors) and 198 for GPT-5.4, across 11 scenarios and 3 conditions (naive, chain-of-thought, Brier) with 6 runs per scenario-condition pair. Study 2 contains 384 Claude results across the 8 primary scenarios, 4 conditions, and 2 probe batteries. All bootstrap analyses use fixed random seeds (seed=42) for reproducibility.
+I report two studies. Study 1 contains 191 stability results for Claude Opus 4.6 (7 missing; see @sec-experimental-design) and 198 for GPT-5.4, across 11 scenarios and 3 conditions (naive, chain-of-thought, Brier) with 6 runs per scenario-condition pair. Study 2 contains 384 Claude results across the 8 primary scenarios, 4 conditions, and 2 probe batteries. All bootstrap analyses use fixed random seeds (seed=42) for reproducibility.
 
 The figures that follow are complementary views of these bounded datasets rather than independent replications of the claim. @fig-update-magnitude summarizes the unit-normalized Study 1 differences, @fig-convergence clarifies the convergence mechanism, @fig-sycophancy shows run-level adversarial variability, and @fig-probe-validation directly tests construct validity by splitting on-framework and off-framework probes.
 
@@ -186,15 +186,14 @@ The figures that follow are complementary views of these bounded datasets rather
 | Mean relative update | 51% | 49% | 43% | 48% | 41% | 36% |
 | Mean update magnitude | 13.80 | 13.37 | 9.02 | 30.97 | 27.57 | 13.78 |
 | Correct direction rate | 100% | 100% | 98% | 100% | 100% | 100% |
-| Initial CI rate | 100% | 100% | 100% | 100% | 100% | 100% |
 
-: Study 1 stability metrics by condition and model. Relative update is the pooled primary metric; raw update magnitude is included as descriptive within-model context. {#tbl-stability}
+: Study 1 stability metrics by condition and model. Relative update is the pooled primary metric; raw update magnitude is included as descriptive within-model context. The initial CI rate is 100% in every cell and is reported in [Initial confidence-interval rate]. {#tbl-stability}
 
 ![Mean relative update by condition and model on the Study 1 analysis set. Points show condition means and vertical bars show bootstrap 95% confidence intervals; the post hoc downward sycophancy scenario is excluded.](figures/fig_update_magnitude.png){#fig-update-magnitude}
 
-@fig-update-magnitude visualizes the unit-normalized condition means reported in @tbl-stability. The pattern is clear on both models: Brier has the lowest mean relative update, naive the highest, and CoT sits in between. For Claude, CoT is nearly indistinguishable from naive (49% vs 51%), so the practically meaningful separation is naive/CoT versus Brier. For GPT-5.4, CoT improves modestly (41%), but Brier still produces the smallest average relative update (36% vs 48% for naive). The raw-magnitude row in @tbl-stability shows the same ordering within each model, but those raw values are not comparable across mixed units and are therefore secondary.
+@fig-update-magnitude visualizes the unit-normalized condition means reported in @tbl-stability. The pattern is clear on both models: Brier has the lowest mean relative update, naive the highest, and CoT sits in between. For Claude, CoT is nearly indistinguishable from naive (49% vs 51%), so the practically meaningful separation is naive/CoT versus Brier. For GPT-5.4, CoT improves modestly (41%), but Brier still produces the smallest average relative update (36% vs 48% for naive). The raw-magnitude row in @tbl-stability shows the same ordering within each model, but those raw values are not comparable across mixed units and are therefore secondary. The raw-magnitude *distributions* (not just the means) are shown by condition in @fig-magnitude-distribution.
 
-The 100% initial CI rate across all conditions is a prompt design artifact: all three prompt templates explicitly request an 80% confidence interval with structured JSON output. This metric therefore provides no condition discrimination and should not be interpreted as evidence that the framework improves uncertainty quantification.
+![Raw update-magnitude distributions by condition and model across the 8 primary non-adversarial scenarios. Boxes show the interquartile range and median; points are individual runs and black diamonds are condition means. Brier is consistently lower and tighter than naive within each model.](figures/fig_magnitude_distribution.png){#fig-magnitude-distribution}
 
 ### Mixed-effects model
 
@@ -225,6 +224,8 @@ After Holm-Bonferroni correction, no comparison reaches conventional significanc
 
 Claude and GPT-5.4 look closer on the normalized metric than the earlier Claude versus GPT-5.2 comparison did. In Study 1, mean relative updates range from 43-51% on Claude and 36-48% on GPT-5.4. The archival GPT-5.2 rerun preserved the same ordering but was much more volatile in raw magnitude (naive 59.03, CoT 29.35, Brier 22.03). The upward sycophancy scenario is the clearest example: GPT-5.2 naive responses moved by 466.7 leads on average, versus 191.7 for GPT-5.4 and 0.0 for Claude. The qualitative ordering therefore appears more stable across model generations than the absolute scale of updating.
 
+A scale-heterogeneity caveat applies specifically to the raw "Mean update magnitude" row of @tbl-stability. That row mixes weeks, percentages, and one leads-scale scenario, and the leads scenario dominates the GPT means because GPT updates substantially there while Claude does not. Excluding the single sycophancy scenario, GPT-5.4 naive raw magnitude falls from 30.97 to 14.90 and Brier from 13.78 to 10.32, while Claude is essentially unchanged (naive 13.80 to 15.25; Brier 9.02 to 9.98). In other words, the apparent ~2x raw-magnitude gap between GPT-5.4 and Claude is almost entirely the leads-scale sycophancy scenario, not a general difference in how much the two models move. This is exactly why the pooled inference uses relative update and treats raw magnitude as within-scenario context only: a raw-magnitude comparison across models, or a mixed-effects model fit on raw magnitude, would inherit this units artifact, whereas the relative-update coefficients (Claude -0.080, GPT-5.4 -0.128) do not.
+
 ### Convergence analysis
 
 ![Selected scenarios illustrating convergence behavior. Points show mean initial and final estimates with bootstrap 95% confidence intervals. Within each panel, naive and Brier usually end near similar final values, but Brier starts closer.](figures/fig_convergence.png){#fig-convergence}
@@ -240,6 +241,16 @@ Both models and all conditions demonstrate near-zero updates on adversarial prob
 The sycophantic pressure scenario (adversarial_sycophancy) reveals a large model difference (@fig-sycophancy). Every Claude run stays at exactly zero, regardless of prompting condition. GPT-5.4 looks different: the naive condition contains several upward jumps, CoT reduces them modestly, and Brier lowers the mean further while still leaving some non-zero runs. On average, GPT-5.4 naive responses update by 191.7 leads, compared with 158.3 for CoT and 48.3 for Brier. For historical context, the archival GPT-5.2 rerun on the same prompt battery was more volatile still (466.7 leads naive, 133.3 CoT, 108.3 Brier). The figure therefore shows that prompt structure matters, but model generation matters at least as much.
 
 The false base rate scenario (adversarial_false_base_rate) produces mixed results: both models update somewhat, with Claude Brier updating less (mean 13.0) than Claude naive (mean 19.8). The adversarial probes in this scenario cite misleading but plausible statistics, making appropriate resistance harder to distinguish from rational conservatism.
+
+### Sycophancy is direction-dependent {#sec-sycophancy-direction}
+
+The upward sycophancy result above tells only half the story. The same scenario, question, and conditions also ran with probes that push the estimate *downward* (post hoc; "I think 1000 is way too high... revise down to 400," etc.). Comparing the two directions reveals a sharp asymmetry that substantially qualifies any "Brier resists sycophancy" reading.
+
+![Mean update magnitude under upward versus downward sycophantic pressure, by condition and model. The same 1,000-lead scenario is probed in both directions. Claude resists upward pressure perfectly but capitulates downward; on GPT-5.4, Brier sharply reduces upward updating but provides essentially no protection downward. Bars show bootstrap 95% confidence intervals.](figures/fig_sycophancy_direction.png){#fig-sycophancy-direction}
+
+@fig-sycophancy-direction contrasts the two directions. Under *downward* pressure, every condition on both models capitulates heavily: Claude moves from 1,000 leads to ~350 (mean update magnitude 650 naive, 625 CoT, 495 Brier), and GPT-5.4 moves almost identically (650 naive, 633 CoT, 643 Brier). The archival GPT-5.2 rerun behaves the same way (660 naive, 640 CoT, 640 Brier). This flips the upward picture in two ways. First, Claude — which never budges a single lead under upward pressure — drops by roughly two-thirds under downward pressure. Second, the Brier advantage that is large and consistent upward on GPT-5.4 (191.7 → 48.3 leads) all but vanishes downward (650 → 643 leads); the framework buys essentially nothing against downward pressure on either model.
+
+Two caveats temper the interpretation. The downward probes cite a plausible-sounding reference class ("the last three campaigns only got 200–500 leads"), so part of the large downward move is arguably *rational* updating toward that anchor rather than pure capitulation — the same ambiguity that complicates the false-base-rate scenario. And the scenario's framing (a 1,000-lead projection) leaves much more room to move down than up in proportional terms. Even granting those caveats, the asymmetry is stark: neither the model that is bulletproof upward nor the framework that helps most upward transfers that resistance to the downward direction. The honest summary is that sycophancy resistance measured in one direction does not generalize to the other, and that the framework's adversarial benefit is specific to the upward-pressure case in this battery.
 
 ### Correct direction rates
 
@@ -275,6 +286,18 @@ Across 6 Claude runs, naive responses all start at exactly 12% success probabili
 GPT-5.4 tells a similar but slightly weaker version of the same story. Naive responses start higher (mean 25.0%, range 25–25%) and update to a mean of 11.2% (mean update magnitude 13.8 percentage points). Brier responses start somewhat lower (mean 22.5%, range 18–28%) and update to a mean of 11.0% (mean update magnitude 11.5 percentage points). Both conditions again converge to similar final estimates (~11%), and the framework still reduces the size of the revision, though by less than on Claude. This illustrates the heterogeneity visible in @tbl-per-scenario: the Brier effect is not uniform across models or scenarios.
 
 This pattern — shared destination, different starting points — recurs across scenarios and illustrates the mechanism behind the aggregate update magnitude results: the framework's effect corresponds to better initial positioning, not to processing probe information differently.
+
+#### Raw response excerpts
+
+The mechanism is easiest to see in the models' own words. The following excerpts are lightly trimmed from GPT-5.4 run 1 (the full text is in `experiments/stability_results/gpt-5.4/`); ellipses mark omitted passages. The naive condition's *initial* answer is short and lands on a number without an explicit reference class:
+
+> Projects that are already late, over budget, and demoralized — and are described by leadership as "almost there" — often underestimate remaining work. The base rate for recovery in this situation is not great... So I'd assign a relatively low chance, but not zero. **`{"estimate": 25, "ci_low": 10, "ci_high": 45}`**
+
+The Brier condition's *initial* answer, before seeing any probe, already does the work the probes are designed to elicit — it names reference classes, anchors a base-rate range, and flags the relevant biases by name:
+
+> Using an outside-view lens... **Standish CHAOS-style findings**: software projects frequently miss original cost/schedule targets... **McKinsey/Oxford research on IT projects**: large IT projects have heavy-tail risk... A practical outside-view base rate for a distressed software project meeting a new, aggressive recovery target... is roughly **15–35%**... Several biases are likely present: **planning fallacy**... **sunk cost fallacy / escalation of commitment**... **optimism bias**... So my point estimate is **22%**. **`{"estimate": 22, "ci_low": 10, "ci_high": 40}`**
+
+When the shared probes then arrive — the 16% reference statistic, the departing engineers, and the "integration testing hasn't started" warning — both conditions revise to nearly the same place (naive to 12%, Brier to 12%). But the naive condition has to travel 13 points to get there, while Brier travels 10, because Brier's initial 22% had already priced in most of what the probes supply. The probes are, in effect, telling the naive condition things the Brier prompt told the model to consider on its own. This is the concrete form of the "shared destination, different starting points" pattern, and it also previews the Study 2 caveat: the advantage is largest precisely when the probes test the same considerations the framework names.
 
 ### Study 2: Construct-validity test with held-out probes
 
@@ -314,15 +337,15 @@ GPT-5.4 is materially calmer than the archival GPT-5.2 rerun, especially in raw 
 
 I note several limitations. First, smaller updates are not necessarily better updates — I cannot determine from this methodology whether framework-guided responses lead to better actual decisions, given the lack of ground truth for most scenarios. Second, all prompt templates explicitly requested confidence intervals with structured JSON output, eliminating what was intended to be a key differentiating metric; future work should use prompts that do not request CIs in the naive condition. Third, the probing questions are researcher-designed to be informative and challenging, whereas real users' follow-up questions would likely be less systematic. Of the 8 non-adversarial scenarios, 7 have probes that push estimates downward and 1 (planning estimate) pushes upward; this directional imbalance means the results primarily measure resistance to downward pressure, potentially amplifying or dampening the observed effects. Fourth, all scenarios involve quantitative estimation rather than Boolean or qualitative judgments, and the framework may perform differently on ethical dilemmas, strategic narratives, or creative tasks.
 
-Fifth, the pooled cross-scenario analysis relies on relative update to normalize across mixed units. That avoids directly pooling raw weeks, percentages, and leads, but it still depends on the initial estimate and caps extreme values at 10.0. Alternative normalizations could shift effect sizes somewhat. Sixth, the strongest construct-validity follow-up has so far been run only on Claude, so the held-out-probe reversal should not yet be treated as universal across models. Seventh, seven Claude Study 1 results failed due to transient API errors, reducing statistical power for those scenarios, though the missing runs are distributed across 3 scenarios and do not systematically affect any condition. Eighth, the methodology assumes that lower update magnitudes indicate better initial analysis, but Study 2 shows that lower updating can reflect prompt-specific priming rather than broader preparation; distinguishing rigor from rigidity still requires ground-truth validation.
+Fifth, the pooled cross-scenario analysis relies on relative update to normalize across mixed units. That avoids directly pooling raw weeks, percentages, and leads, but it still depends on the initial estimate and caps extreme values at 10.0. Alternative normalizations could shift effect sizes somewhat. Sixth, the strongest construct-validity follow-up has so far been run only on Claude, so the held-out-probe reversal should not yet be treated as universal across models. Seventh, the seven missing Claude Study 1 results (see @sec-experimental-design) reduce statistical power for the affected scenarios, though they are distributed across 3 scenarios and do not systematically affect any condition. Eighth, the methodology assumes that lower update magnitudes indicate better initial analysis, but Study 2 shows that lower updating can reflect prompt-specific priming rather than broader preparation; distinguishing rigor from rigidity still requires ground-truth validation.
 
-Finally, all prompt conditions request structured JSON output for estimate extraction. The extraction pipeline first attempts JSON parsing, then falls back to regex-based extraction. The structured output format was designed to minimize extraction errors, but the fallback extraction reliability has not been formally validated. Extraction failures would manifest as missing data rather than biased estimates, and the observed missing Claude runs are attributed to API errors rather than extraction failures.
+Finally, all prompt conditions request structured JSON output for estimate extraction. The extraction pipeline first attempts JSON parsing, then falls back to regex-based extraction. The structured output format was designed to minimize extraction errors, but the fallback extraction reliability has not been formally validated. Extraction failures would manifest as missing data rather than biased estimates, and the missing Claude runs noted above are attributed to API failures rather than extraction failures.
 
 ### Future work
 
 Several directions remain for future work. The most important next step is to replicate the held-out-probe construct-validity test on GPT-5.4 and other frontier models. A decisive follow-up would combine that replication with an outcome-linked benchmark with known resolutions, such as historical project timelines, hiring outcomes, or resolved forecasting questions. If Brier improved realized outcomes or reduced updates on held-out probes across multiple models, that would materially strengthen the substantive interpretation. If not, the framework should be understood more narrowly as a checklist that helps on the dimensions it names.
 
-Removing CI requests from naive and CoT prompts would test whether the framework genuinely improves uncertainty quantification. Human studies could evaluate whether the framework improves decision-making when used as a scaffolding tool, rather than testing the LLM in isolation. Cross-framework comparison against other structured approaches (structured analytic techniques, red team/blue team, GRADE framework) would determine whether the observed effects are specific to Brier or arise more generally from structured prompting. Finally, expanding the adversarial battery would test whether the framework provides differential protection against sycophantic pressure under newer model generations, where baseline susceptibility appears lower than in GPT-5.2 but remains non-zero.
+Removing CI requests from naive and CoT prompts would test whether the framework genuinely improves uncertainty quantification. Human studies could evaluate whether the framework improves decision-making when used as a scaffolding tool, rather than testing the LLM in isolation. Cross-framework comparison against other structured approaches (structured analytic techniques, red team/blue team, GRADE framework) would determine whether the observed effects are specific to Brier or arise more generally from structured prompting. Finally, the directional-asymmetry result motivates a fuller adversarial battery: the symmetric upward/downward test (@sec-sycophancy-direction) shows that resistance measured in one direction does not transfer to the other, so future work should vary pressure direction, anchor plausibility, and starting-value headroom systematically rather than testing a single upward push.
 
 ## Conclusion {#sec-conclusion}
 
@@ -562,7 +585,11 @@ This appendix presents representative raw result records from the pilot experime
 }
 ```
 
-The full dataset comprising all 11 scenarios, 3 conditions, and 6 runs per condition on 2 models (389 total records) is available in the repository at `experiments/stability_results/`.
+The full dataset comprising all 11 scenarios, 3 conditions, and 6 runs per condition on 2 models (389 total records), plus the post hoc downward-sycophancy scenario, is available in the repository at `experiments/stability_results/`.
+
+## Initial confidence-interval rate {#sec-ci-rate .unnumbered}
+
+The initial confidence-interval (CI) rate — the proportion of initial responses that report an 80% CI — was originally proposed as a primary metric, on the hypothesis that the framework would quantify uncertainty upfront more often than naive prompting. In practice it is uninformative: all three Study 1 prompt templates (and all four Study 2 conditions) explicitly request an 80% confidence interval with structured JSON output, so the initial CI rate is **100% in every condition cell on both models**. Because the value is constant by construction, it provides no condition discrimination and should not be read as evidence that the framework improves uncertainty quantification. It is retained here, rather than among the primary metrics, only to document the design choice. Removing the CI request from the naive and CoT prompts — so that volunteering a CI becomes a genuine behavioral difference — is listed as future work.
 
 ## Code availability {.unnumbered}
 

@@ -8,31 +8,31 @@
 
 ## Priority 2: Graphs (desperately needed)
 
-- [ ] **Update magnitude box/violin plots**: by condition, for each model
-- [ ] **Per-scenario forest plot**: effect sizes with CIs for each scenario
-- [ ] **Convergence visualization**: show initial→final for naive vs Brier on 2-3 scenarios, illustrating "Brier starts closer to where both end up"
-- [ ] **Sycophancy bar chart**: Claude vs GPT-5.2 update magnitude on sycophancy scenario — the most dramatic finding
+- [x] **Update magnitude box/violin plots**: by condition, for each model — added `fig_magnitude_distribution` (box plots of raw update magnitude by condition per model across the 8 primary scenarios; means as diamonds), cited in Results.
+- [x] **Per-scenario forest plot**: effect sizes with CIs for each scenario — `fig_forest_plot` already existed; fixed "farness"→"Brier" in title/axis label.
+- [x] **Convergence visualization**: show initial→final for naive vs Brier on 2-3 scenarios — `fig_convergence` already existed (2 models × 3 scenarios); fixed "farness"→"Brier" in title.
+- [x] **Sycophancy bar chart**: Claude vs GPT update magnitude — `fig_sycophancy` (upward, existing; fixed typo) plus NEW `fig_sycophancy_direction` bar chart contrasting upward vs downward pressure across conditions/models (the symmetric finding). NOTE: paper now uses GPT-5.4 as primary GPT model (GPT-5.2 is archival); figures reflect this.
 
 ## Priority 3: Content additions
 
-- [ ] **Concrete example**: Pick one scenario (e.g., sunk_cost_project), show actual responses from naive and Brier conditions, before and after probing. Raw text excerpts.
-- [ ] **Sycophancy deep-dive**: GPT-5.2 naive updates by 466.7 leads on average under sycophantic pressure (1000→1300-1400). Claude: zero update. Brier on GPT: 108.3. This is the clearest finding in the paper and currently buried.
-- [ ] **Run symmetric sycophancy test**: Current test only pushes "higher." Add "I think it should be lower" version to confirm framework resists pressure in both directions. ~12 API calls, ~$5.
+- [x] **Concrete example**: sunk_cost_project — added a "Raw response excerpts" subsection with actual GPT-5.4 naive vs Brier initial responses (Claude records don't store response text; GPT-5.4 is the primary model and does). Shows Brier front-loading Standish/CHAOS + McKinsey/Oxford base rates and named biases before any probe.
+- [x] **Sycophancy deep-dive**: added "Sycophancy is direction-dependent" subsection. Verified-from-data numbers: GPT-5.4 upward naive 191.7 → Brier 48.3; archival GPT-5.2 466.7 → 108.3 (retained in cross-model text). Claude upward 0.0. The deep-dive's headline is the directional asymmetry (below).
+- [x] **Run symmetric sycophancy test**: Claude + GPT-5.2 down data already existed; COLLECTED the missing GPT-5.4 downward scenario (18 results, legacy Study-1 prompts, ~36 API calls). Finding: downward pressure → mass capitulation everywhere (Claude 650/625/495; GPT-5.4 650/633/643; GPT-5.2 660/640/640), and the upward Brier advantage does NOT transfer downward. API keys were available via agent-secret.
 
 ## Priority 4: Technical fixes
 
-- [ ] **Scale heterogeneity note**: GPT mixed-effects coefficient (-37.0) is inflated by leads-scale sycophancy scenario. The 9x difference vs Claude (-4.17) is partly a units artifact. Clarify.
-- [ ] **CI rate metric → appendix**: 100% everywhere (prompt design artifact), uninformative. Move from primary metrics to appendix.
-- [ ] **Consolidate "transient API errors"**: Mentioned in Section 4.4, 4.6, 5.1, and 6.5. Reduce to one mention in Section 4.4.
+- [x] **Scale heterogeneity note**: added. The pooled model already uses *relative* update (not the old raw −37.0/−4.17 coefficients), so the units artifact is largely pre-empted; added an explicit note that the raw-magnitude cross-model gap is ~entirely the leads-scale sycophancy scenario (GPT-5.4 naive 30.97→14.90 without it; Claude ~unchanged).
+- [x] **CI rate metric → appendix**: removed from Table 1, Table 2, and the primary @tbl-stability; moved to a new "Initial confidence-interval rate" appendix section.
+- [x] **Consolidate "transient API errors"**: now a single mention in Section 4.4 ("Model and procedure"); Sample-size, Results-overview, and Limitations now cross-reference it instead of re-disclosing.
 - [x] **Fix "overshoot"/"diverge" language**: Replace throughout with the correct framing (see Priority 1).
-- [ ] **Default CoT caveat**: Modern models (Claude Opus, GPT-4+) likely do implicit chain-of-thought by default. The CoT null result may mean "explicit CoT adds nothing to implicit CoT" rather than "reasoning doesn't help." Add to discussion.
-- [ ] **Mixed-effects as primary**: Already mostly done, but remove any remaining language suggesting non-parametric is primary. Non-parametric is the robustness check.
+- [x] **Default CoT caveat**: already present in Discussion ("recent frontier models may employ implicit chain-of-thought reasoning even without explicit CoT prompting..."); verified, no change needed.
+- [x] **Mixed-effects as primary**: already satisfied — Statistical-analysis section explicitly treats mixed-effects as primary and labels Mann-Whitney a "secondary robustness check"; verified, no change needed.
 
-## Priority 5: Citation/style fixes
+## Priority 5: Citation/style fixes (not in this task's explicit scope; status noted)
 
-- [ ] **Fix Quarto citation style**: Renders "Jason Wei et al." with first name. Should be "Wei et al." Configure CSL.
-- [ ] **Newer lit review**: Check for post-2024 papers on LLM forecasting, sycophancy, decision frameworks. Look at what cites our current references.
-- [ ] **Check for outdated claims**: "projected LLM-superforecaster parity by late 2026" — we're in March 2026, is this still current?
+- [x] **Fix Quarto citation style**: already done — `_quarto.yml` sets `csl: apa.csl`; rendered output shows "Wei et al., 2022" (no first name). Verified via HTML render.
+- [ ] **Newer lit review**: NOT done (out of scope for this pass; would need web search for post-2024 citing papers).
+- [ ] **Check for outdated claims**: NOT done (out of scope for this pass). Paper already hedges ForecastBench parity as "approach but do not match" rather than a dated projection.
 
 ## Key data points for reference
 
