@@ -1,0 +1,77 @@
+name: Record forecasts
+
+# Daily timestamped snapshot of every published forecast surface, committed to
+# git. Until the ledger database is live, the commit chain IS the proof that a
+# prediction existed before its resolution date — recordedAt claims inside the
+# app data are only as credible as this externally-timestamped record.
+
+on:
+  schedule:
+    - cron: "17 14 * * *" # daily 14:17 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - name: Snapshot published forecast surfaces
+        run: |
+          set -euo pipefail
+          DAY=$(date -u +%F)
+          DIR="records/$DAY"
+          mkdir -p "$DIR/live"
+          # The full log/specs/ledger JSON regenerates deterministically from
+          # this repo, so the daily record stores their sha256 (binding what the
+          # PUBLIC site served to an external timestamp) plus a compact digest —
+          # not the multi-MB bodies.
+          for f in log specs ledger; do
+            curl -sSf -m 60 "https://app.thesisinstitute.org/$f.json" -o "/tmp/$f.json"
+            python3 -m json.tool "/tmp/$f.json" > /dev/null
+          done
+          python3 - "$DIR" <<'PY'
+          import hashlib, json, sys
+          outdir = sys.argv[1]
+          digest = {}
+          for name in ("log", "specs", "ledger"):
+              raw = open(f"/tmp/{name}.json", "rb").read()
+              digest[name] = {
+                  "sha256": hashlib.sha256(raw).hexdigest(),
+                  "bytes": len(raw),
+              }
+          log = json.load(open("/tmp/log.json"))
+          entries = log.get("entries", [])
+          recorded = [e for e in entries if e.get("kind") == "prediction_recorded"]
+          resolved = [e for e in entries if e.get("kind") == "prediction_resolved"]
+          digest["counts"] = {"recorded": len(recorded), "resolved": len(resolved)}
+          digest["predictions"] = [
+              {k: e.get(k) for k in ("forecastSlug", "pointEstimate", "interval80",
+                                      "resolutionDate", "recordedAt")}
+              for e in recorded
+          ]
+          digest["resolutions"] = resolved
+          json.dump(digest, open(f"{outdir}/digest.json", "w"), indent=1, sort_keys=True)
+          PY
+          # Capture each live cell's streamed forecast event (full distribution).
+          for slug in spm-child-poverty-2025 cpi-u-annual-2026 ctc-expansion-cost-ty2026 ctc-current-law-outlays-ty2026; do
+            curl -sS -m 90 -N "https://api.thesisinstitute.org/forecasts/$slug/stream" \
+              | awk '/^event: forecast$/{f=1;next} f&&/^data: /{print substr($0,7); exit}' \
+              > "$DIR/live/$slug.json" || true
+            [ -s "$DIR/live/$slug.json" ] || echo '{"error":"no forecast event captured"}' > "$DIR/live/$slug.json"
+          done
+          echo "{\"snapshotAt\": \"$(date -u +%FT%TZ)\"}" > "$DIR/meta.json"
+
+      - name: Commit snapshot
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-recorder"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/
+          git commit -m "Record forecast surfaces $(date -u +%F) [skip ci]" || echo "nothing new to commit"
+          git push origin main
