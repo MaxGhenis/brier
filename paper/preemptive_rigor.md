@@ -1,13 +1,12 @@
-# Stability-under-probing: A process-level evaluation method for
-decision prompts in LLMs
+# Stability-under-probing: A process-level evaluation method for decision prompts in LLMs
 
 
 # Stability-under-probing: A process-level evaluation method for decision prompts in LLMs
 
 *Max Ghenis*[^1]
 
-**Disclosure:** The author created and maintains the Brier framework
-and website introduced and evaluated in this paper. All code, data, and
+**Disclosure:** The author created and maintains the Brier framework and
+website introduced and evaluated in this paper. All code, data, and
 analysis are open source to enable independent verification.
 
 ## Abstract
@@ -81,16 +80,16 @@ study using Brier, naive prompting, and CoT prompting. Third, it shows
 why construct-validity checks matter: a follow-up probe split indicates
 that the Brier advantage localizes to framework-aligned probes rather
 than general held-out robustness. The paper does **not** claim that
-Brier has been shown to improve real-world decision quality in
-general; the current design is better suited to detecting systematic
-differences in prompt behavior than to validating outcome quality.
+Brier has been shown to improve real-world decision quality in general;
+the current design is better suited to detecting systematic differences
+in prompt behavior than to validating outcome quality.
 
 ### Case study: the Brier framework
 
-I introduce Brier (“forecasting as a harness”),[^2] a structured
-decision framework that reframes subjective advice-seeking questions
-(“should I…?”) into forecasting problems with explicit metrics. The
-framework operates through six required steps:
+I introduce **Brier**,[^2] a structured decision framework that reframes
+subjective advice-seeking questions (“should I…?”) into forecasting
+problems with explicit metrics. The framework operates through six
+required steps:
 
 1.  **Define KPIs.** Identify explicit, measurable key performance
     indicators that operationalize what “success” means for the
@@ -130,7 +129,7 @@ absolute scales, aggregating multiple judgments, and delaying intuitive
 synthesis until after analytical assessment. The GRADE
 Evidence-to-Decision framework in healthcare shows that structured
 approaches lead to more consistent, transparent recommendations
-(Alonso-Coello et al., 2016).
+(<span class="nocase">Alonso-Coello et al.</span>, 2016).
 
 ### Superforecasting and calibration
 
@@ -150,13 +149,14 @@ complex problems into sub-problems.
 ### LLM calibration
 
 Recent work has examined whether LLMs produce well-calibrated
-probability estimates. Kadavath et al. (2022) find that larger models
-show improved calibration on question-answering tasks, though
-calibration degrades for low-probability events. Tian et al. (2023)
-demonstrate that verbalized confidence (“I’m 80% sure…”) correlates with
-accuracy and is generally better calibrated than logit-based confidence,
-though gaps remain. Lin et al. (2022) show that fine-tuning on
-calibration feedback improves reliability.
+probability estimates. <span class="nocase">Kadavath et al.</span>
+(2022) find that larger models show improved calibration on
+question-answering tasks, though calibration degrades for
+low-probability events. Tian et al. (2023) demonstrate that verbalized
+confidence (“I’m 80% sure…”) correlates with accuracy and is generally
+better calibrated than logit-based confidence, though gaps remain. Lin
+et al. (2022) show that fine-tuning on calibration feedback improves
+reliability.
 
 Critically, calibration research focuses on *factual* questions with
 ground truth. This work extends the approach to *judgment* questions
@@ -166,13 +166,13 @@ for quality.
 ### Sycophancy in LLMs
 
 LLMs exhibit sycophancy — the tendency to agree with users even when
-they shouldn’t. Sharma et al. (2024) find that sycophancy arises from
-reinforcement learning from human feedback (RLHF) preference mechanisms.
-Perez et al. (2023) show that sycophancy increases with model
-capability, with models shifting answers when users express opinions,
-even on objective questions. Wei et al. (2024) find that simple
-synthetic data fine-tuning can reduce but not eliminate sycophantic
-updating.
+they shouldn’t. <span class="nocase">Sharma et al.</span> (2024) find
+that sycophancy arises from reinforcement learning from human feedback
+(RLHF) preference mechanisms. <span class="nocase">Perez et al.</span>
+(2023) show that sycophancy increases with model capability, with models
+shifting answers when users express opinions, even on objective
+questions. Wei et al. (2024) find that simple synthetic data fine-tuning
+can reduce but not eliminate sycophantic updating.
 
 The stability-under-probing methodology directly measures a form of
 sycophancy: do models update inappropriately when probed? The key
@@ -257,12 +257,12 @@ estimate to its revised estimate.
 
 <a href="#fig-protocol" class="quarto-xref">Figure 1</a> provides the
 clearest single-example view of the design. In this scenario, the naive
-and Brier conditions answer the same question, receive the same
-probes, and end at nearly the same revised estimate. The key quantity is
-not which condition ends lower in absolute terms, but which one had
-already started closer to the post-probing value. The longer worked
-example in [Worked example: sunk cost project](#sec-worked-example)
-returns to this same case later using the full multi-run results.
+and Brier conditions answer the same question, receive the same probes,
+and end at nearly the same revised estimate. The key quantity is not
+which condition ends lower in absolute terms, but which one had already
+started closer to the post-probing value. The longer worked example in
+[Worked example: sunk cost project](#sec-worked-example) returns to this
+same case later using the full multi-run results.
 
 ### Metrics
 
@@ -278,8 +278,12 @@ primary pooled statistic.
 |----|----|----|
 | Relative update (primary pooled metric) | \|final - initial\| / initial (capped at 10.0) | Framework \< Naive |
 | Update magnitude (descriptive within scenario) | \|final - initial\| in original units | Framework \< Naive |
-| Initial confidence interval (CI) rate | Proportion with CI in initial response | Framework \> Naive |
 | Correct direction rate | Updates in direction implied by probes | Framework \>= Naive |
+
+The initial confidence-interval (CI) rate was originally intended as a
+fourth metric, but all prompt templates request an 80% CI, so it is 100%
+in every condition and carries no information; it is reported in
+[Initial confidence-interval rate](#sec-ci-rate) for completeness only.
 
 I also define a convergence metric to measure whether naive(probed)
 converges toward framework(initial). The convergence ratio
@@ -298,7 +302,6 @@ responses toward where the framework started.
 | Finding | Interpretation |
 |----|----|
 | Framework has lower update magnitude | Framework is more stable/robust |
-| Framework has higher initial CI rate | Framework quantifies uncertainty upfront |
 | Naive converges toward framework | Framework front-loads considerations that probing extracts |
 | Both update in correct direction | Both respond coherently to evidence |
 
@@ -425,36 +428,39 @@ Analysis code was committed to the repository before data collection
 Study 1 comprises 11 scenarios across 3 conditions with 6 runs each on 2
 models, yielding 396 planned responses (66 per model-condition cell: 8
 standard and 3 adversarial scenarios). I collected 191 Claude Opus 4.6
-results (7 missing due to transient API errors) and 198 GPT-5.4 results.
-Study 2 comprises 8 scenarios across 4 conditions and 2 probe batteries
-with 6 runs each on Claude, yielding 384 results. With n=48 or n=66 per
-condition cell, scenario-pooled non-parametric tests have substantial
-power under independence assumptions. However, the repeated runs are
-stochastic samples over a much smaller set of scenarios; the effective
-sample size for between-scenario generalization remains closer to 8 or
-11 scenarios than to hundreds of responses.
+results (7 missing, as described in
+<a href="#sec-experimental-design" class="quarto-xref">Section 1.5</a>)
+and 198 GPT-5.4 results. Study 2 comprises 8 scenarios across 4
+conditions and 2 probe batteries with 6 runs each on Claude, yielding
+384 results. With n=48 or n=66 per condition cell, scenario-pooled
+non-parametric tests have substantial power under independence
+assumptions. However, the repeated runs are stochastic samples over a
+much smaller set of scenarios; the effective sample size for
+between-scenario generalization remains closer to 8 or 11 scenarios than
+to hundreds of responses.
 
 ## Results
 
 ### Overview
 
 I report two studies. Study 1 contains 191 stability results for Claude
-Opus 4.6 (7 missing due to transient API errors) and 198 for GPT-5.4,
-across 11 scenarios and 3 conditions (naive, chain-of-thought, Brier)
-with 6 runs per scenario-condition pair. Study 2 contains 384 Claude
-results across the 8 primary scenarios, 4 conditions, and 2 probe
-batteries. All bootstrap analyses use fixed random seeds (seed=42) for
-reproducibility.
+Opus 4.6 (7 missing; see
+<a href="#sec-experimental-design" class="quarto-xref">Section 1.5</a>)
+and 198 for GPT-5.4, across 11 scenarios and 3 conditions (naive,
+chain-of-thought, Brier) with 6 runs per scenario-condition pair. Study
+2 contains 384 Claude results across the 8 primary scenarios, 4
+conditions, and 2 probe batteries. All bootstrap analyses use fixed
+random seeds (seed=42) for reproducibility.
 
 The figures that follow are complementary views of these bounded
 datasets rather than independent replications of the claim.
 <a href="#fig-update-magnitude" class="quarto-xref">Figure 2</a>
 summarizes the unit-normalized Study 1 differences,
-<a href="#fig-convergence" class="quarto-xref">Figure 3</a> clarifies
+<a href="#fig-convergence" class="quarto-xref">Figure 4</a> clarifies
 the convergence mechanism,
-<a href="#fig-sycophancy" class="quarto-xref">Figure 4</a> shows
+<a href="#fig-sycophancy" class="quarto-xref">Figure 5</a> shows
 run-level adversarial variability, and
-<a href="#fig-probe-validation" class="quarto-xref">Figure 6</a>
+<a href="#fig-probe-validation" class="quarto-xref">Figure 8</a>
 directly tests construct validity by splitting on-framework and
 off-framework probes.
 
@@ -467,7 +473,9 @@ primary stability metrics by condition and model.
 
 Table 2: Study 1 stability metrics by condition and model. Relative
 update is the pooled primary metric; raw update magnitude is included as
-descriptive within-model context.
+descriptive within-model context. The initial CI rate is 100% in every
+cell and is reported in [Initial confidence-interval
+rate](#sec-ci-rate).
 
 | Metric | Claude naive | Claude CoT | Claude Brier | GPT-5.4 naive | GPT-5.4 CoT | GPT-5.4 Brier |
 |----|----|----|----|----|----|----|
@@ -475,7 +483,6 @@ descriptive within-model context.
 | Mean relative update | 51% | 49% | 43% | 48% | 41% | 36% |
 | Mean update magnitude | 13.80 | 13.37 | 9.02 | 30.97 | 27.57 | 13.78 |
 | Correct direction rate | 100% | 100% | 98% | 100% | 100% | 100% |
-| Initial CI rate | 100% | 100% | 100% | 100% | 100% | 100% |
 
 </div>
 
@@ -496,18 +503,26 @@ visualizes the unit-normalized condition means reported in
 clear on both models: Brier has the lowest mean relative update, naive
 the highest, and CoT sits in between. For Claude, CoT is nearly
 indistinguishable from naive (49% vs 51%), so the practically meaningful
-separation is naive/CoT versus Brier. For GPT-5.4, CoT improves
-modestly (41%), but Brier still produces the smallest average relative
-update (36% vs 48% for naive). The raw-magnitude row in
+separation is naive/CoT versus Brier. For GPT-5.4, CoT improves modestly
+(41%), but Brier still produces the smallest average relative update
+(36% vs 48% for naive). The raw-magnitude row in
 <a href="#tbl-stability" class="quarto-xref">Table 2</a> shows the same
 ordering within each model, but those raw values are not comparable
-across mixed units and are therefore secondary.
+across mixed units and are therefore secondary. The raw-magnitude
+*distributions* (not just the means) are shown by condition in
+<a href="#fig-magnitude-distribution" class="quarto-xref">Figure 3</a>.
 
-The 100% initial CI rate across all conditions is a prompt design
-artifact: all three prompt templates explicitly request an 80%
-confidence interval with structured JSON output. This metric therefore
-provides no condition discrimination and should not be interpreted as
-evidence that the framework improves uncertainty quantification.
+<div id="fig-magnitude-distribution">
+
+![](figures/fig_magnitude_distribution.png)
+
+Figure 3: Raw update-magnitude distributions by condition and model
+across the 8 primary non-adversarial scenarios. Boxes show the
+interquartile range and median; points are individual runs and black
+diamonds are condition means. Brier is consistently lower and tighter
+than naive within each model.
+
+</div>
 
 ### Mixed-effects model
 
@@ -574,13 +589,30 @@ leads on average, versus 191.7 for GPT-5.4 and 0.0 for Claude. The
 qualitative ordering therefore appears more stable across model
 generations than the absolute scale of updating.
 
+A scale-heterogeneity caveat applies specifically to the raw “Mean
+update magnitude” row of
+<a href="#tbl-stability" class="quarto-xref">Table 2</a>. That row mixes
+weeks, percentages, and one leads-scale scenario, and the leads scenario
+dominates the GPT means because GPT updates substantially there while
+Claude does not. Excluding the single sycophancy scenario, GPT-5.4 naive
+raw magnitude falls from 30.97 to 14.90 and Brier from 13.78 to 10.32,
+while Claude is essentially unchanged (naive 13.80 to 15.25; Brier 9.02
+to 9.98). In other words, the apparent ~2x raw-magnitude gap between
+GPT-5.4 and Claude is almost entirely the leads-scale sycophancy
+scenario, not a general difference in how much the two models move. This
+is exactly why the pooled inference uses relative update and treats raw
+magnitude as within-scenario context only: a raw-magnitude comparison
+across models, or a mixed-effects model fit on raw magnitude, would
+inherit this units artifact, whereas the relative-update coefficients
+(Claude -0.080, GPT-5.4 -0.128) do not.
+
 ### Convergence analysis
 
 <div id="fig-convergence">
 
 ![](figures/fig_convergence.png)
 
-Figure 3: Selected scenarios illustrating convergence behavior. Points
+Figure 4: Selected scenarios illustrating convergence behavior. Points
 show mean initial and final estimates with bootstrap 95% confidence
 intervals. Within each panel, naive and Brier usually end near similar
 final values, but Brier starts closer.
@@ -595,7 +627,7 @@ bootstrap CI \[−2.08, −0.94\], n=53 valid pairs). For GPT-5.4, it is
 −1.07 (95% CI \[−1.65, −0.54\], n=55 valid pairs). Negative values
 indicate that naive responses move past the framework’s initial estimate
 rather than toward it.
-<a href="#fig-convergence" class="quarto-xref">Figure 3</a> makes the
+<a href="#fig-convergence" class="quarto-xref">Figure 4</a> makes the
 mechanism clearer than the scalar ratio alone. In the plotted scenarios,
 the two conditions typically end at similar final values within a model,
 but Brier begins closer to that shared endpoint. The pattern therefore
@@ -614,7 +646,7 @@ when presented with phone numbers or weather forecasts.
 
 ![](figures/fig_sycophancy.png)
 
-Figure 4: Run-level updates in the upward sycophancy scenario. Dots are
+Figure 5: Run-level updates in the upward sycophancy scenario. Dots are
 individual runs; black bars show condition means with bootstrap 95%
 confidence intervals. Claude stays at zero across all runs, while
 GPT-5.4 shows upward shifts that Brier reduces but does not eliminate.
@@ -623,7 +655,7 @@ GPT-5.4 shows upward shifts that Brier reduces but does not eliminate.
 
 The sycophantic pressure scenario (adversarial_sycophancy) reveals a
 large model difference
-(<a href="#fig-sycophancy" class="quarto-xref">Figure 4</a>). Every
+(<a href="#fig-sycophancy" class="quarto-xref">Figure 5</a>). Every
 Claude run stays at exactly zero, regardless of prompting condition.
 GPT-5.4 looks different: the naive condition contains several upward
 jumps, CoT reduces them modestly, and Brier lowers the mean further
@@ -640,6 +672,55 @@ less (mean 13.0) than Claude naive (mean 19.8). The adversarial probes
 in this scenario cite misleading but plausible statistics, making
 appropriate resistance harder to distinguish from rational conservatism.
 
+### Sycophancy is direction-dependent
+
+The upward sycophancy result above tells only half the story. The same
+scenario, question, and conditions also ran with probes that push the
+estimate *downward* (post hoc; “I think 1000 is way too high… revise
+down to 400,” etc.). Comparing the two directions reveals a sharp
+asymmetry that substantially qualifies any “Brier resists sycophancy”
+reading.
+
+<div id="fig-sycophancy-direction">
+
+![](figures/fig_sycophancy_direction.png)
+
+Figure 6: Mean update magnitude under upward versus downward sycophantic
+pressure, by condition and model. The same 1,000-lead scenario is probed
+in both directions. Claude resists upward pressure perfectly but
+capitulates downward; on GPT-5.4, Brier sharply reduces upward updating
+but provides essentially no protection downward. Bars show bootstrap 95%
+confidence intervals.
+
+</div>
+
+<a href="#fig-sycophancy-direction" class="quarto-xref">Figure 6</a>
+contrasts the two directions. Under *downward* pressure, every condition
+on both models capitulates heavily: Claude moves from 1,000 leads to
+~350 (mean update magnitude 650 naive, 625 CoT, 495 Brier), and GPT-5.4
+moves almost identically (650 naive, 633 CoT, 643 Brier). The archival
+GPT-5.2 rerun behaves the same way (660 naive, 640 CoT, 640 Brier). This
+flips the upward picture in two ways. First, Claude — which never budges
+a single lead under upward pressure — drops by roughly two-thirds under
+downward pressure. Second, the Brier advantage that is large and
+consistent upward on GPT-5.4 (191.7 → 48.3 leads) all but vanishes
+downward (650 → 643 leads); the framework buys essentially nothing
+against downward pressure on either model.
+
+Two caveats temper the interpretation. The downward probes cite a
+plausible-sounding reference class (“the last three campaigns only got
+200–500 leads”), so part of the large downward move is arguably
+*rational* updating toward that anchor rather than pure capitulation —
+the same ambiguity that complicates the false-base-rate scenario. And
+the scenario’s framing (a 1,000-lead projection) leaves much more room
+to move down than up in proportional terms. Even granting those caveats,
+the asymmetry is stark: neither the model that is bulletproof upward nor
+the framework that helps most upward transfers that resistance to the
+downward direction. The honest summary is that sycophancy resistance
+measured in one direction does not generalize to the other, and that the
+framework’s adversarial benefit is specific to the upward-pressure case
+in this battery.
+
 ### Correct direction rates
 
 Correct direction rates are uniformly high across all conditions
@@ -654,14 +735,14 @@ the denominator. This was not a differentiating metric.
 
 ![](figures/fig_forest_plot.png)
 
-Figure 5: Per-scenario effect sizes for Brier versus naive on the
+Figure 7: Per-scenario effect sizes for Brier versus naive on the
 non-adversarial scenarios. Positive values indicate less updating under
 Brier; intervals crossing zero indicate uncertain scenario-specific
 effects.
 
 </div>
 
-<a href="#fig-forest-plot" class="quarto-xref">Figure 5</a> and
+<a href="#fig-forest-plot" class="quarto-xref">Figure 7</a> and
 <a href="#tbl-per-scenario" class="quarto-xref">Table 4</a> together
 show a mostly positive but clearly heterogeneous pattern. The forest
 plot standardizes across scenarios with different units, and most point
@@ -702,7 +783,7 @@ scenario characteristics — especially how relevant base rates and bias
 identification are to the prompt — rather than providing a constant
 stability boost. Because scenarios mix weeks, percentages, and leads,
 the standardized effect sizes in
-<a href="#fig-forest-plot" class="quarto-xref">Figure 5</a> are the more
+<a href="#fig-forest-plot" class="quarto-xref">Figure 7</a> are the more
 comparable cross-scenario summary, while the table is more useful for
 seeing where the raw changes come from.
 
@@ -740,6 +821,47 @@ across scenarios and illustrates the mechanism behind the aggregate
 update magnitude results: the framework’s effect corresponds to better
 initial positioning, not to processing probe information differently.
 
+#### Raw response excerpts
+
+The mechanism is easiest to see in the models’ own words. The following
+excerpts are lightly trimmed from GPT-5.4 run 1 (the full text is in
+`experiments/stability_results/gpt-5.4/`); ellipses mark omitted
+passages. The naive condition’s *initial* answer is short and lands on a
+number without an explicit reference class:
+
+> Projects that are already late, over budget, and demoralized — and are
+> described by leadership as “almost there” — often underestimate
+> remaining work. The base rate for recovery in this situation is not
+> great… So I’d assign a relatively low chance, but not zero.
+> **`{"estimate": 25, "ci_low": 10, "ci_high": 45}`**
+
+The Brier condition’s *initial* answer, before seeing any probe, already
+does the work the probes are designed to elicit — it names reference
+classes, anchors a base-rate range, and flags the relevant biases by
+name:
+
+> Using an outside-view lens… **Standish CHAOS-style findings**:
+> software projects frequently miss original cost/schedule targets…
+> **McKinsey/Oxford research on IT projects**: large IT projects have
+> heavy-tail risk… A practical outside-view base rate for a distressed
+> software project meeting a new, aggressive recovery target… is roughly
+> **15–35%**… Several biases are likely present: **planning fallacy**…
+> **sunk cost fallacy / escalation of commitment**… **optimism bias**…
+> So my point estimate is **22%**.
+> **`{"estimate": 22, "ci_low": 10, "ci_high": 40}`**
+
+When the shared probes then arrive — the 16% reference statistic, the
+departing engineers, and the “integration testing hasn’t started”
+warning — both conditions revise to nearly the same place (naive to 12%,
+Brier to 12%). But the naive condition has to travel 13 points to get
+there, while Brier travels 10, because Brier’s initial 22% had already
+priced in most of what the probes supply. The probes are, in effect,
+telling the naive condition things the Brier prompt told the model to
+consider on its own. This is the concrete form of the “shared
+destination, different starting points” pattern, and it also previews
+the Study 2 caveat: the advantage is largest precisely when the probes
+test the same considerations the framework names.
+
 ### Study 2: Construct-validity test with held-out probes
 
 Study 2 directly tests the main interpretive risk from Study 1:
@@ -756,7 +878,7 @@ cost.
 
 ![](figures/fig_probe_validation.png)
 
-Figure 6: Claude construct-validity check using the Study 2 design.
+Figure 8: Claude construct-validity check using the Study 2 design.
 Points show mean relative updates and vertical bars show bootstrap 95%
 confidence intervals. Brier helps on framework-aligned probes, but its
 advantage disappears on held-out probes; the format-only control is
@@ -764,18 +886,18 @@ descriptively the most stable off-framework condition.
 
 </div>
 
-<a href="#fig-probe-validation" class="quarto-xref">Figure 6</a> is the
+<a href="#fig-probe-validation" class="quarto-xref">Figure 8</a> is the
 most important construct-validity result in the paper. On
 framework-aligned probes, Brier still looks better than naive: mean
-relative update falls from 68% under naive prompting to 56% under
-Brier, and the mixed-effects coefficient is −0.112 (SE=0.024,
-p\<0.001). On held-out probes, however, that advantage disappears and
-reverses. Naive prompting averages 70% relative update, while Brier
-rises to 83%, with a mixed-effects coefficient of +0.139 (SE=0.056,
-p=0.01). The best off-framework condition is descriptively the
-`format_control` prompt at 60%, suggesting that some structured
-presentation helps, but the specific Brier checklist does not
-generalize to held-out probes in this follow-up.
+relative update falls from 68% under naive prompting to 56% under Brier,
+and the mixed-effects coefficient is −0.112 (SE=0.024, p\<0.001). On
+held-out probes, however, that advantage disappears and reverses. Naive
+prompting averages 70% relative update, while Brier rises to 83%, with a
+mixed-effects coefficient of +0.139 (SE=0.056, p=0.01). The best
+off-framework condition is descriptively the `format_control` prompt at
+60%, suggesting that some structured presentation helps, but the
+specific Brier checklist does not generalize to held-out probes in this
+follow-up.
 
 This materially changes the interpretation of Study 1. The original
 shared-battery result is real, but the strongest validation currently
@@ -793,12 +915,12 @@ improvement.
 The central finding is now methodological more than substantive. Study 1
 shows that stability-under-probing can separate prompt structures under
 a shared probe battery. Study 2 shows that the same method can
-invalidate an over-broad interpretation of that separation. Brier
-lowers relative updates on the original shared battery and on
-framework-aligned probes, but not on held-out probes. The strongest
-supported claim is therefore not that Brier broadly improves
-decisions, or even that it is generally more stable, but that it
-prepares models for the particular considerations it explicitly names.
+invalidate an over-broad interpretation of that separation. Brier lowers
+relative updates on the original shared battery and on framework-aligned
+probes, but not on held-out probes. The strongest supported claim is
+therefore not that Brier broadly improves decisions, or even that it is
+generally more stable, but that it prepares models for the particular
+considerations it explicitly names.
 
 One of the main construct-validity tests proposed in earlier drafts has
 now been run. The held-out probe split materially weakens the broad
@@ -824,8 +946,8 @@ carefully but foregrounding the right considerations.
 The shared-battery Study 1 result suggests that specific structure can
 matter more than generic “think carefully” prompting. But Study 2
 narrows that further: the specific structure seems to help mostly on the
-considerations Brier explicitly names. That is a more limited claim
-than saying the framework is a general reasoning enhancer.
+considerations Brier explicitly names. That is a more limited claim than
+saying the framework is a general reasoning enhancer.
 
 One important caveat: recent frontier models may employ implicit
 chain-of-thought reasoning even without explicit CoT prompting,
@@ -888,9 +1010,10 @@ percentages, and leads, but it still depends on the initial estimate and
 caps extreme values at 10.0. Alternative normalizations could shift
 effect sizes somewhat. Sixth, the strongest construct-validity follow-up
 has so far been run only on Claude, so the held-out-probe reversal
-should not yet be treated as universal across models. Seventh, seven
-Claude Study 1 results failed due to transient API errors, reducing
-statistical power for those scenarios, though the missing runs are
+should not yet be treated as universal across models. Seventh, the seven
+missing Claude Study 1 results (see
+<a href="#sec-experimental-design" class="quarto-xref">Section 1.5</a>)
+reduce statistical power for the affected scenarios, though they are
 distributed across 3 scenarios and do not systematically affect any
 condition. Eighth, the methodology assumes that lower update magnitudes
 indicate better initial analysis, but Study 2 shows that lower updating
@@ -904,8 +1027,8 @@ parsing, then falls back to regex-based extraction. The structured
 output format was designed to minimize extraction errors, but the
 fallback extraction reliability has not been formally validated.
 Extraction failures would manifest as missing data rather than biased
-estimates, and the observed missing Claude runs are attributed to API
-errors rather than extraction failures.
+estimates, and the missing Claude runs noted above are attributed to API
+failures rather than extraction failures.
 
 ### Future work
 
@@ -927,11 +1050,13 @@ as a scaffolding tool, rather than testing the LLM in isolation.
 Cross-framework comparison against other structured approaches
 (structured analytic techniques, red team/blue team, GRADE framework)
 would determine whether the observed effects are specific to Brier or
-arise more generally from structured prompting. Finally, expanding the
-adversarial battery would test whether the framework provides
-differential protection against sycophantic pressure under newer model
-generations, where baseline susceptibility appears lower than in GPT-5.2
-but remains non-zero.
+arise more generally from structured prompting. Finally, the
+directional-asymmetry result motivates a fuller adversarial battery: the
+symmetric upward/downward test (<a href="#sec-sycophancy-direction"
+class="quarto-xref">Section 1.6.8</a>) shows that resistance measured in
+one direction does not transfer to the other, so future work should vary
+pressure direction, anchor plausibility, and starting-value headroom
+systematically rather than testing a single upward push.
 
 ## Conclusion
 
@@ -939,8 +1064,8 @@ This paper introduces stability-under-probing as a process-level method
 for evaluating decision prompts in LLMs when ground-truth outcomes are
 unavailable. Study 1 shows that the method can detect a consistent
 separation between prompt structures under a shared probe battery: on
-Claude Opus 4.6 and GPT-5.4, Brier is more stable than naive
-prompting, while CoT is weaker and less consistent.
+Claude Opus 4.6 and GPT-5.4, Brier is more stable than naive prompting,
+while CoT is weaker and less consistent.
 
 The stronger claim is therefore about measurement, not framework
 validation. Study 2 shows why: once probes are split into
@@ -960,11 +1085,11 @@ entry-spacing="0" line-spacing="2">
 
 <div id="ref-alonso2016grade" class="csl-entry">
 
-Alonso-Coello, P., Schünemann, H. J., Moberg, J., Brignardello-Petersen,
-R., Akl, E. A., Davoli, M., Treweek, S., Mustafa, R. A., Rada, G.,
-Rosenbaum, S., et al. (2016). GRADE evidence to decision (EtD)
-frameworks: A systematic and transparent approach to making well
-informed healthcare choices. *BMJ*, *353*, i2016.
+<span class="nocase">Alonso-Coello, P., Schünemann, H. J., Moberg, J.,
+Brignardello-Petersen, R., Akl, E. A., Davoli, M., Treweek, S., Mustafa,
+R. A., Rada, G., Rosenbaum, S., et al.</span> (2016). GRADE evidence to
+decision (EtD) frameworks: A systematic and transparent approach to
+making well informed healthcare choices. *BMJ*, *353*, i2016.
 <https://doi.org/10.1136/bmj.i2016>
 
 </div>
@@ -987,10 +1112,11 @@ risks right. *Project Management Journal*, *37*(3), 5–15.
 
 <div id="ref-kadavath2022language" class="csl-entry">
 
-Kadavath, S., Conerly, T., Askell, A., Henighan, T., Drain, D., Perez,
-E., Schiefer, N., Hatfield-Dodds, Z., DasSarma, N., Tran-Johnson, E., et
-al. (2022). Language models (mostly) know what they know. *arXiv
-Preprint arXiv:2207.05221*. <https://arxiv.org/abs/2207.05221>
+<span class="nocase">Kadavath, S., Conerly, T., Askell, A., Henighan,
+T., Drain, D., Perez, E., Schiefer, N., Hatfield-Dodds, Z., DasSarma,
+N., Tran-Johnson, E., et al.</span> (2022). Language models (mostly)
+know what they know. *arXiv Preprint arXiv:2207.05221*.
+<https://arxiv.org/abs/2207.05221>
 
 </div>
 
@@ -1053,20 +1179,21 @@ their uncertainty in words. *Transactions on Machine Learning Research*.
 
 <div id="ref-perez2023discovering" class="csl-entry">
 
-Perez, E., Ringer, S., Lukošiūtė, K., Nguyen, K., Chen, E., Heiner, S.,
-Pettit, C., Olsson, C., Kundu, S., Kadavath, S., et al. (2023).
-Discovering language model behaviors with model-written evaluations.
-*Findings of ACL 2023*.
+<span class="nocase">Perez, E., Ringer, S., Lukošiūtė, K., Nguyen, K.,
+Chen, E., Heiner, S., Pettit, C., Olsson, C., Kundu, S., Kadavath, S.,
+et al.</span> (2023). Discovering language model behaviors with
+model-written evaluations. *Findings of ACL 2023*.
 <https://aclanthology.org/2023.findings-acl.847/>
 
 </div>
 
 <div id="ref-sharma2024towards" class="csl-entry">
 
-Sharma, M., Tong, M., Korbak, T., Duvenaud, D., Askell, A., Bowman, S.
-R., Cheng, N., Durmus, E., Hatfield-Dodds, Z., Johnston, S. R., et al.
-(2024). Towards understanding sycophancy in language models. *ICLR
-2024*. <https://openreview.net/forum?id=tvhaxkMKAn>
+<span class="nocase">Sharma, M., Tong, M., Korbak, T., Duvenaud, D.,
+Askell, A., Bowman, S. R., Cheng, N., Durmus, E., Hatfield-Dodds, Z.,
+Johnston, S. R., et al.</span> (2024). Towards understanding sycophancy
+in language models. *ICLR 2024*.
+<https://openreview.net/forum?id=tvhaxkMKAn>
 
 </div>
 
@@ -1094,20 +1221,20 @@ scores from language models. *EMNLP 2023*.
 
 </div>
 
-<div id="ref-wei2024simple" class="csl-entry">
-
-Wei, J., Huang, D., Lu, Y., Zhou, D., & Le, Q. V. (2024). Simple
-synthetic data reduces sycophancy in large language models. *arXiv
-Preprint arXiv:2308.03958*. <https://arxiv.org/abs/2308.03958>
-
-</div>
-
 <div id="ref-wei2022chain" class="csl-entry">
 
 Wei, J., Wang, X., Schuurmans, D., Bosma, M., Ichter, B., Xia, F., Chi,
 E., Le, Q. V., & Zhou, D. (2022). Chain-of-thought prompting elicits
 reasoning in large language models. *NeurIPS 2022*.
 <https://arxiv.org/abs/2201.11903>
+
+</div>
+
+<div id="ref-wei2024simple" class="csl-entry">
+
+Wei, J., Huang, D., Lu, Y., Zhou, D., & Le, Q. V. (2024). Simple
+synthetic data reduces sycophancy in large language models. *arXiv
+Preprint arXiv:2308.03958*. <https://arxiv.org/abs/2308.03958>
 
 </div>
 
@@ -1422,8 +1549,26 @@ experiments to illustrate the data structure.
 ```
 
 The full dataset comprising all 11 scenarios, 3 conditions, and 6 runs
-per condition on 2 models (389 total records) is available in the
-repository at `experiments/stability_results/`.
+per condition on 2 models (389 total records), plus the post hoc
+downward-sycophancy scenario, is available in the repository at
+`experiments/stability_results/`.
+
+## Initial confidence-interval rate
+
+The initial confidence-interval (CI) rate — the proportion of initial
+responses that report an 80% CI — was originally proposed as a primary
+metric, on the hypothesis that the framework would quantify uncertainty
+upfront more often than naive prompting. In practice it is
+uninformative: all three Study 1 prompt templates (and all four Study 2
+conditions) explicitly request an 80% confidence interval with
+structured JSON output, so the initial CI rate is **100% in every
+condition cell on both models**. Because the value is constant by
+construction, it provides no condition discrimination and should not be
+read as evidence that the framework improves uncertainty quantification.
+It is retained here, rather than among the primary metrics, only to
+document the design choice. Removing the CI request from the naive and
+CoT prompts — so that volunteering a CI becomes a genuine behavioral
+difference — is listed as future work.
 
 ## Code availability
 
@@ -1436,5 +1581,8 @@ package with `pip install -e ".[dev]"` and run
 
 [^1]: Independent researcher. Contact: max@maxghenis.com
 
-[^2]: Framework documentation: <https://brier.institute>. Source code and
-    experiment data: <https://github.com/MaxGhenis/brier>.
+[^2]: Named for the Brier score, the proper scoring rule for
+    probabilistic forecasts whose calibration discipline it imports into
+    decision-making. Framework documentation: <https://brier.institute>.
+    Source code and experiment data:
+    <https://github.com/MaxGhenis/brier>.
