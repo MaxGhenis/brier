@@ -35,6 +35,7 @@ import {
   serializeEconomyToolResult,
   serializePolicyToolResult,
 } from "@/lib/policyengine";
+import { buildNumericCdfFromInterval } from "@/lib/prediction-distribution";
 import { createSseResponse, pause, type SendEvent } from "@/lib/sse";
 
 export const runtime = "nodejs";
@@ -408,6 +409,11 @@ async function streamCtcCurrentLawOutlaysForecast(send: SendEvent) {
     ciLow,
     ciHigh,
     confidence: 0.8,
+    distribution: buildNumericCdfFromInterval({
+      pointEstimate,
+      ciLow,
+      ciHigh,
+    }),
     publicTrace: [
       `PolicyEngine current law policy ${policy.id} loaded successfully with API version ${policy.api_version}.`,
       "The current live public API path does not yet expose an absolute CTC outlay total, so the stream uses the calibrated current-law fallback.",

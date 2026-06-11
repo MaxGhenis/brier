@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, render, screen } from "@testing-library/react";
-import { MarketRuntime, STREAM_WATCHDOG_MS } from "@/components/MarketRuntime";
-import { LIVE_FORECAST_SLUGS, MARKETS } from "@/data/markets";
+import { ForecastRuntime, STREAM_WATCHDOG_MS } from "@/components/ForecastRuntime";
+import { LIVE_FORECAST_SLUGS, FORECAST_CELLS } from "@/data/forecast-cells";
 
 type Listener = (event: MessageEvent) => void;
 
@@ -36,9 +36,9 @@ class FakeEventSource {
   }
 }
 
-const liveMarket = MARKETS.find((m) => LIVE_FORECAST_SLUGS.has(m.slug))!;
+const liveForecast = FORECAST_CELLS.find((m) => LIVE_FORECAST_SLUGS.has(m.slug))!;
 
-describe("MarketRuntime stream watchdog", () => {
+describe("ForecastRuntime stream watchdog", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.stubGlobal("EventSource", FakeEventSource);
@@ -52,7 +52,7 @@ describe("MarketRuntime stream watchdog", () => {
   });
 
   it("falls back to the static trace when the stream stays silent", () => {
-    render(<MarketRuntime market={liveMarket} />);
+    render(<ForecastRuntime forecast={liveForecast} />);
     expect(FakeEventSource.instances).toHaveLength(1);
 
     act(() => {
@@ -64,7 +64,7 @@ describe("MarketRuntime stream watchdog", () => {
   });
 
   it("keeps the live stream once events arrive", () => {
-    render(<MarketRuntime market={liveMarket} />);
+    render(<ForecastRuntime forecast={liveForecast} />);
 
     act(() => {
       FakeEventSource.instances[0].emit("step", {
@@ -81,7 +81,7 @@ describe("MarketRuntime stream watchdog", () => {
   });
 
   it("still falls back immediately on connection errors", () => {
-    render(<MarketRuntime market={liveMarket} />);
+    render(<ForecastRuntime forecast={liveForecast} />);
 
     act(() => {
       FakeEventSource.instances[0].onerror?.();

@@ -3,11 +3,16 @@ import { z } from "zod";
 import type { CpiDataset } from "@/lib/bls";
 import type { SpmChildPovertyDataset } from "@/lib/census";
 import type { CtcExpansionDataset } from "@/lib/policyengine";
+import {
+  AgentNumericCdfDistributionSchema,
+  buildNumericCdfFromInterval,
+  normalizeNumericCdfDistribution,
+  summarizeNumericCdfDistribution,
+  type NumericCdfDistribution,
+} from "@/lib/prediction-distribution";
 
 const ForecastSchema = z.object({
-  pointEstimate: z.number().min(0).max(10),
-  ciLow: z.number().min(-2).max(10),
-  ciHigh: z.number().min(0).max(15),
+  distribution: AgentNumericCdfDistributionSchema,
   publicTrace: z.array(z.string().min(20).max(700)).min(3).max(6),
   assumptions: z.array(z.string().min(8).max(240)).min(2).max(6),
   dataCaveats: z.array(z.string().min(8).max(240)).min(1).max(4),
@@ -15,9 +20,7 @@ const ForecastSchema = z.object({
 });
 
 const CtcExpansionForecastSchema = z.object({
-  pointEstimate: z.number().min(0).max(400),
-  ciLow: z.number().min(0).max(400),
-  ciHigh: z.number().min(0).max(500),
+  distribution: AgentNumericCdfDistributionSchema,
   publicTrace: z.array(z.string().min(20).max(700)).min(3).max(7),
   assumptions: z.array(z.string().min(8).max(240)).min(2).max(6),
   dataCaveats: z.array(z.string().min(8).max(240)).min(1).max(5),
@@ -25,9 +28,7 @@ const CtcExpansionForecastSchema = z.object({
 });
 
 const SpmChildPovertyForecastSchema = z.object({
-  pointEstimate: z.number().min(0).max(30),
-  ciLow: z.number().min(0).max(30),
-  ciHigh: z.number().min(0).max(35),
+  distribution: AgentNumericCdfDistributionSchema,
   publicTrace: z.array(z.string().min(20).max(700)).min(3).max(7),
   assumptions: z.array(z.string().min(8).max(240)).min(2).max(6),
   dataCaveats: z.array(z.string().min(8).max(260)).min(1).max(5),
@@ -39,6 +40,7 @@ export interface CpiForecast {
   ciLow: number;
   ciHigh: number;
   confidence: 0.8;
+  distribution: NumericCdfDistribution;
   publicTrace: string[];
   assumptions: string[];
   dataCaveats: string[];
@@ -53,6 +55,7 @@ export interface CtcExpansionForecast {
   ciLow: number;
   ciHigh: number;
   confidence: 0.8;
+  distribution: NumericCdfDistribution;
   publicTrace: string[];
   assumptions: string[];
   dataCaveats: string[];
@@ -67,6 +70,7 @@ export interface SpmChildPovertyForecast {
   ciLow: number;
   ciHigh: number;
   confidence: 0.8;
+  distribution: NumericCdfDistribution;
   publicTrace: string[];
   assumptions: string[];
   dataCaveats: string[];
@@ -86,7 +90,10 @@ export async function generateCpiForecast(
     );
   }
 
-  const model = process.env.BRIER_AI_MODEL ?? "anthropic/claude-sonnet-4.6";
+  const model =
+    process.env.THESIS_AI_MODEL ??
+    process.env.BRIER_AI_MODEL ??
+    "anthropic/claude-sonnet-4.6";
 
   try {
     const result = await generateObject({
@@ -94,12 +101,12 @@ export async function generateCpiForecast(
       schema: ForecastSchema,
       temperature: 0.2,
       system:
-        "You are a Brier public forecasting agent. Produce concise, audit-ready reasoning for public readers. Do not reveal hidden chain-of-thought; provide a public trace with evidence, assumptions, and uncertainty.",
+        "You are a Thesis Institute public forecasting agent. Produce concise, audit-ready reasoning for public readers. Do not reveal hidden chain-of-thought; provide a public trace with evidence, assumptions, and uncertainty.",
       prompt: [
         "Forecast this public prediction cell:",
         "What will the annual average percent change in CPI-U for calendar year 2026 versus the 2025 annual average be, as published by BLS?",
         "",
-        "Use the live BLS CPI-U data summary below. Return an 80% confidence interval. Keep the public trace factual, calibrated, and specific about data caveats.",
+        "Use the live BLS CPI-U data summary below. Return the predictive distribution as numeric_cdf_v1: exactly 201 evenly spaced CDF points over an explicit support, probability 0 at the first point, probability 1 at the last point, and monotone nondecreasing probabilities. Do not return pointEstimate, ciLow, or ciHigh as top-level fields; the server derives the median and 80% interval from the CDF. Keep the public trace factual, calibrated, and specific about data caveats.",
         "",
         JSON.stringify(dataset.summary, null, 2),
       ].join("\n"),
@@ -132,7 +139,10 @@ export async function generateCtcExpansionForecast(
     );
   }
 
-  const model = process.env.BRIER_AI_MODEL ?? "anthropic/claude-sonnet-4.6";
+  const model =
+    process.env.THESIS_AI_MODEL ??
+    process.env.BRIER_AI_MODEL ??
+    "anthropic/claude-sonnet-4.6";
 
   try {
     const result = await generateObject({
@@ -140,12 +150,12 @@ export async function generateCtcExpansionForecast(
       schema: CtcExpansionForecastSchema,
       temperature: 0.2,
       system:
-        "You are a Brier public forecasting agent. Forecast in billions of nominal dollars. Use public, audit-ready reasoning only. Treat PolicyEngine as an explicit model input, not as ground truth, and describe calibration adjustments without hidden chain-of-thought.",
+        "You are a Thesis Institute public forecasting agent. Forecast in billions of nominal dollars. Use public, audit-ready reasoning only. Treat PolicyEngine as an explicit model input, not as ground truth, and describe calibration adjustments without hidden chain-of-thought.",
       prompt: [
         "Forecast this public prediction cell:",
         dataset.summary.question,
         "",
-        "Use the live PolicyEngine API result and the calibration prior below. Return an 80% confidence interval in billions of nominal dollars.",
+        "Use the live PolicyEngine API result and the calibration prior below. Return the predictive distribution in billions of nominal dollars as numeric_cdf_v1: exactly 201 evenly spaced CDF points over an explicit support, probability 0 at the first point, probability 1 at the last point, and monotone nondecreasing probabilities. Do not return pointEstimate, ciLow, or ciHigh as top-level fields; the server derives the median and 80% interval from the CDF.",
         "If the PolicyEngine economy endpoint is still queued, errored, or timed out, explicitly widen uncertainty and explain that the calibration fallback is carrying the run.",
         "",
         JSON.stringify(
@@ -186,7 +196,10 @@ export async function generateSpmChildPovertyForecast(
     );
   }
 
-  const model = process.env.BRIER_AI_MODEL ?? "anthropic/claude-sonnet-4.6";
+  const model =
+    process.env.THESIS_AI_MODEL ??
+    process.env.BRIER_AI_MODEL ??
+    "anthropic/claude-sonnet-4.6";
 
   try {
     const result = await generateObject({
@@ -194,13 +207,13 @@ export async function generateSpmChildPovertyForecast(
       schema: SpmChildPovertyForecastSchema,
       temperature: 0.2,
       system:
-        "You are a Brier public forecasting agent. Forecast in percentage points. Use public, audit-ready reasoning only. Treat Census history and PolicyEngine current-law inputs as explicit model inputs, not as ground truth, and describe calibration adjustments without hidden chain-of-thought.",
+        "You are a Thesis Institute public forecasting agent. Forecast in percentage points. Use public, audit-ready reasoning only. Treat Census history and PolicyEngine current-law inputs as explicit model inputs, not as ground truth, and describe calibration adjustments without hidden chain-of-thought.",
       prompt: [
         "Forecast this public prediction cell:",
         dataset.summary.question,
         "",
         "Target: the Census-published Supplemental Poverty Measure child poverty rate for calendar-year 2025, expected in the September 2026 income and poverty release.",
-        "Use the live Census page evidence, historical SPM child-poverty series, PolicyEngine current-law policy check, and calibration prior below. Return an 80% confidence interval in percentage points.",
+        "Use the live Census page evidence, historical SPM child-poverty series, PolicyEngine current-law policy check, and calibration prior below. Return the predictive distribution in percentage points as numeric_cdf_v1: exactly 201 evenly spaced CDF points over an explicit support, probability 0 at the first point, probability 1 at the last point, and monotone nondecreasing probabilities. Do not return pointEstimate, ciLow, or ciHigh as top-level fields; the server derives the median and 80% interval from the CDF.",
         "If the PolicyEngine check or Census page fetch is unavailable, explicitly widen or qualify uncertainty instead of pretending the data path is complete.",
         "",
         JSON.stringify(dataset.summary, null, 2),
@@ -244,9 +257,11 @@ function fallbackForecast(dataset: CpiDataset, reason: string): CpiForecast {
   );
 
   return normalizeForecast({
-    pointEstimate,
-    ciLow: pointEstimate - downside,
-    ciHigh: pointEstimate + upside,
+    distribution: buildNumericCdfFromInterval({
+      pointEstimate,
+      ciLow: pointEstimate - downside,
+      ciHigh: pointEstimate + upside,
+    }),
     confidence: 0.8,
     publicTrace: [
       `Live BLS data put ${summary.targetYear} CPI-U ${ytd.toFixed(2)}% above the observed ${summary.priorYear} average so far.`,
@@ -286,9 +301,11 @@ function fallbackSpmChildPovertyForecast(
       : `PolicyEngine current-law policy ${summary.currentLawPolicy.id} was unavailable: ${summary.currentLawPolicy.error}`;
 
   return normalizeSpmPercentForecast({
-    pointEstimate: summary.calibratedPointEstimatePct,
-    ciLow: summary.calibratedCiLowPct,
-    ciHigh: summary.calibratedCiHighPct,
+    distribution: buildNumericCdfFromInterval({
+      pointEstimate: summary.calibratedPointEstimatePct,
+      ciLow: summary.calibratedCiLowPct,
+      ciHigh: summary.calibratedCiHighPct,
+    }),
     confidence: 0.8,
     publicTrace: [
       `Census release evidence was fetched from the income/poverty schedule and SPM tables pages; the target is the calendar-year ${summary.targetYear} SPM child poverty rate expected in ${summary.expectedRelease}.`,
@@ -326,9 +343,11 @@ function fallbackCtcExpansionForecast(
       : `$${summary.rawPolicyEngineEstimateUsdBillions.toFixed(1)}B`;
 
   return normalizeUsdBillionsForecast({
-    pointEstimate: summary.calibratedPointEstimateUsdBillions,
-    ciLow: summary.calibratedCiLowUsdBillions,
-    ciHigh: summary.calibratedCiHighUsdBillions,
+    distribution: buildNumericCdfFromInterval({
+      pointEstimate: summary.calibratedPointEstimateUsdBillions,
+      ciLow: summary.calibratedCiLowUsdBillions,
+      ciHigh: summary.calibratedCiHighUsdBillions,
+    }),
     confidence: 0.8,
     publicTrace: [
       `PolicyEngine policy ${summary.reformPolicyId} models a $3,000 fully refundable CTC against current law policy ${summary.baselinePolicyId} for ${summary.targetYear}.`,
@@ -357,25 +376,25 @@ function fallbackCtcExpansionForecast(
 }
 
 function normalizeSpmPercentForecast(
-  forecast: Omit<SpmChildPovertyForecast, "confidence"> & {
+  forecast: Omit<
+    SpmChildPovertyForecast,
+    "confidence" | "pointEstimate" | "ciLow" | "ciHigh"
+  > & {
     confidence: 0.8;
   },
 ) {
-  const pointEstimate = round(clamp(forecast.pointEstimate, 0, 30), 1);
-  const ciLow = round(
-    clamp(Math.min(forecast.ciLow, pointEstimate - 0.1), 0, 30),
-    1,
-  );
-  const ciHigh = round(
-    clamp(Math.max(forecast.ciHigh, pointEstimate + 0.1), 0, 35),
-    1,
-  );
+  const distribution = normalizeNumericCdfDistribution({
+    distribution: forecast.distribution,
+    min: 0,
+    max: 35,
+    decimals: 1,
+  });
+  const summary = summarizeNumericCdfDistribution(distribution);
 
   return {
     ...forecast,
-    pointEstimate,
-    ciLow,
-    ciHigh,
+    ...summary,
+    distribution,
     confidence: 0.8 as const,
   };
 }
@@ -390,43 +409,49 @@ function shouldTryGateway() {
 }
 
 function normalizeForecast(
-  forecast: Omit<CpiForecast, "confidence"> & {
+  forecast: Omit<
+    CpiForecast,
+    "confidence" | "pointEstimate" | "ciLow" | "ciHigh"
+  > & {
     confidence: 0.8;
   },
 ) {
-  const pointEstimate = round(clamp(forecast.pointEstimate, 0, 10), 1);
-  const ciLow = round(Math.min(forecast.ciLow, pointEstimate - 0.1), 1);
-  const ciHigh = round(Math.max(forecast.ciHigh, pointEstimate + 0.1), 1);
+  const distribution = normalizeNumericCdfDistribution({
+    distribution: forecast.distribution,
+    min: -2,
+    max: 15,
+    decimals: 1,
+  });
+  const summary = summarizeNumericCdfDistribution(distribution);
 
   return {
     ...forecast,
-    pointEstimate,
-    ciLow,
-    ciHigh,
+    ...summary,
+    distribution,
     confidence: 0.8 as const,
   };
 }
 
 function normalizeUsdBillionsForecast(
-  forecast: Omit<CtcExpansionForecast, "confidence"> & {
+  forecast: Omit<
+    CtcExpansionForecast,
+    "confidence" | "pointEstimate" | "ciLow" | "ciHigh"
+  > & {
     confidence: 0.8;
   },
 ) {
-  const pointEstimate = round(clamp(forecast.pointEstimate, 0, 400), 1);
-  const ciLow = round(
-    clamp(Math.min(forecast.ciLow, pointEstimate - 0.1), 0, 400),
-    1,
-  );
-  const ciHigh = round(
-    clamp(Math.max(forecast.ciHigh, pointEstimate + 0.1), 0, 500),
-    1,
-  );
+  const distribution = normalizeNumericCdfDistribution({
+    distribution: forecast.distribution,
+    min: 0,
+    max: 500,
+    decimals: 1,
+  });
+  const summary = summarizeNumericCdfDistribution(distribution);
 
   return {
     ...forecast,
-    pointEstimate,
-    ciLow,
-    ciHigh,
+    ...summary,
+    distribution,
     confidence: 0.8 as const,
   };
 }

@@ -4,7 +4,7 @@ import { BrierLogoMark } from "./BrierLogo";
 export function Header({
   activePage,
 }: {
-  activePage?: "paper" | "forecasts" | "about";
+  activePage?: "docs" | "thesis" | "paper" | "forecasts" | "log";
 }) {
   return (
     <header
@@ -33,7 +33,37 @@ export function Header({
         </div>
         <nav className="flex gap-7 items-center max-md:gap-4">
           <Link
-            href="/forecasts"
+            href="/docs"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "docs"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "docs"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Docs
+          </Link>
+          <Link
+            href="/thesis"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "thesis"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "thesis"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Thesis
+          </Link>
+          <Link
+            href="/"
             className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline ${
               activePage === "forecasts"
                 ? "text-[#A94E80]"
@@ -48,20 +78,35 @@ export function Header({
             Forecasts
           </Link>
           <Link
-            href="/about"
+            href="/log"
             className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
-              activePage === "about"
+              activePage === "log"
                 ? "text-[#A94E80]"
                 : "text-[var(--theme-text-muted)]"
             }`}
             style={
-              activePage !== "about"
+              activePage !== "log"
                 ? { color: "var(--theme-text-muted)" }
                 : undefined
             }
           >
-            About
+            Log
           </Link>
+          <a
+            href="/paper"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "paper"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "paper"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Research
+          </a>
           <a
             href="https://github.com/MaxGhenis/brier"
             className="no-underline transition-colors duration-200 hover:no-underline"

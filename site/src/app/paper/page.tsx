@@ -47,11 +47,7 @@ function getQuartoContent(): { mainHtml: string; styles: string } {
 }
 
 export const metadata: Metadata = {
-  title: "Stability-under-probing — Thesis",
-  robots: {
-    index: false,
-    follow: false,
-  },
+  title: "Stability-under-probing — Thesis Institute",
 };
 
 export default function PaperPage() {
