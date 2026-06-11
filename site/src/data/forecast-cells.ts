@@ -1,3 +1,23 @@
+import { BENEFIT_PROGRAM_EXAMPLES } from "./almanac-examples/benefits";
+import { AGENT_RUN_EXAMPLES } from "./almanac-examples/agent-runs";
+import { CANADA_AUSTRALIA_EXAMPLES } from "./almanac-examples/canada-australia";
+import { EURO_JAPAN_EXAMPLES } from "./almanac-examples/euro-japan";
+import { GLOBAL_NEAR_TERM_EXAMPLES } from "./almanac-examples/global-near-term";
+import { HEALTH_COVERAGE_EXAMPLES } from "./almanac-examples/health";
+import { LAUNCH_CADENCE_EXAMPLES } from "./almanac-examples/launch-cadence";
+import { TAX_CREDIT_EXAMPLES } from "./almanac-examples/tax";
+import { UK_EXAMPLES } from "./almanac-examples/uk";
+import { US_NEAR_TERM_EXAMPLES } from "./almanac-examples/us-near-term";
+import {
+  buildNumericCdfFromInterval,
+  type PredictionDistribution,
+} from "./prediction-distribution";
+export type {
+  NumericCdfDistribution,
+  NumericCdfPoint,
+  PredictionDistribution,
+} from "./prediction-distribution";
+
 // Forecast-cell definitions and AI analyst reasoning scripts.
 // Each cell is a self-contained record with a pre-written reasoning stream
 // that the AgentReasoning component plays back with simulated streaming.
@@ -6,20 +26,66 @@
 // constructed to demonstrate the integrated stack (encoded law,
 // PolicyEngine microsim, public data cells) rather than to be live forecasts.
 
-export type MarketType = "data" | "policy" | "conditional";
+export type ForecastCellType = "data" | "policy" | "conditional";
 
 export type Unit =
+  | "count"
   | "percent"
+  | "gbp_billions"
   | "usd"
   | "usd_billions"
   | "usd_monthly"
+  | "thousands"
   | "millions"
+  | "per_1000_live_births"
   | "ratio"
   | "percent_growth";
 
 export interface HistoricalPoint {
   label: string;
   value: number;
+}
+
+export type PredictionCadence = "weekly" | "monthly" | "quarterly" | "annual";
+
+export type ForecastHorizon =
+  | "next_release"
+  | "plus_3m"
+  | "plus_12m"
+  | "threshold";
+
+export type ResolutionPolicy = "first_print" | "fixed_vintage" | "final";
+
+export type CountryCode = "US" | "UK" | "CA" | "AU" | "EA" | "JP";
+
+export interface ForecastSeriesMetadata {
+  seriesId: string;
+  country: CountryCode;
+  cadence: PredictionCadence;
+  horizon: ForecastHorizon;
+  horizonLabel: string;
+  priority: "P0" | "P1" | "P2";
+  source: string;
+  resolutionPolicy: ResolutionPolicy;
+  resolutionLatency: string;
+  benchmark?: string;
+  chainableQuestions: string[];
+}
+
+export interface PredictionRunMetadata {
+  kind: "recorded-agent-run";
+  runAt: string;
+  agent: string;
+  model: string;
+  sourceContext: string[];
+}
+
+export interface ResolvedOutcome {
+  value: number;
+  resolvedAt: string;
+  source: string;
+  sourceUrl?: string;
+  note?: string;
 }
 
 export type ReasoningStep =
@@ -34,9 +100,10 @@ export type ReasoningStep =
   | { kind: "math"; text: string } // styled equation/weighting line
   | { kind: "forecast"; point: number; ciLow: number; ciHigh: number };
 
-export interface Market {
+export interface ForecastCell {
   slug: string;
-  type: MarketType;
+  country?: CountryCode;
+  type: ForecastCellType;
   title: string;
   question: string;
   unit: Unit;
@@ -46,16 +113,21 @@ export interface Market {
   confidence: number; // 0.80 etc.
   resolutionDate: string; // ISO date, e.g. "2027-09-15"
   resolutionSource: string;
+  resolutionSourceUrl?: string;
   resolutionRule: string;
   historicalContext: HistoricalPoint[];
   drivers: string[];
   dataPointId?: string; // for published public-data forecast cells
   policyParameter?: string; // for policy forecast cells
   conditionalOn?: string; // for conditional forecast cells
+  series?: ForecastSeriesMetadata;
+  predictionRun?: PredictionRunMetadata;
+  resolvedOutcome?: ResolvedOutcome;
+  predictionDistribution?: PredictionDistribution;
   reasoning: ReasoningStep[];
 }
 
-export type ForecastRuntimeKind = "live-api" | "static-mock";
+export type ForecastRuntimeKind = "live-api" | "agent-run" | "static-mock";
 
 export const LIVE_FORECAST_SLUGS = new Set([
   "spm-child-poverty-2025",
@@ -64,17 +136,93 @@ export const LIVE_FORECAST_SLUGS = new Set([
   "ctc-current-law-outlays-ty2026",
 ]);
 
-export function getForecastRuntimeKind(slug: string): ForecastRuntimeKind {
-  return LIVE_FORECAST_SLUGS.has(slug) ? "live-api" : "static-mock";
+export function getForecastRuntimeKind(
+  forecastOrSlug: ForecastCell | string,
+): ForecastRuntimeKind {
+  const slug =
+    typeof forecastOrSlug === "string" ? forecastOrSlug : forecastOrSlug.slug;
+  if (LIVE_FORECAST_SLUGS.has(slug)) return "live-api";
+  if (typeof forecastOrSlug !== "string" && forecastOrSlug.predictionRun) {
+    return "agent-run";
+  }
+  return "static-mock";
 }
 
-export function getForecastRuntimeLabel(slug: string): string {
-  return getForecastRuntimeKind(slug) === "live-api"
-    ? "Live API path"
-    : "Static mock trace";
+export function getForecastRuntimeLabel(
+  forecastOrSlug: ForecastCell | string,
+): string {
+  const kind = getForecastRuntimeKind(forecastOrSlug);
+  if (kind === "live-api") return "Live API path";
+  if (kind === "agent-run") return "Agent run";
+  return "Static mock trace";
 }
 
-export const MARKETS: Market[] = [
+export function getResolutionResult(
+  forecast: ForecastCell,
+): "inside" | "outside" | null {
+  if (!forecast.resolvedOutcome) return null;
+  const actual = forecast.resolvedOutcome.value;
+  return forecast.ciLow <= actual && actual <= forecast.ciHigh
+    ? "inside"
+    : "outside";
+}
+
+export const COUNTRY_LABEL: Record<CountryCode, string> = {
+  US: "United States",
+  UK: "United Kingdom",
+  CA: "Canada",
+  AU: "Australia",
+  EA: "Euro area",
+  JP: "Japan",
+};
+
+export function getForecastCountry(forecast: ForecastCell): CountryCode {
+  if (forecast.country) return forecast.country;
+  if (forecast.series?.country) return forecast.series.country;
+  if (
+    forecast.slug.startsWith("canada-") ||
+    /\b(Canada|Statistics Canada|Bank of Canada)\b/.test(
+      `${forecast.title} ${forecast.question} ${forecast.resolutionSource}`,
+    )
+  ) {
+    return "CA";
+  }
+  if (
+    forecast.slug.startsWith("australia-") ||
+    /\b(Australia|Australian Bureau of Statistics|Reserve Bank of Australia|RBA)\b/.test(
+      `${forecast.title} ${forecast.question} ${forecast.resolutionSource}`,
+    )
+  ) {
+    return "AU";
+  }
+  if (
+    forecast.slug.startsWith("euro-area-") ||
+    /\b(Euro area|euro area|Eurostat|European Central Bank|ECB)\b/.test(
+      `${forecast.title} ${forecast.question} ${forecast.resolutionSource}`,
+    )
+  ) {
+    return "EA";
+  }
+  if (
+    forecast.slug.startsWith("japan-") ||
+    /\b(Japan|Bank of Japan|Statistics Bureau of Japan|Tokyo CPI|BOJ)\b/.test(
+      `${forecast.title} ${forecast.question} ${forecast.resolutionSource}`,
+    )
+  ) {
+    return "JP";
+  }
+  if (
+    forecast.slug.startsWith("uk-") ||
+    /\b(UK|United Kingdom|Great Britain|Office for National Statistics|Bank of England|HMRC)\b/.test(
+      `${forecast.title} ${forecast.question} ${forecast.resolutionSource}`,
+    )
+  ) {
+    return "UK";
+  }
+  return "US";
+}
+
+const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   // ─── Government data cells ───────────────────────────────────────────────
   {
     slug: "spm-child-poverty-2025",
@@ -4120,6 +4268,17 @@ export const MARKETS: Market[] = [
     ],
   },
 
+  ...LAUNCH_CADENCE_EXAMPLES,
+  ...AGENT_RUN_EXAMPLES,
+  ...UK_EXAMPLES,
+  ...CANADA_AUSTRALIA_EXAMPLES,
+  ...EURO_JAPAN_EXAMPLES,
+  ...US_NEAR_TERM_EXAMPLES,
+  ...GLOBAL_NEAR_TERM_EXAMPLES,
+  ...TAX_CREDIT_EXAMPLES,
+  ...HEALTH_COVERAGE_EXAMPLES,
+  ...BENEFIT_PROGRAM_EXAMPLES,
+
   // ─── Conditional forecast cells ──────────────────────────────────────────
   {
     slug: "child-poverty-2028-given-tcja-extended-q2-2026",
@@ -4378,16 +4537,33 @@ export const MARKETS: Market[] = [
   },
 ];
 
-export function getMarket(slug: string): Market | undefined {
-  return MARKETS.find((m) => m.slug === slug);
+export const FORECAST_CELLS: ForecastCell[] = FORECAST_CELL_DEFINITIONS.map(
+  (forecast) => ({
+    ...forecast,
+    predictionDistribution:
+      forecast.predictionDistribution ??
+      buildNumericCdfFromInterval({
+        pointEstimate: forecast.pointEstimate,
+        ciLow: forecast.ciLow,
+        ciHigh: forecast.ciHigh,
+      }),
+  }),
+);
+
+export function getForecastCell(slug: string): ForecastCell | undefined {
+  return FORECAST_CELLS.find((m) => m.slug === slug);
 }
 
 export function formatValue(value: number, unit: Unit): string {
   switch (unit) {
+    case "count":
+      return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
     case "percent":
-      return `${value.toFixed(1)}%`;
+      return `${formatPercent(value)}%`;
     case "percent_growth":
       return `${value >= 0 ? "+" : ""}${value.toFixed(1)}%`;
+    case "gbp_billions":
+      return `£${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
     case "usd":
       if (Math.abs(value) >= 1000) {
         return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
@@ -4397,13 +4573,24 @@ export function formatValue(value: number, unit: Unit): string {
       return `$${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}B`;
     case "usd_monthly":
       return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo`;
+    case "thousands":
+      return `${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}k`;
     case "millions":
       return `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}M`;
+    case "per_1000_live_births":
+      return `${value.toFixed(2)} per 1,000`;
     case "ratio":
       return value.toFixed(2);
     default:
       return value.toString();
   }
+}
+
+function formatPercent(value: number): string {
+  const roundedToTenth = Math.round(value * 10) / 10;
+  return Math.abs(value - roundedToTenth) < 1e-9
+    ? value.toFixed(1)
+    : value.toFixed(2);
 }
 
 export function formatValueShort(value: number, unit: Unit): string {
@@ -4413,14 +4600,14 @@ export function formatValueShort(value: number, unit: Unit): string {
   return formatValue(value, unit);
 }
 
-export const TYPE_LABEL: Record<MarketType, string> = {
+export const TYPE_LABEL: Record<ForecastCellType, string> = {
   data: "Government data",
   policy: "Policy",
   conditional: "Conditional",
 };
 
-export const TYPE_DESCRIPTION: Record<MarketType, string> = {
+export const TYPE_DESCRIPTION: Record<ForecastCellType, string> = {
   data: "Forecast cell on a published government data point.",
-  policy: "Forecast cell on a law-encoded policy parameter.",
+  policy: "Forecast cell on a formal policy setting or encoded parameter.",
   conditional: "Outcome forecast conditional on a policy state.",
 };

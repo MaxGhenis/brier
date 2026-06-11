@@ -1,4 +1,4 @@
-# Brier Forecast API
+# Thesis Forecast API
 
 Small Vercel-deployable backend for live forecast traces.
 
@@ -10,6 +10,7 @@ bun run dev -- --hostname 127.0.0.1 --port 3002
 ```
 
 The static site reads from `http://127.0.0.1:3002` on local hosts unless
+`NEXT_PUBLIC_THESIS_API_BASE_URL` or the legacy
 `NEXT_PUBLIC_BRIER_API_BASE_URL` is set.
 
 AI Gateway is optional locally. Without `AI_GATEWAY_API_KEY`,

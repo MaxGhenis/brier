@@ -3,9 +3,9 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Brier vision — working document",
+  title: "Thesis Institute vision — working document",
   description:
-    "Working synthesis of the Brier Institute vision: we build open AI forecasters that publish, explain, and score predictions on consequential outcomes.",
+    "Working synthesis of the Thesis Institute vision: we build open AI forecasters that publish, explain, and score predictions on consequential outcomes.",
   robots: {
     index: false,
     follow: false,
@@ -32,7 +32,7 @@ export default function VisionPage() {
           </h1>
           <p className="text-[1.15rem] text-[var(--theme-text-muted)] max-w-[520px] mx-auto leading-[1.6]">
             <span className="[font-family:var(--font-editorial)] italic">
-              brier
+              Thesis Institute
             </span>{" "}
             builds open AI forecasters. We make them predict consequential
             outcomes, show their work, call public tools, publish calibrated
@@ -70,7 +70,7 @@ export default function VisionPage() {
           <section>
             <h2>What we build</h2>
             <p>
-              Brier Institute builds four connected pieces of public-good
+              Thesis Institute builds four connected pieces of public-good
               forecasting infrastructure:
             </p>
             <h3>We run open forecasters on consequential questions</h3>
@@ -88,10 +88,10 @@ export default function VisionPage() {
               We maintain PolicyEngine as open-source microsimulation for US,
               UK, and Canadian tax-benefit systems. Governments, think tanks,
               advocacy organizations, and researchers use it for custom policy
-              analysis. Brier forecasters call PolicyEngine when they need
-              policy-conditional distributions, and PolicyEngine keeps serving
-              the policy community through the brand and workflows people
-              already know.
+              analysis. Thesis Institute forecasters call PolicyEngine when
+              they need policy-conditional distributions, and PolicyEngine
+              keeps serving the policy community through the brand and
+              workflows people already know.
             </p>
             <h3>We build calibrated synthetic populations</h3>
             <p>
@@ -124,12 +124,13 @@ export default function VisionPage() {
               for everyone who builds on the substrate.
             </p>
             <p>
-              The same dynamic that made Linux durable protects Brier's
-              position. The compounding work happens across the whole community
-              of users and contributors. The foundation maintains the core
-              infrastructure, integrates the best contributions, sets direction,
-              and protects the public-good character. The community expands the
-              surface area faster than any single organization could.
+              The same dynamic that made Linux durable protects Thesis
+              Institute's position. The compounding work happens across the
+              whole community of users and contributors. The foundation
+              maintains the core infrastructure, integrates the best
+              contributions, sets direction, and protects the public-good
+              character. The community expands the surface area faster than any
+              single organization could.
             </p>
           </section>
 
@@ -146,16 +147,17 @@ export default function VisionPage() {
               already there when the demand shows up.
             </p>
             <p>
-              Brier is built with this in mind. Every capability is reachable
-              through a clean machine-callable API; future agents will call
-              tools directly. Every agent trace is structured for downstream
-              consumption by other agents and human readers. Every tool in the
-              simulation engine is self-describing so that agents that have not
-              been invented yet can discover what is available. Permissioning
-              anticipates millions of automated participants through scoped
-              automated access. Calibration scoring is queryable, so current
-              agents can learn from history and future agents can preferentially
-              route to tool configurations with proven track records.
+              Thesis Institute is built with this in mind. Every capability is
+              reachable through a clean machine-callable API; future agents will
+              call tools directly. Every agent trace is structured for
+              downstream consumption by other agents and human readers. Every
+              tool in the simulation engine is self-describing so that agents
+              that have not been invented yet can discover what is available.
+              Permissioning anticipates millions of automated participants
+              through scoped automated access. Calibration scoring is queryable,
+              so current agents can learn from history and future agents can
+              preferentially route to tool configurations with proven track
+              records.
             </p>
             <p>
               This costs a little more today and pays disproportionately when
@@ -182,7 +184,7 @@ export default function VisionPage() {
                 shared substrate.
               </p>
               <p>
-                <strong>Brier Institute</strong> — open-predictions platform,
+                <strong>Thesis Institute</strong> — open-predictions platform,
                 microsimulation engine and custom policy analysis
                 (PolicyEngine), synthetic-population substrate (Microplex),
                 personal decision tool (Brier Decisions), and the research
@@ -191,14 +193,14 @@ export default function VisionPage() {
               </p>
             </blockquote>
             <p>
-              The Brier platform consumes encoded law, government data
-              architecture, and Microplex population substrate as inputs, runs
-              ensembles through PolicyEngine and other computational engines,
-              and publishes calibrated forecasts. Policy partners interact with
-              PolicyEngine directly through its own brand and channels. New
-              audiences — AI safety, agencies funding their own forecasts,
-              prediction-market researchers, broader policy analysts — interact
-              with Brier as the umbrella platform.
+              The Thesis Institute platform consumes encoded law, government
+              data architecture, and Microplex population substrate as inputs,
+              runs ensembles through PolicyEngine and other computational
+              engines, and publishes calibrated forecasts. Policy partners
+              interact with PolicyEngine directly through its own brand and
+              channels. New audiences — AI safety, agencies funding their own
+              forecasts, prediction-market researchers, broader policy analysts
+              — interact with Thesis Institute as the umbrella platform.
             </p>
           </section>
 
@@ -235,7 +237,7 @@ export default function VisionPage() {
               Each step opens more of the epistemic process. Each step produces
               durable public goods and gives the next generation of builders
               more to start from. Open predictions is the natural next layer,
-              and Brier is the foundation building it.
+              and Thesis Institute is the foundation building it.
             </p>
           </section>
 
@@ -304,11 +306,11 @@ export default function VisionPage() {
               methods, and peer traces with the best calibration record.
             </p>
             <p>
-              This is how Brier can become an AI lab without becoming a closed
-              frontier company. Whether we train foundation models directly or
-              specialize open models into forecasters, the purpose stays narrow
-              and public: build systems whose job is to predict, explain,
-              resolve, and improve against reality.
+              This is how Thesis Institute can become an AI lab without
+              becoming a closed frontier company. Whether we train foundation
+              models directly or specialize open models into forecasters, the
+              purpose stays narrow and public: build systems whose job is to
+              predict, explain, resolve, and improve against reality.
             </p>
           </section>
 
@@ -375,28 +377,28 @@ export default function VisionPage() {
               </li>
             </ul>
             <p>
-              Brier funds the work through multiple channels. Foundation
-              grants fund the platform and research. Sponsored compute pays for
-              specific question coverage. Custom analysis through PolicyEngine
-              generates additional program revenue. The revenue mix keeps the
-              foundation institutionally independent.
+              Thesis Institute funds the work through multiple channels.
+              Foundation grants fund the platform and research. Sponsored
+              compute pays for specific question coverage. Custom analysis
+              through PolicyEngine generates additional program revenue. The
+              revenue mix keeps the foundation institutionally independent.
             </p>
           </section>
 
           <section>
             <h2>What success looks like in five years</h2>
             <p>
-              At maturity, Brier produces continuously-updated calibrated
-              forecasts on every consequential government statistic, every
-              encoded policy parameter, and every counterfactual conditional
-              question stakeholders care about. The platform runs hundreds to
-              thousands of specialized agent configurations, each with published
-              methodology and visible track record. Calibration history goes
-              back years and is queryable per question, per configuration, per
-              resolution period. Government agencies fund targeted compute on
-              their projection questions. Researchers build on the open
-              infrastructure for their own work. Frontier AI labs use the
-              calibration corpus as a training and evaluation resource.
+              At maturity, Thesis Institute produces continuously-updated
+              calibrated forecasts on every consequential government statistic,
+              every encoded policy parameter, and every counterfactual
+              conditional question stakeholders care about. The platform runs
+              hundreds to thousands of specialized agent configurations, each
+              with published methodology and visible track record. Calibration
+              history goes back years and is queryable per question, per
+              configuration, per resolution period. Government agencies fund
+              targeted compute on their projection questions. Researchers build
+              on the open infrastructure for their own work. Frontier AI labs
+              use the calibration corpus as a training and evaluation resource.
               Open-source forecaster configurations and tool integrations are
               contributed by people the foundation has never met.
             </p>
@@ -447,38 +449,39 @@ export default function VisionPage() {
               <strong>Open infrastructure depends on adoption.</strong>{" "}
               Organizations need workflows that integrate open predictions into
               real decisions. Building that institutional muscle across policy
-              shops, agencies, and other users takes years. Brier can lead the
-              category and still has to earn adoption one workflow at a time.
+              shops, agencies, and other users takes years. Thesis Institute
+              can lead the category and still has to earn adoption one workflow
+              at a time.
             </p>
             <p>
               <strong>
                 Regulatory ambiguity if forecasts become market-moving.
               </strong>{" "}
-              Brier publishes forecasts rather than trades, which avoids most
-              prediction-market regulatory complexity. If open forecasts become
-              widely consumed by financial markets, the SEC or CFTC may still
-              take interest in disclosure rules. Probably solvable through
-              precedents like Federal Reserve forecast publication, but warrants
-              real legal review.
+              Thesis Institute publishes forecasts rather than trades, which
+              avoids most prediction-market regulatory complexity. If open
+              forecasts become widely consumed by financial markets, the SEC or
+              CFTC may still take interest in disclosure rules. Probably
+              solvable through precedents like Federal Reserve forecast
+              publication, but warrants real legal review.
             </p>
             <p>
               <strong>The PolicyEngine brand transition.</strong> PolicyEngine
               continues operationally unchanged, but funders, board, and
               partners need to be brought along on the umbrella structure.
               Existing grants are to PolicyEngine via PSL Foundation fiscal
-              sponsorship; the cleanest path is incorporating Brier Institute
-              as the new 501(c)(3) and graduating PolicyEngine into it from PSL.
-              Donor consent process is straightforward; the communications work
-              requires care.
+              sponsorship; the cleanest path is incorporating Thesis Institute
+              as the new 501(c)(3) and graduating PolicyEngine into it from
+              PSL. Donor consent process is straightforward; the communications
+              work requires care.
             </p>
             <p>
               <strong>
-                The "Brier" name has multiple uses to disambiguate.
+                The naming hierarchy still needs to be explicit.
               </strong>{" "}
-              Brier Institute (the org), Brier (the open-predictions
-              platform — the flagship), Brier Decisions (the personal decision
-              tool). Naming hierarchy needs to be settled before any public
-              launch.
+              Thesis Institute is the organization and public forecasting
+              surface. Brier Decisions is the personal decision tool.
+              PolicyEngine, Microplex, and the shared law/data substrate keep
+              their own names and interfaces.
             </p>
           </section>
 
@@ -486,7 +489,7 @@ export default function VisionPage() {
             <h2>The shape of the work, in priority order</h2>
             <ul>
               <li>
-                <strong>Incorporate Brier Institute</strong> as a 501(c)(3)
+                <strong>Incorporate Thesis Institute</strong> as a 501(c)(3)
                 upon graduating PolicyEngine from PSL fiscal sponsorship. Use
                 fiscal sponsorship during the application period.
               </li>

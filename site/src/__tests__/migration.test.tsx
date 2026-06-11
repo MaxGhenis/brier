@@ -21,7 +21,20 @@ vi.mock("next/link", () => ({
 // Import components after mocks are set up
 import HomePage from "../app/page";
 import DocsPage from "../app/docs/page";
+import ForecastLedgerPage from "../app/forecasts/ledger/page";
+import { GET as getForecastLedgerJson } from "../app/forecasts/ledger.json/route";
+import ForecastLogPage from "../app/forecasts/log/page";
+import { GET as getForecastLogJson } from "../app/forecasts/log.json/route";
+import ForecastsPage from "../app/forecasts/page";
+import { GET as getForecastSpecsJson } from "../app/forecasts/specs.json/route";
 import ThesisPage from "../app/thesis/page";
+import { ForecastRuntime } from "../components/ForecastRuntime";
+import { getForecastCell } from "../data/forecast-cells";
+import {
+  loadPolicyEngineLedger,
+  scoreResolvedForecast,
+  withResolvedOutcome,
+} from "../data/thesis-log";
 
 describe("Next.js migration", () => {
   describe("Homepage", () => {
@@ -29,101 +42,114 @@ describe("Next.js migration", () => {
       render(<HomePage />);
     });
 
-    it("renders header with logo", () => {
+    it("renders header with Thesis brand", () => {
       render(<HomePage />);
-      const brierElements = screen.getAllByText("brier");
-      expect(brierElements.length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/thesis institute/i).length).toBeGreaterThan(
+        0,
+      );
     });
 
-    it("renders hero headline", () => {
-      render(<HomePage />);
-      const matches = screen.getAllByText(/AI is often fluent about decisions/);
-      expect(matches.length).toBeGreaterThan(0);
-    });
-
-    it("opens on the forecast prototype", () => {
+    it("renders landing page hero", () => {
       render(<HomePage />);
       expect(
-        screen.getByText(
+        screen.getByText("Open-source forecasting agents for public outcomes."),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/We build agents whose job is to predict/),
+      ).toBeInTheDocument();
+    });
+
+    it("keeps the forecast app one level deeper", () => {
+      render(<HomePage />);
+      expect(
+        screen.getByText("The forecast app lives one level deeper."),
+      ).toBeInTheDocument();
+      expect(screen.queryByText("Prototype status")).not.toBeInTheDocument();
+      expect(screen.queryByText("Static mock traces")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(
           "Forecasts on every consequential cell of government data",
         ),
-      ).toBeInTheDocument();
-      expect(screen.getByText("Prototype status")).toBeInTheDocument();
-      expect(screen.getByText("Static mock traces")).toBeInTheDocument();
+      ).not.toBeInTheDocument();
     });
 
-    it("renders hero subhead with brier mention", () => {
+    it("links to the forecast app", () => {
       render(<HomePage />);
+      const forecastLinks = screen
+        .getAllByRole("link")
+        .filter((link) => link.getAttribute("href") === "/forecasts");
+      expect(forecastLinks.length).toBeGreaterThan(0);
       expect(
-        screen.getByText(/demands a forecast: a KPI, a confidence interval/),
-      ).toBeInTheDocument();
-    });
-
-    it("renders how it works section", () => {
-      render(<HomePage />);
-      expect(
-        screen.getByText("From intuition to instrument"),
-      ).toBeInTheDocument();
-      expect(screen.getByText("Intercept")).toBeInTheDocument();
-      expect(screen.getByText("Reframe")).toBeInTheDocument();
-      expect(screen.getByText("Anchor")).toBeInTheDocument();
-    });
-
-    it("renders workflow demo section", () => {
-      render(<HomePage />);
-      expect(
-        screen.getByText("Watch the packaged path end to end"),
-      ).toBeInTheDocument();
-      expect(
-        screen.getAllByLabelText("End-to-end brier workflow demo for Codex")
-          .length,
+        screen.getAllByText(/Open forecasts|View all forecasts/).length,
       ).toBeGreaterThan(0);
     });
 
-    it("renders forecast artifact", () => {
+    it("renders the institute stack", () => {
       render(<HomePage />);
       expect(
-        screen.getByText("Should we rewrite the auth layer now?"),
+        screen.getByText(
+          "We connect prediction, law, data, and simulation in one open loop.",
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getAllByText("PolicyEngine").length).toBeGreaterThan(0);
+      expect(screen.getByText("Microplex")).toBeInTheDocument();
+      expect(screen.getAllByText("Brier Decisions").length).toBeGreaterThan(0);
+    });
+
+    it("renders the alignment method", () => {
+      render(<HomePage />);
+      expect(
+        screen.getByText("Forecasting as alignment pressure"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "A system that must predict reality has to stay accountable to it.",
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Define the public outcome and the exact source that will resolve it.",
+        ),
       ).toBeInTheDocument();
     });
 
-    it("renders research proof section", () => {
-      render(<HomePage />);
-      expect(screen.getByText("Stability-under-probing")).toBeInTheDocument();
-      expect(screen.getAllByText("11").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("2").length).toBeGreaterThan(0);
-    });
-
-    it("renders instrument modules", () => {
-      render(<HomePage />);
-      expect(screen.getByText("What brier produces")).toBeInTheDocument();
-    });
-
-    it("renders editorial pull quote", () => {
-      render(<HomePage />);
-      const matches = screen.getAllByText(/AI is often fluent about decisions/);
-      expect(matches.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it("renders installation section", () => {
+    it("renders public forecast examples without opening the app shell", () => {
       render(<HomePage />);
       expect(
-        screen.getByText("Use it natively or from the CLI"),
-      ).toBeInTheDocument();
-      expect(screen.getByText("Codex")).toBeInTheDocument();
-      expect(screen.getAllByText(/\$brier/).length).toBeGreaterThan(0);
-    });
-
-    it("renders closing CTA", () => {
-      render(<HomePage />);
+        screen.getAllByText("SPM child poverty rate, 2025").length,
+      ).toBeGreaterThan(0);
       expect(
-        screen.getByText("See further before you decide."),
-      ).toBeInTheDocument();
+        screen.getAllByText("CTC outlays under current law, TY2026").length,
+      ).toBeGreaterThan(0);
+      expect(
+        screen.getAllByText("CPI-U annual average inflation, 2026").length,
+      ).toBeGreaterThan(0);
+      expect(screen.getAllByText(/resolves/i).length).toBeGreaterThan(0);
     });
 
     it("renders footer", () => {
       render(<HomePage />);
-      expect(screen.getByText("GitHub")).toBeInTheDocument();
+      expect(screen.getAllByText("Forecasts").length).toBeGreaterThan(0);
+      expect(screen.getByText("Vision")).toBeInTheDocument();
+      expect(screen.getAllByText("Brier Decisions").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("PolicyEngine").length).toBeGreaterThan(0);
+    });
+
+    it("links PolicyEngine externally", () => {
+      render(<HomePage />);
+      const policyEngineLinks = screen
+        .getAllByRole("link")
+        .filter(
+          (link) => link.getAttribute("href") === "https://policyengine.org",
+        );
+      expect(policyEngineLinks.length).toBeGreaterThan(0);
+    });
+
+    it("links the vision page from the landing page", () => {
+      render(<HomePage />);
+      expect(
+        screen.getByRole("link", { name: "Read the vision" }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -184,9 +210,9 @@ describe("Next.js migration", () => {
       expect(screen.getAllByText(/brier setup codex/).length).toBeGreaterThan(
         0,
       );
-      expect(
-        screen.getAllByText(/brier doctor codex/).length,
-      ).toBeGreaterThan(0);
+      expect(screen.getAllByText(/brier doctor codex/).length).toBeGreaterThan(
+        0,
+      );
       expect(
         screen.getByText("See the packaged flow before you install"),
       ).toBeInTheDocument();
@@ -205,13 +231,170 @@ describe("Next.js migration", () => {
     });
   });
 
+  describe("Forecast runtime", () => {
+    it("renders resolved prediction scores from the Thesis Log", async () => {
+      HTMLElement.prototype.scrollTo = vi.fn();
+      const forecast = getForecastCell("nonfarm-payrolls-may-2026");
+      expect(forecast).toBeTruthy();
+      const ledger = await loadPolicyEngineLedger();
+      const resolvedForecast = withResolvedOutcome(forecast!, ledger);
+      const resolvedScore = scoreResolvedForecast(resolvedForecast, ledger);
+
+      render(
+        <ForecastRuntime
+          forecast={resolvedForecast}
+          resolvedScore={resolvedScore}
+        />,
+      );
+
+      expect(screen.getByText("resolved outcome")).toBeInTheDocument();
+      expect(screen.getByText("inside 80% interval")).toBeInTheDocument();
+      expect(screen.getByText("recorded in Thesis Log")).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Open log →" })).toHaveAttribute(
+        "href",
+        "/log",
+      );
+      expect(screen.getByText("cdf score")).toBeInTheDocument();
+      expect(screen.getByText(/CRPS/)).toBeInTheDocument();
+      expect(screen.getByText(/PIT/)).toBeInTheDocument();
+    });
+  });
+
+  describe("Forecast pages", () => {
+    it("links from the forecast browser to the log and ledger", async () => {
+      render(await ForecastsPage());
+      expect(
+        screen.getByRole("link", { name: "View Thesis Log →" }),
+      ).toHaveAttribute("href", "/log");
+      expect(
+        screen.getByRole("link", { name: "View facts ledger →" }),
+      ).toHaveAttribute("href", "/ledger");
+    });
+
+    it("renders the Thesis Log tables", async () => {
+      render(await ForecastLogPage());
+
+      expect(screen.getAllByText("Thesis Log").length).toBeGreaterThan(0);
+      expect(screen.getByText("Recorded predictions")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "Machine-readable log JSON →" }),
+      ).toHaveAttribute("href", "/log.json");
+      expect(
+        screen.getByRole("link", { name: "View facts ledger →" }),
+      ).toHaveAttribute("href", "/ledger");
+      expect(screen.getByText("Resolution queue")).toBeInTheDocument();
+      expect(screen.getAllByText(/201-point CDFs/).length).toBeGreaterThan(0);
+      expect(screen.getByText("Scored predictions")).toBeInTheDocument();
+      expect(
+        screen.getByText("Specs in, immutable runs out"),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText("Official observations"),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText("CRPS")).toBeInTheDocument();
+      expect(screen.getByText("PIT")).toBeInTheDocument();
+      expect(screen.getAllByText("201 points").length).toBeGreaterThan(0);
+      const payrollLinks = screen.getAllByRole("link", {
+        name: "Nonfarm payrolls, May 2026",
+      });
+      expect(payrollLinks.length).toBeGreaterThanOrEqual(2);
+      for (const link of payrollLinks) {
+        expect(link).toHaveAttribute("href", "/nonfarm-payrolls-may-2026");
+      }
+    });
+
+    it("renders the facts-only ledger tables", async () => {
+      render(await ForecastLedgerPage());
+
+      expect(screen.getAllByText("Ledger").length).toBeGreaterThan(0);
+      expect(
+        screen.getByText("PolicyEngine Ledger · facts only"),
+      ).toBeVisible();
+      expect(screen.getByText("Official observations")).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "Machine-readable ledger JSON →" }),
+      ).toHaveAttribute("href", "/ledger.json");
+      expect(
+        screen.getByRole("link", { name: "View Thesis Log →" }),
+      ).toHaveAttribute("href", "/log");
+      expect(
+        screen.queryByText("Recorded predictions"),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText("Scored predictions")).not.toBeInTheDocument();
+    });
+
+    it("serves the machine-readable Thesis Log JSON", async () => {
+      const response = await getForecastLogJson();
+      const body = await response.json();
+
+      expect(body.schemaVersion).toBe("thesis_log_v1");
+      expect(body.source.name).toBe("Thesis Log");
+      expect(body.source.url).toBe("https://app.thesisinstitute.org/log");
+      expect(body.source.factLedger.name).toBe("PolicyEngine Ledger");
+      expect(body.counts.predictions).toBeGreaterThan(100);
+      expect(body.counts.specs).toBe(body.counts.predictions);
+      expect(body.counts.runs).toBe(body.counts.predictions);
+      expect(body.counts.resolutionLinks).toBe(body.counts.predictions);
+      expect(body.counts.resolutionEvents).toBe(body.counts.resolutions);
+      expect(body.counts.pendingResolution).toBeGreaterThan(0);
+      expect(body.entries[0].kind).toBe("prediction_recorded");
+      expect(
+        body.entries.some(
+          (entry: { kind: string }) => entry.kind === "observation_recorded",
+        ),
+      ).toBe(false);
+      expect(body.resolutionQueue[0].forecastSlug).toBeTruthy();
+      expect(body.resolutionLinks[0].resolutionRef).toMatch(/^resolution\./);
+      expect(body.resolutionEvents[0].resolutionEventId).toMatch(
+        /^resolution_event\./,
+      );
+      expect(body.scores.length).toBe(body.counts.scored);
+      expect(body.specs[0].schemaVersion).toBe("thesis_prediction_spec_v1");
+      expect(body.specs[0].specId).toMatch(/^spec\./);
+      expect(body.specs[0].specVersionId).toMatch(/^spec\..+\.v20260609$/);
+      expect(body.runs[0].schemaVersion).toBe("thesis_prediction_run_v1");
+      expect(body.runs[0].idempotencyKey).toMatch(/^static-hash-v1:/);
+    });
+
+    it("serves the machine-readable prediction specs JSON", async () => {
+      const response = getForecastSpecsJson();
+      const body = await response.json();
+
+      expect(body.schemaVersion).toBe("thesis_prediction_specs_v1");
+      expect(body.counts.specs).toBeGreaterThan(100);
+      expect(body.specs[0].schemaVersion).toBe("thesis_prediction_spec_v1");
+      expect(body.specs[0].specId).toMatch(/^spec\./);
+      expect(body.specs[0].specVersionId).toMatch(/^spec\..+\.v20260609$/);
+      expect(body.specs[0].distribution.pointCount).toBe(201);
+      expect(body.specs[0].resolution.factLedger).toBe("PolicyEngine Ledger");
+      expect(body.specs[0].resolution.targetFactRef).toBeTruthy();
+      expect(body.specs[0].resolution.factId).toBeUndefined();
+    });
+
+    it("serves the machine-readable ledger JSON", async () => {
+      const response = await getForecastLedgerJson();
+      const body = await response.json();
+
+      expect(body.schemaVersion).toBe("policyengine_ledger_v1");
+      expect(body.source.name).toBe("PolicyEngine Ledger");
+      expect(body.source.url).toBe("https://github.com/PolicyEngine/arch-data");
+      expect(body.counts.facts).toBeGreaterThan(0);
+      expect(body.counts.observations).toBe(body.counts.facts);
+      expect(body.entries[0].kind).toBe("observation_recorded");
+      expect(body.scores).toBeUndefined();
+      expect(body.resolutionQueue).toBeUndefined();
+    });
+  });
+
   // Paper page is now rendered by Quarto (not a React component)
 
   describe("shared Header component", () => {
     it("renders nav links on all pages", () => {
       render(<HomePage />);
-      expect(screen.getAllByText("GitHub").length).toBeGreaterThan(0);
       expect(screen.getAllByText("Docs").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Forecasts").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Thesis").length).toBeGreaterThan(0);
+      expect(screen.getAllByLabelText("GitHub").length).toBeGreaterThan(0);
     });
 
     it("flags the site as a prototype", () => {

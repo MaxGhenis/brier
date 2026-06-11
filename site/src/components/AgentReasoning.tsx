@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ReasoningStep, Unit } from "@/data/markets";
-import { formatValue } from "@/data/markets";
+import type { ReasoningStep, Unit } from "@/data/forecast-cells";
+import { formatValue } from "@/data/forecast-cells";
 
 interface AgentReasoningProps {
   steps: ReasoningStep[];
@@ -13,7 +13,7 @@ interface AgentReasoningProps {
 interface StepState {
   step: ReasoningStep;
   // For text/heading/math: how many chars are revealed.
-  // For tool: 0 = pending, 1 = call shown / running, 2 = result revealed.
+  // For tool: 0 = hidden, 1 = recorded check shown, 2 = recorded result shown.
   // For forecast: 0 = hidden, 1 = shown.
   progress: number;
   total: number;
@@ -135,7 +135,11 @@ export function AgentReasoning({
             />
           </span>
           <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-muted)]">
-            {complete ? "analysis complete" : paused ? "paused" : "analyst agent streaming"}
+            {complete
+              ? "recorded trace complete"
+              : paused
+                ? "paused"
+                : "recorded trace replay"}
           </span>
         </div>
         <div className="flex items-center gap-3 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em]">
@@ -184,7 +188,7 @@ export function AgentReasoning({
         ))}
         {complete && (
           <div className="mt-6 [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
-            — end of analyst stream —
+            — end of recorded trace —
           </div>
         )}
       </div>
@@ -235,19 +239,23 @@ function RenderedStep({
     }
     case "tool": {
       const tool = step.tool ?? "policyengine.simulate";
+      const label =
+        tool === "agent.run" ? "recorded agent run" : "recorded source check";
       return (
         <div className="my-3">
           <div
             className="flex items-center justify-between rounded-t-md border-x border-t bg-[#0F1A24] px-4 py-2 text-[#9FB6C6] [font-family:var(--font-mono)] text-[0.7rem]"
             style={{ borderColor: "var(--color-ink-border)" }}
           >
-            <span className="text-[#5E97C8]">▸ {tool}</span>
+            <span className="text-[#5E97C8]">
+              ▸ {label}: {tool}
+            </span>
             <span className="text-[#9DB1BF]">
               {progress === 0
-                ? "queued"
+                ? "hidden"
                 : progress === 1
-                  ? "running…"
-                  : "complete"}
+                  ? "replaying"
+                  : "recorded"}
             </span>
           </div>
           <pre className="overflow-x-auto border-x bg-[#0F1A24] px-4 py-3 text-[#E8F0F5] [font-family:var(--font-mono)] text-[0.78rem] leading-[1.55]"
