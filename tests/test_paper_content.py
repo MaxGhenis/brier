@@ -142,6 +142,84 @@ def test_no_preregistration_claims():
     assert "preregistered" not in text.lower(), "Should not claim preregistration"
 
 
+# --- Symmetric sycophancy (directional asymmetry) ---
+
+
+def test_symmetric_sycophancy_section():
+    """Paper should report the downward sycophancy direction, not just upward."""
+    text = _read_paper()
+    assert re.search(
+        r"direction-dependent|downward sycophancy|downward pressure", text, re.IGNORECASE
+    ), "Missing symmetric/downward sycophancy analysis"
+
+
+def test_symmetric_sycophancy_numbers():
+    """Paper should report the downward-pressure capitulation magnitudes."""
+    text = _read_paper()
+    # Claude and GPT-5.4 both move ~650 leads downward; Brier on Claude ~495.
+    assert "650" in text, "Missing downward sycophancy naive magnitude (650)"
+    assert "643" in text, "Missing GPT-5.4 downward Brier magnitude (643)"
+
+
+def test_sycophancy_direction_figure_referenced():
+    """Paper should reference the directional-asymmetry figure."""
+    text = _read_paper()
+    assert "fig_sycophancy_direction.png" in text or "fig-sycophancy-direction" in text, (
+        "Missing reference to the directional sycophancy figure"
+    )
+
+
+# --- Concrete raw excerpts ---
+
+
+def test_raw_response_excerpts():
+    """Worked example should include actual model response excerpts."""
+    text = _read_paper()
+    assert re.search(
+        r"Raw response excerpts|response excerpts", text, re.IGNORECASE
+    ), "Missing raw response excerpts subsection"
+    # The Brier initial excerpt should name a reference class (Standish/CHAOS).
+    assert "Standish" in text or "CHAOS" in text, (
+        "Missing concrete reference-class excerpt from the Brier condition"
+    )
+
+
+# --- CI-rate moved to appendix ---
+
+
+def test_ci_rate_in_appendix_not_primary_table():
+    """The 100% CI-rate metric should live in an appendix, not the primary metrics."""
+    text = _read_paper()
+    assert re.search(
+        r"Initial confidence-interval rate", text
+    ), "Missing CI-rate appendix section"
+    # The primary stability table should no longer carry an 'Initial CI rate' row.
+    assert "| Initial CI rate |" not in text, (
+        "Initial CI rate row still present in a primary table"
+    )
+
+
+# --- Scale-heterogeneity note ---
+
+
+def test_scale_heterogeneity_note():
+    """Paper should flag that raw-magnitude cross-model gaps are a units artifact."""
+    text = _read_paper()
+    assert re.search(
+        r"scale-heterogeneity|units artifact", text, re.IGNORECASE
+    ), "Missing scale-heterogeneity note"
+
+
+# --- Transient API errors consolidated ---
+
+
+def test_transient_api_errors_consolidated():
+    """The phrase 'transient API errors' should appear at most once (Section 4.4)."""
+    text = _read_paper()
+    count = len(re.findall(r"transient API error", text))
+    assert count <= 1, f"'transient API errors' mentioned {count} times; consolidate to one"
+
+
 # --- Task #13: CSL config ---
 
 
