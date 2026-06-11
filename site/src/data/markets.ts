@@ -6,6 +6,8 @@
 // constructed to demonstrate the integrated stack (encoded law,
 // PolicyEngine microsim, public data cells) rather than to be live forecasts.
 
+import { BENEFITS_DELIVERY_MARKETS } from "./benefitsDeliveryMarkets";
+
 export type MarketType = "data" | "policy" | "conditional";
 
 export type Unit =
@@ -4494,6 +4496,8 @@ export const MARKETS: Market[] = [
       { kind: "forecast", point: 11.3, ciLow: 10.2, ciHigh: 12.4 },
     ],
   },
+
+  ...BENEFITS_DELIVERY_MARKETS,
 ];
 
 export function getMarket(slug: string): Market | undefined {
