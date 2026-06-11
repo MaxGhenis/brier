@@ -795,3 +795,18 @@ describe("forecast catalog", () => {
     }
   });
 });
+
+describe("conditional groups", () => {
+  it("resolves every group's cells from the catalog", async () => {
+    const { CONDITIONAL_GROUPS, getConditionalGroup } = await import(
+      "@/data/conditional-groups"
+    );
+    for (const group of CONDITIONAL_GROUPS) {
+      const resolved = getConditionalGroup(group.slug);
+      expect(resolved, group.slug).toBeTruthy();
+      expect(resolved!.trueArm.unit).toBe(resolved!.falseArm.unit);
+      if (group.probabilitySlug) expect(resolved!.probability).toBeTruthy();
+      if (group.unconditionalSlug) expect(resolved!.unconditional).toBeTruthy();
+    }
+  });
+});
