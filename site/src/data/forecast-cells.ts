@@ -40,6 +40,7 @@ export type Unit =
   | "millions"
   | "per_1000_live_births"
   | "ratio"
+  | "minutes"
   | "percent_growth";
 
 export interface HistoricalPoint {
@@ -4583,6 +4584,8 @@ export function formatValue(value: number, unit: Unit): string {
       return `${value.toFixed(2)} per 1,000`;
     case "ratio":
       return value.toFixed(2);
+    case "minutes":
+      return `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} min`;
     default:
       return value.toString();
   }
