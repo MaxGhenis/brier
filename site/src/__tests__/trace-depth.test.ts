@@ -60,6 +60,12 @@ describe("agent-run trace depth", () => {
       for (const url of run.sourceContext) {
         expect(url).toMatch(/^https?:\/\//);
       }
+
+      // Versioned-agent attribution: every pipeline run names the exact
+      // agent definition (semver + content hashes) that produced it.
+      expect(run.agentVersion).toMatch(/^\d+\.\d+\.\d+$/);
+      expect(run.promptHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(run.toolPolicyHash).toMatch(/^[0-9a-f]{64}$/);
     },
   );
 });

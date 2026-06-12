@@ -96,6 +96,17 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     return errs
 
 
+def agent_stamp() -> dict:
+    """Version/hash metadata from the live agent definition."""
+    import subprocess
+
+    builder = pathlib.Path(__file__).resolve().parents[1] / "agents/thesis-analyst/build_prompt.py"
+    meta = json.loads(
+        subprocess.check_output([sys.executable, str(builder), "--metadata"])
+    )
+    return meta
+
+
 def to_forecast_cell(cell: dict) -> dict:
     out = {k: cell[k] for k in (
         "slug", "country", "type", "title", "question", "unit",
@@ -105,11 +116,15 @@ def to_forecast_cell(cell: dict) -> dict:
     )}
     if cell.get("conditionalOn"):
         out["conditionalOn"] = cell["conditionalOn"]
+    stamp = agent_stamp()
     out["predictionRun"] = {
         "kind": "recorded-agent-run",
         "runAt": cell["runAt"],
-        "agent": cell.get("agent", "thesis.analyst.v2"),
-        "model": cell.get("model", "claude-fable-5"),
+        "agent": stamp["agent"],
+        "model": cell.get("model", stamp["model"]),
+        "agentVersion": stamp["agentVersion"],
+        "promptHash": stamp["promptHash"],
+        "toolPolicyHash": stamp["toolPolicyHash"],
         "sourceContext": cell["sourceContext"],
     }
     out["reasoning"] = cell["reasoning"]

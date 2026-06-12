@@ -80,6 +80,12 @@ export interface PredictionRunMetadata {
   agent: string;
   model: string;
   sourceContext: string[];
+  // Versioned-agent attribution (agents/thesis-analyst): semver of the agent
+  // definition plus content hashes of its system prompt and skill set, so a
+  // published run is reproducible against an exact agent.
+  agentVersion?: string;
+  promptHash?: string;
+  toolPolicyHash?: string;
 }
 
 export interface ResolvedOutcome {
