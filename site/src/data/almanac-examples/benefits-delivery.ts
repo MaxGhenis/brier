@@ -3889,60 +3889,379 @@ export const BENEFITS_DELIVERY_EXAMPLES: ForecastCell[] = [
     conditionalOn: "SNAP state cost-share provision repealed or delayed by statute enacted on or before 2027-06-30",
   },
   {
-    slug: "medicaid-call-wait-mar-2027-work-req-deadline-holds",
-    type: "conditional",
-    title: "Medicaid call-center wait, March 2027 | work-requirement deadline holds",
-    question: "Conditional on the 2025 reconciliation law's Medicaid community-engagement compliance deadline (December 31, 2026) remaining in effect — no enacted statutory delay and no nationwide court stay as of March 31, 2027 — what will the national average Medicaid call-center wait time be in the March 2027 reporting period?",
-    unit: "minutes",
-    pointEstimate: 31,
-    ciLow: 24,
-    ciHigh: 40,
-    confidence: 0.8,
-    resolutionDate: "2027-07-31",
-    resolutionSource: "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
-    resolutionRule: "Resolves to the volume-weighted national average Medicaid call-center wait time in minutes for the March 2027 reporting period, computed across all reporting jurisdictions in CMS dataset 6165f45b-ca93-5bb5-9d06-db29c692a360 (each jurisdiction's average wait weighted by its total call volume, latest submission per jurisdiction), when CMS first publishes the period (expected roughly four months later). Conditional on the event 'no federal statute enacted and no nationwide court stay issued on or before 2027-03-31 delays the community-engagement compliance deadline beyond 2027.' If the conditioning event fails, the cell is marked unresolved.",
-    dataPointId: "cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_holds",
-    historicalContext: [{ label: "05/25", value: 7.3 }, { label: "09/25", value: 15.0 }, { label: "12/25", value: 16.4 }, { label: "02/26", value: 24.0 }],
-    drivers: ["Work-requirement verification and confusion call volume on top of renewals", "Call-center staffing and IVR/agent deflection investments", "Churn-driven re-application calls", "State implementation quality variance"],
-    reasoning: [{ kind: "heading", text: "The most felt delivery metric" }, { kind: "text", text: "Minutes on hold is the time tax at its most direct. The run-up is already in the data: the volume-weighted national average Medicaid call-center wait tripled from 7.3 minutes in May 2025 to 24.0 in February 2026, while monthly call volume rose from about 7 million to 10-12 million as eligibility changes began landing." }, { kind: "tool", tool: "cms.lookup", call: "cms.lookup({ dataset: \"applications_eligibility_enrollment\", series: \"avg_call_center_wait_minutes_volume_weighted\", periods: [\"2025-05\", \"2026-02\"] })", result: "{ \"2025-05\": 7.3, \"2025-09\": 15.0, \"2025-12\": 16.4, \"2026-02\": 24.0, volume_2026_01: 11900000 }" }, { kind: "math", text: "March 2027 is the first full quarter after the December 31, 2026 compliance deadline. Implementation quarters add verification, documentation, and confusion calls on top of an already-stressed baseline: modal path ~31 minutes, with the interval wide because state staffing responses vary enormously." }, { kind: "heading", text: "Forecast" }, { kind: "text", text: "At roughly 10 million calls a month, every additional minute of average wait is about 170,000 person-hours of waiting per month. The pair gap below is the published, falsifiable forecast of the policy state's cost in hold time." }, { kind: "forecast", point: 31, ciLow: 24, ciHigh: 40 }],
-    conditionalOn: "Medicaid community-engagement compliance deadline (2026-12-31) in effect — no statutory delay or nationwide stay as of 2027-03-31",
+    "slug": "medicaid-call-wait-mar-2027-work-req-deadline-holds",
+    "country": "US",
+    "type": "conditional",
+    "title": "Medicaid call-center wait, March 2027 | work-requirement deadline holds",
+    "question": "Conditional on the 2025 reconciliation law's Medicaid community-engagement compliance deadline (December 31, 2026) remaining in effect — no enacted statutory delay and no nationwide court stay as of March 31, 2027 — what will the national average Medicaid call-center wait time be in the March 2027 reporting period?",
+    "unit": "minutes",
+    "pointEstimate": 33,
+    "ciLow": 26,
+    "ciHigh": 43,
+    "confidence": 0.8,
+    "resolutionDate": "2027-07-31",
+    "resolutionSource": "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+    "resolutionRule": "Resolves to the volume-weighted national average Medicaid call-center wait time in minutes for the March 2027 reporting period, computed across all reporting jurisdictions in CMS dataset 6165f45b-ca93-5bb5-9d06-db29c692a360 (each jurisdiction's average wait weighted by its total call volume, latest submission per jurisdiction), when CMS first publishes the period (expected roughly four months later). Conditional on the event 'no federal statute enacted and no nationwide court stay issued on or before 2027-03-31 delays the community-engagement compliance deadline beyond 2027.' If the conditioning event fails, the cell is marked unresolved.",
+    "historicalContext": [
+      {
+        "label": "05/25",
+        "value": 7.3
+      },
+      {
+        "label": "09/25",
+        "value": 15
+      },
+      {
+        "label": "12/25",
+        "value": 16.4
+      },
+      {
+        "label": "01/26",
+        "value": 25.4
+      },
+      {
+        "label": "02/26",
+        "value": 24
+      }
+    ],
+    "drivers": [
+      "Work-requirement verification and confusion call volume on top of the now-permanent renewal baseline (Arkansas: 33% of the target population had not heard of the requirement)",
+      "Convex queueing response: above ~12M calls/month the wait curve steepens sharply (M/M/1-flavored fit, capacity ~20.5M/mo)",
+      "Call-center staffing and IVR/agent-deflection investments — the size of the offset is the dominant swing factor",
+      "State implementation-quality variance (unwinding state peaks ranged 1–72 minutes)"
+    ],
+    "dataPointId": "cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_holds",
+    "conditionalOn": "Medicaid community-engagement compliance deadline (2026-12-31) in effect — no statutory delay or nationwide stay as of 2027-03-31",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-06-12T18:52:35Z",
+      "agent": "thesis.analyst",
+      "model": "claude-fable-5",
+      "agentVersion": "2.0.0",
+      "promptHash": "a9f28be19e262b8509b00ed6c65899d907cc58e67d97002dfd7022a226bc32c6",
+      "toolPolicyHash": "990649a7883dafb694a3fbe8452bbd5b1353245eff242e4a17147ee827cd72ea",
+      "sourceContext": [
+        "https://data.medicaid.gov/api/1/datastore/query/6165f45b-ca93-5bb5-9d06-db29c692a360/0?limit=2000&conditions[0][property]=reporting_period&conditions[0][value]=202409&conditions[0][operator]=>=",
+        "https://www.kff.org/medicaid/a-closer-look-at-the-work-requirement-provisions-in-the-2025-federal-budget-reconciliation-law/",
+        "https://www.macpac.gov/wp-content/uploads/2024/11/State-Reported-Medicaid-Unwinding-Data-Brief.pdf",
+        "https://www.nejm.org/doi/full/10.1056/NEJMsr1901772",
+        "https://natlawreview.com/article/cms-issues-interim-final-rule-medicaid-work-requirements"
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "The most felt delivery metric"
+      },
+      {
+        "kind": "text",
+        "text": "Minutes on hold is the time tax at its most direct. I rebuild this forecast from the primary CMS series rather than asserting it: the volume-weighted national average Medicaid call-center wait already tripled from 7.3 minutes in May 2025 to a 25.4-minute peak in January 2026 (11.9M calls), settling at 24.0 in February 2026 — the latest period CMS has published. March 2027 is the first full quarter after the December 31, 2026 community-engagement compliance deadline, so the question is how much an implementation pulse adds on top of an already-stressed baseline, net of staffing response."
+      },
+      {
+        "kind": "tool",
+        "tool": "cms.lookup",
+        "call": "cms.lookup({ dataset: \"6165f45b-ca93-5bb5-9d06-db29c692a360\", series: \"avg_call_center_wait_minutes_volume_weighted\", method: \"volume_weighted_national, best-submission-per-jurisdiction\", periods: \"2024-09..2026-02\" })",
+        "result": "Computed from the datastore API (10,710 rows; latest period = 202602). Volume-weighted national wait by month: 2025-05 7.26 (6.76M calls); 2025-09 14.99 (8.48M); 2025-12 16.42 (8.28M); 2026-01 25.37 (11.94M); 2026-02 24.01 (9.96M). Volume-weighted abandonment peaked with wait at 20.4% in 2026-01. My reproduction matches the published series (7.3/15.0/16.4/24.0) to one decimal, confirming the resolution method."
+      },
+      {
+        "kind": "tool",
+        "tool": "kff.lookup",
+        "call": "kff.lookup({ topic: \"2025 reconciliation community engagement requirement\", fields: [\"subject_population\", \"verification_cadence\", \"deadline\"] })",
+        "result": "CBO: 18.5M people subject to the requirement each year. Verification at application and at renewal every 6 months (states may verify more frequently); look-back of 1–3 consecutive months. Effective January 1, 2027; compliance deadline December 31, 2026. CMS interim final rule issued June 3, 2026 (80 hrs/month), projecting a 2.3M enrollment reduction in FY2027 rising to 3.1–3.3M later."
+      },
+      {
+        "kind": "tool",
+        "tool": "litigation.lookup",
+        "call": "litigation.lookup({ topic: \"community engagement requirement status\", as_of: \"2026-06\" })",
+        "result": "As of June 2026 the HOLDS branch is the high-probability state: KFF's tracker shows no active suit against the federal statutory deadline, CMS issued the implementing interim final rule on June 3, 2026, and Trump v. CASA (June 2025) foreclosed nationwide injunctions. So conditioning on 'deadline holds' is conditioning on the modal world (priced at ~89% in the companion policy cell), and the implementation pulse modeled below actually lands in Q1 2027."
+      },
+      {
+        "kind": "tool",
+        "tool": "macpac.lookup",
+        "call": "macpac.lookup({ brief: \"State-Reported Medicaid Unwinding Data, Nov 2024\", fields: [\"call_volume\", \"wait_peak\", \"renewals\"] })",
+        "result": "Unwinding precedent (Apr 2023–Jun 2024): call volume rose from a 7.1M/month April-2023 baseline to 10.9M in August 2023 (+3.7M, >150%) and peaked near 11.0M in January 2024. National average wait peaked at 'over 13 minutes'; state peaks ranged 1–72 minutes (14 states >30 min). Abandonment peaked at 17.7% nationally. 94.3M renewals over 14 months, 31.8% requiring a returned form; 15.1% procedurally disenrolled for not completing renewal."
+      },
+      {
+        "kind": "tool",
+        "tool": "macpac.lookup",
+        "call": "macpac.lookup({ derive: \"incremental_calls_per_action_required_renewal\" })",
+        "result": "At the unwinding peak ~3.9M incremental calls/month landed on top of the 7.1M baseline against ~2.1M/month action-required (form) renewals → ~1.8 incremental calls per action-required touchpoint (~0.58 per renewal of any type). This is the reference-class ratio I anchor the work-requirement decomposition to."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class — Arkansas 2018 and the unwinding, quantified: Arkansas was the only prior real-world Medicaid work requirement at scale. Sommers et al. (NEJM 2019, telephone survey n=5,955) found 33% of the target population 'had not heard anything' about the requirement, worse among the less educated; ~18,000 lost coverage in months before a court halted it — the confusion-driven call channel. The 2023–24 unwinding is the volume analogue: a system-wide eligibility-rule shock added ~3.9M calls/month at peak and pushed 14 states above 30-minute waits. The work requirement layers a new verification touchpoint on top of the renewal baseline, with Arkansas-style confusion amplifying calls per touchpoint."
+      },
+      {
+        "kind": "math",
+        "text": "Δcalls decomposition for March 2027 (HOLDS): extra calls ≈ (subject pop) × (share with an establishment touchpoint hitting March) × (incremental calls per touched person). Subject = 18.5M (CBO). March-touch share = 0.10–0.22 (Jan–Mar rollout, March is one of ~three pulse months); calls per touched person = 0.8–2.0 (anchored above the unwinding's 1.8 per action-required event because the policy is novel and 33% are unaware). Central: 18.5 × 0.15 × 1.3 ≈ 3.6M extra calls in March — deliberately matched to the unwinding's +3.9M peak increment, the right magnitude for a nationwide eligibility shock. Range 1.5M (low) to ~6M (severe). Added to a March renewal baseline of 9.5–11.5M (anchored to Jan-26 11.9M / Feb-26 10.0M) gives a HOLDS call volume of ~11–17M, centered ~14M."
+      },
+      {
+        "kind": "math",
+        "text": "calls→wait fit + offset. I fit the 18-month volume-weighted CMS series three ways: linear wait = −12.08 + 3.03·V(M) (corr 0.82); quadratic 7.06 − 1.37·V + 0.246·V² (R² 0.69); and an M/M/1-flavored queue wait = 18.53·ρ/(1−ρ) with capacity 20.5M/mo (R² 0.69). They agree within ~1 min at 10–12M and diverge above 13M where the convex fits bend up (queueing saturation). A Monte Carlo over the parameter ranges (triangular extra-calls mode 3.6M; staffing offset U(−6,0) anchored to the unwinding catch-up from a 13-min peak) gives central volume ~14.3M → mean-of-fits ~34 min before offset, with an 80% wait interval of [26, 43]. Staffing offset central −3 min pulls the point to ~33."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration — what breaks this each way. Downward: the rollout is pre-announced (unlike the chaotic unwinding), states have run stressed call centers since 2025, and the IFR pushes data-matching/ex-parte verification that could deflect calls — a strong staffing/automation response could hold March near the low 20s. Also, if early-2027 implementation is partial (good-faith state extensions, phased cohorts), the pulse spreads thin. Upward: the queue fit warns that past ~14–15M calls the wait curve is explosively convex — a heavier pulse plus thin staffing could blow past 43 minutes, and Arkansas's 33% awareness gap argues calls-per-touch could exceed my central. The interval is right-skewed for exactly this reason."
+      },
+      {
+        "kind": "heading",
+        "text": "Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Modal path ~33 minutes: the February-2026 level (24 min) plus an implementation pulse, partly absorbed by staffing. At roughly 12–14M calls a month, every additional minute of average wait is about 200,000–230,000 person-hours of waiting per month. The gap to the delayed arm below is the published, falsifiable forecast of the policy state's cost in hold time."
+      },
+      {
+        "kind": "forecast",
+        "point": 33,
+        "ciLow": 26,
+        "ciHigh": 43
+      }
+    ]
   },
   {
-    slug: "medicaid-call-wait-mar-2027-work-req-deadline-delayed",
-    type: "conditional",
-    title: "Medicaid call-center wait, March 2027 | work-requirement deadline delayed",
-    question: "Conditional on a federal statute or nationwide court stay, on or before March 31, 2027, delaying the 2025 reconciliation law's Medicaid community-engagement compliance deadline beyond 2027, what will the national average Medicaid call-center wait time be in the March 2027 reporting period?",
-    unit: "minutes",
-    pointEstimate: 20,
-    ciLow: 14,
-    ciHigh: 27,
-    confidence: 0.8,
-    resolutionDate: "2027-07-31",
-    resolutionSource: "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
-    resolutionRule: "Resolves to the volume-weighted national average Medicaid call-center wait time in minutes for the March 2027 reporting period, computed across all reporting jurisdictions in CMS dataset 6165f45b-ca93-5bb5-9d06-db29c692a360 (each jurisdiction's average wait weighted by its total call volume, latest submission per jurisdiction), when CMS first publishes the period (expected roughly four months later). Conditional on the event 'a federal statute enacted or nationwide court stay issued on or before 2027-03-31 delays the community-engagement compliance deadline beyond 2027.' If the conditioning event fails, the cell is marked unresolved. Exactly one cell of this pair resolves; the gap between the arms (31 vs 20 minutes) is the forecasted hold-time cost of the policy state.",
-    dataPointId: "cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_delayed",
-    historicalContext: [{ label: "05/25", value: 7.3 }, { label: "09/25", value: 15.0 }, { label: "12/25", value: 16.4 }, { label: "02/26", value: 24.0 }],
-    drivers: ["Implementation-wave calls deferred; baseline renewals continue", "Partial normalization of the 2025-26 volume surge", "Call-center staffing catching up to the earlier spike", "Delay scenarios still carry confusion calls from churned coverage"],
-    reasoning: [{ kind: "heading", text: "The counterfactual arm" }, { kind: "text", text: "Same outcome, opposite policy state: the implementation wave defers, volumes partially normalize from the 2025-26 surge, and staffing catches up. Hold times do not return to the 7-minute world — renewal volumes and prior churn persist — but the implementation premium does not land." }, { kind: "tool", tool: "cms.lookup", call: "cms.lookup({ dataset: \"applications_eligibility_enrollment\", series: \"avg_call_center_wait_minutes_volume_weighted\", periods: [\"2025-05\", \"2026-02\"] })", result: "{ \"2025-05\": 7.3, \"2025-09\": 15.0, \"2025-12\": 16.4, \"2026-02\": 24.0 }" }, { kind: "math", text: "Modal path: partial reversion toward the late-2025 plateau (~16-20 minutes) as the surge volume recedes without the implementation quarter stacked on top. The 11-minute gap to the deadline-holds arm, at ~10 million calls a month, is roughly 1.8 million person-hours of waiting per month — the time-tax denominated forecast of this single policy state.", }, { kind: "heading", text: "Forecast" }, { kind: "text", text: "Exactly one arm of this pair resolves. Whichever way the policy goes, the public gets a scored forecast and the scorer gets a calibration receipt." }, { kind: "forecast", point: 20, ciLow: 14, ciHigh: 27 }],
-    conditionalOn: "Medicaid community-engagement compliance deadline delayed beyond 2027 by statute or nationwide stay on or before 2027-03-31",
+    "slug": "medicaid-call-wait-mar-2027-work-req-deadline-delayed",
+    "country": "US",
+    "type": "conditional",
+    "title": "Medicaid call-center wait, March 2027 | work-requirement deadline delayed",
+    "question": "Conditional on a federal statute or nationwide court stay, on or before March 31, 2027, delaying the 2025 reconciliation law's Medicaid community-engagement compliance deadline beyond 2027, what will the national average Medicaid call-center wait time be in the March 2027 reporting period?",
+    "unit": "minutes",
+    "pointEstimate": 15,
+    "ciLow": 12,
+    "ciHigh": 18,
+    "confidence": 0.8,
+    "resolutionDate": "2027-07-31",
+    "resolutionSource": "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+    "resolutionRule": "Resolves to the volume-weighted national average Medicaid call-center wait time in minutes for the March 2027 reporting period, computed across all reporting jurisdictions in CMS dataset 6165f45b-ca93-5bb5-9d06-db29c692a360 (each jurisdiction's average wait weighted by its total call volume, latest submission per jurisdiction), when CMS first publishes the period (expected roughly four months later). Conditional on the event 'a federal statute enacted or nationwide court stay issued on or before 2027-03-31 delays the community-engagement compliance deadline beyond 2027.' If the conditioning event fails, the cell is marked unresolved. Exactly one cell of this pair resolves; the gap between the arms (33 vs 15 minutes) is the forecasted hold-time cost of the policy state.",
+    "historicalContext": [
+      {
+        "label": "05/25",
+        "value": 7.3
+      },
+      {
+        "label": "09/25",
+        "value": 15
+      },
+      {
+        "label": "12/25",
+        "value": 16.4
+      },
+      {
+        "label": "01/26",
+        "value": 25.4
+      },
+      {
+        "label": "02/26",
+        "value": 24
+      }
+    ],
+    "drivers": [
+      "Implementation-wave calls deferred; only the renewal baseline and residual churn calls remain",
+      "Partial normalization of the 2025–26 volume surge toward ~9–10M calls/month",
+      "Call-center staffing catching up to the earlier spike (no new pulse to absorb)",
+      "Delay scenarios still carry confusion calls from coverage churned in 2025–26"
+    ],
+    "dataPointId": "cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_delayed",
+    "conditionalOn": "Medicaid community-engagement compliance deadline delayed beyond 2027 by statute or nationwide stay on or before 2027-03-31",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-06-12T18:52:35Z",
+      "agent": "thesis.analyst",
+      "model": "claude-fable-5",
+      "agentVersion": "2.0.0",
+      "promptHash": "a9f28be19e262b8509b00ed6c65899d907cc58e67d97002dfd7022a226bc32c6",
+      "toolPolicyHash": "990649a7883dafb694a3fbe8452bbd5b1353245eff242e4a17147ee827cd72ea",
+      "sourceContext": [
+        "https://data.medicaid.gov/api/1/datastore/query/6165f45b-ca93-5bb5-9d06-db29c692a360/0?limit=2000&conditions[0][property]=reporting_period&conditions[0][value]=202409&conditions[0][operator]=>=",
+        "https://www.kff.org/medicaid/a-closer-look-at-the-work-requirement-provisions-in-the-2025-federal-budget-reconciliation-law/",
+        "https://www.macpac.gov/wp-content/uploads/2024/11/State-Reported-Medicaid-Unwinding-Data-Brief.pdf",
+        "https://natlawreview.com/article/cms-issues-interim-final-rule-medicaid-work-requirements",
+        "https://www.nejm.org/doi/full/10.1056/NEJMsr1901772"
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "The counterfactual arm"
+      },
+      {
+        "kind": "text",
+        "text": "Same outcome, opposite policy state, same model with the work-requirement pulse switched off. If a statute or a nationwide stay delays the community-engagement deadline before April 2027, the implementation wave never lands in Q1; volume reverts toward the renewal-system baseline and staffing catches up. Hold times do not return to the 7-minute world of spring 2025 — renewal volumes and prior churn persist — but the implementation premium does not get added."
+      },
+      {
+        "kind": "tool",
+        "tool": "cms.lookup",
+        "call": "cms.lookup({ dataset: \"6165f45b-ca93-5bb5-9d06-db29c692a360\", series: \"avg_call_center_wait_minutes_volume_weighted\", periods: \"2024-09..2026-02\" })",
+        "result": "Volume-weighted national wait from the datastore (latest period 202602): 2025-05 7.26 (6.76M calls); 2025-09 14.99 (8.48M); 2025-11 10.64 (6.28M); 2025-12 16.42 (8.28M); 2026-01 25.37 (11.94M); 2026-02 24.01 (9.96M). The 2025 series shows the system can sit in the 7–17 min band at 6.7–8.5M calls, which is the regime a delayed scenario reverts toward."
+      },
+      {
+        "kind": "tool",
+        "tool": "kff.lookup",
+        "call": "kff.lookup({ topic: \"2025 reconciliation work requirement\", fields: [\"deadline\", \"verification_cadence\"] })",
+        "result": "CBO 18.5M subject/year; verification at application and every 6 months at renewal; effective Jan 1, 2027. In the DELAYED arm none of this verification volume materializes in Q1 2027 — the renewal cadence reverts to its pre-work-requirement form."
+      },
+      {
+        "kind": "tool",
+        "tool": "macpac.lookup",
+        "call": "macpac.lookup({ brief: \"State-Reported Medicaid Unwinding Data\", fields: [\"baseline_volume\", \"post_surge_level\"] })",
+        "result": "Unwinding precedent: call volume ran a 7.1M/month baseline (April 2023), surged to ~11M at peak (Jan 2024), then receded to 8.1M by June 2024 as renewals normalized and staffing caught up. The post-surge recession to ~8M is the analogue for how a deferred-pulse Medicaid call center settles — elevated over deep baseline, below peak."
+      },
+      {
+        "kind": "tool",
+        "tool": "litigation.lookup",
+        "call": "litigation.lookup({ topic: \"community engagement requirement delay or stay\", as_of: \"2026-06\" })",
+        "result": "As of June 2026, KFF's tracker shows NO active suit seeking to block or delay the federal statutory deadline; Georgia is the only state with a work-requirement waiver (expiring 2026-12-31); states are not advancing new 1115 waivers. CMS issued the implementing interim final rule on June 3, 2026. So this arm's conditioning event is, today, the low-probability branch — which is exactly why it is priced separately."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class — the unwinding recession, quantified. The cleanest analogue for a 'shock deferred / volumes normalize' path is the back half of the unwinding: after the January 2024 peak (~11M calls, national wait 'over 13 minutes'), volume fell ~26% to 8.1M by June 2024 and most states' waits eased. Without an implementation pulse, March 2027 looks like that recession state — a renewal baseline around 9–10M calls, not the 12–14M of the holds arm. Arkansas's confusion channel (33% unaware) is muted here because no new requirement is being enforced, though some residual confusion calls from 2025–26 coverage churn persist."
+      },
+      {
+        "kind": "math",
+        "text": "Δcalls ≈ 0 by construction in this arm — the work-requirement decomposition (the +3.6M central pulse from the holds arm) is set to zero. The only additions to the renewal baseline are residual churn calls (~0–0.8M/month) from coverage lost during the 2025–26 surge. March-2027 volume is therefore the baseline drift alone: a triangular 8.5–10.5M with mode 9.5M, anchored to the 2025 in-band months (6.3–9.6M) plus modest upward drift from a larger post-surge caseload."
+      },
+      {
+        "kind": "math",
+        "text": "calls→wait fit + offset. Applying the same three-way fit (linear −12.08 + 3.03·V; quadratic; M/M/1-flavored queue, all R²≈0.69, agreeing to ~1 min in this 8.5–10.5M range that sits inside the calibration window): mean-of-fits at 9.5M ≈ 16 min; at 8.5M ≈ 13; at 10.5M ≈ 20. A Monte Carlo with the −3 min central staffing offset (range −6 to 0, anchored to the unwinding catch-up) yields a point of ~15 minutes and an 80% interval of [12, 18] — tight, because this arm sits in the well-sampled, near-linear part of the curve rather than the convex tail."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration — what breaks this each way. Upward: a delay that arrives late or messily (a Q1 court stay after partial state rollout, or a statutory delay enacted in February) could leave a half-started implementation generating confusion calls anyway, plus the 2025–26 churn keeps re-application volume elevated — the upper tail could touch the low 20s. Downward: if the delay is clean and early and staffing fully catches up, March could revert into the low teens like spring 2025. The interval is much narrower than the holds arm because there is no queueing-saturation tail when volume stays under ~11M."
+      },
+      {
+        "kind": "heading",
+        "text": "Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Modal path ~15 minutes: elevated above the spring-2025 floor by persistent renewal and churn volume, but well below the holds arm because the implementation pulse never lands. Exactly one arm of this pair resolves. The ~18-minute gap to the holds arm, at roughly 10 million calls a month, is on the order of 1.8 million person-hours of waiting per month — the time-tax-denominated forecast of this single policy state."
+      },
+      {
+        "kind": "forecast",
+        "point": 15,
+        "ciLow": 12,
+        "ciHigh": 18
+      }
+    ]
   },
   {
-    slug: "medicaid-work-req-deadline-in-effect-2027q1",
-    type: "policy",
-    title: "Probability the Medicaid work-requirement deadline holds through Q1 2027",
-    question: "What is the probability that the 2025 reconciliation law's Medicaid community-engagement compliance deadline (December 31, 2026) is in effect — no enacted statutory delay and no nationwide court stay — as of March 31, 2027?",
-    unit: "percent",
-    pointEstimate: 85,
-    ciLow: 72,
-    ciHigh: 93,
-    confidence: 0.8,
-    resolutionDate: "2027-03-31",
-    resolutionSource: "Federal statute and federal court orders of nationwide effect, via the federal bill tracker and docket records",
-    resolutionRule: "Resolves to 100 if, as of 2027-03-31, no federal statute has been enacted and no court order of nationwide effect is in force that delays the community-engagement compliance deadline of the 2025 reconciliation law beyond calendar 2027; resolves to 0 otherwise. State-specific good-faith extensions granted by the Secretary do not trigger resolution to 0. The event is machine-checkable against the federal bill tracker and, once the provision is encoded, the rules corpus.",
-    policyParameter: "us.ssa.medicaid.community_engagement.compliance_deadline",
-    historicalContext: [{ label: "Enacted", value: 100 }, { label: "Today", value: 85 }],
-    drivers: ["Repeal or delay requires Congress to unwind its own signature provision", "Litigation targets implementing guidance, but staying a statute nationwide is a far higher bar than staying a waiver", "Secretary-granted state extensions reduce pressure for a national delay", "Implementation chaos in late 2026 could change the politics"],
-    reasoning: [{ kind: "heading", text: "The policy-state probability" }, { kind: "text", text: "This cell prices the conditioning event that the wait-time pair depends on. Statutory work requirements are not waiver-era work requirements: courts vacated the 1115-waiver versions on administrative grounds, but a statutory deadline cannot be struck the same way — challenges aim at implementing rules, and a nationwide stay of the statute itself is a high bar. Congressional repeal before April 2027 would require the enacting majority to unwind its own provision." }, { kind: "math", text: "Base rate for signature reconciliation provisions surviving their first implementation year without statutory delay or nationwide stay is high; litigation-driven partial disruption is likely but does not meet this cell's bar. Point: 85, with the interval reflecting genuine uncertainty about late-2026 implementation politics." }, { kind: "heading", text: "Forecast" }, { kind: "text", text: "Together with the conditional pair, this cell completes the mixture: the unconditional wait-time forecast is the probability-weighted blend of the two arms." }, { kind: "forecast", point: 85, ciLow: 72, ciHigh: 93 }],
+    "slug": "medicaid-work-req-deadline-in-effect-2027q1",
+    "country": "US",
+    "type": "policy",
+    "title": "Probability the Medicaid work-requirement deadline holds through Q1 2027",
+    "question": "What is the probability that the 2025 reconciliation law's Medicaid community-engagement compliance deadline (December 31, 2026) is in effect — no enacted statutory delay and no nationwide court stay — as of March 31, 2027?",
+    "unit": "percent",
+    "pointEstimate": 89,
+    "ciLow": 80,
+    "ciHigh": 94,
+    "confidence": 0.8,
+    "resolutionDate": "2027-03-31",
+    "resolutionSource": "Federal statute and federal court orders of nationwide effect, via the federal bill tracker and docket records",
+    "resolutionSourceUrl": "https://www.kff.org/medicaid/medicaid-work-requirements-tracker-overview/",
+    "resolutionRule": "Resolves to 100 if, as of 2027-03-31, no federal statute has been enacted and no court order of nationwide effect is in force that delays the community-engagement compliance deadline of the 2025 reconciliation law beyond calendar 2027; resolves to 0 otherwise. State-specific good-faith extensions granted by the Secretary do not trigger resolution to 0. The event is machine-checkable against the federal bill tracker and, once the provision is encoded, the rules corpus.",
+    "historicalContext": [
+      {
+        "label": "Enacted",
+        "value": 100
+      },
+      {
+        "label": "IFR issued",
+        "value": 100
+      },
+      {
+        "label": "Today",
+        "value": 89
+      }
+    ],
+    "drivers": [
+      "Repeal or delay requires the enacting congressional majority to unwind its own signature reconciliation provision within ~3 months of its effective date",
+      "Trump v. CASA (June 27, 2025, 6-3) bars federal courts from issuing nationwide injunctions — the classic stay mechanism is largely foreclosed",
+      "CMS issued the implementing interim final rule on June 3, 2026, and litigation targets specific provisions (medically frail, SUD, look-back), not the statutory deadline",
+      "Secretary-granted good-faith state extensions relieve pressure for a national delay; implementation chaos in late 2026 is the main upside risk to a delay"
+    ],
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-06-12T18:52:35Z",
+      "agent": "thesis.analyst",
+      "model": "claude-fable-5",
+      "agentVersion": "2.0.0",
+      "promptHash": "a9f28be19e262b8509b00ed6c65899d907cc58e67d97002dfd7022a226bc32c6",
+      "toolPolicyHash": "990649a7883dafb694a3fbe8452bbd5b1353245eff242e4a17147ee827cd72ea",
+      "sourceContext": [
+        "https://natlawreview.com/article/supreme-court-halts-nationwide-injunctions-major-implications-ongoing-litigation",
+        "https://natlawreview.com/article/cms-issues-interim-final-rule-medicaid-work-requirements",
+        "https://www.kff.org/medicaid/medicaid-work-requirements-tracker-1115-waivers/",
+        "https://www.kff.org/medicaid/medicaid-work-requirements-tracker-overview/",
+        "https://www.kff.org/medicaid/a-closer-look-at-the-work-requirement-provisions-in-the-2025-federal-budget-reconciliation-law/"
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "The policy-state probability"
+      },
+      {
+        "kind": "text",
+        "text": "This cell prices the conditioning event the wait-time pair depends on. The event FAILS only if, by March 31, 2027, either Congress has enacted a statutory delay OR a court order of nationwide effect delays the deadline beyond 2027. Statutory work requirements are not the waiver-era work requirements that courts vacated on administrative-procedure grounds: a statutory deadline cannot be struck the same way, and — decisively — the universal-injunction route has narrowed sharply since this provision was enacted. I decompose P(fail) into its two legs and net the overlap."
+      },
+      {
+        "kind": "tool",
+        "tool": "litigation.lookup",
+        "call": "litigation.lookup({ topic: \"Trump v. CASA nationwide injunction authority\", date: \"2025-06-27\" })",
+        "result": "Supreme Court held 6-3 in Trump v. CASA (June 27, 2025) that federal courts lack authority to issue universal/nationwide injunctions under the Judiciary Act of 1789. This post-dates the reconciliation law and collapses the most direct path to a nationwide stay of the statutory deadline; residual nationwide-effect relief would require APA vacatur of the implementing rule (which does not by itself move the statutory deadline) or a certified (b)(2) class action."
+      },
+      {
+        "kind": "tool",
+        "tool": "litigation.lookup",
+        "call": "litigation.lookup({ topic: \"community engagement requirement challenges\", as_of: \"2026-06\" })",
+        "result": "KFF tracker (June 2026): NO active suit seeks to block or delay the federal statutory deadline (Dec 31 2026 / Jan 1 2027). Georgia is the only state with a work-requirement waiver (expiring 2026-12-31); states are not advancing new 1115 waivers. National Health Law Program records show recent work-requirement cases being dismissed. Commentators expect challenges to specific IFR provisions (medically frail definition, SUD stable-recovery exclusion, look-back period), not to the deadline itself."
+      },
+      {
+        "kind": "tool",
+        "tool": "macpac.lookup",
+        "call": "macpac.lookup({ topic: \"CMS interim final rule implementation posture\", date: \"2026-06-03\" })",
+        "result": "CMS published the interim final rule 'Community Engagement Requirement for Certain Individuals' on June 3, 2026: 80 hrs/month, compliance beginning January 1, 2027, binding regulation, projecting 2.3M enrollment reduction in FY2027. The administration issuing the rule on schedule signals intent to implement, not delay — evidence against the statutory-delay leg."
+      },
+      {
+        "kind": "tool",
+        "tool": "kff.lookup",
+        "call": "kff.lookup({ topic: \"good faith state exemption / extension mechanism\" })",
+        "result": "The law lets the HHS Secretary grant states 'good faith effort' exemptions that expire no later than December 31, 2028. Crucially, the resolution rule treats Secretary-granted STATE extensions as NOT triggering failure — only a nationwide statutory delay or nationwide court stay counts. This safety valve makes a sweeping NATIONAL delay less likely, because political pressure can be vented state-by-state without moving the federal deadline."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class — federal health-program compliance deadlines slipping. The outside view: signature reconciliation provisions rarely get statutorily delayed inside their first implementation quarter (the enacting majority would have to reverse itself). The closest precedents cut against a delay meeting THIS bar: the ACA employer mandate was delayed administratively (2013), not by statute and not via a court order; the Medicaid unwinding timeline shifted through CMS guidance and state-specific extensions, not a nationwide statutory delay or stay; and the 2018–19 work-requirement litigation produced waiver vacaturs (Gresham/Arkansas), which is a different legal posture than staying a statute. Each analogue shows pressure relieved through administrative/state channels — exactly the channels this cell's resolution rule excludes from 'failure'."
+      },
+      {
+        "kind": "math",
+        "text": "P decomposition. P(fail) = P(statutory delay by 2027-03-31) + P(nationwide stay in force by 2027-03-31) − P(overlap). (1) P(statutory delay) ≈ 0.06 (range 0.04–0.10): Congress unwinding its own signature provision within three months, against a CMS rule issued on schedule — low. (2) P(nationwide stay) ≈ 0.05 (range 0.03–0.09): low post-Trump v. CASA, capturing only residual class-action or broadly-read APA-vacatur paths that reach the statutory deadline; no such suit exists today. (3) Overlap ≈ 0.06 × 0.05 ≈ 0.003 (and the two are partly mutually exclusive, since a statutory delay would moot the litigation)."
+      },
+      {
+        "kind": "math",
+        "text": "P(fail) = 0.06 + 0.05 − 0.003 = 0.107 → P(hold) = 0.893 ≈ 89%. Propagating the parameter ranges gives P(hold) ∈ [82%, 93%]; I widen the lower bound slightly to 80% for model risk (unmodeled late-2026 implementation politics, e.g. a chaotic rollout shifting congressional will). 80% interval [80, 94]. This is up from the prior 85% specifically because Trump v. CASA — decided after the earlier estimate's framing — removed most of the nationwide-stay mass, and the on-schedule June 2026 IFR is fresh evidence of implementation intent."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration — what would move this down. A genuinely chaotic implementation in late 2026 (mass erroneous disenrollments, the kind of confusion Arkansas saw with 33% unaware) could flip congressional politics toward a bipartisan delay, or prompt a court to certify a nationwide class and grant class-wide relief that effectively suspends the deadline. Either path is live but each is a minority branch on a three-month horizon. The interval's 80% floor encodes that risk; the cell would update fast if a delay bill gained a floor vote or a class were certified."
+      },
+      {
+        "kind": "heading",
+        "text": "Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Point 89%, reflecting a high statutory-survival base rate, a post-CASA collapse of the nationwide-stay leg, an on-schedule implementing rule, and a state-extension safety valve that bleeds off pressure for a national delay. Together with the conditional pair this completes the mixture: the unconditional March-2027 wait forecast is the probability-weighted blend of the two arms (≈ 0.89 × 33 + 0.11 × 15 ≈ 31 minutes)."
+      },
+      {
+        "kind": "forecast",
+        "point": 89,
+        "ciLow": 80,
+        "ciHigh": 94
+      }
+    ],
+    "policyParameter": "us.ssa.medicaid.community_engagement.compliance_deadline"
   },
   {
     slug: "medicaid-call-wait-mar-2027",

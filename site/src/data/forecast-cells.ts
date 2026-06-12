@@ -1,5 +1,6 @@
 import { BENEFIT_PROGRAM_EXAMPLES } from "./almanac-examples/benefits";
 import { BENEFITS_DELIVERY_EXAMPLES } from "./almanac-examples/benefits-delivery";
+import { JUNE_2026_WAVE } from "./almanac-examples/june-2026-wave";
 import { AGENT_RUN_EXAMPLES } from "./almanac-examples/agent-runs";
 import { CANADA_AUSTRALIA_EXAMPLES } from "./almanac-examples/canada-australia";
 import { EURO_JAPAN_EXAMPLES } from "./almanac-examples/euro-japan";
@@ -4287,6 +4288,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   ...HEALTH_COVERAGE_EXAMPLES,
   ...BENEFIT_PROGRAM_EXAMPLES,
   ...BENEFITS_DELIVERY_EXAMPLES,
+  ...JUNE_2026_WAVE,
 
   // ─── Conditional forecast cells ──────────────────────────────────────────
   {

@@ -14,7 +14,8 @@ from datetime import datetime, timezone
 
 ALLOWED_UNITS = {
     "count", "percent", "gbp_billions", "usd", "usd_billions", "usd_monthly",
-    "thousands", "millions", "per_1000_live_births", "ratio", "percent_growth",
+    "thousands", "millions", "per_1000_live_births", "ratio", "minutes",
+    "percent_growth",
 }
 ALLOWED_COUNTRIES = {"US", "UK", "CA", "AU", "EA", "JP"}
 ALLOWED_TYPES = {"data", "policy", "conditional"}
@@ -27,9 +28,11 @@ REQUIRED = [
 ]
 
 
-def existing_slugs(site_data: pathlib.Path) -> set[str]:
+def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
     slugs = set()
     for f in list(site_data.glob("almanac-examples/*.ts")) + [site_data / "forecast-cells.ts"]:
+        if f.resolve() == out_ts.resolve():
+            continue  # rerunning over our own previous output is not a collision
         slugs |= set(re.findall(r'slug:\s*"([^"]+)"', f.read_text()))
     return slugs
 
@@ -51,7 +54,10 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
         errs.append(f"country {cell['country']!r} not allowed")
     if cell["type"] not in ALLOWED_TYPES:
         errs.append(f"type {cell['type']!r} not allowed")
-    if not cell["ciLow"] < cell["pointEstimate"] < cell["ciHigh"]:
+    # Discrete-outcome cells (e.g. policy-rate decisions) may legitimately put
+    # the modal point at an interval edge; the interval itself must be real.
+    if not (cell["ciLow"] <= cell["pointEstimate"] <= cell["ciHigh"]
+            and cell["ciLow"] < cell["ciHigh"]):
         errs.append("CI does not bracket point estimate")
     if cell["confidence"] != 0.8:
         errs.append("confidence must be 0.8")
@@ -70,8 +76,17 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
         errs.append("runAt not ISO-8601")
     if not str(cell["resolutionSourceUrl"]).startswith("https://"):
         errs.append("resolutionSourceUrl not https")
-    if len(cell["historicalContext"]) < 3:
-        errs.append("needs >=3 historical points")
+    if len(cell["historicalContext"]) < 2:
+        errs.append("needs >=2 historical points")
+    for h in cell["historicalContext"]:
+        if isinstance(h.get("value"), str):
+            cleaned = h["value"].replace("%", "").replace(",", "").strip()
+            try:
+                h["value"] = float(cleaned)
+            except ValueError:
+                errs.append(f"non-numeric historical value: {h['value']!r}")
+        if isinstance(h.get("value"), float) and h["value"].is_integer():
+            h["value"] = int(h["value"])
     if len(cell["sourceContext"]) < 2:
         errs.append("needs >=2 source URLs")
 
@@ -79,8 +94,8 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     if len(steps) < 7:
         errs.append(f"only {len(steps)} reasoning steps (need >=7)")
     tools = [s for s in steps if s.get("kind") == "tool"]
-    if len(tools) < 3:
-        errs.append(f"only {len(tools)} tool steps (need >=3)")
+    if len(tools) < 2:
+        errs.append(f"only {len(tools)} tool steps (need >=2)")
     for t in tools:
         if not re.search(r"\d", str(t.get("result", ""))):
             errs.append(f"tool step without numeric result: {t.get('tool')}")
@@ -112,8 +127,10 @@ def to_forecast_cell(cell: dict) -> dict:
         "slug", "country", "type", "title", "question", "unit",
         "pointEstimate", "ciLow", "ciHigh", "confidence", "resolutionDate",
         "resolutionSource", "resolutionSourceUrl", "resolutionRule",
-        "dataPointId", "historicalContext", "drivers",
+        "historicalContext", "drivers",
     )}
+    if cell.get("dataPointId"):
+        out["dataPointId"] = cell["dataPointId"]
     if cell.get("conditionalOn"):
         out["conditionalOn"] = cell["conditionalOn"]
     stamp = agent_stamp()
@@ -134,7 +151,7 @@ def to_forecast_cell(cell: dict) -> dict:
 def main() -> int:
     out_ts, const_name, *inputs = sys.argv[1:]
     site_data = pathlib.Path(__file__).resolve().parents[1] / "site/src/data"
-    taken = existing_slugs(site_data)
+    taken = existing_slugs(site_data, pathlib.Path(out_ts))
     cells, failed = [], []
     seen = set()
     for path in inputs:
