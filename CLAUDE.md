@@ -84,6 +84,24 @@ python3 -m brier.experiments stability --strongest-validation --model gpt-5.2  #
 - **commands/score.md**: Score past decisions against actual outcomes
 - **skills/decision-framework/SKILL.md**: Skill that detects advice-seeking patterns and reframes as forecasting problems
 
+### Spawning new forecast cells (the thesis.analyst pipeline)
+
+New cells are generated as recorded agent runs, never hand-authored mocks:
+an agent researches the question with REAL fetches from official sources
+(release calendars for resolutionDate, series history for the base rate),
+derives point + 80% CI from the data, and emits JSON with a full trace and
+`runAt` = actual generation time. Convert with
+`python3 scripts/spawned_cells_to_ts.py site/src/data/almanac-examples/<name>.ts CONST_NAME in.json`,
+which enforces the same trace-depth rubric CI does
+(`site/src/__tests__/trace-depth.test.ts`): >=7 steps, >=3 real tool steps,
+math derivation, base rate, disconfirming consideration. Resolved outcomes
+are recorded as observations in PolicyEngine/arch-data
+(`ledger/official_observations.jsonl`, branch `codex/thesis-ledger-facts`),
+which the site fetches at build time. Deploy strictly via
+`~/thesis-institute/deploy-app.sh`; run the recorder workflow
+(`gh workflow run record-forecasts.yml --ref main`) right after deploying
+new predictions so their pre-registration timestamp is tight.
+
 ### Site (`site/`)
 
 Next.js App Router site with Tailwind CSS v4, deployed to Vercel as the
