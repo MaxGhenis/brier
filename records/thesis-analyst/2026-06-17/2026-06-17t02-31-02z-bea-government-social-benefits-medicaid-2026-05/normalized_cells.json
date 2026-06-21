@@ -1,0 +1,99 @@
+[
+ {
+  "slug": "bea-government-social-benefits-medicaid-2026-05",
+  "country": "US",
+  "type": "data",
+  "title": "BEA Medicaid benefits, May 2026",
+  "question": "BEA NIPA Table 2.6, Personal current transfer receipts: Government social benefits to persons: Medicaid, May 2026, monthly seasonally adjusted annual rate, first print",
+  "unit": "usd_billions",
+  "pointEstimate": 1037.5,
+  "ciLow": 1018.0,
+  "ciHigh": 1056.0,
+  "confidence": 0.8,
+  "resolutionDate": "2026-06-25",
+  "resolutionSource": "U.S. Bureau of Economic Analysis Personal Income and Outlays release",
+  "resolutionSourceUrl": "https://www.bea.gov/data/income-saving/personal-income",
+  "resolutionRule": "Resolve to the first BEA-published May 2026 value for NIPA Table 2.6, line/account code W729RC, Personal current transfer receipts: Government social benefits to persons: Medicaid, in billions of dollars at a seasonally adjusted annual rate. Use the value available in the first Personal Income and Outlays release for May 2026 on 2026-06-25, rounded to one decimal place; ignore later revisions.",
+  "dataPointId": "bea.nipa.t20600.w729rc.2026-05.first_print",
+  "historicalContext": [
+   {
+    "label": "Apr 2026",
+    "value": 1039.0
+   },
+   {
+    "label": "Mar 2026",
+    "value": 1045.8
+   },
+   {
+    "label": "Feb 2026",
+    "value": 1049.6
+   },
+   {
+    "label": "Jan 2026",
+    "value": 1050.4
+   },
+   {
+    "label": "Dec 2025",
+    "value": 1045.0
+   }
+  ],
+  "drivers": [
+   "recent Medicaid transfer receipts drifted down from February through April",
+   "series is seasonally adjusted annual rate and tends to move gradually month to month",
+   "May first print arrives with Personal Income and Outlays rather than a separate Medicaid release",
+   "wide interval allows for residual monthly administrative-payment timing noise"
+  ],
+  "sourceContext": [
+   "https://www.bea.gov/news/schedule",
+   "https://www.bea.gov/data/income-saving/personal-income",
+   "https://fred.stlouisfed.org/series/W729RC1"
+  ],
+  "runAt": "2026-06-17T02:31:13Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for BEA Medicaid government social benefits, May 2026 first print"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the first BEA Personal Income and Outlays print for May 2026, specifically the monthly SAAR Medicaid component of government social benefits to persons, not any later revised NIPA vintage."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the BEA release schedule for the May 2026 Personal Income and Outlays release date.",
+    "result": "BEA schedule lists Personal Income and Outlays, May 2026 on June 25, 2026 at 8:30 AM; the same schedule shows Personal Income and Outlays, June 2026 on July 30, 2026 at 8:30 AM."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked BEA's Personal Income page for the latest available release context before the May release.",
+    "result": "BEA Personal Income page shows Personal Income and Outlays, April 2026; current release May 28, 2026; next release June 25, 2026; April personal income 0.0%, disposable personal income -0.1%, PCE +0.5%, saving $611.7 billion, saving rate 2.6%."
+   },
+   {
+    "kind": "tool",
+    "tool": "history.lookup",
+    "call": "Checked FRED mirror of BEA series W729RC1 for the latest Medicaid monthly SAAR observations.",
+    "result": "Fetched W729RC1 values: Apr 2026 1039.0, Mar 2026 1045.8, Feb 2026 1049.6, Jan 2026 1050.4, Dec 2025 1045.0 billions of dollars SAAR; updated May 28, 2026; next release date Jun 25, 2026."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference class: the latest four month-to-month moves are +5.4, -0.8, -3.8, and -6.8 billion SAAR, so a one-month forecast should mostly anchor on the latest level with a single-digit monthly move rather than extrapolate a large regime shift."
+   },
+   {
+    "kind": "math",
+    "text": "Recent average monthly change from Dec 2025 to Apr 2026 is (1039.0 - 1045.0) / 4 = -1.5 billion. A slightly softer near-term adjustment from April gives 1039.0 - 1.5 = 1037.5. An 80% interval of roughly +/-19 billion around the point gives 1018.0 to 1056.0 after rounding to one decimal."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: the April drop of 6.8 billion could mark continued post-enrollment or administrative-payment weakness, but January through February were nearly flat and this BEA component has enough smoothing that a further large May drop is less likely than a modest decline."
+   },
+   {
+    "kind": "forecast",
+    "point": 1037.5,
+    "ciLow": 1018.0,
+    "ciHigh": 1056.0
+   }
+  ]
+ }
+]

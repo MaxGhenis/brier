@@ -1,0 +1,117 @@
+[
+  {
+    "slug": "us-dol-initial-claims-sa-week-2026-06-20",
+    "country": "US",
+    "type": "data",
+    "title": "US initial jobless claims, week ending Jun 20 2026",
+    "question": "What will the U.S. Department of Labor Employment and Training Administration first report as the seasonally adjusted advance initial unemployment insurance claims count for the week ending June 20, 2026?",
+    "unit": "count",
+    "pointEstimate": 226000,
+    "ciLow": 205000,
+    "ciHigh": 250000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-25",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims Report",
+    "resolutionSourceUrl": "https://www.dol.gov/ui/data.pdf",
+    "resolutionRule": "Resolve to the advance seasonally adjusted initial claims figure for the week ending June 20, 2026 in the first U.S. Department of Labor ETA Unemployment Insurance Weekly Claims Report released for that week, expected at 8:30 a.m. Eastern on Thursday, June 25, 2026. Use the first-print headline count in persons, not later revisions, FRED backfills, or unadjusted claims.",
+    "dataPointId": "us.dol.eta.initial_claims.sa.week_2026-06-20.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06-06 latest SA initial claims",
+        "value": 229000
+      },
+      {
+        "label": "2026-05-30 prior SA initial claims",
+        "value": 225000
+      },
+      {
+        "label": "2026-05-23 SA initial claims",
+        "value": 212000
+      },
+      {
+        "label": "2026-05-16 SA initial claims",
+        "value": 210000
+      },
+      {
+        "label": "2025-06-21 same-season SA initial claims",
+        "value": 236000
+      }
+    ],
+    "drivers": [
+      "Recent claims moved up from the May trough but remain low by historical standards",
+      "Late-May and June school-calendar seasonality can create noisy weekly changes",
+      "Continuing claims and insured unemployment rate are stable rather than signaling an abrupt layoff break",
+      "Year-ago comparable June claims were higher than current readings"
+    ],
+    "sourceContext": [
+      "https://www.dol.gov/newsroom/economicdata",
+      "https://www.dol.gov/ui/data.pdf",
+      "https://www.dol.gov/newsroom/releases/eta",
+      "https://fred.stlouisfed.org/series/ICSA",
+      "https://fred.stlouisfed.org/releases/calendar"
+    ],
+    "runAt": "2026-06-17T02:23:52Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DOL seasonally adjusted initial claims, week ending June 20, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the DOL ETA first-print advance seasonally adjusted initial claims count for the week ending Saturday, June 20, 2026, reported in the Unemployment Insurance Weekly Claims Report. The DOL economic-data page identifies the ETA Office of Unemployment Insurance as the publisher of this weekly report and links the current official PDF."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the DOL ETA June 11, 2026 Unemployment Insurance Weekly Claims Report PDF.",
+        "result": "Fetched latest headline: week ending June 6, 2026 seasonally adjusted initial claims were 229,000, up 4,000 from the previous week's unrevised 225,000; 4-week moving average was 219,000, up 4,250 from 214,750."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the official DOL weekly claims table in the same PDF.",
+        "result": "Fetched table values: June 6, 2026 SA initial claims 229,000; May 30, 2026 225,000; May 23, 2026 212,000; comparable prior-year June 7, 2025 value 246,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the longer seasonally adjusted weekly claims history table in the DOL PDF.",
+        "result": "Fetched reference-class values: June 14, 2025 initial claims 243,000; June 21, 2025 236,000; June 28, 2025 231,000; May 16, 2026 210,000; May 9, 2026 212,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "mirror.lookup",
+        "call": "Opened FRED ICSA as a history mirror and release metadata cross-check.",
+        "result": "Fetched FRED mirror: 2026-06-06 was 229,000, 2026-05-30 was 225,000, 2026-05-23 was 212,000, 2026-05-16 was 210,000, and next listed release date was Jun 18, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "calendar.lookup",
+        "call": "Opened FRED release calendar page and DOL economic data page for release scheduling context.",
+        "result": "Fetched calendar metadata: FRED calendar displayed 2026 release calendar controls and states release dates are published by data sources; DOL current PDF is embargoed until 8:30 A.M. Eastern Thursday, June 11, 2026 for week ending June 6."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class: weekly initial claims are noisy but mean-reverting at a 1-3 week horizon. Recent 2026 levels cluster near 210,000-229,000, while the same June window in 2025 ran 231,000-246,000, so a central forecast should stay near the latest value but not fully extrapolate the late-May jump."
+      },
+      {
+        "kind": "math",
+        "text": "Recent 5-week average using DOL/FRED values is (212,000 + 210,000 + 212,000 + 225,000 + 229,000) / 5 = 217,600. The latest 4-week average is 219,000. A same-season 2025 anchor for week ending June 21 is 236,000, but current June 6 is 17,000 below the 2025 comparable 246,000, implying an adjusted seasonal anchor near 219,000. I blend latest 229,000, recent-average 218,000, and seasonal-adjusted 219,000, then allow for another school-calendar noisy week to set the point at 226,000."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the June 6 unadjusted actual claims jumped by 39,713 and state moves in California, Minnesota, Pennsylvania, Texas, and other large states show timing noise that could persist into the June 20 week; this raises upside risk even though the seasonally adjusted series may mean-revert."
+      },
+      {
+        "kind": "math",
+        "text": "For an 80% interval, recent weekly moves include +13,000, +4,000, -25,000, and +15,000 over spring 2026, and June school-season volatility can add several thousand more. Around a 226,000 point, a practical 80% range is roughly -21,000/+24,000, giving 205,000 to 250,000."
+      },
+      {
+        "kind": "forecast",
+        "point": 226000,
+        "ciLow": 205000,
+        "ciHigh": 250000
+      }
+    ]
+  }
+]

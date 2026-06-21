@@ -5,24 +5,42 @@ import { CANADA_AUSTRALIA_PREDICTION_SERIES } from "@/data/almanac-examples/cana
 import { EURO_JAPAN_PREDICTION_SERIES } from "@/data/almanac-examples/euro-japan";
 import { GLOBAL_NEAR_TERM_PREDICTION_SERIES } from "@/data/almanac-examples/global-near-term";
 import { LAUNCH_PREDICTION_SERIES } from "@/data/almanac-examples/launch-cadence";
+import {
+  BLS_2034_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
+  CPS_JUNE_2026_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
+  OEWS_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
+} from "@/data/almanac-examples/occupation-employment";
+import { OEWS_OCCUPATION_WAGE_PREDICTION_SERIES } from "@/data/almanac-examples/occupation-wages";
 import { UK_PREDICTION_SERIES } from "@/data/almanac-examples/uk";
 import { US_NEAR_TERM_PREDICTION_SERIES } from "@/data/almanac-examples/us-near-term";
 import {
   FORECAST_CELLS,
   LIVE_FORECAST_SLUGS,
+  getForecastRunEntries,
   getForecastCountry,
   getForecastRuntimeKind,
   getResolutionResult,
   type ForecastCell,
 } from "@/data/forecast-cells";
 import {
+  buildRecordedPredictionRunId,
   buildPredictionSpecExport,
   buildPredictionSpecs,
   buildRecordedPredictionRunRecords,
 } from "@/data/prediction-specs";
 import {
-  THESIS_LOG,
+  buildPredictionPackCatalog,
+  getPredictionPackCatalogEntry,
+} from "@/data/prediction-packs";
+import { buildBrierRewardExport } from "@/data/brier-lab";
+import {
+  THESIS_TARGET_LEDGER,
+  getLedgerTargetByDataPointId,
+  type TargetRegisteredLedgerEntry,
+} from "@/data/ledger-targets";
+import {
   buildPolicyEngineLedgerExport,
+  buildResolvedPredictionLogEntries,
   buildResolutionQueue,
   buildThesisLog,
   buildThesisLogExport,
@@ -30,14 +48,13 @@ import {
   getObservationsForDataPoint,
   isObservationRecordedLedgerEntry,
   isPredictionRecordedLogEntry,
-  isPredictionResolvedLogEntry,
+  isTargetRegisteredLedgerEntry,
   loadPolicyEngineLedger,
   scoreResolvedForecasts,
   withResolvedOutcomes,
   type ObservationRecordedLedgerEntry,
   type PolicyEngineLedgerEntry,
   type PredictionRecordedLogEntry,
-  type PredictionResolvedLogEntry,
 } from "@/data/thesis-log";
 
 describe("forecast catalog", () => {
@@ -88,31 +105,45 @@ describe("forecast catalog", () => {
     }
   });
 
-  it("builds a Thesis Log with one recorded prediction per forecast", () => {
-    const log = buildThesisLog(FORECAST_CELLS);
+  it("builds a Thesis Log with one recorded prediction per run", () => {
+    const log = buildThesisLog(FORECAST_CELLS, policyEngineLedger);
     const recordedPredictions = log.filter(
       (entry): entry is PredictionRecordedLogEntry =>
         isPredictionRecordedLogEntry(entry),
     );
+    const expectedRuns = FORECAST_CELLS.flatMap(getForecastRunEntries);
 
-    expect(recordedPredictions).toHaveLength(FORECAST_CELLS.length);
-    expect(
-      new Set(recordedPredictions.map((entry) => entry.forecastSlug)).size,
-    ).toBe(recordedPredictions.length);
+    expect(recordedPredictions).toHaveLength(expectedRuns.length);
+    expect(new Set(recordedPredictions.map((entry) => entry.runId)).size).toBe(
+      recordedPredictions.length,
+    );
 
     for (const entry of recordedPredictions) {
       const forecast = FORECAST_CELLS.find(
         (cell) => cell.slug === entry.forecastSlug,
       );
+      const run = forecast
+        ? getForecastRunEntries(forecast).find(
+            (candidate) =>
+              buildRecordedPredictionRunId(
+                forecast,
+                candidate.predictionRun?.runAt,
+                candidate.variantId,
+              ) === entry.runId,
+          )
+        : undefined;
       expect(forecast).toBeTruthy();
+      expect(run).toBeTruthy();
+      expect(entry.runId).toMatch(/^run\./);
+      expect(entry.specId).toBe(`spec.${entry.forecastSlug}`);
       expect(entry.type).toBe(forecast?.type);
       expect(entry.title).toBe(forecast?.title);
       expect(entry.question).toBe(forecast?.question);
       expect(entry.country).toBe(forecast?.country ?? "US");
       expect(entry.unit).toBe(forecast?.unit);
-      expect(entry.pointEstimate).toBe(forecast?.pointEstimate);
-      expect(entry.interval80.lower).toBe(forecast?.ciLow);
-      expect(entry.interval80.upper).toBe(forecast?.ciHigh);
+      expect(entry.pointEstimate).toBe(run?.pointEstimate);
+      expect(entry.interval80.lower).toBe(run?.ciLow);
+      expect(entry.interval80.upper).toBe(run?.ciHigh);
       expect(entry.resolutionDate).toBe(forecast?.resolutionDate);
       expect(entry.resolutionSource).toBe(forecast?.resolutionSource);
       expect(entry.resolutionSourceUrl).toBe(forecast?.resolutionSourceUrl);
@@ -120,13 +151,10 @@ describe("forecast catalog", () => {
       expect(entry.dataPointId).toBe(forecast?.dataPointId);
       expect(entry.distribution.format).toBe("numeric_cdf_v1");
       expect(entry.distribution.pointCount).toBe(201);
-      expect(entry.distribution.summary.pointEstimate).toBe(
-        forecast?.pointEstimate,
-      );
-      expect(entry.distribution.summary.interval80.lower).toBe(forecast?.ciLow);
-      expect(entry.distribution.summary.interval80.upper).toBe(
-        forecast?.ciHigh,
-      );
+      expect(entry.distribution.summary.pointEstimate).toBe(run?.pointEstimate);
+      expect(entry.distribution.summary.interval80.lower).toBe(run?.ciLow);
+      expect(entry.distribution.summary.interval80.upper).toBe(run?.ciHigh);
+      expect(entry.model).toBe(run?.predictionRun?.model);
     }
   });
 
@@ -135,7 +163,13 @@ describe("forecast catalog", () => {
       resolvedForecastCells,
       policyEngineLedger,
     );
-    const resolutionQueue = buildResolutionQueue(FORECAST_CELLS);
+    const resolutionQueue = buildResolutionQueue(
+      FORECAST_CELLS,
+      policyEngineLedger,
+    );
+    const expectedRunCount = resolvedForecastCells.flatMap(
+      getForecastRunEntries,
+    ).length;
 
     expect(exportPayload.schemaVersion).toBe("thesis_log_v1");
     expect(exportPayload.source.name).toBe("Thesis Log");
@@ -146,9 +180,12 @@ describe("forecast catalog", () => {
       "https://app.thesisinstitute.org/log.json",
     );
     expect(exportPayload.source.factLedger.name).toBe("PolicyEngine Ledger");
-    expect(exportPayload.counts.predictions).toBe(FORECAST_CELLS.length);
+    expect(exportPayload.counts.predictions).toBe(expectedRunCount);
     expect(exportPayload.counts.specs).toBe(FORECAST_CELLS.length);
-    expect(exportPayload.counts.runs).toBe(FORECAST_CELLS.length);
+    expect(exportPayload.counts.runs).toBe(expectedRunCount);
+    expect(exportPayload.counts.runs).toBeGreaterThan(
+      exportPayload.counts.specs,
+    );
     expect(exportPayload.counts.resolutions).toBeGreaterThan(0);
     expect(exportPayload.counts.resolutionLinks).toBe(FORECAST_CELLS.length);
     expect(exportPayload.counts.resolutionEvents).toBe(
@@ -178,6 +215,13 @@ describe("forecast catalog", () => {
       /^resolution_event\./,
     );
     expect(exportPayload.scores).toHaveLength(exportPayload.counts.scored);
+    expect(exportPayload.scores[0].observedValue).toEqual(expect.any(Number));
+    expect(exportPayload.scores[0].interval80.width).toBeGreaterThan(0);
+    expect(exportPayload.scores[0].normalizedCrps).toBeGreaterThanOrEqual(0);
+    expect(
+      exportPayload.scores[0].normalizedAbsoluteError,
+    ).toBeGreaterThanOrEqual(0);
+    expect(exportPayload.scores[0].packMode).toBeTruthy();
     expect(exportPayload.resolutionQueue).toHaveLength(
       exportPayload.counts.pendingResolution,
     );
@@ -190,8 +234,61 @@ describe("forecast catalog", () => {
     }
   });
 
+  it("exports a Brier reward dataset for agent training and evaluation", () => {
+    const specs = buildPredictionSpecs(resolvedForecastCells);
+    const runs = buildRecordedPredictionRunRecords(
+      resolvedForecastCells,
+      specs,
+    );
+    const exportPayload = buildBrierRewardExport({
+      forecasts: resolvedForecastCells,
+      specs,
+      runs,
+      ledger: policyEngineLedger,
+    });
+    const splitRunCount = Object.values(exportPayload.splits).reduce(
+      (total, split) => total + split.runs,
+      0,
+    );
+    const splitScoredCount = Object.values(exportPayload.splits).reduce(
+      (total, split) => total + split.scoredRuns,
+      0,
+    );
+    const scoredRow = exportPayload.rewardRows.find(
+      (row) => row.reward.value !== null,
+    );
+    const liveRun = exportPayload.rewardRows.find(
+      (row) =>
+        row.runId ===
+        "run.uk-unemployment-rate-oct-dec-2026.2026-06-16T10-20-43Z.thesis-analyst-live-2026-06-16",
+    );
+
+    expect(exportPayload.schemaVersion).toBe("brier_reward_export_v1");
+    expect(exportPayload.mission.objective).toBe("maximize_forecast_accuracy");
+    expect(exportPayload.mission.reward).toBe("negative_normalized_crps");
+    expect(exportPayload.counts.runs).toBe(runs.length);
+    expect(exportPayload.rewardRows).toHaveLength(runs.length);
+    expect(splitRunCount).toBe(exportPayload.counts.runs);
+    expect(splitScoredCount).toBe(exportPayload.counts.scoredRuns);
+    expect(exportPayload.noLeakagePolicy.holdoutSplits).toEqual([
+      "validation",
+      "test",
+    ]);
+    expect(scoredRow?.reward.value).toBeLessThanOrEqual(0);
+    expect(scoredRow?.reward.components.normalizedCrps).toBeGreaterThanOrEqual(
+      0,
+    );
+    expect(liveRun?.split).toBe("unresolved");
+    expect(liveRun?.provenance.activityArtifactCount).toBe(8);
+    expect(exportPayload.leaderboard.length).toBeGreaterThan(0);
+  });
+
   it("exports a facts-only PolicyEngine Ledger payload", () => {
     const exportPayload = buildPolicyEngineLedgerExport(policyEngineLedger);
+    const targets = policyEngineLedger.filter(isTargetRegisteredLedgerEntry);
+    const observations = policyEngineLedger.filter(
+      isObservationRecordedLedgerEntry,
+    );
 
     expect(exportPayload.schemaVersion).toBe("policyengine_ledger_v1");
     expect(exportPayload.source.name).toBe("PolicyEngine Ledger");
@@ -202,11 +299,11 @@ describe("forecast catalog", () => {
       "https://app.thesisinstitute.org/ledger.json",
     );
     expect(exportPayload.counts.facts).toBe(policyEngineLedger.length);
-    expect(exportPayload.counts.observations).toBe(policyEngineLedger.length);
+    expect(exportPayload.counts.targets).toBe(targets.length);
+    expect(exportPayload.counts.observations).toBe(observations.length);
     expect(exportPayload.entries).toHaveLength(policyEngineLedger.length);
-    expect(exportPayload.entries.every(isObservationRecordedLedgerEntry)).toBe(
-      true,
-    );
+    expect(targets.length).toBeGreaterThan(0);
+    expect(observations.length).toBeGreaterThan(0);
   });
 
   it("builds a production prediction spec for every forecast", () => {
@@ -258,23 +355,41 @@ describe("forecast catalog", () => {
       resolvedForecastCells,
       specs,
     );
+    const expectedRunCount = resolvedForecastCells.flatMap(
+      getForecastRunEntries,
+    ).length;
 
-    expect(runs).toHaveLength(resolvedForecastCells.length);
+    expect(runs).toHaveLength(expectedRunCount);
     expect(new Set(runs.map((run) => run.runId)).size).toBe(runs.length);
+    expect(runs.length).toBeGreaterThan(resolvedForecastCells.length);
 
     for (const run of runs) {
       const forecast = resolvedForecastCells.find(
         (cell) => cell.slug === run.predictionId,
       );
+      const runEntry = forecast
+        ? getForecastRunEntries(forecast).find(
+            (candidate) =>
+              buildRecordedPredictionRunId(
+                forecast,
+                candidate.predictionRun?.runAt,
+                candidate.variantId,
+              ) === run.runId,
+          )
+        : undefined;
       expect(forecast).toBeTruthy();
+      expect(runEntry).toBeTruthy();
       expect(run.schemaVersion).toBe("thesis_prediction_run_v1");
       expect(run.runner.id).toBe("thesis.recorded-agent-runner");
       expect(run.runId).toMatch(/^run\./);
       expect(run.specId).toBe(`spec.${run.predictionId}`);
       expect(run.specVersionId).toBe(`spec.${run.predictionId}.v20260609`);
       expect(run.agentId).toMatch(/^agent\./);
+      expect(run.runLabel).toBe(runEntry?.label);
       expect(run.idempotencyKey).toMatch(/^static-hash-v1:/);
-      expect(run.createdAt).toMatch(/^2026-/);
+      expect(run.createdAt).toMatch(/^202[56]-/);
+      expect(run.modelVersion).toBe(runEntry?.predictionRun?.model);
+      expect(run.runner.model).toBe(runEntry?.predictionRun?.model);
       expect(run.promptHash).toMatch(/^static-hash-v1:/);
       expect(run.toolPolicyHash).toMatch(/^static-hash-v1:/);
       expect(run.inputBundleHash).toMatch(/^static-hash-v1:/);
@@ -283,8 +398,12 @@ describe("forecast catalog", () => {
       expect(run.input.specVersionId).toBe(run.specVersionId);
       expect(run.input.targetFactRef).toBe(forecast?.dataPointId);
       expect(run.input.allowedTools).toContain("distribution.validate");
+      expect(run.input.packIds).toEqual(
+        runEntry?.packSet?.packs.map((pack) => pack.packId) ?? [],
+      );
       expect(run.output.distribution.format).toBe("numeric_cdf_v1");
       expect(run.output.distribution.pointCount).toBe(201);
+      expect(run.output.pointEstimate).toBe(runEntry?.pointEstimate);
       expect(run.output.publicTrace.length).toBeGreaterThanOrEqual(3);
       expect(run.output.publicTraceMetadata.redactionStatus).toBe(
         "public_only",
@@ -307,6 +426,159 @@ describe("forecast catalog", () => {
       );
       expect(run.resolution.targetFactRef).toBe(forecast?.dataPointId);
     }
+  });
+
+  it("supports multiple pack-aware runs for one prediction target", () => {
+    const cpi = FORECAST_CELLS.find(
+      (forecast) => forecast.slug === "cpi-u-annual-2026",
+    );
+    expect(cpi).toBeTruthy();
+
+    const runs = getForecastRunEntries(cpi!);
+    expect(runs.length).toBeGreaterThanOrEqual(3);
+    expect(runs.map((run) => run.variantId)).toContain("control-no-packs");
+    expect(runs.map((run) => run.variantId)).toContain("with-cpi-packs");
+
+    const control = runs.find((run) => run.variantId === "control-no-packs");
+    const packed = runs.find((run) => run.variantId === "with-cpi-packs");
+    expect(control?.packSet?.mode).toBe("none");
+    expect(control?.packSet?.packs).toHaveLength(0);
+    expect(packed?.packSet?.mode).toBe("with_packs");
+    expect(packed?.packSet?.packs.map((pack) => pack.packId)).toEqual([
+      "base-rate-first",
+      "cpi-component-decomposition",
+      "tariff-pass-through",
+    ]);
+
+    const specs = buildPredictionSpecs([cpi!]);
+    const records = buildRecordedPredictionRunRecords([cpi!], specs);
+    expect(new Set(records.map((run) => run.specId)).size).toBe(1);
+    expect(records).toHaveLength(runs.length);
+    expect(records.some((run) => run.packSet?.mode === "none")).toBe(true);
+    expect(records.some((run) => run.packSet?.mode === "with_packs")).toBe(
+      true,
+    );
+  });
+
+  it("builds pack catalog pages from recorded forecast runs", () => {
+    const catalog = buildPredictionPackCatalog(FORECAST_CELLS);
+    expect(catalog.map((pack) => pack.packId)).toEqual(
+      expect.arrayContaining([
+        "asec-income-nowcast",
+        "asec-release-calibration",
+        "base-rate-first",
+        "bls-employment-projections-baseline",
+        "consumer-spending-nowcast",
+        "cash-income-bridge",
+        "cpi-component-decomposition",
+        "energy-price-nowcast",
+        "housing-activity-nowcast",
+        "labor-market-momentum",
+        "pce-cpi-bridge",
+        "release-vintage-calibration",
+        "tariff-pass-through",
+      ]),
+    );
+
+    const tariff = getPredictionPackCatalogEntry(
+      "tariff-pass-through",
+      FORECAST_CELLS,
+    );
+    expect(tariff).toBeTruthy();
+    expect(tariff?.latestVersion).toBe("0.1.0");
+    expect(tariff?.kind).toBe("calibration");
+    expect(tariff?.detail?.qualityChecks.length).toBeGreaterThan(0);
+    expect(tariff?.targetCount).toBe(3);
+    expect(tariff?.runCount).toBe(4);
+    expect(tariff?.agents).toEqual(["brier-1.packed"]);
+    expect(tariff?.usage.map((usage) => usage.forecastSlug)).toEqual(
+      expect.arrayContaining([
+        "cpi-u-annual-2026",
+        "us-cpi-u-mom-june-2026",
+        "us-core-cpi-mom-june-2026",
+      ]),
+    );
+    expect(tariff?.usage[0].deltaVsNoPack).toBeCloseTo(0.1);
+    expect(tariff?.usage[1].deltaVsNoPack).toBeCloseTo(0.2);
+
+    const asecRelease = getPredictionPackCatalogEntry(
+      "asec-release-calibration",
+      FORECAST_CELLS,
+    );
+    expect(asecRelease?.targetCount).toBe(2);
+    expect(asecRelease?.runCount).toBe(2);
+    expect(asecRelease?.usage.map((usage) => usage.forecastSlug)).toEqual([
+      "official-poverty-rate-2025",
+      "median-household-income-2025",
+    ]);
+
+    const labor = getPredictionPackCatalogEntry(
+      "labor-market-momentum",
+      FORECAST_CELLS,
+    );
+    expect(labor?.targetCount).toBe(8);
+    expect(labor?.runCount).toBe(8);
+    expect(labor?.detail?.inputs).toContain("Initial claims and JOLTS signals");
+    expect(labor?.usage.map((usage) => usage.forecastSlug)).toEqual([
+      "nonfarm-payrolls-june-2026",
+      "unemployment-rate-june-2026",
+      "initial-claims-week-2026-06-13",
+      "jolts-openings-may-2026",
+      "australia-employment-change-may-2026",
+      "australia-unemployment-rate-may-2026",
+      "initial-claims-week-2026-06-20",
+      "us-wages-and-salaries-may-2026",
+    ]);
+
+    const spending = getPredictionPackCatalogEntry(
+      "consumer-spending-nowcast",
+      FORECAST_CELLS,
+    );
+    expect(spending?.targetCount).toBe(1);
+    expect(spending?.runCount).toBe(1);
+    expect(spending?.usage[0].forecastSlug).toBe("retail-sales-mom-may-2026");
+
+    const housing = getPredictionPackCatalogEntry(
+      "housing-activity-nowcast",
+      FORECAST_CELLS,
+    );
+    expect(housing?.targetCount).toBe(1);
+    expect(housing?.runCount).toBe(1);
+    expect(housing?.usage[0].forecastSlug).toBe("housing-starts-may-2026");
+
+    const blsProjection = getPredictionPackCatalogEntry(
+      "bls-employment-projections-baseline",
+      FORECAST_CELLS,
+    );
+    expect(blsProjection?.targetCount).toBe(12);
+    expect(blsProjection?.runCount).toBe(12);
+    expect(blsProjection?.kind).toBe("data");
+    expect(blsProjection?.agents).toEqual([
+      "brier-occupation-automation-scenarios",
+      "brier-occupation-projection",
+    ]);
+    expect(blsProjection?.detail?.inputs).toContain(
+      "BLS Employment Projections Table 1.2 occupational projections and worker characteristics",
+    );
+    expect(blsProjection?.usage.map((usage) => usage.forecastSlug)).toEqual(
+      expect.arrayContaining([
+        "oews-business-financial-employment-may-2026",
+        "oews-computer-math-employment-may-2026",
+        "oews-healthcare-support-employment-may-2026",
+        "oews-office-admin-employment-may-2026",
+        "oews-production-employment-may-2026",
+        "oews-transport-material-moving-employment-may-2026",
+        "bls-business-financial-employment-2034",
+        "bls-computer-math-employment-2034",
+        "bls-healthcare-support-employment-2034",
+        "bls-office-admin-employment-2034",
+        "bls-production-employment-2034",
+        "bls-transport-material-moving-employment-2034",
+      ]),
+    );
+    expect(
+      blsProjection?.usage.every((usage) => usage.deltaVsNoPack !== undefined),
+    ).toBe(true);
   });
 
   it("defines the first normalized Supabase tables for Thesis Log", () => {
@@ -337,6 +609,8 @@ describe("forecast catalog", () => {
     expect(sql).toContain(
       "unique (spec_version_id, agent_id, idempotency_key)",
     );
+    expect(sql).toContain("pack_set_id text");
+    expect(sql).toContain("pack_manifest jsonb");
     expect(sql).toContain("unique (run_id, artifact_type)");
     expect(sql).toContain("confidence_mass_check_status");
     expect(sql).toContain("thesis_prevent_update_delete");
@@ -373,6 +647,37 @@ describe("forecast catalog", () => {
         expect(forecast.dataPointId).toBeTruthy();
       }
     }
+  });
+
+  it("registers every forecast data point in the ledger before spec generation", () => {
+    const targetDataPointIds = new Set(
+      THESIS_TARGET_LEDGER.map((target) => target.dataPointId),
+    );
+    const forecastDataPointIds = FORECAST_CELLS.flatMap((forecast) =>
+      forecast.dataPointId ? [forecast.dataPointId] : [],
+    );
+
+    expect(new Set(forecastDataPointIds).size).toBe(targetDataPointIds.size);
+    for (const dataPointId of forecastDataPointIds) {
+      expect(targetDataPointIds.has(dataPointId)).toBe(true);
+    }
+  });
+
+  it("rejects prediction specs whose target is not registered in the ledger", () => {
+    const sourceForecast = FORECAST_CELLS.find(
+      (forecast) => forecast.dataPointId,
+    );
+    expect(sourceForecast).toBeTruthy();
+
+    expect(() =>
+      buildPredictionSpecs([
+        {
+          ...sourceForecast!,
+          slug: "unregistered-ledger-target-test",
+          dataPointId: "test.unregistered_target",
+        },
+      ]),
+    ).toThrow(/Missing Thesis target ledger entry/);
   });
 
   it("classifies every prediction by country", () => {
@@ -434,22 +739,333 @@ describe("forecast catalog", () => {
     expect(slugs.has("medicaid-chip-enrollment-april-2026")).toBe(true);
   });
 
+  it("registers OEWS occupation targets in the ledger before forecasting", () => {
+    const expectedSlugs = [
+      "oews-business-financial-employment-may-2026",
+      "oews-computer-math-employment-may-2026",
+      "oews-healthcare-support-employment-may-2026",
+      "oews-office-admin-employment-may-2026",
+      "oews-production-employment-may-2026",
+      "oews-transport-material-moving-employment-may-2026",
+    ];
+    const seriesIds = new Set(
+      OEWS_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES.map(
+        (series) => series.seriesId,
+      ),
+    );
+    const targetDataPointIds = new Set(
+      THESIS_TARGET_LEDGER.map((target) => target.dataPointId),
+    );
+    const occupationCells = FORECAST_CELLS.filter(
+      (forecast) => forecast.series && seriesIds.has(forecast.series.seriesId),
+    );
+
+    expect(occupationCells.map((forecast) => forecast.slug).sort()).toEqual(
+      expectedSlugs.sort(),
+    );
+    expect(occupationCells).toHaveLength(6);
+
+    for (const forecast of occupationCells) {
+      expect(forecast.dataPointId).toBeTruthy();
+      expect(targetDataPointIds.has(forecast.dataPointId!)).toBe(true);
+
+      const target = getLedgerTargetByDataPointId(forecast.dataPointId!);
+      const ledgerTarget = policyEngineLedger.find(
+        (entry): entry is TargetRegisteredLedgerEntry =>
+          isTargetRegisteredLedgerEntry(entry) &&
+          entry.dataPointId === forecast.dataPointId,
+      );
+
+      expect(target).toBeTruthy();
+      expect(ledgerTarget).toEqual(target);
+      expect(forecast.unit).toBe(target?.unit);
+      expect(forecast.resolutionDate).toBe(target?.resolutionDate);
+      expect(forecast.resolutionRule).toBe(target?.resolutionRule);
+      expect(forecast.resolutionSourceUrl).toBe(target?.resolutionSourceUrl);
+      expect(forecast.series?.resolutionPolicy).toBe("first_print");
+
+      const runs = getForecastRunEntries(forecast);
+      expect(runs.map((run) => run.variantId)).toEqual([
+        "primary",
+        "with-bls-employment-projections",
+        "bls-implied-2026-annual-baseline",
+      ]);
+      const blsRun = runs.find(
+        (run) => run.variantId === "with-bls-employment-projections",
+      );
+      const blsImpliedRun = runs.find(
+        (run) => run.variantId === "bls-implied-2026-annual-baseline",
+      );
+      expect(runs.some((run) => run.packSet?.mode === "none")).toBe(true);
+      expect(blsRun?.packSet?.packs.map((pack) => pack.packId)).toContain(
+        "bls-employment-projections-baseline",
+      );
+      expect(blsImpliedRun?.predictionRun?.agent).toBe(
+        "BLS Employment Projections",
+      );
+      expect(blsImpliedRun?.description).toContain(
+        "Derived near-term annual baseline",
+      );
+      expect(
+        blsRun?.reasoning.some(
+          (step) =>
+            step.kind === "math" &&
+            step.text.includes("BLS projections pack adjustment"),
+        ),
+      ).toBe(true);
+    }
+
+    const officeAdmin = occupationCells.find(
+      (forecast) => forecast.slug === "oews-office-admin-employment-may-2026",
+    );
+    const officeAdminBlsImplied = officeAdmin
+      ? getForecastRunEntries(officeAdmin).find(
+          (run) => run.variantId === "bls-implied-2026-annual-baseline",
+        )
+      : undefined;
+    expect(officeAdminBlsImplied?.pointEstimate).toBe(17780);
+  });
+
+  it("registers OEWS occupation wage targets in the ledger before forecasting", () => {
+    const expectedSlugs = [
+      "oews-business-financial-median-wage-may-2026",
+      "oews-computer-math-median-wage-may-2026",
+      "oews-healthcare-support-median-wage-may-2026",
+      "oews-office-admin-median-wage-may-2026",
+      "oews-production-median-wage-may-2026",
+      "oews-transport-material-moving-median-wage-may-2026",
+    ];
+    const seriesIds = new Set(
+      OEWS_OCCUPATION_WAGE_PREDICTION_SERIES.map((series) => series.seriesId),
+    );
+    const targetDataPointIds = new Set(
+      THESIS_TARGET_LEDGER.map((target) => target.dataPointId),
+    );
+    const wageCells = FORECAST_CELLS.filter(
+      (forecast) => forecast.series && seriesIds.has(forecast.series.seriesId),
+    );
+
+    expect(wageCells.map((forecast) => forecast.slug).sort()).toEqual(
+      expectedSlugs.sort(),
+    );
+    expect(wageCells).toHaveLength(6);
+
+    const computerMath = wageCells.find(
+      (forecast) => forecast.slug === "oews-computer-math-median-wage-may-2026",
+    );
+    expect(computerMath?.pointEstimate).toBe(112900);
+    expect(computerMath?.historicalContext).toEqual([
+      { label: "May 2025 OEWS median", value: 109280 },
+    ]);
+
+    for (const forecast of wageCells) {
+      expect(forecast.dataPointId).toBeTruthy();
+      expect(forecast.dataPointId).toContain(
+        "bls.oews.national_occupation_median_annual_wage",
+      );
+      expect(targetDataPointIds.has(forecast.dataPointId!)).toBe(true);
+
+      const target = getLedgerTargetByDataPointId(forecast.dataPointId!);
+      const ledgerTarget = policyEngineLedger.find(
+        (entry): entry is TargetRegisteredLedgerEntry =>
+          isTargetRegisteredLedgerEntry(entry) &&
+          entry.dataPointId === forecast.dataPointId,
+      );
+
+      expect(target).toBeTruthy();
+      expect(ledgerTarget).toEqual(target);
+      expect(forecast.unit).toBe("usd");
+      expect(forecast.unit).toBe(target?.unit);
+      expect(forecast.resolutionDate).toBe("2027-05-14");
+      expect(forecast.resolutionRule).toContain("annual median wage");
+      expect(forecast.resolutionRule).toContain("A_MEDIAN");
+      expect(forecast.series?.resolutionPolicy).toBe("first_print");
+
+      const runs = getForecastRunEntries(forecast);
+      expect(runs.map((run) => run.variantId)).toEqual([
+        "primary",
+        "may-2025-oews-carry-forward",
+      ]);
+      expect(runs[0].packSet?.mode).toBe("none");
+      expect(runs[1].predictionRun?.agent).toBe("BLS OEWS current table");
+      expect(
+        runs[1].reasoning.some(
+          (step) =>
+            step.kind === "text" &&
+            step.text.includes(
+              "not an official May 2026 occupational wage projection",
+            ),
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it("registers apples-to-apples 2034 BLS occupation targets", () => {
+    const expectedSlugs = [
+      "bls-business-financial-employment-2034",
+      "bls-computer-math-employment-2034",
+      "bls-healthcare-support-employment-2034",
+      "bls-office-admin-employment-2034",
+      "bls-production-employment-2034",
+      "bls-transport-material-moving-employment-2034",
+    ];
+    const seriesIds = new Set(
+      BLS_2034_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES.map(
+        (series) => series.seriesId,
+      ),
+    );
+    const targetDataPointIds = new Set(
+      THESIS_TARGET_LEDGER.map((target) => target.dataPointId),
+    );
+    const occupationCells = FORECAST_CELLS.filter(
+      (forecast) => forecast.series && seriesIds.has(forecast.series.seriesId),
+    );
+
+    expect(occupationCells.map((forecast) => forecast.slug).sort()).toEqual(
+      expectedSlugs.sort(),
+    );
+    expect(occupationCells).toHaveLength(6);
+
+    const officeAdmin = occupationCells.find(
+      (forecast) => forecast.slug === "bls-office-admin-employment-2034",
+    );
+    expect(officeAdmin?.pointEstimate).toBe(17200);
+    expect(officeAdmin?.series?.horizon).toBe("long_run");
+    expect(officeAdmin?.resolutionRule).toContain(
+      "published 2024-2034 projection is only a comparison forecast",
+    );
+
+    for (const forecast of occupationCells) {
+      expect(forecast.dataPointId).toBeTruthy();
+      expect(forecast.dataPointId).toContain(
+        "bls.employment_projections.national_occupation_employment",
+      );
+      expect(targetDataPointIds.has(forecast.dataPointId!)).toBe(true);
+
+      const target = getLedgerTargetByDataPointId(forecast.dataPointId!);
+      expect(target).toBeTruthy();
+      expect(forecast.unit).toBe("thousands");
+      expect(forecast.resolutionDate).toBe(target?.resolutionDate);
+      expect(forecast.resolutionSourceUrl).toBe(target?.resolutionSourceUrl);
+
+      const runs = getForecastRunEntries(forecast);
+      expect(runs.map((run) => run.variantId)).toEqual([
+        "primary",
+        "with-bls-employment-projections",
+        "bls-published-2024-2034-projection",
+      ]);
+      expect(runs.some((run) => run.packSet?.mode === "none")).toBe(true);
+
+      const packedRun = runs.find(
+        (run) => run.variantId === "with-bls-employment-projections",
+      );
+      expect(packedRun?.packSet?.packs.map((pack) => pack.packId)).toContain(
+        "bls-employment-projections-baseline",
+      );
+
+      const blsRun = runs.find(
+        (run) => run.variantId === "bls-published-2024-2034-projection",
+      );
+      expect(blsRun?.predictionRun?.agent).toBe("BLS Employment Projections");
+      expect(blsRun?.reasoning.some((step) => step.kind === "tool")).toBe(true);
+    }
+  });
+
+  it("registers fast monthly CPS occupation targets", () => {
+    const expectedSlugs = [
+      "cps-business-financial-employment-june-2026",
+      "cps-computer-math-employment-june-2026",
+      "cps-healthcare-support-employment-june-2026",
+      "cps-office-admin-employment-june-2026",
+      "cps-production-employment-june-2026",
+      "cps-transport-material-moving-employment-june-2026",
+    ];
+    const seriesIds = new Set(
+      CPS_JUNE_2026_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES.map(
+        (series) => series.seriesId,
+      ),
+    );
+    const targetDataPointIds = new Set(
+      THESIS_TARGET_LEDGER.map((target) => target.dataPointId),
+    );
+    const occupationCells = FORECAST_CELLS.filter(
+      (forecast) => forecast.series && seriesIds.has(forecast.series.seriesId),
+    );
+
+    expect(occupationCells.map((forecast) => forecast.slug).sort()).toEqual(
+      expectedSlugs.sort(),
+    );
+    expect(occupationCells).toHaveLength(6);
+
+    const computerMath = occupationCells.find(
+      (forecast) => forecast.slug === "cps-computer-math-employment-june-2026",
+    );
+    expect(computerMath?.pointEstimate).toBe(6920);
+    expect(computerMath?.historicalContext).toEqual([
+      { label: "May 2025 CPS", value: 6512 },
+      { label: "May 2026 CPS", value: 6903 },
+    ]);
+
+    for (const forecast of occupationCells) {
+      expect(forecast.dataPointId).toBeTruthy();
+      expect(forecast.dataPointId).toContain(
+        "bls.cps.employed_people_by_occupation",
+      );
+      expect(targetDataPointIds.has(forecast.dataPointId!)).toBe(true);
+      expect(forecast.resolutionDate).toBe("2026-07-02");
+      expect(forecast.series?.cadence).toBe("monthly");
+      expect(forecast.series?.priority).toBe("P0");
+      expect(forecast.unit).toBe("thousands");
+      expect(forecast.resolutionRule).toContain("Table A-19");
+      expect(forecast.resolutionRule).toContain("not seasonally adjusted");
+
+      const runs = getForecastRunEntries(forecast);
+      expect(runs).toHaveLength(1);
+      expect(runs[0].predictionRun?.agent).toBe(
+        "brier-cps-occupation-fast-proxy",
+      );
+      expect(runs[0].packSet?.mode).toBe("none");
+    }
+  });
+
   it("carries official source URLs into the resolution queue when available", () => {
-    const queue = buildResolutionQueue(FORECAST_CELLS);
-    const capacityUtilization = queue.find(
-      (entry) => entry.forecastSlug === "us-capacity-utilization-may-2026",
+    const queue = buildResolutionQueue(FORECAST_CELLS, policyEngineLedger);
+    const canadaCpi = queue.find(
+      (entry) => entry.forecastSlug === "canada-cpi-yoy-may-2026",
     );
     const governmentBenefits = queue.find(
       (entry) =>
         entry.forecastSlug === "us-government-social-benefits-may-2026",
     );
 
-    expect(capacityUtilization?.resolutionSourceUrl).toBe(
-      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+    expect(canadaCpi?.resolutionSourceUrl).toBe(
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260622/dq260622a-eng.htm",
     );
     expect(governmentBenefits?.resolutionSourceUrl).toBe(
       "https://www.bea.gov/data/income-saving/personal-income",
     );
+  });
+
+  it("infers actual resolution timestamps from ledger observations", () => {
+    const forecast = FORECAST_CELLS.find(
+      (cell) => cell.slug === "nonfarm-payrolls-may-2026",
+    );
+    expect(forecast).toBeTruthy();
+
+    const resolvedEntries = buildResolvedPredictionLogEntries(
+      [
+        {
+          ...forecast!,
+          slug: "nonfarm-payrolls-may-2026-future-expected-date",
+          resolutionDate: "2099-01-01",
+        },
+      ],
+      policyEngineLedger,
+    );
+
+    expect(resolvedEntries).toHaveLength(1);
+    expect(resolvedEntries[0].recordedAt).toBe("2026-06-05");
+    expect(resolvedEntries[0].dataPointId).toBe(forecast?.dataPointId);
   });
 
   it("generates launch cells from structured prediction series", () => {
@@ -508,13 +1124,16 @@ describe("forecast catalog", () => {
     }
   });
 
-  it("includes quick-resolution UK indicators", () => {
+  it("includes UK indicators and a forward unemployment path", () => {
     expect(UK_PREDICTION_SERIES.length).toBeGreaterThanOrEqual(7);
 
     const slugs = new Set(FORECAST_CELLS.map((forecast) => forecast.slug));
     expect(slugs.has("uk-monthly-gdp-growth-april-2026")).toBe(true);
     expect(slugs.has("uk-cpi-annual-rate-may-2026")).toBe(true);
     expect(slugs.has("uk-unemployment-rate-feb-apr-2026")).toBe(true);
+    expect(slugs.has("uk-unemployment-rate-apr-jun-2026")).toBe(true);
+    expect(slugs.has("uk-unemployment-rate-jul-sep-2026")).toBe(true);
+    expect(slugs.has("uk-unemployment-rate-oct-dec-2026")).toBe(true);
     expect(slugs.has("uk-paye-payrolled-employees-may-2026")).toBe(true);
     expect(slugs.has("uk-retail-sales-volume-mom-may-2026")).toBe(true);
     expect(slugs.has("uk-public-sector-net-borrowing-may-2026")).toBe(true);
@@ -529,7 +1148,7 @@ describe("forecast catalog", () => {
     );
     expect(ukCells.length).toBeGreaterThanOrEqual(UK_PREDICTION_SERIES.length);
     for (const forecast of ukCells) {
-      expect(forecast.resolutionDate).toMatch(/^2026-06-/);
+      expect(forecast.resolutionDate >= "2026-06-01").toBe(true);
       expect(getForecastCountry(forecast)).toBe("UK");
       expect(forecast.predictionRun?.kind).toBe("recorded-agent-run");
       expect(getForecastRuntimeKind(forecast)).toBe("agent-run");
@@ -537,6 +1156,16 @@ describe("forecast catalog", () => {
         /Office for National Statistics|Bank of England|HMRC/,
       );
     }
+
+    const q4Unemployment = FORECAST_CELLS.find(
+      (forecast) => forecast.slug === "uk-unemployment-rate-oct-dec-2026",
+    );
+    expect(q4Unemployment?.series?.horizon).toBe("quarterly_path");
+    expect(q4Unemployment?.pointEstimate).toBe(5.1);
+    expect(q4Unemployment?.resolutionDate).toBe("2027-02-16");
+    expect(q4Unemployment?.resolutionRule).toMatch(
+      /published one-decimal rate/,
+    );
   });
 
   it("includes quick-resolution Canada and Australia indicators", () => {
@@ -679,9 +1308,9 @@ describe("forecast catalog", () => {
     const forecastsBySlug = new Map(
       resolvedForecastCells.map((forecast) => [forecast.slug, forecast]),
     );
-    const resolutionEntries = THESIS_LOG.filter(
-      (entry): entry is PredictionResolvedLogEntry =>
-        isPredictionResolvedLogEntry(entry),
+    const resolutionEntries = buildResolvedPredictionLogEntries(
+      resolvedForecastCells,
+      policyEngineLedger,
     );
     const observationEntries = policyEngineLedger.filter(
       (entry): entry is ObservationRecordedLedgerEntry =>
@@ -773,7 +1402,7 @@ describe("forecast catalog", () => {
       resolvedForecastCells,
       policyEngineLedger,
     );
-    expect(scores).toHaveLength(resolvedPredictions.length);
+    expect(scores.length).toBeGreaterThanOrEqual(resolvedPredictions.length);
 
     for (const expected of resolvedPredictions) {
       const score = scores.find(
@@ -785,12 +1414,16 @@ describe("forecast catalog", () => {
       expect(score?.resolutionEventId).toMatch(/^resolution_event\./);
       expect(score?.scoreId).toMatch(/^score\.run\./);
       expect(score?.scoringRule).toBe("numeric_cdf_crps_v1");
-      if (score) expect("observedValue" in score).toBe(false);
+      expect(score?.observedValue).toBe(expected.value);
       expect(score?.unit).toBe(expected.unit);
+      expect(score?.interval80.width).toBeGreaterThan(0);
       expect(score?.absoluteError).toBeGreaterThanOrEqual(0);
+      expect(score?.normalizedAbsoluteError).toBeGreaterThanOrEqual(0);
       expect(score?.crps).toBeGreaterThanOrEqual(0);
+      expect(score?.normalizedCrps).toBeGreaterThanOrEqual(0);
       expect(score?.probabilityIntegralTransform).toBeGreaterThanOrEqual(0);
       expect(score?.probabilityIntegralTransform).toBeLessThanOrEqual(1);
+      expect(score?.packMode).toBeTruthy();
       expect(score?.interval80Covered).toBe(expected.result === "inside");
     }
   });
@@ -798,9 +1431,8 @@ describe("forecast catalog", () => {
 
 describe("conditional groups", () => {
   it("resolves every group's cells from the catalog", async () => {
-    const { CONDITIONAL_GROUPS, getConditionalGroup } = await import(
-      "@/data/conditional-groups"
-    );
+    const { CONDITIONAL_GROUPS, getConditionalGroup } =
+      await import("@/data/conditional-groups");
     for (const group of CONDITIONAL_GROUPS) {
       const resolved = getConditionalGroup(group.slug);
       expect(resolved, group.slug).toBeTruthy();

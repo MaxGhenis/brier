@@ -149,12 +149,18 @@ const UK_PREDICTION_SERIES_BASE = [
     measure: "LFS unemployment rate for people aged 16 and over",
     unit: "percent",
     source: "Office for National Statistics, UK labour market overview",
+    sourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket",
     cadence: "monthly",
     priority: "P0",
     resolutionLatency: "~2 weeks",
     resolutionPolicy: "first_print",
     benchmark: "Economist consensus and HMRC PAYE nowcasts",
-    chainableQuestions: ["next release", "+3 months", "claimant threshold"],
+    chainableQuestions: [
+      "next release",
+      "quarterly path",
+      "claimant threshold",
+    ],
     whyItMatters:
       "The UK labour market is currently one of the clearest stress points: unemployment is up, payroll employment is falling, and wage growth remains central to Bank of England decisions.",
     drivers: [
@@ -202,6 +208,93 @@ const UK_PREDICTION_SERIES_BASE = [
         ],
         rationale:
           "The January-March unemployment rate was 5.0%, but the provisional April PAYE estimate fell by 100,000 on the month and vacancies reached their lowest level since early 2021. The agent nudges the rate up while respecting LFS sampling volatility.",
+      },
+      {
+        slug: "uk-unemployment-rate-apr-jun-2026",
+        title: "UK unemployment rate, Apr-Jun 2026",
+        question:
+          "What will ONS first report as the UK unemployment rate for people aged 16 and over in April to June 2026?",
+        dataPointId:
+          "ons.labour.unemployment_rate.april_to_june_2026.first_print",
+        horizon: "quarterly_path",
+        horizonLabel: "Apr-Jun 2026",
+        periodLabel: "April to June 2026",
+        resolutionDate: "2026-08-18",
+        resolutionSourceUrl:
+          "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+        resolutionRule:
+          "Resolves to the first published seasonally adjusted ONS LFS unemployment rate for people aged 16 and over for April to June 2026 in the Employment in the UK or UK labour market bulletin. Later revisions do not change the resolved value.",
+        pointEstimate: 5.2,
+        ciLow: 4.7,
+        ciHigh: 5.7,
+        tools: [
+          {
+            tool: "agent.run",
+            call: 'ukIndicatorAgent.predict({ slugs: ["uk-unemployment-rate-apr-jun-2026"], sources: ["ONS UK labour market: May 2026", "ONS/HMRC PAYE RTI", "ONS vacancies", "Nomis LFS release calendar"], runAt: "2026-06-04T10:32:04+01:00" })',
+            result:
+              "{ point: 5.2, ci80: [4.7, 5.7], context: ['Jan-Mar unemployment rate 5.0%', 'PAYE employees down on the month', 'vacancies at lowest since early 2021', 'LFS volatility remains high'] }",
+          },
+        ],
+        rationale:
+          "The short-run path keeps unemployment slightly above the January-March print. Payroll and vacancy signals point to weaker labour demand, while the LFS remains noisy enough to keep a wide 80% interval around a 5.2% central estimate.",
+      },
+      {
+        slug: "uk-unemployment-rate-jul-sep-2026",
+        title: "UK unemployment rate, Jul-Sep 2026",
+        question:
+          "What will ONS first report as the UK unemployment rate for people aged 16 and over in July to September 2026?",
+        dataPointId:
+          "ons.labour.unemployment_rate.july_to_september_2026.first_print",
+        horizon: "quarterly_path",
+        horizonLabel: "Jul-Sep 2026",
+        periodLabel: "July to September 2026",
+        resolutionDate: "2026-11-17",
+        resolutionSourceUrl:
+          "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+        resolutionRule:
+          "Resolves to the first published seasonally adjusted ONS LFS unemployment rate for people aged 16 and over for July to September 2026 in the Employment in the UK or UK labour market bulletin. Later revisions do not change the resolved value.",
+        pointEstimate: 5.2,
+        ciLow: 4.6,
+        ciHigh: 5.9,
+        tools: [
+          {
+            tool: "agent.run",
+            call: 'ukIndicatorAgent.predict({ slugs: ["uk-unemployment-rate-jul-sep-2026"], sources: ["ONS UK labour market: May 2026", "ONS/HMRC PAYE RTI", "ONS vacancies", "Bank of England labour-market commentary"], runAt: "2026-06-04T10:32:04+01:00" })',
+            result:
+              "{ point: 5.2, ci80: [4.6, 5.9], context: ['unemployment near 5%', 'payroll softness should pass through slowly', 'vacancies lower', 'policy easing could stabilize hiring later in 2026'] }",
+          },
+        ],
+        rationale:
+          "By July-September, the agent expects the weaker hiring signal to have mostly passed into the LFS rate, but not into a recessionary break. The center stays at 5.2%, with a wider interval because the horizon is beyond the next few ONS releases.",
+      },
+      {
+        slug: "uk-unemployment-rate-oct-dec-2026",
+        title: "UK unemployment rate, Oct-Dec 2026",
+        question:
+          "What will ONS first report as the UK unemployment rate for people aged 16 and over in October to December 2026?",
+        dataPointId:
+          "ons.labour.unemployment_rate.october_to_december_2026.first_print",
+        horizon: "quarterly_path",
+        horizonLabel: "Oct-Dec 2026",
+        periodLabel: "October to December 2026",
+        resolutionDate: "2027-02-16",
+        resolutionSourceUrl:
+          "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+        resolutionRule:
+          "Resolves to the first published seasonally adjusted ONS LFS unemployment rate for people aged 16 and over for October to December 2026 in the Employment in the UK or UK labour market bulletin expected in early 2027. The published one-decimal rate is the resolution value; later revisions do not change it.",
+        pointEstimate: 5.1,
+        ciLow: 4.4,
+        ciHigh: 5.9,
+        tools: [
+          {
+            tool: "agent.run",
+            call: 'ukIndicatorAgent.predict({ slugs: ["uk-unemployment-rate-oct-dec-2026"], sources: ["ONS UK labour market: May 2026", "ONS/HMRC PAYE RTI", "ONS vacancies", "IFS baseline unemployment path", "Nomis LFS release calendar"], runAt: "2026-06-04T10:32:04+01:00" })',
+            result:
+              "{ point: 5.1, ci80: [4.4, 5.9], context: ['Jan-Mar unemployment rate 5.0%', 'IFS baseline peaks near 5.1% in 2026', 'vacancies and payrolls weak but not collapsing', 'one-decimal ONS resolution'] }",
+          },
+        ],
+        rationale:
+          "This mirrors the Manifold-style Q4 target: a one-decimal ONS LFS unemployment rate for October-December 2026. The agent keeps the central path near 5.1%, consistent with a labour market that weakens through mid-2026 but stabilizes rather than deteriorating sharply by year-end.",
       },
     ],
   },

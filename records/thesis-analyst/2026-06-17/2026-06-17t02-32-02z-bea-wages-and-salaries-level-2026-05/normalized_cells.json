@@ -1,0 +1,108 @@
+[
+ {
+  "slug": "bea-wages-and-salaries-level-2026-05",
+  "country": "US",
+  "type": "data",
+  "title": "US wages and salaries, May 2026",
+  "question": "BEA NIPA Table 2.6 line 3, wages and salaries, May 2026, billions of current dollars at a seasonally adjusted annual rate, first print",
+  "unit": "usd_billions",
+  "pointEstimate": 13365,
+  "ciLow": 13325,
+  "ciHigh": 13405,
+  "confidence": 0.8,
+  "resolutionDate": "2026-06-25",
+  "resolutionSource": "U.S. Bureau of Economic Analysis, Personal Income and Outlays, May 2026",
+  "resolutionSourceUrl": "https://www.bea.gov/data/income-saving/personal-income",
+  "resolutionRule": "Resolve to the first BEA-published value for NIPA Table 2.6 line 3, Wages and salaries, for May 2026, in billions of current dollars at a seasonally adjusted annual rate. Use the value as printed in the initial Personal Income and Outlays release dated 2026-06-25; ignore later revisions or vintage updates. Round to one decimal if scoring uses displayed BEA precision.",
+  "dataPointId": "bea.nipa.table_2_6.wages_and_salaries.2026-05.first_print",
+  "historicalContext": [
+   {
+    "label": "2026-04 latest",
+    "value": 13311.1
+   },
+   {
+    "label": "2026-03",
+    "value": 13278.7
+   },
+   {
+    "label": "2026-02",
+    "value": 13231.5
+   },
+   {
+    "label": "2026-01",
+    "value": 13214.7
+   },
+   {
+    "label": "2025-12",
+    "value": 13148
+   }
+  ],
+  "drivers": [
+   "May payroll employment rose 172,000",
+   "average hourly earnings rose 0.3 percent in May",
+   "average weekly hours were unchanged at 34.3",
+   "recent BEA wages and salaries trend is roughly 40 billion dollars per month",
+   "April BEA wages and salaries were already revised/printed near 13.311 trillion dollars SAAR"
+  ],
+  "sourceContext": [
+   "https://www.bea.gov/news/schedule",
+   "https://www.bea.gov/data/income-saving/personal-income",
+   "https://fred.stlouisfed.org/series/A576RC1",
+   "https://fred.stlouisfed.org/release/tables?eid=155443&rid=54",
+   "https://www.bls.gov/news.release/empsit.nr0.htm"
+  ],
+  "runAt": "2026-06-17T02:32:16Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for BEA wages and salaries, May 2026 first print"
+   },
+   {
+    "kind": "text",
+    "text": "The target is the BEA monthly personal income account concept Wages and salaries, NIPA Table 2.6 line 3, for May 2026, measured in billions of current dollars at a seasonally adjusted annual rate. The resolver is the first official BEA print in the Personal Income and Outlays release, not a later revised vintage."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the BEA release schedule for Personal Income and Outlays, May 2026.",
+    "result": "BEA schedule lists Personal Income and Outlays, May 2026 at 8:30 AM on June 25, 2026; the same schedule also lists June 2026 on July 30, 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked BEA's Personal Income page for the current prior release and release sequencing.",
+    "result": "BEA's Personal Income page shows Personal Income and Outlays, April 2026, current release May 28, 2026, next release June 25, 2026, personal income change 0.0 percent in April and +0.5 percent in March."
+   },
+   {
+    "kind": "tool",
+    "tool": "history.lookup",
+    "call": "Read FRED/BEA mirror series A576RC1 and release table 2.6 for recent wages and salaries history.",
+    "result": "FRED/BEA mirror shows A576RC1 Apr 2026 13,311.1, Mar 2026 13,278.7, Feb 2026 13,231.5, Jan 2026 13,214.7, and Dec 2025 13,148.0 billions of dollars SAAR."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the BLS Employment Situation for May 2026 for direct wage-bill inputs.",
+    "result": "BLS reports May 2026 total nonfarm payroll employment +172,000, unemployment 4.3 percent, average hourly earnings +0.3 percent to $37.53, average weekly hours unchanged at 34.3, and April payroll revised to +179,000."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class step: the recent BEA monthly sequence rose from 13,148.0 in Dec 2025 to 13,311.1 in Apr 2026, a four-month gain of 163.1, or about 40.8 billion dollars per month. The last three one-month changes were +16.8, +47.2, and +32.4 billion dollars."
+   },
+   {
+    "kind": "math",
+    "text": "A wage-bill proxy for May adds employment growth of about 172,000 divided by roughly 159 million payroll jobs, or about 0.11 percent, to 0.3 percent hourly earnings growth and 0.0 percent hours growth. Applying about 0.41 percent to 13,311.1 gives roughly 13,365.4. I round the point to 13,365.0 and set an 80 percent interval of 13,325.0 to 13,405.0, wider than recent monthly noise because BEA mapping and first-print source inputs can differ from CES payroll measures."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: BEA wages and salaries include government and other source-data adjustments, and the strong May payroll gain was concentrated in leisure and hospitality, local government, and health care, with financial activities down 22,000. That mix may produce a lower aggregate-dollar wage gain than the headline payroll and average-hourly-earnings proxy implies."
+   },
+   {
+    "kind": "forecast",
+    "point": 13365,
+    "ciLow": 13325,
+    "ciHigh": 13405
+   }
+  ]
+ }
+]

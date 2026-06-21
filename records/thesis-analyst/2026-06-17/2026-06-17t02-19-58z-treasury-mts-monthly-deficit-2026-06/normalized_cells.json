@@ -1,0 +1,113 @@
+[
+ {
+  "slug": "us-mts-monthly-deficit-2026-06",
+  "country": "US",
+  "type": "data",
+  "title": "US June 2026 Monthly Deficit",
+  "question": "What will the U.S. Treasury Monthly Treasury Statement first print report for the June 2026 total federal budget deficit or surplus, measured as outlays minus receipts, with deficits positive and surpluses negative?",
+  "unit": "millions",
+  "pointEstimate": 45000,
+  "ciLow": -80000,
+  "ciHigh": 190000,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-13",
+  "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement for June 2026",
+  "resolutionSourceUrl": "https://fiscal.treasury.gov/reports-statements/mts/",
+  "resolutionRule": "Resolve to the first Monthly Treasury Statement print for June 2026, using total federal outlays minus total federal receipts from the Summary of Receipts, Outlays, and the Deficit/Surplus. Record in USD millions at the agency's published precision. If Treasury labels the month as a surplus, record a negative deficit. Ignore later revisions or annual Combined Statement updates.",
+  "dataPointId": "treasury.mts.monthly_deficit.2026-06.first_print",
+  "historicalContext": [
+   {
+    "label": "2025-06",
+    "value": -27000
+   },
+   {
+    "label": "2024-06",
+    "value": 66000
+   },
+   {
+    "label": "2024-05",
+    "value": 347000
+   },
+   {
+    "label": "FY2025 deficit",
+    "value": 1775000
+   },
+   {
+    "label": "FY2024 deficit",
+    "value": 1833000
+   }
+  ],
+  "drivers": [
+   "June estimated-tax receipts usually improve the monthly balance",
+   "Tariff/customs receipts were elevated in June 2025 and may remain a partial offset",
+   "Net interest and mandatory spending keep the deficit baseline high",
+   "Calendar timing of benefit payments can move tens of billions between months",
+   "Tax legislation and enforcement changes add uncertainty to receipts"
+  ],
+  "sourceContext": [
+   "https://fiscal.treasury.gov/reports-statements/mts/",
+   "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+   "https://www.cbo.gov/publication/monthly-budget-review",
+   "https://www.investopedia.com/how-trumps-tariff-revenue-helped-us-government-make-bank-in-june-11770789"
+  ],
+  "runAt": "2026-06-17T02:20:10Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "US Treasury June 2026 Monthly Deficit Forecast"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the first official Treasury Monthly Treasury Statement for June 2026. I express the target as outlays minus receipts, so a Treasury surplus is a negative deficit."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the Treasury Fiscal Service Monthly Treasury Statement page for the official release family and first-print source.",
+    "result": "Official MTS source identified; the June 2026 print is resolved from Treasury's MTS tables, with values published in millions of dollars."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the official FiscalData Monthly Treasury Statement dataset page for the agency data surface and units.",
+    "result": "FiscalData Monthly Treasury Statement tables provide receipts, outlays, and deficit/surplus fields in dollars or millions-equivalent table values; resolver unit set to USD millions."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.calendar",
+    "call": "Checked the official MTS release schedule convention for the June 2026 statement release date.",
+    "result": "The June 2026 Monthly Treasury Statement is scheduled for 2026-07-13, the first official print date used for resolution."
+   },
+   {
+    "kind": "tool",
+    "tool": "history.lookup",
+    "call": "Checked recent June budget-balance history and tariff context from public reporting tied to Treasury's June 2025 MTS release.",
+    "result": "June 2025 showed a $27 billion surplus, tariff receipts were $26.6 billion in June 2025 versus $6.3 billion in June 2024, and June 2025 interest payments were about $84 billion."
+   },
+   {
+    "kind": "tool",
+    "tool": "history.lookup",
+    "call": "Checked recent monthly and fiscal-year deficit context from public budget reporting and Treasury/CBO summaries.",
+    "result": "May 2024 deficit was $347 billion; FY2024 deficit was $1.833 trillion; FY2025 deficit was $1.775 trillion."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate: June is a high-receipt month because estimated individual and corporate tax payments arrive, so June deficits are usually smaller than adjacent months and can become surpluses. The last two June anchors point to a range from a $66 billion deficit in 2024 to a $27 billion surplus in 2025."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: the 2025 June surplus had unusually favorable ingredients, including a large spending drop and sharply higher customs receipts. By June 2026, higher interest costs and normalized agency spending could pull the month back into deficit even if tariff revenue remains elevated."
+   },
+   {
+    "kind": "math",
+    "text": "I start from the midpoint of the June 2024 deficit (+66,000 million) and June 2025 surplus (-27,000 million), about +19,500 million. I add roughly +25,000 million for higher net interest and spending normalization, yielding a rounded point of +45,000 million. An 80% interval of -80,000 to +190,000 million allows for tax-payment timing, benefit-payment shifts, and tariff-receipt uncertainty."
+   },
+   {
+    "kind": "forecast",
+    "point": 45000,
+    "ciLow": -80000,
+    "ciHigh": 190000
+   }
+  ]
+ }
+]

@@ -191,7 +191,7 @@ export const HEALTH_COVERAGE_EXAMPLES = [
       "Resolves to the final U.S. infant mortality rate for calendar year 2026, in infant deaths per 1,000 live births, from CDC/NCHS NVSS linked birth/infant death records, conditional on no materially equivalent $3,000 fully refundable Child Tax Credit being in effect for TY2026. If such a policy is in effect, this baseline scenario is marked unresolved.",
     conditionalOn:
       "No materially equivalent $3,000 fully refundable Child Tax Credit in effect for TY2026",
-    dataPointId: "cdc.nchs.nvss.infant_mortality_rate.2026.final",
+    dataPointId: "cdc.nchs.nvss.infant_mortality_rate.2026.current_law.final",
     policyParameter: "irc.24.current_law.2026",
     historicalContext: [
       { label: "2019", value: 5.58 },
@@ -253,7 +253,8 @@ export const HEALTH_COVERAGE_EXAMPLES = [
       "Resolves to the final U.S. infant mortality rate for calendar year 2026, in infant deaths per 1,000 live births, from CDC/NCHS NVSS linked birth/infant death records, conditional on a materially equivalent $3,000 fully refundable Child Tax Credit being in effect for TY2026. If the policy is not in effect, this scenario is marked unresolved.",
     conditionalOn:
       "$3,000 fully refundable Child Tax Credit in effect for TY2026",
-    dataPointId: "cdc.nchs.nvss.infant_mortality_rate.2026.final",
+    dataPointId:
+      "cdc.nchs.nvss.infant_mortality_rate.2026.ctc_3000_refundable.final",
     policyParameter: "irc.24.ctc_3000_fully_refundable.2026",
     historicalContext: [
       { label: "2019", value: 5.58 },

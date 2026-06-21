@@ -1,0 +1,168 @@
+[
+  {
+    "slug": "bls-ces-nonfarm-payrolls-change-2026-06",
+    "country": "US",
+    "type": "data",
+    "title": "US nonfarm payrolls, June 2026",
+    "question": "BLS Current Employment Statistics total nonfarm payroll employment, seasonally adjusted month-over-month change for June 2026, first print in the Employment Situation release",
+    "unit": "thousands",
+    "pointEstimate": 150,
+    "ciLow": -20,
+    "ciHigh": 310,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-02",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Employment Situation release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/empsit.nr0.htm",
+    "resolutionRule": "Resolve to the first published seasonally adjusted change in total nonfarm payroll employment for June 2026, in thousands, from the BLS Employment Situation release issued July 2, 2026. Use the headline first print as released; do not apply later revisions. Round to the nearest thousand if needed.",
+    "dataPointId": "bls.ces.total_nonfarm.change.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 first print",
+        "value": 172
+      },
+      {
+        "label": "April 2026 first print",
+        "value": 115
+      },
+      {
+        "label": "March 2026 first print",
+        "value": 185
+      },
+      {
+        "label": "April 2026 latest revised",
+        "value": 179
+      },
+      {
+        "label": "March 2026 latest revised",
+        "value": 214
+      }
+    ],
+    "drivers": [
+      "recent first-print payroll gains stayed above 100k",
+      "upward revisions point to stronger underlying spring hiring",
+      "unemployment steady at 4.3 percent",
+      "labor force participation steady at 61.8 percent",
+      "narrow sector breadth and financial-activities losses temper upside"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "https://www.bls.gov/news.release/empsit.t17.htm"
+    ],
+    "runAt": "2026-06-17T02:18:28Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 US nonfarm payrolls first-print forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first BLS Employment Situation print for June 2026 total nonfarm payroll employment, seasonally adjusted, measured as the month-over-month change in thousands."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS Employment Situation release calendar for the June 2026 reference month.",
+        "result": "BLS lists June 2026 Employment Situation release date as Jul. 02, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the latest BLS Employment Situation Summary for May 2026.",
+        "result": "BLS reported total nonfarm payroll employment increased by 172,000 in May 2026 and unemployment was 4.3 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the BLS revisions paragraph in the May 2026 Employment Situation Summary.",
+        "result": "BLS revised March from +185,000 to +214,000 and April from +115,000 to +179,000, a combined upward revision of 93,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS establishment and household context in the May 2026 release and Table B-1.",
+        "result": "Table B-1 shows total nonfarm seasonally adjusted employment at 159,001,000 in May 2026 and a May change of 172,000; the release says labor force participation was 61.8 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: the latest three first prints available in this run are March +185k, April +115k, and May +172k, averaging about +157k. The revised three-month pace is stronger at about +188k, but the target resolves to first print, so I weight first-print behavior more heavily."
+      },
+      {
+        "kind": "text",
+        "text": "Upside case: upward revisions and a steady 4.3 percent unemployment rate suggest the labor market had more momentum than April's initial print implied, and May sector gains in leisure and hospitality, local government, and health care could persist into June."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: BLS noted losses in financial activities and little change in several other major industries; if May's leisure-and-hospitality surge was partly special or seasonal, the June first print could mean-revert sharply."
+      },
+      {
+        "kind": "math",
+        "text": "Recent first-print average = (185 + 115 + 172) / 3 = 157.3 thousand. I round down slightly to 150 thousand to allow for mean reversion from May strength while keeping the center near the recent first-print base rate. An 80% interval of -20 to 310 thousand allows roughly 170 thousand downside and 160 thousand upside around the point, covering ordinary payroll first-print volatility and recession-tail risk."
+      },
+      {
+        "kind": "forecast",
+        "point": 150,
+        "ciLow": -20,
+        "ciHigh": 310
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/prompt.md",
+        "sha256": "2b78b5498ba4e0c3719b2e5defe1a2b7ced9dafdbe4dcad247203a1e7246d41f",
+        "bytes": 3600,
+        "createdAt": "2026-06-17T02:18:17Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/command.json",
+        "sha256": "7ddc83883faba514a5ff5a7f9d0d657dd967b000a900669621f4f1725f3e745b",
+        "bytes": 412,
+        "createdAt": "2026-06-17T02:18:17Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/stdout.txt",
+        "sha256": "82d655924fbb691530cdf9c42f5a36ef3f15e70551afb43af35122fc58af62d0",
+        "bytes": 4411,
+        "createdAt": "2026-06-17T02:18:17Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/stderr.txt",
+        "sha256": "044910e2ff825a531b73e5f0d1c9cc8566d667f49c9289c88297e4884480a46a",
+        "bytes": 14380,
+        "createdAt": "2026-06-17T02:18:17Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/raw_response.txt",
+        "sha256": "82d655924fbb691530cdf9c42f5a36ef3f15e70551afb43af35122fc58af62d0",
+        "bytes": 4411,
+        "createdAt": "2026-06-17T02:18:17Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/parsed_cells.json",
+        "sha256": "2a9f1a90e3a56856e1fcecb13cc79b99157222eb23e9598b001bc63cfdd828fb",
+        "bytes": 5259,
+        "createdAt": "2026-06-17T02:18:17Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/normalized_cells.json",
+        "sha256": "918bf47fa63e3e18c27aab00e93aab63dbac9749cb15376a4149922c8c983557",
+        "bytes": 4921,
+        "createdAt": "2026-06-17T02:18:17Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-18-17z-bls-ces-nonfarm-payrolls-change-2026-06/validation.json",
+        "sha256": "6beaba795a8213095eb0480ebc55ed5025c30d4e31024c0f1afbe6161ae4f0d7",
+        "bytes": 140,
+        "createdAt": "2026-06-17T02:18:17Z"
+      }
+    ]
+  }
+]

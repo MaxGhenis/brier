@@ -1,11 +1,16 @@
 import type {
   CountryCode,
+  ForecastRunEntry,
   ForecastCell,
   ForecastCellType,
+  PredictionRunActivityArtifact,
+  PredictionPackSet,
   ReasoningStep,
   ResolutionPolicy,
   Unit,
 } from "./forecast-cells";
+import { getForecastRunEntries } from "./forecast-cells";
+import { requireLedgerTarget } from "./ledger-targets";
 import type { PredictionDistribution } from "./prediction-distribution";
 
 export type PredictionSpecSchemaVersion = "thesis_prediction_spec_v1";
@@ -78,6 +83,10 @@ export interface PredictionRunRecord {
   specVersionId: string;
   predictionId: string;
   agentId: string;
+  runLabel: string;
+  runDescription?: string;
+  packSet?: PredictionPackSet;
+  activityLog?: PredictionRunActivityArtifact[];
   idempotencyKey: string;
   createdAt: string;
   modelVersion?: string;
@@ -96,6 +105,8 @@ export interface PredictionRunRecord {
     specVersionId: string;
     allowedTools: string[];
     targetFactRef?: string;
+    packSetId?: string;
+    packIds: string[];
   };
   output: {
     pointEstimate: number;
@@ -153,13 +164,17 @@ const SPEC_QUALITY_GATES = [
 export function buildPredictionSpec(forecast: ForecastCell): PredictionSpec {
   const specId = buildSpecId(forecast.slug);
   const specVersionId = buildSpecVersionId(forecast.slug);
+  const ledgerTarget = forecast.dataPointId
+    ? requireLedgerTarget(forecast.dataPointId)
+    : undefined;
   const resolution = {
-    expectedAt: forecast.resolutionDate,
-    source: forecast.resolutionSource,
-    sourceUrl: forecast.resolutionSourceUrl,
-    rule: forecast.resolutionRule,
-    policy: forecast.series?.resolutionPolicy,
-    targetFactRef: forecast.dataPointId,
+    expectedAt: ledgerTarget?.resolutionDate ?? forecast.resolutionDate,
+    source: ledgerTarget?.resolutionSource ?? forecast.resolutionSource,
+    sourceUrl:
+      ledgerTarget?.resolutionSourceUrl ?? forecast.resolutionSourceUrl,
+    rule: ledgerTarget?.resolutionRule ?? forecast.resolutionRule,
+    policy: ledgerTarget?.resolutionPolicy ?? forecast.series?.resolutionPolicy,
+    targetFactRef: ledgerTarget?.dataPointId ?? forecast.dataPointId,
     factLedger: "PolicyEngine Ledger" as const,
   };
   const tools = {
@@ -245,20 +260,26 @@ export function buildPredictionSpecExport(
 export function buildRecordedPredictionRunRecord(
   forecast: ForecastCell,
   spec: PredictionSpec = buildPredictionSpec(forecast),
+  run: ForecastRunEntry = getForecastRunEntries(forecast)[0],
 ): PredictionRunRecord | null {
-  if (!forecast.predictionDistribution) return null;
+  if (!run?.predictionDistribution) return null;
 
-  const qualityGates = evaluateRunQualityGates(forecast, spec);
+  const qualityGates = evaluateRunQualityGates(forecast, spec, run);
   const hasFailedGate = qualityGates.some((gate) => gate.status === "failed");
-  const createdAt = forecast.predictionRun?.runAt ?? SEEDED_RUN_RECORDED_AT;
-  const runId = buildRecordedPredictionRunId(forecast, createdAt);
-  const agentId = buildAgentId(forecast);
-  const publicTrace = buildPublicTrace(forecast.reasoning);
-  const toolCalls = extractToolCalls(forecast.reasoning, runId, spec);
+  const createdAt = run.predictionRun?.runAt ?? SEEDED_RUN_RECORDED_AT;
+  const runId = buildRecordedPredictionRunId(
+    forecast,
+    createdAt,
+    run.variantId,
+  );
+  const agentId = buildAgentId(run);
+  const publicTrace = buildPublicTrace(run.reasoning);
+  const toolCalls = extractToolCalls(run.reasoning, runId, spec);
   const promptHash = stableHash({
     specVersionId: spec.specVersionId,
     question: spec.question,
     instructions: spec.agent.instructions,
+    runVariantId: run.variantId,
   });
   const toolPolicyHash = stableHash(spec.tools);
   const inputBundleHash = stableHash({
@@ -266,6 +287,7 @@ export function buildRecordedPredictionRunRecord(
     targetFactRef: spec.resolution.targetFactRef,
     historicalContext: forecast.historicalContext,
     policyParameter: forecast.policyParameter,
+    packSet: run.packSet,
   });
 
   return {
@@ -275,13 +297,19 @@ export function buildRecordedPredictionRunRecord(
     specVersionId: spec.specVersionId,
     predictionId: forecast.slug,
     agentId,
+    runLabel: run.label,
+    runDescription: run.description,
+    packSet: run.packSet,
+    activityLog: run.predictionRun?.activityLog,
     idempotencyKey: stableHash({
       specVersionId: spec.specVersionId,
       agentId,
       createdAt,
+      runVariantId: run.variantId,
+      packSetId: run.packSet?.packSetId,
     }),
     createdAt,
-    modelVersion: forecast.predictionRun?.model,
+    modelVersion: run.predictionRun?.model,
     promptHash,
     toolPolicyHash,
     inputBundleHash,
@@ -289,22 +317,24 @@ export function buildRecordedPredictionRunRecord(
     runner: {
       id: "thesis.recorded-agent-runner",
       version: "prototype-v1",
-      agent: forecast.predictionRun?.agent,
-      model: forecast.predictionRun?.model,
+      agent: run.predictionRun?.agent,
+      model: run.predictionRun?.model,
     },
     input: {
       specId: spec.specId,
       specVersionId: spec.specVersionId,
       allowedTools: spec.tools.allowed,
       targetFactRef: spec.resolution.targetFactRef,
+      packSetId: run.packSet?.packSetId,
+      packIds: run.packSet?.packs.map((pack) => pack.packId) ?? [],
     },
     output: {
-      pointEstimate: forecast.pointEstimate,
+      pointEstimate: run.pointEstimate,
       interval80: {
-        lower: forecast.ciLow,
-        upper: forecast.ciHigh,
+        lower: run.ciLow,
+        upper: run.ciHigh,
       },
-      distribution: forecast.predictionDistribution,
+      distribution: run.predictionDistribution,
       publicTrace,
       publicTraceMetadata: {
         redactionStatus: "public_only",
@@ -312,7 +342,7 @@ export function buildRecordedPredictionRunRecord(
         publiclyReproducibleEnough: true,
       },
       toolCalls,
-      drivers: forecast.drivers,
+      drivers: run.drivers,
     },
     resolution: {
       status: forecast.resolvedOutcome ? "linked" : "pending",
@@ -333,18 +363,23 @@ export function buildRecordedPredictionRunRecords(
 ): PredictionRunRecord[] {
   const specsById = new Map(specs.map((spec) => [spec.predictionId, spec]));
   return forecasts.flatMap((forecast) => {
-    const run = buildRecordedPredictionRunRecord(
-      forecast,
-      specsById.get(forecast.slug),
-    );
-    return run ? [run] : [];
+    return getForecastRunEntries(forecast).flatMap((runEntry) => {
+      const run = buildRecordedPredictionRunRecord(
+        forecast,
+        specsById.get(forecast.slug),
+        runEntry,
+      );
+      return run ? [run] : [];
+    });
   });
 }
 
 function buildAllowedTools(forecast: ForecastCell) {
   const tools = new Set<string>(SYSTEM_TOOLS);
-  for (const tool of extractToolNames(forecast.reasoning)) {
-    tools.add(tool);
+  for (const run of getForecastRunEntries(forecast)) {
+    for (const tool of extractToolNames(run.reasoning)) {
+      tools.add(tool);
+    }
   }
   if (forecast.type === "conditional" || forecast.policyParameter) {
     tools.add("policyengine.simulate");
@@ -370,8 +405,11 @@ export function buildResolutionRef(predictionId: string) {
 export function buildRecordedPredictionRunId(
   forecast: ForecastCell,
   createdAt: string = forecast.predictionRun?.runAt ?? SEEDED_RUN_RECORDED_AT,
+  variantId = "primary",
 ) {
-  return `run.${forecast.slug}.${formatRunTimestamp(createdAt)}`;
+  const variantSuffix =
+    variantId === "primary" ? "" : `.${formatRunTimestamp(variantId)}`;
+  return `run.${forecast.slug}.${formatRunTimestamp(createdAt)}${variantSuffix}`;
 }
 
 function buildRequiredTools(forecast: ForecastCell) {
@@ -383,8 +421,9 @@ function buildRequiredTools(forecast: ForecastCell) {
 function evaluateRunQualityGates(
   forecast: ForecastCell,
   spec: PredictionSpec,
+  run: ForecastRunEntry,
 ): PredictionRunQualityGate[] {
-  const distribution = forecast.predictionDistribution;
+  const distribution = run.predictionDistribution;
 
   return [
     gate(
@@ -422,7 +461,7 @@ function evaluateRunQualityGates(
     ),
     gate(
       "public_trace_present",
-      buildPublicTrace(forecast.reasoning).length >= 3,
+      buildPublicTrace(run.reasoning).length >= 3,
       "Run must include a public audit trace.",
     ),
     gate(
@@ -517,8 +556,8 @@ function inferToolName(call: string) {
   return match?.[1] ?? "agent.tool";
 }
 
-function buildAgentId(forecast: ForecastCell) {
-  const agent = forecast.predictionRun?.agent ?? "prototype-seed-agent";
+function buildAgentId(run: ForecastRunEntry) {
+  const agent = run.predictionRun?.agent ?? "prototype-seed-agent";
   return `agent.${agent
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")

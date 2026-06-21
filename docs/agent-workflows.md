@@ -2,6 +2,12 @@
 
 `brier` is not tied to one assistant. The Claude Code plugin is the most integrated path today, but the framework also works with Codex, Cursor, Windsurf, ChatGPT, and any other agent that can follow structured instructions.
 
+For Thesis forecast-generation work, read
+[`docs/thesis-vision.md`](thesis-vision.md) first. The Thesis path is narrower
+than the general decision workflow: agent-only public-data forecasts, automatic
+first-print or policy-state resolution, immutable activity traces, and proper
+scoring for Brier.
+
 ## Core instruction
 
 Give your agent this instruction when you want a decision analyzed with `brier`:

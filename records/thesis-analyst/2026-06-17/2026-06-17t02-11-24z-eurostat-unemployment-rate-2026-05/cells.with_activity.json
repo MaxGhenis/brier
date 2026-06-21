@@ -1,0 +1,168 @@
+[
+  {
+    "slug": "eurostat-euro-area-unemployment-rate-2026-05",
+    "country": "EA",
+    "type": "data",
+    "title": "Euro area unemployment, May 2026",
+    "question": "What will Eurostat first publish as the euro area seasonally adjusted unemployment rate for May 2026, total sex, age 15-74, in percent of the labour force, rounded to one decimal?",
+    "unit": "percent",
+    "pointEstimate": 6.3,
+    "ciLow": 6.1,
+    "ciHigh": 6.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-02",
+    "resolutionSource": "Eurostat euro-indicators unemployment release / une_rt_m data page",
+    "resolutionSourceUrl": "https://ec.europa.eu/eurostat/news/euro-indicators",
+    "resolutionRule": "Resolve to the first Eurostat-published May 2026 euro area seasonally adjusted unemployment rate in dataset une_rt_m / the corresponding euro-indicators release, total sex, age 15-74, unit percent of active population, rounded to one decimal. Use the first official print only; ignore later revisions to May 2026.",
+    "dataPointId": "eurostat.une_rt_m.ea20.pc_act.sa.y15-74.t.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-04 latest first print",
+        "value": 6.3
+      },
+      {
+        "label": "2026-03",
+        "value": 6.3
+      },
+      {
+        "label": "2026-02",
+        "value": 6.4
+      },
+      {
+        "label": "2026-01",
+        "value": 6.3
+      },
+      {
+        "label": "2025-04",
+        "value": 6.3
+      }
+    ],
+    "drivers": [
+      "April euro area unemployment stable at 6.3%",
+      "Recent monthly range tightly clustered at 6.3-6.4%",
+      "Euro area unemployed persons fell by 84 thousand in April",
+      "Q1 GDP fell 0.2%, raising mild upside risk",
+      "Inflation and energy shock may slow hiring but layoffs are not yet visible"
+    ],
+    "sourceContext": [
+      "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/3-01062026-ap",
+      "https://ec.europa.eu/eurostat/news/euro-indicators",
+      "https://ec.europa.eu/eurostat/web/main/news/release-calendar"
+    ],
+    "runAt": "2026-06-17T02:11:36Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Euro area unemployment rate, May 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "The target is Eurostat's first official May 2026 euro area seasonally adjusted unemployment rate, total sex and age 15-74, in percent. The April 2026 Eurostat release states the next unemployment release is on 2 July 2026, so that is the verified resolution date for the May 2026 first print."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Eurostat euro-indicators unemployment release dated 1 June 2026 for April 2026.",
+        "result": "Fetched April 2026 euro area unemployment rate 6.3%, March 2026 6.3%, April 2025 6.3%, and EU April 2026 6.0%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Eurostat table in the April 2026 unemployment release for recent euro area totals.",
+        "result": "Fetched euro area rates: Apr-25 6.3, Jan-26 6.3, Feb-26 6.4, Mar-26 6.3, Apr-26 6.3; fetched unemployed persons: Apr-26 11075 thousand and Mar-26 11159 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Eurostat euro-indicators listing for nearby macro releases and publication schedule context.",
+        "result": "Fetched official listing values: GDP Q1 2026 down 0.2% in euro area, employment Q1 2026 up 0.1%, May 2026 euro area inflation flash 3.2%, April 2026 retail trade down 0.4%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Eurostat release calendar page for release-calendar provenance.",
+        "result": "Fetched calendar note that the release calendar uses Europe/Luxembourg time zone and the April unemployment release shows Next release: 2 July 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: monthly euro area unemployment rates usually move slowly at one-decimal precision; the last five official points shown for the euro area are 6.3, 6.3, 6.4, 6.3, and 6.3, making 6.3 the modal and median recent print."
+      },
+      {
+        "kind": "text",
+        "text": "The April level is stable year-on-year and month-on-month, while the number of euro area unemployed fell by 84 thousand from March to April. That argues against forecasting a near-term jump in the rounded May rate."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: Q1 GDP contraction of 0.2%, weaker retail trade, and higher May inflation at 3.2% could weaken demand and push unemployment up. These forces justify keeping upside mass at 6.4-6.5 rather than making the interval too narrow."
+      },
+      {
+        "kind": "math",
+        "text": "Use recent monthly persistence as the anchor: median(6.3, 6.3, 6.4, 6.3, 6.3) = 6.3. Apply no directional adjustment because the April unemployment headcount fell but macro growth weakened. Set an 80% interval of +/-0.2 percentage points around 6.3, giving 6.1 to 6.5."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.3,
+        "ciLow": 6.1,
+        "ciHigh": 6.5
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/prompt.md",
+        "sha256": "42fc4e7cfbfeccf8ae6ce4fab461892e9410661cdb2862000e6bc9acac294a42",
+        "bytes": 3484,
+        "createdAt": "2026-06-17T02:11:24Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/command.json",
+        "sha256": "f46e4fbf04466b333c6a6814e53d4d5f062385882a1325ccefff75ade7487296",
+        "bytes": 412,
+        "createdAt": "2026-06-17T02:11:24Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/stdout.txt",
+        "sha256": "91ce7d6557c3c00eaff41b0ba5efafba0fa87fe596ba2ec6a2c812c7591430eb",
+        "bytes": 4470,
+        "createdAt": "2026-06-17T02:11:24Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/stderr.txt",
+        "sha256": "97bf8b32f766dc508a3fe23e69b57a5afb7e6ec8cbb77be6416c470f054671d5",
+        "bytes": 15646,
+        "createdAt": "2026-06-17T02:11:24Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/raw_response.txt",
+        "sha256": "91ce7d6557c3c00eaff41b0ba5efafba0fa87fe596ba2ec6a2c812c7591430eb",
+        "bytes": 4470,
+        "createdAt": "2026-06-17T02:11:24Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/parsed_cells.json",
+        "sha256": "84a23a58f177f8beae81fbc6771d6ae2b3f85464580b72a6ddd3877671e8f3f4",
+        "bytes": 5318,
+        "createdAt": "2026-06-17T02:11:24Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/normalized_cells.json",
+        "sha256": "5345eaf14b808dc62fac1e7e990be1b03797a33b18f667a00c88889c54850282",
+        "bytes": 4980,
+        "createdAt": "2026-06-17T02:11:24Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-11-24z-eurostat-unemployment-rate-2026-05/validation.json",
+        "sha256": "4f24bffaf43ff3139782a6ecd3c141c014a5c39df944b760e772766168df0eae",
+        "bytes": 145,
+        "createdAt": "2026-06-17T02:11:24Z"
+      }
+    ]
+  }
+]

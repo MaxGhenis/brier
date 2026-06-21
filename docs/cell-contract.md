@@ -4,6 +4,11 @@ One JSON object per forecast, produced by a thesis.analyst run and converted
 into the catalog by `scripts/spawned_cells_to_ts.py` (which validates all of
 this; `site/src/__tests__/trace-depth.test.ts` re-enforces it in CI).
 
+This contract serves the Thesis vision in
+[`docs/thesis-vision.md`](thesis-vision.md): agent-only forecasts over
+automatically resolvable public data, with full activity traces preserved for
+later scoring and Brier training.
+
 ```json
 {
   "slug": "kebab-case-unique-vs-catalog",
@@ -12,7 +17,10 @@ this; `site/src/__tests__/trace-depth.test.ts` re-enforces it in CI).
   "title": "Short display title",
   "question": "Resolution-grade: exact series, period, adjustment, first print",
   "unit": "count|percent|usd|usd_billions|usd_monthly|thousands|millions|ratio|percent_growth|gbp_billions|per_1000_live_births",
-  "pointEstimate": 0, "ciLow": 0, "ciHigh": 0, "confidence": 0.8,
+  "pointEstimate": 0,
+  "ciLow": 0,
+  "ciHigh": 0,
+  "confidence": 0.8,
   "resolutionDate": "YYYY-MM-DD (verified from the official release calendar)",
   "resolutionSource": "Agency, release name",
   "resolutionSourceUrl": "https://... (the release/data page that resolves it)",
@@ -23,10 +31,24 @@ this; `site/src/__tests__/trace-depth.test.ts` re-enforces it in CI).
   "drivers": ["3-5 short driver phrases"],
   "sourceContext": ["urls actually fetched this run (>=2)"],
   "runAt": "real `date -u +%Y-%m-%dT%H:%M:%SZ` at generation",
+  "activityLog": [
+    {
+      "artifactType": "prompt|command|stdout|stderr|raw_response|parsed_cell|normalized_cell|validation_report|manifest",
+      "path": "records/thesis-analyst/...",
+      "sha256": "hex",
+      "bytes": 0,
+      "createdAt": "ISO timestamp"
+    }
+  ],
   "reasoning": [
     { "kind": "heading", "text": "…" },
     { "kind": "text", "text": "…" },
-    { "kind": "tool", "tool": "fred.lookup", "call": "…", "result": "actual fetched numbers" },
+    {
+      "kind": "tool",
+      "tool": "fred.lookup",
+      "call": "…",
+      "result": "actual fetched numbers"
+    },
     { "kind": "math", "text": "explicit point + CI derivation" },
     { "kind": "forecast", "point": 0, "ciLow": 0, "ciHigh": 0 }
   ]
@@ -39,9 +61,16 @@ step; one math derivation; one disconfirming consideration ("outside the
 interval if…"); final forecast step exactly matching the cell numbers;
 historicalContext >=3 real points; ciLow < point < ciHigh.
 
+`activityLog` is added by `scripts/run_thesis_analyst.py`, not by the model.
+It preserves the full run envelope behind the curated public trace: prompt,
+command metadata, stdout/stderr, raw response, parsed/normalized cells, and
+validation report.
+
 The converter stamps `predictionRun` from `agents/thesis-analyst/`:
 `{kind: "recorded-agent-run", runAt, agent: "thesis.analyst", model,
-agentVersion, promptHash, toolPolicyHash, sourceContext}` — promptHash =
-sha256(system.md), toolPolicyHash = sha256(skills/*.md sorted by filename),
-version/model from agent.yaml. Bump the version when any of those files
-change.
+agentVersion, promptHash, toolPolicyHash, sourceContext, activityLog}` — promptHash =
+sha256(system.md), toolPolicyHash = sha256(skills/\*.md sorted by filename),
+version from agent.yaml. The recorded model is the actual runtime model when
+the command names one with `-m`, `--model`, or `--model=...`; otherwise it
+falls back to the agent.yaml default. Bump the version when any agent file
+changes.

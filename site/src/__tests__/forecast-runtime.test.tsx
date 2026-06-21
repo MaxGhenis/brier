@@ -1,6 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
-import { ForecastRuntime, STREAM_WATCHDOG_MS } from "@/components/ForecastRuntime";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from "@testing-library/react";
+import {
+  ForecastRuntime,
+  STREAM_WATCHDOG_MS,
+} from "@/components/ForecastRuntime";
 import { LIVE_FORECAST_SLUGS, FORECAST_CELLS } from "@/data/forecast-cells";
 
 type Listener = (event: MessageEvent) => void;
@@ -36,7 +45,12 @@ class FakeEventSource {
   }
 }
 
-const liveForecast = FORECAST_CELLS.find((m) => LIVE_FORECAST_SLUGS.has(m.slug))!;
+const liveForecast = FORECAST_CELLS.find((m) =>
+  LIVE_FORECAST_SLUGS.has(m.slug),
+)!;
+const cpiForecast = FORECAST_CELLS.find(
+  (forecast) => forecast.slug === "cpi-u-annual-2026",
+)!;
 
 describe("ForecastRuntime stream watchdog", () => {
   beforeEach(() => {
@@ -89,5 +103,58 @@ describe("ForecastRuntime stream watchdog", () => {
 
     expect(FakeEventSource.instances[0].closed).toBe(true);
     expect(screen.getByText(/replaying the static mock trace/i)).toBeTruthy();
+  });
+
+  it("renders target-level runs across agents, packs, and updates", () => {
+    render(<ForecastRuntime forecast={cpiForecast} />);
+
+    expect(screen.getByText("Forecast runs")).toBeTruthy();
+    expect(screen.getByText("Pack visualizer")).toBeTruthy();
+    expect(screen.getByText("Control · no packs")).toBeTruthy();
+    expect(screen.getByText("Brier-1 · CPI packs · Jun 12")).toBeTruthy();
+    expect(screen.getByText("Brier-1 · CPI packs")).toBeTruthy();
+    expect(screen.getByText("models")).toBeTruthy();
+    expect(screen.getAllByText("gpt-5.4").length).toBeGreaterThan(1);
+    expect(
+      screen.getAllByText("CPI annual-average pack set").length,
+    ).toBeGreaterThan(1);
+    expect(screen.getByText("update 1/2")).toBeTruthy();
+    expect(screen.getByText("update 2/2")).toBeTruthy();
+    expect(screen.getAllByText("public trace").length).toBeGreaterThan(1);
+  });
+
+  it("lets users select packs and inspect their details", () => {
+    render(<ForecastRuntime forecast={cpiForecast} />);
+
+    expect(
+      screen.getByText(
+        "Forces the agent to anchor on a resolved reference class before applying inside-view adjustments.",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "Open pack page →" })
+        .getAttribute("href"),
+    ).toBe("/packs/base-rate-first");
+
+    fireEvent.click(
+      screen.getAllByRole("button", { name: /Tariff pass-through/i })[0],
+    );
+
+    expect(
+      screen.getByText(
+        "Applies a right-tail adjustment for goods-price pass-through when tariff risk is active.",
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText("tariff-pass-through")).toBeTruthy();
+    expect(screen.getByText("calibration")).toBeTruthy();
+    expect(
+      screen.getByText("Brier-1 · CPI packs · Jun 12, Brier-1 · CPI packs"),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "Open pack page →" })
+        .getAttribute("href"),
+    ).toBe("/packs/tariff-pass-through");
   });
 });

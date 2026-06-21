@@ -1,0 +1,6760 @@
+import type { TargetRegisteredLedgerEntry } from "./ledger-targets";
+
+// Generated from the current forecast catalog so legacy forecast cells also
+// resolve through explicit ledger target registrations. Hand-authored targets
+// in ledger-targets.ts take precedence when a dataPointId appears in both files.
+export const GENERATED_FORECAST_TARGETS = [
+  {
+    kind: "target_registered",
+    dataPointId: "census.spm.child_poverty_rate.2025",
+    observationId: "obs.census.spm.child_poverty_rate.2025",
+    country: "US",
+    periodLabel: "2026-09-15",
+    unit: "percent",
+    resolutionDate: "2026-09-15",
+    resolutionSource: "U.S. Census Bureau, Poverty in the United States: 2025",
+    resolutionRule:
+      "Resolves to the official SPM child poverty rate (children under 18) for calendar year 2025 in the Census Poverty in the United States report, expected in September 2026. If Census publishes multiple SPM variants, this uses the main published SPM table.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, Poverty in the United States: 2025",
+    note: "Backfilled target registration from the forecast catalog for SPM child poverty rate, 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.official_poverty_rate.2025",
+    observationId: "obs.census.official_poverty_rate.2025",
+    country: "US",
+    periodLabel: "2026-09-15",
+    unit: "percent",
+    resolutionDate: "2026-09-15",
+    resolutionSource: "U.S. Census Bureau, Poverty in the United States: 2025",
+    resolutionRule:
+      "Resolves to the official poverty rate for all people in calendar year 2025 in the Census Poverty in the United States report, expected in September 2026. This uses the official poverty measure, not the Supplemental Poverty Measure.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, Poverty in the United States: 2025",
+    note: "Backfilled target registration from the forecast catalog for Official poverty rate, 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.asec.median_household_income.2025",
+    observationId: "obs.census.asec.median_household_income.2025",
+    country: "US",
+    periodLabel: "2026-09-15",
+    unit: "usd",
+    resolutionDate: "2026-09-15",
+    resolutionSource: "U.S. Census Bureau, Income in the United States: 2025",
+    resolutionRule:
+      "Resolves to the real median household income for calendar year 2025 in the Census Income in the United States report, expected in September 2026, expressed in 2025 dollars or the headline real-dollar basis used by Census.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, Income in the United States: 2025",
+    note: "Backfilled target registration from the forecast catalog for Median household income, 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.spm.child_poverty_rate.2027",
+    observationId: "obs.census.spm.child_poverty_rate.2027",
+    country: "US",
+    periodLabel: "2028-09-15",
+    unit: "percent",
+    resolutionDate: "2028-09-15",
+    resolutionSource: "U.S. Census Bureau, SPM annual release",
+    resolutionRule:
+      "Resolves to the official SPM child poverty rate (children under 18) published in the Census Poverty in the United States report covering CY2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, SPM annual release",
+    note: "Backfilled target registration from the forecast catalog for SPM child poverty rate, 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.lns14000000.2026-12",
+    observationId: "obs.bls.lns14000000.2026-12",
+    country: "US",
+    periodLabel: "2027-01-09",
+    unit: "percent",
+    resolutionDate: "2027-01-09",
+    resolutionSource: "BLS Employment Situation (CES/CPS)",
+    resolutionRule:
+      "Resolves to the first-print seasonally-adjusted U-3 unemployment rate for December 2026, released on the first Friday of January 2027 (subject to revision; first print is the resolution value).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "BLS Employment Situation (CES/CPS)",
+    note: "Backfilled target registration from the forecast catalog for Unemployment rate, December 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.cpi.u.annual_pct_change.2026",
+    observationId: "obs.bls.cpi.u.annual_pct_change.2026",
+    country: "US",
+    periodLabel: "2027-01-15",
+    unit: "percent",
+    resolutionDate: "2027-01-15",
+    resolutionSource: "BLS CPI-U release",
+    resolutionRule:
+      "Resolves to the percent change in CPI-U annual average for 2026 over 2025 (BLS series CUUR0000SA0, annual average), first-published value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "BLS CPI-U release",
+    note: "Backfilled target registration from the forecast catalog for CPI-U annual average inflation, 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.asec.median_household_income.2026",
+    observationId: "obs.census.asec.median_household_income.2026",
+    country: "US",
+    periodLabel: "2027-09-15",
+    unit: "usd",
+    resolutionDate: "2027-09-15",
+    resolutionSource: "Census ASEC (Current Population Survey)",
+    resolutionRule:
+      "Resolves to the real median household income for 2026 as published in the Census income report, expressed in 2026 dollars.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Census ASEC (Current Population Survey)",
+    note: "Backfilled target registration from the forecast catalog for Median household income, 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.individual_income_tax.fy2027",
+    observationId: "obs.treasury.mts.individual_income_tax.fy2027",
+    country: "US",
+    periodLabel: "2027-10-20",
+    unit: "usd",
+    resolutionDate: "2027-10-20",
+    resolutionSource:
+      "U.S. Treasury Monthly Statement (final September FY2027)",
+    resolutionRule:
+      "Resolves to total individual income tax receipts for FY2027 as reported in the Monthly Treasury Statement covering September 2027, in billions of nominal dollars.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Treasury Monthly Statement (final September FY2027)",
+    note: "Backfilled target registration from the forecast catalog for Federal individual income tax revenue, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.gdpc1.q4q4.2026",
+    observationId: "obs.bea.gdpc1.q4q4.2026",
+    country: "US",
+    periodLabel: "2027-01-28",
+    unit: "percent_growth",
+    resolutionDate: "2027-01-28",
+    resolutionSource: "BEA GDP advance estimate (Q4 2026)",
+    resolutionRule:
+      "Resolves to the Q4/Q4 real GDP growth rate for 2026 as published in the BEA Q4 2026 advance estimate (late January 2027).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "BEA GDP advance estimate (Q4 2026)",
+    note: "Backfilled target registration from the forecast catalog for Real GDP growth, 2026 (Q4/Q4).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.asec.uninsured_rate_under_65.2026",
+    observationId: "obs.census.asec.uninsured_rate_under_65.2026",
+    country: "US",
+    periodLabel: "2027-09-15",
+    unit: "percent",
+    resolutionDate: "2027-09-15",
+    resolutionSource: "Census ASEC health insurance report",
+    resolutionRule:
+      "Resolves to the uninsured rate (any point during the year) for the population under 65 as published in the Census ASEC health insurance coverage report covering CY2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Census ASEC health insurance report",
+    note: "Backfilled target registration from the forecast catalog for Uninsured rate (under 65), 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.lns11300000.2026-12",
+    observationId: "obs.bls.lns11300000.2026-12",
+    country: "US",
+    periodLabel: "2027-01-09",
+    unit: "percent",
+    resolutionDate: "2027-01-09",
+    resolutionSource: "BLS Employment Situation",
+    resolutionRule:
+      "Resolves to the first-print seasonally-adjusted civilian labor force participation rate for December 2026 (BLS series LNS11300000).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "BLS Employment Situation",
+    note: "Backfilled target registration from the forecast catalog for Labor force participation rate, December 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.snap.benefit_outlays.fy2027",
+    observationId: "obs.usda.fns.snap.benefit_outlays.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource: "USDA FNS and Monthly Treasury Statement",
+    resolutionRule:
+      "Resolves to federal SNAP benefit outlays for FY2027, excluding administrative costs, in billions of nominal dollars, using the first official USDA FNS or Treasury fiscal-year table that identifies SNAP benefits.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS and Monthly Treasury Statement",
+    note: "Backfilled target registration from the forecast catalog for SNAP benefit outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.aca_premium_tax_credit_outlays.fy2027",
+    observationId: "obs.treasury.mts.aca_premium_tax_credit_outlays.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource: "Monthly Treasury Statement and CBO baseline tables",
+    resolutionRule:
+      "Resolves to federal outlays for refundable premium tax credits under the Affordable Care Act for FY2027, in billions of nominal dollars, using the first official Treasury or CBO table that separately identifies the credit.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Monthly Treasury Statement and CBO baseline tables",
+    note: "Backfilled target registration from the forecast catalog for ACA premium tax credit outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_chip.enrollment.2027-12",
+    observationId: "obs.cms.medicaid_chip.enrollment.2027-12",
+    country: "US",
+    periodLabel: "2028-06-30",
+    unit: "millions",
+    resolutionDate: "2028-06-30",
+    resolutionSource: "CMS Medicaid and CHIP enrollment reports",
+    resolutionRule:
+      "Resolves to total Medicaid and CHIP enrollment for December 2027 in the CMS monthly enrollment report, in millions of people, using the first report that includes all-state December data.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "CMS Medicaid and CHIP enrollment reports",
+    note: "Backfilled target registration from the forecast catalog for Medicaid and CHIP enrollment, Dec 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.spm.all_people_poverty_rate.2025",
+    observationId: "obs.census.spm.all_people_poverty_rate.2025",
+    country: "US",
+    periodLabel: "2026-09-15",
+    unit: "percent",
+    resolutionDate: "2026-09-15",
+    resolutionSource: "U.S. Census Bureau, Poverty in the United States: 2025",
+    resolutionRule:
+      "Resolves to the official Supplemental Poverty Measure poverty rate for all people in calendar year 2025, as published in the Census Poverty in the United States report expected in September 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, Poverty in the United States: 2025",
+    note: "Backfilled target registration from the forecast catalog for SPM poverty rate, 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.unemployment_insurance_outlays.fy2027",
+    observationId: "obs.treasury.mts.unemployment_insurance_outlays.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource: "Monthly Treasury Statement and Department of Labor ETA",
+    resolutionRule:
+      "Resolves to federal unemployment insurance benefit outlays for FY2027, in billions of nominal dollars, using the first official Treasury or Department of Labor fiscal-year table that reports UI benefits.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Monthly Treasury Statement and Department of Labor ETA",
+    note: "Backfilled target registration from the forecast catalog for Unemployment insurance outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ssa.ssi.federal_payments.fy2027",
+    observationId: "obs.ssa.ssi.federal_payments.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource:
+      "Social Security Administration and Monthly Treasury Statement",
+    resolutionRule:
+      "Resolves to federal SSI benefit payments for FY2027, excluding state supplements, in billions of nominal dollars, using the first official SSA or Treasury fiscal-year table that reports SSI federal payments.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Social Security Administration and Monthly Treasury Statement",
+    note: "Backfilled target registration from the forecast catalog for SSI federal payments, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid.federal_outlays.fy2027",
+    observationId: "obs.cms.medicaid.federal_outlays.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource: "Monthly Treasury Statement and CMS financial reports",
+    resolutionRule:
+      "Resolves to federal Medicaid outlays for FY2027, in billions of nominal dollars, using the first official Treasury or CMS fiscal-year table that reports federal Medicaid payments.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Monthly Treasury Statement and CMS financial reports",
+    note: "Backfilled target registration from the forecast catalog for Federal Medicaid outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.ctc.qualifying_children.ty2026",
+    observationId: "obs.irs.soi.ctc.qualifying_children.ty2026",
+    country: "US",
+    periodLabel: "2028-08-31",
+    unit: "millions",
+    resolutionDate: "2028-08-31",
+    resolutionSource: "IRS Statistics of Income",
+    resolutionRule:
+      "Resolves to the number of qualifying children claimed for the federal Child Tax Credit for tax year 2026, in millions, using the first IRS Statistics of Income table that reports CTC child counts or the closest directly comparable official count.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS Statistics of Income",
+    note: "Backfilled target registration from the forecast catalog for Children receiving the CTC, TY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "hud.hcv.outlays.fy2027",
+    observationId: "obs.hud.hcv.outlays.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource:
+      "HUD budget execution reports and Monthly Treasury Statement",
+    resolutionRule:
+      "Resolves to federal tenant-based rental assistance outlays for the Housing Choice Voucher program for FY2027, in billions of nominal dollars, using the first official HUD or Treasury table that separately identifies the program.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "HUD budget execution reports and Monthly Treasury Statement",
+    note: "Backfilled target registration from the forecast catalog for Housing Choice Voucher outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.social_insurance_receipts.fy2027",
+    observationId: "obs.treasury.mts.social_insurance_receipts.fy2027",
+    country: "US",
+    periodLabel: "2027-10-20",
+    unit: "usd_billions",
+    resolutionDate: "2027-10-20",
+    resolutionSource: "U.S. Treasury Monthly Statement",
+    resolutionRule:
+      "Resolves to total federal social insurance and retirement receipts for FY2027, in billions of nominal dollars, as reported in the final September FY2027 Monthly Treasury Statement.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Treasury Monthly Statement",
+    note: "Backfilled target registration from the forecast catalog for Federal payroll tax receipts, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ssa.oasdi.benefit_outlays.fy2027",
+    observationId: "obs.ssa.oasdi.benefit_outlays.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource:
+      "Social Security Administration and Monthly Treasury Statement",
+    resolutionRule:
+      "Resolves to OASDI benefit payments for FY2027, in billions of nominal dollars, using the first official SSA or Treasury fiscal-year table that reports Old-Age, Survivors, and Disability Insurance benefits.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Social Security Administration and Monthly Treasury Statement",
+    note: "Backfilled target registration from the forecast catalog for Social Security OASDI benefit outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.wic.average_monthly_participation.fy2027",
+    observationId: "obs.usda.fns.wic.average_monthly_participation.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "millions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "USDA Food and Nutrition Service WIC data tables",
+    resolutionRule:
+      "Resolves to average monthly WIC participation for FY2027, in millions of participants, using the first USDA FNS annual WIC participation and costs table that reports FY2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA Food and Nutrition Service WIC data tables",
+    note: "Backfilled target registration from the forecast catalog for WIC average monthly participation, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.nslp.average_daily_participation.sy2026_27",
+    observationId: "obs.usda.fns.nslp.average_daily_participation.sy2026_27",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "millions",
+    resolutionDate: "2028-03-31",
+    resolutionSource:
+      "USDA Food and Nutrition Service child nutrition data tables",
+    resolutionRule:
+      "Resolves to average daily participation in the National School Lunch Program for school year 2026-27, in millions of students, using the first USDA FNS annual child nutrition table that reports the school-year total.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA Food and Nutrition Service child nutrition data tables",
+    note: "Backfilled target registration from the forecast catalog for National School Lunch participation, SY2026-27.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.aca.exchange_qhp_selections.oep_2027",
+    observationId: "obs.cms.aca.exchange_qhp_selections.oep_2027",
+    country: "US",
+    periodLabel: "2027-04-30",
+    unit: "millions",
+    resolutionDate: "2027-04-30",
+    resolutionSource: "CMS Health Insurance Exchanges Open Enrollment report",
+    resolutionRule:
+      "Resolves to total Qualified Health Plan selections across HealthCare.gov and state-based exchanges during the 2027 Open Enrollment Period, in millions, using the first final CMS Open Enrollment report for plan year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "CMS Health Insurance Exchanges Open Enrollment report",
+    note: "Backfilled target registration from the forecast catalog for ACA exchange plan selections, OEP 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicare.benefit_outlays.fy2027",
+    observationId: "obs.cms.medicare.benefit_outlays.fy2027",
+    country: "US",
+    periodLabel: "2027-11-30",
+    unit: "usd_billions",
+    resolutionDate: "2027-11-30",
+    resolutionSource: "Monthly Treasury Statement, CMS, or CBO baseline tables",
+    resolutionRule:
+      "Resolves to federal Medicare benefit outlays for FY2027, in billions of nominal dollars, using the first official Treasury, CMS, or CBO fiscal-year table that reports Medicare benefit payments.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Monthly Treasury Statement, CMS, or CBO baseline tables",
+    note: "Backfilled target registration from the forecast catalog for Medicare benefit outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.tanf.federal_outlays.fy2027",
+    observationId: "obs.acf.tanf.federal_outlays.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "usd_billions",
+    resolutionDate: "2028-03-31",
+    resolutionSource:
+      "HHS ACF TANF financial data and Monthly Treasury Statement",
+    resolutionRule:
+      "Resolves to federal TANF outlays for FY2027, in billions of nominal dollars, using the first official HHS ACF or Treasury table that reports federal TANF fiscal-year spending.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "HHS ACF TANF financial data and Monthly Treasury Statement",
+    note: "Backfilled target registration from the forecast catalog for TANF federal outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.ccdf.outlays.fy2027",
+    observationId: "obs.acf.ccdf.outlays.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "usd_billions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "HHS ACF CCDF expenditure data",
+    resolutionRule:
+      "Resolves to total Child Care and Development Fund expenditures for FY2027, in billions of nominal dollars, using the first official ACF-696-based HHS ACF expenditure data release for FY2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "HHS ACF CCDF expenditure data",
+    note: "Backfilled target registration from the forecast catalog for Child Care and Development Fund outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.estate_gift_tax_receipts.fy2027",
+    observationId: "obs.treasury.mts.estate_gift_tax_receipts.fy2027",
+    country: "US",
+    periodLabel: "2027-10-20",
+    unit: "usd_billions",
+    resolutionDate: "2027-10-20",
+    resolutionSource: "U.S. Treasury Monthly Statement",
+    resolutionRule:
+      "Resolves to federal estate and gift tax receipts for FY2027, in billions of nominal dollars, as reported in the final September FY2027 Monthly Treasury Statement.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Treasury Monthly Statement",
+    note: "Backfilled target registration from the forecast catalog for Estate and gift tax receipts, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.eitc_claimant_returns.ty2027",
+    observationId: "obs.irs.soi.eitc_claimant_returns.ty2027",
+    country: "US",
+    periodLabel: "2029-12-31",
+    unit: "millions",
+    resolutionDate: "2029-12-31",
+    resolutionSource: "IRS Statistics of Income individual tax return data",
+    resolutionRule:
+      "Resolves to the number of TY2027 individual income tax returns claiming the Earned Income Tax Credit, in millions, using the first official IRS Statistics of Income table covering TY2027 individual returns.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS Statistics of Income individual tax return data",
+    note: "Backfilled target registration from the forecast catalog for EITC claimant returns, TY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.corporation_income_tax_receipts.fy2027",
+    observationId: "obs.treasury.mts.corporation_income_tax_receipts.fy2027",
+    country: "US",
+    periodLabel: "2027-10-20",
+    unit: "usd_billions",
+    resolutionDate: "2027-10-20",
+    resolutionSource: "U.S. Treasury Monthly Statement",
+    resolutionRule:
+      "Resolves to total corporation income tax receipts for FY2027, in billions of nominal dollars, as reported in the final September FY2027 Monthly Treasury Statement.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Treasury Monthly Statement",
+    note: "Backfilled target registration from the forecast catalog for Corporate income tax receipts, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.average_monthly_persons.fy2027",
+    observationId: "obs.fns.snap.average_monthly_persons.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "millions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "USDA FNS SNAP Data Tables",
+    resolutionRule:
+      "Resolves to average monthly SNAP persons for FY2027, in millions, using the first USDA FNS national annual participation table that includes all months of fiscal year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS SNAP Data Tables",
+    note: "Backfilled target registration from the forecast catalog for SNAP average monthly participation, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ed.pell.recipients.award_year_2027",
+    observationId: "obs.ed.pell.recipients.award_year_2027",
+    country: "US",
+    periodLabel: "2029-02-28",
+    unit: "millions",
+    resolutionDate: "2029-02-28",
+    resolutionSource: "U.S. Department of Education Pell Grant Program data",
+    resolutionRule:
+      "Resolves to unduplicated Federal Pell Grant recipients for award year 2027-28, in millions, using the first official Department of Education Pell Grant program data table or budget justification table with final award-year recipients.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Department of Education Pell Grant Program data",
+    note: "Backfilled target registration from the forecast catalog for Pell Grant recipients, award year 2027-28.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.head_start.funded_enrollment.fy2027",
+    observationId: "obs.acf.head_start.funded_enrollment.fy2027",
+    country: "US",
+    periodLabel: "2028-06-30",
+    unit: "millions",
+    resolutionDate: "2028-06-30",
+    resolutionSource: "ACF Office of Head Start Program Information Report",
+    resolutionRule:
+      "Resolves to funded enrollment for Head Start and Early Head Start in FY2027, in millions of slots, using the first ACF Office of Head Start Program Information Report or annual fact sheet covering fiscal year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "ACF Office of Head Start Program Information Report",
+    note: "Backfilled target registration from the forecast catalog for Head Start funded enrollment, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.tanf.average_monthly_families.fy2027",
+    observationId: "obs.acf.tanf.average_monthly_families.fy2027",
+    country: "US",
+    periodLabel: "2028-06-30",
+    unit: "millions",
+    resolutionDate: "2028-06-30",
+    resolutionSource: "ACF TANF caseload data",
+    resolutionRule:
+      "Resolves to the fiscal-year average number of families receiving TANF or Separate State Program Maintenance-of-Effort cash assistance in FY2027, in millions, using the first ACF TANF caseload table covering all FY2027 months.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "ACF TANF caseload data",
+    note: "Backfilled target registration from the forecast catalog for TANF average monthly families, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.ccdf.average_monthly_children_served.fy2027",
+    observationId: "obs.acf.ccdf.average_monthly_children_served.fy2027",
+    country: "US",
+    periodLabel: "2029-03-31",
+    unit: "millions",
+    resolutionDate: "2029-03-31",
+    resolutionSource: "ACF CCDF data tables",
+    resolutionRule:
+      "Resolves to the average monthly adjusted number of children served by CCDF in FY2027, in millions, using the first ACF-800/ACF-801 CCDF data table covering fiscal year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "ACF CCDF data tables",
+    note: "Backfilled target registration from the forecast catalog for CCDF average monthly children served, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.liheap.households_assisted.fy2027",
+    observationId: "obs.acf.liheap.households_assisted.fy2027",
+    country: "US",
+    periodLabel: "2029-09-30",
+    unit: "millions",
+    resolutionDate: "2029-09-30",
+    resolutionSource: "ACF LIHEAP Household Report",
+    resolutionRule:
+      "Resolves to total households receiving at least one type of LIHEAP assistance for FY2027, in millions, using the first ACF LIHEAP Household Report or LIHEAP data warehouse release covering fiscal year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "ACF LIHEAP Household Report",
+    note: "Backfilled target registration from the forecast catalog for LIHEAP households assisted, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.sbp.average_daily_participation.sy2026_27",
+    observationId: "obs.fns.sbp.average_daily_participation.sy2026_27",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "millions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "USDA FNS Child Nutrition Tables",
+    resolutionRule:
+      "Resolves to average daily School Breakfast Program participation for school year 2026-27, in millions, using USDA FNS participation data with summer months excluded where FNS publishes a school-year table.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS Child Nutrition Tables",
+    note: "Backfilled target registration from the forecast catalog for School Breakfast participation, SY2026-27.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ssa.ssi.recipients.2027-12",
+    observationId: "obs.ssa.ssi.recipients.2027-12",
+    country: "US",
+    periodLabel: "2028-02-28",
+    unit: "millions",
+    resolutionDate: "2028-02-28",
+    resolutionSource: "SSA Monthly Statistical Snapshot",
+    resolutionRule:
+      "Resolves to total SSI recipients in December 2027, in millions, as reported in the Social Security Administration Monthly Statistical Snapshot or SSI Monthly Statistics release for December 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "SSA Monthly Statistical Snapshot",
+    note: "Backfilled target registration from the forecast catalog for SSI recipients, December 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.average_monthly_households.fy2027",
+    observationId: "obs.fns.snap.average_monthly_households.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "millions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "USDA FNS SNAP Data Tables",
+    resolutionRule:
+      "Resolves to average monthly SNAP households for FY2027, in millions, using the first USDA FNS national annual participation table that includes all months of fiscal year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS SNAP Data Tables",
+    note: "Backfilled target registration from the forecast catalog for SNAP average monthly households, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_chip.child_enrollment.2027-12",
+    observationId: "obs.cms.medicaid_chip.child_enrollment.2027-12",
+    country: "US",
+    periodLabel: "2028-04-30",
+    unit: "millions",
+    resolutionDate: "2028-04-30",
+    resolutionSource: "CMS Medicaid and CHIP monthly enrollment data",
+    resolutionRule:
+      "Resolves to Medicaid child and CHIP enrollment for December 2027, in millions, using the first CMS monthly Medicaid and CHIP enrollment report or data.Medicaid.gov release that reports the child-enrollment series for that month.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "CMS Medicaid and CHIP monthly enrollment data",
+    note: "Backfilled target registration from the forecast catalog for Medicaid and CHIP child enrollment, December 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "hud.hcv.households_leased.2027-12",
+    observationId: "obs.hud.hcv.households_leased.2027-12",
+    country: "US",
+    periodLabel: "2028-06-30",
+    unit: "millions",
+    resolutionDate: "2028-06-30",
+    resolutionSource: "HUD Housing Choice Voucher Data Dashboard",
+    resolutionRule:
+      "Resolves to Housing Choice Voucher households leased for December 2027, in millions, using the HUD HCV Data Dashboard or the first official HUD utilization table that reports national leased households for that month.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "HUD Housing Choice Voucher Data Dashboard",
+    note: "Backfilled target registration from the forecast catalog for Housing Choice Voucher households leased, December 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.sbp.federal_cost.fy2027",
+    observationId: "obs.fns.sbp.federal_cost.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "usd_billions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "USDA FNS Child Nutrition Tables",
+    resolutionRule:
+      "Resolves to federal School Breakfast Program cost for FY2027, in billions of nominal dollars, using the first USDA FNS child nutrition program table that reports fiscal-year federal cost.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS Child Nutrition Tables",
+    note: "Backfilled target registration from the forecast catalog for School Breakfast federal outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.ocss.distributed_collections.fy2027",
+    observationId: "obs.acf.ocss.distributed_collections.fy2027",
+    country: "US",
+    periodLabel: "2028-12-31",
+    unit: "usd_billions",
+    resolutionDate: "2028-12-31",
+    resolutionSource: "ACF Office of Child Support Services annual report",
+    resolutionRule:
+      "Resolves to total distributed child support collections for FY2027, in billions of nominal dollars, using the first ACF Office of Child Support Services preliminary or annual report covering fiscal year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "ACF Office of Child Support Services annual report",
+    note: "Backfilled target registration from the forecast catalog for Child support distributed collections, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ed.pell.outlays.fy2027",
+    observationId: "obs.ed.pell.outlays.fy2027",
+    country: "US",
+    periodLabel: "2028-06-30",
+    unit: "usd_billions",
+    resolutionDate: "2028-06-30",
+    resolutionSource:
+      "U.S. Department of Education Federal Student Aid and budget data",
+    resolutionRule:
+      "Resolves to Federal Pell Grant program outlays or obligations for FY2027, in billions of nominal dollars, using the first official Department of Education Federal Student Aid annual report, budget justification, or Pell Grant program data table that reports fiscal-year spending.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Department of Education Federal Student Aid and budget data",
+    note: "Backfilled target registration from the forecast catalog for Federal Pell Grant outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.wic.federal_cost.fy2027",
+    observationId: "obs.usda.fns.wic.federal_cost.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "usd_billions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "USDA FNS WIC program participation and costs data",
+    resolutionRule:
+      "Resolves to total federal WIC program cost for FY2027, in billions of nominal dollars, using the first USDA FNS WIC participation and cost table that reports fiscal-year total cost.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS WIC program participation and costs data",
+    note: "Backfilled target registration from the forecast catalog for WIC federal outlays, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "acf.liheap.federal_funding.fy2027",
+    observationId: "obs.acf.liheap.federal_funding.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "usd_billions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "ACF Office of Community Services LIHEAP funding tables",
+    resolutionRule:
+      "Resolves to total federal LIHEAP funding made available for FY2027, including regular block grant and contingency or supplemental funding, in billions of nominal dollars, using ACF Office of Community Services funding tables or LIHEAP Clearinghouse funding history.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "ACF Office of Community Services LIHEAP funding tables",
+    note: "Backfilled target registration from the forecast catalog for LIHEAP federal funding, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ssa.oasdi.beneficiaries.2027-12",
+    observationId: "obs.ssa.oasdi.beneficiaries.2027-12",
+    country: "US",
+    periodLabel: "2028-02-28",
+    unit: "millions",
+    resolutionDate: "2028-02-28",
+    resolutionSource: "SSA Monthly Statistical Snapshot",
+    resolutionRule:
+      "Resolves to total OASDI beneficiaries in current-payment status for December 2027, in millions, as reported in the Social Security Administration Monthly Statistical Snapshot or comparable SSA monthly beneficiary data.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "SSA Monthly Statistical Snapshot",
+    note: "Backfilled target registration from the forecast catalog for OASDI beneficiaries, December 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.child_dependent_care_credit_returns.ty2026",
+    observationId: "obs.irs.soi.child_dependent_care_credit_returns.ty2026",
+    country: "US",
+    periodLabel: "2028-12-31",
+    unit: "millions",
+    resolutionDate: "2028-12-31",
+    resolutionSource: "IRS Statistics of Income individual tax return data",
+    resolutionRule:
+      "Resolves to the number of TY2026 individual income tax returns claiming the federal child and dependent care credit, in millions, using the first official IRS Statistics of Income individual income tax table that reports this credit.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS Statistics of Income individual tax return data",
+    note: "Backfilled target registration from the forecast catalog for Child and dependent care credit returns, TY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.premium_tax_credit_claimant_returns.ty2026",
+    observationId: "obs.irs.soi.premium_tax_credit_claimant_returns.ty2026",
+    country: "US",
+    periodLabel: "2028-12-31",
+    unit: "millions",
+    resolutionDate: "2028-12-31",
+    resolutionSource: "IRS Statistics of Income individual tax return data",
+    resolutionRule:
+      "Resolves to the number of TY2026 individual income tax returns claiming the premium tax credit or reconciling advance premium tax credits on Form 8962, in millions, using the first official IRS Statistics of Income table covering TY2026 individual returns.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS Statistics of Income individual tax return data",
+    note: "Backfilled target registration from the forecast catalog for Premium tax credit claimant returns, TY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.additional_child_tax_credit_returns.ty2026",
+    observationId: "obs.irs.soi.additional_child_tax_credit_returns.ty2026",
+    country: "US",
+    periodLabel: "2028-12-31",
+    unit: "millions",
+    resolutionDate: "2028-12-31",
+    resolutionSource: "IRS Statistics of Income individual tax return data",
+    resolutionRule:
+      "Resolves to the number of TY2026 individual income tax returns claiming the refundable Additional Child Tax Credit, in millions, using the first official IRS Statistics of Income table covering TY2026 individual returns.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS Statistics of Income individual tax return data",
+    note: "Backfilled target registration from the forecast catalog for Additional Child Tax Credit returns, TY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.itemized_charitable_contributions.ty2026",
+    observationId: "obs.irs.soi.itemized_charitable_contributions.ty2026",
+    country: "US",
+    periodLabel: "2028-12-31",
+    unit: "usd_billions",
+    resolutionDate: "2028-12-31",
+    resolutionSource: "IRS Statistics of Income individual tax return data",
+    resolutionRule:
+      "Resolves to total charitable contributions deducted on TY2026 itemized individual income tax returns, in billions of nominal dollars, using the first official IRS Statistics of Income Schedule A or itemized-deductions table covering TY2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS Statistics of Income individual tax return data",
+    note: "Backfilled target registration from the forecast catalog for Itemized charitable contributions, TY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicare.total_beneficiaries.2027-12",
+    observationId: "obs.cms.medicare.total_beneficiaries.2027-12",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "millions",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "CMS Medicare Monthly Enrollment data",
+    resolutionRule:
+      "Resolves to total Medicare beneficiaries for December 2027, in millions, using the first CMS Medicare Monthly Enrollment dataset or Medicare Enrollment Report that includes national December 2027 enrollment.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "CMS Medicare Monthly Enrollment data",
+    note: "Backfilled target registration from the forecast catalog for Medicare total enrollment, December 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ssa.oasdi.retired_worker_average_benefit.2027-12",
+    observationId: "obs.ssa.oasdi.retired_worker_average_benefit.2027-12",
+    country: "US",
+    periodLabel: "2028-02-28",
+    unit: "usd_monthly",
+    resolutionDate: "2028-02-28",
+    resolutionSource: "SSA Monthly Statistical Snapshot",
+    resolutionRule:
+      "Resolves to the average monthly benefit for retired workers in current-payment status for December 2027, in nominal dollars, as reported in the Social Security Administration Monthly Statistical Snapshot.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "SSA Monthly Statistical Snapshot",
+    note: "Backfilled target registration from the forecast catalog for Retired-worker average benefit, December 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.snap.average_benefit_per_person.fy2027",
+    observationId: "obs.usda.fns.snap.average_benefit_per_person.fy2027",
+    country: "US",
+    periodLabel: "2028-03-31",
+    unit: "usd_monthly",
+    resolutionDate: "2028-03-31",
+    resolutionSource: "USDA FNS SNAP Data Tables",
+    resolutionRule:
+      "Resolves to average monthly SNAP benefits per person for FY2027, in nominal dollars, using the first USDA FNS national SNAP annual table that reports benefits per person for all months of fiscal year 2027.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS SNAP Data Tables",
+    note: "Backfilled target registration from the forecast catalog for SNAP average benefit per person, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.marketplace.ptc.average_subsidy_per_enrollee.fy2027",
+    observationId:
+      "obs.cms.marketplace.ptc.average_subsidy_per_enrollee.fy2027",
+    country: "US",
+    periodLabel: "2028-06-30",
+    unit: "usd_monthly",
+    resolutionDate: "2028-06-30",
+    resolutionSource: "CMS marketplace and Treasury outlay tables",
+    resolutionRule:
+      "Resolves to average monthly premium tax credit subsidy per subsidized marketplace enrollee for FY2027, computed from official CMS enrollment and Treasury/CMS PTC outlay tables when both are available.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "CMS marketplace and Treasury outlay tables",
+    note: "Backfilled target registration from the forecast catalog for ACA PTC average subsidy per enrollee, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "dol.eta.initial_claims.sa.week_ending_2026_06_06",
+    observationId: "obs.dol.eta.initial_claims.sa.week_ending_2026_06_06",
+    country: "US",
+    periodLabel: "next release",
+    unit: "thousands",
+    resolutionDate: "2026-06-11",
+    resolutionSource:
+      "U.S. Department of Labor, Unemployment Insurance Weekly Claims",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted initial claims count for the week ending June 6, 2026 in the Department of Labor weekly claims release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Department of Labor, Unemployment Insurance Weekly Claims",
+    note: "Backfilled target registration from the forecast catalog for Initial jobless claims, week ending Jun 6 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.ces.total_nonfarm_payroll_change.may_2026.first_print",
+    observationId:
+      "obs.bls.ces.total_nonfarm_payroll_change.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "thousands",
+    resolutionDate: "2026-06-05",
+    resolutionSource:
+      "Bureau of Labor Statistics, Employment Situation first release",
+    resolutionRule:
+      "Resolves to the first published May 2026 over-the-month change in total nonfarm payroll employment in the BLS Employment Situation release. Benchmark revisions and later monthly revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bureau of Labor Statistics, Employment Situation first release",
+    note: "Backfilled target registration from the forecast catalog for Nonfarm payrolls, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.cps.unemployment_rate.may_2026.first_print",
+    observationId: "obs.bls.cps.unemployment_rate.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-05",
+    resolutionSource:
+      "Bureau of Labor Statistics, Employment Situation first release",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted U-3 unemployment rate for May 2026. Later population-control or seasonal-adjustment revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bureau of Labor Statistics, Employment Situation first release",
+    note: "Backfilled target registration from the forecast catalog for Unemployment rate, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.cpi.u.headline_mom.may_2026.first_print",
+    observationId: "obs.bls.cpi.u.headline_mom.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-10",
+    resolutionSource:
+      "Bureau of Labor Statistics, Consumer Price Index first release",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted month-over-month percent change in CPI-U for May 2026. Later seasonal-adjustment revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bureau of Labor Statistics, Consumer Price Index first release",
+    note: "Backfilled target registration from the forecast catalog for Headline CPI, May 2026 month-over-month.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.marts.adv44x72.may_2026.monthly_change.advance",
+    observationId: "obs.census.marts.adv44x72.may_2026.monthly_change.advance",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-17",
+    resolutionSource: "U.S. Census Bureau, Advance Monthly Retail Trade Survey",
+    resolutionRule:
+      "Resolves to the first advance estimate of the seasonally adjusted month-over-month percent change in total retail and food services sales for May 2026. Use the rounded headline value; if only levels are available, compute from Census adv44X72 seasonally adjusted levels in the same release and round to one decimal. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, Advance Monthly Retail Trade Survey",
+    note: "Backfilled target registration from the forecast catalog for Retail sales, May 2026 month-over-month.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.pce.core_mom.may_2026.first_print",
+    observationId: "obs.bea.pce.core_mom.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionRule:
+      "Resolves to the first published month-over-month percent change in the PCE price index excluding food and energy for May 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bureau of Economic Analysis, Personal Income and Outlays",
+    note: "Backfilled target registration from the forecast catalog for Core PCE, May 2026 month-over-month.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.snap.persons.april_2026",
+    observationId: "obs.usda.fns.snap.persons.april_2026",
+    country: "US",
+    periodLabel: "+3 months",
+    unit: "millions",
+    resolutionDate: "2026-08-31",
+    resolutionSource:
+      "USDA Food and Nutrition Service, SNAP national monthly data",
+    resolutionRule:
+      "Resolves to the April 2026 average monthly SNAP persons count in USDA FNS national program data. If USDA updates the monthly table, the first version available by August 31, 2026 governs.",
+    resolutionPolicy: "fixed_vintage",
+    sourceKind: "official_release",
+    source: "USDA Food and Nutrition Service, SNAP national monthly data",
+    note: "Backfilled target registration from the forecast catalog for SNAP participation, Apr 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_chip.enrollment.april_2026",
+    observationId: "obs.cms.medicaid_chip.enrollment.april_2026",
+    country: "US",
+    periodLabel: "+3 months",
+    unit: "millions",
+    resolutionDate: "2026-09-30",
+    resolutionSource: "CMS Medicaid and CHIP monthly enrollment data",
+    resolutionRule:
+      "Resolves to the national Medicaid and CHIP enrollment total for April 2026 in CMS monthly enrollment data. If CMS posts preliminary and updated versions, the first updated national file available by September 30, 2026 governs.",
+    resolutionPolicy: "fixed_vintage",
+    sourceKind: "official_release",
+    source: "CMS Medicaid and CHIP monthly enrollment data",
+    note: "Backfilled target registration from the forecast catalog for Medicaid and CHIP enrollment, Apr 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.ces.average_hourly_earnings_private.may_2026.first_print",
+    observationId:
+      "obs.bls.ces.average_hourly_earnings_private.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-05",
+    resolutionSource:
+      "Bureau of Labor Statistics, Employment Situation first release",
+    resolutionRule:
+      "Resolves to the first published percent change from April to May 2026 in average hourly earnings for all employees on private nonfarm payrolls in the BLS Employment Situation release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bureau of Labor Statistics, Employment Situation first release",
+    note: "Backfilled target registration from the forecast catalog for Average hourly earnings, May 2026 month-over-month.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.cpi.u.core_mom.may_2026.first_print",
+    observationId: "obs.bls.cpi.u.core_mom.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-10",
+    resolutionSource:
+      "Bureau of Labor Statistics, Consumer Price Index first release",
+    resolutionRule:
+      "Resolves to the first published May 2026 seasonally adjusted month-over-month percent change in CPI-U less food and energy in the BLS CPI release. Later seasonal-adjustment revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bureau of Labor Statistics, Consumer Price Index first release",
+    note: "Backfilled target registration from the forecast catalog for Core CPI, May 2026 month-over-month.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.jolts.job_openings_total.may_2026.first_print",
+    observationId: "obs.bls.jolts.job_openings_total.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "thousands",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "Bureau of Labor Statistics, Job Openings and Labor Turnover Survey",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted total nonfarm job openings estimate for May 2026 in the BLS JOLTS release. Later monthly revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Bureau of Labor Statistics, Job Openings and Labor Turnover Survey",
+    note: "Backfilled target registration from the forecast catalog for JOLTS job openings, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.snap.maximum_allotment.household_size_4.48dc.fy2027",
+    observationId:
+      "obs.usda.fns.snap.maximum_allotment.household_size_4.48dc.fy2027",
+    country: "US",
+    periodLabel: "threshold",
+    unit: "usd_monthly",
+    resolutionDate: "2026-09-30",
+    resolutionSource: "USDA Food and Nutrition Service SNAP COLA tables",
+    resolutionRule:
+      "Resolves to the first USDA FNS FY2027 SNAP COLA table for maximum monthly allotments, using household size 4 in the 48 contiguous states and DC. If USDA later revises the table, the first posted FY2027 table governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA Food and Nutrition Service SNAP COLA tables",
+    note: "Backfilled target registration from the forecast catalog for SNAP four-person maximum allotment, FY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "hhs.aspe.poverty_guideline.household_size_4.48dc.2027",
+    observationId: "obs.hhs.aspe.poverty_guideline.household_size_4.48dc.2027",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd",
+    resolutionDate: "2027-01-31",
+    resolutionSource: "HHS ASPE poverty guidelines",
+    resolutionRule:
+      "Resolves to ASPE's first posted 2027 poverty guideline table for four-person households in the 48 contiguous states and DC. Later errata do not change the resolved value unless ASPE withdraws the first table before it takes effect.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "HHS ASPE poverty guidelines",
+    note: "Backfilled target registration from the forecast catalog for HHS poverty guideline, family of four, 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.irc24.child_tax_credit.maximum.ty2027",
+    observationId: "obs.irs.irc24.child_tax_credit.maximum.ty2027",
+    country: "US",
+    periodLabel: "threshold",
+    unit: "usd",
+    resolutionDate: "2026-10-31",
+    resolutionSource: "IRS annual tax inflation adjustments and IRC section 24",
+    resolutionRule:
+      "Resolves to the first official IRS tax year 2027 inflation-adjustment guidance for the IRC section 24 maximum Child Tax Credit per qualifying child. If Congress changes the statutory amount before the guidance takes effect, the first IRS guidance implementing that law governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS annual tax inflation adjustments and IRC section 24",
+    note: "Backfilled target registration from the forecast catalog for Child Tax Credit maximum, TY2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.snap.participation.march_2026.fixed_vintage",
+    observationId: "obs.usda.fns.snap.participation.march_2026.fixed_vintage",
+    country: "US",
+    periodLabel: "next release",
+    unit: "millions",
+    resolutionDate: "2026-07-31",
+    resolutionSource:
+      "USDA Food and Nutrition Service SNAP national data tables",
+    resolutionRule:
+      "Resolves to the national March 2026 SNAP persons count in the USDA FNS FY2026 National View Summary, using the first table update available by July 31, 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "fixed_vintage",
+    sourceKind: "official_release",
+    source: "USDA Food and Nutrition Service SNAP national data tables",
+    note: "Backfilled target registration from the forecast catalog for SNAP participation, March 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.wic.total_participants.march_2026.fixed_vintage",
+    observationId:
+      "obs.usda.fns.wic.total_participants.march_2026.fixed_vintage",
+    country: "US",
+    periodLabel: "next release",
+    unit: "millions",
+    resolutionDate: "2026-07-31",
+    resolutionSource: "USDA Food and Nutrition Service WIC program data",
+    resolutionRule:
+      "Resolves to the national March 2026 WIC total participants value in USDA FNS monthly program data, using the first table update available by July 31, 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "fixed_vintage",
+    sourceKind: "official_release",
+    source: "USDA Food and Nutrition Service WIC program data",
+    note: "Backfilled target registration from the forecast catalog for WIC total participation, March 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_chip.total_enrollment.march_2026.fixed_vintage",
+    observationId:
+      "obs.cms.medicaid_chip.total_enrollment.march_2026.fixed_vintage",
+    country: "US",
+    periodLabel: "next release",
+    unit: "millions",
+    resolutionDate: "2026-07-31",
+    resolutionSource: "CMS Medicaid and CHIP monthly enrollment data",
+    resolutionRule:
+      "Resolves to CMS preliminary March 2026 total Medicaid and CHIP enrollment for the 50 states and DC, using the first monthly enrollment update available by July 31, 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "fixed_vintage",
+    sourceKind: "official_release",
+    source: "CMS Medicaid and CHIP monthly enrollment data",
+    note: "Backfilled target registration from the forecast catalog for Medicaid and CHIP enrollment, March 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "irs.filing_season.total_amount_refunded.october_2026.first_print",
+    observationId:
+      "obs.irs.filing_season.total_amount_refunded.october_2026.first_print",
+    country: "US",
+    periodLabel: "+3 months",
+    unit: "usd_billions",
+    resolutionDate: "2026-10-31",
+    resolutionSource: "IRS Filing Season Statistics",
+    resolutionRule:
+      "Resolves to IRS Filing Season Statistics total amount refunded for current-year individual returns in the first October 2026 snapshot. If IRS publishes multiple October snapshots, the earliest October table governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "IRS Filing Season Statistics",
+    note: "Backfilled target registration from the forecast catalog for IRS cumulative refunds, October 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ons.gdp.monthly_growth.april_2026.first_print",
+    observationId: "obs.ons.gdp.monthly_growth.april_2026.first_print",
+    country: "UK",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-12",
+    resolutionSource: "Office for National Statistics, GDP monthly estimate",
+    resolutionRule:
+      "Resolves to the first published ONS monthly real GDP growth estimate for April 2026 in the GDP monthly estimate release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Office for National Statistics, GDP monthly estimate",
+    note: "Backfilled target registration from the forecast catalog for UK monthly GDP growth, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ons.cpi.annual_rate.may_2026.first_print",
+    observationId: "obs.ons.cpi.annual_rate.may_2026.first_print",
+    country: "UK",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-17",
+    resolutionSource:
+      "Office for National Statistics, consumer price inflation",
+    resolutionRule:
+      "Resolves to the first published ONS CPI 12-month rate for May 2026 in the consumer price inflation release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Office for National Statistics, consumer price inflation",
+    note: "Backfilled target registration from the forecast catalog for UK CPI annual inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "ons.labour.unemployment_rate.february_to_april_2026.first_print",
+    observationId:
+      "obs.ons.labour.unemployment_rate.february_to_april_2026.first_print",
+    country: "UK",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-18",
+    resolutionSource:
+      "Office for National Statistics, UK labour market overview",
+    resolutionSourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket",
+    resolutionRule:
+      "Resolves to the first published ONS LFS unemployment rate for people aged 16 and over for February to April 2026 in the UK Labour Market June 2026 release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Office for National Statistics, UK labour market overview",
+    sourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket",
+    note: "Backfilled target registration from the forecast catalog for UK unemployment rate, Feb-Apr 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ons.labour.unemployment_rate.april_to_june_2026.first_print",
+    observationId:
+      "obs.ons.labour.unemployment_rate.april_to_june_2026.first_print",
+    country: "UK",
+    periodLabel: "Apr-Jun 2026",
+    unit: "percent",
+    resolutionDate: "2026-08-18",
+    resolutionSource:
+      "Office for National Statistics, UK labour market overview",
+    resolutionSourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted ONS LFS unemployment rate for people aged 16 and over for April to June 2026 in the Employment in the UK or UK labour market bulletin. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Office for National Statistics, UK labour market overview",
+    sourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+    note: "Backfilled target registration from the forecast catalog for UK unemployment rate, Apr-Jun 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "ons.labour.unemployment_rate.july_to_september_2026.first_print",
+    observationId:
+      "obs.ons.labour.unemployment_rate.july_to_september_2026.first_print",
+    country: "UK",
+    periodLabel: "Jul-Sep 2026",
+    unit: "percent",
+    resolutionDate: "2026-11-17",
+    resolutionSource:
+      "Office for National Statistics, UK labour market overview",
+    resolutionSourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted ONS LFS unemployment rate for people aged 16 and over for July to September 2026 in the Employment in the UK or UK labour market bulletin. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Office for National Statistics, UK labour market overview",
+    sourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+    note: "Backfilled target registration from the forecast catalog for UK unemployment rate, Jul-Sep 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "ons.labour.unemployment_rate.october_to_december_2026.first_print",
+    observationId:
+      "obs.ons.labour.unemployment_rate.october_to_december_2026.first_print",
+    country: "UK",
+    periodLabel: "Oct-Dec 2026",
+    unit: "percent",
+    resolutionDate: "2027-02-16",
+    resolutionSource:
+      "Office for National Statistics, UK labour market overview",
+    resolutionSourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted ONS LFS unemployment rate for people aged 16 and over for October to December 2026 in the Employment in the UK or UK labour market bulletin expected in early 2027. The published one-decimal rate is the resolution value; later revisions do not change it.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Office for National Statistics, UK labour market overview",
+    sourceUrl:
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk",
+    note: "Backfilled target registration from the forecast catalog for UK unemployment rate, Oct-Dec 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ons.hmrc.paye_payrolled_employees.may_2026.first_print",
+    observationId: "obs.ons.hmrc.paye_payrolled_employees.may_2026.first_print",
+    country: "UK",
+    periodLabel: "next release",
+    unit: "millions",
+    resolutionDate: "2026-06-18",
+    resolutionSource:
+      "HMRC Pay As You Earn Real Time Information via ONS labour market release",
+    resolutionRule:
+      "Resolves to the first published early estimate of seasonally adjusted UK payrolled employees for May 2026 in the ONS/HMRC PAYE RTI release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "HMRC Pay As You Earn Real Time Information via ONS labour market release",
+    note: "Backfilled target registration from the forecast catalog for UK PAYE payrolled employees, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ons.retail_sales.volume_mom.may_2026.first_print",
+    observationId: "obs.ons.retail_sales.volume_mom.may_2026.first_print",
+    country: "UK",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-19",
+    resolutionSource:
+      "Office for National Statistics, Retail sales Great Britain",
+    resolutionRule:
+      "Resolves to the first published ONS monthly percent change in the quantity bought in all retailing for May 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Office for National Statistics, Retail sales Great Britain",
+    note: "Backfilled target registration from the forecast catalog for Great Britain retail sales, May 2026 month-over-month.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "ons.pusf.j5ii.public_sector_net_borrowing_ex_banks.may_2026.first_print",
+    observationId:
+      "obs.ons.pusf.j5ii.public_sector_net_borrowing_ex_banks.may_2026.first_print",
+    country: "UK",
+    periodLabel: "next release",
+    unit: "gbp_billions",
+    resolutionDate: "2026-06-19",
+    resolutionSource:
+      "Office for National Statistics, Public sector finances time series J5II",
+    resolutionRule:
+      "Resolves to the first official ONS value for May 2026 in Public Sector Finances time series J5II, transformed as -J5II / 1000 so borrowing is positive in GBP billions. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Office for National Statistics, Public sector finances time series J5II",
+    note: "Backfilled target registration from the forecast catalog for UK public sector net borrowing, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "boe.bank_rate.after_mpc_june_2026.first_print",
+    observationId: "obs.boe.bank_rate.after_mpc_june_2026.first_print",
+    country: "UK",
+    periodLabel: "next decision",
+    unit: "percent",
+    resolutionDate: "2026-06-18",
+    resolutionSource:
+      "Bank of England Monetary Policy Committee summary and minutes",
+    resolutionRule:
+      "Resolves to the Bank Rate stated in the Bank of England Monetary Policy Summary and minutes published on June 18, 2026. If the Bank publishes a correction the same day before market close, the corrected value governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bank of England Monetary Policy Committee summary and minutes",
+    note: "Backfilled target registration from the forecast catalog for Bank of England Bank Rate, June 2026 MPC.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "statcan.lfs.unemployment_rate.canada.may_2026.first_print",
+    observationId:
+      "obs.statcan.lfs.unemployment_rate.canada.may_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-05",
+    resolutionSource: "Statistics Canada Labour Force Survey",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted Canada unemployment rate in the Statistics Canada Labour Force Survey for May 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada Labour Force Survey",
+    note: "Backfilled target registration from the forecast catalog for Canada unemployment rate, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "statcan.lfs.employment_change.canada.may_2026.first_print",
+    observationId:
+      "obs.statcan.lfs.employment_change.canada.may_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "thousands",
+    resolutionDate: "2026-06-05",
+    resolutionSource: "Statistics Canada Labour Force Survey",
+    resolutionRule:
+      "Resolves to the first published monthly change in seasonally adjusted total employment for Canada in the May 2026 Labour Force Survey. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada Labour Force Survey",
+    note: "Backfilled target registration from the forecast catalog for Canada employment change, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "statcan.cpi.all_items_annual_rate.canada.may_2026.first_print",
+    observationId:
+      "obs.statcan.cpi.all_items_annual_rate.canada.may_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-22",
+    resolutionSource: "Statistics Canada Consumer Price Index",
+    resolutionRule:
+      "Resolves to the first published all-items CPI 12-month change for Canada in the May 2026 Consumer Price Index release. Later revisions or table updates do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada Consumer Price Index",
+    note: "Backfilled target registration from the forecast catalog for Canada CPI annual inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "statcan.gdp_by_industry.monthly_growth.april_2026.first_print",
+    observationId:
+      "obs.statcan.gdp_by_industry.monthly_growth.april_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-30",
+    resolutionSource: "Statistics Canada GDP by industry",
+    resolutionRule:
+      "Resolves to the first official Statistics Canada real GDP by industry monthly percent change for April 2026. The May 29 advance estimate is treated as input, not the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada GDP by industry",
+    note: "Backfilled target registration from the forecast catalog for Canada monthly GDP growth, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bank_of_canada.overnight_rate.after_june_2026",
+    observationId: "obs.bank_of_canada.overnight_rate.after_june_2026",
+    country: "CA",
+    periodLabel: "next decision",
+    unit: "percent",
+    resolutionDate: "2026-06-10",
+    resolutionSource: "Bank of Canada interest rate announcement",
+    resolutionRule:
+      "Resolves to the target for the overnight rate stated in the Bank of Canada interest rate announcement on June 10, 2026. If the Bank posts a same-day correction before market close, the corrected value governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bank of Canada interest rate announcement",
+    note: "Backfilled target registration from the forecast catalog for Bank of Canada overnight rate, June 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "abs.labour.unemployment_rate.australia.may_2026.first_print",
+    observationId:
+      "obs.abs.labour.unemployment_rate.australia.may_2026.first_print",
+    country: "AU",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-25",
+    resolutionSource: "Australian Bureau of Statistics Labour Force",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted unemployment rate in Labour Force, Australia for May 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Australian Bureau of Statistics Labour Force",
+    note: "Backfilled target registration from the forecast catalog for Australia unemployment rate, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "abs.labour.employment_change.australia.may_2026.first_print",
+    observationId:
+      "obs.abs.labour.employment_change.australia.may_2026.first_print",
+    country: "AU",
+    periodLabel: "next release",
+    unit: "thousands",
+    resolutionDate: "2026-06-25",
+    resolutionSource: "Australian Bureau of Statistics Labour Force",
+    resolutionRule:
+      "Resolves to the first published monthly change in seasonally adjusted employment in Labour Force, Australia for May 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Australian Bureau of Statistics Labour Force",
+    note: "Backfilled target registration from the forecast catalog for Australia employment change, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "abs.cpi.all_groups_annual_rate.australia.may_2026.first_print",
+    observationId:
+      "obs.abs.cpi.all_groups_annual_rate.australia.may_2026.first_print",
+    country: "AU",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-24",
+    resolutionSource: "Australian Bureau of Statistics Consumer Price Index",
+    resolutionRule:
+      "Resolves to the first published all-groups annual CPI movement in Consumer Price Index, Australia for May 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Australian Bureau of Statistics Consumer Price Index",
+    note: "Backfilled target registration from the forecast catalog for Australia CPI annual inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "rba.cash_rate_target.after_june_2026",
+    observationId: "obs.rba.cash_rate_target.after_june_2026",
+    country: "AU",
+    periodLabel: "next decision",
+    unit: "percent",
+    resolutionDate: "2026-06-16",
+    resolutionSource: "Reserve Bank of Australia cash rate target",
+    resolutionRule:
+      "Resolves to the RBA cash rate target shown in the Reserve Bank of Australia cash rate target update on June 16, 2026. If the RBA posts a same-day correction before market close, the corrected value governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Reserve Bank of Australia cash rate target",
+    note: "Backfilled target registration from the forecast catalog for RBA cash rate target, June 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ecb.deposit_facility_rate.after_june_2026",
+    observationId: "obs.ecb.deposit_facility_rate.after_june_2026",
+    country: "EA",
+    periodLabel: "next decision",
+    unit: "percent",
+    resolutionDate: "2026-06-11",
+    resolutionSource: "European Central Bank monetary policy decisions",
+    resolutionRule:
+      "Resolves to the deposit facility rate stated in the ECB monetary policy decisions published on June 11, 2026. If the ECB posts a same-day correction before market close, the corrected value governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "European Central Bank monetary policy decisions",
+    note: "Backfilled target registration from the forecast catalog for ECB deposit facility rate, June 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "eurostat.hicp.all_items_annual_rate.euro_area.may_2026.final_first_print",
+    observationId:
+      "obs.eurostat.hicp.all_items_annual_rate.euro_area.may_2026.final_first_print",
+    country: "EA",
+    periodLabel: "final release",
+    unit: "percent",
+    resolutionDate: "2026-06-17",
+    resolutionSource: "Eurostat Harmonised Index of Consumer Prices",
+    resolutionRule:
+      "Resolves to Eurostat's first final all-items HICP annual inflation rate for the euro area for May 2026. The flash estimate is input context; later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Eurostat Harmonised Index of Consumer Prices",
+    note: "Backfilled target registration from the forecast catalog for Euro area HICP annual inflation, May 2026 final.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "eurostat.hicp.all_items_annual_rate.euro_area.june_2026.flash",
+    observationId:
+      "obs.eurostat.hicp.all_items_annual_rate.euro_area.june_2026.flash",
+    country: "EA",
+    periodLabel: "flash release",
+    unit: "percent",
+    resolutionDate: "2026-07-01",
+    resolutionSource: "Eurostat Harmonised Index of Consumer Prices",
+    resolutionRule:
+      "Resolves to Eurostat's first flash estimate of the euro area all-items HICP annual inflation rate for June 2026. The later final HICP release does not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Eurostat Harmonised Index of Consumer Prices",
+    note: "Backfilled target registration from the forecast catalog for Euro area HICP annual inflation, June 2026 flash.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "eurostat.unemployment_rate.euro_area.may_2026.first_print",
+    observationId:
+      "obs.eurostat.unemployment_rate.euro_area.may_2026.first_print",
+    country: "EA",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-07-02",
+    resolutionSource: "Eurostat monthly unemployment",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted euro area unemployment rate for May 2026 in Eurostat's monthly unemployment release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Eurostat monthly unemployment",
+    note: "Backfilled target registration from the forecast catalog for Euro area unemployment rate, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "boj.policy_rate_guideline.after_june_2026",
+    observationId: "obs.boj.policy_rate_guideline.after_june_2026",
+    country: "JP",
+    periodLabel: "next decision",
+    unit: "percent",
+    resolutionDate: "2026-06-16",
+    resolutionSource: "Bank of Japan Statement on Monetary Policy",
+    resolutionRule:
+      "Resolves to the guideline for money market operations stated in the Bank of Japan Statement on Monetary Policy released after the June 15-16, 2026 Monetary Policy Meeting. If the Bank posts a same-day correction before market close, the corrected value governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bank of Japan Statement on Monetary Policy",
+    note: "Backfilled target registration from the forecast catalog for Bank of Japan policy-rate guideline, June 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "statjp.cpi.all_items_annual_rate.japan.may_2026.first_print",
+    observationId:
+      "obs.statjp.cpi.all_items_annual_rate.japan.may_2026.first_print",
+    country: "JP",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-19",
+    resolutionSource: "Statistics Bureau of Japan Consumer Price Index",
+    resolutionRule:
+      "Resolves to the first published national all-items CPI annual rate for May 2026 in the Statistics Bureau of Japan Consumer Price Index release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Bureau of Japan Consumer Price Index",
+    note: "Backfilled target registration from the forecast catalog for Japan CPI annual inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "statjp.cpi.tokyo_all_items_annual_rate.june_2026.preliminary",
+    observationId:
+      "obs.statjp.cpi.tokyo_all_items_annual_rate.june_2026.preliminary",
+    country: "JP",
+    periodLabel: "preliminary release",
+    unit: "percent",
+    resolutionDate: "2026-06-26",
+    resolutionSource: "Statistics Bureau of Japan Consumer Price Index",
+    resolutionRule:
+      "Resolves to the first published Ku-area of Tokyo preliminary all-items CPI annual inflation rate for June 2026 in the Statistics Bureau of Japan Consumer Price Index release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Bureau of Japan Consumer Price Index",
+    note: "Backfilled target registration from the forecast catalog for Tokyo CPI annual inflation, June 2026 preliminary.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "statjp.lfs.unemployment_rate.japan.may_2026.first_print",
+    observationId:
+      "obs.statjp.lfs.unemployment_rate.japan.may_2026.first_print",
+    country: "JP",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource: "Statistics Bureau of Japan Labour Force Survey",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted unemployment rate for May 2026 in the Statistics Bureau of Japan Labour Force Survey basic tabulation. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Bureau of Japan Labour Force Survey",
+    note: "Backfilled target registration from the forecast catalog for Japan unemployment rate, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.ppi.final_demand_monthly_change.may_2026.first_print",
+    observationId:
+      "obs.bls.ppi.final_demand_monthly_change.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-11",
+    resolutionSource: "U.S. Bureau of Labor Statistics, Producer Price Index",
+    resolutionRule:
+      "Resolves to the first published BLS seasonally adjusted percent change from April 2026 to May 2026 for the PPI final demand index. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Labor Statistics, Producer Price Index",
+    note: "Backfilled target registration from the forecast catalog for US PPI final demand inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "fed.g17.industrial_production.total_index_mom.may_2026.first_print",
+    observationId:
+      "obs.fed.g17.industrial_production.total_index_mom.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-15",
+    resolutionSource:
+      "Federal Reserve Industrial Production and Capacity Utilization - G.17",
+    resolutionSourceUrl:
+      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+    resolutionRule:
+      "Resolves to the first published monthly percent change in the Federal Reserve G.17 total industrial production index for May 2026. Later revisions and the autumn 2026 annual revision do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Federal Reserve Industrial Production and Capacity Utilization - G.17",
+    sourceUrl:
+      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+    note: "Backfilled target registration from the forecast catalog for US industrial production growth, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "fed.g17.capacity_utilization.total_industry.may_2026.first_print",
+    observationId:
+      "obs.fed.g17.capacity_utilization.total_industry.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent",
+    resolutionDate: "2026-06-15",
+    resolutionSource:
+      "Federal Reserve Industrial Production and Capacity Utilization - G.17",
+    resolutionSourceUrl:
+      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for total industry capacity utilization in the Federal Reserve G.17 release, expressed as percent of capacity and seasonally adjusted. Later revisions and the autumn 2026 annual revision do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Federal Reserve Industrial Production and Capacity Utilization - G.17",
+    sourceUrl:
+      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+    note: "Backfilled target registration from the forecast catalog for US capacity utilization, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.import_price_index.all_imports_mom.may_2026.first_print",
+    observationId:
+      "obs.bls.import_price_index.all_imports_mom.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-16",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Import and Export Price Indexes",
+    resolutionRule:
+      "Resolves to the first published BLS monthly percent change in the all-import price index for May 2026. Later revisions within the three-month revision window do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Labor Statistics, Import and Export Price Indexes",
+    note: "Backfilled target registration from the forecast catalog for US import price inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.housing_starts.saar.may_2026.first_print",
+    observationId: "obs.census.housing_starts.saar.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "millions",
+    resolutionDate: "2026-06-16",
+    resolutionSource:
+      "U.S. Census Bureau and U.S. Department of Housing and Urban Development, New Residential Construction",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted annual rate of privately owned housing starts for May 2026 in the New Residential Construction release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Census Bureau and U.S. Department of Housing and Urban Development, New Residential Construction",
+    note: "Backfilled target registration from the forecast catalog for US housing starts, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "census.mtis.total_business_inventories_level.april_2026.first_print",
+    observationId:
+      "obs.census.mtis.total_business_inventories_level.april_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-17",
+    resolutionSource:
+      "U.S. Census Bureau, Manufacturing and Trade Inventories and Sales",
+    resolutionRule:
+      "Resolves to the first published preliminary April 2026 value for adjusted total business inventories in Census Manufacturing and Trade Inventories and Sales Table 1, expressed in billions of dollars. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, Manufacturing and Trade Inventories and Sales",
+    note: "Backfilled target registration from the forecast catalog for US total business inventories, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.government_social_benefits.level.may_2026.first_print",
+    observationId:
+      "obs.bea.government_social_benefits.level.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/income-saving/personal-income",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for government social benefits to persons in BEA NIPA Table 2.6, line 17, converted from millions to billions of current dollars at a seasonally adjusted annual rate. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl: "https://www.bea.gov/data/income-saving/personal-income",
+    note: "Backfilled target registration from the forecast catalog for US government social benefits, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "bea.government_social_benefits.social_security.may_2026.first_print",
+    observationId:
+      "obs.bea.government_social_benefits.social_security.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/income-saving/personal-income",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for Social Security in BEA NIPA Table 2.6, line 18, converted from millions to billions of current dollars at a seasonally adjusted annual rate. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl: "https://www.bea.gov/data/income-saving/personal-income",
+    note: "Backfilled target registration from the forecast catalog for US Social Security benefits, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.government_social_benefits.medicare.may_2026.first_print",
+    observationId:
+      "obs.bea.government_social_benefits.medicare.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/income-saving/personal-income",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for Medicare in BEA NIPA Table 2.6, line 19, converted from millions to billions of current dollars at a seasonally adjusted annual rate. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl: "https://www.bea.gov/data/income-saving/personal-income",
+    note: "Backfilled target registration from the forecast catalog for US Medicare benefits, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.government_social_benefits.medicaid.may_2026.first_print",
+    observationId:
+      "obs.bea.government_social_benefits.medicaid.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/income-saving/personal-income",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for Medicaid in BEA NIPA Table 2.6, line 20, converted from millions to billions of current dollars at a seasonally adjusted annual rate. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl: "https://www.bea.gov/data/income-saving/personal-income",
+    note: "Backfilled target registration from the forecast catalog for US Medicaid benefits, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.wages_and_salaries.level.may_2026.first_print",
+    observationId: "obs.bea.wages_and_salaries.level.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/income-saving/personal-income",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for wages and salaries in BEA NIPA Table 2.6, line 3, converted from millions to billions of current dollars at a seasonally adjusted annual rate. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl: "https://www.bea.gov/data/income-saving/personal-income",
+    note: "Backfilled target registration from the forecast catalog for US wages and salaries, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.personal_current_taxes.level.may_2026.first_print",
+    observationId: "obs.bea.personal_current_taxes.level.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/income-saving/personal-income",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for less personal current taxes in BEA NIPA Table 2.6, line 26, converted from millions to billions of current dollars at a seasonally adjusted annual rate. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl: "https://www.bea.gov/data/income-saving/personal-income",
+    note: "Backfilled target registration from the forecast catalog for US personal current taxes, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.disposable_personal_income.level.may_2026.first_print",
+    observationId:
+      "obs.bea.disposable_personal_income.level.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/income-saving/personal-income",
+    resolutionRule:
+      "Resolves to the first published May 2026 value for disposable personal income in BEA NIPA Table 2.6, line 27, converted from millions to billions of current dollars at a seasonally adjusted annual rate. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl: "https://www.bea.gov/data/income-saving/personal-income",
+    note: "Backfilled target registration from the forecast catalog for US disposable personal income, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.pce_price_index.monthly_change.may_2026.first_print",
+    observationId:
+      "obs.bea.pce_price_index.monthly_change.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionRule:
+      "Resolves to the first published BEA monthly percent change in the PCE price index for May 2026 in the Personal Income and Outlays release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    note: "Backfilled target registration from the forecast catalog for US PCE price index inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bea.real_gdp.saar.q1_2026.third_estimate",
+    observationId: "obs.bea.real_gdp.saar.q1_2026.third_estimate",
+    country: "US",
+    periodLabel: "third estimate",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Gross Domestic Product",
+    resolutionRule:
+      "Resolves to the first published BEA third estimate of real GDP percent change for Q1 2026, seasonally adjusted annual rate. Later annual-update or benchmark revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Gross Domestic Product",
+    note: "Backfilled target registration from the forecast catalog for US real GDP growth, Q1 2026 third estimate.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.monthly_deficit.may_2026.first_print",
+    observationId: "obs.treasury.mts.monthly_deficit.may_2026.first_print",
+    country: "US",
+    periodLabel: "next release",
+    unit: "usd_billions",
+    resolutionDate: "2026-06-10",
+    resolutionSource:
+      "U.S. Treasury Bureau of the Fiscal Service, Monthly Treasury Statement",
+    resolutionRule:
+      "Resolves to the May 2026 current-month deficit/surplus amount in Monthly Treasury Statement table 1, divided by 1 billion dollars, with deficits positive and surpluses negative. The first published MTS table governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Treasury Bureau of the Fiscal Service, Monthly Treasury Statement",
+    note: "Backfilled target registration from the forecast catalog for US federal monthly deficit, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "bls.oews.national_occupation_employment.soc_13_0000.may_2026.first_print",
+    observationId:
+      "obs.bls.oews.national_occupation_employment.soc_13_0000.may_2026.first_print",
+    country: "US",
+    periodLabel: "May 2026 OEWS first print",
+    unit: "thousands",
+    resolutionDate: "2027-05-14",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    resolutionSourceUrl: "https://www.bls.gov/oes/tables.htm",
+    resolutionRule:
+      "Resolves to the first-published national OEWS employment estimate for SOC 13-0000 Business and Financial Operations Occupations in the BLS May 2026 National Occupational Employment and Wage Estimates table, divided by 1,000 and rounded to the nearest thousand workers. Later revisions or table corrections do not change the resolved value unless BLS replaces the first table on the same publication date.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    sourceUrl: "https://www.bls.gov/oes/tables.htm",
+    note: "Backfilled target registration from the forecast catalog for Business and financial occupation employment, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "bls.oews.national_occupation_employment.soc_15_0000.may_2026.first_print",
+    observationId:
+      "obs.bls.oews.national_occupation_employment.soc_15_0000.may_2026.first_print",
+    country: "US",
+    periodLabel: "May 2026 OEWS first print",
+    unit: "thousands",
+    resolutionDate: "2027-05-14",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    resolutionSourceUrl: "https://www.bls.gov/oes/tables.htm",
+    resolutionRule:
+      "Resolves to the first-published national OEWS employment estimate for SOC 15-0000 Computer and Mathematical Occupations in the BLS May 2026 National Occupational Employment and Wage Estimates table, divided by 1,000 and rounded to the nearest thousand workers. Later revisions or table corrections do not change the resolved value unless BLS replaces the first table on the same publication date.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    sourceUrl: "https://www.bls.gov/oes/tables.htm",
+    note: "Backfilled target registration from the forecast catalog for Computer and mathematical occupation employment, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "bls.oews.national_occupation_employment.soc_31_0000.may_2026.first_print",
+    observationId:
+      "obs.bls.oews.national_occupation_employment.soc_31_0000.may_2026.first_print",
+    country: "US",
+    periodLabel: "May 2026 OEWS first print",
+    unit: "thousands",
+    resolutionDate: "2027-05-14",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    resolutionSourceUrl: "https://www.bls.gov/oes/tables.htm",
+    resolutionRule:
+      "Resolves to the first-published national OEWS employment estimate for SOC 31-0000 Healthcare Support Occupations in the BLS May 2026 National Occupational Employment and Wage Estimates table, divided by 1,000 and rounded to the nearest thousand workers. Later revisions or table corrections do not change the resolved value unless BLS replaces the first table on the same publication date.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    sourceUrl: "https://www.bls.gov/oes/tables.htm",
+    note: "Backfilled target registration from the forecast catalog for Healthcare support occupation employment, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "bls.oews.national_occupation_employment.soc_43_0000.may_2026.first_print",
+    observationId:
+      "obs.bls.oews.national_occupation_employment.soc_43_0000.may_2026.first_print",
+    country: "US",
+    periodLabel: "May 2026 OEWS first print",
+    unit: "thousands",
+    resolutionDate: "2027-05-14",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    resolutionSourceUrl: "https://www.bls.gov/oes/tables.htm",
+    resolutionRule:
+      "Resolves to the first-published national OEWS employment estimate for SOC 43-0000 Office and Administrative Support Occupations in the BLS May 2026 National Occupational Employment and Wage Estimates table, divided by 1,000 and rounded to the nearest thousand workers. Later revisions or table corrections do not change the resolved value unless BLS replaces the first table on the same publication date.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    sourceUrl: "https://www.bls.gov/oes/tables.htm",
+    note: "Backfilled target registration from the forecast catalog for Office and administrative support employment, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "bls.oews.national_occupation_employment.soc_51_0000.may_2026.first_print",
+    observationId:
+      "obs.bls.oews.national_occupation_employment.soc_51_0000.may_2026.first_print",
+    country: "US",
+    periodLabel: "May 2026 OEWS first print",
+    unit: "thousands",
+    resolutionDate: "2027-05-14",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    resolutionSourceUrl: "https://www.bls.gov/oes/tables.htm",
+    resolutionRule:
+      "Resolves to the first-published national OEWS employment estimate for SOC 51-0000 Production Occupations in the BLS May 2026 National Occupational Employment and Wage Estimates table, divided by 1,000 and rounded to the nearest thousand workers. Later revisions or table corrections do not change the resolved value unless BLS replaces the first table on the same publication date.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    sourceUrl: "https://www.bls.gov/oes/tables.htm",
+    note: "Backfilled target registration from the forecast catalog for Production occupation employment, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "bls.oews.national_occupation_employment.soc_53_0000.may_2026.first_print",
+    observationId:
+      "obs.bls.oews.national_occupation_employment.soc_53_0000.may_2026.first_print",
+    country: "US",
+    periodLabel: "May 2026 OEWS first print",
+    unit: "thousands",
+    resolutionDate: "2027-05-14",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    resolutionSourceUrl: "https://www.bls.gov/oes/tables.htm",
+    resolutionRule:
+      "Resolves to the first-published national OEWS employment estimate for SOC 53-0000 Transportation and Material Moving Occupations in the BLS May 2026 National Occupational Employment and Wage Estimates table, divided by 1,000 and rounded to the nearest thousand workers. Later revisions or table corrections do not change the resolved value unless BLS replaces the first table on the same publication date.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics",
+    sourceUrl: "https://www.bls.gov/oes/tables.htm",
+    note: "Backfilled target registration from the forecast catalog for Transportation and material moving employment, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "statcan.retail_trade.sales_mom.canada.april_2026.first_print",
+    observationId:
+      "obs.statcan.retail_trade.sales_mom.canada.april_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-19",
+    resolutionSource: "Statistics Canada Retail Trade",
+    resolutionRule:
+      "Resolves to the first published monthly percent change in seasonally adjusted Canadian retail sales for April 2026 in Statistics Canada's Retail trade release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada Retail Trade",
+    note: "Backfilled target registration from the forecast catalog for Canada retail sales growth, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "statcan.wholesale_trade.sales_mom_exclusions.canada.april_2026.first_print",
+    observationId:
+      "obs.statcan.wholesale_trade.sales_mom_exclusions.canada.april_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-15",
+    resolutionSource: "Statistics Canada Wholesale Trade",
+    resolutionRule:
+      "Resolves to the first published monthly percent change in seasonally adjusted wholesale sales excluding petroleum, petroleum products, other hydrocarbons, oilseed, and grain in Statistics Canada's April 2026 Wholesale trade release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada Wholesale Trade",
+    note: "Backfilled target registration from the forecast catalog for Canada wholesale sales growth, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "statcan.employment_insurance.regular_beneficiaries.canada.april_2026.first_print",
+    observationId:
+      "obs.statcan.employment_insurance.regular_beneficiaries.canada.april_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "thousands",
+    resolutionDate: "2026-06-18",
+    resolutionSource: "Statistics Canada Employment Insurance Statistics",
+    resolutionRule:
+      "Resolves to the first published seasonally adjusted number of regular Employment Insurance beneficiaries for Canada in Statistics Canada's April 2026 Employment Insurance release, expressed in thousands. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada Employment Insurance Statistics",
+    note: "Backfilled target registration from the forecast catalog for Canada regular EI beneficiaries, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "statcan.building_permits.total_value_mom.canada.april_2026.first_print",
+    observationId:
+      "obs.statcan.building_permits.total_value_mom.canada.april_2026.first_print",
+    country: "CA",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-11",
+    resolutionSource: "Statistics Canada Building Permits",
+    resolutionRule:
+      "Resolves to the first published monthly percent change in the seasonally adjusted total value of Canadian building permits for April 2026 in Statistics Canada's Building permits release. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada Building Permits",
+    note: "Backfilled target registration from the forecast catalog for Canada building permit value growth, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "eurostat.industrial_production.euro_area.april_2026.first_print",
+    observationId:
+      "obs.eurostat.industrial_production.euro_area.april_2026.first_print",
+    country: "EA",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-15",
+    resolutionSource: "Eurostat Industrial Production",
+    resolutionRule:
+      "Resolves to Eurostat's first estimate of the calendar and seasonally adjusted monthly percent change in total euro area industrial production for April 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Eurostat Industrial Production",
+    note: "Backfilled target registration from the forecast catalog for Euro area industrial production growth, April 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "eurostat.retail_trade.volume_mom.euro_area.may_2026.first_print",
+    observationId:
+      "obs.eurostat.retail_trade.volume_mom.euro_area.may_2026.first_print",
+    country: "EA",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-07-06",
+    resolutionSource: "Eurostat Retail Trade",
+    resolutionRule:
+      "Resolves to Eurostat's first estimate of the seasonally adjusted monthly percent change in euro area retail trade volume for May 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Eurostat Retail Trade",
+    note: "Backfilled target registration from the forecast catalog for Euro area retail trade volume growth, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "abs.building_approvals.total_dwellings_mom.australia.may_2026.first_print",
+    observationId:
+      "obs.abs.building_approvals.total_dwellings_mom.australia.may_2026.first_print",
+    country: "AU",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-07-01",
+    resolutionSource: "Australian Bureau of Statistics Building Approvals",
+    resolutionRule:
+      "Resolves to the first published monthly percent change in seasonally adjusted total dwelling units approved for May 2026 in ABS Building Approvals, Australia. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Australian Bureau of Statistics Building Approvals",
+    note: "Backfilled target registration from the forecast catalog for Australia dwelling approvals growth, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "statjp.household_spending.real_yoy.two_or_more_person_households.may_2026.first_print",
+    observationId:
+      "obs.statjp.household_spending.real_yoy.two_or_more_person_households.may_2026.first_print",
+    country: "JP",
+    periodLabel: "next release",
+    unit: "percent_growth",
+    resolutionDate: "2026-07-07",
+    resolutionSource:
+      "Statistics Bureau of Japan Family Income and Expenditure Survey",
+    resolutionRule:
+      "Resolves to the first published real year-over-year change in consumption expenditures for two-or-more-person households for May 2026 in the Statistics Bureau of Japan Family Income and Expenditure Survey. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Bureau of Japan Family Income and Expenditure Survey",
+    note: "Backfilled target registration from the forecast catalog for Japan real household spending growth, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.individual_income_tax_refunds.fy2026",
+    observationId: "obs.treasury.mts.individual_income_tax_refunds.fy2026",
+    country: "US",
+    periodLabel: "2026-10-20",
+    unit: "usd_billions",
+    resolutionDate: "2026-10-20",
+    resolutionSource:
+      "U.S. Treasury Monthly Treasury Statement, September 2026",
+    resolutionRule:
+      "Resolves to total individual income tax refunds for fiscal year 2026 in the final Monthly Treasury Statement for September 2026. If Treasury revises the table after the initial final MTS release, the first final fiscal-year table governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Treasury Monthly Treasury Statement, September 2026",
+    note: "Backfilled target registration from the forecast catalog for Individual income tax refunds, FY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.net_premium_tax_credit_reconciliation.ty2025",
+    observationId: "obs.irs.soi.net_premium_tax_credit_reconciliation.ty2025",
+    country: "US",
+    periodLabel: "2027-08-31",
+    unit: "usd_billions",
+    resolutionDate: "2027-08-31",
+    resolutionSource:
+      "IRS Statistics of Income, Affordable Care Act individual income tax items",
+    resolutionRule:
+      "Resolves to the IRS SOI tax-year 2025 estimate for net premium tax credit reconciliation on individual income tax returns, defined as additional net PTC claimed minus excess advance PTC repaid. If IRS publishes separate line-item and ACA-statistics estimates, the ACA-statistics table governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "IRS Statistics of Income, Affordable Care Act individual income tax items",
+    note: "Backfilled target registration from the forecast catalog for Net PTC reconciliation amount, TY2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "irs.soi.savers_credit_claimant_returns.ty2025",
+    observationId: "obs.irs.soi.savers_credit_claimant_returns.ty2025",
+    country: "US",
+    periodLabel: "2027-08-31",
+    unit: "millions",
+    resolutionDate: "2027-08-31",
+    resolutionSource:
+      "IRS Statistics of Income, Individual Income Tax Returns line-item estimates",
+    resolutionRule:
+      "Resolves to the IRS SOI tax-year 2025 estimate of the number of returns claiming the Retirement Savings Contributions Credit. If IRS reports both preliminary and complete-report values, the complete-report line-item estimate governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "IRS Statistics of Income, Individual Income Tax Returns line-item estimates",
+    note: "Backfilled target registration from the forecast catalog for Saver's Credit claimant returns, TY2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_chip.enrollment.dec_2026",
+    observationId: "obs.cms.medicaid_chip.enrollment.dec_2026",
+    country: "US",
+    periodLabel: "2027-06-30",
+    unit: "millions",
+    resolutionDate: "2027-06-30",
+    resolutionSource:
+      "CMS Medicaid and CHIP monthly enrollment data, December 2026",
+    resolutionRule:
+      "Resolves to the national Medicaid and CHIP enrollment total for December 2026 in CMS monthly enrollment data. If CMS publishes preliminary and updated files, the first updated national file posted by June 30, 2027 governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "CMS Medicaid and CHIP monthly enrollment data, December 2026",
+    note: "Backfilled target registration from the forecast catalog for Medicaid and CHIP enrollment, Dec 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.asec.direct_purchase_coverage_rate.2025",
+    observationId: "obs.census.asec.direct_purchase_coverage_rate.2025",
+    country: "US",
+    periodLabel: "2026-09-15",
+    unit: "percent",
+    resolutionDate: "2026-09-15",
+    resolutionSource:
+      "U.S. Census Bureau, Health Insurance Coverage in the United States: 2025",
+    resolutionRule:
+      "Resolves to the direct-purchase health insurance coverage rate for all people in the Census health insurance report covering calendar year 2025. The headline direct-purchase category governs, including marketplace and non-marketplace nongroup coverage.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Census Bureau, Health Insurance Coverage in the United States: 2025",
+    note: "Backfilled target registration from the forecast catalog for Direct-purchase health coverage rate, 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.marketplace.new_consumers.oep_2027",
+    observationId: "obs.cms.marketplace.new_consumers.oep_2027",
+    country: "US",
+    periodLabel: "2027-03-31",
+    unit: "millions",
+    resolutionDate: "2027-03-31",
+    resolutionSource:
+      "CMS Marketplace Open Enrollment Period public use files for plan year 2027",
+    resolutionRule:
+      "Resolves to the CMS national count of new consumers selecting Marketplace plans during the 2027 open enrollment period. If CMS reports HealthCare.gov and state-based marketplace totals separately, the national total combining both governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS Marketplace Open Enrollment Period public use files for plan year 2027",
+    note: "Backfilled target registration from the forecast catalog for Marketplace new consumers, OEP 2027.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cdc.nchs.nvss.infant_mortality_rate.2026.current_law.final",
+    observationId:
+      "obs.cdc.nchs.nvss.infant_mortality_rate.2026.current_law.final",
+    country: "US",
+    periodLabel: "2028-12-15",
+    unit: "per_1000_live_births",
+    resolutionDate: "2028-12-15",
+    resolutionSource:
+      "CDC/NCHS National Vital Statistics System linked birth/infant death records",
+    resolutionSourceUrl: "https://www.cdc.gov/nchs/nvss/linked-birth.htm",
+    resolutionRule:
+      "Resolves to the final U.S. infant mortality rate for calendar year 2026, in infant deaths per 1,000 live births, from CDC/NCHS NVSS linked birth/infant death records, conditional on no materially equivalent $3,000 fully refundable Child Tax Credit being in effect for TY2026. If such a policy is in effect, this baseline scenario is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CDC/NCHS National Vital Statistics System linked birth/infant death records",
+    sourceUrl: "https://www.cdc.gov/nchs/nvss/linked-birth.htm",
+    note: "Backfilled target registration from the forecast catalog for Infant mortality 2026 | current-law CTC.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "cdc.nchs.nvss.infant_mortality_rate.2026.ctc_3000_refundable.final",
+    observationId:
+      "obs.cdc.nchs.nvss.infant_mortality_rate.2026.ctc_3000_refundable.final",
+    country: "US",
+    periodLabel: "2028-12-15",
+    unit: "per_1000_live_births",
+    resolutionDate: "2028-12-15",
+    resolutionSource:
+      "CDC/NCHS National Vital Statistics System linked birth/infant death records",
+    resolutionSourceUrl: "https://www.cdc.gov/nchs/nvss/linked-birth.htm",
+    resolutionRule:
+      "Resolves to the final U.S. infant mortality rate for calendar year 2026, in infant deaths per 1,000 live births, from CDC/NCHS NVSS linked birth/infant death records, conditional on a materially equivalent $3,000 fully refundable Child Tax Credit being in effect for TY2026. If the policy is not in effect, this scenario is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CDC/NCHS National Vital Statistics System linked birth/infant death records",
+    sourceUrl: "https://www.cdc.gov/nchs/nvss/linked-birth.htm",
+    note: "Backfilled target registration from the forecast catalog for Infant mortality 2026 | $3,000 fully refundable CTC.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.snap.benefit_redemptions.fy2026",
+    observationId: "obs.usda.fns.snap.benefit_redemptions.fy2026",
+    country: "US",
+    periodLabel: "2027-01-31",
+    unit: "usd_billions",
+    resolutionDate: "2027-01-31",
+    resolutionSource:
+      "USDA Food and Nutrition Service, SNAP national level annual summary",
+    resolutionRule:
+      "Resolves to the fiscal year 2026 total SNAP benefit redemption amount in USDA FNS national-level annual summary data. If USDA reports issuance and redemption separately, the redemption amount governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "USDA Food and Nutrition Service, SNAP national level annual summary",
+    note: "Backfilled target registration from the forecast catalog for SNAP cumulative redemptions, FY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "usda.fns.wic.child_participation.fy2026",
+    observationId: "obs.usda.fns.wic.child_participation.fy2026",
+    country: "US",
+    periodLabel: "2027-01-31",
+    unit: "millions",
+    resolutionDate: "2027-01-31",
+    resolutionSource:
+      "USDA Food and Nutrition Service, WIC program data by participant category",
+    resolutionRule:
+      "Resolves to the average monthly number of child participants in WIC during fiscal year 2026 in USDA FNS program data. Infant and pregnant/postpartum/breastfeeding participant categories are excluded.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "USDA Food and Nutrition Service, WIC program data by participant category",
+    note: "Backfilled target registration from the forecast catalog for WIC child participation, FY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "hhs.acf.ccdf.average_monthly_payment_per_child.fy2026",
+    observationId: "obs.hhs.acf.ccdf.average_monthly_payment_per_child.fy2026",
+    country: "US",
+    periodLabel: "2027-12-31",
+    unit: "usd_monthly",
+    resolutionDate: "2027-12-31",
+    resolutionSource:
+      "HHS Administration for Children and Families, CCDF administrative data",
+    resolutionRule:
+      "Resolves to average monthly CCDF subsidy payments per child served in fiscal year 2026, computed from ACF CCDF administrative data as total subsidy payments divided by average monthly children served and months. If ACF publishes the metric directly, the direct metric governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "HHS Administration for Children and Families, CCDF administrative data",
+    note: "Backfilled target registration from the forecast catalog for CCDF payment per child, FY2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.us.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.us.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to the national combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released the FY 2024 rate on June 30, 2025; the FY 2025 release is expected around June 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "cms.medicaid_pi.procedural_disenrollment_share.california.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.california.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to beneficiaries disenrolled for procedural reasons divided by total beneficiaries disenrolled at renewal, California, August 2026 reporting period, original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, computed when CMS first publishes the row (expected roughly three to four months after the period).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for California Medicaid procedural disenrollment share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ak.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ak.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Alaska's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Alaska SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.al.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.al.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Alabama's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Alabama SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ar.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ar.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Arkansas's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Arkansas SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.az.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.az.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Arizona's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Arizona SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ca.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ca.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to California's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for California SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.co.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.co.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Colorado's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Colorado SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ct.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ct.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Connecticut's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Connecticut SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.dc.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.dc.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to District of Columbia's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for District of Columbia SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.de.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.de.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Delaware's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Delaware SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.fl.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.fl.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Florida's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Florida SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ga.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ga.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Georgia's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Georgia SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.gu.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.gu.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Guam's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Guam SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.hi.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.hi.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Hawaii's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Hawaii SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ia.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ia.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Iowa's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Iowa SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.id.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.id.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Idaho's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Idaho SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.il.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.il.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Illinois's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Illinois SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.in.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.in.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Indiana's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Indiana SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ks.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ks.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Kansas's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Kansas SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ky.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ky.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Kentucky's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Kentucky SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.la.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.la.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Louisiana's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Louisiana SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ma.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ma.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Massachusetts's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Massachusetts SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.md.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.md.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Maryland's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Maryland SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.me.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.me.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Maine's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Maine SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.mi.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.mi.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Michigan's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Michigan SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.mn.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.mn.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Minnesota's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Minnesota SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.mo.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.mo.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Missouri's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Missouri SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ms.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ms.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Mississippi's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Mississippi SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.mt.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.mt.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Montana's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Montana SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.nc.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.nc.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to North Carolina's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for North Carolina SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.nd.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.nd.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to North Dakota's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for North Dakota SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ne.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ne.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Nebraska's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Nebraska SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.nh.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.nh.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to New Hampshire's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New Hampshire SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.nj.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.nj.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to New Jersey's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New Jersey SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.nm.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.nm.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to New Mexico's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New Mexico SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.nv.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.nv.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Nevada's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Nevada SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ny.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ny.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to New York's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New York SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.oh.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.oh.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Ohio's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Ohio SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ok.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ok.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Oklahoma's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Oklahoma SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.or.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.or.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Oregon's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Oregon SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.pa.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.pa.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Pennsylvania's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Pennsylvania SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ri.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ri.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Rhode Island's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Rhode Island SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.sc.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.sc.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to South Carolina's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for South Carolina SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.sd.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.sd.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to South Dakota's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for South Dakota SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.tn.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.tn.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Tennessee's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Tennessee SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.tx.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.tx.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Texas's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Texas SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.ut.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.ut.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Utah's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Utah SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.va.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.va.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Virginia's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Virginia SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.vi.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.vi.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Virgin Islands's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Virgin Islands SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.vt.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.vt.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Vermont's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Vermont SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.wa.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.wa.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Washington's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Washington SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.wi.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.wi.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Wisconsin's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Wisconsin SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.wv.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.wv.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to West Virginia's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for West Virginia SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.total_payment_error_rate.wy.fy2025",
+    observationId: "obs.fns.snap.total_payment_error_rate.wy.fy2025",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "percent",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to Wyoming's combined SNAP payment error rate (overpayments plus underpayments) for fiscal year 2025 in the official FNS QC release, first print. FNS released FY 2024 rates on June 30, 2025; the FY 2025 release is expected around mid-2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Wyoming SNAP payment error rate, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ak.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ak.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Alaska's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Alaska SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.al.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.al.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Alabama's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Alabama SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ar.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ar.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Arkansas's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Arkansas SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.az.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.az.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Arizona's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Arizona SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ca.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ca.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to California's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for California SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.co.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.co.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Colorado's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Colorado SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ct.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ct.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Connecticut's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Connecticut SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.dc.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.dc.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to District of Columbia's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for District of Columbia SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.de.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.de.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Delaware's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Delaware SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.fl.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.fl.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Florida's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Florida SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ga.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ga.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Georgia's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Georgia SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.gu.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.gu.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Guam's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Guam SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.hi.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.hi.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Hawaii's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Hawaii SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ia.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ia.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Iowa's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Iowa SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.id.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.id.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Idaho's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Idaho SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.il.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.il.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Illinois's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Illinois SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.in.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.in.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Indiana's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Indiana SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ks.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ks.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Kansas's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Kansas SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ky.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ky.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Kentucky's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Kentucky SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.la.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.la.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Louisiana's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Louisiana SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ma.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ma.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Massachusetts's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Massachusetts SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.md.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.md.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Maryland's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Maryland SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.me.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.me.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Maine's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Maine SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.mi.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.mi.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Michigan's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Michigan SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.mn.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.mn.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Minnesota's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Minnesota SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.mo.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.mo.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Missouri's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Missouri SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ms.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ms.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Mississippi's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Mississippi SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.mt.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.mt.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Montana's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Montana SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.nc.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.nc.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to North Carolina's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for North Carolina SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.nd.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.nd.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to North Dakota's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for North Dakota SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ne.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ne.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Nebraska's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Nebraska SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.nh.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.nh.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to New Hampshire's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New Hampshire SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.nj.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.nj.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to New Jersey's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New Jersey SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.nm.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.nm.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to New Mexico's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New Mexico SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.nv.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.nv.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Nevada's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Nevada SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ny.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ny.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to New York's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for New York SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.oh.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.oh.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Ohio's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Ohio SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ok.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ok.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Oklahoma's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Oklahoma SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.or.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.or.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Oregon's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Oregon SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.pa.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.pa.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Pennsylvania's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Pennsylvania SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ri.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ri.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Rhode Island's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Rhode Island SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.sc.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.sc.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to South Carolina's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for South Carolina SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.sd.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.sd.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to South Dakota's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for South Dakota SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.tn.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.tn.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Tennessee's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Tennessee SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.tx.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.tx.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Texas's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Texas SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.ut.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.ut.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Utah's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Utah SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.va.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.va.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Virginia's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Virginia SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.vt.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.vt.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Vermont's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Vermont SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.wa.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.wa.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Washington's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Washington SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.wi.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.wi.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Wisconsin's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Wisconsin SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.wv.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.wv.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to West Virginia's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for West Virginia SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.application_processing_timeliness.wy.fy2025",
+    observationId: "obs.fns.snap.application_processing_timeliness.wy.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    resolutionRule:
+      "Resolves to Wyoming's application processing timeliness rate for fiscal year 2025 as first published on the FNS SNAP QC timeliness page (share of initial applications processed within the 30-day standard, 7-day expedited), expected in 2026.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Application Processing Timeliness, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for Wyoming SNAP application timeliness, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ak.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ak.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Alaska's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Alaska Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.al.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.al.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Alabama's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Alabama Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ar.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ar.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Arkansas's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Arkansas Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.az.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.az.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Arizona's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Arizona Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ca.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ca.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to California's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for California Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.co.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.co.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Colorado's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Colorado Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ct.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ct.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Connecticut's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Connecticut Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.dc.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.dc.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to District of Columbia's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for District of Columbia Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.de.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.de.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Delaware's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Delaware Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.fl.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.fl.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Florida's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Florida Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ga.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ga.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Georgia's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Georgia Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.hi.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.hi.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Hawaii's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Hawaii Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ia.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ia.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Iowa's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Iowa Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.id.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.id.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Idaho's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Idaho Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.il.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.il.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Illinois's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Illinois Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.in.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.in.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Indiana's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Indiana Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ks.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ks.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Kansas's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Kansas Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ky.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ky.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Kentucky's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Kentucky Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.la.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.la.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Louisiana's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Louisiana Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ma.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ma.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Massachusetts's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Massachusetts Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.md.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.md.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Maryland's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Maryland Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.me.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.me.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Maine's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Maine Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.mi.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.mi.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Michigan's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Michigan Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.mn.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.mn.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Minnesota's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Minnesota Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.mo.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.mo.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Missouri's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Missouri Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ms.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ms.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Mississippi's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Mississippi Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.mt.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.mt.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Montana's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Montana Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.nc.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.nc.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to North Carolina's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for North Carolina Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.nd.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.nd.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to North Dakota's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for North Dakota Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ne.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ne.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Nebraska's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Nebraska Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.nh.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.nh.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New Hampshire's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New Hampshire Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.nj.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.nj.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New Jersey's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New Jersey Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.nm.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.nm.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New Mexico's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New Mexico Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.nv.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.nv.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Nevada's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Nevada Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ny.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ny.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New York's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New York Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.oh.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.oh.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Ohio's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Ohio Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ok.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ok.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Oklahoma's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Oklahoma Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.or.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.or.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Oregon's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Oregon Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.pa.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.pa.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Pennsylvania's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Pennsylvania Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ri.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ri.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Rhode Island's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Rhode Island Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.sc.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.sc.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to South Carolina's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for South Carolina Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.sd.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.sd.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to South Dakota's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for South Dakota Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.tn.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.tn.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Tennessee's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Tennessee Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.tx.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.tx.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Texas's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Texas Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.ut.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.ut.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Utah's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Utah Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.va.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.va.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Virginia's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Virginia Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.vt.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.vt.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Vermont's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Vermont Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.wa.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.wa.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Washington's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Washington Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.wi.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.wi.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Wisconsin's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Wisconsin Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.wv.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.wv.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to West Virginia's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for West Virginia Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.wy.aug_2026",
+    observationId: "obs.cms.medicaid_pi.ex_parte_renewal_share.wy.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Wyoming's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Wyoming Medicaid ex parte renewal share, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ak.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ak.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Alaska's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Alaska Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.al.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.al.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Alabama's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Alabama Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ar.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ar.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Arkansas's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Arkansas Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.az.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.az.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Arizona's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Arizona Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.co.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.co.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Colorado's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Colorado Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ct.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ct.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Connecticut's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Connecticut Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.dc.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.dc.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to District of Columbia's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for District of Columbia Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.de.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.de.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Delaware's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Delaware Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.fl.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.fl.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Florida's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Florida Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ga.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ga.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Georgia's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Georgia Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.hi.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.hi.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Hawaii's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Hawaii Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ia.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ia.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Iowa's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Iowa Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.id.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.id.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Idaho's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Idaho Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.il.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.il.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Illinois's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Illinois Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.in.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.in.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Indiana's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Indiana Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ks.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ks.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Kansas's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Kansas Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ky.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ky.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Kentucky's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Kentucky Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.la.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.la.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Louisiana's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Louisiana Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ma.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ma.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Massachusetts's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Massachusetts Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.md.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.md.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Maryland's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Maryland Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.me.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.me.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Maine's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Maine Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.mi.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.mi.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Michigan's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Michigan Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.mn.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.mn.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Minnesota's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Minnesota Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.mo.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.mo.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Missouri's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Missouri Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ms.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ms.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Mississippi's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Mississippi Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.mt.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.mt.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Montana's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Montana Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.nc.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.nc.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to North Carolina's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for North Carolina Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.nd.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.nd.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to North Dakota's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for North Dakota Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ne.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ne.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Nebraska's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Nebraska Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.nh.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.nh.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New Hampshire's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New Hampshire Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.nj.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.nj.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New Jersey's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New Jersey Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.nm.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.nm.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New Mexico's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New Mexico Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.nv.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.nv.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Nevada's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Nevada Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ny.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ny.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to New York's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for New York Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.oh.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.oh.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Ohio's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Ohio Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ok.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ok.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Oklahoma's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Oklahoma Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.or.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.or.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Oregon's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Oregon Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.pa.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.pa.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Pennsylvania's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Pennsylvania Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ri.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ri.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Rhode Island's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Rhode Island Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.sc.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.sc.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to South Carolina's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for South Carolina Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.sd.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.sd.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to South Dakota's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for South Dakota Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.tn.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.tn.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Tennessee's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Tennessee Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.tx.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.tx.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Texas's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Texas Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.ut.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ut.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Utah's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Utah Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.va.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.va.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Virginia's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Virginia Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.vt.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.vt.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Vermont's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Vermont Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.wa.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.wa.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Washington's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Washington Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.wi.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.wi.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Wisconsin's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Wisconsin Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.wv.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.wv.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to West Virginia's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for West Virginia Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.procedural_disenrollment_share.wy.aug_2026",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.wy.aug_2026",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to Wyoming's procedural share of disenrollments for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Wyoming Medicaid procedural share of disenrollments, August 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "fns.snap.share_jurisdictions_at_or_above_6pct.fy2025",
+    observationId: "obs.fns.snap.share_jurisdictions_at_or_above_6pct.fy2025",
+    country: "US",
+    periodLabel: "2026-09-30",
+    unit: "percent",
+    resolutionDate: "2026-09-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    resolutionRule:
+      "Resolves to the count of jurisdictions with FY 2025 combined payment error rates at or above 6.0 percent in the official FNS release, divided by the 53 jurisdictions reported. The release is expected around mid-2026; if it has not been published by 2027-03-31, the cell resolves whenever it is.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2025",
+    note: "Backfilled target registration from the forecast catalog for SNAP jurisdictions at the cost-share threshold, FY 2025.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "fns.snap.total_payment_error_rate.us.fy2026.cost_share_in_effect",
+    observationId:
+      "obs.fns.snap.total_payment_error_rate.us.fy2026.cost_share_in_effect",
+    country: "US",
+    periodLabel: "2027-06-30",
+    unit: "percent",
+    resolutionDate: "2027-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2026",
+    resolutionRule:
+      "Resolves to the national combined SNAP payment error rate for fiscal year 2026 in the official FNS QC release (first print, expected around June 2027), conditional on the event 'no federal statute enacted on or before 2027-06-30 repeals or delays the SNAP state cost-share provisions of the 2025 reconciliation law.' If the conditioning event fails, the cell is marked unresolved. The conditioning event is a policy state, checkable against the federal bill tracker.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2026",
+    note: "Backfilled target registration from the forecast catalog for SNAP payment error rate FY 2026 | cost-share provision in effect.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "fns.snap.total_payment_error_rate.us.fy2026.cost_share_repealed",
+    observationId:
+      "obs.fns.snap.total_payment_error_rate.us.fy2026.cost_share_repealed",
+    country: "US",
+    periodLabel: "2027-06-30",
+    unit: "percent",
+    resolutionDate: "2027-06-30",
+    resolutionSource:
+      "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2026",
+    resolutionRule:
+      "Resolves to the national combined SNAP payment error rate for fiscal year 2026 in the official FNS QC release (first print, expected around June 2027), conditional on the event 'a federal statute enacted on or before 2027-06-30 repeals or delays the SNAP state cost-share provisions of the 2025 reconciliation law.' If the conditioning event fails, the cell is marked unresolved. Exactly one cell of the cost-share pair resolves; the gap between the two arms (9.4 vs 10.3) is the forecasted effect of the policy on payment accuracy.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "USDA FNS, SNAP Quality Control Payment Error Rates, FY 2026",
+    note: "Backfilled target registration from the forecast catalog for SNAP payment error rate FY 2026 | cost-share repealed or delayed.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_holds",
+    observationId:
+      "obs.cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_holds",
+    country: "US",
+    periodLabel: "2027-07-31",
+    unit: "minutes",
+    resolutionDate: "2027-07-31",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    resolutionSourceUrl:
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+    resolutionRule:
+      "Resolves to the volume-weighted national average Medicaid call-center wait time in minutes for the March 2027 reporting period, computed across all reporting jurisdictions in CMS dataset 6165f45b-ca93-5bb5-9d06-db29c692a360 (each jurisdiction's average wait weighted by its total call volume, latest submission per jurisdiction), when CMS first publishes the period (expected roughly four months later). Conditional on the event 'no federal statute enacted and no nationwide court stay issued on or before 2027-03-31 delays the community-engagement compliance deadline beyond 2027.' If the conditioning event fails, the cell is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    sourceUrl:
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+    note: "Backfilled target registration from the forecast catalog for Medicaid call-center wait, March 2027 | work-requirement deadline holds.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_delayed",
+    observationId:
+      "obs.cms.medicaid_pi.call_center_wait_minutes.us.mar_2027.deadline_delayed",
+    country: "US",
+    periodLabel: "2027-07-31",
+    unit: "minutes",
+    resolutionDate: "2027-07-31",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    resolutionSourceUrl:
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+    resolutionRule:
+      "Resolves to the volume-weighted national average Medicaid call-center wait time in minutes for the March 2027 reporting period, computed across all reporting jurisdictions in CMS dataset 6165f45b-ca93-5bb5-9d06-db29c692a360 (each jurisdiction's average wait weighted by its total call volume, latest submission per jurisdiction), when CMS first publishes the period (expected roughly four months later). Conditional on the event 'a federal statute enacted or nationwide court stay issued on or before 2027-03-31 delays the community-engagement compliance deadline beyond 2027.' If the conditioning event fails, the cell is marked unresolved. Exactly one cell of this pair resolves; the gap between the arms (33 vs 15 minutes) is the forecasted hold-time cost of the policy state.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    sourceUrl:
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+    note: "Backfilled target registration from the forecast catalog for Medicaid call-center wait, March 2027 | work-requirement deadline delayed.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "cms.medicaid_pi.call_center_wait_minutes.us.mar_2027",
+    observationId: "obs.cms.medicaid_pi.call_center_wait_minutes.us.mar_2027",
+    country: "US",
+    periodLabel: "2027-07-31",
+    unit: "minutes",
+    resolutionDate: "2027-07-31",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to the volume-weighted national average Medicaid call-center wait time in minutes for the March 2027 reporting period, computed across all reporting jurisdictions in CMS dataset 6165f45b-ca93-5bb5-9d06-db29c692a360 (each jurisdiction's average wait weighted by its total call volume, latest submission per jurisdiction), when CMS first publishes the period. Unconditional: this cell resolves regardless of the policy state.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Applications, Eligibility Determinations, and Enrollment Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for Medicaid call-center wait, March 2027 (unconditional).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId:
+      "cms.medicaid_pi.procedural_disenrollment_share.ca.aug_2026.conditional",
+    observationId:
+      "obs.cms.medicaid_pi.procedural_disenrollment_share.ca.aug_2026.conditional",
+    country: "US",
+    periodLabel: "2026-12-15",
+    unit: "percent",
+    resolutionDate: "2026-12-15",
+    resolutionSource:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    resolutionRule:
+      "Resolves to California's procedural disenrollments divided by total disenrollments at renewal for the August 2026 reporting period (original submission row, CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c), conditional on the event 'California ex parte renewals divided by total completed renewals is at least 80.0 percent in the same row.' If the conditioning event does not occur, the cell is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    note: "Backfilled target registration from the forecast catalog for California procedural share | ex parte at or above 80%.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "us.frb.industrial_production.total.mom_sa.2026-05",
+    observationId: "obs.us.frb.industrial_production.total.mom_sa.2026-05",
+    country: "US",
+    periodLabel: "2026-06-15",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-15",
+    resolutionSource:
+      "Federal Reserve Board, G.17 Industrial Production and Capacity Utilization",
+    resolutionSourceUrl: "https://www.federalreserve.gov/releases/g17/current/",
+    resolutionRule:
+      "Resolves to the total Industrial Production index seasonally adjusted month-over-month percent change for May 2026, as printed in the first G.17 release on 2026-06-15 at 9:15 AM ET, rounded to one decimal place. FRED series INDPRO (first vintage).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Federal Reserve Board, G.17 Industrial Production and Capacity Utilization",
+    sourceUrl: "https://www.federalreserve.gov/releases/g17/current/",
+    note: "Backfilled target registration from the forecast catalog for US industrial production, May 2026, month-over-month % change.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "us.census.housing_starts.total_saar.2026-05",
+    observationId: "obs.us.census.housing_starts.total_saar.2026-05",
+    country: "US",
+    periodLabel: "2026-06-16",
+    unit: "millions",
+    resolutionDate: "2026-06-16",
+    resolutionSource: "U.S. Census Bureau & HUD, New Residential Construction",
+    resolutionSourceUrl:
+      "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+    resolutionRule:
+      "Resolves to the total privately-owned housing starts for May 2026, seasonally adjusted annual rate, in millions (e.g. 1500 thousand -> 1.50 million), as printed in the 2026-06-16 8:30 AM ET New Residential Construction release (first/preliminary estimate). FRED series HOUST/1000.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau & HUD, New Residential Construction",
+    sourceUrl: "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+    note: "Backfilled target registration from the forecast catalog for US housing starts, May 2026, total SAAR (millions).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "ons.cpih.annual_rate.2026-05",
+    observationId: "obs.ons.cpih.annual_rate.2026-05",
+    country: "UK",
+    periodLabel: "2026-06-17",
+    unit: "percent",
+    resolutionDate: "2026-06-17",
+    resolutionSource:
+      "Office for National Statistics, Consumer price inflation, UK: May 2026",
+    resolutionSourceUrl:
+      "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/latest",
+    resolutionRule:
+      "Resolves to the first-published ONS CPIH (CPI including owner occupiers' housing costs) 12-month inflation rate for May 2026 in the Consumer price inflation, UK bulletin, headline table, rounded to one decimal place as published. Later revisions do not change the resolved value. This forecast targets CPIH specifically, distinct from the all-items CPI measure.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Office for National Statistics, Consumer price inflation, UK: May 2026",
+    sourceUrl:
+      "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/latest",
+    note: "Backfilled target registration from the forecast catalog for UK CPIH annual inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "us.fed.fomc.target_range_upper.2026-06",
+    observationId: "obs.us.fed.fomc.target_range_upper.2026-06",
+    country: "US",
+    periodLabel: "2026-06-17",
+    unit: "percent",
+    resolutionDate: "2026-06-17",
+    resolutionSource: "Federal Reserve Board / FOMC",
+    resolutionSourceUrl:
+      "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+    resolutionRule:
+      "Resolves to the upper limit of the target range for the federal funds rate as stated in the FOMC statement / Implementation Note issued at 2:00 PM ET on 2026-06-17, in percent (e.g. 3.75 if range is 3.50-3.75%). FRED series DFEDTARU reflects the same value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Federal Reserve Board / FOMC",
+    sourceUrl: "https://www.federalreserve.gov/monetarypolicy/openmarket.htm",
+    note: "Backfilled target registration from the forecast catalog for FOMC June 2026 decision: federal funds target range upper bound.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "boe.bank_rate.2026-06-18",
+    observationId: "obs.boe.bank_rate.2026-06-18",
+    country: "UK",
+    periodLabel: "2026-06-18",
+    unit: "percent",
+    resolutionDate: "2026-06-18",
+    resolutionSource:
+      "Bank of England Monetary Policy Summary and minutes, June 2026",
+    resolutionSourceUrl:
+      "https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate",
+    resolutionRule:
+      "Resolves to the Bank Rate level (percent) stated in the Bank of England Monetary Policy Summary published on 18 June 2026, immediately following the MPC vote. If the Bank issues a same-day correction before market close, the corrected value governs.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Bank of England Monetary Policy Summary and minutes, June 2026",
+    sourceUrl:
+      "https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate",
+    note: "Backfilled target registration from the forecast catalog for Bank of England Bank Rate after the 18 June 2026 MPC decision.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "us.dol.initial_claims.sa.week_2026-06-13",
+    observationId: "obs.us.dol.initial_claims.sa.week_2026-06-13",
+    country: "US",
+    periodLabel: "2026-06-18",
+    unit: "thousands",
+    resolutionDate: "2026-06-18",
+    resolutionSource:
+      "U.S. Department of Labor, Employment & Training Administration",
+    resolutionSourceUrl: "https://www.dol.gov/ui/data.pdf",
+    resolutionRule:
+      "Resolves to the seasonally adjusted ADVANCE figure for initial claims for the week ending 2026-06-13, in thousands, as printed in the DOL UI Weekly Claims news release on 2026-06-18 at 8:30 AM ET. FRED series ICSA (advance vintage), value/1000.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Department of Labor, Employment & Training Administration",
+    sourceUrl: "https://www.dol.gov/ui/data.pdf",
+    note: "Backfilled target registration from the forecast catalog for US initial unemployment claims, week ending 2026-06-13 (thousands).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "estat.jp.cpi.core_exfreshfood.yoy.2026-05",
+    observationId: "obs.estat.jp.cpi.core_exfreshfood.yoy.2026-05",
+    country: "JP",
+    periodLabel: "2026-06-19",
+    unit: "percent",
+    resolutionDate: "2026-06-19",
+    resolutionSource:
+      "Statistics Bureau of Japan, Consumer Price Index, May 2026 (national)",
+    resolutionSourceUrl: "https://www.stat.go.jp/english/data/cpi/1581-z.html",
+    resolutionRule:
+      "Resolves to the first-published national 'all items less fresh food' (core) CPI year-over-year rate for the May 2026 reference month in the Statistics Bureau of Japan Consumer Price Index release, rounded to one decimal as published. This targets the ex-fresh-food core measure specifically, distinct from the all-items headline. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Statistics Bureau of Japan, Consumer Price Index, May 2026 (national)",
+    sourceUrl: "https://www.stat.go.jp/english/data/cpi/1581-z.html",
+    note: "Backfilled target registration from the forecast catalog for Japan core CPI (excl. fresh food) year-over-year inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "statcan.cpi.allitems.yoy.2026-05",
+    observationId: "obs.statcan.cpi.allitems.yoy.2026-05",
+    country: "CA",
+    periodLabel: "2026-06-22",
+    unit: "percent",
+    resolutionDate: "2026-06-22",
+    resolutionSource:
+      "Statistics Canada, The Daily, Consumer Price Index, May 2026",
+    resolutionSourceUrl:
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260622/dq260622a-eng.htm",
+    resolutionRule:
+      "Resolves to the first-published all-items CPI 12-month percentage change for Canada (not seasonally adjusted) in the Statistics Canada The Daily release for the May 2026 reference month, rounded to one decimal as published. Later revisions or table updates do not change the resolved value. Note: the May 2026 CPI is the first release computed on updated basket weights (effective 15 June 2026).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Statistics Canada, The Daily, Consumer Price Index, May 2026",
+    sourceUrl:
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260622/dq260622a-eng.htm",
+    note: "Backfilled target registration from the forecast catalog for Canada CPI all-items year-over-year inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "abs.cpi_indicator.allgroups.yoy.2026-05",
+    observationId: "obs.abs.cpi_indicator.allgroups.yoy.2026-05",
+    country: "AU",
+    periodLabel: "2026-06-24",
+    unit: "percent",
+    resolutionDate: "2026-06-24",
+    resolutionSource:
+      "Australian Bureau of Statistics, Monthly Consumer Price Index Indicator, May 2026",
+    resolutionSourceUrl:
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+    resolutionRule:
+      "Resolves to the first-published all-groups CPI annual (12-month) movement in the ABS Monthly Consumer Price Index Indicator release for the May 2026 reference month, rounded to one decimal as published. Later revisions do not change the resolved value. This targets the all-groups headline monthly indicator (distinct from the trimmed-mean underlying measure).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Australian Bureau of Statistics, Monthly Consumer Price Index Indicator, May 2026",
+    sourceUrl:
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+    note: "Backfilled target registration from the forecast catalog for Australia monthly CPI indicator (all-groups) annual inflation, May 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "us.dol.initial_claims.sa.week_2026-06-20",
+    observationId: "obs.us.dol.initial_claims.sa.week_2026-06-20",
+    country: "US",
+    periodLabel: "2026-06-25",
+    unit: "thousands",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Department of Labor, Employment & Training Administration",
+    resolutionSourceUrl: "https://www.dol.gov/ui/data.pdf",
+    resolutionRule:
+      "Resolves to the seasonally adjusted ADVANCE figure for initial claims for the week ending 2026-06-20, in thousands, as printed in the DOL UI Weekly Claims news release on 2026-06-25 at 8:30 AM ET. FRED series ICSA (advance vintage), value/1000.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Department of Labor, Employment & Training Administration",
+    sourceUrl: "https://www.dol.gov/ui/data.pdf",
+    note: "Backfilled target registration from the forecast catalog for US initial unemployment claims, week ending 2026-06-20 (thousands).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "us.bea.core_pce.mom_sa.2026-05",
+    observationId: "obs.us.bea.core_pce.mom_sa.2026-05",
+    country: "US",
+    periodLabel: "2026-06-25",
+    unit: "percent_growth",
+    resolutionDate: "2026-06-25",
+    resolutionSource:
+      "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    resolutionSourceUrl:
+      "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+    resolutionRule:
+      "Resolves to the month-over-month percent change in the PCE price index excluding food and energy (core PCE), seasonally adjusted, for May 2026, as printed in the first BEA Personal Income and Outlays release on 2026-06-25 at 8:30 AM ET, rounded to one decimal place at BEA's reported precision (the headline table reports to 0.1; FRED PCEPILFE supports 0.01). FRED series PCEPILFE (first vintage).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    sourceUrl:
+      "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+    note: "Backfilled target registration from the forecast catalog for US core PCE price index, May 2026, month-over-month % change.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.jolts.job_openings.may_2026.first_print",
+    observationId: "obs.bls.jolts.job_openings.may_2026.first_print",
+    country: "US",
+    periodLabel: "2026-06-30",
+    unit: "millions",
+    resolutionDate: "2026-06-30",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Job Openings and Labor Turnover Survey",
+    resolutionSourceUrl: "https://www.bls.gov/news.release/jolts.nr0.htm",
+    resolutionRule:
+      "Resolves to the first-published seasonally adjusted level of total nonfarm job openings for May 2026 (in millions, rounded as BLS reports) stated in the BLS JOLTS news release scheduled for June 30, 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Job Openings and Labor Turnover Survey",
+    sourceUrl: "https://www.bls.gov/news.release/jolts.nr0.htm",
+    note: "Backfilled target registration from the forecast catalog for JOLTS job openings, May 2026 (first print).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "eurostat.ea.hicp.flash.yoy.2026-06",
+    observationId: "obs.eurostat.ea.hicp.flash.yoy.2026-06",
+    country: "EA",
+    periodLabel: "2026-07-01",
+    unit: "percent",
+    resolutionDate: "2026-07-01",
+    resolutionSource:
+      "Eurostat, Euro indicators, euro area flash HICP estimate, June 2026",
+    resolutionSourceUrl:
+      "https://ec.europa.eu/eurostat/web/products-euro-indicators",
+    resolutionRule:
+      "Resolves to Eurostat's first flash estimate of the euro area (all-items) HICP annual inflation rate for June 2026, published 1 July 2026, rounded to one decimal as released. The later final HICP figure does not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "Eurostat, Euro indicators, euro area flash HICP estimate, June 2026",
+    sourceUrl: "https://ec.europa.eu/eurostat/web/products-euro-indicators",
+    note: "Backfilled target registration from the forecast catalog for Euro area flash HICP annual inflation, June 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.ces.total_nonfarm_payroll_change.june_2026.first_print",
+    observationId:
+      "obs.bls.ces.total_nonfarm_payroll_change.june_2026.first_print",
+    country: "US",
+    periodLabel: "2026-07-02",
+    unit: "thousands",
+    resolutionDate: "2026-07-02",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Employment Situation (Current Employment Statistics)",
+    resolutionSourceUrl: "https://www.bls.gov/news.release/empsit.nr0.htm",
+    resolutionRule:
+      "Resolves to the first-published seasonally adjusted over-the-month change in total nonfarm payroll employment for June 2026 stated in the BLS Employment Situation news release scheduled for July 2, 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Employment Situation (Current Employment Statistics)",
+    sourceUrl: "https://www.bls.gov/news.release/empsit.nr0.htm",
+    note: "Backfilled target registration from the forecast catalog for Nonfarm payroll change, June 2026 (first print).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.cps.unemployment_rate.june_2026.first_print",
+    observationId: "obs.bls.cps.unemployment_rate.june_2026.first_print",
+    country: "US",
+    periodLabel: "2026-07-02",
+    unit: "percent",
+    resolutionDate: "2026-07-02",
+    resolutionSource:
+      "U.S. Bureau of Labor Statistics, Employment Situation (Current Population Survey)",
+    resolutionSourceUrl: "https://www.bls.gov/news.release/empsit.nr0.htm",
+    resolutionRule:
+      "Resolves to the first-published seasonally adjusted civilian unemployment rate (U-3) for June 2026 stated in the BLS Employment Situation news release scheduled for July 2, 2026. Later revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Bureau of Labor Statistics, Employment Situation (Current Population Survey)",
+    sourceUrl: "https://www.bls.gov/news.release/empsit.nr0.htm",
+    note: "Backfilled target registration from the forecast catalog for Unemployment rate, June 2026 (first print).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.monthly_deficit.june_2026.first_print",
+    observationId: "obs.treasury.mts.monthly_deficit.june_2026.first_print",
+    country: "US",
+    periodLabel: "2026-07-13",
+    unit: "usd_billions",
+    resolutionDate: "2026-07-13",
+    resolutionSource:
+      "U.S. Department of the Treasury, Monthly Treasury Statement (Table 1)",
+    resolutionSourceUrl:
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    resolutionRule:
+      "Resolves to the June 2026 current-month deficit/surplus amount in Monthly Treasury Statement Table 1, divided by 1 billion dollars, with deficits positive and surpluses negative. The first published MTS table governs. Release expected on the 8th workday of July (2026-07-13).",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source:
+      "U.S. Department of the Treasury, Monthly Treasury Statement (Table 1)",
+    sourceUrl:
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    note: "Backfilled target registration from the forecast catalog for U.S. federal monthly deficit, June 2026 (MTS).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.cpi.u.headline_mom.june_2026.first_print",
+    observationId: "obs.bls.cpi.u.headline_mom.june_2026.first_print",
+    country: "US",
+    periodLabel: "2026-07-14",
+    unit: "percent_growth",
+    resolutionDate: "2026-07-14",
+    resolutionSource: "U.S. Bureau of Labor Statistics, Consumer Price Index",
+    resolutionSourceUrl: "https://www.bls.gov/news.release/cpi.nr0.htm",
+    resolutionRule:
+      "Resolves to the first-published seasonally adjusted month-over-month percent change in the all-items CPI-U for June 2026 stated in the BLS Consumer Price Index news release scheduled for July 14, 2026. Later seasonal-adjustment revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Labor Statistics, Consumer Price Index",
+    sourceUrl: "https://www.bls.gov/news.release/cpi.nr0.htm",
+    note: "Backfilled target registration from the forecast catalog for CPI-U month-over-month, June 2026 (first print, SA).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "bls.cpi.u.core_mom.june_2026.first_print",
+    observationId: "obs.bls.cpi.u.core_mom.june_2026.first_print",
+    country: "US",
+    periodLabel: "2026-07-14",
+    unit: "percent_growth",
+    resolutionDate: "2026-07-14",
+    resolutionSource: "U.S. Bureau of Labor Statistics, Consumer Price Index",
+    resolutionSourceUrl: "https://www.bls.gov/news.release/cpi.nr0.htm",
+    resolutionRule:
+      "Resolves to the first-published seasonally adjusted month-over-month percent change in CPI-U less food and energy (core) for June 2026 stated in the BLS Consumer Price Index news release scheduled for July 14, 2026. Later seasonal-adjustment revisions do not change the resolved value.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Bureau of Labor Statistics, Consumer Price Index",
+    sourceUrl: "https://www.bls.gov/news.release/cpi.nr0.htm",
+    note: "Backfilled target registration from the forecast catalog for Core CPI month-over-month, June 2026 (first print, SA).",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.spm.child_poverty_rate.2028",
+    observationId: "obs.census.spm.child_poverty_rate.2028",
+    country: "US",
+    periodLabel: "2029-09-15",
+    unit: "percent",
+    resolutionDate: "2029-09-15",
+    resolutionSource: "Census SPM annual release",
+    resolutionRule:
+      "Resolves to the official Census SPM child poverty rate for 2028, conditional on the event 'a TCJA extension package matching at least the House-passed framework on CTC and EITC is enacted by 2026-06-30.' If the conditioning event does not occur, the forecast cell is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Census SPM annual release",
+    note: "Backfilled target registration from the forecast catalog for Child poverty 2028 | TCJA extension passes by Q2 2026.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.spm.child_poverty_rate.2026",
+    observationId: "obs.census.spm.child_poverty_rate.2026",
+    country: "US",
+    periodLabel: "2027-09-15",
+    unit: "percent",
+    resolutionDate: "2027-09-15",
+    resolutionSource: "U.S. Census Bureau, SPM annual release",
+    resolutionRule:
+      "Resolves to the official Census SPM child poverty rate for calendar year 2026, conditional on a materially equivalent $3,000 fully refundable CTC being in effect for TY2026. If the policy is not in effect, the forecast cell is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Census Bureau, SPM annual release",
+    note: "Backfilled target registration from the forecast catalog for Child poverty 2026 | $3,000 fully refundable CTC.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "treasury.mts.individual_income_tax.fy2028",
+    observationId: "obs.treasury.mts.individual_income_tax.fy2028",
+    country: "US",
+    periodLabel: "2028-10-20",
+    unit: "usd",
+    resolutionDate: "2028-10-20",
+    resolutionSource:
+      "U.S. Treasury Monthly Statement (final September FY2028)",
+    resolutionRule:
+      "Resolves to total individual income tax receipts for FY2028 as reported in the Monthly Treasury Statement covering September 2028, conditional on the SALT deduction cap under IRC §164(b)(6) being fully eliminated for TY2026 and later. If the cap is not fully eliminated, the forecast cell is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "U.S. Treasury Monthly Statement (final September FY2028)",
+    note: "Backfilled target registration from the forecast catalog for Federal individual income tax revenue FY2028 | SALT cap fully repealed.",
+  },
+  {
+    kind: "target_registered",
+    dataPointId: "census.asec.uninsured_rate_under_65.2028",
+    observationId: "obs.census.asec.uninsured_rate_under_65.2028",
+    country: "US",
+    periodLabel: "2029-09-15",
+    unit: "percent",
+    resolutionDate: "2029-09-15",
+    resolutionSource: "Census ASEC health insurance report",
+    resolutionRule:
+      "Resolves to the uninsured rate among people under 65 as reported by the Census ASEC for calendar year 2028, conditional on no restoration of the enhanced ACA premium tax credits (above the original ACA-baseline subsidies) through 2028. If subsidies are restored at any point, the forecast cell is marked unresolved.",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Census ASEC health insurance report",
+    note: "Backfilled target registration from the forecast catalog for Uninsured rate (under 65) 2028 | ACA enhanced subsidies expire.",
+  },
+] satisfies TargetRegisteredLedgerEntry[];

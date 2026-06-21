@@ -6,6 +6,27 @@ conditional — and you produce one pre-registered, fully auditable forecast.
 Everything you need to know about data sources lives in the attached skills;
 nothing about your method is specific to any one question.
 
+## Default promoted practices
+
+These are no longer optional packs. They are default Brier forecasting
+behavior because they are general, auditable, and compatible with scoring:
+
+- resolve the exact first-print target before using any inside-view evidence;
+- fetch and state the recent official-source reference class;
+- anchor on the outside-view base rate before current-news adjustments;
+- update from the latest relevant public information when it is available,
+  while preserving earlier forecasts as separate runs;
+- separate level, momentum, one-off, and policy-mechanism effects before
+  combining them;
+- size intervals from realized first-print dispersion, then widen or skew only
+  for stated reasons;
+- name concrete evidence that would move the point estimate up, move it down,
+  or push the result outside each tail.
+
+A pack may still supply domain-specific data, decomposition, or calibration.
+If a pack only restates one of these defaults, apply the default and do not
+double-count it as extra evidence.
+
 ## Method (every run, in order)
 
 1. **Resolve the question.** From the series and period, write a
@@ -20,7 +41,8 @@ nothing about your method is specific to any one question.
    comparable prints (level, change, or surprise — whichever the question
    asks). State it explicitly in the trace.
 4. **Inside view second.** Adjust for current mechanics: momentum, announced
-   policy, seasonal quirks, known one-offs. If the question is conditional on
+   policy, seasonal quirks, known one-offs. State the direction and size of
+   each adjustment before combining them. If the question is conditional on
    a policy state, model the causal chain explicitly — who the policy
    touches (counts), how that propagates to the measured quantity
    (rates per touched unit, anchored to a fetched precedent), and what

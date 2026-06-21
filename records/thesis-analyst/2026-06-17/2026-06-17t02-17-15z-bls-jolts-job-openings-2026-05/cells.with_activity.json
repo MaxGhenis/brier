@@ -1,0 +1,168 @@
+[
+  {
+    "slug": "bls-jolts-job-openings-2026-05",
+    "country": "US",
+    "type": "data",
+    "title": "US JOLTS job openings, May 2026",
+    "question": "What will the U.S. Bureau of Labor Statistics first report for seasonally adjusted total nonfarm job openings in the Job Openings and Labor Turnover Survey for May 2026?",
+    "unit": "thousands",
+    "pointEstimate": 7450,
+    "ciLow": 6850,
+    "ciHigh": 8050,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-30",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/jolts.nr0.htm",
+    "resolutionRule": "Resolve to the first BLS Job Openings and Labor Turnover Survey news-release print for May 2026, seasonally adjusted total nonfarm job openings, expressed in thousands. Use the value published in the initial June 30, 2026 release and ignore later revisions or benchmark updates.",
+    "dataPointId": "bls.jolts.job_openings.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "Apr 2026",
+        "value": 7618
+      },
+      {
+        "label": "Mar 2026",
+        "value": 6887
+      },
+      {
+        "label": "Feb 2026",
+        "value": 6922
+      },
+      {
+        "label": "Jan 2026",
+        "value": 7240
+      },
+      {
+        "label": "Dec 2025",
+        "value": 6550
+      }
+    ],
+    "drivers": [
+      "April openings jumped sharply but look partly concentrated and noisy",
+      "May payroll growth was solid at 172,000 and unemployment held at 4.3 percent",
+      "Hires weakened to 5,116 thousand in April, arguing against a sustained openings surge",
+      "Recent JOLTS levels cluster around 6.9 to 7.6 million"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/jolts.htm",
+      "https://www.bls.gov/jlt/",
+      "https://fred.stlouisfed.org/series/JTSJOL",
+      "https://www.bls.gov/news.release/empsit.nr0.htm"
+    ],
+    "runAt": "2026-06-17T02:17:25Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for May 2026 BLS JOLTS job openings"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first official BLS JOLTS print for seasonally adjusted total nonfarm job openings in May 2026, reported in thousands; later revisions do not count."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS JOLTS release calendar for the May 2026 reference month.",
+        "result": "BLS lists May 2026 JOLTS for release on Jun. 30, 2026 at 10:00 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS JOLTS program page latest levels table.",
+        "result": "BLS latest levels show Apr 2026 job openings 7,618 thousand, hires 5,116 thousand, total separations 4,978 thousand, job openings rate 4.6 percent, hires rate 3.2 percent, quits rate 1.9 percent, layoffs/discharges rate 1.1 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked the FRED mirror of BLS series JTSJOL for recent total nonfarm job openings history.",
+        "result": "FRED/BLS series JTSJOL lists Apr 2026 7,618, Mar 2026 6,887, Feb 2026 6,922, Jan 2026 7,240, Dec 2025 6,550, all in thousands."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS May 2026 Employment Situation release for near-contemporaneous labor-market context.",
+        "result": "BLS reported May 2026 payroll employment +172,000, unemployment rate 4.3 percent, April payroll revision to +179,000, and March payroll revision to +214,000."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: month-to-month JOLTS job openings are noisy and often revise, so I anchor on the recent five-month range of 6,550 to 7,618 thousand and the latest three-month average near 7,142 thousand rather than extrapolating the full April jump."
+      },
+      {
+        "kind": "text",
+        "text": "The upside case is that solid May payroll growth and stable unemployment mean labor demand remained firm, so April's 7,618 thousand could persist into May."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: April's 731 thousand openings increase was unusually large while hires fell to 5,116 thousand, so some mean reversion or measurement noise is plausible in the first May print."
+      },
+      {
+        "kind": "math",
+        "text": "Anchor around Apr 2026 7,618 and recent three-month average (7,618 + 6,887 + 6,922) / 3 = 7,142; weighting April persistence against mean reversion gives about 7,450 thousand. An 80 percent interval of 6,850 to 8,050 allows roughly +/-600 thousand, covering typical JOLTS volatility and the April spike risk."
+      },
+      {
+        "kind": "forecast",
+        "point": 7450,
+        "ciLow": 6850,
+        "ciHigh": 8050
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/prompt.md",
+        "sha256": "cd8ffbb7d69f33b930667d02b018e995c31c5ea169c9cb593122a0362621eadf",
+        "bytes": 3591,
+        "createdAt": "2026-06-17T02:17:15Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/command.json",
+        "sha256": "c774921a40268380bde488b96a179aa1136caf9d8e6d33ed07327199cdd651a8",
+        "bytes": 412,
+        "createdAt": "2026-06-17T02:17:15Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/stdout.txt",
+        "sha256": "c36654e62cff3d5de53a4b77eed9c9df44a64d210d284277aa57ea724c95fe15",
+        "bytes": 4118,
+        "createdAt": "2026-06-17T02:17:15Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/stderr.txt",
+        "sha256": "2b560ffd63229e0a1d174655e0c5f7763d205b619f03563362e7ce7bcdcd7e9f",
+        "bytes": 14612,
+        "createdAt": "2026-06-17T02:17:15Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/raw_response.txt",
+        "sha256": "c36654e62cff3d5de53a4b77eed9c9df44a64d210d284277aa57ea724c95fe15",
+        "bytes": 4118,
+        "createdAt": "2026-06-17T02:17:15Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/parsed_cells.json",
+        "sha256": "a8656c8dd04fe722ae3afcc0ab151072f870683b969642a9309a2b31e8513063",
+        "bytes": 4966,
+        "createdAt": "2026-06-17T02:17:15Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/normalized_cells.json",
+        "sha256": "55df908266bfb18060be042c0b01d5401dbc089cba104e4601b89e3eea7097bb",
+        "bytes": 4628,
+        "createdAt": "2026-06-17T02:17:15Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-17-15z-bls-jolts-job-openings-2026-05/validation.json",
+        "sha256": "13fbf51160259c8ec9858c1c4c85bd6138410eb372b741e84ce2d5d5e1e4eeea",
+        "bytes": 131,
+        "createdAt": "2026-06-17T02:17:15Z"
+      }
+    ]
+  }
+]

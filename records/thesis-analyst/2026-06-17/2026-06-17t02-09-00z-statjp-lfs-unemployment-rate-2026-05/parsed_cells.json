@@ -1,0 +1,102 @@
+[
+  {
+    "slug": "japan-lfs-unemployment-rate-2026-05",
+    "country": "JP",
+    "type": "data",
+    "title": "Japan unemployment rate, May 2026",
+    "question": "Statistics Bureau of Japan Labour Force Survey Basic Tabulation unemployment rate, total persons aged 15 years or over, seasonally adjusted, May 2026, first print",
+    "unit": "percent",
+    "pointEstimate": 2.5,
+    "ciLow": 2.3,
+    "ciHigh": 2.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-30",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.stat.go.jp/english/data/roudou/result.html",
+    "resolutionRule": "Resolve to the first Statistics Bureau of Japan Labour Force Survey Basic Tabulation May 2026 seasonally adjusted unemployment rate for total persons aged 15 years or over, as first released on the official monthly results/survey results page on June 30, 2026. Use the agency's published percent value rounded to one decimal place; ignore later revisions or historical-data back revisions for this forecast cell.",
+    "dataPointId": "statjp.lfs.unemployment_rate.sa.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-04",
+        "value": 2.5
+      },
+      {
+        "label": "2026-03",
+        "value": 2.7
+      },
+      {
+        "label": "2026-02",
+        "value": 2.6
+      },
+      {
+        "label": "2026-01",
+        "value": 2.7
+      },
+      {
+        "label": "2025-12",
+        "value": 2.6
+      }
+    ],
+    "drivers": [
+      "Recent unemployment has stayed in a narrow 2.5-2.7 percent range",
+      "April 2026 latest value was 2.5 percent",
+      "Japan labor market changes are usually gradual month to month",
+      "One-month forecast horizon limits macro information gain",
+      "Seasonal adjustment revisions occurred with January 2026 release"
+    ],
+    "sourceContext": [
+      "https://www.stat.go.jp/english/data/roudou/index.html",
+      "https://www.stat.go.jp/english/data/roudou/1543.html",
+      "https://www.stat.go.jp/english/data/roudou/result.html",
+      "https://www.e-stat.go.jp/en/stat-search/files?cycle=0&tclass=000001226526",
+      "https://fred.stlouisfed.org/series/LRUNTTTTJPM156S"
+    ],
+    "runAt": "2026-06-17T02:09:06Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast Japan May 2026 LFS unemployment rate"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the Statistics Bureau of Japan Labour Force Survey Basic Tabulation, seasonally adjusted unemployment rate for total persons aged 15 years or over, May 2026 first print, not a later revised e-Stat historical value."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Statistics Bureau Labour Force Survey landing and survey-results pages for the official series surface and latest monthly release status.",
+        "result": "The official page says fiscal 2026 release schedule was published on 2026-01-30; the survey-results page lists April 2026 monthly Basic Tabulation released on 2026-05-29; e-Stat table 1-a-1 covers major items including Unemployment rate, survey date 2026Apr, update date 2026-05-29, since Jan. 1953."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Checked the Statistics Bureau Labour Force Survey release schedule for the May 2026 reference month.",
+        "result": "The official schedule lists Basic Tabulation reference month 2026 May with date of release June 30; nearby monthly dates include April May 29, June July 31, July August 28, and August October 2."
+      },
+      {
+        "kind": "tool",
+        "tool": "mirror.history",
+        "call": "Checked FRED/OECD monthly seasonally adjusted Japan unemployment-rate history as a history mirror only, not as the final resolution source.",
+        "result": "FRED series LRUNTTTTJPM156S shows Apr 2026 2.5 percent, Mar 2026 2.7 percent, Feb 2026 2.6 percent, Jan 2026 2.7 percent, and Dec 2025 2.6 percent; units are percent, seasonally adjusted, monthly."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class: over the last five fetched monthly observations, the mean is 2.62 percent and every value lies between 2.5 and 2.7 percent, so the best prior for one month ahead is persistence near 2.6 with low volatility."
+      },
+      {
+        "kind": "math",
+        "text": "Use a persistence-weighted estimate: 60 percent on April 2026 at 2.5 and 40 percent on the recent five-month mean 2.62 gives 0.6*2.5 + 0.4*2.62 = 2.548, rounded to the agency precision as 2.5 percent. Set an 80 percent interval around recent monthly variation and one-print risk at 2.3 to 2.8 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the March-to-April decline from 2.7 to 2.5 could partly reverse in May, and the first print can move by 0.1 percentage point from sampling and seasonal adjustment noise even without a real labor-market turn."
+      },
+      {
+        "kind": "forecast",
+        "point": 2.5,
+        "ciLow": 2.3,
+        "ciHigh": 2.8
+      }
+    ]
+  }
+]

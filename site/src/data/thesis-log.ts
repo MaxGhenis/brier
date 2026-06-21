@@ -2,9 +2,14 @@ import type {
   CountryCode,
   ForecastCellType,
   ForecastCell,
+  ForecastRunEntry,
+  PredictionPackSet,
+  PredictionPackSetMode,
+  PredictionRunActivityArtifact,
   ResolvedOutcome,
   Unit,
 } from "./forecast-cells";
+import { getForecastRunEntries } from "./forecast-cells";
 import {
   scoreNumericCdfDistribution,
   type NumericCdfScore,
@@ -14,13 +19,21 @@ import {
   buildRecordedPredictionRunId,
   buildPredictionSpecs,
   buildResolutionRef,
+  buildSpecId,
   buildSpecVersionId,
   buildRecordedPredictionRunRecords,
   type PredictionRunRecord,
   type PredictionSpec,
 } from "./prediction-specs";
+import {
+  THESIS_TARGET_LEDGER,
+  requireLedgerTarget,
+  type TargetRegisteredLedgerEntry,
+} from "./ledger-targets";
 
-export type PolicyEngineLedgerEntry = ObservationRecordedLedgerEntry;
+export type PolicyEngineLedgerEntry =
+  | TargetRegisteredLedgerEntry
+  | ObservationRecordedLedgerEntry;
 
 export type ThesisLogEntry =
   | PredictionRecordedLogEntry
@@ -41,6 +54,8 @@ export interface ObservationRecordedLedgerEntry extends ResolvedOutcome {
 export interface PredictionRecordedLogEntry {
   kind: "prediction_recorded";
   forecastSlug: string;
+  runId: string;
+  specId: string;
   type: ForecastCellType;
   title: string;
   question: string;
@@ -61,6 +76,10 @@ export interface PredictionRecordedLogEntry {
   distribution: PredictionDistribution;
   agent?: string;
   model?: string;
+  runLabel: string;
+  runDescription?: string;
+  packSet?: PredictionPackSet;
+  activityLog?: PredictionRunActivityArtifact[];
 }
 
 export interface PredictionResolvedLogEntry {
@@ -77,6 +96,13 @@ export interface PredictionResolvedLogEntry {
 export interface ResolvedForecastScore extends NumericCdfScore {
   scoreId: string;
   runId: string;
+  runLabel: string;
+  runAt?: string;
+  agent?: string;
+  model?: string;
+  packSet?: PredictionPackSet;
+  packMode: PredictionPackSetMode | "primary";
+  packCount: number;
   resolutionEventId: string;
   scoringRule: "numeric_cdf_crps_v1";
   ledgerFactRef: string;
@@ -84,9 +110,17 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   dataPointId: string;
   observationId: string;
   pointEstimate: number;
+  observedValue: number;
   unit: Unit;
+  interval80: {
+    lower: number;
+    upper: number;
+    width: number;
+  };
   signedError: number;
   absoluteError: number;
+  normalizedCrps: number;
+  normalizedAbsoluteError: number;
   interval80Covered: boolean;
 }
 
@@ -138,6 +172,7 @@ export interface PolicyEngineLedgerExport {
   };
   counts: {
     facts: number;
+    targets: number;
     observations: number;
   };
   entries: PolicyEngineLedgerEntry[];
@@ -176,7 +211,7 @@ export interface ThesisLogExport {
 
 export const POLICYENGINE_LEDGER_FACTS_URL =
   process.env.POLICYENGINE_LEDGER_FACTS_URL ??
-  "https://raw.githubusercontent.com/PolicyEngine/arch-data/codex/thesis-ledger-facts/ledger/official_observations.jsonl";
+  "https://github.com/PolicyEngine/arch-data/raw/refs/heads/codex/thesis-ledger-facts/ledger/official_observations.jsonl";
 
 interface PolicyEngineAggregateFactRow {
   value: number;
@@ -248,7 +283,10 @@ async function fetchPolicyEngineLedger(): Promise<PolicyEngineLedgerEntry[]> {
       `PolicyEngine Ledger fetch failed with HTTP ${response.status}`,
     );
   }
-  return parsePolicyEngineLedgerFacts(await response.text());
+  return [
+    ...THESIS_TARGET_LEDGER,
+    ...parsePolicyEngineLedgerFacts(await response.text()),
+  ];
 }
 
 function assertPolicyEngineFactShape(
@@ -407,14 +445,17 @@ const PREDICTION_RESOLUTION_FACT_LINKS = [
     forecastSlug: "us-ppi-final-demand-mom-may-2026",
     recordedAt: "2026-06-12T20:37:03+00:00",
     dataPointId: "bls.ppi.final_demand_monthly_change.may_2026.first_print",
-    observationId: "obs.bls.ppi.final_demand_monthly_change.may_2026.first_print",
+    observationId:
+      "obs.bls.ppi.final_demand_monthly_change.may_2026.first_print",
   },
   {
     kind: "prediction_resolved",
     forecastSlug: "canada-building-permit-value-growth-april-2026",
     recordedAt: "2026-06-12T20:37:03+00:00",
-    dataPointId: "statcan.building_permits.total_value_mom.canada.april_2026.first_print",
-    observationId: "obs.statcan.building_permits.total_value_mom.canada.april_2026.first_print",
+    dataPointId:
+      "statcan.building_permits.total_value_mom.canada.april_2026.first_print",
+    observationId:
+      "obs.statcan.building_permits.total_value_mom.canada.april_2026.first_print",
   },
   {
     kind: "prediction_resolved",
@@ -430,6 +471,8 @@ const PREDICTION_RESOLUTION_FACT_LINKS = [
   >
 >;
 
+// Historical seed snapshot retained for migration compatibility. Active
+// resolution is derived from the PolicyEngine Ledger by dataPointId.
 export const THESIS_LOG: PredictionResolvedLogEntry[] =
   PREDICTION_RESOLUTION_FACT_LINKS.map((entry) => ({
     ...entry,
@@ -444,6 +487,12 @@ export function isObservationRecordedLedgerEntry(
   return entry.kind === "observation_recorded";
 }
 
+export function isTargetRegisteredLedgerEntry(
+  entry: PolicyEngineLedgerEntry | ThesisLogEntry,
+): entry is TargetRegisteredLedgerEntry {
+  return entry.kind === "target_registered";
+}
+
 export function isPredictionResolvedLogEntry(
   entry: ThesisLogEntry,
 ): entry is PredictionResolvedLogEntry {
@@ -456,66 +505,157 @@ export function isPredictionRecordedLogEntry(
   return entry.kind === "prediction_recorded";
 }
 
+export function getResolvedObservationForForecast(
+  forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[],
+): ObservationRecordedLedgerEntry | undefined {
+  if (!forecast.dataPointId) return undefined;
+  const observations = getObservationsForDataPoint(
+    forecast.dataPointId,
+    ledger,
+  );
+  if (observations.length === 0) return undefined;
+
+  return [...observations].sort((a, b) =>
+    a.observedAt === b.observedAt
+      ? b.observationId.localeCompare(a.observationId)
+      : b.observedAt.localeCompare(a.observedAt),
+  )[0];
+}
+
+function buildPredictionResolvedLogEntry(
+  forecast: ForecastCell,
+  observation: ObservationRecordedLedgerEntry,
+): PredictionResolvedLogEntry {
+  return {
+    kind: "prediction_resolved",
+    resolutionRef: buildResolutionRef(forecast.slug),
+    resolutionEventId: buildResolutionEventId({
+      forecastSlug: forecast.slug,
+      observationId: observation.observationId,
+    }),
+    forecastSlug: forecast.slug,
+    recordedAt: observation.resolvedAt,
+    dataPointId: observation.dataPointId,
+    ledgerFactRef: observation.dataPointId,
+    observationId: observation.observationId,
+  };
+}
+
+export function buildResolvedPredictionLogEntries(
+  forecasts: ForecastCell[],
+  ledger: PolicyEngineLedgerEntry[],
+): PredictionResolvedLogEntry[] {
+  return forecasts
+    .flatMap((forecast) => {
+      const observation = getResolvedObservationForForecast(forecast, ledger);
+      return observation
+        ? [buildPredictionResolvedLogEntry(forecast, observation)]
+        : [];
+    })
+    .sort((a, b) =>
+      a.recordedAt === b.recordedAt
+        ? a.forecastSlug.localeCompare(b.forecastSlug)
+        : a.recordedAt.localeCompare(b.recordedAt),
+    );
+}
+
 export function buildPredictionRecordedLogEntries(
   forecasts: ForecastCell[],
 ): PredictionRecordedLogEntry[] {
   return forecasts.flatMap((forecast) => {
-    if (!forecast.predictionDistribution) return [];
+    const ledgerTarget = forecast.dataPointId
+      ? requireLedgerTarget(forecast.dataPointId)
+      : undefined;
+    return getForecastRunEntries(forecast).flatMap((run) => {
+      if (!run.predictionDistribution) return [];
+      const runId = buildRecordedPredictionRunId(
+        forecast,
+        run.predictionRun?.runAt,
+        run.variantId,
+      );
 
-    return [
-      {
-        kind: "prediction_recorded",
+      return [
+        {
+          kind: "prediction_recorded",
+          forecastSlug: forecast.slug,
+          runId,
+          specId: buildSpecId(forecast.slug),
+          type: forecast.type,
+          title: forecast.title,
+          question: forecast.question,
+          country: forecast.country ?? "US",
+          unit: forecast.unit,
+          pointEstimate: run.pointEstimate,
+          interval80: {
+            lower: run.ciLow,
+            upper: run.ciHigh,
+          },
+          resolutionDate:
+            ledgerTarget?.resolutionDate ?? forecast.resolutionDate,
+          resolutionSource:
+            ledgerTarget?.resolutionSource ?? forecast.resolutionSource,
+          resolutionSourceUrl:
+            ledgerTarget?.resolutionSourceUrl ?? forecast.resolutionSourceUrl,
+          resolutionRule:
+            ledgerTarget?.resolutionRule ?? forecast.resolutionRule,
+          resolutionPolicy:
+            ledgerTarget?.resolutionPolicy ?? forecast.series?.resolutionPolicy,
+          recordedAt: run.predictionRun?.runAt,
+          dataPointId: ledgerTarget?.dataPointId ?? forecast.dataPointId,
+          distribution: run.predictionDistribution,
+          agent: run.predictionRun?.agent,
+          model: run.predictionRun?.model,
+          runLabel: run.label,
+          runDescription: run.description,
+          packSet: run.packSet,
+          activityLog: run.predictionRun?.activityLog,
+        },
+      ];
+    });
+  });
+}
+
+export function buildThesisLog(
+  forecasts: ForecastCell[],
+  ledger: PolicyEngineLedgerEntry[],
+): ThesisLogEntry[] {
+  return [
+    ...buildPredictionRecordedLogEntries(forecasts),
+    ...buildResolvedPredictionLogEntries(forecasts, ledger),
+  ];
+}
+
+export function buildResolutionQueue(
+  forecasts: ForecastCell[],
+  ledger: PolicyEngineLedgerEntry[],
+): PredictionResolutionQueueEntry[] {
+  return forecasts
+    .filter((forecast) => !getResolutionForForecast(forecast, ledger))
+    .map((forecast) => {
+      const ledgerTarget = forecast.dataPointId
+        ? requireLedgerTarget(forecast.dataPointId)
+        : undefined;
+      return {
         forecastSlug: forecast.slug,
-        type: forecast.type,
         title: forecast.title,
-        question: forecast.question,
         country: forecast.country ?? "US",
+        dataPointId: ledgerTarget?.dataPointId ?? forecast.dataPointId,
+        resolutionDate: ledgerTarget?.resolutionDate ?? forecast.resolutionDate,
+        resolutionSource:
+          ledgerTarget?.resolutionSource ?? forecast.resolutionSource,
+        resolutionSourceUrl:
+          ledgerTarget?.resolutionSourceUrl ?? forecast.resolutionSourceUrl,
+        resolutionPolicy:
+          ledgerTarget?.resolutionPolicy ?? forecast.series?.resolutionPolicy,
         unit: forecast.unit,
         pointEstimate: forecast.pointEstimate,
         interval80: {
           lower: forecast.ciLow,
           upper: forecast.ciHigh,
         },
-        resolutionDate: forecast.resolutionDate,
-        resolutionSource: forecast.resolutionSource,
-        resolutionSourceUrl: forecast.resolutionSourceUrl,
-        resolutionRule: forecast.resolutionRule,
-        resolutionPolicy: forecast.series?.resolutionPolicy,
-        recordedAt: forecast.predictionRun?.runAt,
-        dataPointId: forecast.dataPointId,
-        distribution: forecast.predictionDistribution,
-        agent: forecast.predictionRun?.agent,
-        model: forecast.predictionRun?.model,
-      },
-    ];
-  });
-}
-
-export function buildThesisLog(forecasts: ForecastCell[]): ThesisLogEntry[] {
-  return [...buildPredictionRecordedLogEntries(forecasts), ...THESIS_LOG];
-}
-
-export function buildResolutionQueue(
-  forecasts: ForecastCell[],
-): PredictionResolutionQueueEntry[] {
-  return forecasts
-    .filter((forecast) => !getResolutionForForecast(forecast.slug))
-    .map((forecast) => ({
-      forecastSlug: forecast.slug,
-      title: forecast.title,
-      country: forecast.country ?? "US",
-      dataPointId: forecast.dataPointId,
-      resolutionDate: forecast.resolutionDate,
-      resolutionSource: forecast.resolutionSource,
-      resolutionSourceUrl: forecast.resolutionSourceUrl,
-      resolutionPolicy: forecast.series?.resolutionPolicy,
-      unit: forecast.unit,
-      pointEstimate: forecast.pointEstimate,
-      interval80: {
-        lower: forecast.ciLow,
-        upper: forecast.ciHigh,
-      },
-    }))
+      };
+    })
     .sort((a, b) =>
       a.resolutionDate === b.resolutionDate
         ? a.title.localeCompare(b.title)
@@ -526,6 +666,7 @@ export function buildResolutionQueue(
 export function buildPredictionResolutionLinks(
   forecasts: ForecastCell[],
   specs: PredictionSpec[] = buildPredictionSpecs(forecasts),
+  ledger: PolicyEngineLedgerEntry[] = [],
 ): PredictionResolutionLink[] {
   const specsByPredictionId = new Map(
     specs.map((spec) => [spec.predictionId, spec]),
@@ -533,21 +674,27 @@ export function buildPredictionResolutionLinks(
 
   return forecasts.map((forecast) => {
     const spec = specsByPredictionId.get(forecast.slug);
+    const ledgerTarget = forecast.dataPointId
+      ? requireLedgerTarget(forecast.dataPointId)
+      : undefined;
     return {
       resolutionRef: buildResolutionRef(forecast.slug),
       specVersionId: spec?.specVersionId ?? buildSpecVersionId(forecast.slug),
       predictionId: forecast.slug,
       forecastSlug: forecast.slug,
-      targetFactRef: forecast.dataPointId,
+      targetFactRef: ledgerTarget?.dataPointId ?? forecast.dataPointId,
       factLedger: "PolicyEngine Ledger",
-      resolverRule: forecast.resolutionRule,
-      status: getResolutionForForecast(forecast.slug) ? "linked" : "pending",
+      resolverRule: ledgerTarget?.resolutionRule ?? forecast.resolutionRule,
+      status: getResolutionForForecast(forecast, ledger) ? "linked" : "pending",
     };
   });
 }
 
-export function buildPredictionResolutionEvents(): PredictionResolutionEvent[] {
-  return THESIS_LOG.map((entry) => ({
+export function buildPredictionResolutionEvents(
+  forecasts: ForecastCell[],
+  ledger: PolicyEngineLedgerEntry[],
+): PredictionResolutionEvent[] {
+  return buildResolvedPredictionLogEntries(forecasts, ledger).map((entry) => ({
     resolutionEventId: entry.resolutionEventId,
     resolutionRef: entry.resolutionRef,
     forecastSlug: entry.forecastSlug,
@@ -566,6 +713,9 @@ export function buildPredictionResolutionEvents(): PredictionResolutionEvent[] {
 export function buildPolicyEngineLedgerExport(
   entries: PolicyEngineLedgerEntry[],
 ): PolicyEngineLedgerExport {
+  const targets = entries.filter(isTargetRegisteredLedgerEntry);
+  const observations = entries.filter(isObservationRecordedLedgerEntry);
+
   return {
     schemaVersion: "policyengine_ledger_v1",
     source: {
@@ -575,7 +725,8 @@ export function buildPolicyEngineLedgerExport(
     },
     counts: {
       facts: entries.length,
-      observations: entries.filter(isObservationRecordedLedgerEntry).length,
+      targets: targets.length,
+      observations: observations.length,
     },
     entries,
   };
@@ -585,13 +736,17 @@ export function buildThesisLogExport(
   forecasts: ForecastCell[],
   ledger: PolicyEngineLedgerEntry[],
 ): ThesisLogExport {
-  const entries = buildThesisLog(forecasts);
+  const entries = buildThesisLog(forecasts, ledger);
   const specs = buildPredictionSpecs(forecasts);
   const runs = buildRecordedPredictionRunRecords(forecasts, specs);
-  const resolutionLinks = buildPredictionResolutionLinks(forecasts, specs);
-  const resolutionEvents = buildPredictionResolutionEvents();
+  const resolutionLinks = buildPredictionResolutionLinks(
+    forecasts,
+    specs,
+    ledger,
+  );
+  const resolutionEvents = buildPredictionResolutionEvents(forecasts, ledger);
   const scores = scoreResolvedForecasts(forecasts, ledger);
-  const resolutionQueue = buildResolutionQueue(forecasts);
+  const resolutionQueue = buildResolutionQueue(forecasts, ledger);
 
   return {
     schemaVersion: "thesis_log_v1",
@@ -629,27 +784,35 @@ export function getObservationForId(
   observationId: string,
   ledger: PolicyEngineLedgerEntry[],
 ): ObservationRecordedLedgerEntry | undefined {
-  return ledger.find((entry) => entry.observationId === observationId);
+  return ledger
+    .filter(isObservationRecordedLedgerEntry)
+    .find((entry) => entry.observationId === observationId);
 }
 
 export function getObservationsForDataPoint(
   dataPointId: string,
   ledger: PolicyEngineLedgerEntry[],
 ): ObservationRecordedLedgerEntry[] {
-  return ledger.filter((entry) => entry.dataPointId === dataPointId);
+  return ledger
+    .filter(isObservationRecordedLedgerEntry)
+    .filter((entry) => entry.dataPointId === dataPointId);
 }
 
 export function getResolutionForForecast(
-  forecastSlug: string,
+  forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[],
 ): PredictionResolvedLogEntry | undefined {
-  return THESIS_LOG.find((entry) => entry.forecastSlug === forecastSlug);
+  const observation = getResolvedObservationForForecast(forecast, ledger);
+  return observation
+    ? buildPredictionResolvedLogEntry(forecast, observation)
+    : undefined;
 }
 
 export function getResolvedOutcomeForForecast(
-  forecastSlug: string,
+  forecast: ForecastCell,
   ledger: PolicyEngineLedgerEntry[],
 ): ResolvedOutcome | undefined {
-  const entry = getResolutionForForecast(forecastSlug);
+  const entry = getResolutionForForecast(forecast, ledger);
   if (!entry) return undefined;
   const observation = getObservationForId(entry.observationId, ledger);
   if (!observation) return undefined;
@@ -666,37 +829,67 @@ export function scoreResolvedForecast(
   forecast: ForecastCell,
   ledger: PolicyEngineLedgerEntry[],
 ): ResolvedForecastScore | undefined {
-  const resolution = getResolutionForForecast(forecast.slug);
-  if (!resolution || !forecast.predictionDistribution) return undefined;
+  const primaryRun = getForecastRunEntries(forecast)[0];
+  if (!primaryRun) return undefined;
+  return scoreResolvedForecastRun(forecast, primaryRun, ledger);
+}
+
+export function scoreResolvedForecastRun(
+  forecast: ForecastCell,
+  run: ForecastRunEntry,
+  ledger: PolicyEngineLedgerEntry[],
+): ResolvedForecastScore | undefined {
+  const resolution = getResolutionForForecast(forecast, ledger);
+  if (!resolution || !run.predictionDistribution) return undefined;
 
   const observation = getObservationForId(resolution.observationId, ledger);
   if (!observation) return undefined;
 
   const distributionScore = scoreNumericCdfDistribution(
-    forecast.predictionDistribution,
+    run.predictionDistribution,
     observation.value,
   );
-  const signedError = observation.value - forecast.pointEstimate;
-  const runId = buildRecordedPredictionRunId(forecast);
+  const signedError = observation.value - run.pointEstimate;
+  const runId = buildRecordedPredictionRunId(
+    forecast,
+    run.predictionRun?.runAt,
+    run.variantId,
+  );
   const resolutionEventId = buildResolutionEventId(resolution);
   const scoringRule = "numeric_cdf_crps_v1";
+  const interval80Width = Math.abs(run.ciHigh - run.ciLow);
+  const normalizationDenominator = interval80Width > 0 ? interval80Width : 1;
 
   return {
     scoreId: `score.${runId}.${resolutionEventId}.${scoringRule}`,
     runId,
+    runLabel: run.label,
+    runAt: run.predictionRun?.runAt,
+    agent: run.predictionRun?.agent,
+    model: run.predictionRun?.model,
+    packSet: run.packSet,
+    packMode: run.packSet?.mode ?? "primary",
+    packCount: run.packSet?.packs.length ?? 0,
     resolutionEventId,
     scoringRule,
     ledgerFactRef: observation.dataPointId,
     forecastSlug: forecast.slug,
     dataPointId: resolution.dataPointId,
     observationId: observation.observationId,
-    pointEstimate: forecast.pointEstimate,
+    pointEstimate: run.pointEstimate,
+    observedValue: observation.value,
     unit: observation.unit,
+    interval80: {
+      lower: run.ciLow,
+      upper: run.ciHigh,
+      width: interval80Width,
+    },
     signedError,
     absoluteError: Math.abs(signedError),
+    normalizedCrps: distributionScore.crps / normalizationDenominator,
+    normalizedAbsoluteError: Math.abs(signedError) / normalizationDenominator,
     interval80Covered:
-      forecast.ciLow <= observation.value &&
-      observation.value <= forecast.ciHigh,
+      run.ciLow <= observation.value && observation.value <= run.ciHigh,
     ...distributionScore,
   };
 }
@@ -706,8 +899,10 @@ export function scoreResolvedForecasts(
   ledger: PolicyEngineLedgerEntry[],
 ): ResolvedForecastScore[] {
   return forecasts.flatMap((forecast) => {
-    const score = scoreResolvedForecast(forecast, ledger);
-    return score ? [score] : [];
+    return getForecastRunEntries(forecast).flatMap((run) => {
+      const score = scoreResolvedForecastRun(forecast, run, ledger);
+      return score ? [score] : [];
+    });
   });
 }
 
@@ -718,7 +913,7 @@ export function withResolvedOutcome(
   return {
     ...forecast,
     resolvedOutcome:
-      getResolvedOutcomeForForecast(forecast.slug, ledger) ??
+      getResolvedOutcomeForForecast(forecast, ledger) ??
       forecast.resolvedOutcome,
   };
 }

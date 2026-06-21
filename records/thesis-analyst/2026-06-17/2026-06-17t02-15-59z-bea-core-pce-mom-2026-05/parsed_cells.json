@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "bea-core-pce-mom-2026-05",
+    "country": "US",
+    "type": "data",
+    "title": "US core PCE May 2026 m/m",
+    "question": "What will the BEA first-print seasonally adjusted monthly percent change be for the Personal Consumption Expenditures price index excluding food and energy in May 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.27,
+    "ciLow": 0.12,
+    "ciHigh": 0.42,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-25",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.bea.gov/news/schedule",
+    "resolutionRule": "Resolve to the first BEA Personal Income and Outlays, May 2026 release value for the seasonally adjusted PCE price index excluding food and energy, percent change from the preceding month. Use the initially released BEA print, in percent, and ignore later revisions or benchmark updates; if the live table is overwritten, use BEA's archived release for the June 25, 2026 publication.",
+    "dataPointId": "bea.nipa.core_pce_price_index.mom.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "latest_apr_2026_first_print",
+        "value": 0.2
+      },
+      {
+        "label": "mar_2026_first_print",
+        "value": 0.3
+      },
+      {
+        "label": "fred_apr_2026_index_implied_mom",
+        "value": 0.239
+      },
+      {
+        "label": "fred_mar_2026_index_implied_mom",
+        "value": 0.295
+      },
+      {
+        "label": "fred_feb_2026_index_implied_mom",
+        "value": 0.396
+      }
+    ],
+    "drivers": [
+      "May core CPI rose 0.2 percent, softer than April",
+      "PPI components were firm, especially services inputs relevant to PCE",
+      "Recent core PCE momentum was around 0.24 to 0.40 percent before rounding",
+      "Energy shock is mostly excluded but can pass through into some core services and goods"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-april-2026",
+      "https://fred.stlouisfed.org/series/PCEPILFE",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/news.release/ppi.nr0.htm"
+    ],
+    "runAt": "2026-06-17T02:16:13Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for May 2026 core PCE monthly inflation"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the BEA first print for Personal Income and Outlays, May 2026: PCE price index excluding food and energy, seasonally adjusted monthly percent change. This is a first-print forecast, so later BEA revisions should not alter the resolved value."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA release schedule for the official May 2026 Personal Income and Outlays publication date.",
+        "result": "BEA schedule lists Personal Income and Outlays, May 2026 on June 25, 2026 at 8:30 AM; the same schedule page shows Personal Income and Outlays, June 2026 on July 30, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA April 2026 Personal Income and Outlays release for latest official core PCE context.",
+        "result": "BEA reported April 2026 PCE price index +0.4 percent m/m, core PCE excluding food and energy +0.2 percent m/m, core PCE +3.3 percent y/y, and March core PCE +0.3 percent m/m in the release table."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked FRED mirror of BEA PCEPILFE index levels for recent monthly index context.",
+        "result": "FRED showed PCEPILFE Apr 2026 129.630, Mar 2026 129.321, Feb 2026 128.940, Jan 2026 128.432, Dec 2025 127.886; implied m/m changes are Apr 0.239 percent, Mar 0.295 percent, Feb 0.396 percent, Jan 0.427 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS May 2026 CPI release for source data relevant to core PCE nowcasting.",
+        "result": "BLS reported May 2026 CPI-U +0.5 percent m/m, core CPI +0.2 percent m/m, core CPI +2.9 percent y/y, shelter +0.3 percent m/m, medical care services +0.5 percent m/m, airline fares +2.7 percent m/m, and motor vehicle insurance -1.7 percent m/m."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS May 2026 PPI release for producer-price components relevant to PCE mapping.",
+        "result": "BLS reported May 2026 final demand PPI +1.1 percent m/m, final demand goods +2.8 percent, final demand services +0.3 percent, final demand less foods energy and trade +0.8 percent, and portfolio management +4.8 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class: recent core PCE monthly prints cluster between about 0.2 and 0.4 percent, with the FRED-implied latest four monthly changes at 0.239, 0.295, 0.396, and 0.427 percent. The April first print rounded to 0.2 percent despite firm headline PCE, so a May forecast should lean below the raw recent average but above the softer core CPI alone."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: May core CPI at 0.2 percent and declines in new vehicles, household furnishings, and motor vehicle insurance point to a low core PCE print. Against that, PPI services and portfolio-management prices were firm, and some PPI inputs feed more directly into PCE than CPI components do."
+      },
+      {
+        "kind": "math",
+        "text": "Recent FRED-implied core PCE mean for Jan-Apr is (0.427 + 0.396 + 0.295 + 0.239) / 4 = 0.339 percent. I downweight that toward May core CPI of 0.2 because CPI was softer, while adding some PPI-services pressure: 0.55*0.24 latest core PCE momentum + 0.30*0.20 core CPI + 0.15*0.52 PPI-informed pressure = 0.270 percent. An 80 percent interval of 0.12 to 0.42 covers normal nowcast error and component-mapping uncertainty."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.27,
+        "ciLow": 0.12,
+        "ciHigh": 0.42
+      }
+    ]
+  }
+]

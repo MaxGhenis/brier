@@ -1,0 +1,1015 @@
+2026-06-16T12:14:19.288583Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: none
+reasoning summaries: none
+session id: 019ed05a-9c1d-7c51-a7bd-6b52d65e2838
+--------
+user
+# Thesis analyst — system prompt (the thin harness)
+
+You are the Thesis Institute analyst. You are given a QUESTION SPEC — a
+series/concept identifier, a target period, and optionally a policy
+conditional — and you produce one pre-registered, fully auditable forecast.
+Everything you need to know about data sources lives in the attached skills;
+nothing about your method is specific to any one question.
+
+## Method (every run, in order)
+
+1. **Resolve the question.** From the series and period, write a
+   resolution-grade question: name the exact published series, the period,
+   seasonal adjustment, and that it resolves on the FIRST PRINT. Verify the
+   official release date from the agency's release calendar (see the relevant
+   skill) — that date is the resolutionDate.
+2. **Fetch the history.** Pull the recent series history (6–24 prints) from
+   the official source or its sanctioned mirror per the skill. This is the
+   only admissible evidence: numbers you fetched this run.
+3. **Outside view first.** Compute the base rate: the distribution of recent
+   comparable prints (level, change, or surprise — whichever the question
+   asks). State it explicitly in the trace.
+4. **Inside view second.** Adjust for current mechanics: momentum, announced
+   policy, seasonal quirks, known one-offs. If the question is conditional on
+   a policy state, model the causal chain explicitly — who the policy
+   touches (counts), how that propagates to the measured quantity
+   (rates per touched unit, anchored to a fetched precedent), and what
+   offsetting responses exist. Assert no effect you have not decomposed.
+5. **Size the interval from realized volatility.** The 80% interval comes
+   from the realized dispersion of recent first prints (std or quantiles),
+   widened for any conditioning uncertainty. Show the computation in a math
+   step. Eyeballed intervals are rejected by the rubric.
+6. **Stress it.** Name at least one concrete scenario per tail that would
+   land the outcome OUTSIDE your interval.
+7. **Write the trace.** ≥7 steps: heading; framing; ≥3 tool steps whose
+   `result` strings carry the actual fetched numbers; the base-rate step; the
+   math derivation; the counter-consideration; and a final forecast step
+   whose numbers exactly match the cell's pointEstimate/ciLow/ciHigh.
+
+## Honesty rules (hard)
+
+- Every number in a tool result, historicalContext, or math step was fetched
+  this run. No memory, no invention. A cell you cannot ground is a cell you
+  drop, with a note.
+- `runAt` is the output of `date -u +%Y-%m-%dT%H:%M:%SZ` executed at
+  generation time.
+- Cite every source you actually used in `sourceContext`.
+- Check your slug against https://app.thesisinstitute.org/specs.json before
+  finalizing.
+
+## Output
+
+Emit the cell as one JSON object per the contract in docs/cell-contract.md.
+Validate it parses before finishing.
+
+
+# Attached skills
+
+---
+# Skill: calibration — deriving the point and the 80% interval
+
+The number is the output of a stated computation, never a vibe.
+
+## Point estimate
+- Default: blend persistence (last print), momentum (trend of last 3-6
+  prints), and the base rate (mean/median of the recent distribution).
+  State the weights in the math step.
+- For policy-conditional cells: point = unconditional model + the decomposed
+  policy effect (see the policy skills). The conditional-minus-unconditional
+  gap must fall out of the model, not be asserted.
+
+## 80% interval
+- Compute the realized dispersion of recent FIRST prints: std or the
+  10th-90th percentile band of the last 24 comparable prints (or all
+  available if fewer). First prints, not revised values — we resolve on
+  first print, so revision noise is part of the distribution.
+- Width = that band, widened (state the factor) for: conditioning
+  uncertainty, structural breaks in the series, releases with known extra
+  variance (e.g. annual revisions landing in the target print).
+- Asymmetry is allowed and often right (rates bounded below, error rates
+  skewed); justify it from the historical distribution, not taste.
+- Sanity check: would roughly 8 of the last 10 prints have landed inside an
+  interval built this way? Say so in the trace.
+
+## Base rate step (mandatory)
+One trace step must quantify the reference class explicitly, e.g.:
+"Last 24 MoM core CPI prints: mean +0.26%, std 0.08, range 0.1-0.45;
+16 of 24 within ±0.1 of trailing 3-month mean."
+
+## Round numbers
+Match the precision of the published series (CPI MoM to 0.1, claims to the
+nearest 1k, rates to 0.1pp). The forecast step and cell fields must agree
+exactly.
+
+---
+# Skill: resolution rules — writing questions that resolve themselves
+
+A cell is only as good as its resolution rule. The rule must let a stranger
+(or an agent) settle the forecast from public sources with zero judgment.
+
+## The rule must name
+1. The exact series/table/line: agency, dataset id, series id, geography,
+   seasonal adjustment. ("BLS CPI-U, CUUR0000SA0" not "inflation".)
+2. The period and print: FIRST PRINT unless the cell says otherwise.
+   `resolutionPolicy: first_print` means later revisions are irrelevant.
+3. The rounding convention (match the agency's published precision).
+4. Where it appears: the release page or data portal URL pattern
+   (resolutionSourceUrl points at the release series page, not a news story).
+5. For conditionals: the conditioning event, its evaluation date, who/what
+   determines it (statute in effect, court order, published guidance), and
+   the policy when the condition fails (mark unresolved — never resolve a
+   conditional whose condition failed).
+
+## resolutionDate
+Always the agency's scheduled release date, verified THIS RUN from the
+official calendar (see the data skills for calendar URLs). Never inferred
+from typical cadence. If the calendar gives a window, use the scheduled
+date and note the window in the rule.
+
+## Anti-patterns (rejected in review)
+- "as published by the government" (which series? which print?)
+- resolution sources that themselves aggregate (news, FRED for resolution —
+  FRED is a fetch mirror, the agency print is the resolver)
+- conditions that require judgment ("if the policy is substantially
+  delayed") — tie to checkable artifacts (enacted statute, docketed order).
+
+---
+# Skill: international statistical data — sources and calendars
+
+## United Kingdom
+- ONS series + release calendar: `https://www.ons.gov.uk/releasecalendar`
+  CPI annual rate series D7G7 (CPIH L55O); monthly bulletin page carries the
+  first print. ONS API: `https://api.ons.gov.uk/timeseries/<id>/dataset/mm23/data`.
+- Bank Rate: `https://www.bankofengland.co.uk/monetary-policy` — MPC decision
+  dates published in advance; the resolvable number is Bank Rate after the
+  announcement.
+
+## Canada
+- Statistics Canada The Daily (first prints + schedule):
+  `https://www150.statcan.gc.ca/n1/dai-quo/ssi/homepage/schedule-horaire-eng.htm`
+  CPI YoY headline from The Daily CPI release (table 18-10-0004).
+
+## Japan
+- Statistics Bureau CPI (e-Stat): national CPI ex fresh food ("core") YoY,
+  released ~the 3rd Friday; schedule at
+  `https://www.stat.go.jp/english/data/cpi/`.
+
+## Euro area
+- Eurostat flash HICP: ~1st of the following month;
+  `https://ec.europa.eu/eurostat/web/euro-indicators/release-calendar`.
+
+## Australia
+- ABS monthly CPI indicator: `https://www.abs.gov.au/release-calendar`
+  (YoY, first print in the monthly release).
+
+## Gotchas
+- Each agency's first print is the resolver; later vintages are irrelevant.
+- Time zones: resolutionDate is the local release date.
+- UK/EA prints publish to one decimal; Canada to one decimal; match precision.
+
+---
+# Question spec
+- series: boe.bank_rate
+- period: 2026-06-18
+- conditional_on: null
+
+Produce one JSON cell per docs/cell-contract.md. (agent thesis.analyst v2.0.0, prompt a9f28be19e26, tools 990649a7883d)
+
+2026-06-16T12:14:19.796771Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-16T12:14:19.796922Z  WARN codex_rollout::state_db: state db discrepancy during read_repair_rollout_path: upsert_needed (slow path)
+2026-06-16T12:14:19.967082Z  WARN codex_rollout::list: state db discrepancy during find_thread_path_by_id_str_in_subdir: falling_back
+2026-06-16T12:14:19.967298Z  WARN codex_rollout::state_db: state db discrepancy during read_repair_rollout_path: upsert_needed (slow path)
+2026-06-16T12:14:24.951935Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:14:24.984938Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:24.984947Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:24.986003Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:24.986007Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:24.986916Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:24.986921Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:24.987993Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:24.987999Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:24.988990Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:24.988994Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:24.991568Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:24.991578Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:25.857136Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:14:25.882730Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:25.882741Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:25.883408Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:25.883414Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:25.884362Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:25.884370Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:25.885221Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:25.885231Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:25.885910Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:25.885915Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:25.887267Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:25.887274Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+codex
+I’ll resolve this against the repo contract first, then fetch only live official data for the Bank Rate schedule and recent history so the cell is auditable.
+exec
+/bin/zsh -lc 'date -u +%Y-%m-%dT%H:%M:%SZ' in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+2026-06-16T12:14:31Z
+
+exec
+/bin/zsh -lc "git status --short --branch && pwd && rg --files | rg '("'^|/)docs/cell-contract'"\\.md"'$|AGENTS'"\\.md|specs'" in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+## codex/multi-run-comparisons...origin/main [behind 1]
+ M docs/cell-contract.md
+ M scripts/spawned_cells_to_ts.py
+ M site/src/__tests__/forecast-catalog.test.ts
+ M site/src/__tests__/forecast-runtime.test.tsx
+ M site/src/__tests__/migration.test.tsx
+ M site/src/app/forecasts/log/page.tsx
+ M site/src/app/forecasts/page.tsx
+ M site/src/components/ForecastRuntime.tsx
+ M site/src/components/Header.tsx
+ M site/src/data/almanac-examples/uk.ts
+ M site/src/data/forecast-cells.ts
+ M site/src/data/prediction-specs.ts
+ M site/src/data/thesis-log.ts
+ M site/supabase/migrations/20260609_thesis_log.sql
+?? docs/brier-lab.md
+?? docs/thesis-analyst-runner.md
+?? records/thesis-analyst/
+?? scripts/run_thesis_analyst.py
+?? site/src/app/brier/
+?? site/src/app/packs/
+?? site/src/data/brier-lab.ts
+?? site/src/data/prediction-packs.ts
+?? tests/test_thesis_analyst_runner.py
+/Users/maxghenis/_worktrees/brier-multi-run-comparisons
+docs/cell-contract.md
+site/src/data/prediction-specs.ts
+site/src/app/forecasts/specs.json/route.ts
+site/src/app/specs.json/route.ts
+
+2026-06-16T12:14:31.528792Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:14:31.557761Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:31.557770Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:31.558487Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:31.558491Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:31.559631Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:31.559640Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:31.560693Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:31.560700Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:31.561274Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:31.561277Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:31.562804Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:31.562810Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+codex
+The checkout is dirty and behind `origin/main`, so I’m treating this as read-only output generation and won’t edit repo files. Next I’m reading the JSON contract and checking the live specs slug.
+exec
+/bin/zsh -lc "sed -n '1,240p' docs/cell-contract.md" in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+# The spawned-cell contract
+
+One JSON object per forecast, produced by a thesis.analyst run and converted
+into the catalog by `scripts/spawned_cells_to_ts.py` (which validates all of
+this; `site/src/__tests__/trace-depth.test.ts` re-enforces it in CI).
+
+```json
+{
+  "slug": "kebab-case-unique-vs-catalog",
+  "country": "US|UK|CA|AU|EA|JP",
+  "type": "data|policy|conditional",
+  "title": "Short display title",
+  "question": "Resolution-grade: exact series, period, adjustment, first print",
+  "unit": "count|percent|usd|usd_billions|usd_monthly|thousands|millions|ratio|percent_growth|gbp_billions|per_1000_live_births",
+  "pointEstimate": 0,
+  "ciLow": 0,
+  "ciHigh": 0,
+  "confidence": 0.8,
+  "resolutionDate": "YYYY-MM-DD (verified from the official release calendar)",
+  "resolutionSource": "Agency, release name",
+  "resolutionSourceUrl": "https://... (the release/data page that resolves it)",
+  "resolutionRule": "Exact series/table/line, first print, rounding, condition policy",
+  "dataPointId": "agency.dataset.concept.period.first_print",
+  "conditionalOn": "(conditionals only) checkable condition w/ provision ref",
+  "historicalContext": [{ "label": "…", "value": 0 }],
+  "drivers": ["3-5 short driver phrases"],
+  "sourceContext": ["urls actually fetched this run (>=2)"],
+  "runAt": "real `date -u +%Y-%m-%dT%H:%M:%SZ` at generation",
+  "activityLog": [
+    {
+      "artifactType": "prompt|command|stdout|stderr|raw_response|parsed_cell|normalized_cell|validation_report|manifest",
+      "path": "records/thesis-analyst/...",
+      "sha256": "hex",
+      "bytes": 0,
+      "createdAt": "ISO timestamp"
+    }
+  ],
+  "reasoning": [
+    { "kind": "heading", "text": "…" },
+    { "kind": "text", "text": "…" },
+    {
+      "kind": "tool",
+      "tool": "fred.lookup",
+      "call": "…",
+      "result": "actual fetched numbers"
+    },
+    { "kind": "math", "text": "explicit point + CI derivation" },
+    { "kind": "forecast", "point": 0, "ciLow": 0, "ciHigh": 0 }
+  ]
+}
+```
+
+Depth bar (rejected otherwise): >=7 reasoning steps; >=3 tool steps whose
+results carry numbers fetched this run; one explicit base-rate/reference-class
+step; one math derivation; one disconfirming consideration ("outside the
+interval if…"); final forecast step exactly matching the cell numbers;
+historicalContext >=3 real points; ciLow < point < ciHigh.
+
+`activityLog` is added by `scripts/run_thesis_analyst.py`, not by the model.
+It preserves the full run envelope behind the curated public trace: prompt,
+command metadata, stdout/stderr, raw response, parsed/normalized cells, and
+validation report.
+
+The converter stamps `predictionRun` from `agents/thesis-analyst/`:
+`{kind: "recorded-agent-run", runAt, agent: "thesis.analyst", model,
+agentVersion, promptHash, toolPolicyHash, sourceContext, activityLog}` — promptHash =
+sha256(system.md), toolPolicyHash = sha256(skills/\*.md sorted by filename),
+version/model from agent.yaml. Bump the version when any of those files
+change.
+
+exec
+/bin/zsh -lc "sed -n '1,220p' site/src/data/prediction-specs.ts" in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+import type {
+  CountryCode,
+  ForecastRunEntry,
+  ForecastCell,
+  ForecastCellType,
+  PredictionRunActivityArtifact,
+  PredictionPackSet,
+  ReasoningStep,
+  ResolutionPolicy,
+  Unit,
+} from "./forecast-cells";
+import { getForecastRunEntries } from "./forecast-cells";
+import type { PredictionDistribution } from "./prediction-distribution";
+
+export type PredictionSpecSchemaVersion = "thesis_prediction_spec_v1";
+export type PredictionRunSchemaVersion = "thesis_prediction_run_v1";
+export type QualityGateStatus = "passed" | "warning" | "failed";
+
+export interface PredictionSpec {
+  schemaVersion: PredictionSpecSchemaVersion;
+  specId: string;
+  specVersionId: string;
+  parentSpecVersionId?: string;
+  specHash: string;
+  publishedAt: string;
+  predictionId: string;
+  title: string;
+  question: string;
+  type: ForecastCellType;
+  country: CountryCode;
+  unit: Unit;
+  resolution: {
+    expectedAt: string;
+    source: string;
+    sourceUrl?: string;
+    rule: string;
+    policy?: ResolutionPolicy;
+    targetFactRef?: string;
+    factLedger: "PolicyEngine Ledger";
+  };
+  distribution: {
+    format: "numeric_cdf_v1";
+    pointCount: 201;
+    elicitation: "full_cdf";
+    intervalMass: 0.8;
+  };
+  tools: {
+    allowed: string[];
+    required: string[];
+  };
+  agent: {
+    instructions: string[];
+    publicTraceOnly: true;
+  };
+  qualityGates: string[];
+}
+
+export interface PredictionRunToolCall {
+  toolCallId: string;
+  tool: string;
+  call: string;
+  result: string;
+  allowedTool: boolean;
+  requestHash: string;
+  responseHash: string;
+  provider: "recorded-public-trace";
+  status: "succeeded" | "failed";
+  costUsd: number | null;
+  influencedFinalForecast: boolean;
+}
+
+export interface PredictionRunQualityGate {
+  name: string;
+  status: QualityGateStatus;
+  detail?: string;
+}
+
+export interface PredictionRunRecord {
+  schemaVersion: PredictionRunSchemaVersion;
+  runId: string;
+  specId: string;
+  specVersionId: string;
+  predictionId: string;
+  agentId: string;
+  runLabel: string;
+  runDescription?: string;
+  packSet?: PredictionPackSet;
+  activityLog?: PredictionRunActivityArtifact[];
+  idempotencyKey: string;
+  createdAt: string;
+  modelVersion?: string;
+  promptHash: string;
+  toolPolicyHash: string;
+  inputBundleHash: string;
+  status: "published" | "needs_review";
+  runner: {
+    id: "thesis.recorded-agent-runner";
+    version: "prototype-v1";
+    agent?: string;
+    model?: string;
+  };
+  input: {
+    specId: string;
+    specVersionId: string;
+    allowedTools: string[];
+    targetFactRef?: string;
+    packSetId?: string;
+    packIds: string[];
+  };
+  output: {
+    pointEstimate: number;
+    interval80: {
+      lower: number;
+      upper: number;
+    };
+    distribution: PredictionDistribution;
+    publicTrace: string[];
+    publicTraceMetadata: {
+      redactionStatus: "public_only";
+      traceHash: string;
+      publiclyReproducibleEnough: boolean;
+    };
+    toolCalls: PredictionRunToolCall[];
+    drivers: string[];
+  };
+  resolution: {
+    status: "linked" | "pending";
+    resolutionRef: string;
+    factLedger: "PolicyEngine Ledger";
+    targetFactRef?: string;
+    ledgerFactRef?: string;
+  };
+  qualityGates: PredictionRunQualityGate[];
+}
+
+export interface PredictionSpecExport {
+  schemaVersion: "thesis_prediction_specs_v1";
+  counts: {
+    specs: number;
+    withResolutionTarget: number;
+  };
+  specs: PredictionSpec[];
+}
+
+const SPEC_VERSION = "2026-06-09";
+const SEEDED_RUN_RECORDED_AT = "2026-06-08T00:00:00+02:00";
+
+const SYSTEM_TOOLS = [
+  "distribution.validate",
+  "policyengine-ledger.resolve",
+  "thesis-log.write",
+] as const;
+
+const SPEC_QUALITY_GATES = [
+  "prediction_id_present",
+  "resolution_source_defined",
+  "distribution_numeric_cdf_v1_201_points",
+  "allowed_tools_declared",
+  "public_trace_only",
+  "ledger_target_ref_declared_when_available",
+] as const;
+
+export function buildPredictionSpec(forecast: ForecastCell): PredictionSpec {
+  const specId = buildSpecId(forecast.slug);
+  const specVersionId = buildSpecVersionId(forecast.slug);
+  const resolution = {
+    expectedAt: forecast.resolutionDate,
+    source: forecast.resolutionSource,
+    sourceUrl: forecast.resolutionSourceUrl,
+    rule: forecast.resolutionRule,
+    policy: forecast.series?.resolutionPolicy,
+    targetFactRef: forecast.dataPointId,
+    factLedger: "PolicyEngine Ledger" as const,
+  };
+  const tools = {
+    allowed: buildAllowedTools(forecast),
+    required: buildRequiredTools(forecast),
+  };
+  const qualityGates = [...SPEC_QUALITY_GATES];
+  const hashMaterial = {
+    specId,
+    specVersionId,
+    predictionId: forecast.slug,
+    title: forecast.title,
+    question: forecast.question,
+    type: forecast.type,
+    country: forecast.country ?? forecast.series?.country ?? "US",
+    unit: forecast.unit,
+    resolution,
+    distribution: {
+      format: "numeric_cdf_v1",
+      pointCount: 201,
+      elicitation: "full_cdf",
+      intervalMass: 0.8,
+    },
+    tools,
+    qualityGates,
+  };
+
+  return {
+    schemaVersion: "thesis_prediction_spec_v1",
+    specId,
+    specVersionId,
+    specHash: stableHash(hashMaterial),
+    publishedAt: `${SPEC_VERSION}T00:00:00+02:00`,
+    predictionId: forecast.slug,
+    title: forecast.title,
+    question: forecast.question,
+    type: forecast.type,
+    country: forecast.country ?? forecast.series?.country ?? "US",
+    unit: forecast.unit,
+    resolution,
+    distribution: {
+      format: "numeric_cdf_v1",
+      pointCount: 201,
+      elicitation: "full_cdf",
+      intervalMass: 0.8,
+    },
+    tools,
+    agent: {
+
+2026-06-16T12:14:35.211445Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:14:35.240486Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:35.240498Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:35.241521Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:35.241529Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:35.242567Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:35.242576Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:35.243623Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:35.243629Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:35.244515Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:35.244524Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:14:35.246467Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:14:35.246472Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+codex
+The contract expects a single forecast object; activity logs are runner-added, so I’ll omit that field unless the live spec requires otherwise. I’m now checking the live spec and the Bank of England official sources.
+web search: 
+web search: https://app.thesisinstitute.org/specs.json
+web search: 
+web search: site:app.thesisinstitute.org/specs.json boe bank rate
+web search: 
+web search: Bank of England Bank Rate history CSV official
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy
+web search: 
+web search: site:bankofengland.co.uk/monetary-policy-summary-and-minutes/2025 Bank Rate maintained cut 2025 Bank Rate 4.25 4.00
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/february-2026
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/april-2026
+web search: 
+2026-06-16T12:20:05.583459Z  WARN codex_core::session::turn: stream disconnected - retrying sampling request (1/5 in 182ms)...
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/march-2026
+web search: 
+web search: site:bankofengland.co.uk/monetary-policy-summary-and-minutes/2026 "May 2026" "Bank Rate" "Monetary Policy Summary"
+web search: 
+web search: 'Maintain Bank Rate' in https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/march-2026
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/march-2026
+web search: 
+web search: Bank of England Monetary Policy Committee dates for 2026 18 June 2026
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate
+web search: 
+web search: https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate
+codex
+The BoE calendar verifies the target release: Thursday 18 June 2026, with current Bank Rate 3.75%. I also found the April minutes: an 8-1 hold at 3.75%, which is the key inside-view input.
+2026-06-16T12:20:28.637936Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:20:28.672535Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:28.672546Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:28.673699Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:28.673704Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:28.674710Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:28.674720Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:28.675816Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:28.675826Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:28.677000Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:28.677009Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:28.679593Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:28.679608Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+codex
+The shell is read-only here, so I can run commands but not create heredoc temp files. I’m using one-line commands and web fetches instead for validation.
+exec
+/bin/zsh -lc "python -c \"import urllib.request; url='https://www.bankofengland.co.uk/-/media/boe/files/monetary-policy/baserate.xls';
+try:
+ r=urllib.request.urlopen(url, timeout=15); data=r.read(200); print(r.status, r.headers.get('content-type'), len(data), data[:20])
+except Exception as e: print(type(e).__name__, e)\"" in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+URLError <urlopen error [Errno 8] nodename nor servname provided, or not known>
+
+2026-06-16T12:20:32.475736Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:20:32.503227Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:32.503237Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:32.504403Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:32.504413Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:32.505284Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:32.505290Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:32.506124Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:32.506130Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:32.506852Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:32.506856Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:20:32.508877Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:20:32.508885Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+web search: 
+web search: https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp
+web search: 
+web search: https://app.thesisinstitute.org/specs.json
+web search: 
+web search: "thesis_prediction_specs_v1" "boe"
+codex
+I’ve got enough official history to build the distribution: BoE’s database gives the latest changes back through 2023, and the MPC pages/calendar fill in hold meetings and current mechanics. I’m computing the forecast from meeting-to-meeting Bank Rate changes because the target is a policy-rate level after a discrete decision.
+exec
+/bin/zsh -lc "python -c \"import statistics, numpy as np; levels=[5.00,5.25,5.25,5.25,5.25,5.25,5.25,5.25,5.25,5.00,5.00,4.75,4.75,4.50,4.50,4.25,4.25,4.00,4.00,4.00,3.75,3.75,3.75,3.75]; changes=[levels[i]-levels[i-1] for i in range(1,len(levels))]; print('n_levels',len(levels),'mean_level',round(statistics.mean(levels),3),'std_level',round(statistics.pstdev(levels),3)); print('changes',changes); print('n_changes',len(changes),'mean_change',round(statistics.mean(changes),3),'std_change_sample',round(statistics.stdev(changes),3),'p10',np.quantile(changes,.1),'p90',np.quantile(changes,.9)); print('counts', {x:changes.count(x) for x in sorted(set(changes))})\"" in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+n_levels 24 mean_level 4.625 std_level 0.582
+changes [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.25, 0.0, -0.25, 0.0, -0.25, 0.0, -0.25, 0.0, -0.25, 0.0, 0.0, -0.25, 0.0, 0.0, 0.0]
+n_changes 23 mean_change -0.054 std_change_sample 0.13 p10 -0.25 p90 0.0
+counts {-0.25: 6, 0.0: 16, 0.25: 1}
+
+2026-06-16T12:21:04.190159Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:21:04.228106Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:04.228117Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:04.229443Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:04.229454Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:04.230606Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:04.230613Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:04.231610Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:04.231620Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:04.232957Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:04.232965Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:04.235983Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:04.235993Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+exec
+/bin/zsh -lc "rg -n \"export interface ForecastCell|activityLog|reasoning\" site/src/data/forecast-cells.ts | head -80 && sed -n '1,180p' site/src/data/forecast-cells.ts" in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+23:// Forecast-cell definitions and AI analyst reasoning scripts.
+24:// Each cell is a self-contained record with a pre-written reasoning stream
+27:// The reasoning is illustrative — numbers and tool-call results are
+138:  activityLog?: PredictionRunActivityArtifact[];
+172:  reasoning: ReasoningStep[];
+175:export interface ForecastCell {
+200:  reasoning: ReasoningStep[];
+216:  reasoning: ReasoningStep[];
+272:    reasoning: forecast.reasoning,
+297:        reasoning: run.reasoning,
+405:    "Control run for ablation: public source context and generic base-rate reasoning only.",
+504:    reasoning: [
+561:    reasoning: [
+622:        reasoning: [
+706:        reasoning: [
+763:    reasoning: [
+824:        reasoning: [
+909:        reasoning: [
+967:    reasoning: [
+1049:    reasoning: [
+1121:    reasoning: [
+1199:        reasoning: [
+1284:        reasoning: [
+1372:        reasoning: [
+1436:    reasoning: [
+1498:    reasoning: [
+1569:    reasoning: [
+1636:    reasoning: [
+1701:    reasoning: [
+1758:    reasoning: [
+1829:    reasoning: [
+1893:    reasoning: [
+1952:    reasoning: [
+2009:    reasoning: [
+2065:    reasoning: [
+2137:    reasoning: [
+2198:    reasoning: [
+2251:    reasoning: [
+2328:    reasoning: [
+2401:    reasoning: [
+2457:    reasoning: [
+2516:    reasoning: [
+2573:    reasoning: [
+2630:    reasoning: [
+2687:    reasoning: [
+2743:    reasoning: [
+2799:    reasoning: [
+2856:    reasoning: [
+2912:    reasoning: [
+2969:    reasoning: [
+3027:    reasoning: [
+3083:    reasoning: [
+3140:    reasoning: [
+3196:    reasoning: [
+3251:    reasoning: [
+3308:    reasoning: [
+3364:    reasoning: [
+3420:    reasoning: [
+3475:    reasoning: [
+3530:    reasoning: [
+3586:    reasoning: [
+3640:    reasoning: [
+3695:    reasoning: [
+3750:    reasoning: [
+3804:    reasoning: [
+3859:    reasoning: [
+3914:    reasoning: [
+3968:    reasoning: [
+4023:    reasoning: [
+4077:    reasoning: [
+4132:    reasoning: [
+4187:    reasoning: [
+4241:    reasoning: [
+4297:    reasoning: [
+4352:    reasoning: [
+4407:    reasoning: [
+4462:    reasoning: [
+4517:    reasoning: [
+4572:    reasoning: [
+4627:    reasoning: [
+import { BENEFIT_PROGRAM_EXAMPLES } from "./almanac-examples/benefits";
+import { BENEFITS_DELIVERY_EXAMPLES } from "./almanac-examples/benefits-delivery";
+import { JUNE_2026_WAVE } from "./almanac-examples/june-2026-wave";
+import { AGENT_RUN_EXAMPLES } from "./almanac-examples/agent-runs";
+import { CANADA_AUSTRALIA_EXAMPLES } from "./almanac-examples/canada-australia";
+import { EURO_JAPAN_EXAMPLES } from "./almanac-examples/euro-japan";
+import { GLOBAL_NEAR_TERM_EXAMPLES } from "./almanac-examples/global-near-term";
+import { HEALTH_COVERAGE_EXAMPLES } from "./almanac-examples/health";
+import { LAUNCH_CADENCE_EXAMPLES } from "./almanac-examples/launch-cadence";
+import { TAX_CREDIT_EXAMPLES } from "./almanac-examples/tax";
+import { UK_EXAMPLES } from "./almanac-examples/uk";
+import { US_NEAR_TERM_EXAMPLES } from "./almanac-examples/us-near-term";
+import {
+  buildNumericCdfFromInterval,
+  type PredictionDistribution,
+} from "./prediction-distribution";
+export type {
+  NumericCdfDistribution,
+  NumericCdfPoint,
+  PredictionDistribution,
+} from "./prediction-distribution";
+
+// Forecast-cell definitions and AI analyst reasoning scripts.
+// Each cell is a self-contained record with a pre-written reasoning stream
+// that the AgentReasoning component plays back with simulated streaming.
+//
+// The reasoning is illustrative — numbers and tool-call results are
+// constructed to demonstrate the integrated stack (encoded law,
+// PolicyEngine microsim, public data cells) rather than to be live forecasts.
+
+export type ForecastCellType = "data" | "policy" | "conditional";
+
+export type Unit =
+  | "count"
+  | "percent"
+  | "gbp_billions"
+  | "usd"
+  | "usd_billions"
+  | "usd_monthly"
+  | "thousands"
+  | "millions"
+  | "per_1000_live_births"
+  | "ratio"
+  | "minutes"
+  | "percent_growth";
+
+export interface HistoricalPoint {
+  label: string;
+  value: number;
+}
+
+export type PredictionCadence = "weekly" | "monthly" | "quarterly" | "annual";
+
+export type ForecastHorizon =
+  | "next_release"
+  | "plus_3m"
+  | "plus_12m"
+  | "quarterly_path"
+  | "threshold";
+
+export type ResolutionPolicy = "first_print" | "fixed_vintage" | "final";
+
+export type CountryCode = "US" | "UK" | "CA" | "AU" | "EA" | "JP";
+
+export interface ForecastSeriesMetadata {
+  seriesId: string;
+  country: CountryCode;
+  cadence: PredictionCadence;
+  horizon: ForecastHorizon;
+  horizonLabel: string;
+  priority: "P0" | "P1" | "P2";
+  source: string;
+  resolutionPolicy: ResolutionPolicy;
+  resolutionLatency: string;
+  benchmark?: string;
+  chainableQuestions: string[];
+}
+
+export type PredictionPackKind =
+  | "calibration"
+  | "data"
+  | "method"
+  | "model"
+  | "policy";
+
+export interface PredictionPackReference {
+  packId: string;
+  version: string;
+  label: string;
+  kind: PredictionPackKind;
+  summary: string;
+}
+
+export type PredictionPackSetMode = "none" | "with_packs" | "ensemble";
+
+export interface PredictionPackSet {
+  packSetId: string;
+  label: string;
+  mode: PredictionPackSetMode;
+  packs: PredictionPackReference[];
+  notes?: string;
+}
+
+export type PredictionRunActivityArtifactType =
+  | "prompt"
+  | "command"
+  | "stdout"
+  | "stderr"
+  | "raw_response"
+  | "parsed_cell"
+  | "normalized_cell"
+  | "validation_report"
+  | "manifest";
+
+export interface PredictionRunActivityArtifact {
+  artifactType: PredictionRunActivityArtifactType;
+  path: string;
+  sha256: string;
+  bytes: number;
+  createdAt: string;
+}
+
+export interface PredictionRunMetadata {
+  kind: "recorded-agent-run";
+  runAt: string;
+  agent: string;
+  model: string;
+  sourceContext: string[];
+  runLabel?: string;
+  runDescription?: string;
+  packSet?: PredictionPackSet;
+  // Versioned-agent attribution (agents/thesis-analyst): semver of the agent
+  // definition plus content hashes of its system prompt and skill set, so a
+  // published run is reproducible against an exact agent.
+  agentVersion?: string;
+  promptHash?: string;
+  toolPolicyHash?: string;
+  activityLog?: PredictionRunActivityArtifact[];
+}
+
+export interface ResolvedOutcome {
+  value: number;
+  resolvedAt: string;
+  source: string;
+  sourceUrl?: string;
+  note?: string;
+}
+
+export type ReasoningStep =
+  | { kind: "heading"; text: string }
+  | { kind: "text"; text: string }
+  | {
+      kind: "tool"; // call to PolicyEngine microsim or other data lookup
+      call: string;
+      result: string;
+      tool?: string; // optional tool name override; defaults to policyengine.simulate
+    }
+  | { kind: "math"; text: string } // styled equation/weighting line
+  | { kind: "forecast"; point: number; ciLow: number; ciHigh: number };
+
+export interface ForecastComparisonRun {
+  variantId: string;
+  label: string;
+  description?: string;
+  pointEstimate: number;
+  ciLow: number;
+  ciHigh: number;
+  confidence?: number;
+  drivers?: string[];
+  predictionRun: PredictionRunMetadata;
+  predictionDistribution?: PredictionDistribution;
+  reasoning: ReasoningStep[];
+}
+
+export interface ForecastCell {
+  slug: string;
+  country?: CountryCode;
+  type: ForecastCellType;
+  title: string;
+  question: string;
+
+2026-06-16T12:21:12.693923Z  WARN codex_core_plugins::manifest: ignoring interface.defaultPrompt[0]: prompt must be at most 128 characters path=/Users/maxghenis/.codex/.tmp/plugins/plugins/ngs-analysis/.codex-plugin/plugin.json
+2026-06-16T12:21:12.749409Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:12.749421Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:12.751421Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:12.751432Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:12.754116Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:12.754126Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:12.757221Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:12.757231Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:12.758456Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:12.758464Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+2026-06-16T12:21:12.761416Z  WARN codex_core_skills::loader: ignoring interface.icon_small: icon path must not contain '..'
+2026-06-16T12:21:12.761425Z  WARN codex_core_skills::loader: ignoring interface.icon_large: icon path must not contain '..'
+exec
+/bin/zsh -lc "sed -n '175,230p' site/src/data/forecast-cells.ts" in /Users/maxghenis/_worktrees/brier-multi-run-comparisons
+ succeeded in 0ms:
+export interface ForecastCell {
+  slug: string;
+  country?: CountryCode;
+  type: ForecastCellType;
+  title: string;
+  question: string;
+  unit: Unit;
+  pointEstimate: number;
+  ciLow: number;
+  ciHigh: number;
+  confidence: number; // 0.80 etc.
+  resolutionDate: string; // ISO date, e.g. "2027-09-15"
+  resolutionSource: string;
+  resolutionSourceUrl?: string;
+  resolutionRule: string;
+  historicalContext: HistoricalPoint[];
+  drivers: string[];
+  dataPointId?: string; // for published public-data forecast cells
+  policyParameter?: string; // for policy forecast cells
+  conditionalOn?: string; // for conditional forecast cells
+  series?: ForecastSeriesMetadata;
+  predictionRun?: PredictionRunMetadata;
+  comparisonRuns?: ForecastComparisonRun[];
+  resolvedOutcome?: ResolvedOutcome;
+  predictionDistribution?: PredictionDistribution;
+  reasoning: ReasoningStep[];
+}
+
+export interface ForecastRunEntry {
+  variantId: string;
+  label: string;
+  description?: string;
+  isPrimary: boolean;
+  pointEstimate: number;
+  ciLow: number;
+  ciHigh: number;
+  confidence: number;
+  drivers: string[];
+  predictionRun?: PredictionRunMetadata;
+  packSet?: PredictionPackSet;
+  predictionDistribution: PredictionDistribution;
+  reasoning: ReasoningStep[];
+}
+
+export type ForecastRuntimeKind = "live-api" | "agent-run" | "static-mock";
+
+export const LIVE_FORECAST_SLUGS = new Set([
+  "spm-child-poverty-2025",
+  "cpi-u-annual-2026",
+  "ctc-expansion-cost-ty2026",
+  "ctc-current-law-outlays-ty2026",
+]);
+
+export function getForecastRuntimeKind(
+  forecastOrSlug: ForecastCell | string,
+): ForecastRuntimeKind {
+
+
+agent command timed out after 420 seconds

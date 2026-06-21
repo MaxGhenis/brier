@@ -1,0 +1,112 @@
+[
+ {
+  "slug": "abs-cpi-all-groups-yoy-2026-05",
+  "country": "AU",
+  "type": "data",
+  "title": "Australia CPI inflation, May 2026",
+  "question": "ABS Consumer Price Index, Australia, All groups CPI, annual percentage change for May 2026, original terms, first print",
+  "unit": "percent",
+  "pointEstimate": 4.9,
+  "ciLow": 4.2,
+  "ciHigh": 5.6,
+  "confidence": 0.8,
+  "resolutionDate": "2026-06-24",
+  "resolutionSource": "Australian Bureau of Statistics Consumer Price Index, Australia, May 2026 release",
+  "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/may-2026",
+  "resolutionRule": "Resolve to the first ABS-published All groups CPI annual movement for May 2026 in Consumer Price Index, Australia, original terms, rounded as published to one decimal percentage point. Ignore later revisions or backcast changes unless the first release is explicitly corrected before the next monthly CPI release.",
+  "dataPointId": "abs.cpi.all_groups.yoy.2026-05.first_print",
+  "historicalContext": [
+   {
+    "label": "latest Apr 2026 annual change",
+    "value": 4.2
+   },
+   {
+    "label": "Mar 2026 annual change",
+    "value": 4.6
+   },
+   {
+    "label": "Feb 2026 annual change",
+    "value": 3.7
+   },
+   {
+    "label": "May 2025 monthly change base month",
+    "value": -0.5
+   },
+   {
+    "label": "Apr 2026 monthly change",
+    "value": 0.4
+   }
+  ],
+  "drivers": [
+   "low May 2025 base month raises annual rate mechanically",
+   "April fuel reversal pulls against another sharp monthly increase",
+   "non-tradables inflation remains elevated",
+   "trimmed mean near mid-3s anchors central tendency",
+   "ABS prints annual CPI to one decimal"
+  ],
+  "sourceContext": [
+   "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+   "https://www.abs.gov.au/about/key-priorities/big-data-timely-insights-phase-2/complete-monthly-measure-cpi/release-schedule",
+   "https://www.abs.gov.au/media-centre/media-statements/abs-announces-monthly-cpi-start-november-2025"
+  ],
+  "runAt": "2026-06-17T02:02:48Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast: ABS All groups CPI annual inflation for May 2026"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the ABS Consumer Price Index, Australia first release for May 2026, using the All groups CPI annual movement in original terms. The old Monthly CPI Indicator ceased after September 2025, and the complete Monthly CPI is now the headline monthly CPI publication."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the ABS Consumer Price Index, Australia latest release page for April 2026.",
+    "result": "Fetched April 2026 reference period released 27/05/2026; next release for May 2026 is 24/06/2026; April annual CPI was 4.2%, March annual CPI was 4.6%, and April monthly CPI was 0.4%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the ABS complete Monthly CPI release schedule page.",
+    "result": "Fetched schedule rule and dates: first complete Monthly CPI on 26/11/2025; November 2025 release on 07/01/2026; December 2025 on 28/01/2026; January 2026 on 25/02/2026; February 2026 on 25/03/2026; March 2026 on 29/04/2026; April 2026 on 27/05/2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read ABS transition statement for the monthly CPI publication.",
+    "result": "Fetched transition details: ABS said the Monthly CPI starts 26/11/2025 for October 2025, the old Indicator would no longer be produced after 29/10/2025, and the new monthly data series go back to April 2024."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read ABS April 2026 CPI tables for recent annual and monthly movements.",
+    "result": "Fetched monthly annual path: Nov 2025 3.4%, Dec 2025 3.8%, Jan 2026 3.8%, Feb 2026 3.7%, Mar 2026 4.6%, Apr 2026 4.2%; fetched monthly changes including May 2025 -0.5%, Mar 2026 1.1%, Apr 2026 0.4%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read ABS April 2026 component and analytical series detail.",
+    "result": "Fetched component context: April 2026 Transport annual inflation was 6.6%, Housing was 6.3%, Food and non-alcoholic beverages was 2.8%, trimmed mean was 3.4%, tradables were 3.2%, and non-tradables were 4.7%."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class anchor: recent monthly complete-CPI annual readings sit mostly from 3.4% to 4.6%, while the May 2025 base month was unusually soft at -0.5% month over month. Replacing that base with even a modest positive May 2026 month tends to lift the annual rate from April's 4.2%."
+   },
+   {
+    "kind": "math",
+    "text": "Approximate annual-rate bridge: Apr 2026 over Apr 2025 is 1.042. If May 2026 monthly CPI rises about 0.2% and May 2025 was -0.5%, then May annual CPI is 1.042 * 1.002 / 0.995 - 1 = 0.0494, or 4.9% after one-decimal rounding. An 80% interval allowing roughly -0.5% to +0.8% May monthly outcomes maps to about 4.2% to 5.6%."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: April already showed a fuel-driven pullback from March and seasonally adjusted all-groups CPI fell 0.1%, so a weak May fuel or travel print could keep the annual rate nearer the low 4s despite the favorable base effect."
+   },
+   {
+    "kind": "forecast",
+    "point": 4.9,
+    "ciLow": 4.2,
+    "ciHigh": 5.6
+   }
+  ]
+ }
+]

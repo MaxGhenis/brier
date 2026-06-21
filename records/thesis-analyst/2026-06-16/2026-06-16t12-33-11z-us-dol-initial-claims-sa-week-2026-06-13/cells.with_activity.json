@@ -1,0 +1,164 @@
+[
+  {
+    "slug": "us-dol-initial-claims-sa-week-2026-06-13-first-print",
+    "country": "US",
+    "type": "data",
+    "title": "US initial jobless claims, Jun. 13 week",
+    "question": "U.S. Department of Labor Employment and Training Administration seasonally adjusted initial unemployment insurance claims for the week ending June 13, 2026, first print",
+    "unit": "count",
+    "pointEstimate": 225000,
+    "ciLow": 209000,
+    "ciHigh": 243000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-18",
+    "resolutionSource": "Official U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims release",
+    "resolutionSourceUrl": "https://www.dol.gov/ui/data.pdf",
+    "resolutionRule": "Resolve to the advance seasonally adjusted initial claims figure for the week ending June 13, 2026 in the first official DOL Unemployment Insurance Weekly Claims release dated June 18, 2026. Use the initially printed value in persons; ignore later revisions or FRED backfills.",
+    "dataPointId": "dol.ui.initial_claims.sa.2026-06-13.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06-06 latest SA initial claims",
+        "value": 229000
+      },
+      {
+        "label": "2026-05-30 SA initial claims",
+        "value": 225000
+      },
+      {
+        "label": "2026-05-23 SA initial claims",
+        "value": 212000
+      },
+      {
+        "label": "2026-05-16 SA initial claims",
+        "value": 210000
+      },
+      {
+        "label": "2026-06-06 four-week moving average",
+        "value": 219000
+      }
+    ],
+    "drivers": [
+      "latest print rose to 229000",
+      "four-week average at 219000",
+      "prior week was 225000",
+      "same-week 2025 level was 243000",
+      "recent May-to-June prints remain in low-200000s range"
+    ],
+    "sourceContext": [
+      "https://oui.doleta.gov/unemploy/claims_arch.asp",
+      "https://www.dol.gov/ui/data.pdf",
+      "https://fred.stlouisfed.org/series/ICSA"
+    ],
+    "runAt": "2026-06-16T12:33:22Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DOL initial claims, week ending June 13, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first official DOL ETA Unemployment Insurance Weekly Claims advance seasonally adjusted initial claims figure for the week-ending date June 13, 2026, not any later revised history."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the DOL ETA weekly claims archive and publication schedule page.",
+        "result": "Official schedule says the UI Weekly Claims News Release is published each week on Thursday morning at 8:30 AM EST, lists 1 exception date in 2026, Wednesday November 25, 2026, and the page was updated June 11, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the current official DOL UI Weekly Claims PDF release dated June 11, 2026.",
+        "result": "For week ending June 6, 2026, seasonally adjusted initial claims were 229000, up 4000 from the prior unrevised 225000; the four-week moving average was 219000, up 4250."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the DOL release table for recent and prior-year claims context.",
+        "result": "The DOL table shows SA initial claims of 229000 for June 6, 2026, 225000 for May 30, 2026, 212000 for May 23, 2026, and 246000 for the comparable prior-year week."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Opened FRED ICSA as a history mirror for the same ETA source series.",
+        "result": "FRED showed 2026-06-06 at 229000, 2026-05-30 at 225000, 2026-05-23 at 212000, 2026-05-16 at 210000, 2026-05-09 at 212000, and next release date Jun 18, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: for weekly initial claims, the near-term reference class is adjacent weekly prints around the latest release; the last five fetched SA observations are 212000, 210000, 212000, 225000, and 229000, while the official four-week average is 219000."
+      },
+      {
+        "kind": "math",
+        "text": "Blend latest level 229000, prior week 225000, and four-week average 219000 with more weight on persistence: 0.40*229000 + 0.35*225000 + 0.25*219000 = 225100, rounded to the nearest 1000 gives 225000. Set an 80% interval of roughly +/-16000 around the rounded point, giving 209000 to 243000."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the latest unadjusted claims rose sharply by 39713 to 228276, and seasonal adjustment expected a large increase of 35595, so a second high print is plausible; however, the SA series often mean-reverts after jumps and the latest 229000 is already above the 219000 four-week average."
+      },
+      {
+        "kind": "forecast",
+        "point": 225000,
+        "ciLow": 209000,
+        "ciHigh": 243000
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/prompt.md",
+        "sha256": "9c39d369d76d493252e9eebc6dcfb18a3cd8ddb008b681a8e385823866ffa4bc",
+        "bytes": 3601,
+        "createdAt": "2026-06-16T12:33:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/command.json",
+        "sha256": "712495941b1e0cb25d9e721db8b9629fec7b19c8f53cf35c20242f558c30ad90",
+        "bytes": 412,
+        "createdAt": "2026-06-16T12:33:11Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/stdout.txt",
+        "sha256": "7aad816ae0f2316497bae733e75e8679fdc6da71257c952fd12480be8c47768d",
+        "bytes": 4250,
+        "createdAt": "2026-06-16T12:33:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/stderr.txt",
+        "sha256": "b513ad3eddec8a5dfb4224b210884ce8ec76c28fd8bff0935b164525c33e2c13",
+        "bytes": 21116,
+        "createdAt": "2026-06-16T12:33:11Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/raw_response.txt",
+        "sha256": "7aad816ae0f2316497bae733e75e8679fdc6da71257c952fd12480be8c47768d",
+        "bytes": 4250,
+        "createdAt": "2026-06-16T12:33:11Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/parsed_cells.json",
+        "sha256": "1767ff411e3e6a601a172b0f04bc782f46d60aca9db1d13b4e77ffcb0087010d",
+        "bytes": 5064,
+        "createdAt": "2026-06-16T12:33:11Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/normalized_cells.json",
+        "sha256": "5070724120130071b1320035b81073e8bf842c4227bde7a8d86f0dc58cf907cd",
+        "bytes": 4740,
+        "createdAt": "2026-06-16T12:33:11Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-16/2026-06-16t12-33-11z-us-dol-initial-claims-sa-week-2026-06-13/validation.json",
+        "sha256": "ef438b3decebbe437ca4d7e1e098eab4163083acf574ac288f15a9b4d8321be1",
+        "bytes": 153,
+        "createdAt": "2026-06-16T12:33:11Z"
+      }
+    ]
+  }
+]

@@ -144,6 +144,8 @@ def to_forecast_cell(cell: dict) -> dict:
         "toolPolicyHash": stamp["toolPolicyHash"],
         "sourceContext": cell["sourceContext"],
     }
+    if cell.get("activityLog"):
+        out["predictionRun"]["activityLog"] = cell["activityLog"]
     out["reasoning"] = cell["reasoning"]
     return out
 

@@ -4,7 +4,14 @@ import { BrierLogoMark } from "./BrierLogo";
 export function Header({
   activePage,
 }: {
-  activePage?: "docs" | "thesis" | "paper" | "forecasts" | "log";
+  activePage?:
+    | "docs"
+    | "thesis"
+    | "brier"
+    | "paper"
+    | "forecasts"
+    | "packs"
+    | "log";
 }) {
   return (
     <header
@@ -63,6 +70,21 @@ export function Header({
             Thesis
           </Link>
           <Link
+            href="/brier"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "brier"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "brier"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Brier
+          </Link>
+          <Link
             href="/"
             className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline ${
               activePage === "forecasts"
@@ -76,6 +98,21 @@ export function Header({
             }
           >
             Forecasts
+          </Link>
+          <Link
+            href="/packs"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "packs"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "packs"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Packs
           </Link>
           <Link
             href="/log"

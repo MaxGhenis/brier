@@ -6,7 +6,6 @@ import {
   FORECAST_CELLS,
   formatValue,
   getForecastCountry,
-  getResolutionResult,
   type ForecastCell,
 } from "@/data/forecast-cells";
 import {
@@ -44,12 +43,36 @@ export const metadata: Metadata = {
   },
 };
 
+interface ScoreboardSummary {
+  scored: number;
+  meanNormalizedCrps: number | null;
+  meanCrps: number | null;
+  meanAbsoluteError: number | null;
+  meanNormalizedAbsoluteError: number | null;
+  intervalCoverage: number | null;
+}
+
+interface ScoreboardGroup extends ScoreboardSummary {
+  label: string;
+  recorded: number;
+  nextResolutionDate?: string;
+}
+
+interface Scoreboard {
+  overall: ScoreboardSummary;
+  byAgent: ScoreboardGroup[];
+  byModel: ScoreboardGroup[];
+  byRunType: ScoreboardGroup[];
+  bestScores: ResolvedForecastScore[];
+  worstScores: ResolvedForecastScore[];
+}
+
 export default async function ThesisLogPage() {
   const ledger = await loadPolicyEngineLedger();
   const forecasts = withResolvedOutcomes(FORECAST_CELLS, ledger);
   const specs = buildPredictionSpecs(forecasts);
   const runs = buildRecordedPredictionRunRecords(forecasts, specs);
-  const logEntries = buildThesisLog(forecasts);
+  const logEntries = buildThesisLog(forecasts, ledger);
   const recordedPredictions = logEntries.filter(
     (entry): entry is PredictionRecordedLogEntry =>
       isPredictionRecordedLogEntry(entry),
@@ -59,14 +82,14 @@ export default async function ThesisLogPage() {
       isPredictionResolvedLogEntry(entry),
   );
   const scores = scoreResolvedForecasts(forecasts, ledger);
-  const resolutionQueue = buildResolutionQueue(forecasts);
+  const resolutionQueue = buildResolutionQueue(forecasts, ledger);
   const visibleResolutionQueue = resolutionQueue.slice(0, 12);
+  const scoreboard = buildScoreboard(recordedPredictions, scores, forecasts);
 
   const intervalCoverage =
-    scores.length === 0
+    scoreboard.overall.intervalCoverage === null
       ? null
-      : scores.filter((score) => score.interval80Covered).length /
-        scores.length;
+      : scoreboard.overall.intervalCoverage;
 
   return (
     <div>
@@ -128,6 +151,8 @@ export default async function ThesisLogPage() {
           />
         </section>
 
+        <ScoreboardPanel scoreboard={scoreboard} forecasts={forecasts} />
+
         <ProductionContractPanel specs={specs} runs={runs} />
 
         <section
@@ -162,13 +187,15 @@ export default async function ThesisLogPage() {
             </span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[920px] border-collapse text-left [font-family:var(--font-body)] text-[0.84rem]">
+            <table className="w-full min-w-[1160px] border-collapse text-left [font-family:var(--font-body)] text-[0.84rem]">
               <thead>
                 <tr className="border-b border-[var(--theme-border)] [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
                   <th className="py-3 pr-5 font-medium">prediction</th>
                   <th className="py-3 pr-5 font-medium">geo</th>
                   <th className="py-3 pr-5 font-medium">recorded</th>
-                  <th className="py-3 pr-5 font-medium">agent</th>
+                  <th className="py-3 pr-5 font-medium">agent / model</th>
+                  <th className="py-3 pr-5 font-medium">activity</th>
+                  <th className="py-3 pr-5 font-medium">packs</th>
                   <th className="py-3 pr-5 font-medium">estimate</th>
                   <th className="py-3 pr-5 font-medium">80% interval</th>
                   <th className="py-3 font-medium">cdf</th>
@@ -176,10 +203,7 @@ export default async function ThesisLogPage() {
               </thead>
               <tbody>
                 {recordedPredictions.map((entry) => (
-                  <RecordedPredictionRow
-                    entry={entry}
-                    key={entry.forecastSlug}
-                  />
+                  <RecordedPredictionRow entry={entry} key={entry.runId} />
                 ))}
               </tbody>
             </table>
@@ -199,14 +223,16 @@ export default async function ThesisLogPage() {
             </span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] border-collapse text-left [font-family:var(--font-body)] text-[0.84rem]">
+            <table className="w-full min-w-[1040px] border-collapse text-left [font-family:var(--font-body)] text-[0.84rem]">
               <thead>
                 <tr className="border-b border-[var(--theme-border)] [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
                   <th className="py-3 pr-5 font-medium">prediction</th>
                   <th className="py-3 pr-5 font-medium">geo</th>
+                  <th className="py-3 pr-5 font-medium">run type</th>
                   <th className="py-3 pr-5 font-medium">forecast</th>
                   <th className="py-3 pr-5 font-medium">actual</th>
                   <th className="py-3 pr-5 font-medium">error</th>
+                  <th className="py-3 pr-5 font-medium">nCRPS</th>
                   <th className="py-3 pr-5 font-medium">CRPS</th>
                   <th className="py-3 pr-5 font-medium">PIT</th>
                   <th className="py-3 font-medium">80%</th>
@@ -222,7 +248,7 @@ export default async function ThesisLogPage() {
                   return (
                     <ScoreRow
                       forecast={forecast}
-                      key={score.forecastSlug}
+                      key={score.scoreId}
                       score={score}
                     />
                   );
@@ -278,7 +304,7 @@ function ProductionContractPanel({
         <ContractStep
           label="runner"
           value={sampleRun?.runner.id ?? "thesis.recorded-agent-runner"}
-          detail="Turns a spec and tool context into a public trace, 201-point CDF, and run record."
+          detail="Turns a spec, tool context, and optional pack set into one or more public traces, 201-point CDFs, and run records."
         />
         <ContractStep
           label="store"
@@ -335,6 +361,250 @@ function MetricCard({
       <p className="mt-3 [font-family:var(--font-display)] text-[2rem] font-semibold leading-none text-[var(--theme-text)]">
         {value}
       </p>
+    </div>
+  );
+}
+
+function ScoreboardPanel({
+  forecasts,
+  scoreboard,
+}: {
+  forecasts: ForecastCell[];
+  scoreboard: Scoreboard;
+}) {
+  return (
+    <section
+      className="mb-8 rounded-xl border bg-[var(--theme-bg-elevated)] p-6"
+      style={{ borderColor: "var(--theme-border)" }}
+    >
+      <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <p className="mb-2 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.15em] text-[var(--theme-text-dim)]">
+            scoring
+          </p>
+          <h2 className="[font-family:var(--font-display)] text-[1.05rem] font-semibold text-[var(--theme-text)]">
+            Scoreboard
+          </h2>
+        </div>
+        <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+          {scoreboard.overall.scored} scored · nCRPS = CRPS / 80% width
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 border-y border-[var(--theme-border)] sm:grid-cols-2 lg:grid-cols-4">
+        <ScoreSummaryCell
+          detail="lower is better"
+          label="mean nCRPS"
+          value={formatNullableScore(scoreboard.overall.meanNormalizedCrps)}
+        />
+        <ScoreSummaryCell
+          detail="raw units"
+          label="mean CRPS"
+          value={formatNullableScore(scoreboard.overall.meanCrps)}
+        />
+        <ScoreSummaryCell
+          detail="raw units"
+          label="mean abs error"
+          value={formatNullableScore(scoreboard.overall.meanAbsoluteError)}
+        />
+        <ScoreSummaryCell
+          detail="target: 80%"
+          label="80% coverage"
+          value={formatRate(scoreboard.overall.intervalCoverage)}
+        />
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-7 xl:grid-cols-3">
+        <ScoreGroupTable rows={scoreboard.byAgent} title="By agent" />
+        <ScoreGroupTable rows={scoreboard.byModel} title="By model" />
+        <ScoreGroupTable
+          rows={scoreboard.byRunType}
+          showNextResolution
+          title="By run type"
+        />
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-7 lg:grid-cols-2">
+        <ScoreExtremesTable
+          forecasts={forecasts}
+          scores={scoreboard.bestScores}
+          title="Best nCRPS"
+        />
+        <ScoreExtremesTable
+          forecasts={forecasts}
+          scores={scoreboard.worstScores}
+          title="Largest nCRPS"
+        />
+      </div>
+    </section>
+  );
+}
+
+function ScoreSummaryCell({
+  detail,
+  label,
+  value,
+}: {
+  detail: string;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="border-b border-[var(--theme-border)] py-4 pr-5 sm:border-r lg:border-b-0">
+      <p className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
+        {label}
+      </p>
+      <p className="mt-2 [font-family:var(--font-display)] text-[1.75rem] font-semibold leading-none text-[var(--theme-text)]">
+        {value}
+      </p>
+      <p className="mt-2 text-[0.74rem] text-[var(--theme-text-muted)]">
+        {detail}
+      </p>
+    </div>
+  );
+}
+
+function ScoreGroupTable({
+  rows,
+  showNextResolution = false,
+  title,
+}: {
+  rows: ScoreboardGroup[];
+  showNextResolution?: boolean;
+  title: string;
+}) {
+  return (
+    <div>
+      <h3 className="mb-3 [font-family:var(--font-display)] text-[0.96rem] font-semibold text-[var(--theme-text)]">
+        {title}
+      </h3>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] border-collapse text-left text-[0.78rem]">
+          <thead>
+            <tr className="border-b border-[var(--theme-border)] [font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              <th className="py-3 pr-4 font-medium">group</th>
+              <th className="py-3 pr-4 font-medium">runs</th>
+              <th className="py-3 pr-4 font-medium">scored</th>
+              <th className="py-3 pr-4 font-medium">nCRPS</th>
+              <th className="py-3 pr-4 font-medium">CRPS</th>
+              <th className="py-3 pr-4 font-medium">80%</th>
+              {showNextResolution ? (
+                <th className="py-3 font-medium">next</th>
+              ) : null}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                className="border-b border-[var(--theme-border)] last:border-b-0"
+                key={row.label}
+              >
+                <td className="py-3 pr-4 font-medium text-[var(--theme-text)]">
+                  {row.label}
+                </td>
+                <td className="py-3 pr-4 text-[var(--theme-text-muted)]">
+                  {row.recorded}
+                </td>
+                <td className="py-3 pr-4 text-[var(--theme-text-muted)]">
+                  {row.scored}
+                </td>
+                <td className="py-3 pr-4 text-[var(--theme-text)]">
+                  {formatNullableScore(row.meanNormalizedCrps)}
+                </td>
+                <td className="py-3 pr-4 text-[var(--theme-text)]">
+                  {formatNullableScore(row.meanCrps)}
+                </td>
+                <td className="py-3 pr-4 text-[var(--theme-text)]">
+                  {formatRate(row.intervalCoverage)}
+                </td>
+                {showNextResolution ? (
+                  <td className="py-3 text-[var(--theme-text-muted)]">
+                    {row.nextResolutionDate
+                      ? formatDisplayDate(row.nextResolutionDate)
+                      : row.scored < row.recorded
+                        ? "pending"
+                        : "complete"}
+                  </td>
+                ) : null}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function ScoreExtremesTable({
+  forecasts,
+  scores,
+  title,
+}: {
+  forecasts: ForecastCell[];
+  scores: ResolvedForecastScore[];
+  title: string;
+}) {
+  return (
+    <div>
+      <h3 className="mb-3 [font-family:var(--font-display)] text-[0.96rem] font-semibold text-[var(--theme-text)]">
+        {title}
+      </h3>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] border-collapse text-left text-[0.78rem]">
+          <thead>
+            <tr className="border-b border-[var(--theme-border)] [font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              <th className="py-3 pr-4 font-medium">prediction</th>
+              <th className="py-3 pr-4 font-medium">run</th>
+              <th className="py-3 pr-4 font-medium">nCRPS</th>
+              <th className="py-3 pr-4 font-medium">error</th>
+              <th className="py-3 font-medium">80%</th>
+            </tr>
+          </thead>
+          <tbody>
+            {scores.map((score) => {
+              const forecast = getForecastBySlug(score.forecastSlug, forecasts);
+              return (
+                <tr
+                  className="border-b border-[var(--theme-border)] last:border-b-0"
+                  key={score.scoreId}
+                >
+                  <td className="max-w-[260px] py-3 pr-4 align-top">
+                    <Link
+                      className="text-[var(--theme-text)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
+                      href={`/${score.forecastSlug}`}
+                    >
+                      {forecast?.title ?? score.forecastSlug}
+                    </Link>
+                    <div className="mt-1 break-all [font-family:var(--font-mono)] text-[0.62rem] text-[var(--theme-text-dim)]">
+                      {score.dataPointId}
+                    </div>
+                  </td>
+                  <td className="py-3 pr-4 align-top">
+                    <div className="text-[var(--theme-text)]">
+                      {score.runLabel}
+                    </div>
+                    <div className="mt-1 [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                      {getScoreRunTypeLabel(score)}
+                    </div>
+                    <div className="mt-1 break-words [font-family:var(--font-mono)] text-[0.58rem] text-[var(--theme-text-dim)]">
+                      {score.model ?? "unreported model"}
+                    </div>
+                  </td>
+                  <td className="py-3 pr-4 align-top text-[var(--theme-text)]">
+                    {formatCompactNumber(score.normalizedCrps)}
+                  </td>
+                  <td className="py-3 pr-4 align-top text-[var(--theme-text)]">
+                    {formatSignedValue(score.signedError, score.unit)}
+                  </td>
+                  <td className="py-3 align-top text-[var(--theme-text-muted)]">
+                    {score.interval80Covered ? "inside" : "outside"}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -423,6 +693,9 @@ function RecordedPredictionRow({
         <div className="mt-1 break-all [font-family:var(--font-mono)] text-[0.68rem] text-[var(--theme-text-dim)]">
           {entry.dataPointId}
         </div>
+        <div className="mt-1 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
+          {entry.runLabel}
+        </div>
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text-muted)]">
         {COUNTRY_LABEL[country]}
@@ -430,8 +703,50 @@ function RecordedPredictionRow({
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {entry.recordedAt ? formatLedgerTimestamp(entry.recordedAt) : "seed"}
       </td>
-      <td className="max-w-[180px] py-4 pr-5 align-top text-[var(--theme-text-muted)]">
-        {entry.agent ?? "prototype seed"}
+      <td className="max-w-[190px] py-4 pr-5 align-top">
+        <div className="text-[var(--theme-text)]">
+          {entry.agent ?? "prototype seed"}
+        </div>
+        <div className="mt-1 break-words [font-family:var(--font-mono)] text-[0.62rem] text-[var(--theme-text-dim)]">
+          {entry.model ?? "unreported model"}
+        </div>
+      </td>
+      <td className="max-w-[180px] py-4 pr-5 align-top">
+        {entry.activityLog?.length ? (
+          <div>
+            <div className="[font-family:var(--font-mono)] text-[0.66rem] uppercase tracking-[0.08em] text-[var(--theme-text)]">
+              {entry.activityLog.length} artifacts
+            </div>
+            <div className="mt-1 text-[0.72rem] leading-[1.45] text-[var(--theme-text-muted)]">
+              {entry.activityLog
+                .slice(0, 3)
+                .map((artifact) => artifact.artifactType.replace(/_/g, " "))
+                .join(", ")}
+            </div>
+          </div>
+        ) : (
+          <span className="[font-family:var(--font-mono)] text-[0.66rem] text-[var(--theme-text-dim)]">
+            trace only
+          </span>
+        )}
+      </td>
+      <td className="max-w-[220px] py-4 pr-5 align-top">
+        {entry.packSet ? (
+          <div>
+            <div className="[font-family:var(--font-mono)] text-[0.66rem] uppercase tracking-[0.08em] text-[var(--theme-text)]">
+              {entry.packSet.label}
+            </div>
+            <div className="mt-1 text-[0.72rem] leading-[1.45] text-[var(--theme-text-muted)]">
+              {entry.packSet.packs.length === 0
+                ? "none"
+                : entry.packSet.packs.map((pack) => pack.label).join(", ")}
+            </div>
+          </div>
+        ) : (
+          <span className="[font-family:var(--font-mono)] text-[0.66rem] text-[var(--theme-text-dim)]">
+            unreported
+          </span>
+        )}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {formatValue(summary.pointEstimate, forecast.unit)}
@@ -455,8 +770,6 @@ function ScoreRow({
   score: ResolvedForecastScore;
 }) {
   const country = getForecastCountry(forecast);
-  const result = getResolutionResult(forecast);
-  const observedValue = forecast.resolvedOutcome?.value;
 
   return (
     <tr className="border-b border-[var(--theme-border)] last:border-b-0">
@@ -470,20 +783,37 @@ function ScoreRow({
         <div className="mt-1 break-all [font-family:var(--font-mono)] text-[0.68rem] text-[var(--theme-text-dim)]">
           {score.dataPointId}
         </div>
+        <div className="mt-1 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
+          {score.runLabel}
+        </div>
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text-muted)]">
         {COUNTRY_LABEL[country]}
+      </td>
+      <td className="max-w-[160px] py-4 pr-5 align-top">
+        <div className="[font-family:var(--font-mono)] text-[0.66rem] uppercase tracking-[0.08em] text-[var(--theme-text)]">
+          {getScoreRunTypeLabel(score)}
+        </div>
+        <div className="mt-1 break-words [font-family:var(--font-mono)] text-[0.6rem] text-[var(--theme-text-dim)]">
+          {score.model ?? "unreported model"}
+        </div>
+        {score.packSet ? (
+          <div className="mt-1 text-[0.72rem] leading-[1.45] text-[var(--theme-text-muted)]">
+            {score.packSet.label}
+          </div>
+        ) : null}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {formatValue(score.pointEstimate, score.unit)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
-        {observedValue === undefined
-          ? "pending"
-          : formatValue(observedValue, score.unit)}
+        {formatValue(score.observedValue, score.unit)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {formatSignedValue(score.signedError, score.unit)}
+      </td>
+      <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
+        {formatCompactNumber(score.normalizedCrps)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {formatCompactNumber(score.crps)}
@@ -494,12 +824,12 @@ function ScoreRow({
       <td className="py-4 align-top">
         <span
           className={`rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] ${
-            result === "inside"
+            score.interval80Covered
               ? "border-[var(--color-horizon-300)] bg-[var(--color-horizon-50)] text-[var(--color-horizon-700)]"
               : "border-[#F2DCAF] bg-[#FFF4DD] text-[#7A5C20]"
           }`}
         >
-          {result === "inside" ? "inside" : "outside"}
+          {score.interval80Covered ? "inside" : "outside"}
         </span>
       </td>
     </tr>
@@ -513,10 +843,175 @@ function getForecastBySlug(
   return forecasts.find((forecast) => forecast.slug === slug);
 }
 
+function buildScoreboard(
+  recordedPredictions: PredictionRecordedLogEntry[],
+  scores: ResolvedForecastScore[],
+  forecasts: ForecastCell[],
+): Scoreboard {
+  const scoresByNormalizedCrps = [...scores].sort((left, right) => {
+    const crpsDelta = left.normalizedCrps - right.normalizedCrps;
+    if (crpsDelta !== 0) return crpsDelta;
+    return left.absoluteError - right.absoluteError;
+  });
+
+  return {
+    overall: summarizeScores(scores),
+    byAgent: buildScoreboardGroups({
+      forecasts,
+      getRecordedLabel: (entry) => entry.agent ?? "prototype seed",
+      getScoreLabel: (score) => score.agent ?? "prototype seed",
+      recordedPredictions,
+      scores,
+    }),
+    byModel: buildScoreboardGroups({
+      forecasts,
+      getRecordedLabel: (entry) => entry.model ?? "unreported model",
+      getScoreLabel: (score) => score.model ?? "unreported model",
+      recordedPredictions,
+      scores,
+    }),
+    byRunType: buildScoreboardGroups({
+      forecasts,
+      getRecordedLabel: getRecordedRunTypeLabel,
+      getScoreLabel: getScoreRunTypeLabel,
+      labelOrder: ["Primary", "No packs", "With packs", "Ensemble"],
+      recordedPredictions,
+      scores,
+    }),
+    bestScores: scoresByNormalizedCrps.slice(0, 5),
+    worstScores: [...scoresByNormalizedCrps].reverse().slice(0, 5),
+  };
+}
+
+function buildScoreboardGroups({
+  forecasts,
+  getRecordedLabel,
+  getScoreLabel,
+  labelOrder = [],
+  recordedPredictions,
+  scores,
+}: {
+  forecasts: ForecastCell[];
+  getRecordedLabel: (entry: PredictionRecordedLogEntry) => string;
+  getScoreLabel: (score: ResolvedForecastScore) => string;
+  labelOrder?: string[];
+  recordedPredictions: PredictionRecordedLogEntry[];
+  scores: ResolvedForecastScore[];
+}): ScoreboardGroup[] {
+  const labels = new Set<string>();
+  const recordedCounts = new Map<string, number>();
+  const nextResolutionDates = new Map<string, string>();
+  const scoredRunIds = new Set(scores.map((score) => score.runId));
+  const scoresByLabel = new Map<string, ResolvedForecastScore[]>();
+
+  for (const entry of recordedPredictions) {
+    const label = getRecordedLabel(entry);
+    labels.add(label);
+    recordedCounts.set(label, (recordedCounts.get(label) ?? 0) + 1);
+
+    if (!scoredRunIds.has(entry.runId)) {
+      const resolutionDate = getForecastBySlug(
+        entry.forecastSlug,
+        forecasts,
+      )?.resolutionDate;
+      const existingDate = nextResolutionDates.get(label);
+      if (resolutionDate && (!existingDate || resolutionDate < existingDate)) {
+        nextResolutionDates.set(label, resolutionDate);
+      }
+    }
+  }
+
+  for (const score of scores) {
+    const label = getScoreLabel(score);
+    labels.add(label);
+    const scoreGroup = scoresByLabel.get(label) ?? [];
+    scoreGroup.push(score);
+    scoresByLabel.set(label, scoreGroup);
+  }
+
+  const labelOrderIndex = new Map(
+    labelOrder.map((label, index) => [label, index]),
+  );
+
+  return [...labels]
+    .map((label) => ({
+      label,
+      recorded: recordedCounts.get(label) ?? 0,
+      nextResolutionDate: nextResolutionDates.get(label),
+      ...summarizeScores(scoresByLabel.get(label) ?? []),
+    }))
+    .sort((left, right) => {
+      const leftOrder = labelOrderIndex.get(left.label);
+      const rightOrder = labelOrderIndex.get(right.label);
+      if (leftOrder !== undefined || rightOrder !== undefined) {
+        return (
+          (leftOrder ?? Number.MAX_SAFE_INTEGER) -
+          (rightOrder ?? Number.MAX_SAFE_INTEGER)
+        );
+      }
+      if (right.scored !== left.scored) return right.scored - left.scored;
+      if (right.recorded !== left.recorded) {
+        return right.recorded - left.recorded;
+      }
+      return left.label.localeCompare(right.label);
+    });
+}
+
+function summarizeScores(scores: ResolvedForecastScore[]): ScoreboardSummary {
+  return {
+    scored: scores.length,
+    meanNormalizedCrps: mean(scores.map((score) => score.normalizedCrps)),
+    meanCrps: mean(scores.map((score) => score.crps)),
+    meanAbsoluteError: mean(scores.map((score) => score.absoluteError)),
+    meanNormalizedAbsoluteError: mean(
+      scores.map((score) => score.normalizedAbsoluteError),
+    ),
+    intervalCoverage:
+      scores.length === 0
+        ? null
+        : scores.filter((score) => score.interval80Covered).length /
+          scores.length,
+  };
+}
+
+function mean(values: number[]): number | null {
+  if (values.length === 0) return null;
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function getRecordedRunTypeLabel(entry: PredictionRecordedLogEntry): string {
+  return formatRunTypeLabel(entry.packSet?.mode ?? "primary");
+}
+
+function getScoreRunTypeLabel(score: ResolvedForecastScore): string {
+  return formatRunTypeLabel(score.packMode);
+}
+
+function formatRunTypeLabel(mode: string): string {
+  switch (mode) {
+    case "none":
+      return "No packs";
+    case "with_packs":
+      return "With packs";
+    case "ensemble":
+      return "Ensemble";
+    default:
+      return "Primary";
+  }
+}
+
 function formatSignedValue(value: number, unit: ForecastCell["unit"]): string {
   const formatted = formatValue(Math.abs(value), unit).replace(/^\+/, "");
   if (value === 0) return formatted;
   return `${value > 0 ? "+" : "-"}${formatted}`;
+}
+
+function formatNullableScore(value: number | null): string {
+  return value === null ? "n/a" : formatCompactNumber(value);
+}
+
+function formatRate(value: number | null): string {
+  return value === null ? "n/a" : `${Math.round(value * 100)}%`;
 }
 
 function formatCompactNumber(value: number): string {
