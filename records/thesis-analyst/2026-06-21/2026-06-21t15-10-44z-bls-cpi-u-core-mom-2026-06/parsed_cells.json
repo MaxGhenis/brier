@@ -1,0 +1,106 @@
+[
+  {
+    "slug": "us-core-cpi-mom-2026-06",
+    "country": "US",
+    "type": "data",
+    "title": "US core CPI MoM, June 2026",
+    "question": "What will the BLS first print report for the seasonally adjusted month-over-month percent change in CPI-U all items less food and energy for June 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.3,
+    "ciLow": 0.1,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index Summary",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first BLS Consumer Price Index Summary for June 2026, Table A, CPI-U U.S. city average, seasonally adjusted percent change from preceding month, row 'All items less food and energy'. Use the initially published one-decimal percent value released on July 14, 2026, ignoring later revisions or annual seasonal-adjustment updates.",
+    "dataPointId": "bls.cpi_u.all_items_less_food_energy.sa_mom.2026_06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 latest BLS rounded core CPI MoM",
+        "value": 0.2
+      },
+      {
+        "label": "2026-04 BLS rounded core CPI MoM",
+        "value": 0.4
+      },
+      {
+        "label": "2026-03 BLS rounded core CPI MoM",
+        "value": 0.2
+      },
+      {
+        "label": "2026-02 BLS rounded core CPI MoM",
+        "value": 0.2
+      },
+      {
+        "label": "2026-01 BLS rounded core CPI MoM",
+        "value": 0.3
+      }
+    ],
+    "drivers": [
+      "Recent core CPI has centered near 0.2 to 0.3 percent month over month",
+      "April's 0.4 percent print shows upside risk is still material",
+      "Shelter inflation remains positive but not accelerating sharply in the latest BLS text",
+      "Energy shock affects headline CPI more than the core resolver",
+      "One-decimal BLS rounding makes 0.25 to 0.349 percent publish as 0.3"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://fred.stlouisfed.org/series/CPILFESL"
+    ],
+    "runAt": "2026-06-21T15:11:07Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 US core CPI month-over-month first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the BLS first print for CPI-U all items less food and energy, seasonally adjusted percent change from the preceding month, for reference month June 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS CPI release calendar for the June 2026 reference month.",
+        "result": "BLS schedule lists June 2026 CPI release on Jul. 14, 2026 at 08:30 AM; adjacent releases include May 2026 on Jun. 10, 2026 and July 2026 on Aug. 12, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the latest BLS Consumer Price Index Summary for May 2026 and Table A.",
+        "result": "BLS reported CPI-U all items less food and energy rose 0.2 percent in May 2026, after 0.4 percent in Apr. 2026, 0.2 percent in Mar. 2026, 0.2 percent in Feb. 2026, and 0.3 percent in Jan. 2026; the 12-month core rate was 2.9 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked FRED mirror for the BLS core CPI-U seasonally adjusted index CPILFESL.",
+        "result": "FRED showed May 2026 CPILFESL at 336.121, Apr. 2026 at 335.423, Mar. 2026 at 334.165, Feb. 2026 at 333.512, and Jan. 2026 at 332.793; next release date shown as Jul. 14, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "run_clock",
+        "call": "Recorded the actual UTC runtime with date -u +%Y-%m-%dT%H:%M:%SZ.",
+        "result": "Runtime command returned 2026-06-21T15:11:07Z."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate step: the recent rounded BLS core monthly sequence for Jan-May 2026 is 0.3, 0.2, 0.2, 0.4, 0.2, with a mean of 0.26 and a median of 0.2; adding the FRED exact index changes keeps the center close to a rounded 0.2 to 0.3 print."
+      },
+      {
+        "kind": "math",
+        "text": "I center the forecast at 0.28 percent exact monthly growth, which rounds to a BLS-style 0.3 percent print. A practical 80 percent interval of 0.1 to 0.5 covers a downside soft-core month and an upside repeat of April-style firmness plus rounding risk."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the May release notes headline inflation was being lifted by energy, while the core row was only 0.2 percent; because energy is excluded from the resolver, the energy shock is not enough by itself to push core above 0.3, but second-round transportation or services effects keep upside risk in the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.3,
+        "ciLow": 0.1,
+        "ciHigh": 0.5
+      }
+    ]
+  }
+]

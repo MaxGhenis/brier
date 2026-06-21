@@ -1,0 +1,108 @@
+[
+  {
+    "slug": "abs-labour-unemployment-rate-2026-05",
+    "country": "AU",
+    "type": "data",
+    "title": "Australia unemployment rate, May 2026",
+    "question": "What will the Australian Bureau of Statistics first-published seasonally adjusted unemployment rate for Labour Force, Australia, May 2026 be?",
+    "unit": "percent",
+    "pointEstimate": 4.5,
+    "ciLow": 4.2,
+    "ciHigh": 4.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-25",
+    "resolutionSource": "Australian Bureau of Statistics, Labour Force, Australia, May 2026",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/may-2026",
+    "resolutionRule": "Resolve to the first ABS-published seasonally adjusted unemployment rate for the May 2026 reference period in Labour Force, Australia, rounded to one decimal percentage point as printed in the initial 25/06/2026 11:30am AEST release. Ignore later revisions, rebenchmarking, or annual seasonal-adjustment revisions after the first print.",
+    "dataPointId": "abs.labour.unemployment_rate.2026-05.seasonally_adjusted.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-01 seasonally adjusted unemployment rate",
+        "value": 4.1
+      },
+      {
+        "label": "2026-02 seasonally adjusted unemployment rate",
+        "value": 4.3
+      },
+      {
+        "label": "2026-03 seasonally adjusted unemployment rate",
+        "value": 4.3
+      },
+      {
+        "label": "2026-04 seasonally adjusted unemployment rate",
+        "value": 4.5
+      },
+      {
+        "label": "2026-04 trend unemployment rate",
+        "value": 4.3
+      }
+    ],
+    "drivers": [
+      "April jobless-rate jump raises near-term persistence risk",
+      "Trend unemployment rate still lower than seasonally adjusted print",
+      "Participation eased in April, limiting further unemployment-rate upside",
+      "Employment fell in April but hours worked rose",
+      "Monthly labour-force sampling volatility can reverse one-month moves"
+    ],
+    "sourceContext": [
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia",
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jan-2026",
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/feb-2026",
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/mar-2026"
+    ],
+    "runAt": "2026-06-17T02:03:58Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast Australia May 2026 unemployment first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the ABS Labour Force, Australia May 2026 release, using the seasonally adjusted national unemployment rate on the first official print. The ABS publication page says the May 2026 release is scheduled for 25/06/2026 at 11:30am AEST, so the resolution date is 2026-06-25."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ABS Labour Force, Australia release index lookup for future release date",
+        "result": "Fetched future release schedule: Labour Force, Australia, May 2026 release date 25/06/2026 11:30am AEST; June 2026 release date 23/07/2026 11:30am AEST."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ABS latest Labour Force April 2026 key statistics lookup",
+        "result": "Fetched April 2026 seasonally adjusted unemployment rate 4.5%, up 0.2 ppt; unemployed people 692,500; employment decreased by 18,600 to 14,737,400; participation rate 66.7%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ABS January-February-March 2026 Labour Force releases lookup",
+        "result": "Fetched seasonally adjusted unemployment rates: January 2026 4.1%, February 2026 4.3%, March 2026 4.3%; February participation 66.9%, March participation 66.8%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ABS trend and survey-timing context from April 2026 Labour Force release",
+        "result": "Fetched April 2026 trend unemployment rate 4.3%, trend unemployed people 669,500, seasonally adjusted unemployed people 692,500, and May 2026 survey reference weeks 3 May 2026 to 16 May 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class: adjacent-month Australian unemployment prints usually move by 0.0 to 0.2 percentage points at one-decimal precision outside shocks. The latest four seasonally adjusted prints, 4.1, 4.3, 4.3, and 4.5, imply a level around the mid-4s, while the April trend estimate of 4.3 suggests not all of the April spike should be extrapolated."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: April could mark genuine labour-market weakening, with employment down 18,600 and unemployed people up 33,000, so a further increase to 4.6 or 4.7 is plausible. Against that, hours worked rose 16 million and participation slipped to 66.7%, so the unemployment rate may stabilize rather than keep rising immediately."
+      },
+      {
+        "kind": "math",
+        "text": "Use April seasonally adjusted 4.5 as the anchor. Blend 60% latest print 4.5, 25% recent average of Jan-Apr prints (4.1+4.3+4.3+4.5)/4 = 4.3, and 15% April trend 4.3: 0.60*4.5 + 0.25*4.3 + 0.15*4.3 = 4.42, then round the forecast to the ABS one-decimal print grid and lean slightly toward persistence after April's jump, giving 4.5. An 80% interval of 4.2 to 4.8 allows roughly minus 0.3 to plus 0.3 around the point."
+      },
+      {
+        "kind": "forecast",
+        "point": 4.5,
+        "ciLow": 4.2,
+        "ciHigh": 4.8
+      }
+    ]
+  }
+]

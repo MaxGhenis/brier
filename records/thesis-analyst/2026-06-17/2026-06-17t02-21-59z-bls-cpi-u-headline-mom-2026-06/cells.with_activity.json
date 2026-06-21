@@ -1,0 +1,163 @@
+[
+  {
+    "slug": "bls-cpi-u-headline-mom-2026-06",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI-U headline m/m, Jun 2026",
+    "question": "BLS Consumer Price Index for All Urban Consumers (CPI-U), U.S. city average, all items, seasonally adjusted percent change from May 2026 to June 2026, first print",
+    "unit": "percent",
+    "pointEstimate": 0.4,
+    "ciLow": 0.1,
+    "ciHigh": 0.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index Summary",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first-published BLS CPI Summary Table A value for All items, CPI-U U.S. city average, seasonally adjusted change from preceding month for June 2026, expressed in percent and rounded to one decimal place. Ignore later revisions, seasonal-factor re-estimates, and mirrored sources.",
+    "dataPointId": "bls.cpi_u.all_items.sa_mom.2026_06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-03 all items m/m SA",
+        "value": 0.9
+      },
+      {
+        "label": "2026-04 all items m/m SA",
+        "value": 0.6
+      },
+      {
+        "label": "2026-05 all items m/m SA",
+        "value": 0.5
+      },
+      {
+        "label": "2026-05 core m/m SA",
+        "value": 0.2
+      },
+      {
+        "label": "2026-05 energy m/m SA",
+        "value": 3.9
+      }
+    ],
+    "drivers": [
+      "Recent headline CPI momentum remains elevated",
+      "Energy added strongly in March through May",
+      "Core CPI cooled to 0.2 percent in May",
+      "Food inflation was modest at 0.2 percent in May",
+      "Gasoline strength is the main upside risk"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm"
+    ],
+    "runAt": "2026-06-17T02:22:09Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 headline CPI-U m/m first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the BLS first print for CPI-U all items, U.S. city average, seasonally adjusted percent change from May 2026 to June 2026, released in the CPI Summary and Table A."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS CPI release calendar for the June 2026 reference month",
+        "result": "June 2026 CPI release date 2026-07-14; release time 08:30 ET."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS May 2026 CPI Summary headline and 12-month figures",
+        "result": "May 2026 all items CPI-U rose 0.5 percent seasonally adjusted; 12-month all items rose 4.2 percent; not seasonally adjusted CPI-U index level was 335.123."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Table A recent all-items CPI-U seasonally adjusted changes",
+        "result": "All items m/m SA: Dec 2025 0.3, Jan 2026 0.2, Feb 2026 0.3, Mar 2026 0.9, Apr 2026 0.6, May 2026 0.5."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Table A component momentum for May 2026",
+        "result": "May 2026 energy rose 3.9 percent, gasoline rose 7.0 percent, food rose 0.2 percent, shelter rose 0.3 percent, core rose 0.2 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class: the last six published all-items monthly changes average about 0.47 percent and have a median of 0.4 percent, but that reference class includes an unusually large energy impulse in March through May."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: if gasoline or energy prices remain as strong as in May, headline CPI could print above 0.5 percent even with core near 0.2 percent; if energy mean-reverts, headline could fall toward 0.2 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Use the six-month headline median of 0.4 as the anchor; lean slightly below the 0.47 average because May core was 0.2 and food was 0.2, while keep a wide 80% interval of 0.1 to 0.8 to reflect energy volatility."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.4,
+        "ciLow": 0.1,
+        "ciHigh": 0.8
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/prompt.md",
+        "sha256": "7a8ceb7ce7ed689fbeb57ad9041efd4c986dfcb4fde0dc6b9e28ca5f7e53adbc",
+        "bytes": 3591,
+        "createdAt": "2026-06-17T02:21:59Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/command.json",
+        "sha256": "37a3b229fe36505a8539e42b87184aae6c6581ba702602b724f2ad39407b07ed",
+        "bytes": 412,
+        "createdAt": "2026-06-17T02:21:59Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/stdout.txt",
+        "sha256": "4d0fd4a063d61b0e644b4e7cf4251b527c7aa3b481b7c4f8b961f8ac27efab06",
+        "bytes": 3580,
+        "createdAt": "2026-06-17T02:21:59Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/stderr.txt",
+        "sha256": "34ce9b4c4d9bee1cc69de55a5827c73e437208a5c999f5e256befec9bb18961c",
+        "bytes": 13735,
+        "createdAt": "2026-06-17T02:21:59Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/raw_response.txt",
+        "sha256": "4d0fd4a063d61b0e644b4e7cf4251b527c7aa3b481b7c4f8b961f8ac27efab06",
+        "bytes": 3580,
+        "createdAt": "2026-06-17T02:21:59Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/parsed_cells.json",
+        "sha256": "86662adfda4ee178bfdb87d7cbe3be39a2cb7e3c0197125fa622dbdb24261e63",
+        "bytes": 4387,
+        "createdAt": "2026-06-17T02:21:59Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/normalized_cells.json",
+        "sha256": "2c9d1500d84636a8262ea2f79ac6a9d698b04d90c9e201ef2094331969c13121",
+        "bytes": 4066,
+        "createdAt": "2026-06-17T02:21:59Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-21-59z-bls-cpi-u-headline-mom-2026-06/validation.json",
+        "sha256": "b4f6789a64086c45a5650ce83c9a5fe26c0bb82c6bff821c6329d67ae61bca44",
+        "bytes": 131,
+        "createdAt": "2026-06-17T02:21:59Z"
+      }
+    ]
+  }
+]

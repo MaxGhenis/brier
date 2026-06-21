@@ -7,7 +7,10 @@ import { EURO_JAPAN_EXAMPLES } from "./almanac-examples/euro-japan";
 import { GLOBAL_NEAR_TERM_EXAMPLES } from "./almanac-examples/global-near-term";
 import { HEALTH_COVERAGE_EXAMPLES } from "./almanac-examples/health";
 import { LAUNCH_CADENCE_EXAMPLES } from "./almanac-examples/launch-cadence";
+import { OCCUPATION_EMPLOYMENT_EXAMPLES } from "./almanac-examples/occupation-employment";
+import { OCCUPATION_WAGE_EXAMPLES } from "./almanac-examples/occupation-wages";
 import { TAX_CREDIT_EXAMPLES } from "./almanac-examples/tax";
+import { RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS } from "./thesis-analyst-live-comparisons";
 import { UK_EXAMPLES } from "./almanac-examples/uk";
 import { US_NEAR_TERM_EXAMPLES } from "./almanac-examples/us-near-term";
 import {
@@ -55,6 +58,8 @@ export type ForecastHorizon =
   | "next_release"
   | "plus_3m"
   | "plus_12m"
+  | "long_run"
+  | "quarterly_path"
   | "threshold";
 
 export type ResolutionPolicy = "first_print" | "fixed_vintage" | "final";
@@ -75,18 +80,67 @@ export interface ForecastSeriesMetadata {
   chainableQuestions: string[];
 }
 
+export type PredictionPackKind =
+  | "calibration"
+  | "data"
+  | "method"
+  | "model"
+  | "policy";
+
+export interface PredictionPackReference {
+  packId: string;
+  version: string;
+  label: string;
+  kind: PredictionPackKind;
+  summary: string;
+}
+
+export type PredictionPackSetMode = "none" | "with_packs" | "ensemble";
+
+export interface PredictionPackSet {
+  packSetId: string;
+  label: string;
+  mode: PredictionPackSetMode;
+  packs: PredictionPackReference[];
+  notes?: string;
+}
+
+export type PredictionRunActivityArtifactType =
+  | "prompt"
+  | "command"
+  | "stdout"
+  | "stderr"
+  | "raw_response"
+  | "parsed_cell"
+  | "normalized_cell"
+  | "validation_report"
+  | "manifest";
+
+export interface PredictionRunActivityArtifact {
+  artifactType: PredictionRunActivityArtifactType;
+  path: string;
+  sha256: string;
+  bytes: number;
+  createdAt: string;
+}
+
 export interface PredictionRunMetadata {
   kind: "recorded-agent-run";
   runAt: string;
   agent: string;
   model: string;
   sourceContext: string[];
+  runLabel?: string;
+  runDescription?: string;
+  packSet?: PredictionPackSet;
   // Versioned-agent attribution (agents/thesis-analyst): semver of the agent
   // definition plus content hashes of its system prompt and skill set, so a
   // published run is reproducible against an exact agent.
   agentVersion?: string;
   promptHash?: string;
   toolPolicyHash?: string;
+  promptMode?: string;
+  activityLog?: PredictionRunActivityArtifact[];
 }
 
 export interface ResolvedOutcome {
@@ -108,6 +162,20 @@ export type ReasoningStep =
     }
   | { kind: "math"; text: string } // styled equation/weighting line
   | { kind: "forecast"; point: number; ciLow: number; ciHigh: number };
+
+export interface ForecastComparisonRun {
+  variantId: string;
+  label: string;
+  description?: string;
+  pointEstimate: number;
+  ciLow: number;
+  ciHigh: number;
+  confidence?: number;
+  drivers?: string[];
+  predictionRun: PredictionRunMetadata;
+  predictionDistribution?: PredictionDistribution;
+  reasoning: ReasoningStep[];
+}
 
 export interface ForecastCell {
   slug: string;
@@ -131,8 +199,25 @@ export interface ForecastCell {
   conditionalOn?: string; // for conditional forecast cells
   series?: ForecastSeriesMetadata;
   predictionRun?: PredictionRunMetadata;
+  comparisonRuns?: ForecastComparisonRun[];
   resolvedOutcome?: ResolvedOutcome;
   predictionDistribution?: PredictionDistribution;
+  reasoning: ReasoningStep[];
+}
+
+export interface ForecastRunEntry {
+  variantId: string;
+  label: string;
+  description?: string;
+  isPrimary: boolean;
+  pointEstimate: number;
+  ciLow: number;
+  ciHigh: number;
+  confidence: number;
+  drivers: string[];
+  predictionRun?: PredictionRunMetadata;
+  packSet?: PredictionPackSet;
+  predictionDistribution: PredictionDistribution;
   reasoning: ReasoningStep[];
 }
 
@@ -166,6 +251,60 @@ export function getForecastRuntimeLabel(
   return "Static mock trace";
 }
 
+export function getForecastRunEntries(
+  forecast: ForecastCell,
+): ForecastRunEntry[] {
+  const primaryDistribution =
+    forecast.predictionDistribution ??
+    buildNumericCdfFromInterval({
+      pointEstimate: forecast.pointEstimate,
+      ciLow: forecast.ciLow,
+      ciHigh: forecast.ciHigh,
+    });
+  const primary: ForecastRunEntry = {
+    variantId: "primary",
+    label: forecast.predictionRun?.runLabel ?? "Headline",
+    description: forecast.predictionRun?.runDescription,
+    isPrimary: true,
+    pointEstimate: forecast.pointEstimate,
+    ciLow: forecast.ciLow,
+    ciHigh: forecast.ciHigh,
+    confidence: forecast.confidence,
+    drivers: forecast.drivers,
+    predictionRun: forecast.predictionRun,
+    packSet: forecast.predictionRun?.packSet,
+    predictionDistribution: primaryDistribution,
+    reasoning: forecast.reasoning,
+  };
+
+  return [
+    primary,
+    ...(forecast.comparisonRuns ?? []).map(
+      (run): ForecastRunEntry => ({
+        variantId: run.variantId,
+        label: run.label,
+        description: run.description,
+        isPrimary: false,
+        pointEstimate: run.pointEstimate,
+        ciLow: run.ciLow,
+        ciHigh: run.ciHigh,
+        confidence: run.confidence ?? forecast.confidence,
+        drivers: run.drivers ?? forecast.drivers,
+        predictionRun: run.predictionRun,
+        packSet: run.predictionRun.packSet,
+        predictionDistribution:
+          run.predictionDistribution ??
+          buildNumericCdfFromInterval({
+            pointEstimate: run.pointEstimate,
+            ciLow: run.ciLow,
+            ciHigh: run.ciHigh,
+          }),
+        reasoning: run.reasoning,
+      }),
+    ),
+  ];
+}
+
 export function getResolutionResult(
   forecast: ForecastCell,
 ): "inside" | "outside" | null {
@@ -184,6 +323,112 @@ export const COUNTRY_LABEL: Record<CountryCode, string> = {
   EA: "Euro area",
   JP: "Japan",
 };
+
+const PACK_REFERENCES = {
+  "base-rate-first": {
+    packId: "base-rate-first",
+    version: "0.1.0",
+    label: "Base-rate first",
+    kind: "method",
+    summary:
+      "Forces the run to state an outside-view base rate before applying current-release adjustments.",
+  },
+  "cpi-component-decomposition": {
+    packId: "cpi-component-decomposition",
+    version: "0.1.0",
+    label: "CPI component decomposition",
+    kind: "model",
+    summary:
+      "Splits inflation forecasts into energy, food, goods, shelter, and services channels before recombining.",
+  },
+  "tariff-pass-through": {
+    packId: "tariff-pass-through",
+    version: "0.1.0",
+    label: "Tariff pass-through",
+    kind: "calibration",
+    summary:
+      "Adds an asymmetric goods-price pass-through channel when tariff risk matters for the target horizon.",
+  },
+  "labor-market-momentum": {
+    packId: "labor-market-momentum",
+    version: "0.1.0",
+    label: "Labor-market momentum",
+    kind: "data",
+    summary:
+      "Combines payrolls, unemployment, claims, openings, and participation signals into a coherent labor-market nowcast.",
+  },
+  "release-vintage-calibration": {
+    packId: "release-vintage-calibration",
+    version: "0.1.0",
+    label: "Release-vintage calibration",
+    kind: "calibration",
+    summary:
+      "Calibrates uncertainty to first-print release behavior rather than revised historical series alone.",
+  },
+  "energy-price-nowcast": {
+    packId: "energy-price-nowcast",
+    version: "0.1.0",
+    label: "Energy price nowcast",
+    kind: "data",
+    summary:
+      "Tracks gasoline, crude oil, utilities, and PPI energy signals that move headline inflation before core components react.",
+  },
+  "pce-cpi-bridge": {
+    packId: "pce-cpi-bridge",
+    version: "0.1.0",
+    label: "PCE-CPI bridge",
+    kind: "model",
+    summary:
+      "Maps CPI component information into BEA PCE concepts with scope, weight, and source-data adjustments.",
+  },
+  "consumer-spending-nowcast": {
+    packId: "consumer-spending-nowcast",
+    version: "0.1.0",
+    label: "Consumer-spending nowcast",
+    kind: "data",
+    summary:
+      "Combines retail control-group momentum, auto sales, gasoline receipts, and card-spending signals before spending releases.",
+  },
+  "housing-activity-nowcast": {
+    packId: "housing-activity-nowcast",
+    version: "0.1.0",
+    label: "Housing activity nowcast",
+    kind: "data",
+    summary:
+      "Cross-checks starts, permits, mortgage rates, builder sentiment, and multifamily timing for housing release forecasts.",
+  },
+} satisfies Record<string, PredictionPackReference>;
+
+type PackReferenceId = keyof typeof PACK_REFERENCES;
+
+const NO_PACK_SET: PredictionPackSet = {
+  packSetId: "pack_set.none",
+  label: "No packs",
+  mode: "none",
+  packs: [],
+  notes:
+    "Control run for ablation: public source context and generic base-rate reasoning only.",
+};
+
+function buildPackSet({
+  packSetId,
+  label,
+  packIds,
+  notes,
+}: {
+  packSetId: string;
+  label: string;
+  packIds: PackReferenceId[];
+  notes: string;
+}): PredictionPackSet {
+  return {
+    packSetId,
+    label,
+    mode: "with_packs",
+    packs: packIds.map((packId) => PACK_REFERENCES[packId]),
+    notes,
+  };
+}
 
 export function getForecastCountry(forecast: ForecastCell): CountryCode {
   if (forecast.country) return forecast.country;
@@ -343,6 +588,153 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
       },
       { kind: "forecast", point: 10.4, ciLow: 9.8, ciHigh: 11.1 },
     ],
+    comparisonRuns: [
+      {
+        variantId: "official-poverty-control-no-packs",
+        label: "Control · cash trend",
+        description:
+          "No-pack ablation using only the official poverty history and broad labor-market direction.",
+        pointEstimate: 10.6,
+        ciLow: 9.7,
+        ciHigh: 11.4,
+        drivers: [
+          "Recent official poverty trend",
+          "Pretax earnings growth",
+          "Threshold indexation",
+          "Sampling and nonresponse noise",
+        ],
+        predictionRun: {
+          kind: "recorded-agent-run",
+          runAt: "2026-06-14T22:10:00Z",
+          agent: "brier-1.control",
+          model: "gpt-5.4",
+          runLabel: "Control · cash trend",
+          runDescription:
+            "Ablation run without Census, ASEC, or cash-income packs.",
+          sourceContext: [
+            "https://www.census.gov/topics/income-poverty/poverty.html",
+            "https://www.bls.gov/news.release/empsit.toc.htm",
+          ],
+          packSet: {
+            packSetId: "pack_set.none",
+            label: "No packs",
+            mode: "none",
+            packs: [],
+            notes:
+              "Control run for official-poverty ablation: public source context only.",
+          },
+        },
+        reasoning: [
+          { kind: "heading", text: "Control run" },
+          {
+            kind: "text",
+            text: "Without packs, this run extrapolates the 2021-2024 official poverty trend and checks whether labor-market deterioration is large enough to reverse the decline.",
+          },
+          {
+            kind: "tool",
+            tool: "census.lookup",
+            call: 'census.lookup({ report: "Poverty in the United States", series: "official_poverty_rate", years: [2021, 2024] })',
+            result: "{ y2021: 11.6, y2022: 11.5, y2023: 11.1, y2024: 10.6 }",
+          },
+          {
+            kind: "math",
+            text: "Control trend holds the 2024 rate at 10.6 with a mild downward labor-income adjustment offset by threshold growth.",
+          },
+          {
+            kind: "text",
+            text: "The interval is wider because the control does not model cash-income composition or ASEC release noise explicitly.",
+          },
+          { kind: "forecast", point: 10.6, ciLow: 9.7, ciHigh: 11.4 },
+        ],
+      },
+      {
+        variantId: "official-poverty-census-packs",
+        label: "Brier-1 · Census cash-income packs",
+        description:
+          "Pack-enabled run that bridges PolicyEngine cash income to the Census official poverty release.",
+        pointEstimate: 10.3,
+        ciLow: 9.7,
+        ciHigh: 11.0,
+        drivers: [
+          "Cash-income bridge",
+          "Employment and hours worked",
+          "ASEC release calibration",
+          "Official threshold indexation",
+        ],
+        predictionRun: {
+          kind: "recorded-agent-run",
+          runAt: "2026-06-14T22:16:00Z",
+          agent: "brier-1.packed",
+          model: "gpt-5.4",
+          runLabel: "Brier-1 · Census cash-income packs",
+          runDescription:
+            "Pack-enabled official-poverty forecast using cash-income and ASEC release checks.",
+          sourceContext: [
+            "https://www.census.gov/topics/income-poverty/poverty.html",
+            "https://www.census.gov/programs-surveys/cps.html",
+            "https://www.bls.gov/news.release/empsit.toc.htm",
+          ],
+          packSet: {
+            packSetId: "pack_set.census_official_poverty_2025.v1",
+            label: "Census official-poverty pack set",
+            mode: "with_packs",
+            packs: [
+              {
+                packId: "base-rate-first",
+                version: "0.1.0",
+                label: "Base-rate-first",
+                kind: "method",
+                summary:
+                  "Forces the agent to anchor on a resolved reference class before applying inside-view adjustments.",
+              },
+              {
+                packId: "cash-income-bridge",
+                version: "0.1.0",
+                label: "Cash-income bridge",
+                kind: "model",
+                summary:
+                  "Maps labor-market and transfer-income signals into the official pretax cash-income poverty measure.",
+              },
+              {
+                packId: "asec-release-calibration",
+                version: "0.1.0",
+                label: "ASEC release calibration",
+                kind: "calibration",
+                summary:
+                  "Adds Census ASEC sampling, vintage, and release-table uncertainty to income and poverty forecasts.",
+              },
+            ],
+            notes:
+              "Census pack set for targets that resolve in the annual ASEC income and poverty releases.",
+          },
+        },
+        reasoning: [
+          { kind: "heading", text: "Pack-enabled run" },
+          {
+            kind: "tool",
+            tool: "brier.pack.apply",
+            call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "cash-income-bridge@0.1.0", "asec-release-calibration@0.1.0"], target: "census.official_poverty_rate.2025" })',
+            result:
+              '{ admitted: 3, mode: "with_packs", required_checks: ["reference_class", "cash_income_bridge", "asec_release_error"] }',
+          },
+          {
+            kind: "tool",
+            call: 'policyengine.simulate({ policy: "current_law", year: 2025, output: "official_poverty_rate", map_to: "person", income_definition: "cash_income" })',
+            result:
+              '{ point: 10.5, ci80: [9.9, 11.0], drivers: ["earnings", "social_security_income", "threshold_indexation"] }',
+          },
+          {
+            kind: "math",
+            text: "Packed estimate = 10.6 base rate - 0.2pp labor-income improvement - 0.1pp cash-income bridge adjustment = 10.3.",
+          },
+          {
+            kind: "text",
+            text: "The packs pull the center slightly below the no-pack trend and narrow the high side because the official measure excludes noncash benefit volatility.",
+          },
+          { kind: "forecast", point: 10.3, ciLow: 9.7, ciHigh: 11.0 },
+        ],
+      },
+    ],
   },
 
   {
@@ -397,6 +789,154 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
         text: "The central estimate is nearly flat versus 2024: real wage gains help, but household composition and ASEC sampling noise can move the published median by more than the underlying economic trend.",
       },
       { kind: "forecast", point: 80600, ciLow: 78600, ciHigh: 82900 },
+    ],
+    comparisonRuns: [
+      {
+        variantId: "median-income-control-no-packs",
+        label: "Control · trend nowcast",
+        description:
+          "No-pack ablation using the recent Census median-income series and a simple wage-growth update.",
+        pointEstimate: 80100,
+        ciLow: 77500,
+        ciHigh: 83300,
+        drivers: [
+          "Recent real median income",
+          "Aggregate wage growth",
+          "Employment-to-population ratio",
+          "ASEC sampling error",
+        ],
+        predictionRun: {
+          kind: "recorded-agent-run",
+          runAt: "2026-06-14T22:22:00Z",
+          agent: "brier-1.control",
+          model: "gpt-5.4",
+          runLabel: "Control · trend nowcast",
+          runDescription:
+            "Ablation run without ASEC income or release-calibration packs.",
+          sourceContext: [
+            "https://www.census.gov/topics/income-poverty/income.html",
+            "https://www.bls.gov/news.release/realer.toc.htm",
+          ],
+          packSet: {
+            packSetId: "pack_set.none",
+            label: "No packs",
+            mode: "none",
+            packs: [],
+            notes:
+              "Control run for income nowcast ablation: public source context only.",
+          },
+        },
+        reasoning: [
+          { kind: "heading", text: "Control run" },
+          {
+            kind: "text",
+            text: "The control holds close to the 2024 estimate and applies a light wage-growth update, but does not explicitly model household-composition or ASEC release noise.",
+          },
+          {
+            kind: "tool",
+            tool: "census.lookup",
+            call: 'census.lookup({ report: "Income in the United States", series: "real_median_household_income", years: [2021, 2024] })',
+            result:
+              "{ y2021: 76330, y2022: 77540, y2023: 80610, y2024_estimate: 80100 }",
+          },
+          {
+            kind: "math",
+            text: "Control estimate = 2024 estimated median 80,100 plus near-zero real median wage drift after composition noise.",
+          },
+          {
+            kind: "text",
+            text: "The interval is wide because the control treats ASEC sampling error as a generic residual rather than a release-specific calibration.",
+          },
+          { kind: "forecast", point: 80100, ciLow: 77500, ciHigh: 83300 },
+        ],
+      },
+      {
+        variantId: "median-income-asec-packs",
+        label: "Brier-1 · ASEC income packs",
+        description:
+          "Pack-enabled median-income forecast using wage, employment, household-composition, and ASEC release checks.",
+        pointEstimate: 80800,
+        ciLow: 78900,
+        ciHigh: 82900,
+        drivers: [
+          "ASEC income nowcast",
+          "Real wage growth",
+          "Household composition",
+          "ASEC release calibration",
+        ],
+        predictionRun: {
+          kind: "recorded-agent-run",
+          runAt: "2026-06-14T22:28:00Z",
+          agent: "brier-1.packed",
+          model: "gpt-5.4",
+          runLabel: "Brier-1 · ASEC income packs",
+          runDescription:
+            "Pack-enabled median-income nowcast for the 2025 Census ASEC release.",
+          sourceContext: [
+            "https://www.census.gov/topics/income-poverty/income.html",
+            "https://www.census.gov/programs-surveys/cps.html",
+            "https://www.bls.gov/news.release/realer.toc.htm",
+          ],
+          packSet: {
+            packSetId: "pack_set.asec_income_2025.v1",
+            label: "ASEC income pack set",
+            mode: "with_packs",
+            packs: [
+              {
+                packId: "base-rate-first",
+                version: "0.1.0",
+                label: "Base-rate-first",
+                kind: "method",
+                summary:
+                  "Forces the agent to anchor on a resolved reference class before applying inside-view adjustments.",
+              },
+              {
+                packId: "asec-income-nowcast",
+                version: "0.1.0",
+                label: "ASEC income nowcast",
+                kind: "model",
+                summary:
+                  "Combines real wage, employment, and household-composition signals into a Census ASEC median-income nowcast.",
+              },
+              {
+                packId: "asec-release-calibration",
+                version: "0.1.0",
+                label: "ASEC release calibration",
+                kind: "calibration",
+                summary:
+                  "Adds Census ASEC sampling, vintage, and release-table uncertainty to income and poverty forecasts.",
+              },
+            ],
+            notes:
+              "Income pack set for Census ASEC targets with explicit release-error calibration.",
+          },
+        },
+        reasoning: [
+          { kind: "heading", text: "Pack-enabled run" },
+          {
+            kind: "tool",
+            tool: "brier.pack.apply",
+            call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "asec-income-nowcast@0.1.0", "asec-release-calibration@0.1.0"], target: "census.asec.median_household_income.2025" })',
+            result:
+              '{ admitted: 3, mode: "with_packs", required_checks: ["reference_class", "income_nowcast", "asec_release_error"] }',
+          },
+          {
+            kind: "tool",
+            call: 'policyengine.simulate({ scenario: "baseline_macro", year: 2025, output: "median_household_income_real", source: "asec" })',
+            result:
+              '{ point: 80700, ci80: [78900, 82700], drivers: ["real_wages", "employment", "household_composition"] }',
+          },
+          {
+            kind: "math",
+            text: "Packed estimate = 80,100 base + 550 wage/employment nowcast + 150 household-composition adjustment = 80,800.",
+          },
+          {
+            kind: "text",
+            text: "The ASEC packs move the center modestly above the control and tighten the lower tail by separating true income growth from release noise.",
+          },
+          { kind: "forecast", point: 80800, ciLow: 78900, ciHigh: 82900 },
+        ],
+      },
     ],
   },
 
@@ -624,6 +1164,249 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
         text: "Distribution is mildly right-skewed: more upside risk from tariff escalation and energy shocks than downside risk from a sudden disinflationary collapse. CI reflects this.",
       },
       { kind: "forecast", point: 2.6, ciLow: 2.1, ciHigh: 3.2 },
+    ],
+    comparisonRuns: [
+      {
+        variantId: "control-no-packs",
+        label: "Control · no packs",
+        description:
+          "Same CPI-U target, but with only the raw release calendar and recent CPI history available to the agent.",
+        pointEstimate: 2.5,
+        ciLow: 1.9,
+        ciHigh: 3.3,
+        drivers: [
+          "Recent CPI-U annual-average base rate",
+          "Observed month-to-month volatility",
+          "Mean reversion toward the 2017-2019 inflation regime",
+          "Energy-price tail risk",
+        ],
+        predictionRun: {
+          kind: "recorded-agent-run",
+          runAt: "2026-06-14T21:50:00Z",
+          agent: "brier-1.control",
+          model: "gpt-5.4",
+          runLabel: "Control · no packs",
+          runDescription:
+            "Ablation run with no method, model, or policy packs enabled.",
+          sourceContext: [
+            "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0",
+            "https://www.bls.gov/cpi/",
+          ],
+          packSet: {
+            packSetId: "pack_set.none",
+            label: "No packs",
+            mode: "none",
+            packs: [],
+            notes:
+              "Control run for pack ablation: public source context only, no stored methods or model packs.",
+          },
+        },
+        reasoning: [
+          { kind: "heading", text: "Control run" },
+          {
+            kind: "text",
+            text: "This run intentionally excludes Brier packs. It starts from the recent annual-average CPI-U reference class and uses only a simple mean-reversion adjustment.",
+          },
+          {
+            kind: "tool",
+            tool: "bls.lookup",
+            call: 'bls.lookup({ series: "CUUR0000SA0", window: "2017-2025", transform: "annual_average_yoy" })',
+            result:
+              "{ annual_average_yoy: [2.1, 2.4, 1.8, 1.2, 4.7, 8.0, 4.1, 2.9, 2.7], recent_3y_mean: 3.23, pre_shock_2017_2019_mean: 2.10 }",
+          },
+          {
+            kind: "math",
+            text: "Control blend = 0.55 x recent 3-year mean + 0.45 x pre-shock mean = 2.72; shrink for realized disinflation gives 2.5.",
+          },
+          {
+            kind: "text",
+            text: "The interval is wider than the headline run because this ablation lacks component-level shelter, goods, tariff, and policy context. It would miss high if energy or tariffs reaccelerate, and miss low if shelter disinflation arrives faster than the aggregate history implies.",
+          },
+          { kind: "forecast", point: 2.5, ciLow: 1.9, ciHigh: 3.3 },
+        ],
+      },
+      {
+        variantId: "with-cpi-packs-jun-12",
+        label: "Brier-1 · CPI packs · Jun 12",
+        description:
+          "Earlier packed run before the June 14 refresh; same agent and pack set, older source context.",
+        pointEstimate: 2.6,
+        ciLow: 2.0,
+        ciHigh: 3.4,
+        drivers: [
+          "Base-rate-first prior",
+          "Shelter and core-services component decomposition",
+          "Tariff pass-through adjustment",
+          "Energy-price uncertainty",
+        ],
+        predictionRun: {
+          kind: "recorded-agent-run",
+          runAt: "2026-06-12T20:30:00Z",
+          agent: "brier-1.packed",
+          model: "gpt-5.4",
+          runLabel: "Brier-1 · CPI packs · Jun 12",
+          runDescription:
+            "Earlier pack-enabled run retained to show forecast updates over time.",
+          sourceContext: [
+            "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0",
+            "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260610.htm",
+            "https://www.bls.gov/cpi/tables/supplemental-files/",
+          ],
+          packSet: {
+            packSetId: "pack_set.cpi_annual_2026.v1",
+            label: "CPI annual-average pack set",
+            mode: "with_packs",
+            packs: [
+              {
+                packId: "base-rate-first",
+                version: "0.1.0",
+                label: "Base-rate-first",
+                kind: "method",
+                summary:
+                  "Forces the agent to anchor on a resolved reference class before applying inside-view adjustments.",
+              },
+              {
+                packId: "cpi-component-decomposition",
+                version: "0.1.0",
+                label: "CPI component decomposition",
+                kind: "model",
+                summary:
+                  "Separates shelter, services ex-shelter, core goods, food, and energy before recombining to headline CPI-U.",
+              },
+              {
+                packId: "tariff-pass-through",
+                version: "0.1.0",
+                label: "Tariff pass-through",
+                kind: "calibration",
+                summary:
+                  "Applies a right-tail adjustment for goods-price pass-through when tariff risk is active.",
+              },
+            ],
+            notes:
+              "First demonstration pack set for target-level ablations; each pack can later be scored by marginal CRPS delta.",
+          },
+        },
+        reasoning: [
+          { kind: "heading", text: "Packed run before refresh" },
+          {
+            kind: "tool",
+            tool: "brier.pack.apply",
+            call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "cpi-component-decomposition@0.1.0", "tariff-pass-through@0.1.0"], target: "bls.cpi.u.annual_pct_change.2026" })',
+            result:
+              '{ admitted: 3, mode: "with_packs", required_checks: ["reference_class", "component_recombine", "right_tail_stress"] }',
+          },
+          {
+            kind: "tool",
+            tool: "bls.lookup",
+            call: 'bls.lookup({ series: "CUUR0000SA0", window: "2022-2026ytd", asOf: "2026-06-12" })',
+            result:
+              '{ annual_average_yoy: { 2022: 8.0, 2023: 4.1, 2024: 2.9, 2025: 2.7 }, ytd_pressure: 2.5, latest_monthly_pressure: "mixed" }',
+          },
+          {
+            kind: "math",
+            text: "Packed estimate before refresh = base-rate 2.55 + tariff tail 0.08 - energy mean reversion 0.03 = 2.6.",
+          },
+          {
+            kind: "text",
+            text: "The interval remains broad because the annual-average measure still has late-year goods and energy risk. It would miss high if tariff pass-through or energy shocks dominate, and miss low if shelter disinflation accelerates.",
+          },
+          { kind: "forecast", point: 2.6, ciLow: 2.0, ciHigh: 3.4 },
+        ],
+      },
+      {
+        variantId: "with-cpi-packs",
+        label: "Brier-1 · CPI packs",
+        description:
+          "June 14 refresh with the base-rate, component decomposition, and tariff pass-through packs enabled.",
+        pointEstimate: 2.7,
+        ciLow: 2.1,
+        ciHigh: 3.4,
+        drivers: [
+          "Base-rate-first prior",
+          "Shelter and core-services component decomposition",
+          "Tariff pass-through adjustment",
+          "Energy and food asymmetric tails",
+        ],
+        predictionRun: {
+          kind: "recorded-agent-run",
+          runAt: "2026-06-14T21:50:00Z",
+          agent: "brier-1.packed",
+          model: "gpt-5.4",
+          runLabel: "Brier-1 · CPI packs",
+          runDescription:
+            "Pack-enabled ablation run for the CPI-U annual-average target.",
+          sourceContext: [
+            "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0",
+            "https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20260610.htm",
+            "https://www.bls.gov/cpi/tables/supplemental-files/",
+          ],
+          packSet: {
+            packSetId: "pack_set.cpi_annual_2026.v1",
+            label: "CPI annual-average pack set",
+            mode: "with_packs",
+            packs: [
+              {
+                packId: "base-rate-first",
+                version: "0.1.0",
+                label: "Base-rate-first",
+                kind: "method",
+                summary:
+                  "Forces the agent to anchor on a resolved reference class before applying inside-view adjustments.",
+              },
+              {
+                packId: "cpi-component-decomposition",
+                version: "0.1.0",
+                label: "CPI component decomposition",
+                kind: "model",
+                summary:
+                  "Separates shelter, services ex-shelter, core goods, food, and energy before recombining to headline CPI-U.",
+              },
+              {
+                packId: "tariff-pass-through",
+                version: "0.1.0",
+                label: "Tariff pass-through",
+                kind: "calibration",
+                summary:
+                  "Applies a right-tail adjustment for goods-price pass-through when tariff risk is active.",
+              },
+            ],
+            notes:
+              "First demonstration pack set for target-level ablations; each pack can later be scored by marginal CRPS delta.",
+          },
+        },
+        reasoning: [
+          { kind: "heading", text: "Pack-enabled run" },
+          {
+            kind: "tool",
+            tool: "brier.pack.apply",
+            call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "cpi-component-decomposition@0.1.0", "tariff-pass-through@0.1.0"], target: "bls.cpi.u.annual_pct_change.2026" })',
+            result:
+              '{ admitted: 3, mode: "with_packs", required_checks: ["reference_class", "component_recombine", "right_tail_stress"] }',
+          },
+          {
+            kind: "tool",
+            tool: "bls.lookup",
+            call: 'bls.lookup({ series: "CUUR0000SA0", window: "2022-2026ytd", transform: ["annual_average_yoy", "component_pressure"] })',
+            result:
+              '{ annual_average_yoy: { 2022: 8.0, 2023: 4.1, 2024: 2.9, 2025: 2.7 }, ytd_pressure: 2.6, component_pressure: { shelter: "sticky", core_goods: "tariff_upside", energy: "two-sided" } }',
+          },
+          {
+            kind: "tool",
+            tool: "fed.lookup",
+            call: 'fed.lookup({ source: "FOMC SEP", variable: "core_pce_inflation", year: 2026, statistic: "median" })',
+            result: "{ value: 2.4, cpi_u_translation_band: [2.6, 2.8] }",
+          },
+          {
+            kind: "math",
+            text: "Packed estimate = base-rate 2.6 + shelter/services persistence 0.05 + tariff right-tail mean shift 0.08 - energy mean reversion 0.03 = 2.7.",
+          },
+          {
+            kind: "text",
+            text: "The packs move the center slightly up and narrow the low side versus the no-pack control. The run would land outside the interval if goods pass-through is much stronger than observed or if shelter disinflation breaks sharply below the component path.",
+          },
+          { kind: "forecast", point: 2.7, ciLow: 2.1, ciHigh: 3.4 },
+        ],
+      },
     ],
   },
 
@@ -4283,6 +5066,8 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   ...CANADA_AUSTRALIA_EXAMPLES,
   ...EURO_JAPAN_EXAMPLES,
   ...US_NEAR_TERM_EXAMPLES,
+  ...OCCUPATION_EMPLOYMENT_EXAMPLES,
+  ...OCCUPATION_WAGE_EXAMPLES,
   ...GLOBAL_NEAR_TERM_EXAMPLES,
   ...TAX_CREDIT_EXAMPLES,
   ...HEALTH_COVERAGE_EXAMPLES,
@@ -4548,17 +5333,2016 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   },
 ];
 
-export const FORECAST_CELLS: ForecastCell[] = FORECAST_CELL_DEFINITIONS.map(
-  (forecast) => ({
-    ...forecast,
-    predictionDistribution:
-      forecast.predictionDistribution ??
-      buildNumericCdfFromInterval({
-        pointEstimate: forecast.pointEstimate,
-        ciLow: forecast.ciLow,
-        ciHigh: forecast.ciHigh,
-      }),
+interface PackShadowRunValues {
+  pointEstimate: number;
+  ciLow: number;
+  ciHigh: number;
+  drivers: string[];
+  rationale: string;
+}
+
+interface PackShadowPackedRunValues extends PackShadowRunValues {
+  packSetId: string;
+  packSetLabel: string;
+  packIds: PackReferenceId[];
+  notes: string;
+  requiredChecks: string[];
+}
+
+function buildPackShadowRuns({
+  slug,
+  target,
+  runAt,
+  sourceContext,
+  noPack,
+  withPacks,
+}: {
+  slug: string;
+  target: string;
+  runAt: string;
+  sourceContext: string[];
+  noPack: PackShadowRunValues;
+  withPacks: PackShadowPackedRunValues;
+}): ForecastComparisonRun[] {
+  const baseRun = {
+    confidence: 0.8,
+    predictionRun: {
+      kind: "recorded-agent-run" as const,
+      agent: "brier-1.shadow",
+      model: "gpt-5",
+      sourceContext,
+      runAt,
+    },
+  };
+  const packList = withPacks.packIds
+    .map(
+      (packId) =>
+        `"${PACK_REFERENCES[packId].packId}@${PACK_REFERENCES[packId].version}"`,
+    )
+    .join(", ");
+
+  return [
+    {
+      variantId: `${slug}-brier-shadow-no-packs`,
+      label: "Brier-1 - no packs",
+      description:
+        "Paired shadow control run using the same agent and source context without prediction packs.",
+      pointEstimate: noPack.pointEstimate,
+      ciLow: noPack.ciLow,
+      ciHigh: noPack.ciHigh,
+      confidence: baseRun.confidence,
+      drivers: noPack.drivers,
+      predictionRun: {
+        ...baseRun.predictionRun,
+        runLabel: "Brier-1 - no packs",
+        runDescription:
+          "Pack-ablation control run for paired evaluation against the packed variant.",
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        { kind: "heading", text: "No-pack shadow run" },
+        { kind: "text", text: noPack.rationale },
+        {
+          kind: "forecast",
+          point: noPack.pointEstimate,
+          ciLow: noPack.ciLow,
+          ciHigh: noPack.ciHigh,
+        },
+      ],
+    },
+    {
+      variantId: `${slug}-brier-shadow-with-packs`,
+      label: "Brier-1 - packs",
+      description:
+        "Paired shadow run using the same agent and source context with the relevant prediction packs applied.",
+      pointEstimate: withPacks.pointEstimate,
+      ciLow: withPacks.ciLow,
+      ciHigh: withPacks.ciHigh,
+      confidence: baseRun.confidence,
+      drivers: withPacks.drivers,
+      predictionRun: {
+        ...baseRun.predictionRun,
+        runLabel: "Brier-1 - packs",
+        runDescription:
+          "Pack-enabled shadow run for paired evaluation against the no-pack control.",
+        packSet: buildPackSet({
+          packSetId: withPacks.packSetId,
+          label: withPacks.packSetLabel,
+          packIds: withPacks.packIds,
+          notes: withPacks.notes,
+        }),
+      },
+      reasoning: [
+        { kind: "heading", text: "Packed shadow run" },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: `brier.pack.apply({ target: "${target}", packs: [${packList}] })`,
+          result: `{ admitted: ${withPacks.packIds.length}, mode: "with_packs", required_checks: ${JSON.stringify(withPacks.requiredChecks)} }`,
+        },
+        { kind: "text", text: withPacks.rationale },
+        {
+          kind: "forecast",
+          point: withPacks.pointEstimate,
+          ciLow: withPacks.ciLow,
+          ciHigh: withPacks.ciHigh,
+        },
+      ],
+    },
+  ];
+}
+
+const FORECAST_COMPARISON_RUN_AUGMENTS: Record<
+  string,
+  ForecastComparisonRun[]
+> = {
+  "canada-cpi-yoy-may-2026": buildPackShadowRuns({
+    slug: "canada-cpi-yoy-may-2026",
+    target: "statcan.cpi.allitems.yoy.2026-05",
+    runAt: "2026-06-20T09:00:00-04:00",
+    sourceContext: [
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260519/dq260519a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260622/dq260622a-eng.htm",
+    ],
+    noPack: {
+      pointEstimate: 2.6,
+      ciLow: 2.1,
+      ciHigh: 3.2,
+      drivers: [
+        "Recent all-items CPI annual-rate path",
+        "Gasoline base-effect mean reversion",
+        "Generic monthly CPI release noise",
+      ],
+      rationale:
+        "The control run starts from April headline CPI and fades the gasoline base effect without decomposing the basket.",
+    },
+    withPacks: {
+      pointEstimate: 2.7,
+      ciLow: 2.1,
+      ciHigh: 3.4,
+      drivers: [
+        "Energy-price nowcast",
+        "CPI component decomposition",
+        "Statistics Canada basket-weight update",
+      ],
+      packSetId: "pack_set.canada_cpi_may_2026.v1",
+      packSetLabel: "Canada May CPI pack set",
+      packIds: [
+        "base-rate-first",
+        "energy-price-nowcast",
+        "cpi-component-decomposition",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Canada CPI pack set for energy, basket-weight, and first-print checks.",
+      rationale:
+        "The pack run keeps the control's energy base-effect caution but leaves a wider upper tail for gasoline and basket-weight uncertainty.",
+      requiredChecks: [
+        "headline_base_rate",
+        "energy_nowcast",
+        "basket_weight_update",
+        "first_print_rounding",
+      ],
+    },
   }),
+  "canada-cpi-annual-rate-may-2026": buildPackShadowRuns({
+    slug: "canada-cpi-annual-rate-may-2026",
+    target: "statcan.cpi.all_items_annual_rate.canada.may_2026.first_print",
+    runAt: "2026-06-20T09:02:00-04:00",
+    sourceContext: [
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260519/dq260519a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260622/dq260622a-eng.htm",
+    ],
+    noPack: {
+      pointEstimate: 2.6,
+      ciLow: 2.2,
+      ciHigh: 3.0,
+      drivers: [
+        "April CPI annual rate",
+        "Shelter and food persistence",
+        "Generic one-decimal rounding noise",
+      ],
+      rationale:
+        "The control run treats the target as a persistence forecast around recent headline CPI with a symmetric rounded-release interval.",
+    },
+    withPacks: {
+      pointEstimate: 2.7,
+      ciLow: 2.1,
+      ciHigh: 3.3,
+      drivers: [
+        "Energy-price nowcast",
+        "CPI component decomposition",
+        "Release-vintage calibration",
+      ],
+      packSetId: "pack_set.canada_cpi_may_2026.v1",
+      packSetLabel: "Canada May CPI pack set",
+      packIds: [
+        "base-rate-first",
+        "energy-price-nowcast",
+        "cpi-component-decomposition",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Canada CPI pack set for energy, component, and first-print checks.",
+      rationale:
+        "The pack run lifts the center slightly for remaining energy pressure and widens both tails because May is the first print after the basket update.",
+      requiredChecks: [
+        "headline_base_rate",
+        "energy_nowcast",
+        "component_recombine",
+        "release_rounding",
+      ],
+    },
+  }),
+  "australia-cpi-annual-rate-may-2026": buildPackShadowRuns({
+    slug: "australia-cpi-annual-rate-may-2026",
+    target: "abs.cpi.all_groups_annual_rate.australia.may_2026.first_print",
+    runAt: "2026-06-20T09:04:00-04:00",
+    sourceContext: [
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+      "https://www.abs.gov.au/media-centre/media-releases/cpi-rose-42-year-april-2026",
+    ],
+    noPack: {
+      pointEstimate: 4.2,
+      ciLow: 3.6,
+      ciHigh: 4.8,
+      drivers: [
+        "April all-groups CPI annual rate",
+        "Recent monthly indicator volatility",
+        "Generic administered-price noise",
+      ],
+      rationale:
+        "The control run persists April all-groups CPI and gives the noisy monthly indicator a wide symmetric interval.",
+    },
+    withPacks: {
+      pointEstimate: 4.6,
+      ciLow: 3.8,
+      ciHigh: 5.4,
+      drivers: [
+        "Housing and transport component pressure",
+        "Energy and administered-price timing",
+        "ABS monthly-CPI release transition",
+      ],
+      packSetId: "pack_set.australia_cpi_may_2026.v1",
+      packSetLabel: "Australia May CPI pack set",
+      packIds: [
+        "base-rate-first",
+        "energy-price-nowcast",
+        "cpi-component-decomposition",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Australia CPI pack set for monthly-indicator component and release-transition checks.",
+      rationale:
+        "The pack run gives more weight to housing, transport, and administered-price components, but keeps a broad interval for monthly-indicator volatility.",
+      requiredChecks: [
+        "all_groups_base_rate",
+        "housing_transport_components",
+        "energy_nowcast",
+        "monthly_cpi_transition",
+      ],
+    },
+  }),
+  "australia-cpi-indicator-may-2026": buildPackShadowRuns({
+    slug: "australia-cpi-indicator-may-2026",
+    target: "abs.cpi_indicator.allgroups.yoy.2026-05",
+    runAt: "2026-06-20T09:06:00-04:00",
+    sourceContext: [
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+      "https://www.abs.gov.au/media-centre/media-releases/cpi-rose-42-year-april-2026",
+    ],
+    noPack: {
+      pointEstimate: 4.1,
+      ciLow: 3.5,
+      ciHigh: 4.7,
+      drivers: [
+        "April indicator level",
+        "Monthly basket repricing noise",
+        "Generic headline inflation persistence",
+      ],
+      rationale:
+        "The control run holds close to April because it does not separate volatile repriced components from persistent inflation.",
+    },
+    withPacks: {
+      pointEstimate: 4.5,
+      ciLow: 3.7,
+      ciHigh: 5.3,
+      drivers: [
+        "Housing and transport component pressure",
+        "Monthly basket repricing pattern",
+        "Release-vintage calibration",
+      ],
+      packSetId: "pack_set.australia_cpi_may_2026.v1",
+      packSetLabel: "Australia May CPI pack set",
+      packIds: [
+        "base-rate-first",
+        "energy-price-nowcast",
+        "cpi-component-decomposition",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Australia CPI indicator pack set for component and monthly-basket checks.",
+      rationale:
+        "The pack run raises the center for housing and transport pressure while explicitly preserving a wide release-noise interval.",
+      requiredChecks: [
+        "monthly_indicator_base_rate",
+        "component_repricing",
+        "energy_nowcast",
+        "release_noise",
+      ],
+    },
+  }),
+  "australia-employment-change-may-2026": buildPackShadowRuns({
+    slug: "australia-employment-change-may-2026",
+    target: "abs.labour.employment_change.australia.may_2026.first_print",
+    runAt: "2026-06-20T09:08:00-04:00",
+    sourceContext: [
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+      "https://www.rba.gov.au/statistics/",
+    ],
+    noPack: {
+      pointEstimate: 10,
+      ciLow: -55,
+      ciHigh: 75,
+      drivers: [
+        "April employment decline",
+        "Generic survey volatility",
+        "Trend employment growth",
+      ],
+      rationale:
+        "The control run mean-reverts April's employment decline toward trend without using unemployment, hours, or claims-style cross-checks.",
+    },
+    withPacks: {
+      pointEstimate: 20,
+      ciLow: -35,
+      ciHigh: 85,
+      drivers: [
+        "Employment trend and hours-worked cross-check",
+        "Unemployment-rate consistency",
+        "Labour Force first-print calibration",
+      ],
+      packSetId: "pack_set.australia_labor_may_2026.v1",
+      packSetLabel: "Australia May labour pack set",
+      packIds: [
+        "base-rate-first",
+        "labor-market-momentum",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Australia labour pack set for employment, unemployment, hours, and release volatility.",
+      rationale:
+        "The pack run leans slightly positive because employment trend and hours do not confirm a sharp break, but keeps a large lower tail for survey noise.",
+      requiredChecks: [
+        "employment_base_rate",
+        "hours_worked",
+        "unemployment_consistency",
+        "survey_release_noise",
+      ],
+    },
+  }),
+  "australia-unemployment-rate-may-2026": buildPackShadowRuns({
+    slug: "australia-unemployment-rate-may-2026",
+    target: "abs.labour.unemployment_rate.australia.may_2026.first_print",
+    runAt: "2026-06-20T09:10:00-04:00",
+    sourceContext: [
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+      "https://www.rba.gov.au/statistics/",
+    ],
+    noPack: {
+      pointEstimate: 4.5,
+      ciLow: 4.1,
+      ciHigh: 4.9,
+      drivers: [
+        "April unemployment-rate jump",
+        "Participation-rate noise",
+        "Generic household-survey volatility",
+      ],
+      rationale:
+        "The control run persists April's rounded unemployment rate and gives one to two ticks of household-survey noise.",
+    },
+    withPacks: {
+      pointEstimate: 4.5,
+      ciLow: 4.2,
+      ciHigh: 4.8,
+      drivers: [
+        "Employment-change consistency",
+        "Participation-rate cross-check",
+        "Rounded-rate release grid",
+      ],
+      packSetId: "pack_set.australia_labor_may_2026.v1",
+      packSetLabel: "Australia May labour pack set",
+      packIds: [
+        "base-rate-first",
+        "labor-market-momentum",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Australia labour pack set for unemployment, employment, participation, and release rounding.",
+      rationale:
+        "The pack run keeps the same center but trims extreme tails because employment and participation checks do not imply a move far from 4.5 percent.",
+      requiredChecks: [
+        "unemployment_base_rate",
+        "employment_consistency",
+        "participation_check",
+        "rounded_rate_grid",
+      ],
+    },
+  }),
+  "core-pce-mom-may-2026": buildPackShadowRuns({
+    slug: "core-pce-mom-may-2026",
+    target: "bea.pce.core_mom.may_2026.first_print",
+    runAt: "2026-06-20T09:12:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/news.release/ppi.nr0.htm",
+    ],
+    noPack: {
+      pointEstimate: 0.21,
+      ciLow: 0.06,
+      ciHigh: 0.39,
+      drivers: [
+        "Recent core PCE persistence",
+        "Generic monthly inflation noise",
+        "No CPI/PPI bridge",
+      ],
+      rationale:
+        "The control run extrapolates recent core PCE momentum without translating CPI and PPI source data into PCE concepts.",
+    },
+    withPacks: {
+      pointEstimate: 0.27,
+      ciLow: 0.11,
+      ciHigh: 0.43,
+      drivers: [
+        "CPI-to-PCE source-data bridge",
+        "PPI services inputs",
+        "BEA release calibration",
+      ],
+      packSetId: "pack_set.core_pce_may_2026.v1",
+      packSetLabel: "May core PCE bridge pack set",
+      packIds: [
+        "base-rate-first",
+        "pce-cpi-bridge",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Core PCE pack set for mapping CPI and PPI source data into BEA PCE concepts.",
+      rationale:
+        "The pack run raises the center because CPI/PPI source data point to firmer BEA core PCE than the no-pack persistence baseline.",
+      requiredChecks: [
+        "core_pce_base_rate",
+        "cpi_scope_bridge",
+        "ppi_services_inputs",
+        "bea_release_calibration",
+      ],
+    },
+  }),
+  "initial-claims-week-2026-06-20": buildPackShadowRuns({
+    slug: "initial-claims-week-2026-06-20",
+    target: "us.dol.initial_claims.sa.week_2026-06-20",
+    runAt: "2026-06-20T09:14:00-04:00",
+    sourceContext: [
+      "https://www.dol.gov/ui/data.pdf",
+      "https://fred.stlouisfed.org/series/ICSA",
+    ],
+    noPack: {
+      pointEstimate: 221,
+      ciLow: 198,
+      ciHigh: 246,
+      drivers: [
+        "Recent weekly claims level",
+        "Trailing eight-week mean",
+        "Generic late-June seasonal noise",
+      ],
+      rationale:
+        "The control run partially fades the latest claims print toward the trailing mean with symmetric weekly noise.",
+    },
+    withPacks: {
+      pointEstimate: 226,
+      ciLow: 205,
+      ciHigh: 250,
+      drivers: [
+        "Weekly claims momentum",
+        "Payroll and unemployment cross-check",
+        "Late-June seasonal-factor calibration",
+      ],
+      packSetId: "pack_set.weekly_claims_june_2026.v1",
+      packSetLabel: "June weekly claims pack set",
+      packIds: [
+        "base-rate-first",
+        "labor-market-momentum",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "Weekly claims pack set for recent claims, labor-market cross-checks, and seasonal factors.",
+      rationale:
+        "The pack run keeps more of the recent increase because labor-market cross-checks do not yet show enough softening to force a snap-back.",
+      requiredChecks: [
+        "claims_base_rate",
+        "labor_momentum",
+        "seasonal_factor",
+        "weekly_release_noise",
+      ],
+    },
+  }),
+  "us-disposable-personal-income-may-2026": buildPackShadowRuns({
+    slug: "us-disposable-personal-income-may-2026",
+    target: "bea.disposable_personal_income.level.may_2026.first_print",
+    runAt: "2026-06-20T09:16:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://www.bls.gov/news.release/empsit.nr0.htm",
+    ],
+    noPack: {
+      pointEstimate: 23500,
+      ciLow: 23420,
+      ciHigh: 23625,
+      drivers: [
+        "Recent disposable personal income level",
+        "Generic wage and transfer trend",
+        "No component bridge",
+      ],
+      rationale:
+        "The control run extrapolates recent DPI levels and keeps wages, benefits, and taxes as a single residual trend.",
+    },
+    withPacks: {
+      pointEstimate: 23520,
+      ciLow: 23445,
+      ciHigh: 23620,
+      drivers: [
+        "Wages and salaries bridge",
+        "Government benefits component checks",
+        "Personal current tax offset",
+      ],
+      packSetId: "pack_set.bea_personal_income_may_2026.v1",
+      packSetLabel: "May BEA personal-income pack set",
+      packIds: ["base-rate-first", "release-vintage-calibration"],
+      notes:
+        "BEA personal-income pack set for component accounting and first-print calibration.",
+      rationale:
+        "The pack run decomposes DPI into wages, benefits, and taxes, lifting the center slightly while keeping the interval wide enough for BEA first-print accounting noise.",
+      requiredChecks: [
+        "dpi_base_rate",
+        "wages_bridge",
+        "benefits_component",
+        "tax_offset",
+      ],
+    },
+  }),
+  "us-government-social-benefits-may-2026": buildPackShadowRuns({
+    slug: "us-government-social-benefits-may-2026",
+    target: "bea.government_social_benefits.level.may_2026.first_print",
+    runAt: "2026-06-20T09:18:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://www.dol.gov/ui/data.pdf",
+    ],
+    noPack: {
+      pointEstimate: 4990,
+      ciLow: 4935,
+      ciHigh: 5060,
+      drivers: [
+        "Recent social-benefit level",
+        "Generic transfer-program trend",
+        "No subprogram decomposition",
+      ],
+      rationale:
+        "The control run extrapolates total benefits without separately checking Social Security, Medicare, Medicaid, and UI.",
+    },
+    withPacks: {
+      pointEstimate: 4998,
+      ciLow: 4950,
+      ciHigh: 5055,
+      drivers: [
+        "Social Security benefit calendar",
+        "Medicare and Medicaid payment timing",
+        "Unemployment insurance claims cross-check",
+      ],
+      packSetId: "pack_set.bea_social_benefits_may_2026.v1",
+      packSetLabel: "May BEA social-benefits pack set",
+      packIds: ["base-rate-first", "release-vintage-calibration"],
+      notes:
+        "BEA social-benefits pack set for subprogram accounting and first-print calibration.",
+      rationale:
+        "The pack run decomposes total benefits by major program and keeps a modestly tighter interval because most components are monthly payment schedules.",
+      requiredChecks: [
+        "benefits_base_rate",
+        "social_security_calendar",
+        "medicare_medicaid_timing",
+        "ui_claims_cross_check",
+      ],
+    },
+  }),
+  "us-medicaid-benefits-may-2026": buildPackShadowRuns({
+    slug: "us-medicaid-benefits-may-2026",
+    target: "bea.government_social_benefits.medicaid.may_2026.first_print",
+    runAt: "2026-06-20T09:20:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://data.medicaid.gov/",
+    ],
+    noPack: {
+      pointEstimate: 1038,
+      ciLow: 1018,
+      ciHigh: 1058,
+      drivers: [
+        "Recent Medicaid benefit level",
+        "Generic managed-care payment noise",
+        "No enrollment cross-check",
+      ],
+      rationale:
+        "The control run extrapolates Medicaid benefits from recent levels with a generic managed-care timing interval.",
+    },
+    withPacks: {
+      pointEstimate: 1041,
+      ciLow: 1025,
+      ciHigh: 1060,
+      drivers: [
+        "Medicaid enrollment trend",
+        "Managed-care capitation timing",
+        "BEA first-print calibration",
+      ],
+      packSetId: "pack_set.bea_social_benefits_may_2026.v1",
+      packSetLabel: "May BEA social-benefits pack set",
+      packIds: ["base-rate-first", "release-vintage-calibration"],
+      notes:
+        "BEA social-benefits pack set for Medicaid payment timing and first-print calibration.",
+      rationale:
+        "The pack run lifts the center slightly for enrollment and payment timing while leaving the upper tail open for capitation volatility.",
+      requiredChecks: [
+        "medicaid_base_rate",
+        "enrollment_trend",
+        "managed_care_timing",
+        "bea_release_noise",
+      ],
+    },
+  }),
+  "us-medicare-benefits-may-2026": buildPackShadowRuns({
+    slug: "us-medicare-benefits-may-2026",
+    target: "bea.government_social_benefits.medicare.may_2026.first_print",
+    runAt: "2026-06-20T09:22:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://www.cms.gov/data-research/statistics-trends-and-reports",
+    ],
+    noPack: {
+      pointEstimate: 1330,
+      ciLow: 1312,
+      ciHigh: 1348,
+      drivers: [
+        "Recent Medicare benefit level",
+        "Generic provider payment trend",
+        "No calendar-payment check",
+      ],
+      rationale:
+        "The control run extrapolates Medicare benefits from recent levels with generic health-payment volatility.",
+    },
+    withPacks: {
+      pointEstimate: 1332,
+      ciLow: 1320,
+      ciHigh: 1344,
+      drivers: [
+        "Medicare payment calendar",
+        "Medicare Advantage payment timing",
+        "BEA first-print calibration",
+      ],
+      packSetId: "pack_set.bea_social_benefits_may_2026.v1",
+      packSetLabel: "May BEA social-benefits pack set",
+      packIds: ["base-rate-first", "release-vintage-calibration"],
+      notes:
+        "BEA social-benefits pack set for Medicare payment timing and first-print calibration.",
+      rationale:
+        "The pack run keeps the center near the control but narrows the interval because Medicare payment schedules are less noisy than aggregate benefits.",
+      requiredChecks: [
+        "medicare_base_rate",
+        "payment_calendar",
+        "ma_payment_timing",
+        "bea_release_noise",
+      ],
+    },
+  }),
+  "us-personal-current-taxes-may-2026": buildPackShadowRuns({
+    slug: "us-personal-current-taxes-may-2026",
+    target: "bea.personal_current_taxes.level.may_2026.first_print",
+    runAt: "2026-06-20T09:24:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    ],
+    noPack: {
+      pointEstimate: 3262,
+      ciLow: 3235,
+      ciHigh: 3310,
+      drivers: [
+        "Recent personal current taxes",
+        "Generic withholding trend",
+        "No Treasury cross-check",
+      ],
+      rationale:
+        "The control run extrapolates current taxes from recent BEA levels and a generic wage-withholding trend.",
+    },
+    withPacks: {
+      pointEstimate: 3268,
+      ciLow: 3248,
+      ciHigh: 3301,
+      drivers: [
+        "Withholding receipts cross-check",
+        "Wages and salaries bridge",
+        "Nonwithheld payment timing",
+      ],
+      packSetId: "pack_set.bea_personal_income_may_2026.v1",
+      packSetLabel: "May BEA personal-income pack set",
+      packIds: ["base-rate-first", "release-vintage-calibration"],
+      notes:
+        "BEA personal-income pack set for taxes, wages, Treasury receipts, and first-print calibration.",
+      rationale:
+        "The pack run raises the center slightly using wages and Treasury receipts, while trimming tails around BEA's tax accounting convention.",
+      requiredChecks: [
+        "taxes_base_rate",
+        "withholding_receipts",
+        "wage_bridge",
+        "nonwithheld_timing",
+      ],
+    },
+  }),
+  "us-social-security-benefits-may-2026": buildPackShadowRuns({
+    slug: "us-social-security-benefits-may-2026",
+    target:
+      "bea.government_social_benefits.social_security.may_2026.first_print",
+    runAt: "2026-06-20T09:26:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://www.ssa.gov/oact/cola/latestCOLA.html",
+    ],
+    noPack: {
+      pointEstimate: 1650,
+      ciLow: 1632,
+      ciHigh: 1668,
+      drivers: [
+        "Recent Social Security benefit level",
+        "Generic beneficiary trend",
+        "No payment-calendar check",
+      ],
+      rationale:
+        "The control run extrapolates Social Security benefits from recent levels and a broad beneficiary-growth prior.",
+    },
+    withPacks: {
+      pointEstimate: 1651,
+      ciLow: 1640,
+      ciHigh: 1663,
+      drivers: [
+        "OASDI beneficiary count",
+        "Annual COLA already embedded",
+        "Payment-calendar timing",
+      ],
+      packSetId: "pack_set.bea_social_benefits_may_2026.v1",
+      packSetLabel: "May BEA social-benefits pack set",
+      packIds: ["base-rate-first", "release-vintage-calibration"],
+      notes:
+        "BEA social-benefits pack set for Social Security payment timing and first-print calibration.",
+      rationale:
+        "The pack run tightens the interval because the COLA and payment calendar are mostly known before the BEA release.",
+      requiredChecks: [
+        "social_security_base_rate",
+        "beneficiary_count",
+        "cola_embedded",
+        "payment_calendar",
+      ],
+    },
+  }),
+  "us-wages-and-salaries-may-2026": buildPackShadowRuns({
+    slug: "us-wages-and-salaries-may-2026",
+    target: "bea.wages_and_salaries.level.may_2026.first_print",
+    runAt: "2026-06-20T09:28:00-04:00",
+    sourceContext: [
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://www.bls.gov/news.release/empsit.nr0.htm",
+    ],
+    noPack: {
+      pointEstimate: 13345,
+      ciLow: 13280,
+      ciHigh: 13410,
+      drivers: [
+        "Recent wage and salary level",
+        "Generic payroll trend",
+        "No hours or earnings bridge",
+      ],
+      rationale:
+        "The control run extrapolates wages and salaries from recent BEA levels and a simple payroll trend.",
+    },
+    withPacks: {
+      pointEstimate: 13362,
+      ciLow: 13315,
+      ciHigh: 13410,
+      drivers: [
+        "Payroll employment bridge",
+        "Average hourly earnings",
+        "Aggregate weekly hours",
+      ],
+      packSetId: "pack_set.bea_personal_income_may_2026.v1",
+      packSetLabel: "May BEA personal-income pack set",
+      packIds: [
+        "base-rate-first",
+        "labor-market-momentum",
+        "release-vintage-calibration",
+      ],
+      notes:
+        "BEA personal-income pack set for wages, payrolls, hours, earnings, and first-print calibration.",
+      rationale:
+        "The pack run uses payrolls, earnings, and hours to lift the center modestly while preserving downside risk from source-data translation.",
+      requiredChecks: [
+        "wages_base_rate",
+        "payroll_bridge",
+        "hours_earnings",
+        "bea_release_noise",
+      ],
+    },
+  }),
+  "uk-unemployment-rate-oct-dec-2026": [
+    {
+      variantId: "thesis-analyst-live-2026-06-16",
+      label: "Thesis analyst live run",
+      description:
+        "Live Codex-backed thesis.analyst v2.0.0 run with full activity artifacts captured by the local runner.",
+      pointEstimate: 5.1,
+      ciLow: 4.4,
+      ciHigh: 5.9,
+      confidence: 0.8,
+      drivers: [
+        "Latest ONS MGSX rate is 5.0 percent",
+        "Unemployment rose through 2025 before a Q1 2026 dip",
+        "Three-quarter historical moves are usually within -0.7 to +0.6pp",
+        "LFS volatility warrants a wider upper tail",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-16T10:20:43Z",
+        agent: "thesis.analyst",
+        model: "gpt-5.5",
+        agentVersion: "2.0.0",
+        promptHash:
+          "a9f28be19e262b8509b00ed6c65899d907cc58e67d97002dfd7022a226bc32c6",
+        toolPolicyHash:
+          "990649a7883dafb694a3fbe8452bbd5b1353245eff242e4a17147ee827cd72ea",
+        runLabel: "Thesis analyst live run",
+        runDescription:
+          "Live Codex-backed run; the validator failure was only the expected existing-slug collision for adding a comparison run.",
+        sourceContext: [
+          "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms",
+          "https://www.ons.gov.uk/releasecalendar",
+          "https://app.thesisinstitute.org/specs.json",
+        ],
+        activityLog: [
+          {
+            artifactType: "prompt",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/prompt.md",
+            sha256:
+              "203d52829eb636a0be0f6b651fe0cbfb7365ebe988a23c751c13f01e60e4dd26",
+            bytes: 7869,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+          {
+            artifactType: "command",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/command.json",
+            sha256:
+              "af88cf3555ee3d80a19d6534a0cdce6fb3139ec028d25a3b2d7105e6d6bf3fcb",
+            bytes: 412,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+          {
+            artifactType: "stdout",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/stdout.txt",
+            sha256:
+              "115901df4cc7ccb6669e8f5c3da13a267141997189b2bb9b445d530a60124155",
+            bytes: 5240,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+          {
+            artifactType: "stderr",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/stderr.txt",
+            sha256:
+              "34ea2975b557ebd2883d484a9f7b0e256b11912830696670152930ef76d943de",
+            bytes: 254830,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+          {
+            artifactType: "raw_response",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/raw_response.txt",
+            sha256:
+              "115901df4cc7ccb6669e8f5c3da13a267141997189b2bb9b445d530a60124155",
+            bytes: 5240,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+          {
+            artifactType: "parsed_cell",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/parsed_cells.json",
+            sha256:
+              "190b31db1a5568be3e9a9ceebf169f0f8d9dc2bc28c91e7b2bf8cd75e6873626",
+            bytes: 6033,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+          {
+            artifactType: "normalized_cell",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/normalized_cells.json",
+            sha256:
+              "d965a34560a348843ba2a0642f5fe5468ab439fd9d18651511ec4b8eaf687239",
+            bytes: 5718,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+          {
+            artifactType: "validation_report",
+            path: "records/thesis-analyst/2026-06-16/2026-06-16t10-20-32z-ons-labour-unemployment-rate-2026-q4/validation.json",
+            sha256:
+              "550189c44afe24d7c68a212961d39ad67e1e3242307753785ce4e4207e9249d9",
+            bytes: 189,
+            createdAt: "2026-06-16T10:20:32Z",
+          },
+        ],
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "UK unemployment rate, October to December 2026",
+        },
+        {
+          kind: "text",
+          text: "Framing: the target is ONS Labour market statistics time series MGSX, Unemployment rate aged 16 and over, seasonally adjusted, percent, for October to December 2026, resolving on the first print and rounded to one decimal.",
+        },
+        {
+          kind: "tool",
+          tool: "command.date",
+          call: "date -u +%Y-%m-%dT%H:%M:%SZ",
+          result: "runAt fetched this run: 2026-06-16T10:20:43Z.",
+        },
+        {
+          kind: "tool",
+          tool: "ons.lookup",
+          call: "Open ONS time series MGSX in LMS",
+          result:
+            "ONS page fetched this run reports release date 19 May 2026, next release 18 June 2026, Series ID MGSX, units %, and latest quarterly values 2025 Q3 5.0, 2025 Q4 5.2, 2026 Q1 5.0.",
+        },
+        {
+          kind: "tool",
+          tool: "ons.history",
+          call: "Read recent quarterly MGSX table values from the ONS series page",
+          result:
+            "Last 24 quarterly rates fetched this run: 2020 Q2 4.1, 2020 Q3 5.0, 2020 Q4 5.3, 2021 Q1 4.9, 2021 Q2 4.7, 2021 Q3 4.4, 2021 Q4 4.2, 2022 Q1 3.8, 2022 Q2 3.8, 2022 Q3 3.7, 2022 Q4 3.9, 2023 Q1 4.0, 2023 Q2 4.2, 2023 Q3 4.1, 2023 Q4 3.9, 2024 Q1 4.3, 2024 Q2 4.2, 2024 Q3 4.3, 2024 Q4 4.4, 2025 Q1 4.5, 2025 Q2 4.7, 2025 Q3 5.0, 2025 Q4 5.2, 2026 Q1 5.0.",
+        },
+        {
+          kind: "tool",
+          tool: "ons.calendar",
+          call: "Open ONS release calendar and local catalog entry for this ONS release series",
+          result:
+            "ONS release calendar fetched this run showed 355 upcoming releases and is the official calendar source; the local catalog entry for ons.labour.unemployment_rate.october_to_december_2026.first_print gives resolutionDate 2027-02-16. Shell DNS blocked direct filtered calendar fetch with curl exit 6.",
+        },
+        {
+          kind: "tool",
+          tool: "thesis.specs",
+          call: "Open https://app.thesisinstitute.org/specs.json and search local catalog for slug",
+          result:
+            "Live specs URL check was attempted this run, but the environment returned no readable content and shell DNS failed with curl exit 6. Local catalog search found slug uk-unemployment-rate-oct-dec-2026 mapped to ons.labour.unemployment_rate.october_to_december_2026.first_print.",
+        },
+        {
+          kind: "text",
+          text: "Base rate: among the last 24 fetched quarterly MGSX rates, mean 4.400, median 4.3, population std 0.464, sample std 0.474, 10th percentile 3.830, 90th percentile 5.000, range 3.7 to 5.3. Quarter-on-quarter changes had mean +0.039pp, std 0.295pp, 10th percentile -0.280pp, 90th percentile +0.300pp, range -0.4pp to +0.9pp.",
+        },
+        {
+          kind: "math",
+          text: "Three-quarter-ahead changes over the fetched window had mean +0.038pp, sample std 0.507pp, 10th percentile -0.700pp, and 90th percentile +0.600pp. Point estimate = 0.50*persistence 5.0 + 0.25*last-4-quarter mean 4.85 + 0.25*last-24 mean 4.40 + inside-view 0.50pp for the 2025 upward drift and three-quarter horizon = 5.113, rounded to 5.1. The 80% interval starts from realized 3-quarter movement around the point: 5.1-0.7=4.4 and 5.1+0.6=5.7, then widens the upper tail by 0.2pp for LFS volatility, yielding [4.4, 5.9].",
+        },
+        {
+          kind: "text",
+          text: "Counter-consideration: the outcome falls below 4.4 if labour demand re-accelerates and the 2025 unemployment rise unwinds quickly; it exceeds 5.9 if payroll weakness turns into a recessionary hiring stop or LFS volatility prints another sharp unemployment jump.",
+        },
+        {
+          kind: "forecast",
+          point: 5.1,
+          ciLow: 4.4,
+          ciHigh: 5.9,
+        },
+      ],
+    },
+  ],
+  "retail-sales-mom-may-2026": [
+    {
+      variantId: "retail-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run using recent advance retail-sales momentum and generic release volatility.",
+      pointEstimate: 0.1,
+      ciLow: -0.7,
+      ciHigh: 0.9,
+      drivers: [
+        "Recent headline retail momentum",
+        "Generic advance-release volatility",
+        "No explicit auto, gasoline, or control-group decomposition",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:05:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack retail sales forecast using recent headline momentum only.",
+        sourceContext: [
+          "https://www.census.gov/retail/marts/www/marts_current.pdf",
+          "https://fred.stlouisfed.org/series/RSXFS",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Retail sales control run",
+        },
+        {
+          kind: "text",
+          text: "The control starts from the strong March and April advance retail prints, then fades momentum toward the recent nominal retail mean without separating autos, gasoline, or control-group demand.",
+        },
+        {
+          kind: "math",
+          text: "Headline fade = 0.35 * April momentum + 0.65 * recent monthly mean = about +0.1%.",
+        },
+        {
+          kind: "forecast",
+          point: 0.1,
+          ciLow: -0.7,
+          ciHigh: 0.9,
+        },
+      ],
+    },
+    {
+      variantId: "retail-consumer-spending-packs",
+      label: "Brier-1 - spending packs",
+      description:
+        "Pack-enabled run using consumer-spending nowcast and release-vintage checks.",
+      pointEstimate: 0.25,
+      ciLow: -0.35,
+      ciHigh: 0.85,
+      drivers: [
+        "Retail control-group momentum",
+        "Auto and gasoline channel checks",
+        "Advance-release volatility calibration",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:10:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - spending packs",
+        runDescription:
+          "Pack-enabled retail forecast using spending, autos, gasoline, and release-calibration checks.",
+        sourceContext: [
+          "https://www.census.gov/retail/marts/www/marts_current.pdf",
+          "https://fred.stlouisfed.org/series/RSAFS",
+          "https://fred.stlouisfed.org/series/CUUR0000SETB01",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.retail_may_2026.v1",
+          label: "May retail sales pack set",
+          packIds: [
+            "base-rate-first",
+            "consumer-spending-nowcast",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Retail sales pack set for decomposing advance-release spending signals.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Consumer-spending pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "consumer-spending-nowcast@0.1.0", "release-vintage-calibration@0.1.0"], target: "census.marts.adv44x72.may_2026.monthly_change.advance" })',
+          result:
+            '{ admitted: 3, mode: "with_packs", required_checks: ["retail_base_rate", "auto_gas_control_group_split", "advance_release_error"] }',
+        },
+        {
+          kind: "text",
+          text: "The pack keeps the headline retail fade but adds back some support from control-group and auto-sales momentum while treating gasoline receipts as a volatile channel rather than a broad demand signal.",
+        },
+        {
+          kind: "forecast",
+          point: 0.25,
+          ciLow: -0.35,
+          ciHigh: 0.85,
+        },
+      ],
+    },
+  ],
+  "housing-starts-may-2026": [
+    {
+      variantId: "housing-starts-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run using trailing starts levels and generic month-to-month volatility.",
+      pointEstimate: 1.35,
+      ciLow: 1.17,
+      ciHigh: 1.61,
+      drivers: [
+        "Trailing starts mean",
+        "Recent high starts levels",
+        "Generic preliminary-release volatility",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:15:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack housing-starts forecast using trailing starts levels only.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/HOUST",
+          "https://www.census.gov/construction/nrc/",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Housing starts control run",
+        },
+        {
+          kind: "text",
+          text: "The control puts more weight on mean reversion from the elevated March and April starts prints toward the trailing twelve-month mean.",
+        },
+        {
+          kind: "forecast",
+          point: 1.35,
+          ciLow: 1.17,
+          ciHigh: 1.61,
+        },
+      ],
+    },
+    {
+      variantId: "housing-starts-activity-packs",
+      label: "Brier-1 - housing packs",
+      description:
+        "Pack-enabled run using permits, mortgage-rate, builder-sentiment, and preliminary-release checks.",
+      pointEstimate: 1.45,
+      ciLow: 1.26,
+      ciHigh: 1.62,
+      drivers: [
+        "Permits-to-starts bridge",
+        "Mortgage-rate and builder-sentiment context",
+        "Multifamily timing risk",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:20:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - housing packs",
+        runDescription:
+          "Pack-enabled housing-starts forecast using housing activity and release-vintage checks.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/HOUST",
+          "https://fred.stlouisfed.org/series/PERMIT",
+          "https://www.census.gov/construction/nrc/",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.housing_starts_may_2026.v1",
+          label: "May housing starts pack set",
+          packIds: [
+            "base-rate-first",
+            "housing-activity-nowcast",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Housing starts pack set for starts, permits, mortgage-rate, and preliminary-release checks.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Housing activity pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "housing-activity-nowcast@0.1.0", "release-vintage-calibration@0.1.0"], target: "us.census.housing_starts.total_saar.2026-05" })',
+          result:
+            '{ admitted: 3, mode: "with_packs", required_checks: ["permits_bridge", "mortgage_rate_context", "preliminary_release_error"] }',
+        },
+        {
+          kind: "text",
+          text: "The housing pack keeps the high recent-starts signal alive because permits and builder context do not require a full snap-back to the twelve-month mean, while multifamily timing keeps the lower tail open.",
+        },
+        {
+          kind: "forecast",
+          point: 1.45,
+          ciLow: 1.26,
+          ciHigh: 1.62,
+        },
+      ],
+    },
+  ],
+  "initial-claims-week-2026-06-13": [
+    {
+      variantId: "claims-0613-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run treating weekly claims as a noisy mean-reverting series.",
+      pointEstimate: 219,
+      ciLow: 197,
+      ciHigh: 244,
+      drivers: [
+        "Recent weekly claims level",
+        "Trailing eight-week mean",
+        "Generic weekly seasonal noise",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:25:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack claims forecast using recent weekly levels and generic seasonal volatility.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/ICSA",
+          "https://www.dol.gov/ui/data.pdf",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Initial claims control run",
+        },
+        {
+          kind: "text",
+          text: "The control partially fades the latest 229k print toward the trailing mean and uses a symmetric weekly-noise interval.",
+        },
+        {
+          kind: "forecast",
+          point: 219,
+          ciLow: 197,
+          ciHigh: 244,
+        },
+      ],
+    },
+    {
+      variantId: "claims-0613-labor-packs",
+      label: "Brier-1 - claims packs",
+      description:
+        "Pack-enabled run using labor-market momentum and weekly release calibration.",
+      pointEstimate: 225,
+      ciLow: 207,
+      ciHigh: 243,
+      drivers: [
+        "Latest claims drift",
+        "Payroll and openings cross-check",
+        "Weekly advance-release calibration",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:30:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - claims packs",
+        runDescription:
+          "Pack-enabled initial-claims forecast using labor momentum and release calibration.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/ICSA",
+          "https://fred.stlouisfed.org/series/PAYEMS",
+          "https://www.dol.gov/ui/data.pdf",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.weekly_claims_june_2026.v1",
+          label: "June weekly claims pack set",
+          packIds: [
+            "base-rate-first",
+            "labor-market-momentum",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Weekly claims pack set for labor-market cross-checks and advance-release calibration.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Weekly claims pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "labor-market-momentum@0.1.0", "release-vintage-calibration@0.1.0"], target: "us.dol.initial_claims.sa.week_2026-06-13" })',
+          result:
+            '{ admitted: 3, mode: "with_packs", required_checks: ["weekly_claims_base_rate", "payroll_openings_cross_check", "advance_release_error"] }',
+        },
+        {
+          kind: "text",
+          text: "The pack run respects the latest upshift in weekly claims but does not turn it into a recession signal because payrolls and openings remain consistent with a tight labor market.",
+        },
+        {
+          kind: "forecast",
+          point: 225,
+          ciLow: 207,
+          ciHigh: 243,
+        },
+      ],
+    },
+  ],
+  "jolts-openings-may-2026": [
+    {
+      variantId: "jolts-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run fading the April openings spike toward the recent range.",
+      pointEstimate: 7.15,
+      ciLow: 6.55,
+      ciHigh: 7.8,
+      drivers: [
+        "April openings spike",
+        "Recent range-bound openings",
+        "Generic JOLTS sampling volatility",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:35:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack JOLTS forecast using a range-bound openings prior.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/JTSJOL",
+          "https://www.bls.gov/news.release/jolts.nr0.htm",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "JOLTS control run",
+        },
+        {
+          kind: "text",
+          text: "The control treats the April openings surge as a noisy high print and pulls the center back toward the 6.9M to 7.2M recent range.",
+        },
+        {
+          kind: "forecast",
+          point: 7.15,
+          ciLow: 6.55,
+          ciHigh: 7.8,
+        },
+      ],
+    },
+    {
+      variantId: "jolts-labor-packs",
+      label: "Brier-1 - JOLTS packs",
+      description:
+        "Pack-enabled run using payroll, claims, openings, and JOLTS release-noise checks.",
+      pointEstimate: 7.35,
+      ciLow: 6.95,
+      ciHigh: 7.8,
+      drivers: [
+        "Openings range and April spike",
+        "Payroll and claims cross-checks",
+        "JOLTS first-print volatility",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T10:40:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - JOLTS packs",
+        runDescription:
+          "Pack-enabled JOLTS openings forecast using labor-market momentum and release calibration.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/JTSJOL",
+          "https://fred.stlouisfed.org/series/PAYEMS",
+          "https://www.bls.gov/news.release/jolts.nr0.htm",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.jolts_may_2026.v1",
+          label: "May JOLTS labor pack set",
+          packIds: [
+            "base-rate-first",
+            "labor-market-momentum",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "JOLTS pack set for openings, payroll, claims, and first-print volatility checks.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "JOLTS labor pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "labor-market-momentum@0.1.0", "release-vintage-calibration@0.1.0"], target: "bls.jolts.job_openings.may_2026.first_print" })',
+          result:
+            '{ admitted: 3, mode: "with_packs", required_checks: ["openings_base_rate", "payroll_claims_cross_check", "jolts_release_noise"] }',
+        },
+        {
+          kind: "text",
+          text: "Payroll and claims cross-checks make a full reversal of April's openings spike less attractive than the no-pack control, but the JOLTS pack keeps a wide interval for response-rate and revision noise.",
+        },
+        {
+          kind: "forecast",
+          point: 7.35,
+          ciLow: 6.95,
+          ciHigh: 7.8,
+        },
+      ],
+    },
+  ],
+  "nonfarm-payrolls-june-2026": [
+    {
+      variantId: "payrolls-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run that blends recent payroll momentum with a simple mean-reversion prior.",
+      pointEstimate: 125,
+      ciLow: -10,
+      ciHigh: 265,
+      drivers: [
+        "Spring payroll momentum",
+        "Twelve-month mean reversion",
+        "First-print CES sampling noise",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-14T15:20:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack payroll forecast using a generic labor-market trend prior.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/PAYEMS",
+          "https://www.bls.gov/schedule/news_release/empsit.htm",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Payroll control run",
+        },
+        {
+          kind: "text",
+          text: "The control run starts from the recent +170k spring first prints, then pulls toward the softer twelve-month payroll mean rather than adding release-specific context.",
+        },
+        {
+          kind: "math",
+          text: "Blend = 0.55 * spring momentum + 0.45 * trailing-year mean = about +125k.",
+        },
+        {
+          kind: "forecast",
+          point: 125,
+          ciLow: -10,
+          ciHigh: 265,
+        },
+      ],
+    },
+    {
+      variantId: "payrolls-labor-packs",
+      label: "Brier-1 - labor packs",
+      description:
+        "Pack-enabled run with labor-market momentum and first-print calibration.",
+      pointEstimate: 150,
+      ciLow: 35,
+      ciHigh: 260,
+      drivers: [
+        "Payroll momentum",
+        "Claims and JOLTS cross-checks",
+        "First-print release calibration",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T09:10:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - labor packs",
+        runDescription:
+          "Pack-enabled payroll run using labor-market momentum and release-vintage calibration.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/PAYEMS",
+          "https://fred.stlouisfed.org/series/ICSA",
+          "https://www.bls.gov/news.release/jolts.nr0.htm",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.labor_june_2026.v1",
+          label: "June labor-market pack set",
+          packIds: [
+            "base-rate-first",
+            "labor-market-momentum",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Labor-market pack set for June 2026 employment-situation targets.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Labor pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "labor-market-momentum@0.1.0", "release-vintage-calibration@0.1.0"], target: "bls.ces.total_nonfarm_payroll_change.june_2026.first_print" })',
+          result:
+            '{ admitted: 3, mode: "with_packs", required_checks: ["base_rate", "labor_momentum", "first_print_error"] }',
+        },
+        {
+          kind: "text",
+          text: "The pack run keeps the spring payroll base rate but lifts the control slightly because claims and openings do not show a break in labor demand.",
+        },
+        {
+          kind: "math",
+          text: "Packed center = 125k control + 25k claims/openings adjustment = 150k; first-print calibration trims the lower tail.",
+        },
+        {
+          kind: "forecast",
+          point: 150,
+          ciLow: 35,
+          ciHigh: 260,
+        },
+      ],
+    },
+  ],
+  "unemployment-rate-june-2026": [
+    {
+      variantId: "unemployment-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run using only the recent rounded unemployment-rate path.",
+      pointEstimate: 4.3,
+      ciLow: 4.0,
+      ciHigh: 4.6,
+      drivers: [
+        "Recent rounded U-3 persistence",
+        "Household-survey noise",
+        "No explicit payroll or claims cross-check",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-14T15:25:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack unemployment-rate forecast using persistence and generic survey noise.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/UNRATE",
+          "https://www.bls.gov/schedule/news_release/empsit.htm",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Unemployment control run",
+        },
+        {
+          kind: "text",
+          text: "The rate has clustered at 4.3 percent, so the control repeats the modal value but keeps a wider interval for household-survey noise.",
+        },
+        {
+          kind: "forecast",
+          point: 4.3,
+          ciLow: 4.0,
+          ciHigh: 4.6,
+        },
+      ],
+    },
+    {
+      variantId: "unemployment-labor-packs",
+      label: "Brier-1 - labor packs",
+      description:
+        "Pack-enabled run cross-checking unemployment persistence against payrolls and claims.",
+      pointEstimate: 4.3,
+      ciLow: 4.1,
+      ciHigh: 4.5,
+      drivers: [
+        "Unemployment-rate persistence",
+        "Payroll and claims consistency",
+        "Rounded-rate release grid",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T09:15:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - labor packs",
+        runDescription:
+          "Pack-enabled unemployment forecast using labor-market momentum and release-vintage calibration.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/UNRATE",
+          "https://fred.stlouisfed.org/series/PAYEMS",
+          "https://fred.stlouisfed.org/series/ICSA",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.labor_june_2026.v1",
+          label: "June labor-market pack set",
+          packIds: [
+            "base-rate-first",
+            "labor-market-momentum",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Labor-market pack set for June 2026 employment-situation targets.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Labor pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "labor-market-momentum@0.1.0", "release-vintage-calibration@0.1.0"], target: "bls.cps.unemployment_rate.june_2026.first_print" })',
+          result:
+            '{ admitted: 3, mode: "with_packs", required_checks: ["base_rate", "payroll_claims_consistency", "rounded_release_grid"] }',
+        },
+        {
+          kind: "text",
+          text: "Payrolls and claims do not justify moving away from 4.3 percent, but the pack tightens the tails around one rounded tick on either side.",
+        },
+        {
+          kind: "forecast",
+          point: 4.3,
+          ciLow: 4.1,
+          ciHigh: 4.5,
+        },
+      ],
+    },
+  ],
+  "us-cpi-u-mom-june-2026": [
+    {
+      variantId: "headline-cpi-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run extrapolating headline CPI from the recent aggregate monthly series.",
+      pointEstimate: 0.35,
+      ciLow: 0,
+      ciHigh: 0.8,
+      drivers: [
+        "Recent headline CPI momentum",
+        "Generic energy volatility",
+        "No component decomposition",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-14T15:35:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack headline CPI forecast using aggregate inflation history only.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/CPIAUCSL",
+          "https://www.bls.gov/schedule/news_release/cpi.htm",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Headline CPI control run",
+        },
+        {
+          kind: "text",
+          text: "The control sees the recent headline CPI deceleration but treats energy risk as generic residual volatility rather than a structured component.",
+        },
+        {
+          kind: "forecast",
+          point: 0.35,
+          ciLow: 0,
+          ciHigh: 0.8,
+        },
+      ],
+    },
+    {
+      variantId: "headline-cpi-energy-packs",
+      label: "Brier-1 - CPI energy packs",
+      description:
+        "Pack-enabled headline CPI run with energy nowcast, component decomposition, and tariff tail checks.",
+      pointEstimate: 0.45,
+      ciLow: 0.15,
+      ciHigh: 0.75,
+      drivers: [
+        "Energy-price nowcast",
+        "Component decomposition",
+        "Tariff and goods-price tail risk",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T09:35:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - CPI energy packs",
+        runDescription:
+          "Pack-enabled headline CPI forecast using energy, component, and tariff checks.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/CPIAUCSL",
+          "https://fred.stlouisfed.org/series/PPIACO",
+          "https://www.bls.gov/news.release/cpi.nr0.htm",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.cpi_monthly_june_2026.v1",
+          label: "June monthly CPI pack set",
+          packIds: [
+            "base-rate-first",
+            "energy-price-nowcast",
+            "cpi-component-decomposition",
+            "tariff-pass-through",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Monthly CPI pack set for oil-shock, component, and first-print checks.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "CPI energy pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "energy-price-nowcast@0.1.0", "cpi-component-decomposition@0.1.0", "tariff-pass-through@0.1.0", "release-vintage-calibration@0.1.0"], target: "bls.cpi.u.headline_mom.june_2026.first_print" })',
+          result:
+            '{ admitted: 5, mode: "with_packs", required_checks: ["energy_nowcast", "component_recombine", "tariff_tail", "first_print_rounding"] }',
+        },
+        {
+          kind: "text",
+          text: "Energy and pipeline-price packs keep the center a touch above the aggregate control while the release pack prevents the interval from becoming too wide.",
+        },
+        {
+          kind: "forecast",
+          point: 0.45,
+          ciLow: 0.15,
+          ciHigh: 0.75,
+        },
+      ],
+    },
+  ],
+  "us-core-cpi-mom-june-2026": [
+    {
+      variantId: "core-cpi-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run using recent core CPI persistence and generic volatility.",
+      pointEstimate: 0.25,
+      ciLow: 0.1,
+      ciHigh: 0.4,
+      drivers: [
+        "Recent core CPI persistence",
+        "Generic service-price volatility",
+        "No tariff or component tail check",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-14T15:40:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack core CPI forecast using the recent aggregate core series.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/CPILFESL",
+          "https://www.bls.gov/schedule/news_release/cpi.htm",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Core CPI control run",
+        },
+        {
+          kind: "text",
+          text: "The control repeats the recent low-0.2 to low-0.3 percent core CPI range with one rounded step of uncertainty.",
+        },
+        {
+          kind: "forecast",
+          point: 0.25,
+          ciLow: 0.1,
+          ciHigh: 0.4,
+        },
+      ],
+    },
+    {
+      variantId: "core-cpi-component-packs",
+      label: "Brier-1 - core CPI packs",
+      description:
+        "Pack-enabled core CPI run using component checks and tariff pass-through tails.",
+      pointEstimate: 0.3,
+      ciLow: 0.15,
+      ciHigh: 0.45,
+      drivers: [
+        "Core services persistence",
+        "Component decomposition",
+        "Tariff pass-through tail risk",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T09:40:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - core CPI packs",
+        runDescription:
+          "Pack-enabled core CPI forecast using component and tariff checks.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/CPILFESL",
+          "https://www.bls.gov/news.release/cpi.nr0.htm",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.core_cpi_monthly_june_2026.v1",
+          label: "June core CPI pack set",
+          packIds: [
+            "base-rate-first",
+            "cpi-component-decomposition",
+            "tariff-pass-through",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Core CPI pack set for component, tariff, and first-print checks.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Core CPI pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "cpi-component-decomposition@0.1.0", "tariff-pass-through@0.1.0", "release-vintage-calibration@0.1.0"], target: "bls.cpi.u.core_mom.june_2026.first_print" })',
+          result:
+            '{ admitted: 4, mode: "with_packs", required_checks: ["core_services", "core_goods_tail", "first_print_rounding"] }',
+        },
+        {
+          kind: "text",
+          text: "The component pack leaves the median at one rounded 0.3 percent print but adds a slightly higher upper tail for core goods and transport pass-through.",
+        },
+        {
+          kind: "forecast",
+          point: 0.3,
+          ciLow: 0.15,
+          ciHigh: 0.45,
+        },
+      ],
+    },
+  ],
+  "us-core-pce-mom-may-2026": [
+    {
+      variantId: "core-pce-control-no-packs",
+      label: "Scout-2 - no packs",
+      description:
+        "Control run extrapolating core PCE from the recent PCE index alone.",
+      pointEstimate: 0.23,
+      ciLow: 0.08,
+      ciHigh: 0.38,
+      drivers: [
+        "Recent core PCE persistence",
+        "Generic monthly volatility",
+        "No CPI source-data bridge",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-14T15:45:00-04:00",
+        agent: "scout-2.control",
+        model: "gpt-5-mini",
+        runLabel: "Scout-2 - no packs",
+        runDescription:
+          "No-pack core PCE forecast using only recent PCE index history.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/PCEPILFE",
+          "https://www.bea.gov/news/schedule",
+        ],
+        packSet: NO_PACK_SET,
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Core PCE control run",
+        },
+        {
+          kind: "text",
+          text: "The control holds near the recent core PCE trend and does not ingest CPI components that arrive before the BEA release.",
+        },
+        {
+          kind: "forecast",
+          point: 0.23,
+          ciLow: 0.08,
+          ciHigh: 0.38,
+        },
+      ],
+    },
+    {
+      variantId: "core-pce-bridge-packs",
+      label: "Brier-1 - PCE bridge packs",
+      description:
+        "Pack-enabled core PCE run bridging CPI component information into BEA PCE concepts.",
+      pointEstimate: 0.27,
+      ciLow: 0.12,
+      ciHigh: 0.42,
+      drivers: [
+        "PCE-CPI concept bridge",
+        "Core CPI source-data signal",
+        "BEA release calibration",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-06-15T09:45:00-04:00",
+        agent: "brier-1.packed",
+        model: "gpt-5",
+        runLabel: "Brier-1 - PCE bridge packs",
+        runDescription:
+          "Pack-enabled core PCE forecast using CPI bridge and BEA release calibration.",
+        sourceContext: [
+          "https://fred.stlouisfed.org/series/PCEPILFE",
+          "https://fred.stlouisfed.org/series/CPILFESL",
+          "https://www.bea.gov/news/schedule",
+        ],
+        packSet: buildPackSet({
+          packSetId: "pack_set.core_pce_may_2026.v1",
+          label: "May core PCE bridge pack set",
+          packIds: [
+            "base-rate-first",
+            "pce-cpi-bridge",
+            "release-vintage-calibration",
+          ],
+          notes:
+            "Core PCE pack set for mapping CPI source data into BEA PCE concepts.",
+        }),
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "PCE bridge pack run",
+        },
+        {
+          kind: "tool",
+          tool: "brier.pack.apply",
+          call: 'brier.pack.apply({ packs: ["base-rate-first@0.1.0", "pce-cpi-bridge@0.1.0", "release-vintage-calibration@0.1.0"], target: "us.bea.core_pce.mom_sa.2026-05" })',
+          result:
+            '{ admitted: 3, mode: "with_packs", required_checks: ["pce_cpi_scope_bridge", "bea_release_calibration"] }',
+        },
+        {
+          kind: "text",
+          text: "The CPI bridge raises the center modestly because core CPI source data is firm enough to keep BEA core PCE above the no-pack persistence estimate.",
+        },
+        {
+          kind: "forecast",
+          point: 0.27,
+          ciLow: 0.12,
+          ciHigh: 0.42,
+        },
+      ],
+    },
+  ],
+};
+
+export const FORECAST_CELLS: ForecastCell[] = FORECAST_CELL_DEFINITIONS.map(
+  (forecast) => {
+    const comparisonRuns = [
+      ...(forecast.comparisonRuns ?? []),
+      ...(FORECAST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
+      ...(RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
+    ];
+
+    return {
+      ...forecast,
+      comparisonRuns:
+        comparisonRuns.length > 0
+          ? comparisonRuns.map((run) => ({
+              ...run,
+              predictionDistribution:
+                run.predictionDistribution ??
+                buildNumericCdfFromInterval({
+                  pointEstimate: run.pointEstimate,
+                  ciLow: run.ciLow,
+                  ciHigh: run.ciHigh,
+                }),
+            }))
+          : undefined,
+      predictionDistribution:
+        forecast.predictionDistribution ??
+        buildNumericCdfFromInterval({
+          pointEstimate: forecast.pointEstimate,
+          ciLow: forecast.ciLow,
+          ciHigh: forecast.ciHigh,
+        }),
+    };
+  },
 );
 
 export function getForecastCell(slug: string): ForecastCell | undefined {
@@ -4585,6 +7369,9 @@ export function formatValue(value: number, unit: Unit): string {
     case "usd_monthly":
       return `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo`;
     case "thousands":
+      if (Math.abs(value) >= 1000) {
+        return `${formatScaledThousandsAsMillions(value)}m`;
+      }
       return `${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}k`;
     case "millions":
       return `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}M`;
@@ -4597,6 +7384,14 @@ export function formatValue(value: number, unit: Unit): string {
     default:
       return value.toString();
   }
+}
+
+function formatScaledThousandsAsMillions(value: number): string {
+  const millions = value / 1000;
+  return millions.toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: Math.abs(millions) >= 10 ? 2 : 1,
+  });
 }
 
 function formatPercent(value: number): string {

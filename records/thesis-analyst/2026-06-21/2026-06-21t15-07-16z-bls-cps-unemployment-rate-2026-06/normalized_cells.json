@@ -1,0 +1,111 @@
+[
+ {
+  "slug": "bls-cps-unemployment-rate-2026-06",
+  "country": "US",
+  "type": "data",
+  "title": "US unemployment rate, June 2026",
+  "question": "What will the U.S. Bureau of Labor Statistics report as the seasonally adjusted civilian unemployment rate, age 16 and over, for June 2026 in the first Employment Situation print?",
+  "unit": "percent",
+  "pointEstimate": 4.3,
+  "ciLow": 4.1,
+  "ciHigh": 4.6,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-02",
+  "resolutionSource": "U.S. Bureau of Labor Statistics Employment Situation news release",
+  "resolutionSourceUrl": "https://www.bls.gov/news.release/empsit.nr0.htm",
+  "resolutionRule": "Resolve to the first BLS Employment Situation release value for the seasonally adjusted civilian unemployment rate, age 16 and over, for reference month June 2026, reported in percent to one decimal place. Use the initial July 2, 2026 print and ignore later revisions or annual population-control revisions.",
+  "dataPointId": "bls.cps.unemployment_rate.2026-06.first_print",
+  "historicalContext": [
+   {
+    "label": "2026-05 latest first/current print",
+    "value": 4.3
+   },
+   {
+    "label": "2026-04",
+    "value": 4.3
+   },
+   {
+    "label": "2026-03",
+    "value": 4.3
+   },
+   {
+    "label": "2026-02",
+    "value": 4.4
+   },
+   {
+    "label": "2026-01",
+    "value": 4.3
+   }
+  ],
+  "drivers": [
+   "Recent unemployment rate has been flat near 4.3 percent",
+   "May payroll growth was strong at 172000 jobs",
+   "Labor force participation was unchanged at 61.8 percent",
+   "BLS notes the rate has stayed in a 4.3 to 4.5 percent range since July 2025",
+   "Household-survey sampling noise can move the rounded rate by a few tenths"
+  ],
+  "sourceContext": [
+   "https://www.bls.gov/schedule/news_release/empsit.htm",
+   "https://www.bls.gov/news.release/empsit.nr0.htm",
+   "https://www.bls.gov/news.release/archives/empsit_06052026.htm",
+   "https://fred.stlouisfed.org/series/UNRATE"
+  ],
+  "runAt": "2026-06-21T15:07:35Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for June 2026 BLS CPS unemployment rate"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the first official BLS Employment Situation print for June 2026, using the seasonally adjusted civilian unemployment rate for people age 16 and over, rounded to one decimal percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the BLS Employment Situation release calendar for the June 2026 reference month.",
+    "result": "BLS calendar lists June 2026 Employment Situation release on Jul. 02, 2026 at 08:30 AM."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the current BLS Employment Situation Summary for May 2026.",
+    "result": "BLS reported total nonfarm payroll employment increased by 172,000 in May and the unemployment rate was unchanged at 4.3 percent; unemployed people were 7.3 million."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read BLS archived May 2026 Employment Situation table A-1 for recent household-survey values.",
+    "result": "Seasonally adjusted unemployment rates in table A-1 were Jan 2026 4.3, Feb 2026 4.4, Mar 2026 4.3, Apr 2026 4.3, May 2026 4.3 percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "history.mirror",
+    "call": "Checked FRED UNRATE as a history mirror for recent BLS CPS values and next-release metadata.",
+    "result": "FRED showed May 2026 4.3, Apr 2026 4.3, Mar 2026 4.3, Feb 2026 4.4, Jan 2026 4.3, updated Jun 5, 2026, with next release date Jul 2, 2026."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference class: one-month moves in the rounded unemployment rate are usually small, and the immediate recent reference class is especially persistent: five latest monthly values are all between 4.3 and 4.4, with four of five at 4.3."
+   },
+   {
+    "kind": "text",
+    "text": "The main upside risk is that the household survey can be noisy and BLS says the unemployment-rate monthly-change confidence interval is about plus or minus 0.3 percentage point near a 6.0 percent rate; a softer June household survey could round to 4.4 or 4.5 even if payrolls remain positive."
+   },
+   {
+    "kind": "text",
+    "text": "The main downside risk is continued strong labor demand: May payrolls rose 172,000, participation was steady at 61.8 percent, and the unemployment rate has held at 4.3 despite month-to-month changes in unemployment levels."
+   },
+   {
+    "kind": "math",
+    "text": "Use persistence as the anchor: median of Jan-May rounded rates = 4.3. Apply no drift because May payrolls were strong and participation was flat, but widen the 80 percent interval to roughly one BLS household-survey rounded-rate move below and above: 4.1 to 4.6."
+   },
+   {
+    "kind": "forecast",
+    "point": 4.3,
+    "ciLow": 4.1,
+    "ciHigh": 4.6
+   }
+  ]
+ }
+]

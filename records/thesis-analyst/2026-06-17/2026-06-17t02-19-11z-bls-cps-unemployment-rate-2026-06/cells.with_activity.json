@@ -1,0 +1,165 @@
+[
+  {
+    "slug": "bls-cps-unemployment-rate-2026-06",
+    "country": "US",
+    "type": "data",
+    "title": "US unemployment rate, June 2026",
+    "question": "BLS CPS LNS14000000 unemployment rate, June 2026, seasonally adjusted, first print in the Employment Situation release",
+    "unit": "percent",
+    "pointEstimate": 4.3,
+    "ciLow": 4.1,
+    "ciHigh": 4.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-02",
+    "resolutionSource": "Bureau of Labor Statistics Employment Situation release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/empsit.nr0.htm",
+    "resolutionRule": "Resolve to the first published seasonally adjusted BLS CPS unemployment rate for June 2026, series LNS14000000, in the Employment Situation release scheduled for July 2, 2026. Use the one-decimal percent value as first printed; ignore later revisions or annual population-control updates unless BLS corrects the initial release before the next Employment Situation release.",
+    "dataPointId": "bls.cps.LNS14000000.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-01",
+        "value": 4.3
+      },
+      {
+        "label": "2026-02",
+        "value": 4.4
+      },
+      {
+        "label": "2026-03",
+        "value": 4.3
+      },
+      {
+        "label": "2026-04",
+        "value": 4.3
+      },
+      {
+        "label": "2026-05",
+        "value": 4.3
+      }
+    ],
+    "drivers": [
+      "Recent unemployment rate has been flat near 4.3 percent",
+      "May payroll growth was strong at 172,000",
+      "Labor-force participation was unchanged at 61.8 percent",
+      "Unemployed count fell by 66,000 in May",
+      "Long-term unemployment remains elevated at 2.0 million"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "https://www.bls.gov/news.release/empsit.a.htm",
+      "https://www.bls.gov/news.release/empsit.t01.htm"
+    ],
+    "runAt": "2026-06-17T02:19:19Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 BLS CPS unemployment rate"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first-print, seasonally adjusted CPS unemployment rate for June 2026, not a later revised value. The official BLS Employment Situation release is the resolver."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS Employment Situation release calendar for the June 2026 reference month.",
+        "result": "BLS calendar lists June 2026 release date as Jul. 02, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the latest BLS Employment Situation summary for May 2026.",
+        "result": "May 2026 unemployment rate was 4.3 percent; total nonfarm payroll employment increased by 172,000; unemployed people were 7.3 million."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS seasonally adjusted household summary table A for May 2026.",
+        "result": "Unemployment rate row shows May 2025 4.3, Mar. 2026 4.3, Apr. 2026 4.3, May 2026 4.3; participation rate was 61.8 in Apr. 2026 and 61.8 in May 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS Table A-1 for the latest seasonally adjusted monthly unemployment-rate path.",
+        "result": "Seasonally adjusted unemployment rates were Jan. 2026 4.3, Feb. 2026 4.4, Mar. 2026 4.3, Apr. 2026 4.3, May 2026 4.3."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class step: one-month changes in the rounded unemployment rate are usually small, and the last five official monthly prints have stayed in a 4.3 to 4.4 range, with four of five at 4.3."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: household-survey noise can move the rounded unemployment rate by 0.1 or 0.2 points even when payroll growth is solid, and long-term unemployment near 2.0 million leaves some upside risk."
+      },
+      {
+        "kind": "math",
+        "text": "Average of Jan-May rounded rates is (4.3 + 4.4 + 4.3 + 4.3 + 4.3) / 5 = 4.32, rounded to a 4.3 percent point forecast. I set the 80 percent interval at 4.1 to 4.6 to allow roughly minus 0.2 to plus 0.3 points around the recent 4.3 percent center, with slightly more upside due to household-survey volatility."
+      },
+      {
+        "kind": "forecast",
+        "point": 4.3,
+        "ciLow": 4.1,
+        "ciHigh": 4.6
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/prompt.md",
+        "sha256": "514272ca951f2e6a8fdbbc88014862134c8080598030e83585fcf74c1df72091",
+        "bytes": 3594,
+        "createdAt": "2026-06-17T02:19:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/command.json",
+        "sha256": "e1b5a636040911c69a1a989ad8f9328e4dbb7f3ad2838447c0383e728d426cce",
+        "bytes": 412,
+        "createdAt": "2026-06-17T02:19:11Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/stdout.txt",
+        "sha256": "e9ec661fe63727e9f6b1599fe40435e6e11cafab51bd2010b027c8fb0e424baa",
+        "bytes": 3838,
+        "createdAt": "2026-06-17T02:19:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/stderr.txt",
+        "sha256": "fa9341d340eed8ad8bb50338e322abc343c2e5ed667e1593f5c1e6dbce8a3099",
+        "bytes": 13713,
+        "createdAt": "2026-06-17T02:19:11Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/raw_response.txt",
+        "sha256": "e9ec661fe63727e9f6b1599fe40435e6e11cafab51bd2010b027c8fb0e424baa",
+        "bytes": 3838,
+        "createdAt": "2026-06-17T02:19:11Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/parsed_cells.json",
+        "sha256": "71daad355795a9524cc572bea8da0ca2014f6e262aa353fe70cd2eb1c03367dc",
+        "bytes": 4659,
+        "createdAt": "2026-06-17T02:19:11Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/normalized_cells.json",
+        "sha256": "66cdaf67d4f6e5076f8cf19184b3f1307faaebe69b7f4b5ca13bb47954473ba6",
+        "bytes": 4332,
+        "createdAt": "2026-06-17T02:19:11Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-17/2026-06-17t02-19-11z-bls-cps-unemployment-rate-2026-06/validation.json",
+        "sha256": "846f4c2eea1d1e284a65f72cdd5056eda864d76bca2594aacccc2dc0243e5d7d",
+        "bytes": 134,
+        "createdAt": "2026-06-17T02:19:11Z"
+      }
+    ]
+  }
+]

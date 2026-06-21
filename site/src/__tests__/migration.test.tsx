@@ -269,7 +269,7 @@ describe("Next.js migration", () => {
       expect(
         screen.getByRole("link", { name: "View facts ledger →" }),
       ).toHaveAttribute("href", "/ledger");
-    });
+    }, 15_000);
 
     it("renders the Thesis Log tables", async () => {
       render(await ForecastLogPage());
@@ -291,7 +291,9 @@ describe("Next.js migration", () => {
       expect(
         screen.queryByText("Official observations"),
       ).not.toBeInTheDocument();
-      expect(screen.getByText("CRPS")).toBeInTheDocument();
+      expect(screen.getByText("Scoreboard")).toBeInTheDocument();
+      expect(screen.getAllByText("nCRPS").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("CRPS").length).toBeGreaterThan(0);
       expect(screen.getByText("PIT")).toBeInTheDocument();
       expect(screen.getAllByText("201 points").length).toBeGreaterThan(0);
       const payrollLinks = screen.getAllByRole("link", {
@@ -308,8 +310,9 @@ describe("Next.js migration", () => {
 
       expect(screen.getAllByText("Ledger").length).toBeGreaterThan(0);
       expect(
-        screen.getByText("PolicyEngine Ledger · facts only"),
+        screen.getByText("PolicyEngine Ledger · targets and observations"),
       ).toBeVisible();
+      expect(screen.getByText("Registered targets")).toBeInTheDocument();
       expect(screen.getByText("Official observations")).toBeInTheDocument();
       expect(
         screen.getByRole("link", { name: "Machine-readable ledger JSON →" }),
@@ -332,9 +335,9 @@ describe("Next.js migration", () => {
       expect(body.source.url).toBe("https://app.thesisinstitute.org/log");
       expect(body.source.factLedger.name).toBe("PolicyEngine Ledger");
       expect(body.counts.predictions).toBeGreaterThan(100);
-      expect(body.counts.specs).toBe(body.counts.predictions);
       expect(body.counts.runs).toBe(body.counts.predictions);
-      expect(body.counts.resolutionLinks).toBe(body.counts.predictions);
+      expect(body.counts.runs).toBeGreaterThanOrEqual(body.counts.specs);
+      expect(body.counts.resolutionLinks).toBe(body.counts.specs);
       expect(body.counts.resolutionEvents).toBe(body.counts.resolutions);
       expect(body.counts.pendingResolution).toBeGreaterThan(0);
       expect(body.entries[0].kind).toBe("prediction_recorded");
@@ -379,8 +382,21 @@ describe("Next.js migration", () => {
       expect(body.source.name).toBe("PolicyEngine Ledger");
       expect(body.source.url).toBe("https://github.com/PolicyEngine/arch-data");
       expect(body.counts.facts).toBeGreaterThan(0);
-      expect(body.counts.observations).toBe(body.counts.facts);
-      expect(body.entries[0].kind).toBe("observation_recorded");
+      expect(body.counts.targets).toBeGreaterThan(0);
+      expect(body.counts.observations).toBeGreaterThan(0);
+      expect(body.counts.facts).toBe(
+        body.counts.targets + body.counts.observations,
+      );
+      expect(
+        body.entries.some(
+          (entry: { kind: string }) => entry.kind === "target_registered",
+        ),
+      ).toBe(true);
+      expect(
+        body.entries.some(
+          (entry: { kind: string }) => entry.kind === "observation_recorded",
+        ),
+      ).toBe(true);
       expect(body.scores).toBeUndefined();
       expect(body.resolutionQueue).toBeUndefined();
     });

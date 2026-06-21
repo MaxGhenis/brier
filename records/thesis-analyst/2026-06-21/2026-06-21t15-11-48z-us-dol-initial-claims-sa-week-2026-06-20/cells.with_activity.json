@@ -1,0 +1,167 @@
+[
+  {
+    "slug": "us-dol-initial-claims-sa-week-2026-06-20",
+    "country": "US",
+    "type": "data",
+    "title": "US initial jobless claims, week ending Jun 20",
+    "question": "What will the U.S. Department of Labor Employment and Training Administration first report for seasonally adjusted initial unemployment insurance claims in the week ending June 20, 2026?",
+    "unit": "thousands",
+    "pointEstimate": 225,
+    "ciLow": 208,
+    "ciHigh": 243,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-25",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims Report",
+    "resolutionSourceUrl": "https://www.dol.gov/ui/data.pdf",
+    "resolutionRule": "Resolve to the first advance seasonally adjusted initial claims figure for the week ending June 20, 2026, in the ETA Unemployment Insurance Weekly Claims Report released on June 25, 2026. Use the headline national seasonally adjusted initial claims number, expressed in thousands and rounded to the nearest thousand. Do not use later revisions, FRED updates, press summaries, or state unadjusted claims as the resolver.",
+    "dataPointId": "dol.eta.ui.initial_claims.sa.week_2026-06-20.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06-13 latest first print",
+        "value": 226
+      },
+      {
+        "label": "2026-06-06 revised in latest release",
+        "value": 230
+      },
+      {
+        "label": "2026-05-30 revised in latest release",
+        "value": 225
+      },
+      {
+        "label": "2026-05-23 revised history",
+        "value": 212
+      },
+      {
+        "label": "2026-05-16 revised history",
+        "value": 210
+      },
+      {
+        "label": "latest 4-week average",
+        "value": 223.25
+      }
+    ],
+    "drivers": [
+      "recent claims centered near 223k",
+      "school-year seasonal noise around early summer",
+      "continuing claims edged up but layoffs remain contained",
+      "latest week fell 4k after prior revision",
+      "forecast close to recent 3-week average"
+    ],
+    "sourceContext": [
+      "https://www.dol.gov/ui/data.pdf",
+      "https://www.dol.gov/newsroom/releases/eta",
+      "https://fred.stlouisfed.org/series/ICSA"
+    ],
+    "runAt": "2026-06-21T15:11:54Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DOL seasonally adjusted initial claims, week ending June 20, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first-print national seasonally adjusted initial claims figure in the ETA weekly claims report for the week ending June 20, 2026; the unit here is thousands of claims."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened DOL current weekly claims PDF at https://www.dol.gov/ui/data.pdf.",
+        "result": "Fetched latest report embargoed until 8:30 A.M. Eastern Thursday, June 18, 2026; week ending June 13 seasonally adjusted initial claims were 226,000; previous week revised to 230,000; 4-week moving average was 223,250."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened DOL ETA newsroom release listing at https://www.dol.gov/newsroom/releases/eta.",
+        "result": "Fetched June 18, 2026 release summary: week ending June 13 initial claims 226,000, decrease 4,000 from revised 230,000; June 11 release summary: week ending June 6 initial claims 229,000 before later revision; June 4 summary: week ending May 30 initial claims 225,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "mirror.lookup",
+        "call": "Opened FRED ICSA page at https://fred.stlouisfed.org/series/ICSA for history mirror and release-date check.",
+        "result": "Fetched observations 2026-06-13 226,000; 2026-06-06 230,000; 2026-05-30 225,000; 2026-05-23 212,000; 2026-05-16 210,000; next release date Jun 25, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate reference class: one-week changes in this series are usually small relative to the level, and the latest sequence 210k, 212k, 225k, 230k, 226k puts a neutral forecast in the low-to-mid 220s rather than implying a new break."
+      },
+      {
+        "kind": "math",
+        "text": "Recent anchors: 3-week average = (226 + 230 + 225) / 3 = 227.0; 5-week average = (226 + 230 + 225 + 212 + 210) / 5 = 220.6; latest 4-week average = 223.25. I put the point at 225, slightly below the 3-week average but above the 5-week average because early-June claims have been elevated versus May."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the end-of-school-year period can create seasonal-adjustment noise, so a sharper move toward 235k or back toward 210k is plausible even without a real layoff-cycle shift."
+      },
+      {
+        "kind": "math",
+        "text": "For an 80% interval, I use roughly +/-17k around the 225k point, reflecting normal weekly volatility and recent early-summer noise: low 208, high 243."
+      },
+      {
+        "kind": "forecast",
+        "point": 225,
+        "ciLow": 208,
+        "ciHigh": 243
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/prompt.md",
+        "sha256": "c12f706f89287273dd0f6d161ced54d3d4ad7bc9fb65a13a1ed66778ecbd4a2c",
+        "bytes": 3601,
+        "createdAt": "2026-06-21T15:11:48Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/command.json",
+        "sha256": "1c831426d4c9836dc4800fc9afe0793fb03651b6e1e702b3861e19ff48f427df",
+        "bytes": 412,
+        "createdAt": "2026-06-21T15:11:48Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/stdout.txt",
+        "sha256": "2aa51a42314401dd74c59c028fd13d238a0cff4144156d98581f86ee3b0f2f03",
+        "bytes": 4361,
+        "createdAt": "2026-06-21T15:11:48Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/stderr.txt",
+        "sha256": "0bdb325e9107ae8cbe0b1ed1c29f6f37e0f5b1d4735bac997a47a245f384fc86",
+        "bytes": 14594,
+        "createdAt": "2026-06-21T15:11:48Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/raw_response.txt",
+        "sha256": "2aa51a42314401dd74c59c028fd13d238a0cff4144156d98581f86ee3b0f2f03",
+        "bytes": 4361,
+        "createdAt": "2026-06-21T15:11:48Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/parsed_cells.json",
+        "sha256": "60e46a2318d942aaa18ec8c678bd2f37baf6c554beeb4755ae6a5b7fed22bc4b",
+        "bytes": 5189,
+        "createdAt": "2026-06-21T15:11:48Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/normalized_cells.json",
+        "sha256": "9c6da5888b1f99b65d56f212ac7324061f098469fcd952d568e26f15ae481ee6",
+        "bytes": 4859,
+        "createdAt": "2026-06-21T15:11:48Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-21/2026-06-21t15-11-48z-us-dol-initial-claims-sa-week-2026-06-20/validation.json",
+        "sha256": "57ad83b127726dad7fa450caef0f6452d3df047aa1af2d8a32a96c5c581193b5",
+        "bytes": 141,
+        "createdAt": "2026-06-21T15:11:48Z"
+      }
+    ]
+  }
+]

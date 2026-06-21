@@ -1,0 +1,106 @@
+[
+  {
+    "slug": "bls-cpi-u-headline-mom-2026-06",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI-U headline m/m, Jun 2026",
+    "question": "What will BLS report as the seasonally adjusted month-over-month percent change in CPI-U, U.S. city average, all items, for June 2026 in the first Consumer Price Index release?",
+    "unit": "percent",
+    "pointEstimate": 0.4,
+    "ciLow": 0.1,
+    "ciHigh": 0.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first published BLS Consumer Price Index Summary Table A seasonally adjusted percent change from the preceding month for CPI-U, U.S. city average, all items, reference month June 2026. Use the one-decimal percent shown in the first official release; ignore later annual seasonal-adjustment revisions or corrected/revised data unless BLS explicitly withdraws and replaces the first release before normal dissemination is complete.",
+    "dataPointId": "bls.cpi_u.all_items.sa_mom.2026_06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 latest SA m/m",
+        "value": 0.5
+      },
+      {
+        "label": "2026-04 SA m/m",
+        "value": 0.6
+      },
+      {
+        "label": "2026-03 SA m/m",
+        "value": 0.9
+      },
+      {
+        "label": "2026-02 SA m/m",
+        "value": 0.3
+      },
+      {
+        "label": "2026-01 SA m/m",
+        "value": 0.2
+      }
+    ],
+    "drivers": [
+      "recent headline CPI momentum remains elevated",
+      "energy prices are the main upside risk",
+      "core CPI was softer than headline in May",
+      "monthly CPI mean reversion after large March-May prints",
+      "seasonally adjusted first print rounds to one decimal"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/cpi/latest-numbers.htm"
+    ],
+    "runAt": "2026-06-21T15:10:03Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 CPI-U headline month-over-month"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the BLS first print for CPI-U, U.S. city average, all items, seasonally adjusted percent change from May 2026 to June 2026. This is a data-release target, not a later revised time-series value."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS Consumer Price Index release schedule for the June 2026 reference month.",
+        "result": "BLS lists reference month June 2026 with release date Jul. 14, 2026 and release time 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the current BLS CPI Summary Table A for recent seasonally adjusted all-items CPI-U monthly changes.",
+        "result": "BLS Table A shows all items seasonally adjusted changes of Jan. 2026 0.2, Feb. 2026 0.3, Mar. 2026 0.9, Apr. 2026 0.6, and May 2026 0.5, with 12-month May 2026 inflation 4.2."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS CPI Latest Numbers page for the latest headline CPI-U and core CPI-U readings.",
+        "result": "BLS Latest Numbers reports CPI-U all items SA +0.5% in May 2026, NSA +0.6% in May 2026, and NSA +4.2% since May 2025; core CPI-U SA was +0.2% in May 2026 and NSA +2.9% since May 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read CPI Summary component details for the May 2026 composition of headline inflation.",
+        "result": "BLS Table A shows May 2026 energy +3.9, gasoline +7.0, food +0.2, all items less food and energy +0.2, shelter +0.3, and services less energy services +0.3."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class: recent one-month headline CPI prints before the target were 0.2, 0.3, 0.9, 0.6, and 0.5. Their simple average is 0.5, but the median is also 0.5 and the latest core reading of 0.2 suggests headline pressure is being pulled up by volatile energy rather than a broad acceleration."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: if the energy shock persists into June, gasoline and energy could keep headline CPI near the recent 0.5-0.6 pace or higher; if energy retraces or core softness dominates, the rounded print could fall toward 0.2-0.3."
+      },
+      {
+        "kind": "math",
+        "text": "Use a reference-class center near 0.5, shade down by 0.1 because May core CPI was 0.2 and some mean reversion is likely after March 0.9, April 0.6, and May 0.5. Set pointEstimate = 0.4. An 80% interval of 0.1 to 0.8 covers a soft core-led month through a renewed energy-led upside surprise and respects one-decimal BLS rounding."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.4,
+        "ciLow": 0.1,
+        "ciHigh": 0.8
+      }
+    ]
+  }
+]

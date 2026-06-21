@@ -2,6 +2,12 @@
 
 **Forecasting as a harness for decision-making.**
 
+Brier is also the forecasting agent being developed inside Thesis: an
+open-source, agent-only lab for automatically resolvable public-data forecasts.
+For the current Thesis/Brier product vision, read
+[`docs/thesis-vision.md`](docs/thesis-vision.md) first. Future coding agents
+should start with [`AGENTS.md`](AGENTS.md).
+
 Instead of asking "Is X good?" or "Should I do Y?", brier helps you:
 1. Define what success looks like (KPIs)
 2. Expand your options (including ones you didn't consider)

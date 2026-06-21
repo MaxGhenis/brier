@@ -1,0 +1,122 @@
+[
+ {
+  "slug": "boe-bank-rate-2026-06-18",
+  "country": "UK",
+  "type": "data",
+  "title": "BoE Bank Rate, 18 Jun 2026",
+  "question": "Bank of England Bank Rate after the 18 June 2026 MPC announcement, percent, first official print.",
+  "unit": "percent",
+  "pointEstimate": 3.75,
+  "ciLow": 3.5,
+  "ciHigh": 4,
+  "confidence": 0.8,
+  "resolutionDate": "2026-06-18",
+  "resolutionSource": "Bank of England Monetary Policy Summary and minutes of the Monetary Policy Committee meeting - June 2026",
+  "resolutionSourceUrl": "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/june-2026",
+  "resolutionRule": "Resolve to the Bank Rate percentage stated in the first Bank of England June 2026 MPC Monetary Policy Summary page published on 18 June 2026, expected at 12pm UK time. Use the stated policy rate in percent; ignore later revisions, commentary, or subsequent MPC decisions unless the first page is corrected before any public value is visible.",
+  "dataPointId": "boe.mpc.bank_rate.2026-06-18.first_print",
+  "historicalContext": [
+   {
+    "label": "latest current Bank Rate on BoE interest-rate page",
+    "value": 3.75
+   },
+   {
+    "label": "April 2026 MPC Bank Rate",
+    "value": 3.75
+   },
+   {
+    "label": "March 2026 MPC Bank Rate",
+    "value": 3.75
+   },
+   {
+    "label": "February 2026 MPC Bank Rate",
+    "value": 3.75
+   },
+   {
+    "label": "current inflation rate on BoE interest-rate page",
+    "value": 2.8
+   },
+   {
+    "label": "CPI inflation cited in April MPC summary",
+    "value": 3.3
+   }
+  ],
+  "drivers": [
+   "current Bank Rate is already 3.75%",
+   "June MPC announcement is scheduled for 18 June 2026",
+   "April vote was 8-1 to hold, with one 4.00% dissent",
+   "March vote was unanimous to hold at 3.75%",
+   "February vote was 5-4 to hold, with four 3.50% cut dissents",
+   "BoE says inflation and energy shocks raise upside risk",
+   "loosening labour market and weak activity argue against a hike"
+  ],
+  "sourceContext": [
+   "https://www.bankofengland.co.uk/",
+   "https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate",
+   "https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates",
+   "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/june-2026",
+   "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/april-2026",
+   "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/march-2026",
+   "https://www.bankofengland.co.uk/monetary-policy-summary-and-minutes/2026/february-2026"
+  ],
+  "runAt": "2026-06-16T12:28:37Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for the 18 June 2026 Bank of England Bank Rate decision"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the first official Bank of England June 2026 MPC Monetary Policy Summary page. Because Bank Rate is a policy decision level, the target is the rate after the announcement, not a later revised statistical series."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the Bank of England home page and current Bank Rate module.",
+    "result": "Fetched Current Bank Rate 3.75%, Next due 18 June 2026, and current inflation rate 2.8%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the Bank of England interest rates and Bank Rate page.",
+    "result": "Fetched Current Bank Rate 3.75%, latest decision held at 3.75%, published 30 April 2026, inflation 3.3%, and next due 18 June 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the Bank of England MPC dates page for 2026 and 2027.",
+    "result": "Fetched confirmed 2026 MPC dates including Thursday 5 February, 19 March, 30 April, 18 June, 30 July, 17 September, 5 November, 17 December; current Bank Rate 3.75%; next due 18 June 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the June 2026 MPC page placeholder.",
+    "result": "Fetched page title for June 2026 MPC Summary, Published on 18 June 2026, and statement that it will be published on 18 June 2026 at 12pm."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened recent official MPC summaries for February, March, and April 2026.",
+    "result": "Fetched February Bank Rate 3.75% with 5-4 vote and four preferring 3.5%; March Bank Rate 3.75% with unanimous hold; April Bank Rate 3.75% with 8-1 vote and one preferring 4.0%."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class step: the last three MPC meetings all held at 3.75%, and the most recent vote distribution shifted from February cut dissents to March unanimous hold to April one hike dissent, so the modal reference case for the next meeting is another hold at 3.75%."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: upside inflation and energy-price risks make a 4.00% hike plausible, while weak activity and a loosening labour market keep a 3.50% cut in the broader 80% set; both alternatives are less likely than a hold two days before the scheduled release."
+   },
+   {
+    "kind": "math",
+    "text": "Use the BoE's usual 0.25 percentage-point policy grid. Point estimate is the modal hold, 3.75. For an 80% interval, include the adjacent cut and hike outcomes around the modal decision: ciLow = 3.50, point = 3.75, ciHigh = 4.00."
+   },
+   {
+    "kind": "forecast",
+    "point": 3.75,
+    "ciLow": 3.5,
+    "ciHigh": 4
+   }
+  ]
+ }
+]

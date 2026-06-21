@@ -6,10 +6,13 @@ import { ForecastTrend, ForecastViz } from "@/components/ForecastViz";
 import {
   LIVE_FORECAST_SLUGS,
   formatValue,
+  getForecastRunEntries,
   getForecastRuntimeKind,
   getResolutionResult,
   type ForecastCell,
+  type ForecastRunEntry,
   type PredictionDistribution,
+  type PredictionPackReference,
   type ReasoningStep,
 } from "@/data/forecast-cells";
 import type { ResolvedForecastScore } from "@/data/thesis-log";
@@ -208,6 +211,7 @@ export function ForecastRuntime({
       ? liveForecast.drivers
       : forecastCell.drivers;
   const isLiveForecast = Boolean(liveForecast);
+  const recordedRuns = getForecastRunEntries(forecastCell);
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.05fr_1fr]">
@@ -282,6 +286,7 @@ export function ForecastRuntime({
             />
           )}
           <ThesisLogRecordPanel forecast={forecastCell} />
+          <RunComparisonPanel runs={recordedRuns} unit={forecastCell.unit} />
         </div>
 
         <div
@@ -506,6 +511,7 @@ function ResolvedOutcomePanel({
 function ThesisLogRecordPanel({ forecast }: { forecast: ForecastCell }) {
   const distribution = forecast.predictionDistribution;
   const run = forecast.predictionRun;
+  const runs = getForecastRunEntries(forecast);
   if (!distribution && !run && !forecast.dataPointId) return null;
 
   return (
@@ -541,9 +547,11 @@ function ThesisLogRecordPanel({ forecast }: { forecast: ForecastCell }) {
           distribution
         </dt>
         <dd className="text-[var(--theme-text)]">
-          {distribution
-            ? `${distribution.pointCount} CDF points`
-            : "not recorded"}
+          {runs.length > 1
+            ? `${runs.length} runs · ${distribution?.pointCount ?? 201} CDF points each`
+            : distribution
+              ? `${distribution.pointCount} CDF points`
+              : "not recorded"}
         </dd>
         {run?.model && (
           <>
@@ -571,6 +579,561 @@ function ThesisLogRecordPanel({ forecast }: { forecast: ForecastCell }) {
       </dl>
     </div>
   );
+}
+
+function RunComparisonPanel({
+  runs,
+  unit,
+}: {
+  runs: ForecastRunEntry[];
+  unit: ForecastCell["unit"];
+}) {
+  const displayRuns = [...runs].sort(compareRunsByRecordedTime);
+  const packs = buildUniquePacks(displayRuns);
+  const [selectedPackKey, setSelectedPackKey] = useState<string | null>(null);
+
+  if (runs.length <= 1) return null;
+  const baseline =
+    displayRuns.find((run) => run.packSet?.mode === "none") ?? displayRuns[0];
+  const domain = buildRunDomain(displayRuns);
+  const agentOrdinals = buildAgentOrdinals(displayRuns);
+  const agentCount = new Set(displayRuns.map(getRunAgentLabel)).size;
+  const modelCount = new Set(displayRuns.map(getRunModelLabel)).size;
+  const packSetCount = new Set(
+    displayRuns.map((run) => run.packSet?.packSetId ?? "unreported"),
+  ).size;
+  const activePackKey =
+    packs.find((pack) => pack.key === selectedPackKey)?.key ??
+    packs[0]?.key ??
+    null;
+
+  return (
+    <div
+      className="mt-5 border-t pt-5"
+      style={{ borderColor: "var(--theme-border)" }}
+    >
+      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="[font-family:var(--font-display)] text-[0.95rem] font-semibold tracking-[-0.01em]">
+          Forecast runs
+        </h2>
+        <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+          same target · agents, packs, updates
+        </span>
+      </div>
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <RunStat label="runs" value={displayRuns.length} />
+        <RunStat label="agents" value={agentCount} />
+        <RunStat label="models" value={modelCount} />
+        <RunStat label="pack sets" value={packSetCount} />
+      </div>
+      {packs.length > 0 && activePackKey && (
+        <PackVisualizer
+          onSelectPack={setSelectedPackKey}
+          packs={packs}
+          selectedPackKey={activePackKey}
+        />
+      )}
+      <div className="space-y-3">
+        {displayRuns.map((run) => (
+          <ForecastRunLane
+            agentOrdinal={agentOrdinals.get(run.variantId)}
+            baseline={baseline}
+            domain={domain}
+            key={run.variantId}
+            onSelectPack={setSelectedPackKey}
+            run={run}
+            selectedPackKey={activePackKey}
+            unit={unit}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RunStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="border-y border-[var(--theme-border)] py-3">
+      <div className="[font-family:var(--font-display)] text-[1.55rem] font-semibold leading-none text-[var(--theme-text)]">
+        {value}
+      </div>
+      <div className="mt-1 [font-family:var(--font-mono)] text-[0.56rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function ForecastRunLane({
+  agentOrdinal,
+  baseline,
+  domain,
+  onSelectPack,
+  run,
+  selectedPackKey,
+  unit,
+}: {
+  agentOrdinal?: { count: number; index: number };
+  baseline: ForecastRunEntry;
+  domain: { lower: number; upper: number };
+  onSelectPack: (packKey: string) => void;
+  run: ForecastRunEntry;
+  selectedPackKey: string | null;
+  unit: ForecastCell["unit"];
+}) {
+  const intervalLeft = runScalePosition(run.ciLow, domain);
+  const intervalRight = runScalePosition(run.ciHigh, domain);
+  const point = runScalePosition(run.pointEstimate, domain);
+  const delta = run.pointEstimate - baseline.pointEstimate;
+  const agentLabel = getRunAgentLabel(run);
+  const modelLabel = getRunModelLabel(run);
+
+  return (
+    <div
+      className="border-y border-[var(--theme-border)] py-4"
+      data-forecast-run={run.variantId}
+    >
+      <div className="grid grid-cols-[minmax(180px,0.58fr)_minmax(260px,1fr)_110px] gap-4 max-md:grid-cols-1">
+        <div className="min-w-0">
+          <div className="font-medium leading-[1.35] text-[var(--theme-text)]">
+            {run.label}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-2 [font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+            <span>{agentLabel}</span>
+            <span>{modelLabel}</span>
+            <span>{formatRunRecordedAt(run)}</span>
+            {agentOrdinal && agentOrdinal.count > 1 && (
+              <span className="rounded-full border border-[var(--theme-border)] px-2 py-[1px]">
+                update {agentOrdinal.index}/{agentOrdinal.count}
+              </span>
+            )}
+          </div>
+          {run.description && (
+            <p className="mt-2 text-[0.74rem] leading-[1.45] text-[var(--theme-text-muted)]">
+              {run.description}
+            </p>
+          )}
+          <div className="mt-3">
+            <PackSetSummary
+              onSelectPack={onSelectPack}
+              run={run}
+              selectedPackKey={selectedPackKey}
+            />
+          </div>
+        </div>
+
+        <div className="min-w-0">
+          <div className="relative h-10">
+            <div className="absolute left-0 right-0 top-[18px] h-[2px] bg-[var(--theme-border)]" />
+            <div
+              className="absolute top-[14px] h-[10px] rounded-full bg-[var(--color-horizon-300)]"
+              style={{
+                left: `${intervalLeft}%`,
+                width: `${Math.max(intervalRight - intervalLeft, 1)}%`,
+              }}
+            />
+            <div
+              className="absolute top-[9px] h-5 w-5 -translate-x-1/2 rounded-full border-2 border-white bg-[var(--color-accent)] shadow-sm"
+              style={{ left: `${point}%` }}
+            />
+          </div>
+          <div className="mt-1 flex items-center justify-between [font-family:var(--font-mono)] text-[0.58rem] text-[var(--theme-text-dim)]">
+            <span>{formatValue(domain.lower, unit)}</span>
+            <span>
+              80% {formatValue(run.ciLow, unit)} to{" "}
+              {formatValue(run.ciHigh, unit).replace(/^\+/, "")}
+            </span>
+            <span>{formatValue(domain.upper, unit)}</span>
+          </div>
+          <RunTraceDetails run={run} unit={unit} />
+        </div>
+
+        <div className="text-right max-md:text-left">
+          <div className="[font-family:var(--font-display)] text-[1.75rem] font-semibold leading-none text-[var(--color-accent)]">
+            {formatValue(run.pointEstimate, unit)}
+          </div>
+          <div className="mt-2 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+            {run === baseline ? "baseline" : formatSignedValue(delta, unit)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RunTraceDetails({
+  run,
+  unit,
+}: {
+  run: ForecastRunEntry;
+  unit: ForecastCell["unit"];
+}) {
+  return (
+    <details className="mt-3 border-t border-[var(--theme-border)] pt-3">
+      <summary className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+        public trace
+      </summary>
+      <div className="mt-3 space-y-2">
+        {run.reasoning.map((step, index) => (
+          <RunTraceStep key={index} step={step} unit={unit} />
+        ))}
+      </div>
+    </details>
+  );
+}
+
+function RunTraceStep({
+  step,
+  unit,
+}: {
+  step: ReasoningStep;
+  unit: ForecastCell["unit"];
+}) {
+  if (step.kind === "heading") {
+    return (
+      <div className="[font-family:var(--font-display)] text-[0.82rem] font-semibold text-[var(--theme-text)]">
+        {step.text}
+      </div>
+    );
+  }
+  if (step.kind === "text") {
+    return (
+      <p className="text-[0.75rem] leading-[1.55] text-[var(--theme-text-muted)]">
+        {step.text}
+      </p>
+    );
+  }
+  if (step.kind === "math") {
+    return (
+      <p className="break-words [font-family:var(--font-mono)] text-[0.68rem] leading-[1.55] text-[var(--theme-text)]">
+        {step.text}
+      </p>
+    );
+  }
+  if (step.kind === "tool") {
+    return (
+      <div className="break-words [font-family:var(--font-mono)] text-[0.66rem] leading-[1.55] text-[var(--theme-text-dim)]">
+        <div>
+          <span className="text-[var(--color-accent)]">
+            {step.tool ?? "policyengine.simulate"}
+          </span>{" "}
+          {step.call}
+        </div>
+        {step.result && (
+          <div className="mt-1 border-l border-[var(--theme-border)] pl-3 text-[var(--theme-text)]">
+            <span className="text-[var(--theme-text-dim)]">result </span>
+            {step.result}
+          </div>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="[font-family:var(--font-mono)] text-[0.7rem] text-[var(--theme-text)]">
+      forecast {formatValue(step.point, unit)} · 80% [
+      {formatValue(step.ciLow, unit)},{" "}
+      {formatValue(step.ciHigh, unit).replace(/^\+/, "")}]
+    </div>
+  );
+}
+
+function compareRunsByRecordedTime(
+  left: ForecastRunEntry,
+  right: ForecastRunEntry,
+) {
+  const leftTime = parseRunTime(left);
+  const rightTime = parseRunTime(right);
+  if (leftTime !== rightTime) return leftTime - rightTime;
+  return left.label.localeCompare(right.label);
+}
+
+function parseRunTime(run: ForecastRunEntry) {
+  const value = run.predictionRun?.runAt;
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function buildRunDomain(runs: ForecastRunEntry[]) {
+  const lower = Math.min(...runs.map((run) => run.ciLow));
+  const upper = Math.max(...runs.map((run) => run.ciHigh));
+  const spread = Math.max(upper - lower, 0.1);
+  return {
+    lower: lower - spread * 0.08,
+    upper: upper + spread * 0.08,
+  };
+}
+
+function runScalePosition(
+  value: number,
+  domain: { lower: number; upper: number },
+) {
+  const width = domain.upper - domain.lower;
+  if (width <= 0) return 50;
+  return Math.max(0, Math.min(100, ((value - domain.lower) / width) * 100));
+}
+
+function buildAgentOrdinals(runs: ForecastRunEntry[]) {
+  const totals = new Map<string, number>();
+  const seen = new Map<string, number>();
+  const ordinals = new Map<string, { count: number; index: number }>();
+
+  for (const run of runs) {
+    const agent = getRunAgentLabel(run);
+    totals.set(agent, (totals.get(agent) ?? 0) + 1);
+  }
+  for (const run of runs) {
+    const agent = getRunAgentLabel(run);
+    const next = (seen.get(agent) ?? 0) + 1;
+    seen.set(agent, next);
+    ordinals.set(run.variantId, {
+      count: totals.get(agent) ?? 1,
+      index: next,
+    });
+  }
+
+  return ordinals;
+}
+
+function getRunAgentLabel(run: ForecastRunEntry) {
+  return run.predictionRun?.agent ?? "prototype seed";
+}
+
+function getRunModelLabel(run: ForecastRunEntry) {
+  return run.predictionRun?.model ?? "unreported model";
+}
+
+function formatRunRecordedAt(run: ForecastRunEntry) {
+  const value = run.predictionRun?.runAt;
+  if (!value) return "seed";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+interface PackVisualizerEntry {
+  key: string;
+  pack: PredictionPackReference;
+  agents: string[];
+  packSetLabels: string[];
+  runLabels: string[];
+}
+
+function PackVisualizer({
+  onSelectPack,
+  packs,
+  selectedPackKey,
+}: {
+  onSelectPack: (packKey: string) => void;
+  packs: PackVisualizerEntry[];
+  selectedPackKey: string;
+}) {
+  const selectedEntry =
+    packs.find((pack) => pack.key === selectedPackKey) ?? packs[0];
+  const selectedPack = selectedEntry.pack;
+
+  return (
+    <div
+      className="mb-5 border-y border-[var(--theme-border)] py-4"
+      data-pack-visualizer=""
+      data-selected-pack-key={selectedEntry.key}
+    >
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
+        <h3 className="[font-family:var(--font-display)] text-[0.88rem] font-semibold tracking-[-0.01em] text-[var(--theme-text)]">
+          Pack visualizer
+        </h3>
+        <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+          {packs.length} {packs.length === 1 ? "pack" : "packs"}
+        </span>
+      </div>
+      <div className="grid grid-cols-[minmax(170px,0.42fr)_minmax(0,1fr)] gap-4 max-md:grid-cols-1">
+        <div className="flex flex-col gap-2">
+          {packs.map((entry) => {
+            const isSelected = entry.key === selectedEntry.key;
+            return (
+              <button
+                aria-pressed={isSelected}
+                className={`min-w-0 border px-3 py-2 text-left transition-colors ${
+                  isSelected
+                    ? "border-[var(--color-accent)] bg-[var(--color-horizon-50)]"
+                    : "border-[var(--theme-border)] bg-[var(--theme-bg-surface)] hover:border-[var(--color-horizon-300)]"
+                }`}
+                data-pack-key={entry.key}
+                key={entry.key}
+                onClick={() => onSelectPack(entry.key)}
+                type="button"
+              >
+                <span className="block truncate [font-family:var(--font-body)] text-[0.78rem] font-medium text-[var(--theme-text)]">
+                  {entry.pack.label}
+                </span>
+                <span className="mt-1 block [font-family:var(--font-mono)] text-[0.54rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                  {entry.pack.kind} · v{entry.pack.version}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="min-w-0 border-l border-[var(--theme-border)] pl-4 max-md:border-l-0 max-md:border-t max-md:pl-0 max-md:pt-4">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="[font-family:var(--font-mono)] text-[0.56rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+                selected pack
+              </div>
+              <h4 className="mt-1 [font-family:var(--font-display)] text-[1rem] font-semibold leading-[1.2] text-[var(--theme-text)]">
+                {selectedPack.label}
+              </h4>
+            </div>
+            <span className="border border-[var(--theme-border)] px-2 py-[2px] [font-family:var(--font-mono)] text-[0.56rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+              {selectedPack.kind}
+            </span>
+          </div>
+          <p className="text-[0.8rem] leading-[1.55] text-[var(--theme-text-muted)]">
+            {selectedPack.summary}
+          </p>
+          <a
+            className="mt-3 inline-block [font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--color-accent)] no-underline hover:no-underline"
+            href={`/packs/${selectedPack.packId}`}
+          >
+            Open pack page →
+          </a>
+          <dl className="mt-4 grid grid-cols-1 gap-x-5 gap-y-2 [font-family:var(--font-body)] text-[0.76rem] sm:grid-cols-[100px_minmax(0,1fr)]">
+            <dt className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              version
+            </dt>
+            <dd className="[font-family:var(--font-mono)] text-[var(--theme-text)]">
+              {selectedPack.version}
+            </dd>
+            <dt className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              pack id
+            </dt>
+            <dd className="min-w-0 break-all [font-family:var(--font-mono)] text-[var(--theme-text)]">
+              {selectedPack.packId}
+            </dd>
+            <dt className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              pack set
+            </dt>
+            <dd className="min-w-0 break-words text-[var(--theme-text)]">
+              {selectedEntry.packSetLabels.join(", ")}
+            </dd>
+            <dt className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              agents
+            </dt>
+            <dd className="min-w-0 break-words text-[var(--theme-text)]">
+              {selectedEntry.agents.join(", ")}
+            </dd>
+            <dt className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              used by
+            </dt>
+            <dd className="min-w-0 break-words text-[var(--theme-text)]">
+              {selectedEntry.runLabels.join(", ")}
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PackSetSummary({
+  onSelectPack,
+  run,
+  selectedPackKey,
+}: {
+  onSelectPack: (packKey: string) => void;
+  run: ForecastRunEntry;
+  selectedPackKey: string | null;
+}) {
+  const packSet = run.packSet;
+  if (!packSet) {
+    return (
+      <span className="[font-family:var(--font-mono)] text-[0.66rem] text-[var(--theme-text-dim)]">
+        unreported
+      </span>
+    );
+  }
+  if (packSet.packs.length === 0) {
+    return (
+      <span className="inline-flex rounded-full border border-[var(--theme-border)] px-2 py-[2px] [font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+        {packSet.label}
+      </span>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-2 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text)]">
+        {packSet.label}
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {packSet.packs.map((pack) => {
+          const key = buildPackKey(pack);
+          const isSelected = key === selectedPackKey;
+          return (
+            <button
+              aria-pressed={isSelected}
+              className={`inline-flex rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.56rem] uppercase tracking-[0.06em] transition-colors ${
+                isSelected
+                  ? "border-[var(--color-accent)] bg-[var(--color-horizon-100)] text-[var(--theme-text)]"
+                  : "border-[var(--color-horizon-300)] bg-[var(--color-horizon-50)] text-[var(--color-horizon-700)] hover:border-[var(--color-accent)]"
+              }`}
+              data-pack-key={key}
+              key={key}
+              onClick={() => onSelectPack(key)}
+              title={pack.summary}
+              type="button"
+            >
+              {pack.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function buildUniquePacks(runs: ForecastRunEntry[]): PackVisualizerEntry[] {
+  const entries = new Map<
+    string,
+    {
+      pack: PredictionPackReference;
+      agents: Set<string>;
+      packSetLabels: Set<string>;
+      runLabels: Set<string>;
+    }
+  >();
+
+  for (const run of runs) {
+    for (const pack of run.packSet?.packs ?? []) {
+      const key = buildPackKey(pack);
+      const entry = entries.get(key) ?? {
+        pack,
+        agents: new Set<string>(),
+        packSetLabels: new Set<string>(),
+        runLabels: new Set<string>(),
+      };
+      entry.agents.add(getRunAgentLabel(run));
+      if (run.packSet?.label) entry.packSetLabels.add(run.packSet.label);
+      entry.runLabels.add(run.label);
+      entries.set(key, entry);
+    }
+  }
+
+  return [...entries.entries()].map(([key, entry]) => ({
+    key,
+    pack: entry.pack,
+    agents: [...entry.agents],
+    packSetLabels: [...entry.packSetLabels],
+    runLabels: [...entry.runLabels],
+  }));
+}
+
+function buildPackKey(pack: PredictionPackReference) {
+  return `${pack.packId}@${pack.version}`;
 }
 
 function formatSignedValue(value: number, unit: ForecastCell["unit"]): string {

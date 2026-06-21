@@ -1,0 +1,96 @@
+[
+ {
+  "slug": "eurostat-retail-trade-volume-mom-2026-05",
+  "country": "EA",
+  "type": "data",
+  "title": "Euro area retail trade volume, May 2026",
+  "question": "Eurostat euro area retail trade volume index, total retail trade except motor vehicles and motorcycles, calendar and seasonally adjusted, month-on-month percentage change for May 2026, first print.",
+  "unit": "percent_growth",
+  "pointEstimate": 0.1,
+  "ciLow": -0.8,
+  "ciHigh": 0.9,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-06",
+  "resolutionSource": "Eurostat retail trade volume release/data page",
+  "resolutionSourceUrl": "https://ec.europa.eu/eurostat/web/main/news/euro-indicators",
+  "resolutionRule": "Resolve to the first Eurostat-published euro area calendar- and seasonally-adjusted month-on-month percentage change in retail trade volume for 2026-05, rounded as Eurostat reports it to one decimal percentage point; ignore later revisions or database backfills after the first official print.",
+  "dataPointId": "eurostat.sts_trtu_m.retail_trade_volume_mom.ea20.2026-05.first_print",
+  "historicalContext": [
+   {
+    "label": "2026-04 latest",
+    "value": -0.4
+   },
+   {
+    "label": "2026-03 prior",
+    "value": 0.8
+   },
+   {
+    "label": "2026-02 prior",
+    "value": 0.2
+   },
+   {
+    "label": "2026-01 prior",
+    "value": 0.3
+   }
+  ],
+  "drivers": [
+   "April pullback creates some mechanical rebound risk",
+   "Real income growth remains modest but positive",
+   "Consumer confidence still weak by pre-2022 standards",
+   "Fuel and non-food components can make monthly retail volume noisy",
+   "Eurostat first prints are rounded to one decimal point"
+  ],
+  "sourceContext": [
+   "https://ec.europa.eu/eurostat/web/main/news/euro-indicators",
+   "https://ec.europa.eu/eurostat/databrowser/view/sts_trtu_m/default/table?lang=en",
+   "https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Retail_trade_volume_index_overview"
+  ],
+  "runAt": "2026-06-17T02:13:28Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for euro area retail trade volume in May 2026"
+   },
+   {
+    "kind": "text",
+    "text": "Resolver is Eurostat's first official euro area print for calendar- and seasonally-adjusted retail trade volume, month-on-month, for May 2026. The target is the first published one-decimal percentage growth rate, not a later revised database value."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked Eurostat euro-indicators release calendar/news surface for the retail trade May 2026 publication date.",
+    "result": "Eurostat release calendar places the May 2026 retail trade release on 2026-07-06; Eurostat euro-indicator releases are published at 11:00 CET and reported to 1 decimal percentage point."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked Eurostat retail trade data/release context for the latest euro area month-on-month volume figure.",
+    "result": "Latest fetched first-print context: April 2026 euro area retail trade volume was -0.4% month on month; March 2026 was revised/reported at +0.8% month on month."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked recent Eurostat retail trade monthly pattern for additional reference observations.",
+    "result": "Recent fetched observations used as context: February 2026 +0.2%, January 2026 +0.3%, March 2026 +0.8%, April 2026 -0.4%."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class step: euro area retail trade month-on-month growth is usually centered near zero, with monthly prints commonly within roughly plus or minus 1 percentage point. The four recent observations average about +0.225%, but April's negative print lowers near-term momentum."
+   },
+   {
+    "kind": "math",
+    "text": "Recent mean = (-0.4 + 0.8 + 0.2 + 0.3) / 4 = +0.225%. I shrink this toward a zero-growth base rate and round to Eurostat's one-decimal reporting, giving a point forecast of +0.1%. A practical 80% interval around noisy retail m/m prints is about -0.9 to +0.8 percentage point around the point, rounded to [-0.8%, +0.9%]."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: April's -0.4% could reverse if fuel and non-food categories normalize, but weak confidence and modest real-income momentum argue against treating the March +0.8% jump as persistent."
+   },
+   {
+    "kind": "forecast",
+    "point": 0.1,
+    "ciLow": -0.8,
+    "ciHigh": 0.9
+   }
+  ]
+ }
+]

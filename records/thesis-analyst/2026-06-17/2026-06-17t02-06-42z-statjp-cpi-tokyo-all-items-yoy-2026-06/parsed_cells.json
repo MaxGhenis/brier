@@ -1,0 +1,102 @@
+[
+  {
+    "slug": "tokyo-cpi-all-items-yoy-2026-06",
+    "country": "JP",
+    "type": "data",
+    "title": "Tokyo CPI all-items YoY, Jun 2026",
+    "question": "Statistics Bureau of Japan Consumer Price Index for Ku-area of Tokyo, all items, June 2026, change over the year, first preliminary print",
+    "unit": "percent",
+    "pointEstimate": 3.5,
+    "ciLow": 2.7,
+    "ciHigh": 4.3,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-26",
+    "resolutionSource": "Official Statistics Bureau of Japan / e-Stat CPI release for Ku-area of Tokyo",
+    "resolutionSourceUrl": "https://www.stat.go.jp/english/data/cpi/1581-z.html",
+    "resolutionRule": "Resolve to the first preliminary June 2026 Ku-area of Tokyo CPI all-items change-over-the-year percentage published by the Statistics Bureau of Japan/e-Stat, using the agency's one-decimal percent rounding; ignore later revisions or base-change restatements unless they are explicitly part of the first print.",
+    "dataPointId": "statjp.cpi.tokyo_all_items_yoy.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 Tokyo all-items YoY latest first print",
+        "value": 3.4
+      },
+      {
+        "label": "2026-04 Tokyo all-items YoY prior month",
+        "value": 3.5
+      },
+      {
+        "label": "2026-03 Tokyo all-items YoY two months prior",
+        "value": 2.9
+      },
+      {
+        "label": "2026-02 Tokyo all-items YoY three months prior",
+        "value": 2.9
+      }
+    ],
+    "drivers": [
+      "recent Tokyo headline inflation around mid-3 percent",
+      "food and rice price pressure still elevated",
+      "energy subsidy and fuel effects can move headline CPI quickly",
+      "Tokyo CPI is a noisy but persistent monthly series"
+    ],
+    "sourceContext": [
+      "https://www.stat.go.jp/english/data/cpi/index.html",
+      "https://www.stat.go.jp/english/data/cpi/1581-z.html",
+      "https://www.stat.go.jp/english/data/cpi/1582.html",
+      "https://www.e-stat.go.jp/en/dbview?sid=0003427113"
+    ],
+    "runAt": "2026-06-17T02:06:54Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast Tokyo all-items CPI YoY for June 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the Statistics Bureau of Japan/e-Stat first preliminary Ku-area of Tokyo CPI for June 2026, specifically all items, change over the year, rounded to one decimal percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Statistics Bureau CPI landing page for the official CPI data and schedule entry points.",
+        "result": "Official CPI page lists Consumer Price Index results and links to Japan / Ku-area of Tokyo latest monthly results; page update notes include 23 January 2026 and the CPI area result entry."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official CPI release schedule for the June 2026 Tokyo preliminary release date.",
+        "result": "Schedule shows Ku-area of Tokyo preliminary: survey month May 2026 release May 29 and survey month June 2026 release June 26; same schedule line shows Japan May release June 19."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the e-Stat CPI database view for the current Tokyo table metadata and available time dimension.",
+        "result": "e-Stat dbview sid 0003427113 published date and time is 2026-05-29 08:30, with time entries including May 2026, Apr. 2026, Mar. 2026, Feb. 2026, and Jan. 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read latest Tokyo all-items change-over-year history from the official CPI/e-Stat table for the target series.",
+        "result": "Fetched Tokyo all-items YoY history: May 2026 3.4 percent, Apr. 2026 3.5 percent, Mar. 2026 2.9 percent, Feb. 2026 2.9 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: for monthly Tokyo all-items YoY CPI when the latest four prints are 2.9 to 3.5 percent and the target is one month ahead, a persistence forecast centered near the latest two-month average is usually stronger than extrapolating a new trend."
+      },
+      {
+        "kind": "math",
+        "text": "Latest two-month average = (3.4 + 3.5) / 2 = 3.45, rounded to the agency precision gives 3.5. Recent four-month range is 0.6 percentage points; an 80 percent interval of roughly plus or minus 0.8 around 3.5 gives 2.7 to 4.3."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: headline all-items CPI can move more than core measures because fresh food, energy, and subsidy timing can shift the monthly YoY rate; this keeps the interval wider than the recent four-month range."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.5,
+        "ciLow": 2.7,
+        "ciHigh": 4.3
+      }
+    ]
+  }
+]

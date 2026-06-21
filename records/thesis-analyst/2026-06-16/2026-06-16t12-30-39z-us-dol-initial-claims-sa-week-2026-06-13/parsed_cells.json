@@ -1,0 +1,107 @@
+[
+  {
+    "slug": "us-dol-initial-claims-sa-2026-06-13",
+    "country": "US",
+    "type": "data",
+    "title": "US initial jobless claims, week ending Jun 13",
+    "question": "U.S. Department of Labor Employment and Training Administration initial unemployment claims, seasonally adjusted, week ending June 13, 2026, first print",
+    "unit": "count",
+    "pointEstimate": 224000,
+    "ciLow": 205000,
+    "ciHigh": 245000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-18",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims Report",
+    "resolutionSourceUrl": "https://www.dol.gov/newsroom/releases/eta",
+    "resolutionRule": "Resolve to the advance first-print seasonally adjusted initial claims count for the week ending June 13, 2026, as first published by the U.S. Department of Labor Employment and Training Administration in the Unemployment Insurance Weekly Claims Report released on June 18, 2026. Use the headline seasonally adjusted initial claims figure in persons; ignore later revisions and revised history.",
+    "dataPointId": "dol.eta.initial_claims.sa.2026-06-13.first_print",
+    "historicalContext": [
+      {
+        "label": "latest_2026-06-06",
+        "value": 229000
+      },
+      {
+        "label": "prior_2026-05-30",
+        "value": 225000
+      },
+      {
+        "label": "prior_2026-05-23",
+        "value": 212000
+      },
+      {
+        "label": "four_week_average_2026-06-06",
+        "value": 219000
+      },
+      {
+        "label": "same_week_prior_year_2025_comparable",
+        "value": 246000
+      }
+    ],
+    "drivers": [
+      "recent claims rose to 229,000 but remained near the 4-week average",
+      "Memorial Day and school-year seasonal adjustment noise can distort early-June claims",
+      "unadjusted latest week was below the comparable 2025 week",
+      "continuing claims rose modestly, suggesting some labor-market cooling",
+      "weekly claims first prints are noisy and often revise by a few thousand"
+    ],
+    "sourceContext": [
+      "https://www.dol.gov/newsroom/releases/eta",
+      "https://www.dol.gov/newsroom/releases/eta/eta20260611",
+      "https://www.dol.gov/newsroom/economicdata",
+      "https://fred.stlouisfed.org/series/ICSA"
+    ],
+    "runAt": "2026-06-16T12:30:52Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DOL initial claims, week ending June 13, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the U.S. Department of Labor ETA advance first-print seasonally adjusted initial claims figure for the week ending Saturday, June 13, 2026. Later revisions are excluded."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the DOL ETA releases page for recent Unemployment Insurance Weekly Claims Reports.",
+        "result": "Fetched latest official release summary: week ending June 6 initial claims SA 229,000, previous week 225,000, 4-week moving average 219,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the official DOL PDF release eta20260611.",
+        "result": "Fetched official PDF numbers: June 6 initial claims SA 229,000; May 30 initial claims SA 225,000; May 23 prior level 212,000; prior-year comparable 246,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened DOL economic data page describing the ETA weekly claims release source.",
+        "result": "Fetched official source context: ETA publishes the Unemployment Insurance Weekly Claims Report, and the current DOL page links to the PDF updated each week."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Opened FRED ICSA as a history mirror for recent observations and next release date.",
+        "result": "Fetched FRED mirror values: 2026-06-06 229,000; 2026-05-30 225,000; 2026-05-23 212,000; 2026-05-16 210,000; next release date Jun 18, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate reference class: recent non-recession weekly SA initial claims tend to move only modestly week to week; the latest five fetched observations were 229,000, 225,000, 212,000, 210,000, and 212,000, centering the near-term reference around the low-to-mid 220,000s after the latest jump."
+      },
+      {
+        "kind": "math",
+        "text": "Point estimate blends the latest print and short average: 0.50*229,000 + 0.35*219,000 + 0.15*212,000 = 223,000, rounded toward the recent plateau and release precision to 224,000. An 80% interval of roughly +/-20,000 around the point gives 205,000 to 245,000 after rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: early June claims can be distorted by school-year layoffs, holiday timing, and seasonal factors, so a second elevated print above 235,000 is plausible; however, the latest unadjusted figure of 228,276 remained below the comparable 2025 figure of 243,980, limiting the case for a sharp worsening."
+      },
+      {
+        "kind": "forecast",
+        "point": 224000,
+        "ciLow": 205000,
+        "ciHigh": 245000
+      }
+    ]
+  }
+]

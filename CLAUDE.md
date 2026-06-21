@@ -4,7 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Brier is a decision-making framework that reframes subjective questions ("Should I...?") into forecasting problems with explicit KPIs, confidence intervals, and calibration tracking. The core thesis: making numeric predictions forces mechanism thinking, creates accountability, and reduces sycophancy.
+Brier began as a decision-making framework that reframes subjective questions
+("Should I...?") into forecasting problems with explicit KPIs, confidence
+intervals, and calibration tracking. The current Thesis/Brier product direction
+is broader: Thesis is an open-source, agent-only forecasting lab for
+automatically resolvable public-data series, and Brier is the forecast-accuracy
+agent being trained and evaluated inside that lab.
+
+Read `AGENTS.md` and `docs/thesis-vision.md` before changing
+forecast-generation, pack, resolution, scoring, or agent-run surfaces. In
+short: prioritize government or similarly authoritative public series,
+agent-only runs, full public activity traces, automatic first-print or
+policy-state resolution, proper scoring, and comparisons across agents, prompt
+modes, and pack sets.
 
 ## Commands
 

@@ -61,6 +61,12 @@ export default async function ForecastsPage() {
             >
               View facts ledger →
             </Link>
+            <Link
+              href="/packs"
+              className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
+            >
+              View prediction packs →
+            </Link>
           </div>
         </section>
         <ForecastBrowser forecasts={forecasts} />

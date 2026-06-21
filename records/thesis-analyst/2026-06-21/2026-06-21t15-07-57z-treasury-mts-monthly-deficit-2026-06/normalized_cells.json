@@ -1,0 +1,115 @@
+[
+ {
+  "slug": "treasury-mts-monthly-deficit-2026-06",
+  "country": "US",
+  "type": "data",
+  "title": "US monthly Treasury deficit, June 2026",
+  "question": "What will the U.S. Treasury Monthly Treasury Statement report as the total on-budget and off-budget deficit or surplus for June 2026, in the first print, with deficits positive and surpluses negative?",
+  "unit": "usd_billions",
+  "pointEstimate": 155,
+  "ciLow": 20,
+  "ciHigh": 310,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-13",
+  "resolutionSource": "Official U.S. Treasury Monthly Treasury Statement",
+  "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/summary-of-receipts-outlays-and-the-deficit-surplus-of-the-u-s-government",
+  "resolutionRule": "Resolve to the first Monthly Treasury Statement print for June 2026, Table 1 total deficit/surplus for FY 2026 June. Convert the published $ millions to $ billions and record deficits as positive and surpluses as negative. Do not revise for later restatements or annual combined statements.",
+  "dataPointId": "treasury.mts.table1.total_deficit_surplus.2026-06.first_print",
+  "historicalContext": [
+   {
+    "label": "2025-06 first-print deficit",
+    "value": -27.01
+   },
+   {
+    "label": "2024-06 first-print deficit",
+    "value": 65.965
+   },
+   {
+    "label": "2023-06 first-print deficit",
+    "value": 227.768
+   },
+   {
+    "label": "2022-06 first-print deficit",
+    "value": 88.842
+   },
+   {
+    "label": "2026-Q2 Treasury borrowing estimate",
+    "value": 189
+   }
+  ],
+  "drivers": [
+   "June corporate tax receipts partially offset outlays",
+   "June 1, 2026 falls on a business day, so fewer payments should shift into May than in 2024 or 2025",
+   "higher net interest and entitlement outlays than recent years",
+   "tariff-refund shock reduces a revenue tailwind",
+   "FYTD deficit was reported slightly below the prior year through May after calendar adjustment"
+  ],
+  "sourceContext": [
+   "https://fiscal.treasury.gov/accounting/monthly-treasury-statement/",
+   "https://fiscal.treasury.gov/accounting/monthly-treasury-statement/previous",
+   "https://fiscal.treasury.gov/system/files/files/reports-statements/mts/mts0625.pdf",
+   "https://fiscal.treasury.gov/system/files/files/reports-statements/mts/mts0624.pdf",
+   "https://fiscal.treasury.gov/system/files/files/reports-statements/mts/mts0622.pdf",
+   "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/summary-of-receipts-outlays-and-the-deficit-surplus-of-the-u-s-government"
+  ],
+  "runAt": "2026-06-21T15:08:15Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for June 2026 Monthly Treasury Statement deficit"
+   },
+   {
+    "kind": "text",
+    "text": "Resolver: use the first official U.S. Treasury Monthly Treasury Statement for June 2026, Table 1 total deficit/surplus, converted from $ millions to $ billions, with deficits positive and surpluses negative."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the Bureau of the Fiscal Service Monthly Treasury Statement landing page and current-issue links.",
+    "result": "The official MTS page says the statement covers receipts, outlays, surplus or deficit, and means of financing; it also says data moved to FiscalData on 2025-11-25 and the MTS page was last updated 2026-01-15."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the June 2025 official MTS PDF and read Table 1 plus highlights.",
+    "result": "June 2025 receipts were 526.445 billion, outlays were 499.435 billion, and the deficit/surplus was -27.010 billion; FYTD receipts were 4008.146 billion, FYTD outlays were 5345.518 billion, and FYTD deficit was 1337.372 billion."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the June 2024 official MTS PDF and read Table 1.",
+    "result": "June 2024 receipts were 466.255 billion, outlays were 532.220 billion, and the deficit was 65.965 billion; June 2023 receipts were 418.317 billion, outlays were 646.085 billion, and the deficit was 227.768 billion."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the June 2022 official MTS PDF and read Table 1 and the summary chart.",
+    "result": "June 2022 receipts were 460.761 billion, outlays were 549.603 billion, and the deficit was 88.842 billion; FYTD deficit through June 2022 was 515.067 billion."
+   },
+   {
+    "kind": "tool",
+    "tool": "public.lookup",
+    "call": "Checked public reporting on Treasury's May 2026 fiscal context and quarterly borrowing estimates.",
+    "result": "Reports cited Treasury figures that May 2026 net tariff revenue was 0 billion after 22 billion collected and 22 billion refunded, FYTD net tariff revenue was 189 billion versus 81 billion a year earlier, adjusted FYTD deficit was 2 percent or 24 billion below the prior year, and Treasury's April-June 2026 borrowing estimate was 189 billion."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate: recent June deficits are volatile because corporate tax collections and payment-date shifts matter. The 2022-2025 June outcomes were 88.842, 227.768, 65.965, and -27.010 billion, giving a simple four-year average near 88.9 billion and a three-year average near 88.2 billion, but the 2024 and 2025 June figures were held down by June 1 weekend payment acceleration into May."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: if June receipts remain strong and tariff revenues are not fully offset by refunds, the deficit could land near the low end or even close to balance; however, June 1, 2026 is a Monday, so the payment-shift suppression visible in 2024 and 2025 should not repeat."
+   },
+   {
+    "kind": "math",
+    "text": "Start from a recent-June base rate around 90 billion. Add roughly 55 billion for normal June benefit and Medicare/HHS payments not shifted into May, add about 25 billion for higher interest and entitlement growth, and subtract about 15 billion for still-elevated customs/tariff receipts net of refunds: 90 + 55 + 25 - 15 = 155 billion. Set an 80% interval of 20 to 310 billion to cover tax-payment and refund volatility."
+   },
+   {
+    "kind": "forecast",
+    "point": 155,
+    "ciLow": 20,
+    "ciHigh": 310
+   }
+  ]
+ }
+]

@@ -1,0 +1,109 @@
+[
+ {
+  "slug": "bea-government-social-benefits-level-2026-05",
+  "country": "US",
+  "type": "data",
+  "title": "US government social benefits, May 2026",
+  "question": "BEA NIPA Table 2.6 government social benefits to persons, May 2026, seasonally adjusted annual rate, first print",
+  "unit": "usd_billions",
+  "pointEstimate": 4315.0,
+  "ciLow": 4295.0,
+  "ciHigh": 4338.0,
+  "confidence": 0.8,
+  "resolutionDate": "2026-06-25",
+  "resolutionSource": "Official BEA Personal Income and Outlays release, NIPA Table 2.6",
+  "resolutionSourceUrl": "https://www.bea.gov/news/schedule",
+  "resolutionRule": "Resolve to the first BEA-published May 2026 value for NIPA Table 2.6, line for government social benefits to persons, seasonally adjusted annual rate, in billions of dollars. Use the value as first printed in the June 25, 2026 Personal Income and Outlays release and do not incorporate later revisions.",
+  "dataPointId": "bea.nipa.table_2_6.government_social_benefits_to_persons.2026-05.first_print",
+  "historicalContext": [
+   {
+    "label": "2026-01",
+    "value": 4283.6
+   },
+   {
+    "label": "2026-02",
+    "value": 4291.4
+   },
+   {
+    "label": "2026-03",
+    "value": 4302.1
+   },
+   {
+    "label": "latest 2026-04",
+    "value": 4307.5
+   }
+  ],
+  "drivers": [
+   "large retirement and health benefit programs trend upward month to month",
+   "labor market data do not indicate a sharp unemployment-benefit jump",
+   "April BEA release noted one-off farm-support effects elsewhere in personal income",
+   "May payrolls and unemployment suggest stable transfer-payment conditions"
+  ],
+  "sourceContext": [
+   "https://www.bea.gov/news/schedule",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-april-2026",
+   "https://www.bea.gov/sites/default/files/2026-05/pi0426.pdf",
+   "https://www.bls.gov/news.release/empsit.nr0.htm",
+   "https://www.bea.gov/sites/default/files/2026-05/pi0426-hist.xlsx"
+  ],
+  "runAt": "2026-06-17T02:25:33Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast BEA government social benefits to persons for May 2026"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the BEA first print for May 2026 in Personal Income and Outlays, specifically NIPA Table 2.6 government social benefits to persons, seasonally adjusted annual rate in billions of dollars."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked BEA release schedule for the May 2026 Personal Income and Outlays release.",
+    "result": "BEA schedule lists Personal Income and Outlays, May 2026 on June 25, 2026 at 8:30 AM; the schedule page was last modified 6/16/26."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the BEA April 2026 Personal Income and Outlays release for the next-release confirmation and related table context.",
+    "result": "BEA April release states next release June 25, 2026 at 8:30 a.m. EDT for Personal Income and Outlays, May 2026; it also reports April personal income changed by less than $0.1 billion, DPI decreased $19.9 billion, and PCE increased $111.1 billion."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked BEA April release PDF and historical-comparisons material for current monthly context.",
+    "result": "BEA PDF reports April 2026 PCE increased $111.1 billion, real PCE increased $18.1 billion, PCE prices increased 0.4 percent, and March-to-April current-dollar personal income was 0.0 percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked BEA Table 2.6 historical comparison workbook for recent government social benefits levels.",
+    "result": "Fetched recent government social benefits to persons levels: 2026-01=4283.6, 2026-02=4291.4, 2026-03=4302.1, 2026-04=4307.5 billions of dollars SAAR."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked BLS May 2026 Employment Situation for labor-market transfer-payment signal.",
+    "result": "BLS reported May 2026 nonfarm payrolls +172,000, unemployment rate 4.3 percent, unemployed people 7.3 million, and long-term unemployed 2.0 million."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate reference class: recent monthly changes in this slow-moving transfer series were +7.8, +10.7, and +5.4 billion from January through April, so a continuation change around +7 billion is the natural prior before month-specific adjustments."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: some government benefit components can jump around due to timing, program rules, or annual cost-of-living and health-program payment updates, so a flat month or a larger step-up remains plausible despite the smooth recent path."
+   },
+   {
+    "kind": "math",
+    "text": "Starting from the April first-print level of 4307.5, add a trend increment of about 7.5 billion: 4307.5 + 7.5 = 4315.0. Use an 80 percent interval of roughly -20.0/+23.0 around the point to cover ordinary monthly noise and first-print uncertainty, giving 4295.0 to 4338.0."
+   },
+   {
+    "kind": "forecast",
+    "point": 4315.0,
+    "ciLow": 4295.0,
+    "ciHigh": 4338.0
+   }
+  ]
+ }
+]

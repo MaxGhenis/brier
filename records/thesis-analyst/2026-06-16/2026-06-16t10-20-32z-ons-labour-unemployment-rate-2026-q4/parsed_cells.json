@@ -1,0 +1,103 @@
+[
+  {
+    "slug": "uk-unemployment-rate-oct-dec-2026",
+    "country": "UK",
+    "type": "data",
+    "title": "UK unemployment rate, Oct-Dec 2026",
+    "question": "What will ONS first report as the seasonally adjusted UK Labour Force Survey unemployment rate for people aged 16 and over, series MGSX in the Labour market statistics time series dataset, for October to December 2026, in the first print published for that period?",
+    "unit": "percent",
+    "pointEstimate": 5.1,
+    "ciLow": 4.4,
+    "ciHigh": 5.9,
+    "confidence": 0.8,
+    "resolutionDate": "2027-02-16",
+    "resolutionSource": "Office for National Statistics, Employment in the UK / UK labour market",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms",
+    "resolutionRule": "Resolves to the first published one-decimal seasonally adjusted ONS Labour Force Survey unemployment rate for people aged 16 and over, series MGSX, for October to December 2026. Later revisions do not change the resolved value.",
+    "dataPointId": "ons.labour.unemployment_rate.october_to_december_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2025 Q3 unemployment rate",
+        "value": 5.0
+      },
+      {
+        "label": "2025 Q4 unemployment rate",
+        "value": 5.2
+      },
+      {
+        "label": "2026 Q1 unemployment rate",
+        "value": 5.0
+      }
+    ],
+    "drivers": [
+      "Latest ONS MGSX rate is 5.0 percent",
+      "Unemployment rose through 2025 before a Q1 2026 dip",
+      "Three-quarter historical moves are usually within -0.7 to +0.6pp",
+      "LFS volatility warrants a wider upper tail"
+    ],
+    "sourceContext": [
+      "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms",
+      "https://www.ons.gov.uk/releasecalendar",
+      "https://app.thesisinstitute.org/specs.json"
+    ],
+    "runAt": "2026-06-16T10:20:43Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "UK unemployment rate, October to December 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: the target is ONS Labour market statistics time series MGSX, Unemployment rate aged 16 and over, seasonally adjusted, percent, for October to December 2026, resolving on the first print and rounded to one decimal."
+      },
+      {
+        "kind": "tool",
+        "tool": "command.date",
+        "call": "date -u +%Y-%m-%dT%H:%M:%SZ",
+        "result": "runAt fetched this run: 2026-06-16T10:20:43Z."
+      },
+      {
+        "kind": "tool",
+        "tool": "ons.lookup",
+        "call": "Open ONS time series MGSX in LMS",
+        "result": "ONS page fetched this run reports release date 19 May 2026, next release 18 June 2026, Series ID MGSX, units %, and latest quarterly values 2025 Q3 5.0, 2025 Q4 5.2, 2026 Q1 5.0."
+      },
+      {
+        "kind": "tool",
+        "tool": "ons.history",
+        "call": "Read recent quarterly MGSX table values from the ONS series page",
+        "result": "Last 24 quarterly rates fetched this run: 2020 Q2 4.1, 2020 Q3 5.0, 2020 Q4 5.3, 2021 Q1 4.9, 2021 Q2 4.7, 2021 Q3 4.4, 2021 Q4 4.2, 2022 Q1 3.8, 2022 Q2 3.8, 2022 Q3 3.7, 2022 Q4 3.9, 2023 Q1 4.0, 2023 Q2 4.2, 2023 Q3 4.1, 2023 Q4 3.9, 2024 Q1 4.3, 2024 Q2 4.2, 2024 Q3 4.3, 2024 Q4 4.4, 2025 Q1 4.5, 2025 Q2 4.7, 2025 Q3 5.0, 2025 Q4 5.2, 2026 Q1 5.0."
+      },
+      {
+        "kind": "tool",
+        "tool": "ons.calendar",
+        "call": "Open ONS release calendar and local catalog entry for this ONS release series",
+        "result": "ONS release calendar fetched this run showed 355 upcoming releases and is the official calendar source; the local catalog entry for ons.labour.unemployment_rate.october_to_december_2026.first_print gives resolutionDate 2027-02-16. Shell DNS blocked direct filtered calendar fetch with curl exit 6."
+      },
+      {
+        "kind": "tool",
+        "tool": "thesis.specs",
+        "call": "Open https://app.thesisinstitute.org/specs.json and search local catalog for slug",
+        "result": "Live specs URL check was attempted this run, but the environment returned no readable content and shell DNS failed with curl exit 6. Local catalog search found slug uk-unemployment-rate-oct-dec-2026 mapped to ons.labour.unemployment_rate.october_to_december_2026.first_print."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate: among the last 24 fetched quarterly MGSX rates, mean 4.400, median 4.3, population std 0.464, sample std 0.474, 10th percentile 3.830, 90th percentile 5.000, range 3.7 to 5.3. Quarter-on-quarter changes had mean +0.039pp, std 0.295pp, 10th percentile -0.280pp, 90th percentile +0.300pp, range -0.4pp to +0.9pp."
+      },
+      {
+        "kind": "math",
+        "text": "Three-quarter-ahead changes over the fetched window were +0.8, -0.3, -0.9, -0.7, -0.9, -0.6, -0.5, +0.1, +0.2, +0.5, +0.2, -0.1, +0.1, +0.1, +0.4, +0.1, +0.3, +0.4, +0.6, +0.7, +0.3; mean +0.038pp, sample std 0.507pp, 10th percentile -0.700pp, 90th percentile +0.600pp. Point estimate = 0.50*persistence 5.0 + 0.25*last-4-quarter mean 4.85 + 0.25*last-24 mean 4.40 + inside-view 0.50pp for the 2025 upward drift and three-quarter horizon = 5.113, rounded to 5.1. The 80% interval starts from realized 3-quarter movement around the point: 5.1-0.7=4.4 and 5.1+0.6=5.7, then widens the upper tail by 0.2pp for LFS volatility, yielding [4.4, 5.9]. A rolling interval using -0.7 to +0.8pp around the starting quarterly rate would have covered 10 of the last 10 fetched three-quarter outcomes."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the outcome falls below 4.4 if labour demand re-accelerates and the 2025 unemployment rise unwinds quickly; it exceeds 5.9 if payroll weakness turns into a recessionary hiring stop or LFS volatility prints another sharp unemployment jump."
+      },
+      {
+        "kind": "forecast",
+        "point": 5.1,
+        "ciLow": 4.4,
+        "ciHigh": 5.9
+      }
+    ]
+  }
+]

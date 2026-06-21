@@ -1,0 +1,110 @@
+[
+  {
+    "slug": "bea-social-security-benefits-2026-05",
+    "country": "US",
+    "type": "data",
+    "title": "BEA Social Security Benefits, May 2026",
+    "question": "What will BEA first report for Personal current transfer receipts: Government social benefits to persons: Social security, May 2026, seasonally adjusted annual rate, in the first Personal Income and Outlays print?",
+    "unit": "usd_billions",
+    "pointEstimate": 1650.5,
+    "ciLow": 1638,
+    "ciHigh": 1663,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-25",
+    "resolutionSource": "U.S. Bureau of Economic Analysis, Personal Income and Outlays release",
+    "resolutionSourceUrl": "https://www.bea.gov/data/income-saving/personal-income",
+    "resolutionRule": "Resolve to the first BEA Personal Income and Outlays release for May 2026, Table 2.6 line 18 Social security, seasonally adjusted annual rate, billions of dollars. Use the value as first published on June 25, 2026, rounded to one decimal place; ignore later revisions.",
+    "dataPointId": "bea.nipa.table_2_6.social_security.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "Apr 2026 latest",
+        "value": 1643.7
+      },
+      {
+        "label": "Mar 2026",
+        "value": 1636.9
+      },
+      {
+        "label": "Feb 2026",
+        "value": 1628.6
+      },
+      {
+        "label": "Jan 2026",
+        "value": 1623.2
+      },
+      {
+        "label": "May 2025",
+        "value": 1556
+      },
+      {
+        "label": "Apr 2025",
+        "value": 1678.6
+      }
+    ],
+    "drivers": [
+      "Recent 2026 run rate increased about 5 to 8 billion dollars per month after the January COLA step",
+      "Social Security benefit levels tend to drift upward with beneficiary counts outside COLA months",
+      "2025 contained unusually large spring volatility, so the interval allows for administrative timing effects",
+      "No new COLA step occurs in May, limiting upside versus January-like jumps"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://www.bea.gov/data/income-saving/personal-income",
+      "https://fred.stlouisfed.org/series/W823RC1",
+      "https://fred.stlouisfed.org/data/W823RC1"
+    ],
+    "runAt": "2026-06-17T02:28:12Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast BEA May 2026 Social Security Benefits"
+      },
+      {
+        "kind": "text",
+        "text": "The target is BEA's first-print May 2026 value for Personal current transfer receipts: Government social benefits to persons: Social security, reported in billions of dollars at a seasonally adjusted annual rate."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BEA release schedule for Personal Income and Outlays, May 2026.",
+        "result": "BEA schedule lists Personal Income and Outlays, May 2026 on June 25, 2026 at 8:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA's Personal Income page for the current release status and next release.",
+        "result": "BEA Personal Income page shows the current release is May 28, 2026, next release June 25, 2026, and April personal income changed 0.0%."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked FRED's BEA-sourced W823RC1 series page for latest observations and metadata.",
+        "result": "Fetched W823RC1 latest values: Apr 2026 1643.7, Mar 2026 1636.9, Feb 2026 1628.6, Jan 2026 1623.2; units are billions of dollars, seasonally adjusted annual rate."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked the FRED table-data view for the longer recent monthly history.",
+        "result": "Fetched recent history: 2025-04 1678.6, 2025-05 1556.0, 2025-06 1587.9, 2025-12 1575.3, 2026-01 1623.2, 2026-04 1643.7."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class: outside one-time administrative jumps, this series usually moves gradually month to month; recent ordinary May changes include 2023 Apr-May +3.5 and 2024 Apr-May +2.1, while 2025 Apr-May -122.6 was an exceptional unwind from spring volatility."
+      },
+      {
+        "kind": "math",
+        "text": "Recent 2026 monthly changes were +5.4 from January to February, +8.3 from February to March, and +6.8 from March to April, averaging about +6.8. Applying +6.8 to Apr 2026 value 1643.7 gives 1650.5. I use an 80% interval of 1638.0 to 1663.0, wide enough for normal first-print noise and smaller administrative timing shifts."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: 2025 showed unusually large Social Security volatility around March to May, so a pure smooth-trend forecast could be too narrow if BEA records another timing or retroactive-payment effect. I still center on smooth growth because 2026 through April shows no comparable spike."
+      },
+      {
+        "kind": "forecast",
+        "point": 1650.5,
+        "ciLow": 1638,
+        "ciHigh": 1663
+      }
+    ]
+  }
+]
