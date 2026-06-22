@@ -700,7 +700,7 @@ function ForecastRunLane({
       className="border-y border-[var(--theme-border)] py-4"
       data-forecast-run={run.variantId}
     >
-      <div className="grid grid-cols-[minmax(180px,0.58fr)_minmax(260px,1fr)_110px] gap-4 max-md:grid-cols-1">
+      <div className="grid grid-cols-[minmax(0,0.58fr)_minmax(0,1fr)_minmax(5.5rem,auto)] gap-4 max-md:grid-cols-1">
         <div className="min-w-0">
           <div className="font-medium leading-[1.35] text-[var(--theme-text)]">
             {run.label}
