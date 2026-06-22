@@ -168,6 +168,17 @@ function RelatedForecasts({
 }
 
 function formatShortDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  // Read the calendar date as written (Y/M/D before any offset) and format it
+  // as UTC so a date-only resolution date like "2035-09-15" never drifts a day
+  // across timezones, and server/client render identically.
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!match) return iso;
+  const d = new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+  );
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
 }

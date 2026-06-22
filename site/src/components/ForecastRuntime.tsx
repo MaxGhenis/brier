@@ -687,13 +687,20 @@ function ForecastRunLane({
   const delta = run.pointEstimate - baseline.pointEstimate;
   const agentLabel = getRunAgentLabel(run);
   const modelLabel = getRunModelLabel(run);
+  const ciLowLabel = formatValue(run.ciLow, unit).replace(/^\+/, "");
+  const ciHighLabel = formatValue(run.ciHigh, unit).replace(/^\+/, "");
+  // A point projection (e.g. a published BLS point estimate) carries a
+  // negligible display interval, so its bounds round to the same value.
+  // Render it as a point rather than a nonsensical "80% X to X" band.
+  const isPointProjection = ciLowLabel === ciHighLabel;
+  const pointLabel = formatValue(run.pointEstimate, unit).replace(/^\+/, "");
 
   return (
     <div
       className="border-y border-[var(--theme-border)] py-4"
       data-forecast-run={run.variantId}
     >
-      <div className="grid grid-cols-[minmax(180px,0.58fr)_minmax(260px,1fr)_110px] gap-4 max-md:grid-cols-1">
+      <div className="grid grid-cols-[minmax(0,0.58fr)_minmax(0,1fr)_minmax(5.5rem,auto)] gap-4 max-md:grid-cols-1">
         <div className="min-w-0">
           <div className="font-medium leading-[1.35] text-[var(--theme-text)]">
             {run.label}
@@ -725,13 +732,15 @@ function ForecastRunLane({
         <div className="min-w-0">
           <div className="relative h-10">
             <div className="absolute left-0 right-0 top-[18px] h-[2px] bg-[var(--theme-border)]" />
-            <div
-              className="absolute top-[14px] h-[10px] rounded-full bg-[var(--color-horizon-300)]"
-              style={{
-                left: `${intervalLeft}%`,
-                width: `${Math.max(intervalRight - intervalLeft, 1)}%`,
-              }}
-            />
+            {!isPointProjection && (
+              <div
+                className="absolute top-[14px] h-[10px] rounded-full bg-[var(--color-horizon-300)]"
+                style={{
+                  left: `${intervalLeft}%`,
+                  width: `${Math.max(intervalRight - intervalLeft, 1)}%`,
+                }}
+              />
+            )}
             <div
               className="absolute top-[9px] h-5 w-5 -translate-x-1/2 rounded-full border-2 border-white bg-[var(--color-accent)] shadow-sm"
               style={{ left: `${point}%` }}
@@ -740,8 +749,9 @@ function ForecastRunLane({
           <div className="mt-1 flex items-center justify-between [font-family:var(--font-mono)] text-[0.58rem] text-[var(--theme-text-dim)]">
             <span>{formatValue(domain.lower, unit)}</span>
             <span>
-              80% {formatValue(run.ciLow, unit)} to{" "}
-              {formatValue(run.ciHigh, unit).replace(/^\+/, "")}
+              {isPointProjection
+                ? `point ${pointLabel}`
+                : `80% ${ciLowLabel} to ${ciHighLabel}`}
             </span>
             <span>{formatValue(domain.upper, unit)}</span>
           </div>
@@ -828,11 +838,13 @@ function RunTraceStep({
       </div>
     );
   }
+  const stepLow = formatValue(step.ciLow, unit).replace(/^\+/, "");
+  const stepHigh = formatValue(step.ciHigh, unit).replace(/^\+/, "");
   return (
     <div className="[font-family:var(--font-mono)] text-[0.7rem] text-[var(--theme-text)]">
-      forecast {formatValue(step.point, unit)} · 80% [
-      {formatValue(step.ciLow, unit)},{" "}
-      {formatValue(step.ciHigh, unit).replace(/^\+/, "")}]
+      {stepLow === stepHigh
+        ? `forecast ${formatValue(step.point, unit)} · point`
+        : `forecast ${formatValue(step.point, unit)} · 80% [${stepLow}, ${stepHigh}]`}
     </div>
   );
 }
@@ -906,13 +918,7 @@ function getRunModelLabel(run: ForecastRunEntry) {
 function formatRunRecordedAt(run: ForecastRunEntry) {
   const value = run.predictionRun?.runAt;
   if (!value) return "seed";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatShortFullDate(value);
 }
 
 interface PackVisualizerEntry {
@@ -1653,19 +1659,47 @@ function liveModeDescription(slug: string) {
   return "Live mode queries BLS CPI-U data, computes an audit-ready data summary, and calls the forecast model when AI Gateway credentials are available. If the API fails, the page replays the static trace.";
 }
 
+// Read the calendar date written in an ISO string (the Y/M/D before any time
+// zone offset) and rebuild it as a UTC instant. Formatting that as UTC shows
+// the date exactly as recorded, identically on the server and the client —
+// avoiding the timezone drift (e.g. a 22:15 ET run showing as the next day in
+// UTC) and the hydration mismatch that `new Date(iso).toLocaleDateString()`
+// without a timeZone produces. Also keeps date-only inputs (e.g. resolution
+// dates like "2035-09-15") from shifting a day.
+function isoCalendarDate(iso: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!match) return null;
+  return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+}
+
 function formatFullDate(iso: string): string {
-  const d = new Date(iso);
+  const d = isoCalendarDate(iso);
+  if (!d) return iso;
   return d.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+function formatShortFullDate(iso: string): string {
+  const d = isoCalendarDate(iso);
+  if (!d) return iso;
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
   });
 }
 
 function formatShortDate(iso: string): string {
-  const d = new Date(iso);
+  const d = isoCalendarDate(iso);
+  if (!d) return iso;
   return d.toLocaleDateString("en-US", {
     month: "short",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
