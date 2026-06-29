@@ -1,0 +1,33 @@
+{
+  "summary": "Draft is publishable after tightening the resolver language and making the trend/interval arithmetic auditable.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "Resolution rule adds an extra same-release-day correction exception that is not in the canonical first-print rule.",
+      "actionRequested": "Remove the clause allowing same-day corrections and bind resolution strictly to the first published original (O) CMS row for August 2026."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The half-weighted six-month trend increment and 4.18 pp monthly signal are not clearly derived from the listed irregular historical sample.",
+      "actionRequested": "State the exact historical changes used, convert them to a monthly rate if needed, and show how that produces the +12.6 pp update."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval says it uses realized dispersion but does not show how the 10.3 pp downside width or 99.0 cap were selected from volatility.",
+      "actionRequested": "Name the volatility statistic or judgmental width used for the 80% interval and explain the ceiling adjustment explicitly."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "Source context includes a filtered CMS URL with preliminary_or_updated=P, while the resolver requires original (O) submission rows.",
+      "actionRequested": "Either replace that evidence link with an original-submission reference or clarify that the P link was only inspected for release timing, not for target resolution or historical values."
+    }
+  ],
+  "optionalSuggestions": [
+    "Mention that the 2026-12-15 date is the ledger resolution date despite no future CMS placeholder being found.",
+    "Keep the tail scenarios, but tie the lower-tail threshold directly to below-78.6 and the upper-tail threshold directly to above-99.0."
+  ]
+}

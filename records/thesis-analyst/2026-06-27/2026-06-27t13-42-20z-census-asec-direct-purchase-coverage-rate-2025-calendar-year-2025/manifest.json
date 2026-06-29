@@ -1,0 +1,346 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:42:20Z",
+  "series": "census.asec.direct_purchase_coverage_rate.2025",
+  "period": "calendar year 2025",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:42:20Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d542139d06d19b5c8d4e5cee508d76e73023c88e032e2ad3bb1e27c365811337"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft sets resolutionDate to 2026-09-08 but the reasoning only documents checking the 2025 schedule for the 2024 release, so the 2026 date appears inferred from cadence rather than verified from an official 2026 calendar or placeholder.",
+        "actionRequested": "Cite the official Census 2026 income/poverty/health-insurance release schedule or release placeholder that explicitly gives September 8, 2026, or change the date/source to match the verified official schedule evidence."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "resolutionSourceUrl points to the schedule page, while the resolver is the first printed Health Insurance Coverage: 2025 report or HHI-01 table.",
+        "actionRequested": "Distinguish the schedule URL used for timing from the actual resolution source URL, or state that the final resolving URL will be the Census 2026 press kit/report/HHI-01 table once published."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is justified mainly from two recent annual changes plus qualitative survey/category noise, which is a weak realized-volatility basis.",
+        "actionRequested": "Either compute realized volatility from a longer HHI-01 direct-purchase history or explicitly label the +/-0.6 interval as judgmental uncertainty and explain why it is calibrated to 80% coverage."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the exact HHI-01 row/column or all-persons universe used for the resolving cell."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the persistence prior slightly clearer by separating the 2024 level anchor from the momentum extrapolation before applying ACA marketplace evidence."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by grounding September 8, 2026 in the official Census 2026 schedule and distinguishing the timing URL from the HHI-01 resolving table; accepted the interval critique by labeling the +/-0.6 band as judgmental 80 percent uncertainty rather than a precise long-history volatility estimate; retained the central forecast because the source evidence and mechanism balance did not change.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by grounding September 8, 2026 in the official Census 2026 schedule and distinguishing the timing URL from the HHI-01 resolving table; accepted the interval critique by labeling the +/-0.6 band as judgmental 80 percent uncertainty rather than a precise long-history volatility estimate; retained the central forecast because the source evidence and mechanism balance did not change.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by grounding September 8, 2026 in the official Census 2026 schedule and distinguishing the timing URL from the HHI-01 resolving table; accepted the interval critique by labeling the +/-0.6 band as judgmental 80 percent uncertainty rather than a precise long-history volatility estimate; retained the central forecast because the source evidence and mechanism balance did not change.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by grounding September 8, 2026 in the official Census 2026 schedule and distinguishing the timing URL from the HHI-01 resolving table; accepted the interval critique by labeling the +/-0.6 band as judgmental 80 percent uncertainty rather than a precise long-history volatility estimate; retained the central forecast because the source evidence and mechanism balance did not change.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by grounding September 8, 2026 in the official Census 2026 schedule and distinguishing the timing URL from the HHI-01 resolving table; accepted the interval critique by labeling the +/-0.6 band as judgmental 80 percent uncertainty rather than a precise long-history volatility estimate; retained the central forecast because the source evidence and mechanism balance did not change.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent, but the resolution date/source needs stronger official support and the interval justification is thin."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/prompt.md",
+      "sha256": "29190ecb8625b79a7fa8347d210885098e90430f7d260c9ace413d1a3d1c51c0",
+      "bytes": 4138,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_command.json",
+      "sha256": "6abf93936064ee4170c669940725451c4b4f9ce0629ae2f845a4f085a7a7df46",
+      "bytes": 779,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_codex_stdout.jsonl",
+      "sha256": "1e2d6ef8987ade075877f65adf49c6761280427445d429d07dbb965f545c5c41",
+      "bytes": 35791,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_codex_stderr.log",
+      "sha256": "06437bae2fa1b74329e2b92aba2f1a3ff65d8ebe6836ca01699175c7b4f0209e",
+      "bytes": 3231,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_codex_events.jsonl",
+      "sha256": "e50c689dd73416f1c9b813137f24628b2e40adcfa081a408886cf57991f931bc",
+      "bytes": 35729,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_codex_last_message.txt",
+      "sha256": "a25e7c75861d572d3e0eca639f1501e2b5922e9f89d6ed9f90152f38b630875e",
+      "bytes": 6637,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_codex_trace.json",
+      "sha256": "45c5e13a22a06136003fce1c49fa261c79472e67fa939bd97d1fc4463bfd227e",
+      "bytes": 508,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_stdout.txt",
+      "sha256": "a25e7c75861d572d3e0eca639f1501e2b5922e9f89d6ed9f90152f38b630875e",
+      "bytes": 6637,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/draft_stderr.txt",
+      "sha256": "abd4a81d77a4bdbb873295422d026dd263d9a41ad2484cfea92943e41f5b5d7d",
+      "bytes": 3374,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_prompt.md",
+      "sha256": "268be644d29f13bb4cb29a6681ba9d77923cf891b8223425afafa8f400cfcf9c",
+      "bytes": 8153,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_command.json",
+      "sha256": "a8512ddf26ff06aa57b488be0727efded94fbd34b01e40dff60371055cdc31a0",
+      "bytes": 775,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "1cf38300f55f582c2895bfe0548b9f873ab3517543991a62c3ffc6417a60ed33",
+      "bytes": 2368,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_codex_stderr.log",
+      "sha256": "d930fa428994dcf03cca7bfcdb3875aa695bcbd9000a68d6cb88b4b274ab757a",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_codex_events.jsonl",
+      "sha256": "8ef6cc5a96af904de2af2f73d07156438d4e7aa20c3f6a81fdeae11c3cea36c1",
+      "bytes": 2390,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_codex_last_message.txt",
+      "sha256": "14146e8d4186848a657c6fc84611a98b899f5cc6ee1431688610ee0d91bdd01f",
+      "bytes": 1965,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_codex_trace.json",
+      "sha256": "25cc398b438e13f14381f90b14b33b756950b404f39a94967922da00ae993eb1",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+      "sha256": "14146e8d4186848a657c6fc84611a98b899f5cc6ee1431688610ee0d91bdd01f",
+      "bytes": 1965,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/pre_submit_review_stderr.txt",
+      "sha256": "05f24c46b03d341972bcb705b8e34e24081027e29fd52a048a34285f2c491162",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/revision_prompt.md",
+      "sha256": "0c3f2290a75aef7190401c2d931873c42cc030c4f183ad53334160cccf959ffe",
+      "bytes": 13676,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/command.json",
+      "sha256": "696eed3c3cf207a5e99f12ddb76bbbdac5cd750242ab6c93dd97c912c9e4bb32",
+      "bytes": 773,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/codex_stdout.jsonl",
+      "sha256": "14647c7c8a8206f9cc5022125ba2b741d49b72f6998625df057d007a7cdc0f30",
+      "bytes": 14725,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/codex_stderr.log",
+      "sha256": "78075d7d086cd7ddcafefb2f0b3d591427b637de453d9f8fa27179f01f0fb284",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/codex_events.jsonl",
+      "sha256": "1918be4f9e9c6db43e1d5fee78fc2dd274eb3c825b5ea4e151eb1bcf58bc6ec1",
+      "bytes": 14747,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/codex_last_message.txt",
+      "sha256": "3aedb3f60b08d305073b68881c38d083ec5aca60c82391bb695e7754c9d4285c",
+      "bytes": 7128,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/codex_trace.json",
+      "sha256": "171903a5916ff31d1a2da2d821467a3b6af42b181664f4079ce4db04fe051883",
+      "bytes": 507,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/stdout.txt",
+      "sha256": "3aedb3f60b08d305073b68881c38d083ec5aca60c82391bb695e7754c9d4285c",
+      "bytes": 7128,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/stderr.txt",
+      "sha256": "d1959dfcc41f6b37001fc13b06881c747f43adc80d49a7349280a7531b44cd07",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/raw_response.txt",
+      "sha256": "3aedb3f60b08d305073b68881c38d083ec5aca60c82391bb695e7754c9d4285c",
+      "bytes": 7128,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/parsed_cells.json",
+      "sha256": "8888c811a985a15594a103899cd1394e4ec38163d39a0ae722c690045177b2a0",
+      "bytes": 8113,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/normalized_cells.json",
+      "sha256": "ec2a54208624663dbdfdbfa14ceba18ca1e2a7749cd137099d5d26d46b97f242",
+      "bytes": 7719,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/validation.json",
+      "sha256": "757216d858779a7a622fc6eb3b63fe138433a27f26085f39166d689142fef535",
+      "bytes": 147,
+      "createdAt": "2026-06-27T13:42:20Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-42-20z-census-asec-direct-purchase-coverage-rate-2025-calendar-year-2025/manifest.json",
+      "sha256": "019a302b0eb2176ee17dcd02a72379b393b17398cede5d3d23b097970154360b",
+      "bytes": 18542,
+      "createdAt": "2026-06-27T13:42:20Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "census-asec-direct-purchase-coverage-rate-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

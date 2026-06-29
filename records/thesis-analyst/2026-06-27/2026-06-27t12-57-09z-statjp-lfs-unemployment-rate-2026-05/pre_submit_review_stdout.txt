@@ -1,0 +1,33 @@
+{
+  "summary": "Draft is mostly publishable but needs fixes to prior ordering, model-prior treatment, interval grounding, and point-calculation coherence.",
+  "requiredFixes": [
+    {
+      "rubricItem": "base_rate",
+      "severity": "warning",
+      "summary": "The base-rate/reference-class anchor is stated only after the current-release evidence and inside-view discussion.",
+      "actionRequested": "Move the outside-view prior before current-evidence updates, explicitly naming the prior value or range before discussing April 2026 movement."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "A simple blend of latest value, 2026 average, and annual anchor is used, but no time-series/model prior is clearly specified or explicitly ruled out.",
+      "actionRequested": "State the model prior explicitly, such as persistence or short moving average, or say why no formal time-series model is used."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is justified by recent rounded dispersion of about 0.1-0.2 points, but the cited evidence only shows a very short Jan-Apr 2026 window and does not substantiate the 2.3-2.8 range.",
+      "actionRequested": "Tie the interval to a stated volatility sample or explicitly label the extra width as judgmental uncertainty around rounded one-month moves."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The math says the latent forecast is about 2.55 but then rounds it to 2.5, which is not coherent with ordinary one-decimal rounding.",
+      "actionRequested": "Revise the final forecast step so the latent calculation and published point estimate agree, or explain that 2.5 is a judgmental point estimate rather than a mechanical rounding of 2.55."
+    }
+  ],
+  "optionalSuggestions": [
+    "Replace the generic resolutionSource label with the specific Statistics Bureau of Japan Labour Force Survey Basic Tabulation first monthly release.",
+    "Clarify whether confidence means an 80% central interval."
+  ]
+}

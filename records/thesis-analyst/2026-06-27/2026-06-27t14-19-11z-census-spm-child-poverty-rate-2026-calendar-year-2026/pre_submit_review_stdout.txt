@@ -1,0 +1,39 @@
+{
+  "summary": "Draft is directionally coherent but needs a verified Census resolver/release date and a more defensible interval basis before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "Resolution date is inferred from prior September publication patterns rather than verified from an official Census calendar, release placeholder, or policy-state rule.",
+      "actionRequested": "Replace or qualify the 2027-09-14 resolutionDate using an official Census 2026 poverty/SPM release calendar or state a rule such as resolving on the first Census publication date once posted."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "resolutionSourceUrl points to the generic Census publications index rather than the exact publication page, table page, or release placeholder.",
+      "actionRequested": "Use the most specific stable Census URL available for the Poverty in the United States: 2026 report or the SPM table location; if unavailable, say the exact URL is pending and define how it will be selected."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft gives a recent-history base rate but does not explicitly use or rule out a time-series/model prior.",
+      "actionRequested": "Add one sentence explaining whether a persistence/simple time-series prior was used, and if not, why recent-policy discontinuities make it inappropriate."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is described as roughly +/-3 points, but it is not tied to realized child SPM volatility, policy-effect uncertainty, or an explicit error model.",
+      "actionRequested": "Justify the interval using historical child SPM variation, uncertainty around the CTC effect size, or a stated judgmental error distribution."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "historicalContext includes 2024 overall SPM poverty rather than the target child SPM rate, while the target is under-18 SPM poverty.",
+      "actionRequested": "Replace the 2024 overall SPM context with the 2024 child SPM rate if cited evidence supports it, or label it clearly as overall context and explain why the child value is unavailable."
+    }
+  ],
+  "optionalSuggestions": [
+    "State the first-print table identifier more tightly if Census continues using a named SPM table for under-18 poverty.",
+    "Make the lower-tail and upper-tail scenarios include approximate numeric outcomes, not just directional conditions."
+  ]
+}

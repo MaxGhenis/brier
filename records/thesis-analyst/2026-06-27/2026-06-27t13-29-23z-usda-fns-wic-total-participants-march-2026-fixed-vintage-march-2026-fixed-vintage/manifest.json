@@ -1,0 +1,372 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:29:23Z",
+  "series": "usda.fns.wic.total_participants.march_2026.fixed_vintage",
+  "period": "March 2026 fixed vintage",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:29:23Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "66e3a849ff0c4b56bf76bb34588d3c0fbef60df2e42a661f383eba05f1ab4a8b"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The draft states the official March 2026 fixed vintage was already posted at run time and uses the printed value 6,701,661 directly.",
+        "actionRequested": "Remove resolved-outcome evidence from the forecast record, including the March 2026 value, post-release PDF lookup, and any reasoning based on the June 12, 2026 print."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "The material movement from the prior is justified by observing the target outcome, not by pre-resolution evidence.",
+        "actionRequested": "Base any update only on evidence available before the first March 2026 print, and explain why that evidence moves the forecast from the prior."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "The 80% interval of 6,701,660 to 6,701,662 reflects transcription risk after seeing the outcome, not forecast uncertainty.",
+        "actionRequested": "Set the interval from realized pre-release volatility, model error, or explicit ex-ante uncertainty."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "blocking",
+        "rubricItem": "coherence",
+        "summary": "The historicalContext labels the target value as 'Mar 2026 first print', making the JSON a resolved data extraction rather than a forecast.",
+        "actionRequested": "Remove target-period realized values from historicalContext and ensure point, interval, drivers, and reasoning are all ex-ante."
+      },
+      {
+        "findingId": "review.finding.5",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft gives a seasonal persistence/base-rate discussion but does not clearly state a time-series or model prior or explicitly rule one out.",
+        "actionRequested": "Add a brief model-prior statement, such as a persistence/seasonal naive prior, or explain why no formal time-series prior is used."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver language and official USDA FNS source, but distinguish resolution metadata from evidence used for forecasting."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tie tail scenarios to pre-release WIC participation drivers such as enrollment trend, seasonal March rebound size, and administrative disruptions."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the blocking leakage, update, interval, coherence, and model-prior critiques by removing the realized March 2026 value from evidence and historicalContext, widening the interval to ex-ante forecast uncertainty, and adding a seasonal-persistence prior. Kept the official resolver metadata and June 12 resolution source only for resolution clarity.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the blocking leakage, update, interval, coherence, and model-prior critiques by removing the realized March 2026 value from evidence and historicalContext, widening the interval to ex-ante forecast uncertainty, and adding a seasonal-persistence prior. Kept the official resolver metadata and June 12 resolution source only for resolution clarity.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the blocking leakage, update, interval, coherence, and model-prior critiques by removing the realized March 2026 value from evidence and historicalContext, widening the interval to ex-ante forecast uncertainty, and adding a seasonal-persistence prior. Kept the official resolver metadata and June 12 resolution source only for resolution clarity.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the blocking leakage, update, interval, coherence, and model-prior critiques by removing the realized March 2026 value from evidence and historicalContext, widening the interval to ex-ante forecast uncertainty, and adding a seasonal-persistence prior. Kept the official resolver metadata and June 12 resolution source only for resolution clarity.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.5",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the blocking leakage, update, interval, coherence, and model-prior critiques by removing the realized March 2026 value from evidence and historicalContext, widening the interval to ex-ante forecast uncertainty, and adding a seasonal-persistence prior. Kept the official resolver metadata and June 12 resolution source only for resolution clarity.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the blocking leakage, update, interval, coherence, and model-prior critiques by removing the realized March 2026 value from evidence and historicalContext, widening the interval to ex-ante forecast uncertainty, and adding a seasonal-persistence prior. Kept the official resolver metadata and June 12 resolution source only for resolution clarity.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the blocking leakage, update, interval, coherence, and model-prior critiques by removing the realized March 2026 value from evidence and historicalContext, widening the interval to ex-ante forecast uncertainty, and adding a seasonal-persistence prior. Kept the official resolver metadata and June 12 resolution source only for resolution clarity.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is not publishable as a forecast because it uses the resolved March 2026 official first print as evidence and sets the point estimate equal to the outcome."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/prompt.md",
+      "sha256": "282971fd1059dd50e84489948d76f38f6bd5acd537982d7a28d75cf9e6cd6918",
+      "bytes": 4050,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_command.json",
+      "sha256": "56dc56216e3cab7c8972b07c810b1dd346b605f979e35844a45a9d99755edf98",
+      "bytes": 795,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_stdout.jsonl",
+      "sha256": "e100f6f483cf705fdc656971105e7928a36240b0b5c168a720ddb2e5d0e09b67",
+      "bytes": 16373,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_stderr.log",
+      "sha256": "5377297d47ebf0188425f0b27c19d6eeed3c8406e8bd2c3f5c63c9c876f7cf74",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_events.jsonl",
+      "sha256": "ead2525dbdfe9e10d6960e8d63cd9e0bbc68ad9a5230c944cf0be05f998f5f9a",
+      "bytes": 16342,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_last_message.txt",
+      "sha256": "51e7c05b1dd0dd06cfb9662821fe3dd726d08899d26cd861da1bbeba872ffd16",
+      "bytes": 5471,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_trace.json",
+      "sha256": "b1e99d820fa517035c27e804c6e1e3b6a77a664a3ff22fbee48b37a7cb30c78b",
+      "bytes": 507,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_stdout.txt",
+      "sha256": "51e7c05b1dd0dd06cfb9662821fe3dd726d08899d26cd861da1bbeba872ffd16",
+      "bytes": 5471,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_stderr.txt",
+      "sha256": "0785d4ffa792529dc97b1d180f00f80e02b95201065ef51e66431ec197a1d4be",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_prompt.md",
+      "sha256": "05f5aad39f1c63a787c13d0ebb9d6fca3a09dc8c3dd7c10d58d49b76540e2eee",
+      "bytes": 7003,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_command.json",
+      "sha256": "d8c46bef834f1a5981901c4ae48177035cabb68dfca2dca36a3fe9efdc378cbd",
+      "bytes": 791,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "eaee74f5a20efed2bd0b7547e3604c774451599bd28cb0b11a09fa7c1b858472",
+      "bytes": 2909,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_stderr.log",
+      "sha256": "5786d62b6c1482a9526184c0efaf6158908cb8d59ae09848feb413d64e9f6974",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_events.jsonl",
+      "sha256": "9771ef39a6d2635a38aef4111d06a99dafc5a916b1e3438fba2245306a336861",
+      "bytes": 2931,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_last_message.txt",
+      "sha256": "98dd6afeb57fa47f6e284d1b0d368d6e15217aefa83bbc77935f631d4facafa9",
+      "bytes": 2462,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_trace.json",
+      "sha256": "e910c64564cd5a5ef21deab42f0d2f4bf5ec5690afaa83ebd2a98b66d15d1da3",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_stdout.txt",
+      "sha256": "98dd6afeb57fa47f6e284d1b0d368d6e15217aefa83bbc77935f631d4facafa9",
+      "bytes": 2462,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_stderr.txt",
+      "sha256": "e993b8689162c64dba47eb2b5c27abf400497a721e7c9b105ba4d3018515b33f",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/revision_prompt.md",
+      "sha256": "d755d2a726672fc1cddec90252938173bf851c6d41a4f507a9ab9fa7b8ff9c03",
+      "bytes": 12919,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/command.json",
+      "sha256": "8d388abb9f24c7b63a5ca0995fdbc5c425b74dfe3b67083b871f082f37a5e37f",
+      "bytes": 789,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_stdout.jsonl",
+      "sha256": "0cf17fa2c982c7ee129ffae5c23c0d5e47c8bf6711b98cedaccff941b119478a",
+      "bytes": 8801,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_stderr.log",
+      "sha256": "bc452855cc2e5c56f1f6cf4eee604d14449c1ecd0f7cc612644f99810fe6199b",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_events.jsonl",
+      "sha256": "1531f5711146f2e878e6a9dd60856db87f9f70e2818007d713b801513cc98f23",
+      "bytes": 8849,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_last_message.txt",
+      "sha256": "33a0a5e85ca990bffb5aeaab3a496d1f797c387c10f70b4c7e9ac6b8eec9f960",
+      "bytes": 6545,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_trace.json",
+      "sha256": "49ea6495a98b52ae4a6ec6b3e27cc5e1a5fbf9ed42d8c37711fac121a43c4c96",
+      "bytes": 506,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/stdout.txt",
+      "sha256": "33a0a5e85ca990bffb5aeaab3a496d1f797c387c10f70b4c7e9ac6b8eec9f960",
+      "bytes": 6545,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/stderr.txt",
+      "sha256": "384698247289d5a96aa30ac1cedc68e1d6d7442e2651324ba3b0e22e406f6c89",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/raw_response.txt",
+      "sha256": "33a0a5e85ca990bffb5aeaab3a496d1f797c387c10f70b4c7e9ac6b8eec9f960",
+      "bytes": 6545,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/parsed_cells.json",
+      "sha256": "02834775ae1428b656bf96fb2e4cfaeb237b9ae036a99fa34096ac78bc934c5c",
+      "bytes": 7550,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/normalized_cells.json",
+      "sha256": "0f242693c4ff26de85e555ff151670455062bec38841cf88266db08995196bd5",
+      "bytes": 7148,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/validation.json",
+      "sha256": "742979e7b1117fc2c87b30a1ba0d85162629b9e079604e86f9806f559118d7a0",
+      "bytes": 157,
+      "createdAt": "2026-06-27T13:29:23Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-29-23z-usda-fns-wic-total-participants-march-2026-fixed-vintage-march-2026-fixed-vintage/manifest.json",
+      "sha256": "6959656ab15abf5bf849e03a6ddee8ea2f64b6d35e4f8deb8578f38c45f01752",
+      "bytes": 20483,
+      "createdAt": "2026-06-27T13:29:23Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "usda-fns-wic-total-participants-march-2026-fixed-vintage",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is publishable after tightening the first-print resolver language and making the interval calibration a bit more explicit.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "Resolution rule adds an exception for CMS correcting the original row before the same release day ends, which is not in the canonical first-print rule and could create ambiguity.",
+      "actionRequested": "Remove the same-release-day correction exception or restate that resolution uses the first official CMS print exactly as first published."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval cites sparse realized moves and judgmental widening, but does not clearly explain why the lower-side width is 6.4 pp while the upper side is capped at 1.0 pp.",
+      "actionRequested": "Add one sentence tying the asymmetric interval to the 100% ceiling, recent DC volatility, and a chosen approximate 80% coverage rule."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the compact Prior/update/interval step, explicitly name the historical sample as first-print DC observations only.",
+    "Clarify whether the February 2026 value is first-print or latest inspected, since historicalContext labels it differently from the other values."
+  ]
+}

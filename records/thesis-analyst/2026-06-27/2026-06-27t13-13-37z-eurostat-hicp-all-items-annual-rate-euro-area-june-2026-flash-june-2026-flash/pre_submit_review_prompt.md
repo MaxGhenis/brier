@@ -1,0 +1,40 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review only the draft forecast, the target spec, and public evidence cited in the draft. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: eurostat.hicp.all_items_annual_rate.euro_area.june_2026.flash
+- period: June 2026 flash
+- conditional: null
+
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. Tail scenarios are concrete and tied to the target.
+7. Point, interval, final forecast step, and JSON fields are coherent.
+8. No leakage, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+dd0a58118dcc254b13780daa246b7e1027682c2d82fb1d431347e1c9c6cc8ae6
+
+# Draft forecast response
+{"slug":"eurostat-hicp-ea-annual-rate-june-2026-flash","country":"EA","type":"data","title":"Euro area HICP inflation, June 2026 flash","question":"Eurostat euro area HICP all-items annual inflation rate for June 2026, flash first print, not seasonally adjusted, rounded to one decimal percent.","unit":"percent","pointEstimate":2.0,"ciLow":1.7,"ciHigh":2.3,"confidence":0.8,"resolutionDate":"2026-07-01","resolutionSource":"Eurostat euro-indicators release and HICP monthly data page","resolutionSourceUrl":"https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_manr/default/table?lang=en","resolutionRule":"Resolve to the first Eurostat flash estimate for euro area all-items HICP annual inflation for June 2026, in percent year over year, rounded to one decimal. Use the first official Eurostat euro-indicators release or first posted Eurostat HICP dataset value for June 2026 flash; ignore later revisions or final HICP updates.","dataPointId":"eurostat.prc_hicp_manr.CP00.EA20.2026-06.flash_first_print","historicalContext":[{"label":"May 2026 flash all-items annual rate","value":1.9},{"label":"April 2026 all-items annual rate","value":2.2},{"label":"March 2026 all-items annual rate","value":2.2},{"label":"February 2026 all-items annual rate","value":2.4},{"label":"January 2026 all-items annual rate","value":2.3}],"drivers":["Recent euro-area headline HICP has been close to the ECB target but drifting lower into May.","Services inflation remains the main upside source because it is stickier than energy or goods.","Energy base effects and monthly fuel volatility can move the rounded headline by a tenth or two.","Food inflation is still positive enough to prevent a broad undershoot below 1.7 without a large energy drag.","Flash estimates print to one decimal, so rounding compresses small signal differences."],"sourceContext":["https://ec.europa.eu/eurostat/web/main/news/euro-indicators/release-calendar","https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_manr/default/table?lang=en","https://ec.europa.eu/eurostat/cache/metadata/en/prc_hicp_esms.htm"],"runAt":"2026-06-27T13:13:42Z","reasoning":[{"kind":"heading","text":"Euro area June 2026 HICP flash forecast"},{"kind":"text","text":"The target is the first Eurostat flash print for euro area all-items HICP annual inflation in June 2026. The resolver is the official Eurostat euro-indicators HICP flash release or its first-posted HICP data value, rounded to one decimal, with subsequent revisions ignored."},{"kind":"tool","tool":"official.lookup","call":"Checked Eurostat euro-indicators release calendar for the June 2026 euro area inflation flash estimate.","result":"Calendar showed the June 2026 euro area annual inflation flash estimate scheduled for 2026-07-01, with release timing tied to the euro-indicators calendar."},{"kind":"tool","tool":"official.lookup","call":"Fetched recent Eurostat all-items HICP annual rates for EA20 from prc_hicp_manr, CP00, annual rate.","result":"Fetched recent headline values: 2026-05 flash 1.9, 2026-04 2.2, 2026-03 2.2, 2026-02 2.4, 2026-01 2.3 percent."},{"kind":"text","text":"Reference-class base rate: the latest five official monthly prints average 2.2 percent, while the latest value is 1.9 percent. I anchor slightly above the latest print because one low month does not fully reset the annual-rate process, but below the five-month mean because the recent direction is lower."},{"kind":"tool","tool":"official.lookup","call":"Checked Eurostat component context for the latest flash inflation composition.","result":"Latest component readings used for direction: services 3.2, food alcohol and tobacco 3.3, non-energy industrial goods 0.6, energy -3.6 percent."},{"kind":"text","text":"Level and momentum: the headline level is already near 2 percent. Momentum from January to May is negative by 0.4 percentage point, but the last observation at 1.9 is close enough to target that a large further fall would need another downside surprise in energy or package holidays."},{"kind":"text","text":"Mechanisms: services persistence and food keep upside pressure in the core-like part of the basket, while energy remains the main downside and volatility channel. ECB policy works with a lag and is more relevant to medium-term demand than to this one-month flash print."},{"kind":"text","text":"Counter-consideration: the forecast could be too high if June fuel and electricity effects are sharply negative or if services repricing fades abruptly; it could be too low if travel, accommodation, or food prices rebound and energy base effects stop dragging."},{"kind":"math","text":"Starting from the latest print of 1.9, add 0.1 for mean reversion toward the five-month official average of 2.2, add 0.0 for mixed energy/core pressures after offsetting services persistence against energy drag, giving 2.0 after one-decimal rounding. Recent realized monthly first-print dispersion around this target supports an 80 percent interval of about plus or minus 0.3 percentage point, so 1.7 to 2.3."},{"kind":"text","text":"Upside scenario: services and food remain sticky and energy stops subtracting, producing a rounded 2.3 or slightly higher. Downside scenario: energy and goods weaken together, pulling the rounded print to 1.7 or below. Outside-interval scenarios require a broad energy shock or a surprisingly synchronized rebound across services, food, and energy."},{"kind":"forecast","point":2.0,"ciLow":1.7,"ciHigh":2.3}]}

@@ -1,0 +1,405 @@
+[
+  {
+    "slug": "uk-unemployment-rate-jul-sep-2026",
+    "country": "UK",
+    "type": "data",
+    "title": "UK unemployment rate, Jul-Sep 2026",
+    "question": "Office for National Statistics Labour Force Survey unemployment rate for people aged 16 and over, seasonally adjusted, July to September 2026 rolling three-month period, first print",
+    "unit": "percent",
+    "pointEstimate": 5.1,
+    "ciLow": 4.5,
+    "ciHigh": 5.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-11-17",
+    "resolutionSource": "Office for National Statistics, UK Labour Market: November 2026",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/releases/uklabourmarketnovember2026",
+    "resolutionRule": "Resolve to the first published one-decimal seasonally adjusted ONS Labour Force Survey unemployment rate for people aged 16 and over, series MGSX, for the July to September 2026 rolling three-month period in the UK Labour Market or Employment in the UK November 2026 release. Use the initial 17 November 2026 print and ignore later revisions, seasonal-adjustment updates, or dataset back revisions unless ONS corrects the same first release on release day.",
+    "dataPointId": "ons.labour.unemployment_rate.july_to_september_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "Feb-Apr 2026 unemployment rate",
+        "value": 4.9
+      },
+      {
+        "label": "Nov 2025-Jan 2026 rolling MGSX unemployment rate",
+        "value": 4.9
+      },
+      {
+        "label": "2026 Q1 MGSX unemployment rate",
+        "value": 5
+      },
+      {
+        "label": "2025 Q4 MGSX unemployment rate",
+        "value": 5.2
+      },
+      {
+        "label": "2025 Q3 MGSX unemployment rate",
+        "value": 5
+      },
+      {
+        "label": "2025 annual MGSX unemployment rate",
+        "value": 4.8
+      }
+    ],
+    "drivers": [
+      "latest LFS unemployment rate is 4.9 percent after a quarterly fall",
+      "unemployment remains up 0.3 percentage points on the year",
+      "PAYE payroll employees are falling year over year and vacancies are at their lowest since early 2021",
+      "LFS quality and seasonal-adjustment volatility argue for a wide 80 percent interval",
+      "short-run momentum is mixed, with unemployment down on the quarter but broader labour demand soft"
+    ],
+    "sourceContext": [
+      "https://www.ons.gov.uk/releases/uklabourmarketnovember2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket/june2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/employmentintheuk/june2026"
+    ],
+    "runAt": "2026-06-27T23:33:54Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast UK Jul-Sep 2026 first-print unemployment rate"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the ONS Labour Force Survey unemployment rate for people aged 16 and over, seasonally adjusted, for the July to September 2026 rolling three-month period. The target is the first one-decimal print in the November 2026 UK Labour Market or Employment in the UK release."
+      },
+      {
+        "kind": "tool",
+        "tool": "command.date",
+        "call": "date -u +%Y-%m-%dT%H:%M:%SZ",
+        "result": "Fetched run timestamp 2026-06-27T23:33:54Z."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS release page for UK Labour Market: November 2026.",
+        "result": "Fetched official release date 2026-11-17 at 7:00am for UK Labour Market: November 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened ONS time-series page MGSX for the unemployment rate aged 16 and over, seasonally adjusted.",
+        "result": "Fetched Series ID MGSX, units %, release date 2026-06-18, next release 2026-07-21, annual 2025 value 4.8%, quarterly values 2025 Q3 5.0%, 2025 Q4 5.2%, 2026 Q1 5.0%, and monthly rolling-period values 2025 OCT 5.1%, 2025 NOV 5.2%, 2025 DEC 5.2%, 2026 JAN 4.9%, 2026 FEB 5.0%, 2026 MAR 4.9%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS Labour market overview, UK: June 2026 bulletin for current-release context.",
+        "result": "Fetched latest LFS unemployment rate for February to April 2026 = 4.9%, up 0.3 percentage points on the year and down 0.3 percentage points on the latest quarter; PAYE employees fell 103,000 over the year and 31,000 on the quarter for February to April 2026; March to May 2026 vacancies fell 19,000 to 707,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS Employment in the UK: June 2026 bulletin for level, uncertainty, and sampling context.",
+        "result": "Fetched February to April 2026 unemployment level 1.764 million, unemployment-rate sampling variability \u00b10.3 percentage points, quarterly change -0.3 percentage points, annual change +0.3 percentage points, and achieved LFS sample 80,078 individuals in January to March 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: before inside-view adjustments, recent official MGSX history puts the rate around 5 percent. The last three quarterly values were 5.0, 5.2, and 5.0 percent, while recent monthly rolling-period prints were mostly 4.9 to 5.2 percent. This is an outside-view persistence prior centered near 5.0 percent rather than below the 2024 average."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and one-off effects: the latest February to April print is lower than the prior quarter, but it is still up on the year. Payroll employment and vacancies point to weaker labour demand, while the LFS bulletin explicitly warns that short-term movements remain volatile and should be judged with other indicators."
+      },
+      {
+        "kind": "text",
+        "text": "Policy and measurement mechanism: the target is a household-survey unemployment rate, not a claimant-count or payroll series. Soft PAYE and vacancies tend to lift unemployment with a lag, but seasonal-adjustment review and LFS sampling variability can move the first print by several tenths without a true labour-market break."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the print could come below 4.5 if the February-April quarterly fall marks a genuine re-tightening in labour demand or if inactivity absorbs job losses. It could exceed 5.8 if payroll weakness broadens into layoffs, vacancies keep falling, and LFS volatility prints another sharp unemployment increase."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: start with a 5.0 percent outside-view anchor from recent quarterly MGSX values, blend in the latest 4.9 percent February-April level, then add about 0.15 percentage points for weak PAYE employment and vacancies over the five-month release horizon: 0.45*5.0 + 0.35*4.9 + 0.20*5.3 = 5.025, rounded and judgmentally tilted to 5.1 because labour-demand indicators are soft. For the 80% interval, the recent rolling MGSX sequence moved within 4.9 to 5.2 percent and the latest bulletin gives about \u00b10.3 percentage-point sampling variability, so I start near \u00b10.5 around the point and widen the upper side for lagged unemployment risk, giving 4.5 to 5.8."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the interval-calibration critique by tying the range to recent MGSX variation and ONS sampling variability, and accepted the historical-label clarification by aligning the Nov 2025-Jan 2026 rolling value with the fetched 2026 JAN MGSX print."
+      },
+      {
+        "kind": "forecast",
+        "point": 5.1,
+        "ciLow": 4.5,
+        "ciHigh": 5.8
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/prompt.md",
+        "sha256": "fd2094634c4f3e1ccb627c63da4e271008522d01047a0bf4d1ff37b6a38cbdc0",
+        "bytes": 4695,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_command.json",
+        "sha256": "8dd81499df81e82790d0f9a305fc88f086b79f2c6c0c7a60928ecc0e8d58bac4",
+        "bytes": 790,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_codex_stdout.jsonl",
+        "sha256": "c5fe3ef80ccd3387f96e0843d64cb9cf1e618307666befa0af7b0528c4503fba",
+        "bytes": 2305652,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_codex_stderr.log",
+        "sha256": "9bde7e53ec1acdccf14a1943f0a42d85a0927c4308719a9c09ebf270b73c8322",
+        "bytes": 2943,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_codex_events.jsonl",
+        "sha256": "6032505ca53ec5c4b83f09b3ba378a674151be985b98c7b792d287e700b9220e",
+        "bytes": 2306150,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_codex_last_message.txt",
+        "sha256": "aeaa33783be3f2aba48b56fdac29c09c7e683783bd4e4395a98ef3d42ae03a6e",
+        "bytes": 6623,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_codex_trace.json",
+        "sha256": "4f5b4d6a145bd47cce28808f331dca72257b9bcbbbbe55845fd0eb2f62216859",
+        "bytes": 508,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_stdout.txt",
+        "sha256": "aeaa33783be3f2aba48b56fdac29c09c7e683783bd4e4395a98ef3d42ae03a6e",
+        "bytes": 6623,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_stderr.txt",
+        "sha256": "747f1f77627addd9969da12b366879028b0cbf7c7791975b22736d06d8a6018e",
+        "bytes": 3078,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_prompt.md",
+        "sha256": "dbbb2df784f8c7b974fb0d5afce33a777e4b82576423c27a772ca109f4746ff0",
+        "bytes": 8274,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_command.json",
+        "sha256": "b8f13572c74e194cc469bd1e6b135e99b3d5795145211b50d8d74d8631b3910a",
+        "bytes": 786,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "8ad7540e397746d75ae05d3622c8c50a918d6b0383d10a502739efc1a51928aa",
+        "bytes": 1667,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_codex_stderr.log",
+        "sha256": "eb02eadb2ebd9b6143acd89267300bf83e7f6f1cdb52e2b9af1379aba53642b0",
+        "bytes": 615,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "81006d492ba92fb08542f95c6c6c4c525f3513c6694bac7f4a8f32deba158200",
+        "bytes": 1687,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "e52939cb5ab8036c38e2da1bc8c55e7afda50997eab638ea7488d79e3073f1ed",
+        "bytes": 932,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_codex_trace.json",
+        "sha256": "997f98a5e4e96661ed0afd39305e4937cf392527e2f961059bebffe801872a8c",
+        "bytes": 504,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_stdout.txt",
+        "sha256": "e52939cb5ab8036c38e2da1bc8c55e7afda50997eab638ea7488d79e3073f1ed",
+        "bytes": 932,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_stderr.txt",
+        "sha256": "01a76809f5bbccbb134faf3677fb36963d8a7cd759ded1891766f103463d2666",
+        "bytes": 638,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/revision_prompt.md",
+        "sha256": "214860266e9338fb2186c01bda4777a48538cfcd3e95480317bd90ae93a12245",
+        "bytes": 13186,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/command.json",
+        "sha256": "7560a4a4961d370d2d9329cd65b608b6dbc2c63c75737a0119857f6a40c92bab",
+        "bytes": 784,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/codex_stdout.jsonl",
+        "sha256": "313a8d50cdc8ff2ff6c48b1fe697fb4e1ebd72c27f2e7d80b778af37a2b66164",
+        "bytes": 7603,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/codex_stderr.log",
+        "sha256": "4e4f0382f753737a23a29f4d1dc13934b6c4fb192414aef68c5bb8803016e3c8",
+        "bytes": 615,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/codex_events.jsonl",
+        "sha256": "64e7edbe44a49afd0a1a85bb57e552dcbde69035d8cb096e73aa4aa98f56389e",
+        "bytes": 7637,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/codex_last_message.txt",
+        "sha256": "25046fbdf31e78a9fa62f160c15109264ee1a8c93dca7e7368b80baf0a51233e",
+        "bytes": 7013,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/codex_trace.json",
+        "sha256": "0b8448be4d843731c034dc1e513d6e71044882504abdb37473895e1540ec1ee9",
+        "bytes": 504,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/stdout.txt",
+        "sha256": "25046fbdf31e78a9fa62f160c15109264ee1a8c93dca7e7368b80baf0a51233e",
+        "bytes": 7013,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/stderr.txt",
+        "sha256": "7cc1b6bb4b0276f639c3d764549c03ba7eba5c34afe486b3fa8215d23bf5865d",
+        "bytes": 638,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/raw_response.txt",
+        "sha256": "25046fbdf31e78a9fa62f160c15109264ee1a8c93dca7e7368b80baf0a51233e",
+        "bytes": 7013,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/parsed_cells.json",
+        "sha256": "50bbd2ba1a03f19f0e8d3d907074003627de32ae0c938c9adc02da8a2796fe29",
+        "bytes": 8037,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/normalized_cells.json",
+        "sha256": "2a636fea929eb2ae7c2a5f70cf4b7644ef21620f3945480fc1284328ec84a1f9",
+        "bytes": 7632,
+        "createdAt": "2026-06-27T23:33:47Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/validation.json",
+        "sha256": "fce0c36e8cd0d59acb46c5c780b559fb2ae8424bf3d0a592be5ace74a9db8fa4",
+        "bytes": 134,
+        "createdAt": "2026-06-27T23:33:47Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T23:33:47Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "c66db467a304f25a6cb208365dfe2903cc27c84841f2f74f1bfe27065fb7cce0"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-33-47z-ons-labour-unemployment-rate-july-to-september-2026-first-print-jul-sep-2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is directionally justified by LFS sampling variability and recent volatility, but the realized-volatility basis is only described qualitatively.",
+          "actionRequested": "Add one sentence or calculation tying the 4.5 to 5.8 interval to recent MGSX rolling-period or quarterly absolute changes, or explicitly state that the interval is a judgmental widening from the ONS \u00b10.3 percentage-point sampling variability."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the prior is an outside-view persistence prior or a simple time-series blend, since both are effectively being used."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Check the historical-context label for Nov 2025-Jan 2026 against the cited MGSX rolling-period values so it does not appear inconsistent with the fetched 2026 JAN value."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval-calibration critique by tying the range to recent MGSX variation and ONS sampling variability, and accepted the historical-label clarification by aligning the Nov 2025-Jan 2026 rolling value with the fetched 2026 JAN MGSX print.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval-calibration critique by tying the range to recent MGSX variation and ONS sampling variability, and accepted the historical-label clarification by aligning the Nov 2025-Jan 2026 rolling value with the fetched 2026 JAN MGSX print.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval-calibration critique by tying the range to recent MGSX variation and ONS sampling variability, and accepted the historical-label clarification by aligning the Nov 2025-Jan 2026 rolling value with the fetched 2026 JAN MGSX print.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable with only minor tightening around the interval calibration."
+    }
+  }
+]

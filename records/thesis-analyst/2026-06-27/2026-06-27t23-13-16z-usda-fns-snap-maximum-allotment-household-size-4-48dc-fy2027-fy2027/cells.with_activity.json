@@ -1,0 +1,432 @@
+[
+  {
+    "slug": "snap-max-allotment-family-4-fy2027",
+    "country": "US",
+    "type": "data",
+    "title": "SNAP family-4 max allotment FY2027",
+    "question": "What will the first USDA FNS FY2027 maximum monthly SNAP allotment for a household of 4 in the 48 contiguous states and DC be, in dollars per month?",
+    "unit": "usd",
+    "pointEstimate": 1021,
+    "ciLow": 1000,
+    "ciHigh": 1055,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-30",
+    "resolutionSource": "USDA Food and Nutrition Service first official FY2027 SNAP Cost-of-Living Adjustments memorandum or table",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/snap/cost-living-adjustment-cola-information",
+    "resolutionRule": "Resolve to the first official USDA FNS FY2027 SNAP Cost-of-Living Adjustments memorandum or table value for maximum monthly allotments, household size 4, 48 contiguous states and DC. The 2026-09-30 date is the catalog resolution deadline/latest-by date tied to FY2027 benefits becoming effective October 1, not a claim that publication occurs on that day. If USDA FNS posts the FY2027 table before 2026-09-30, that first official post controls. Use the dollar amount as first published, with no later revision or conversion.",
+    "dataPointId": "usda.fns.snap.maximum_allotment.household_size_4.48dc.fy2027.first_print",
+    "historicalContext": [
+      {
+        "label": "FY2023 official first print",
+        "value": 939
+      },
+      {
+        "label": "FY2024 official/catalog reference",
+        "value": 973
+      },
+      {
+        "label": "FY2025 official/catalog reference",
+        "value": 975
+      },
+      {
+        "label": "FY2026 catalog anchor",
+        "value": 994
+      }
+    ],
+    "drivers": [
+      "Unobserved June 2026 Thrifty Food Plan cost is the mechanical basis",
+      "Food-at-home CPI running 2.7 percent year over year in May 2026",
+      "ERS 2026 food-at-home forecast midpoint 2.8 percent",
+      "Annual FNS COLA table effective October 1",
+      "Low but nonzero policy-change risk around TFP rules"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/snap/fy-2023-cola",
+      "https://www.usda.gov/guidance-documents/snap/fns/snap-fy-2024-cost-living-adjustments-0",
+      "https://www.usda.gov/guidance-documents/snap/fns/snap-fy-2025-cost-living-adjustments",
+      "https://www.fns.usda.gov/snap/cost-living-adjustment-cola-information",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.ers.usda.gov/data-products/food-price-outlook/summary-findings",
+      "https://www.ecfr.gov/current/title-7/subtitle-B/chapter-II/subchapter-C/part-273/subpart-D/section-273.10"
+    ],
+    "runAt": "2026-06-27T23:13:24Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "SNAP FY2027 maximum allotment, household of 4"
+      },
+      {
+        "kind": "text",
+        "text": "Resolver is the first official USDA FNS FY2027 SNAP COLA memorandum or table for the household-size-4 maximum monthly allotment in the 48 contiguous states and DC. The repo already registers the canonical slug snap-max-allotment-family-4-fy2027 and target date 2026-09-30, so I reuse that rather than creating a near-duplicate."
+      },
+      {
+        "kind": "tool",
+        "tool": "local.repo",
+        "call": "rg and sed over forecast-cells.ts and ledger-targets.generated.ts for the target registration",
+        "result": "Fetched canonical slug snap-max-allotment-family-4-fy2027; catalog values include FY2024 973, FY2025 975, FY2026e 994, prior point 1010, prior CI 975 to 1045, and ledger resolutionDate 2026-09-30."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.fns.lookup",
+        "call": "Open USDA FNS SNAP FY2023 COLA page for an official inline reference point and effective-date mechanics",
+        "result": "Fetched FY2023 memorandum date August 9, 2022, effective Oct. 1, 2022, and household-of-4 48 states/DC maximum allotment 939 dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.usda.guidance.lookup",
+        "call": "Open USDA Guidance Portal entries for FY2024 and FY2025 SNAP COLA issue dates",
+        "result": "Fetched FY2024 issued date August 3, 2023 and FY2025 issued date August 2, 2024; FNS pages show FY2024 page updated March 16, 2026 and FY2025 page updated March 6, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.ecfr.lookup",
+        "call": "Open 7 CFR 273.10 maximum SNAP allotment rule",
+        "result": "Fetched 7 CFR 273.10 current as of 6/24/2026; maximum allotments are adjusted annually, posted in an FNS web table, effective October 1, and based on 100% of the preceding June TFP rounded down to the nearest lower dollar."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.bls.lookup",
+        "call": "Open BLS May 2026 CPI release for current food-at-home momentum",
+        "result": "Fetched BLS May 2026 CPI: all items +0.5 percent monthly and +4.2 percent year over year; food at home +0.1 percent monthly and +2.7 percent year over year; June 2026 CPI scheduled for July 14, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.ers.lookup",
+        "call": "Open USDA ERS June 2026 Food Price Outlook summary",
+        "result": "Fetched ERS June 2026 forecast: food-at-home prices predicted +2.8 percent in 2026 with 95 percent prediction interval 1.4 to 4.4 percent; all food +3.2 percent with interval 2.2 to 4.2 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: recent first-print household-of-4 values moved 939 to 973 to 975, and the local FY2026 anchor is 994. The year-to-year changes are about +3.6 percent, +0.2 percent, and +1.9 percent, with the current inflation evidence closer to the upper part of that recent range than to the FY2025 near-flat COLA."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: the best level anchor is the FY2026 catalog anchor of 994 dollars. Current grocery inflation has not collapsed; BLS shows 2.7 percent year-over-year food-at-home inflation in May 2026 and ERS puts 2026 food-at-home inflation at 2.8 percent. The eCFR rule makes this a mechanical TFP/June-cost update unless Congress or USDA changes the TFP basis before the FY2027 table."
+      },
+      {
+        "kind": "math",
+        "text": "Point: 994 dollars FY2026 anchor x 1.027 May food-at-home momentum = 1020.8, rounded to 1021 dollars. Interval: translate uncertainty around June 2026 TFP movement, publication rounding down to whole dollars, and modest policy/mechanical risk into about +0.6% to +6.1% from the 994 anchor, giving 994 x 1.006 = 1000 and 994 x 1.061 = 1055. This is wider than the ERS 1.4% to 4.4% food-at-home prediction interval because the resolver is the TFP basket, not CPI itself, and because policy or basket-specific food movements can add tail risk."
+      },
+      {
+        "kind": "text",
+        "text": "Catalog-prior reconciliation: the local prior point of 1010 and CI of 975 to 1045 looked too low after incorporating the 994 FY2026 anchor plus May 2026 food-at-home CPI at 2.7 percent and ERS 2026 food-at-home midpoint at 2.8 percent, so I shift the point up to 1021 and move the interval to 1000 to 1055 while keeping a similar uncertainty width."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: below 1000 would require roughly less than +0.6 percent growth from the FY2026 anchor, plausibly from a sharp June 2026 TFP softening or a policy freeze/rebase. Above 1055 would require roughly more than +6.1 percent growth, plausibly from a fresh TFP reevaluation, commodity shock, or food-at-home spike several points above current CPI and ERS signals."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver clarification that 2026-09-30 is a catalog deadline/latest-by date, tightened the interval explanation around June 2026 TFP movement, rounding, and policy risk, and added reconciliation from the catalog prior to the updated 1021 point estimate."
+      },
+      {
+        "kind": "forecast",
+        "point": 1021,
+        "ciLow": 1000,
+        "ciHigh": 1055
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/prompt.md",
+        "sha256": "364489524df2e85ea759881e81d308ed576f8ba95f9ef16bb6067bc23c6ba02a",
+        "bytes": 4782,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_command.json",
+        "sha256": "73b652e9e398c7bb4410537dcb9956e3bd7fcb71a6f7c0cc7c49652bc5505204",
+        "bytes": 781,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_codex_stdout.jsonl",
+        "sha256": "0fd1241df17c3a48a20f03050cc4556f037f3fff5d4f2a8b6552f230e9698dd2",
+        "bytes": 42907,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_codex_stderr.log",
+        "sha256": "54814723aeff48d85ae63dbb77321b47ac6be9c6a7c716aeb75542ec6ce80b2f",
+        "bytes": 3231,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_codex_events.jsonl",
+        "sha256": "7751f2836ee5784bb7310a6d8c75c72ef9bdc0a69fd6f643eeae2b0a67c95403",
+        "bytes": 43077,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_codex_last_message.txt",
+        "sha256": "a1c278abab45d12bce7c2cca0f61431b67e601dd7c42179c2d5b7724ea844848",
+        "bytes": 6056,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_codex_trace.json",
+        "sha256": "5eb4d8c3e23d537a7ba74619540a72a1f0ab1c3d9019a0f9f53166818b726a6d",
+        "bytes": 508,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_stdout.txt",
+        "sha256": "a1c278abab45d12bce7c2cca0f61431b67e601dd7c42179c2d5b7724ea844848",
+        "bytes": 6056,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_stderr.txt",
+        "sha256": "24b2a75159f00834c7d3761f6624cdd1907d518a985cb077d131a2100433d567",
+        "bytes": 3374,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_prompt.md",
+        "sha256": "13353b401c0fa99893d7643c96527070e526484e987191e1afc1731f97a6e07c",
+        "bytes": 7698,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_command.json",
+        "sha256": "bcb039c36b248240fcbc28e097d30fd45d2630573824922f0b4d582f6830d1cd",
+        "bytes": 777,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "03799264f8d67773df747d9e67f8e2291bf8e88cc8779fc5c5458b05af601e00",
+        "bytes": 2311,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_codex_stderr.log",
+        "sha256": "db17c6ad1b4666b3bbd21a0f0cdee7888f797cb66bc7e4ad52d681dd7df8eb06",
+        "bytes": 615,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_codex_events.jsonl",
+        "sha256": "3e859669ad89163f97598e492488c616527643860ca385e9ed105960e29dbc68",
+        "bytes": 2333,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_codex_last_message.txt",
+        "sha256": "d3a42f5eefb1032743063364b4bf8bc93423e804fb570e63b1686d035eaf5aa9",
+        "bytes": 1934,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_codex_trace.json",
+        "sha256": "9379fb7a75240323950d6dcf484b5ee3fca010fda1e109c3756a1a6b8ab9e18b",
+        "bytes": 504,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_stdout.txt",
+        "sha256": "d3a42f5eefb1032743063364b4bf8bc93423e804fb570e63b1686d035eaf5aa9",
+        "bytes": 1934,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_stderr.txt",
+        "sha256": "e60fbb71ae592423220be07f6311eab0c25b99743bb2dae798b1bc4dd475d48d",
+        "bytes": 638,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/revision_prompt.md",
+        "sha256": "740a0ff224542989e22d399691c26db3627664671700c1e8787440be6c804a84",
+        "bytes": 13708,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/command.json",
+        "sha256": "f459166dce5fefdb8b8ff7e892e5dce168ad070cca860d5ce459a22c7266e4ff",
+        "bytes": 775,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/codex_stdout.jsonl",
+        "sha256": "8a31a1670277388d6fcc8f7b1516132752c644d918fa13bce2aaea36fa88ff3a",
+        "bytes": 7839,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/codex_stderr.log",
+        "sha256": "039931dd283304bba96fc65b0de85c95c6fde224be26d6616d9d3f6f5b1071c3",
+        "bytes": 615,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/codex_events.jsonl",
+        "sha256": "20096dfe13d3bc5a540a712d81fb1e2aecb400566b5041463ef07fddcb50b4ac",
+        "bytes": 7861,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/codex_last_message.txt",
+        "sha256": "77c14e3ffc63bbaeda8da9730213a3a7a2e74eeaeb7515ea9d0972066c549a47",
+        "bytes": 7239,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/codex_trace.json",
+        "sha256": "5567858b67167fd8838c69bd83fc793077037802b1ffd22a9168f23ff0303654",
+        "bytes": 504,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/stdout.txt",
+        "sha256": "77c14e3ffc63bbaeda8da9730213a3a7a2e74eeaeb7515ea9d0972066c549a47",
+        "bytes": 7239,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/stderr.txt",
+        "sha256": "efcf464eec55875708cd9c96018911d19f3b450419de40d7731cb981f24e9037",
+        "bytes": 638,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/raw_response.txt",
+        "sha256": "77c14e3ffc63bbaeda8da9730213a3a7a2e74eeaeb7515ea9d0972066c549a47",
+        "bytes": 7239,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/parsed_cells.json",
+        "sha256": "ecd13ca44b40491bddfd2c84b0c7eac9d41f80be113dc7647772a58151321ca1",
+        "bytes": 8258,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/normalized_cells.json",
+        "sha256": "219455929ad9a4b875c1c494b1f29de48820754fdf4e570f70a893e007038369",
+        "bytes": 7850,
+        "createdAt": "2026-06-27T23:13:16Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/validation.json",
+        "sha256": "93883d3da7a348945bad7029d65d59838d0e5c8f7e599888a453de53a39f91b0",
+        "bytes": 135,
+        "createdAt": "2026-06-27T23:13:16Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T23:13:16Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "d188d92fd5da8272205d75c42904d040ab5d65cdd11491cb0b15b7993f5e0bf1"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-13-16z-usda-fns-snap-maximum-allotment-household-size-4-48dc-fy2027-fy2027/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The resolver rule is clear, but the `resolutionDate` of 2026-09-30 reads like a latest-by/effective-date boundary rather than the expected first-print publication date, and the FY2027 URL appears to be a future placeholder.",
+          "actionRequested": "Clarify that 2026-09-30 is the resolution deadline or catalog date, not necessarily the publication date, and state that the first official USDA FNS FY2027 SNAP COLA memorandum/table controls once posted."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval math is only loosely connected to the cited ERS uncertainty and the statutory TFP June-cost mechanism; the low/high implied growth rates do not directly match the cited ERS 1.4%-4.4% interval.",
+          "actionRequested": "Explain the interval as explicit forecast uncertainty around June 2026 TFP movement, rounding, and policy risk, or revise the bounds/math so they follow the cited volatility or prediction interval more directly."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The reasoning mentions a local prior point of 1010 and prior CI 975-1045, but the final forecast moves to 1021 with interval 1000-1055 without explicitly reconciling the catalog prior with the new evidence.",
+          "actionRequested": "Add one sentence explaining the final forecast step from the catalog prior or FY2026 anchor to the published point and interval."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Replace the driver phrase `June 2026 Thrifty Food Plan cost` with wording that makes clear the June 2026 TFP value is not yet observed at run time."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the tail scenarios more quantitative, for example specifying what TFP percentage change would put the result below 1000 or above 1055."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver clarification that 2026-09-30 is a catalog deadline/latest-by date, tightened the interval explanation around June 2026 TFP movement, rounding, and policy risk, and added reconciliation from the catalog prior to the updated 1021 point estimate.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver clarification that 2026-09-30 is a catalog deadline/latest-by date, tightened the interval explanation around June 2026 TFP movement, rounding, and policy risk, and added reconciliation from the catalog prior to the updated 1021 point estimate.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver clarification that 2026-09-30 is a catalog deadline/latest-by date, tightened the interval explanation around June 2026 TFP movement, rounding, and policy risk, and added reconciliation from the catalog prior to the updated 1021 point estimate.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver clarification that 2026-09-30 is a catalog deadline/latest-by date, tightened the interval explanation around June 2026 TFP movement, rounding, and policy risk, and added reconciliation from the catalog prior to the updated 1021 point estimate.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver clarification that 2026-09-30 is a catalog deadline/latest-by date, tightened the interval explanation around June 2026 TFP movement, rounding, and policy risk, and added reconciliation from the catalog prior to the updated 1021 point estimate.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is mostly publishable, but it needs tighter resolver timing/source wording and a more defensible interval derivation tied to the actual SNAP/TFP mechanism."
+    }
+  }
+]

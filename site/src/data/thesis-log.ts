@@ -5,6 +5,7 @@ import type {
   ForecastRunEntry,
   PredictionPackSet,
   PredictionPackSetMode,
+  PredictionPreSubmitReviewWorkflow,
   PredictionRunActivityArtifact,
   ResolvedOutcome,
   Unit,
@@ -26,6 +27,11 @@ import {
   type PredictionSpec,
 } from "./prediction-specs";
 import {
+  buildForecastJudgeExport,
+  type ForecastJudgeCalibrationReport,
+  type ForecastJudgeExport,
+} from "./forecast-judges";
+import {
   THESIS_TARGET_LEDGER,
   requireLedgerTarget,
   type TargetRegisteredLedgerEntry,
@@ -40,6 +46,11 @@ export type ThesisLogEntry =
   | PredictionResolvedLogEntry;
 
 export type LedgerSourceKind = "official_release";
+
+export type RecordedPredictionDistribution = Pick<
+  PredictionDistribution,
+  "format" | "pointCount" | "summary"
+>;
 
 export interface ObservationRecordedLedgerEntry extends ResolvedOutcome {
   kind: "observation_recorded";
@@ -73,12 +84,13 @@ export interface PredictionRecordedLogEntry {
   resolutionPolicy?: string;
   recordedAt?: string;
   dataPointId?: string;
-  distribution: PredictionDistribution;
+  distribution: RecordedPredictionDistribution;
   agent?: string;
   model?: string;
   runLabel: string;
   runDescription?: string;
   packSet?: PredictionPackSet;
+  preSubmitReview?: PredictionPreSubmitReviewWorkflow;
   activityLog?: PredictionRunActivityArtifact[];
 }
 
@@ -199,6 +211,10 @@ export interface ThesisLogExport {
     resolutionLinks: number;
     resolutionEvents: number;
     pendingResolution: number;
+    preSubmitReviews: number;
+    judgeTraceEvals: number;
+    judgePairwiseEvals: number;
+    judgePostResolutionEvals: number;
   };
   entries: ThesisLogEntry[];
   specs: PredictionSpec[];
@@ -206,7 +222,16 @@ export interface ThesisLogExport {
   resolutionLinks: PredictionResolutionLink[];
   resolutionEvents: PredictionResolutionEvent[];
   scores: ResolvedForecastScore[];
+  judgeResults: ForecastJudgeLogSummary;
   resolutionQueue: PredictionResolutionQueueEntry[];
+}
+
+export interface ForecastJudgeLogSummary {
+  schemaVersion: "thesis_forecast_judges_summary_v1";
+  generatedAt: string;
+  policy: ForecastJudgeExport["policy"];
+  calibration: ForecastJudgeCalibrationReport;
+  fullExportJsonUrl: "https://app.thesisinstitute.org/forecasts/judges.json";
 }
 
 export const POLICYENGINE_LEDGER_FACTS_URL =
@@ -603,12 +628,17 @@ export function buildPredictionRecordedLogEntries(
             ledgerTarget?.resolutionPolicy ?? forecast.series?.resolutionPolicy,
           recordedAt: run.predictionRun?.runAt,
           dataPointId: ledgerTarget?.dataPointId ?? forecast.dataPointId,
-          distribution: run.predictionDistribution,
+          distribution: {
+            format: run.predictionDistribution.format,
+            pointCount: run.predictionDistribution.pointCount,
+            summary: run.predictionDistribution.summary,
+          },
           agent: run.predictionRun?.agent,
           model: run.predictionRun?.model,
           runLabel: run.label,
           runDescription: run.description,
           packSet: run.packSet,
+          preSubmitReview: run.predictionRun?.preSubmitReview,
           activityLog: run.predictionRun?.activityLog,
         },
       ];
@@ -746,6 +776,8 @@ export function buildThesisLogExport(
   );
   const resolutionEvents = buildPredictionResolutionEvents(forecasts, ledger);
   const scores = scoreResolvedForecasts(forecasts, ledger);
+  const judgeResults = buildForecastJudgeExport({ forecasts, scores });
+  const judgeSummary = buildForecastJudgeLogSummary(judgeResults);
   const resolutionQueue = buildResolutionQueue(forecasts, ledger);
 
   return {
@@ -769,6 +801,10 @@ export function buildThesisLogExport(
       resolutionLinks: resolutionLinks.length,
       resolutionEvents: resolutionEvents.length,
       pendingResolution: resolutionQueue.length,
+      preSubmitReviews: runs.filter((run) => run.preSubmitReview).length,
+      judgeTraceEvals: judgeResults.traceQuality.length,
+      judgePairwiseEvals: judgeResults.pairwise.length,
+      judgePostResolutionEvals: judgeResults.postResolution.length,
     },
     entries,
     specs,
@@ -776,7 +812,20 @@ export function buildThesisLogExport(
     resolutionLinks,
     resolutionEvents,
     scores,
+    judgeResults: judgeSummary,
     resolutionQueue,
+  };
+}
+
+export function buildForecastJudgeLogSummary(
+  judgeResults: ForecastJudgeExport,
+): ForecastJudgeLogSummary {
+  return {
+    schemaVersion: "thesis_forecast_judges_summary_v1",
+    generatedAt: judgeResults.generatedAt,
+    policy: judgeResults.policy,
+    calibration: judgeResults.calibration,
+    fullExportJsonUrl: "https://app.thesisinstitute.org/forecasts/judges.json",
   };
 }
 

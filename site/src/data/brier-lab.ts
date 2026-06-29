@@ -1,4 +1,12 @@
-import type { ForecastCell } from "./forecast-cells";
+import type {
+  ForecastCell,
+  PredictionPreSubmitReviewWorkflow,
+} from "./forecast-cells";
+import {
+  buildForecastJudgeExport,
+  type ForecastJudgeExport,
+  type ForecastResolutionFailureMode,
+} from "./forecast-judges";
 import {
   buildRecordedPredictionRunId,
   type PredictionRunRecord,
@@ -40,6 +48,20 @@ export interface BrierRewardRow {
       interval80Covered: boolean | null;
     };
   };
+  auxiliaryJudges: {
+    rewardEligible: false;
+    traceJudgeId?: string;
+    traceQualityScore: number | null;
+    postResolutionJudgeId?: string;
+    primaryFailureMode?: ForecastResolutionFailureMode;
+  };
+  preSubmitReview: {
+    status: string;
+    reviewed: boolean;
+    findingCount: number;
+    acceptedCount: number;
+    blockingFindingCount: number;
+  };
   provenance: {
     specVersionId: string;
     promptHash?: string;
@@ -79,6 +101,9 @@ export interface BrierRewardExport {
     scoredRuns: number;
     unresolvedRuns: number;
     agents: number;
+    traceJudgedRuns: number;
+    postResolutionJudgeRows: number;
+    preSubmitReviewedRuns: number;
   };
   splits: Record<
     BrierEvalSplit,
@@ -93,8 +118,14 @@ export interface BrierRewardExport {
     trainingEligibleSplits: BrierEvalSplit[];
     holdoutSplits: BrierEvalSplit[];
   };
+  judgePolicy: {
+    role: "auxiliary_process_eval";
+    rewardEligible: false;
+    calibrationRule: string;
+  };
   leaderboard: BrierAgentLeaderboardRow[];
   rewardRows: BrierRewardRow[];
+  judgeResults: ForecastJudgeExport;
 }
 
 export function buildBrierRewardExport({
@@ -111,6 +142,13 @@ export function buildBrierRewardExport({
   generatedAt?: string;
 }): BrierRewardExport {
   const scores = scoreResolvedForecasts(forecasts, ledger);
+  const judgeResults = buildForecastJudgeExport({ forecasts, scores });
+  const traceJudgeByRunId = new Map(
+    judgeResults.traceQuality.map((judge) => [judge.runId, judge]),
+  );
+  const postResolutionJudgeByRunId = new Map(
+    judgeResults.postResolution.map((judge) => [judge.runId, judge]),
+  );
   const scoreByRunId = new Map(scores.map((score) => [score.runId, score]));
   const specByPredictionId = new Map(
     specs.map((spec) => [spec.predictionId, spec]),
@@ -135,6 +173,8 @@ export function buildBrierRewardExport({
         score,
         runRecord,
         split,
+        traceJudge: traceJudgeByRunId.get(runId),
+        postResolutionJudge: postResolutionJudgeByRunId.get(runId),
       });
     });
   });
@@ -162,6 +202,11 @@ export function buildBrierRewardExport({
       unresolvedRuns: rewardRows.filter((row) => row.split === "unresolved")
         .length,
       agents: leaderboard.length,
+      traceJudgedRuns: judgeResults.traceQuality.length,
+      postResolutionJudgeRows: judgeResults.postResolution.length,
+      preSubmitReviewedRuns: rewardRows.filter(
+        (row) => row.preSubmitReview.reviewed,
+      ).length,
     },
     splits: buildSplitSummary(rewardRows),
     noLeakagePolicy: {
@@ -169,8 +214,15 @@ export function buildBrierRewardExport({
       trainingEligibleSplits: ["train"],
       holdoutSplits: ["validation", "test"],
     },
+    judgePolicy: {
+      role: "auxiliary_process_eval",
+      rewardEligible: false,
+      calibrationRule:
+        "Judge scores can be used as process diagnostics only after checking whether they predict held-out normalized CRPS. They must not replace the proper-score reward.",
+    },
     leaderboard,
     rewardRows,
+    judgeResults,
   };
 }
 
@@ -192,6 +244,8 @@ function buildRewardRow({
   score,
   runRecord,
   split,
+  traceJudge,
+  postResolutionJudge,
 }: {
   forecast: ForecastCell;
   run: ReturnType<typeof getForecastRunEntries>[number];
@@ -200,6 +254,8 @@ function buildRewardRow({
   score?: ResolvedForecastScore;
   runRecord?: PredictionRunRecord;
   split: BrierEvalSplit;
+  traceJudge?: ForecastJudgeExport["traceQuality"][number];
+  postResolutionJudge?: ForecastJudgeExport["postResolution"][number];
 }): BrierRewardRow {
   return {
     schemaVersion: "brier_reward_row_v1",
@@ -224,6 +280,16 @@ function buildRewardRow({
         interval80Covered: score?.interval80Covered ?? null,
       },
     },
+    auxiliaryJudges: {
+      rewardEligible: false,
+      traceJudgeId: traceJudge?.judgeId,
+      traceQualityScore: traceJudge?.overallScore ?? null,
+      postResolutionJudgeId: postResolutionJudge?.judgeId,
+      primaryFailureMode: postResolutionJudge?.primaryFailureMode,
+    },
+    preSubmitReview: summarizePreSubmitReview(
+      run.predictionRun?.preSubmitReview,
+    ),
     provenance: {
       specVersionId: spec?.specVersionId ?? `spec.${forecast.slug}.v1`,
       promptHash: runRecord?.promptHash,
@@ -234,6 +300,24 @@ function buildRewardRow({
       ledgerFactRef: score?.ledgerFactRef,
       activityArtifactCount: run.predictionRun?.activityLog?.length ?? 0,
     },
+  };
+}
+
+function summarizePreSubmitReview(
+  review?: PredictionPreSubmitReviewWorkflow,
+): BrierRewardRow["preSubmitReview"] {
+  const findings = review?.findings ?? [];
+  const dispositions = review?.dispositions ?? [];
+  return {
+    status: review?.status ?? "not_requested",
+    reviewed: review?.status === "completed",
+    findingCount: findings.length,
+    acceptedCount: dispositions.filter((disposition) =>
+      ["accepted", "partially_accepted"].includes(disposition.decision),
+    ).length,
+    blockingFindingCount: findings.filter(
+      (finding) => finding.severity === "blocking",
+    ).length,
   };
 }
 

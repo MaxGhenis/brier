@@ -1,0 +1,442 @@
+[
+  {
+    "slug": "jp-lfs-unemployment-rate-2026-05",
+    "country": "JP",
+    "type": "data",
+    "title": "Japan May 2026 unemployment rate",
+    "question": "Japan Statistics Bureau Labour Force Survey Basic Tabulation, May 2026 seasonally adjusted unemployment rate, first print",
+    "unit": "percent",
+    "pointEstimate": 2.5,
+    "ciLow": 2.3,
+    "ciHigh": 2.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-30",
+    "resolutionSource": "Statistics Bureau of Japan Labour Force Survey Basic Tabulation first monthly release",
+    "resolutionSourceUrl": "https://www.stat.go.jp/data/roudou/sokuhou/tsuki/index.html",
+    "resolutionRule": "Resolve to the first-print seasonally adjusted complete unemployment rate for May 2026 in the Statistics Bureau of Japan Labour Force Survey Basic Tabulation, published at the agency's stated precision of one decimal percentage point. Use the initial June 30, 2026 print and ignore later revisions or seasonal-adjustment updates. The interval is an 80% central interval.",
+    "dataPointId": "statjp.lfs.unemployment_rate.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-04 seasonally adjusted unemployment rate",
+        "value": 2.5
+      },
+      {
+        "label": "2026-03 seasonally adjusted unemployment rate",
+        "value": 2.7
+      },
+      {
+        "label": "2026-02 seasonally adjusted unemployment rate",
+        "value": 2.6
+      },
+      {
+        "label": "2026-01 seasonally adjusted unemployment rate",
+        "value": 2.7
+      },
+      {
+        "label": "2025 annual unemployment rate",
+        "value": 2.5
+      },
+      {
+        "label": "2024 annual unemployment rate",
+        "value": 2.5
+      },
+      {
+        "label": "2023 annual unemployment rate",
+        "value": 2.6
+      }
+    ],
+    "drivers": [
+      "outside-view anchor is the 2024-2025 annual level of 2.5 percent",
+      "latest unemployment rate fell to 2.5 percent",
+      "recent 2026 monthly range is narrow at 2.5 to 2.7 percent",
+      "employment up year over year but unemployed persons also up year over year",
+      "one-month rounded moves are usually small but 0.2 point reversals are possible"
+    ],
+    "sourceContext": [
+      "https://www.stat.go.jp/data/roudou/sokuhou/tsuki/index.html",
+      "https://www.stat.go.jp/data/roudou/pdf/kohyo26.pdf",
+      "https://www.stat.go.jp/data/roudou/sokuhou/tsuki/pdf/gaiyou.pdf",
+      "https://www.e-stat.go.jp/stat-search/files?cycle=0&tclass=000001226526"
+    ],
+    "runAt": "2026-06-27T12:57:12Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast Japan May 2026 first-print unemployment rate"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the Statistics Bureau of Japan Labour Force Survey Basic Tabulation complete unemployment rate, seasonally adjusted, for May 2026, taken from the first official monthly release and rounded as the agency publishes it to one decimal percentage point."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the official 2026 Labour Force Survey release schedule PDF.",
+        "result": "The schedule lists the 2026\u5e745\u6708\u5206 Basic Tabulation release date as 2026-06-30 and notes Basic Tabulation releases at 8:30."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the latest official monthly summary table for recent reference-class values and annual context.",
+        "result": "The page reports 2023 annual 2.6%, 2024 annual 2.5%, 2025 annual 2.5%, and 2026 monthly values of Jan 2.7%, Feb 2.6%, Mar 2.7%, Apr 2.5%."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: before using the April movement as inside-view evidence, the official-source reference class points to a low-volatility unemployment-rate range around 2.5 to 2.7 percent. The 2024 and 2025 annual rates were both 2.5 percent, so the outside-view prior is 2.5 percent with a short-run range centered near 2.6 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Model prior: I use a persistence-plus-short-moving-average prior rather than a formal time-series model because the forecast target is one month ahead and the official published value is rounded to one decimal point. Persistence from April gets the largest weight, with the Jan-Apr average and annual level as shrinkage anchors."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the Statistics Bureau monthly Labour Force Survey results page for the latest official release.",
+        "result": "Latest official page is the 2026 April release, published 2026-05-29, with seasonally adjusted complete unemployment rate 2.5%, down 0.2 percentage point from the prior month."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the latest official PDF summary for labor-market level and momentum details.",
+        "result": "The April 2026 PDF reports employed persons 68.60 million, up 0.64 million year over year; unemployed persons 1.93 million, up 0.05 million year over year; labor force 70.53 million, up 0.69 million year over year; seasonally adjusted unemployment rate 2.5%."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and one-off effects: the latest 2.5 percent level is already at the two-year annual average. The month-to-month momentum is downward from March to April, but the year-over-year unemployed count is still positive, which argues against a confident break below 2.5 percent. No policy-mechanism or calendar event points to a large May discontinuity."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: April's 0.2 point drop could partially reverse if labor-force participation rose or if the unemployed count continued its year-over-year increase; an upside print of 2.7 to 2.8 percent is plausible. The downside scenario is continued strong employment absorption pushing the rounded rate to 2.3 or 2.4 percent. Outside the interval would likely require an unusually sharp one-month labor-force or employment shock."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: use a judgmental persistence-weighted blend, 70% on April 2.5, 20% on the 2026 Jan-Apr average of (2.7+2.6+2.7+2.5)/4 = 2.625, and 10% on the 2024-2025 annual anchor of 2.5, giving 0.70*2.5 + 0.20*2.625 + 0.10*2.5 = 2.525. Because the April fall and annual anchor both favor 2.5 while the short average favors only a small upward pull, I set the judgmental published point estimate at 2.5 rather than mechanically rounding 2.525 up. The 80% interval starts from the Jan-Apr rounded range of 2.5-2.7 and is widened judgmentally to 2.3-2.8 for one-month release noise and rounded-value uncertainty."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer fixes by moving the base-rate prior before current-release updates, naming the persistence-plus-short-moving-average prior, labeling the interval widening as judgmental beyond the short volatility sample, clarifying the 80% central interval, using a more specific resolution source, and revising the point calculation so 2.5 is a judgmental published estimate rather than an incoherent mechanical rounding of 2.55."
+      },
+      {
+        "kind": "forecast",
+        "point": 2.5,
+        "ciLow": 2.3,
+        "ciHigh": 2.8
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/prompt.md",
+        "sha256": "755b58f09e0d21fccd6ed9ea764aa82342a0c908b3b6cd8bdc22a1ba04d91e6d",
+        "bytes": 4005,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_command.json",
+        "sha256": "2aaa4770f6c7a9500bd33331f4fe54844916b74686a42805391b537ca4286240",
+        "bytes": 750,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_codex_stdout.jsonl",
+        "sha256": "2437dc1b3632e2e93188742dc070f94a947f4369a377dab9d576193c357515ec",
+        "bytes": 11512,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_codex_stderr.log",
+        "sha256": "faa42aeeee61953fe7f60046c6a70b18145ebc7fb03aa7a6b6ad6bda451b33a9",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_codex_events.jsonl",
+        "sha256": "31f303bfc26ea8d9043dd896c692b587a63c8ec91c9936388e1591888dd41daa",
+        "bytes": 11655,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_codex_last_message.txt",
+        "sha256": "d8c83806ac87df1bc288c4d3b02639a0c0b3b24787faa240ac8816b4028cd0ec",
+        "bytes": 5362,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_codex_trace.json",
+        "sha256": "d596b707ec66a999c33e573ad1023ab0ac10b931495d98d8a76d73c0e8513148",
+        "bytes": 507,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_stdout.txt",
+        "sha256": "d8c83806ac87df1bc288c4d3b02639a0c0b3b24787faa240ac8816b4028cd0ec",
+        "bytes": 5362,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_stderr.txt",
+        "sha256": "e2f575572f95d235f00337040574ee348b41ea20e6fd0a0865419981797b40e2",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_prompt.md",
+        "sha256": "9247e70fe6d6c223fea85fb5ac8c5de69ca8dfa285bd2c1a4da35006eadc1a9c",
+        "bytes": 6849,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_command.json",
+        "sha256": "2e3b06a509d18ebff2fb2828509de9d013e64b5e9a06b1541ff5904c2c21e7f0",
+        "bytes": 746,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "1c3631e41ebe96a9a4062e6e777aced1513ff3848aefd883fe37606f5e6aeb90",
+        "bytes": 2540,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_codex_stderr.log",
+        "sha256": "db811ba7e0b9fe78659b9abb8f89f1b43be567f9be73e8ee10175ddd021cf895",
+        "bytes": 615,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_codex_events.jsonl",
+        "sha256": "c1c05f7c07a3cbbe56e44bd016978298028c5145929873d05541a625481c74c1",
+        "bytes": 2562,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_codex_last_message.txt",
+        "sha256": "ce1a345c8ad105898dbadbf70dc7e35dfa0cf0b6bd808f9bdcdbab83d994eb91",
+        "bytes": 2115,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_codex_trace.json",
+        "sha256": "7cae25cae9e76ca7e2790b6d11adacf3c0033df1dbc83ce371b4626bdaf0494c",
+        "bytes": 504,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_stdout.txt",
+        "sha256": "ce1a345c8ad105898dbadbf70dc7e35dfa0cf0b6bd808f9bdcdbab83d994eb91",
+        "bytes": 2115,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_stderr.txt",
+        "sha256": "3e0810dd7abb1834dc2804af0198d60c45ab78c310bd35d70d4678fa20556b0f",
+        "bytes": 638,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/revision_prompt.md",
+        "sha256": "b1b4af71e896d324cb58be83652e9b5435d38194f870f2be3bb8a132938b2ceb",
+        "bytes": 12418,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/command.json",
+        "sha256": "9b08fa72893f843681e3a31d823a1687a2ccf21a29086e584f3495b438dd4e8a",
+        "bytes": 744,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/codex_stdout.jsonl",
+        "sha256": "2449aa078ffba66139eedaaf43806c6f8e239e68661504eb7013b9b3d33b28e5",
+        "bytes": 7139,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/codex_stderr.log",
+        "sha256": "75889e30e730a546e820527fea88b60b2b93b36781c7bccfc7595cd796d44faf",
+        "bytes": 615,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/codex_events.jsonl",
+        "sha256": "4dccfb130226fbe65db61402dc0c6fa14e47516410a75ef5f9acda24b9b9fd0b",
+        "bytes": 7170,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/codex_last_message.txt",
+        "sha256": "5d39fa59a92b9e8cdf89b2b454abce273ec167ed7aa7ca6a68017179425991a8",
+        "bytes": 6559,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/codex_trace.json",
+        "sha256": "f5acd8ea1fdacd0f00d8bee7dfc18c5186aca8e6c7ee3ffe7396df9612623ab9",
+        "bytes": 504,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/stdout.txt",
+        "sha256": "5d39fa59a92b9e8cdf89b2b454abce273ec167ed7aa7ca6a68017179425991a8",
+        "bytes": 6559,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/stderr.txt",
+        "sha256": "e738fa0f246b1a2552e13aaee6ea75288ef24414dd9ed8892d3934bf88232492",
+        "bytes": 638,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/raw_response.txt",
+        "sha256": "5d39fa59a92b9e8cdf89b2b454abce273ec167ed7aa7ca6a68017179425991a8",
+        "bytes": 6559,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/parsed_cells.json",
+        "sha256": "1b346933b9c35efe8b4e861f18ff79d339aadb5c8db94c733f4f06af76bd37ca",
+        "bytes": 7560,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/normalized_cells.json",
+        "sha256": "31948671b901365fa0eeda807b8c394cb396105f81bbe6c3e185e31ac1047e17",
+        "bytes": 7163,
+        "createdAt": "2026-06-27T12:57:09Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/validation.json",
+        "sha256": "c504b060f4e3f7b3e0b0deb6355663f5c1da0cc086dd82f210d4d4e73e71c389",
+        "bytes": 133,
+        "createdAt": "2026-06-27T12:57:09Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T12:57:09Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "c398dc3673eb155a1ec2d405d79868cdae08743c23921c6afd314b8635bdc7a1"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t12-57-09z-statjp-lfs-unemployment-rate-2026-05/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "base_rate",
+          "summary": "The base-rate/reference-class anchor is stated only after the current-release evidence and inside-view discussion.",
+          "actionRequested": "Move the outside-view prior before current-evidence updates, explicitly naming the prior value or range before discussing April 2026 movement."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "A simple blend of latest value, 2026 average, and annual anchor is used, but no time-series/model prior is clearly specified or explicitly ruled out.",
+          "actionRequested": "State the model prior explicitly, such as persistence or short moving average, or say why no formal time-series model is used."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is justified by recent rounded dispersion of about 0.1-0.2 points, but the cited evidence only shows a very short Jan-Apr 2026 window and does not substantiate the 2.3-2.8 range.",
+          "actionRequested": "Tie the interval to a stated volatility sample or explicitly label the extra width as judgmental uncertainty around rounded one-month moves."
+        },
+        {
+          "findingId": "review.finding.4",
+          "severity": "blocking",
+          "rubricItem": "coherence",
+          "summary": "The math says the latent forecast is about 2.55 but then rounds it to 2.5, which is not coherent with ordinary one-decimal rounding.",
+          "actionRequested": "Revise the final forecast step so the latent calculation and published point estimate agree, or explain that 2.5 is a judgmental point estimate rather than a mechanical rounding of 2.55."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Replace the generic resolutionSource label with the specific Statistics Bureau of Japan Labour Force Survey Basic Tabulation first monthly release."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether confidence means an 80% central interval."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer fixes by moving the base-rate prior before current-release updates, naming the persistence-plus-short-moving-average prior, labeling the interval widening as judgmental beyond the short volatility sample, clarifying the 80% central interval, using a more specific resolution source, and revising the point calculation so 2.5 is a judgmental published estimate rather than an incoherent mechanical rounding of 2.55.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer fixes by moving the base-rate prior before current-release updates, naming the persistence-plus-short-moving-average prior, labeling the interval widening as judgmental beyond the short volatility sample, clarifying the 80% central interval, using a more specific resolution source, and revising the point calculation so 2.5 is a judgmental published estimate rather than an incoherent mechanical rounding of 2.55.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer fixes by moving the base-rate prior before current-release updates, naming the persistence-plus-short-moving-average prior, labeling the interval widening as judgmental beyond the short volatility sample, clarifying the 80% central interval, using a more specific resolution source, and revising the point calculation so 2.5 is a judgmental published estimate rather than an incoherent mechanical rounding of 2.55.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.4",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer fixes by moving the base-rate prior before current-release updates, naming the persistence-plus-short-moving-average prior, labeling the interval widening as judgmental beyond the short volatility sample, clarifying the 80% central interval, using a more specific resolution source, and revising the point calculation so 2.5 is a judgmental published estimate rather than an incoherent mechanical rounding of 2.55.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer fixes by moving the base-rate prior before current-release updates, naming the persistence-plus-short-moving-average prior, labeling the interval widening as judgmental beyond the short volatility sample, clarifying the 80% central interval, using a more specific resolution source, and revising the point calculation so 2.5 is a judgmental published estimate rather than an incoherent mechanical rounding of 2.55.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer fixes by moving the base-rate prior before current-release updates, naming the persistence-plus-short-moving-average prior, labeling the interval widening as judgmental beyond the short volatility sample, clarifying the 80% central interval, using a more specific resolution source, and revising the point calculation so 2.5 is a judgmental published estimate rather than an incoherent mechanical rounding of 2.55.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publishable but needs fixes to prior ordering, model-prior treatment, interval grounding, and point-calculation coherence."
+    }
+  }
+]

@@ -1,0 +1,51 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: cms.medicaid_pi.ex_parte_renewal_share.de.aug_2026
+- period: August 2026 reporting period
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "medicaid-ex-parte-share-aug-2026-de"
+- targetUnit: "percent"
+- dataPointId: "cms.medicaid_pi.ex_parte_renewal_share.de.aug_2026"
+- resolutionDate: "2026-12-15"
+- resolutionSource: "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)"
+- resolutionRule: "Resolves to Delaware's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal."
+- resolutionPolicy: "first_print"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+213b9e35a06062954ee263f81c41fcc501bd5748892fe161b66863b910e16306
+
+# Draft forecast response
+{"slug":"medicaid-ex-parte-share-aug-2026-de","country":"US","type":"data","title":"Delaware Medicaid ex parte renewal share, Aug. 2026","question":"CMS State Medicaid and CHIP Eligibility Processing Data, Delaware state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.","unit":"percent","pointEstimate":73.8,"ciLow":57.2,"ciHigh":88.7,"confidence":0.8,"resolutionDate":"2026-12-15","resolutionSource":"CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)","resolutionSourceUrl":"https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c","resolutionRule":"Resolve to Delaware's August 2026 reporting-period original first-publication state row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c. Compute ex parte renewal share as the published ex parte renewal numerator divided by the published completed-renewal denominator, multiplied by 100 and rounded to one decimal percent. Use the first official CMS print available through data.medicaid.gov; ignore later updated submissions or revisions.","dataPointId":"cms.medicaid_pi.ex_parte_renewal_share.de.aug_2026","historicalContext":[{"label":"DE 2025-07 original first-print ex parte renewal share","value":55.5},{"label":"DE 2025-09 original first-print ex parte renewal share","value":52.5},{"label":"DE 2025-11 original first-print ex parte renewal share","value":66.8},{"label":"DE 2026-01 original first-print ex parte renewal share","value":60.5},{"label":"DE 2026-02 latest inspected original first-print ex parte renewal share","value":71.2}],"drivers":["Delaware's latest inspected first-print value jumped to 71.2 percent","Recent Delaware values are volatile, spanning 52.5 to 71.2 percent","Small-state renewal cohort composition can move numerator and denominator sharply month to month","Ex parte performance depends on wage, SNAP, vital-records, and other data-match coverage","CMS renewal-policy compliance pressure mildly supports persistence above the 2025 average"],"sourceContext":["https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c","https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data","https://www.medicaid.gov/medicaid/program-information/medicaid-and-chip-enrollment-data/report-highlights"],"runAt":"2026-06-28T00:24:23Z","reasoning":[{"kind":"heading","text":"Forecast for Delaware Medicaid ex parte renewal share, August 2026"},{"kind":"text","text":"The resolver is a Delaware state row, not a national weighted average: the original first-publication August 2026 reporting-period row in CMS State Medicaid and CHIP Eligibility Processing Data. The target is the share of completed Medicaid renewals processed ex parte, in percent rounded to one decimal."},{"kind":"tool","tool":"repo.lookup","call":"Inspected the canonical ledger target for the Delaware August 2026 CMS Medicaid eligibility-processing ex parte renewal-share target.","result":"Fetched canonical slug medicaid-ex-parte-share-aug-2026-de, unit percent, registered resolutionDate 2026-12-15, dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.de.aug_2026."},{"kind":"tool","tool":"repo.lookup","call":"Read local official-source-derived Delaware historical context for this CMS series.","result":"Fetched Delaware original first-print ex parte renewal shares: 2025-07 = 55.5 percent, 2025-09 = 52.5 percent, 2025-11 = 66.8 percent, 2026-01 = 60.5 percent, and 2026-02 = 71.2 percent."},{"kind":"tool","tool":"official.lookup","call":"Checked CMS monthly-release context preserved in local prior official lookups for this data family.","result":"Fetched CMS monthly release evidence that Preliminary March 2026 data and Updated February 2026 data were Last Updated June 26, 2026; the checked CMS page states data.Medicaid.gov is updated monthly and the latest national enrollment highlight was 74,294,361 Medicaid and CHIP enrollees."},{"kind":"tool","tool":"shell.lookup","call":"Attempted direct official data.medicaid.gov API access from the run sandbox for dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c.","result":"Fetched shell network result code 6: data.medicaid.gov host resolution failed after 0 downloaded bytes, so direct API confirmation was blocked in this sandbox; local official-source-derived rows provide the 5 numeric Delaware shares used above."},{"kind":"text","text":"Base-rate/reference class: the relevant outside view is Delaware's own recent original-submission first-print run, because the target resolves a single state row. The five inspected values average 61.3 percent, span 52.5 to 71.2 percent, and have a latest value of 71.2 percent."},{"kind":"text","text":"Level, momentum, and mechanism: Delaware's level rose materially from the 2025 readings into February 2026, but the path is not smooth. The alternating drops and jumps point to renewal-cohort mix and small denominators as important, so I do not extrapolate the February jump linearly through August."},{"kind":"text","text":"Prior/update/interval: prior model is latest-value persistence blended with a five-point Delaware mean and a damped local trend, using observed original first-print values from 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. I start at latest 71.2, add +1.6 pp for the higher 2026 level versus 2025 and mild CMS compliance pressure, and add +1.0 pp for remaining upward drift, giving 73.8. The 80% interval uses realized first-print dispersion: recent range 18.7 pp and mean absolute step about 8.6 pp, widened for six-month horizon and small-state cohort risk but compressed below the 100 percent ceiling."},{"kind":"text","text":"Counter-consideration: upside outside the interval would require a durable data-match or system improvement and an ex parte-friendly renewal cohort pushing Delaware above 88.7 percent. Downside outside the interval would require a manual-heavy cohort, data-source outage, eligibility-system issue, or reporting break pushing the first print below 57.2 percent."},{"kind":"math","text":"Historical mean = (55.5 + 52.5 + 66.8 + 60.5 + 71.2) / 5 = 61.3 percent. Observed adjacent changes were -3.0, +14.3, -6.3, and +10.7 pp, with mean absolute change 8.6 pp. Point calculation: latest 71.2 + 1.6 pp higher-level/compliance adjustment + 1.0 pp damped trend = 73.8. Interval calculation: center 73.8, lower half-width 16.6 pp and upper half-width 14.9 pp, yielding 57.2 to 88.7 after rounding."},{"kind":"text","text":"Resolution-date note: the canonical ledger target uses 2026-12-15, tied to CMS's monthly data.Medicaid.gov release vehicle for a three-to-four-month-lag August 2026 first print. I did not find a separate future-dated CMS placeholder in the sandbox; I keep the target's date and bind scoring to the first official CMS dataset print."},{"kind":"forecast","point":73.8,"ciLow":57.2,"ciHigh":88.7}]}

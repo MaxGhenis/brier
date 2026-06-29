@@ -1,0 +1,359 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T23:24:50Z",
+  "series": "irs.filing_season.total_amount_refunded.october_2026.first_print",
+  "period": "October 2026 first print",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "9435029c5fb9fe58418ef5babb124260905fbe7fa5d6dab83401fd7546d0a3e1",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T23:24:50Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d9e5a82193ff5b369938315aafc64831dfbd0a40cffdac95110002922bc06d13"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "resolutionSourceUrl points to the 2025 analogue page, not an official 2026 resolver page, calendar, placeholder, or stable IRS index for the future first print.",
+        "actionRequested": "Replace the resolver source with a stable IRS Filing Season Statistics index or official 2026 placeholder/calendar if available, and state that the final observation will be the first qualifying October 2026 IRS page once published."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "resolutionDate is set to 2026-10-31 without showing official support; this appears inferred from cadence rather than verified.",
+        "actionRequested": "Use an officially supported expected publication/resolution date, or encode the resolution date as the specific first qualifying IRS publication date once known rather than defaulting to 2026-10-31."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The +3.5 billion inside-view adjustment is directionally explained but not tightly tied to the cited policy evidence or observed 2026 refund composition.",
+        "actionRequested": "Add one sentence quantifying why elevated May 2026 refunds and cited tax-year policy changes justify roughly +3.5 billion rather than using the mechanical 364.5 billion prior."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is said to be wider than recent increment dispersion, but the lower and upper bounds imply much larger downside/upside increment deviations than the three-year reference class.",
+        "actionRequested": "State the implied May-to-October increment range behind 356 to 385 and explain why those tails are appropriate for an 80% interval under the 2026 regime shift."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether 'first October 2026 snapshot' means the first October week-ending date after October 15, not any earlier October page."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Rename '2025 tax-law changes' more precisely if the cited Rev. Proc. is for tax year 2026 parameters."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by moving the resolver to the stable IRS Newsroom surface and clarifying that the final observation is the first qualifying October 2026 Filing Season Statistics page after the October 15 extension deadline; accepted the policy-adjustment and interval critiques by quantifying the +3.5 billion add-on and the implied May-to-October interval range. I retained the operational resolution date as the expected first post-deadline IRS publication window date while making the first qualifying IRS page the governing rule.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by moving the resolver to the stable IRS Newsroom surface and clarifying that the final observation is the first qualifying October 2026 Filing Season Statistics page after the October 15 extension deadline; accepted the policy-adjustment and interval critiques by quantifying the +3.5 billion add-on and the implied May-to-October interval range. I retained the operational resolution date as the expected first post-deadline IRS publication window date while making the first qualifying IRS page the governing rule.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by moving the resolver to the stable IRS Newsroom surface and clarifying that the final observation is the first qualifying October 2026 Filing Season Statistics page after the October 15 extension deadline; accepted the policy-adjustment and interval critiques by quantifying the +3.5 billion add-on and the implied May-to-October interval range. I retained the operational resolution date as the expected first post-deadline IRS publication window date while making the first qualifying IRS page the governing rule.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by moving the resolver to the stable IRS Newsroom surface and clarifying that the final observation is the first qualifying October 2026 Filing Season Statistics page after the October 15 extension deadline; accepted the policy-adjustment and interval critiques by quantifying the +3.5 billion add-on and the implied May-to-October interval range. I retained the operational resolution date as the expected first post-deadline IRS publication window date while making the first qualifying IRS page the governing rule.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by moving the resolver to the stable IRS Newsroom surface and clarifying that the final observation is the first qualifying October 2026 Filing Season Statistics page after the October 15 extension deadline; accepted the policy-adjustment and interval critiques by quantifying the +3.5 billion add-on and the implied May-to-October interval range. I retained the operational resolution date as the expected first post-deadline IRS publication window date while making the first qualifying IRS page the governing rule.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by moving the resolver to the stable IRS Newsroom surface and clarifying that the final observation is the first qualifying October 2026 Filing Season Statistics page after the October 15 extension deadline; accepted the policy-adjustment and interval critiques by quantifying the +3.5 billion add-on and the implied May-to-October interval range. I retained the operational resolution date as the expected first post-deadline IRS publication window date while making the first qualifying IRS page the governing rule.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The forecast is broadly coherent, but the resolver metadata needs a firmer official-source and resolution-date treatment before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/prompt.md",
+      "sha256": "fad91d31c9787412fdd095187a8f74ba1644a8c2c0b675e8ca2da5e4d7f7af15",
+      "bytes": 4854,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_command.json",
+      "sha256": "cae903d28acaa0282d792f6b2062198ef72a92447b0a00943e812539b1e054de",
+      "bytes": 803,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_codex_stdout.jsonl",
+      "sha256": "d39ffba997bbe7cf44685f32ea29c63b16f3fe9f113ccb8dc4936826a09fe85f",
+      "bytes": 454754,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_codex_stderr.log",
+      "sha256": "6558d9acf4773b9dc6a1d271256893a3b8f3677b14b859e645725533eb2c4e86",
+      "bytes": 3807,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_codex_events.jsonl",
+      "sha256": "2f3b5b5105bd0ed7cb7c1c6b8bbf725053b176413d12ebd3ccba27005ffd8334",
+      "bytes": 454960,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_codex_last_message.txt",
+      "sha256": "6993650c8e91ffc9885e0c28ea7f0f25ad1196cfe48b61f75900a0c24381b97f",
+      "bytes": 6894,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_codex_trace.json",
+      "sha256": "91549b5e80bfaa0a6c8a6658af952d916d2b2e9fb70dfbdbc4546bdeb613f9e5",
+      "bytes": 509,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_stdout.txt",
+      "sha256": "6993650c8e91ffc9885e0c28ea7f0f25ad1196cfe48b61f75900a0c24381b97f",
+      "bytes": 6894,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/draft_stderr.txt",
+      "sha256": "d1cc440d4b9619d21cf146daaf4c54ebabdc898b74bcad51ad6745a93620e9ba",
+      "bytes": 3966,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_prompt.md",
+      "sha256": "73217fdf3ef7908affc1fb7b697ffb0e33ab3d82ea63300044b188bc1f5045ee",
+      "bytes": 8558,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_command.json",
+      "sha256": "4c2c417839fe0b35fa6deda674fdbd47040d622d230cb57c5185439ebbac2414",
+      "bytes": 799,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "07f2f2c90b99c68c1b1fff757c48deb143b0fc0ce4b24ac68dd7b2e5777140a5",
+      "bytes": 2780,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_codex_stderr.log",
+      "sha256": "a455d8f81cce109ae783ce6ec0ba1d2b418ad4f372b4ef03c675754447c18ead",
+      "bytes": 615,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_codex_events.jsonl",
+      "sha256": "92137eb35ec0e3de229aa67a814a77fb9984e7bc27edc41755e06e8ac23d9458",
+      "bytes": 2802,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_codex_last_message.txt",
+      "sha256": "131a7d6a5218a8421e64920ac5c3b721dbc296d72da08bc2bfeaf502b9af0e9d",
+      "bytes": 2354,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_codex_trace.json",
+      "sha256": "4723a4bf6d1da0c468dd0bd81025a854af0b9223b3dc925267942b3f14615228",
+      "bytes": 505,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_stdout.txt",
+      "sha256": "131a7d6a5218a8421e64920ac5c3b721dbc296d72da08bc2bfeaf502b9af0e9d",
+      "bytes": 2354,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/pre_submit_review_stderr.txt",
+      "sha256": "cdfd5e13b2380010e659fd3d010d24efb972609057a4916084165ac52f6f1c89",
+      "bytes": 638,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/revision_prompt.md",
+      "sha256": "3d32559532bbd65bbefcdb65056ab40735f7d310bd3a099e597cafef98bcc7c0",
+      "bytes": 15038,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/command.json",
+      "sha256": "9dacdaedf7bd724f1005b67f4d3b8deac7cb0fa3b7fa3ab738d869c1e224590f",
+      "bytes": 797,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/codex_stdout.jsonl",
+      "sha256": "92c1938a547bc767e994cee543ab0b24336d5922d965075c022417aaebdfc93f",
+      "bytes": 11814,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/codex_stderr.log",
+      "sha256": "5d8af5baa6fb4209af9fc6bb06cd946006e31f1ee1ddee4bea8c42c3abc3754b",
+      "bytes": 615,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/codex_events.jsonl",
+      "sha256": "88870932133ed13d84dd3b0449f097613993b8a505b4ab18733668c759ae707b",
+      "bytes": 11827,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/codex_last_message.txt",
+      "sha256": "fee14cd13bd6f72092a23d40ad03705e019d0923b25733481792b3cf3177cfb9",
+      "bytes": 8819,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/codex_trace.json",
+      "sha256": "e611debbba86be62ec28e87e4199bacddb0f6eaa74d7fefd45f4ddd7eaedbec2",
+      "bytes": 506,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/stdout.txt",
+      "sha256": "fee14cd13bd6f72092a23d40ad03705e019d0923b25733481792b3cf3177cfb9",
+      "bytes": 8819,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/stderr.txt",
+      "sha256": "d349652ea481940bfdc22911d1c29697851f26e4218dd92cc02ff32f2065d869",
+      "bytes": 638,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/raw_response.txt",
+      "sha256": "fee14cd13bd6f72092a23d40ad03705e019d0923b25733481792b3cf3177cfb9",
+      "bytes": 8819,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/parsed_cells.json",
+      "sha256": "c0ef1199bed9a6330d70503a91f5a1245183f40177de0abee912c576002baaf9",
+      "bytes": 9981,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/normalized_cells.json",
+      "sha256": "1fe1edb96de0d90e8178bed773b7cf38656a7e8ad174697f25f8efcf0ef10af6",
+      "bytes": 9514,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/validation.json",
+      "sha256": "32452926ae19570408f719a229686977d28087b3dee34c2482ed786de23b7df3",
+      "bytes": 131,
+      "createdAt": "2026-06-27T23:24:50Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-24-50z-irs-filing-season-total-amount-refunded-october-2026-first-print-october-2026-first-print/manifest.json",
+      "sha256": "47545ebf126cdcbeff99b82ddf0f3407ab487f11e9658f5bb0b26a354c28bb7b",
+      "bytes": 21222,
+      "createdAt": "2026-06-27T23:24:50Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "irs-total-refunds-october-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

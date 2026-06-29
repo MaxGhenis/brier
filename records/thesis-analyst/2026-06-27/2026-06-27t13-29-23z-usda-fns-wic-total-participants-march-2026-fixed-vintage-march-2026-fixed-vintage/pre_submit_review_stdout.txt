@@ -1,0 +1,39 @@
+{
+  "summary": "Draft is not publishable as a forecast because it uses the resolved March 2026 official first print as evidence and sets the point estimate equal to the outcome.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "The draft states the official March 2026 fixed vintage was already posted at run time and uses the printed value 6,701,661 directly.",
+      "actionRequested": "Remove resolved-outcome evidence from the forecast record, including the March 2026 value, post-release PDF lookup, and any reasoning based on the June 12, 2026 print."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "blocking",
+      "summary": "The material movement from the prior is justified by observing the target outcome, not by pre-resolution evidence.",
+      "actionRequested": "Base any update only on evidence available before the first March 2026 print, and explain why that evidence moves the forecast from the prior."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "The 80% interval of 6,701,660 to 6,701,662 reflects transcription risk after seeing the outcome, not forecast uncertainty.",
+      "actionRequested": "Set the interval from realized pre-release volatility, model error, or explicit ex-ante uncertainty."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The historicalContext labels the target value as 'Mar 2026 first print', making the JSON a resolved data extraction rather than a forecast.",
+      "actionRequested": "Remove target-period realized values from historicalContext and ensure point, interval, drivers, and reasoning are all ex-ante."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft gives a seasonal persistence/base-rate discussion but does not clearly state a time-series or model prior or explicitly rule one out.",
+      "actionRequested": "Add a brief model-prior statement, such as a persistence/seasonal naive prior, or explain why no formal time-series prior is used."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the resolver language and official USDA FNS source, but distinguish resolution metadata from evidence used for forecasting.",
+    "Tie tail scenarios to pre-release WIC participation drivers such as enrollment trend, seasonal March rebound size, and administrative disruptions."
+  ]
+}

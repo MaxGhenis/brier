@@ -9,9 +9,12 @@ import { HEALTH_COVERAGE_EXAMPLES } from "./almanac-examples/health";
 import { LAUNCH_CADENCE_EXAMPLES } from "./almanac-examples/launch-cadence";
 import { OCCUPATION_EMPLOYMENT_EXAMPLES } from "./almanac-examples/occupation-employment";
 import { OCCUPATION_WAGE_EXAMPLES } from "./almanac-examples/occupation-wages";
+import { SNAP_FY2026_PAYMENT_ERROR_RATE_EXAMPLES } from "./almanac-examples/snap-per-fy2026";
 import { TAX_CREDIT_EXAMPLES } from "./almanac-examples/tax";
 import { RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS } from "./thesis-analyst-live-comparisons";
+import { buildTimeSeriesPriorComparisonRun } from "./time-series-priors";
 import { UK_EXAMPLES } from "./almanac-examples/uk";
+import { US_DEFENSE_EXAMPLES } from "./almanac-examples/us-defense";
 import { US_NEAR_TERM_EXAMPLES } from "./almanac-examples/us-near-term";
 import {
   buildNumericCdfFromInterval,
@@ -110,10 +113,21 @@ export type PredictionRunActivityArtifactType =
   | "command"
   | "stdout"
   | "stderr"
+  | "codex_stdout_jsonl"
+  | "codex_stderr_log"
+  | "codex_events_jsonl"
+  | "codex_last_message"
+  | "codex_trace"
+  | "draft_forecast"
+  | "review_prompt"
+  | "pre_submit_review"
+  | "review_disposition"
+  | "revision_prompt"
   | "raw_response"
   | "parsed_cell"
   | "normalized_cell"
   | "validation_report"
+  | "model_candidates"
   | "manifest";
 
 export interface PredictionRunActivityArtifact {
@@ -122,6 +136,57 @@ export interface PredictionRunActivityArtifact {
   sha256: string;
   bytes: number;
   createdAt: string;
+}
+
+export type PredictionPreSubmitReviewStatus =
+  | "not_requested"
+  | "completed"
+  | "draft_failed"
+  | "review_failed"
+  | "revision_failed";
+
+export type PredictionPreSubmitReviewFindingSeverity =
+  | "info"
+  | "warning"
+  | "blocking";
+
+export type PredictionPreSubmitReviewDecision =
+  | "accepted"
+  | "partially_accepted"
+  | "rejected"
+  | "not_applicable";
+
+export interface PredictionPreSubmitReviewFinding {
+  findingId: string;
+  severity: PredictionPreSubmitReviewFindingSeverity;
+  rubricItem: string;
+  summary: string;
+  actionRequested?: string;
+}
+
+export interface PredictionPreSubmitReviewDisposition {
+  findingId: string;
+  decision: PredictionPreSubmitReviewDecision;
+  rationale: string;
+  forecastChanged: boolean;
+}
+
+export interface PredictionPreSubmitReviewWorkflow {
+  schemaVersion: "thesis_pre_submit_review_v1";
+  status: PredictionPreSubmitReviewStatus;
+  requestedAt: string;
+  reviewer: {
+    agent: string;
+    model?: string;
+    promptVersion: "pre-submit-review-v0.1";
+    commandHash?: string;
+  };
+  draftArtifactPath?: string;
+  reviewArtifactPath?: string;
+  revisionPromptPath?: string;
+  findings: PredictionPreSubmitReviewFinding[];
+  dispositions: PredictionPreSubmitReviewDisposition[];
+  summary: string;
 }
 
 export interface PredictionRunMetadata {
@@ -141,6 +206,7 @@ export interface PredictionRunMetadata {
   toolPolicyHash?: string;
   promptMode?: string;
   activityLog?: PredictionRunActivityArtifact[];
+  preSubmitReview?: PredictionPreSubmitReviewWorkflow;
 }
 
 export interface ResolvedOutcome {
@@ -396,6 +462,14 @@ const PACK_REFERENCES = {
     kind: "data",
     summary:
       "Cross-checks starts, permits, mortgage rates, builder sentiment, and multifamily timing for housing release forecasts.",
+  },
+  "panel-persistence-shrinkage": {
+    packId: "panel-persistence-shrinkage",
+    version: "0.1.0",
+    label: "Panel persistence shrinkage",
+    kind: "method",
+    summary:
+      "For repeated jurisdiction, occupation, or agency panels, scores the last-print baseline and shrinks agent updates toward it unless current evidence clears a stated bar.",
   },
 } satisfies Record<string, PredictionPackReference>;
 
@@ -5066,6 +5140,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   ...CANADA_AUSTRALIA_EXAMPLES,
   ...EURO_JAPAN_EXAMPLES,
   ...US_NEAR_TERM_EXAMPLES,
+  ...US_DEFENSE_EXAMPLES,
   ...OCCUPATION_EMPLOYMENT_EXAMPLES,
   ...OCCUPATION_WAGE_EXAMPLES,
   ...GLOBAL_NEAR_TERM_EXAMPLES,
@@ -5073,6 +5148,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   ...HEALTH_COVERAGE_EXAMPLES,
   ...BENEFIT_PROGRAM_EXAMPLES,
   ...BENEFITS_DELIVERY_EXAMPLES,
+  ...SNAP_FY2026_PAYMENT_ERROR_RATE_EXAMPLES,
   ...JUNE_2026_WAVE,
 
   // ─── Conditional forecast cells ──────────────────────────────────────────
@@ -7313,8 +7389,10 @@ const FORECAST_COMPARISON_RUN_AUGMENTS: Record<
 
 export const FORECAST_CELLS: ForecastCell[] = FORECAST_CELL_DEFINITIONS.map(
   (forecast) => {
+    const timeSeriesPrior = buildTimeSeriesPriorComparisonRun(forecast);
     const comparisonRuns = [
       ...(forecast.comparisonRuns ?? []),
+      ...(timeSeriesPrior ? [timeSeriesPrior] : []),
       ...(FORECAST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
       ...(RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
     ];

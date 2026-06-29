@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -35,7 +37,7 @@ def test_print_prompt_contains_question_spec():
     assert "outside-view base rate before current-news adjustments" in result.stdout
 
 
-def test_fast_prompt_inlines_contract_and_forbids_repo_reads():
+def test_fast_prompt_inlines_contract_and_allows_optional_repo_reads():
     result = subprocess.run(
         [
             sys.executable,
@@ -55,7 +57,11 @@ def test_fast_prompt_inlines_contract_and_forbids_repo_reads():
     )
 
     assert "# Thesis analyst fast public-release run" in result.stdout
-    assert "Do not inspect the local repository" in result.stdout
+    assert "You may inspect the local repository/workspace when useful" in (
+        result.stdout
+    )
+    assert "This is optional, not required" in result.stdout
+    assert "Treat prior forecasts as historical forecasts" in result.stdout
     assert "# Default promoted forecasting practices" in result.stdout
     assert "Anchor on the outside-view base rate before current-release" in (
         result.stdout
@@ -66,7 +72,41 @@ def test_fast_prompt_inlines_contract_and_forbids_repo_reads():
     )
     assert "- series: boe.bank_rate" in result.stdout
     assert "Bank of England MPC" in result.stdout
-    assert "docs/cell-contract.md" not in result.stdout
+    assert "docs/cell-contract.md" in result.stdout
+
+
+def test_fast_prompt_includes_target_context():
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--prompt-mode",
+            "fast",
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "canonical-ledger-slug",
+                    "targetUnit": "percent",
+                    "dataPointId": "test.ledger_series.2030_01.first_print",
+                    "resolutionDate": "2030-02-15",
+                }
+            ),
+            "--print-prompt",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    assert "# Canonical ledger target context" in result.stdout
+    assert '- catalogSlug: "canonical-ledger-slug"' in result.stdout
+    assert '- targetUnit: "percent"' in result.stdout
+    assert '- resolutionDate: "2030-02-15"' in result.stdout
 
 
 def test_mock_run_writes_activity_artifacts(tmp_path):
@@ -128,6 +168,104 @@ def test_mock_run_writes_activity_artifacts(tmp_path):
     assert manifest["validation"]["cells"][0]["ok"] is True
 
 
+def test_target_context_validation_rejects_drift(tmp_path):
+    out_dir = tmp_path / "target-context-run"
+    response_path = tmp_path / "response.json"
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["slug"] = "canonical-ledger-slug"
+    cell["unit"] = "percent"
+    cell["dataPointId"] = "test.ledger_series.2030_01.first_print"
+    cell["resolutionDate"] = "2030-02-28"
+    response_path.write_text(json.dumps(cell))
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--response-file",
+            str(response_path),
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "canonical-ledger-slug",
+                    "targetUnit": "percent",
+                    "dataPointId": "test.ledger_series.2030_01.first_print",
+                    "resolutionDate": "2030-02-15",
+                }
+            ),
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    errors = manifest["validation"]["cells"][0]["errors"]
+    assert any("resolutionDate" in error for error in errors)
+    assert manifest["ok"] is False
+
+
+def test_target_context_validation_rejects_first_print_grace_exception(tmp_path):
+    out_dir = tmp_path / "target-context-rule-run"
+    response_path = tmp_path / "response.json"
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["slug"] = "canonical-ledger-slug"
+    cell["unit"] = "percent"
+    cell["dataPointId"] = "test.ledger_series.2030_01.first_print"
+    cell["resolutionDate"] = "2030-02-15"
+    cell["resolutionRule"] = (
+        "Resolves to the first published official value for January 2030; "
+        "same-day corrections before release day ends count."
+    )
+    response_path.write_text(json.dumps(cell))
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--response-file",
+            str(response_path),
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "canonical-ledger-slug",
+                    "targetUnit": "percent",
+                    "dataPointId": "test.ledger_series.2030_01.first_print",
+                    "resolutionDate": "2030-02-15",
+                    "resolutionRule": (
+                        "Resolves to the first published official value for "
+                        "January 2030; later revisions do not count."
+                    ),
+                }
+            ),
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    errors = manifest["validation"]["cells"][0]["errors"]
+    assert any("correction/grace exception" in error for error in errors)
+    assert manifest["ok"] is False
+
+
 def test_fast_mock_run_records_prompt_mode(tmp_path):
     out_dir = tmp_path / "fast-run"
 
@@ -155,7 +293,304 @@ def test_fast_mock_run_records_prompt_mode(tmp_path):
     prompt = (out_dir / "prompt.md").read_text()
 
     assert manifest["promptMode"] == "fast"
-    assert "Do not inspect the local repository" in prompt
+    assert "You may inspect the local repository/workspace when useful" in prompt
+    assert "Do not modify files" in prompt
+
+
+def test_command_run_can_capture_pre_submit_review_loop(tmp_path):
+    out_dir = tmp_path / "reviewed-run"
+    forecaster_path = tmp_path / "forecaster.py"
+    reviewer_path = tmp_path / "reviewer.py"
+    draft_cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    final_cell = review_test_cell(
+        point=5.2,
+        ci_low=4.6,
+        ci_high=5.9,
+        review_disposition=(
+            "Review disposition: accepted the reviewer request to make the "
+            "interval source explicit and widened the upper tail by 0.1."
+        ),
+    )
+
+    forecaster_path.write_text(
+        "\n".join(
+            [
+                "import json, sys",
+                f"draft = {json.dumps(draft_cell)!r}",
+                f"final = {json.dumps(final_cell)!r}",
+                "prompt = sys.stdin.read()",
+                "print('model: gpt-5.5', file=sys.stderr)",
+                "print(final if 'Pre-submit review loop' in prompt else draft)",
+            ]
+        )
+    )
+    reviewer_path.write_text(
+        "\n".join(
+            [
+                "import json, sys",
+                "_prompt = sys.stdin.read()",
+                "print('model: gpt-5.5-reviewer', file=sys.stderr)",
+                "print(json.dumps({",
+                "  'summary': 'Draft is publishable after interval-source '",
+                "    'clarification.',",
+                "  'requiredFixes': [{",
+                "    'rubricItem': 'interval',",
+                "    'severity': 'warning',",
+                "    'summary': 'Interval source should be explicit in the '",
+                "      'public trace.',",
+                "    'actionRequested': 'Name realized volatility or release '",
+                "      'dispersion.'",
+                "  }],",
+                "  'optionalSuggestions': ['Keep the first-print resolver visible.']",
+                "}))",
+            ]
+        )
+    )
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.reviewed_rate",
+            "--period",
+            "2030-01",
+            "--command",
+            (
+                f"{shlex.quote(sys.executable)} "
+                f"{shlex.quote(str(forecaster_path))} "
+                "--model gpt-5.5"
+            ),
+            "--pre-submit-review-command",
+            (
+                f"{shlex.quote(sys.executable)} "
+                f"{shlex.quote(str(reviewer_path))} "
+                "--model gpt-5.5-reviewer"
+            ),
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    cells = json.loads((out_dir / "cells.with_activity.json").read_text())
+    artifact_types = {artifact["artifactType"] for artifact in manifest["artifacts"]}
+
+    assert manifest["ok"] is True
+    assert manifest["preSubmitReview"]["status"] == "completed"
+    assert manifest["preSubmitReview"]["reviewer"]["model"] == "gpt-5.5-reviewer"
+    assert manifest["preSubmitReview"]["findings"][0]["rubricItem"] == "interval"
+    assert manifest["preSubmitReview"]["dispositions"][0]["decision"] == "accepted"
+    assert {
+        "draft_forecast",
+        "review_prompt",
+        "pre_submit_review",
+        "revision_prompt",
+        "raw_response",
+    }.issubset(artifact_types)
+    assert cells[0]["pointEstimate"] == 5.2
+    assert cells[0]["preSubmitReview"]["status"] == "completed"
+    assert any(
+        step.get("text", "").startswith("Review disposition:")
+        for step in cells[0]["reasoning"]
+        if isinstance(step, dict)
+    )
+    assert (out_dir / "draft_stdout.txt").exists()
+    assert (out_dir / "pre_submit_review_stdout.txt").exists()
+    assert (out_dir / "revision_prompt.md").exists()
+
+
+def test_codex_model_run_captures_full_codex_trace(tmp_path):
+    out_dir = tmp_path / "codex-run"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "fake_codex.py"
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+
+    fake_codex.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "import json, pathlib, sys",
+                "args = sys.argv[1:]",
+                "last_message = pathlib.Path(args[args.index('-o') + 1])",
+                "model = args[args.index('-m') + 1]",
+                f"text = {json.dumps(json.dumps(cell))}",
+                "last_message.write_text(text)",
+                "print(json.dumps({",
+                "  'type': 'item.completed',",
+                "  'item': {'type': 'agent_message', 'text': text}",
+                "}))",
+                "print(json.dumps({",
+                "  'type': 'turn.completed',",
+                "  'usage': {",
+                "    'input_tokens': 10,",
+                "    'output_tokens': 5,",
+                "    'cached_input_tokens': 2",
+                "  }",
+                "}))",
+                "print(f'model: {model}', file=sys.stderr)",
+            ]
+        )
+    )
+    fake_codex.chmod(0o755)
+
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    command = json.loads((out_dir / "command.json").read_text())
+    cells = json.loads((out_dir / "cells.with_activity.json").read_text())
+    artifact_types = {artifact["artifactType"] for artifact in manifest["artifacts"]}
+
+    assert manifest["ok"] is True
+    assert manifest["agent"]["model"] == "gpt-5.5"
+    assert cells[0]["model"] == "gpt-5.5"
+    assert command["argv"][-1] == "<prompt>"
+    assert "--search" in command["argv"]
+    assert "--ignore-user-config" in command["argv"]
+    assert {
+        "codex_stdout_jsonl",
+        "codex_stderr_log",
+        "codex_events_jsonl",
+        "codex_last_message",
+        "codex_trace",
+        "stdout",
+    }.issubset(artifact_types)
+    trace = json.loads((out_dir / "codex_trace.json").read_text())
+    assert trace["auth"] == "codex-cli-subscription"
+    assert trace["backend"] == "codex-exec"
+    assert trace["model"] == "gpt-5.5"
+    assert trace["usage"]["input_tokens"] == 10
+    assert (out_dir / "codex_events.jsonl").read_text().count("\n") == 2
+
+
+def review_test_cell(
+    *,
+    point: float,
+    ci_low: float,
+    ci_high: float,
+    review_disposition: str | None = None,
+) -> dict:
+    reasoning = [
+        {"kind": "heading", "text": "Reviewed synthetic rate forecast"},
+        {
+            "kind": "text",
+            "text": (
+                "The first-print resolver is the official synthetic January "
+                "2030 release on 2030-01-15."
+            ),
+        },
+        {
+            "kind": "tool",
+            "tool": "official.lookup",
+            "call": "official.lookup(series='test.reviewed_rate')",
+            "result": "Fetched t-3 4.9, t-2 5.0, t-1 5.2.",
+        },
+        {
+            "kind": "tool",
+            "tool": "calendar.lookup",
+            "call": "calendar.lookup(series='test.reviewed_rate')",
+            "result": "Fetched release date 2030-01-15 from official calendar.",
+        },
+        {
+            "kind": "tool",
+            "tool": "volatility.lookup",
+            "call": "volatility.lookup(series='test.reviewed_rate')",
+            "result": "Fetched first-print absolute errors 0.2, 0.3, 0.4.",
+        },
+        {
+            "kind": "text",
+            "text": (
+                "Base-rate prior is the recent center near 5.1 before the "
+                "small current-release adjustment."
+            ),
+        },
+        {
+            "kind": "math",
+            "text": (
+                f"Point {point} uses the recent center plus a 0.1 update; "
+                f"80% interval [{ci_low}, {ci_high}] uses realized dispersion."
+            ),
+        },
+        {
+            "kind": "text",
+            "text": (
+                "Outside the interval if the synthetic release breaks from "
+                "recent first-print dispersion."
+            ),
+        },
+        {"kind": "forecast", "point": point, "ciLow": ci_low, "ciHigh": ci_high},
+    ]
+    if review_disposition:
+        reasoning.insert(7, {"kind": "text", "text": review_disposition})
+    return {
+        "slug": "test-reviewed-rate-2030-01",
+        "country": "US",
+        "type": "data",
+        "title": "Reviewed synthetic rate forecast",
+        "question": (
+            "What will the first-print value of the reviewed synthetic rate "
+            "be for January 2030?"
+        ),
+        "unit": "percent",
+        "pointEstimate": point,
+        "ciLow": ci_low,
+        "ciHigh": ci_high,
+        "confidence": 0.8,
+        "resolutionDate": "2030-01-15",
+        "resolutionSource": "Official synthetic release",
+        "resolutionSourceUrl": "https://example.com/reviewed-rate",
+        "resolutionRule": (
+            "Resolves to the first official synthetic release value for "
+            "January 2030; later revisions do not count."
+        ),
+        "dataPointId": "test.reviewed_rate.january_2030.first_print",
+        "historicalContext": [
+            {"label": "t-3", "value": 4.9},
+            {"label": "t-2", "value": 5.0},
+            {"label": "t-1", "value": 5.2},
+        ],
+        "drivers": [
+            "recent reference class",
+            "reviewed interval calibration",
+            "synthetic release volatility",
+        ],
+        "sourceContext": [
+            "https://example.com/reviewed-rate",
+            "https://example.com/reviewed-rate-calendar",
+        ],
+        "runAt": "2026-06-17T12:00:00Z",
+        "reasoning": reasoning,
+    }
 
 
 def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
@@ -260,7 +695,7 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
             (
                 f"{sys.executable} -c 'import pathlib, sys; "
                 "print(pathlib.Path(sys.argv[1]).read_text())' "
-                f"{response_path} --model gpt-5.5-mini"
+                f"{response_path} --model gpt-5.5"
             ),
             "--out-dir",
             str(out_dir),
@@ -274,9 +709,9 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
     manifest = json.loads((out_dir / "manifest.json").read_text())
     cells = json.loads((out_dir / "cells.with_activity.json").read_text())
 
-    assert manifest["agent"]["model"] == "gpt-5.5-mini"
+    assert manifest["agent"]["model"] == "gpt-5.5"
     assert manifest["agent"]["configuredModel"] == "claude-fable-5"
-    assert cells[0]["model"] == "gpt-5.5-mini"
+    assert cells[0]["model"] == "gpt-5.5"
 
 
 def test_command_timeout_writes_failure_manifest(tmp_path):

@@ -33,7 +33,7 @@ later scoring and Brier training.
   "runAt": "real `date -u +%Y-%m-%dT%H:%M:%SZ` at generation",
   "activityLog": [
     {
-      "artifactType": "prompt|command|stdout|stderr|raw_response|parsed_cell|normalized_cell|validation_report|manifest",
+      "artifactType": "prompt|command|stdout|stderr|codex_stdout_jsonl|codex_stderr_log|codex_events_jsonl|codex_last_message|codex_trace|draft_forecast|review_prompt|pre_submit_review|review_disposition|revision_prompt|raw_response|parsed_cell|normalized_cell|validation_report|model_candidates|manifest",
       "path": "records/thesis-analyst/...",
       "sha256": "hex",
       "bytes": 0,
@@ -63,8 +63,13 @@ historicalContext >=3 real points; ciLow < point < ciHigh.
 
 `activityLog` is added by `scripts/run_thesis_analyst.py`, not by the model.
 It preserves the full run envelope behind the curated public trace: prompt,
-command metadata, stdout/stderr, raw response, parsed/normalized cells, and
-validation report.
+command metadata, stdout/stderr, raw response, parsed/normalized cells,
+model-candidate JSON, and validation report. When pre-submit review is enabled,
+the draft forecast, review prompt, reviewer output, revision prompt, and final
+response are also artifacts. Codex CLI runs additionally preserve the raw
+stdout JSONL, raw stderr log, normalized event JSONL, last assistant message,
+and trace summary. The allowed artifact types include `model_candidates` for
+outputs from `scripts/run_time_series_models.py`.
 
 The converter stamps `predictionRun` from `agents/thesis-analyst/`:
 `{kind: "recorded-agent-run", runAt, agent: "thesis.analyst", model,
@@ -74,3 +79,9 @@ version from agent.yaml. The recorded model is the actual runtime model when
 the command names one with `-m`, `--model`, or `--model=...`; otherwise it
 falls back to the agent.yaml default. Bump the version when any agent file
 changes.
+
+If a run uses pre-submit review, `predictionRun.preSubmitReview` carries compact
+public metadata: review status, reviewer attribution, artifact paths, findings,
+and the forecaster's public disposition. The full review text stays in the
+artifact files so the review is auditable without replacing the scored final
+forecast.

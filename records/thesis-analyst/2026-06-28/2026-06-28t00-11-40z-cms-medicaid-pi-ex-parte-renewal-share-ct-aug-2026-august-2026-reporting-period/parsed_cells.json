@@ -1,0 +1,129 @@
+[
+  {
+    "slug": "medicaid-ex-parte-share-aug-2026-ct",
+    "country": "US",
+    "type": "data",
+    "title": "Connecticut Medicaid ex parte renewal share, Aug. 2026",
+    "question": "CMS State Medicaid and CHIP Eligibility Processing Data, Connecticut state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.",
+    "unit": "percent",
+    "pointEstimate": 96.8,
+    "ciLow": 93.0,
+    "ciHigh": 99.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-12-15",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+    "resolutionRule": "Resolve to Connecticut's August 2026 reporting-period original (O) state row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes that row. Compute ex parte renewal share as the published count of completed renewals processed through ex parte renewal divided by the published total completed-renewal denominator, multiplied by 100 and rounded to one decimal percent. Use the first official CMS print available on data.medicaid.gov; ignore later updated submissions, revisions, or corrections. The official Medicaid.gov monthly reports page verifies the monthly release vehicle; I did not find a public future-dated August 2026 placeholder in the inspected context, so this remains tied to the canonical ledger resolutionDate 2026-12-15.",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.ct.aug_2026",
+    "historicalContext": [
+      {
+        "label": "CT 2025-07 first-print ex parte renewal share",
+        "value": 90.7
+      },
+      {
+        "label": "CT 2025-09 first-print ex parte renewal share",
+        "value": 91.9
+      },
+      {
+        "label": "CT 2025-11 first-print ex parte renewal share",
+        "value": 94.7
+      },
+      {
+        "label": "CT 2026-01 first-print ex parte renewal share",
+        "value": 95.5
+      },
+      {
+        "label": "CT 2026-02 latest inspected ex parte renewal share",
+        "value": 95.0
+      }
+    ],
+    "drivers": [
+      "Connecticut's recent ex parte share is already in the mid-90s, leaving limited upside before the 100 percent ceiling",
+      "Recent state trend from July 2025 to early 2026 is positive but flattening",
+      "Renewal cohort composition can still move the numerator and completed-renewal denominator month to month",
+      "Data-matching and eligibility-system automation support persistence near recent high levels",
+      "The upper tail is mechanically capped while downside remains operationally plausible"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data",
+      "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360"
+    ],
+    "runAt": "2026-06-28T00:11:48Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Connecticut Medicaid ex parte renewal share, August 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is a Connecticut state row, not a national weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed renewals processed ex parte, reported in percent and rounded to one decimal."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspected the registered CMS Medicaid PI target and local catalog entry for the Connecticut August 2026 ex parte renewal share resolver.",
+        "result": "Fetched canonical slug medicaid-ex-parte-share-aug-2026-ct, unit percent, registered catalog resolutionDate 2026-12-15, prior catalog point 96.8, prior 80% interval 93.0 to 99.0, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.ct.aug_2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official Medicaid.gov monthly application, eligibility determination, and enrollment reports page for release vehicle and current update evidence from inspected run context.",
+        "result": "Fetched official page evidence: data.Medicaid.gov is updated monthly; the inspected current release context listed Preliminary March 2026 data and June 26, 2026 as the current update date for related February 2026 and March 2026 entries."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked CMS Medicaid eligibility processing dataset identifiers and resolver arithmetic fields used for this target.",
+        "result": "Fetched ledger dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, CMS datastore id 6165f45b-ca93-5bb5-9d06-db29c692a360, original submission status O, August 2026 reporting period, numerator as completed renewals processed through ex parte renewal, denominator as total completed renewals, and expected publication lag of about 3 to 4 months after the reporting period."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Read the local official-source-derived Connecticut historical context for this exact CMS series.",
+        "result": "Fetched Connecticut inspected official-source-derived sample values: 2025-07 = 90.7 percent, 2025-09 = 91.9 percent, 2025-11 = 94.7 percent, 2026-01 = 95.5 percent, and 2026-02 = 95.0 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Computed recent Connecticut movement and latest-value anchor from the inspected sample.",
+        "result": "Fetched latest inspected Connecticut value 2026-02 = 95.0 percent; changes were +1.2 percentage points from 2025-07 to 2025-09, +2.8 from 2025-09 to 2025-11, +0.8 from 2025-11 to 2026-01, and -0.5 from 2026-01 to 2026-02."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the most relevant outside view is Connecticut's own post-unwinding inspected official-source-derived first-print sample from July 2025 through February 2026, not a complete monthly series. The state has been persistently high, with a five-point inspected mean of about 93.6 percent and latest values clustered around 95 percent, so state persistence is more informative than a broad national average."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: the level is already near the feasible ceiling, consistent with strong data-match coverage and mature renewal automation. Momentum remains mildly positive over the full July-February window, but the January-to-February dip argues against extrapolating all the way to universal ex parte processing."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is latest-value persistence with a damped local trend, using Connecticut's inspected July 2025, September 2025, November 2025, January 2026, and February 2026 official-source-derived sample. Starting from the 95.0 latest value, I add +1.5 pp for the positive July-February slope and +0.3 pp for continued compliance and automation pressure, limited by the 100 percent ceiling, yielding 96.8. The 80% interval uses realized sparse-sample moves up to 2.8 pp, widens for six-month cohort and system risk, and is asymmetric because upside is capped near 100 percent, with an upper bound of 99.0."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside outside the interval would require Connecticut to print essentially universal ex parte renewals, above 99 percent, in August 2026. Downside outside the interval would require a manual-heavy renewal cohort, data-source outage, eligibility-system reporting break, or a denominator composition shift that pulls the share below 93 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: 95.0 latest inspected value + 1.5 pp damped trend + 0.3 pp automation/compliance adjustment = 96.8 percent. Interval calculation: lower bound 96.8 - 3.8 = 93.0; upper bound 96.8 + 2.2 = 99.0 after applying the ceiling-aware cap and rounding to one decimal."
+      },
+      {
+        "kind": "text",
+        "text": "Resolution-date note: the official CMS page evidence supports the monthly release vehicle and the June 26, 2026 current update cycle, but the inspected context did not expose a future dated August 2026 state-row placeholder. I keep the forecast tied to the canonical ledger date 2026-12-15 and bind resolution to the first official CMS dataset print."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by removing the same-release-day correction exception and making later corrections subordinate to the strict first-print rule; accepted optional clarifications that the interval is ceiling-aware and asymmetric and that the Connecticut history is an inspected official-source-derived sample rather than a complete monthly series."
+      },
+      {
+        "kind": "forecast",
+        "point": 96.8,
+        "ciLow": 93.0,
+        "ciHigh": 99.0
+      }
+    ]
+  }
+]

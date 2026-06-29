@@ -1,0 +1,147 @@
+[
+  {
+    "slug": "irs-total-refunds-october-2026",
+    "country": "US",
+    "type": "data",
+    "title": "IRS cumulative refunds, October 2026",
+    "question": "What total amount refunded will the IRS report in its first October 2026 Filing Season Statistics snapshot for current-year individual income tax returns, first print, nominal USD billions?",
+    "unit": "usd_billions",
+    "pointEstimate": 368,
+    "ciLow": 356,
+    "ciHigh": 385,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-23",
+    "resolutionSource": "IRS Newsroom Filing Season Statistics page for the first qualifying October 2026 snapshot",
+    "resolutionSourceUrl": "https://www.irs.gov/newsroom",
+    "resolutionRule": "Resolve to the first IRS Filing Season Statistics page published for an October 2026 week ending date after the official October 15 extended individual filing deadline. Use the current-year individual-return line 'Total amount refunded', in nominal USD billions, rounded to the nearest 1 billion. If multiple qualifying October 2026 snapshots are posted, the earliest qualifying October 2026 snapshot governs; ignore later revisions or later October snapshots. The final resolver URL will be the first qualifying IRS page once published from the IRS Newsroom Filing Season Statistics pages.",
+    "dataPointId": "irs.filing_season.total_amount_refunded.october_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026 May 8 total amount refunded",
+        "value": 324.757
+      },
+      {
+        "label": "2025 Oct 17 total amount refunded",
+        "value": 311.651
+      },
+      {
+        "label": "2024 Oct 18 total amount refunded",
+        "value": 309.929
+      },
+      {
+        "label": "2023 Oct 20 total amount refunded",
+        "value": 308.986
+      },
+      {
+        "label": "2023-2025 average May-to-first-October addition",
+        "value": 39.75
+      }
+    ],
+    "drivers": [
+      "2026 refunds running far above 2025 by early May",
+      "post-May extension-season additions usually near 37 to 42 billion",
+      "tax-year 2026 parameters keep nominal refund amounts elevated",
+      "October 15 extension deadline concentrates late returns",
+      "IRS staffing and paper-processing frictions widen timing risk"
+    ],
+    "sourceContext": [
+      "https://www.irs.gov/newsroom",
+      "https://www.irs.gov/filing/individuals/when-to-file",
+      "https://www.irs.gov/newsroom/filing-season-statistics-for-week-ending-may-8-2026",
+      "https://www.irs.gov/newsroom/filing-season-statistics-for-week-ending-oct-17-2025",
+      "https://www.irs.gov/newsroom/filing-season-statistics-for-week-ending-oct-18-2024",
+      "https://www.irs.gov/newsroom/filing-season-statistics-for-week-ending-oct-20-2023",
+      "https://www.irs.gov/newsroom/filing-season-statistics-for-week-ending-may-9-2025",
+      "https://www.irs.gov/newsroom/filing-season-statistics-for-week-ending-may-10-2024",
+      "https://www.irs.gov/newsroom/filing-season-statistics-for-week-ending-may-12-2023",
+      "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf"
+    ],
+    "runAt": "2026-06-27T23:25:31Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast IRS October 2026 cumulative refunds"
+      },
+      {
+        "kind": "text",
+        "text": "Resolver is the IRS Filing Season Statistics current-year individual-return line for total amount refunded in the first October 2026 snapshot whose week-ending date is after the official October 15 extended individual filing deadline. The target is nominal USD billions, not fiscal-year Treasury cash refunds."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the IRS Newsroom and IRS filing deadline pages to identify the stable publication surface and qualifying deadline.",
+        "result": "Fetched official IRS publication surface at irs.gov/newsroom and official individual filing deadline context including October 15 extension timing; the first qualifying 2026 week-ending date after that deadline is October 16, 2026, with the first qualifying IRS Newsroom Filing Season Statistics page to be used once posted."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the IRS May 8, 2026 Filing Season Statistics page for the latest in-season level.",
+        "result": "Fetched IRS May 8, 2026 table: total returns received 144.992 million, total number of refunds 99.138 million, total amount refunded 324.757 USD billion, average refund 3276 USD, versus 274.979 USD billion on May 9, 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the IRS Oct. 17, 2025 Filing Season Statistics page for the latest prior-year October analogue.",
+        "result": "Fetched IRS Oct. 17, 2025 table: total returns received 163.594 million, total number of refunds 102.122 million, total amount refunded 311.651 USD billion, average refund 3052 USD; the page was last reviewed or updated 2025-10-24."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the IRS Oct. 18, 2024 Filing Season Statistics page for an additional first-October reference point.",
+        "result": "Fetched IRS Oct. 18, 2024 table: total returns received 161.489 million, total number of refunds 103.185 million, total amount refunded 309.929 USD billion, average refund 3004 USD."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the IRS Oct. 20, 2023 and May 2023 Filing Season Statistics pages to size the May-to-October increment.",
+        "result": "Fetched IRS Oct. 20, 2023 total amount refunded 308.986 USD billion and May 12, 2023 total amount refunded 266.849 USD billion, implying a 42.137 USD billion May-to-first-October addition."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the IRS May 2024 and May 2025 Filing Season Statistics pages to complete the increment reference class.",
+        "result": "Fetched IRS May 10, 2024 total amount refunded 269.488 USD billion and May 9, 2025 total amount refunded 274.979 USD billion; paired with first-October values of 309.929 and 311.651, the additions were 40.441 and 36.672 USD billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.policy.lookup",
+        "call": "Opened IRS Rev. Proc. 2025-32 for tax-year 2026 policy parameters affecting refunds.",
+        "result": "Fetched Rev. Proc. 2025-32: OBBBA set the 2025 standard deduction at 31500 USD for joint returns and 15750 USD for single filers; for tax year 2026 the standard deduction is 32200 USD joint and 16100 USD single, and the 2026 child tax credit is 2200 USD with 1700 USD refundable."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class step: the cleanest outside view is May-to-first-October additions in the three most recent comparable filing-season pages. Those increments were 42.137, 40.441, and 36.672 billion, averaging 39.75 billion, with a narrow historical range but based on only three observations."
+      },
+      {
+        "kind": "text",
+        "text": "Prior-run update: the catalog target had a 370 billion point using a 324.757 billion May 2026 anchor and an approximately 41.8 billion historical add-on. Recomputing the first-October reference class gives a slightly lower mechanical add-on of 39.75 billion, but the unusually refund-heavy 2026 filing season argues against cutting the forecast much."
+      },
+      {
+        "kind": "math",
+        "text": "Mechanical base = 324.757 + ((308.986 - 266.849) + (309.929 - 269.488) + (311.651 - 274.979)) / 3 = 324.757 + 39.75 = 364.51. I add about 3.5 billion because 2026 May refunds were already 49.778 billion above May 2025 and the cited tax-year 2026 parameters raise nominal deductions and refundable credit amounts, so only about 7 percent of the year-over-year May refund-dollar gap needs to persist into late filings to justify the adjustment. That gives 368.0."
+      },
+      {
+        "kind": "math",
+        "text": "The 356 to 385 interval implies a May-to-October increment range of 31.243 to 60.243 billion around the 324.757 billion May anchor. The lower tail allows front-loading or processing delays to pull the remaining increment below the recent 36.672 to 42.137 billion band, while the upper tail allows policy-driven late-filer refund claims to add much more than the short three-year reference class."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: if the 18.1 percent May refund-dollar jump mostly reflects front-loaded direct-deposit refunds rather than higher full-season liability refunds, the remaining May-to-October increment could undershoot the recent band and the outcome could land near the lower end of the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Upside scenario: if extension filers claim the new deductions and refundable credits at high rates, and IRS processing catches up despite staffing strain, cumulative refunds could exceed 385 billion by the first qualifying October snapshot."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by moving the resolver to the stable IRS Newsroom surface and clarifying that the final observation is the first qualifying October 2026 Filing Season Statistics page after the October 15 extension deadline; accepted the policy-adjustment and interval critiques by quantifying the +3.5 billion add-on and the implied May-to-October interval range. I retained the operational resolution date as the expected first post-deadline IRS publication window date while making the first qualifying IRS page the governing rule."
+      },
+      {
+        "kind": "forecast",
+        "point": 368,
+        "ciLow": 356,
+        "ciHigh": 385
+      }
+    ]
+  }
+]

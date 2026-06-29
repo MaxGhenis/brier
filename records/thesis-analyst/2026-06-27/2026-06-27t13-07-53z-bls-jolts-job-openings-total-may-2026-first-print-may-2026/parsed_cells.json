@@ -1,0 +1,116 @@
+[
+  {
+    "slug": "bls-jolts-job-openings-total-may-2026-first-print",
+    "country": "US",
+    "type": "data",
+    "title": "US JOLTS job openings, May 2026",
+    "question": "BLS JOLTS total nonfarm job openings, seasonally adjusted level, May 2026, first print",
+    "unit": "thousands",
+    "pointEstimate": 7350,
+    "ciLow": 6650,
+    "ciHigh": 8050,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-30",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Job Openings and Labor Turnover Survey news release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/jolts.htm",
+    "resolutionRule": "Resolve to the May 2026 first-published BLS JOLTS seasonally adjusted Total nonfarm job openings level, in thousands, from the June 30, 2026 JOLTS release table or archived first-print artifact for series JTS000000000000000JOL. Do not use later-revised time-series values or rounded narrative prose. If the first-print table states the value in millions, convert to thousands and round to the nearest thousand.",
+    "dataPointId": "bls.jolts.job_openings_total.may_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-04 latest preliminary",
+        "value": 7618
+      },
+      {
+        "label": "2026-03",
+        "value": 6887
+      },
+      {
+        "label": "2026-02",
+        "value": 6922
+      },
+      {
+        "label": "2026-01",
+        "value": 7240
+      },
+      {
+        "label": "2025 average",
+        "value": 7082
+      }
+    ],
+    "drivers": [
+      "April openings jumped to 7.618 million, above the recent 7.17 million four-month average",
+      "May payroll growth of 172,000 and unchanged 4.3 percent unemployment are public pre-release evidence against a sharp demand drop",
+      "JOLTS openings are noisy month to month, with recent changes including plus 731 thousand and minus 318 thousand",
+      "Longer 2025 baseline near 7.08 million pulls the forecast below April",
+      "80 percent interval is judgmental but tied to recent absolute monthly changes and JOLTS survey volatility"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/2026/home.htm",
+      "https://data.bls.gov/timeseries/JTS000000000000000JOL",
+      "https://www.bls.gov/news.release/empsit.nr0.htm"
+    ],
+    "runAt": "2026-06-27T13:11:02Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for May 2026 first-print BLS JOLTS total job openings"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the BLS first print for total nonfarm job openings, seasonally adjusted, level in thousands, for May 2026. The forecast value 7350 means 7.350 million openings."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official BLS 2026 release calendar for the May 2026 JOLTS release date.",
+        "result": "BLS calendar lists Job Openings and Labor Turnover Survey for May 2026 at 10:00 AM on Tuesday, June 30, 2026; the same calendar shows April 2026 JOLTS released June 2, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the official BLS time-series page for JTS000000000000000JOL, total nonfarm job openings, seasonally adjusted, level in thousands.",
+        "result": "Fetched latest BLS values: 2026 Jan 7240, Feb 6922, Mar 6887, Apr 7618(P); 2025 monthly values included Jan 7431 and Dec 6550."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the official BLS Employment Situation release for May 2026 for labor-market contemporaneous evidence.",
+        "result": "BLS reported May 2026 nonfarm payroll employment increased by 172,000, unemployment was 4.3 percent, April payroll growth was revised to 179,000, and March was revised to 214,000."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the 2025 average from fetched BLS monthly levels is about 7,082 thousand, while the first four months of 2026 average about 7,167 thousand. That keeps the outside-view anchor around 7.1 to 7.2 million rather than treating April's 7.618 million as the new trend."
+      },
+      {
+        "kind": "text",
+        "text": "Model prior: I use a simple persistence plus mean-reversion prior, not a fitted time-series model, because this fast run has few fetched points and JOLTS first prints have substantial survey noise that would make a lightly specified fitted model overconfident."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum effects point in opposite directions. April's 7.618 million level is high relative to January through March, but May payrolls were solid and unemployment was unchanged, so I expect only a partial reversal of the April jump rather than a fall back to the March trough."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: JOLTS openings can swing sharply on survey noise and industry composition. If April's spike was genuine vacancy rebuilding, May could print above 8.0 million; if it was sampling noise or employers pulled postings after tariff and demand uncertainty, a print near 6.6 million is plausible."
+      },
+      {
+        "kind": "math",
+        "text": "Recent monthly changes from fetched levels were Feb minus Jan = -318, Mar minus Feb = -35, and Apr minus Mar = +731 thousand; the average absolute move over those three changes is about 361 thousand. I place May 268 thousand below April but above the 2026 average: 7618 - 268 = 7350. For the 80% interval, I use judgmental uncertainty of about +/-700 thousand, roughly twice the recent average absolute move and wide enough to cover a large reversal or continuation: 7350 - 700 = 6650 and 7350 + 700 = 8050."
+      },
+      {
+        "kind": "text",
+        "text": "Upside scenario: openings remain near or above April because May payroll growth of 172,000 and upward revisions to March and April indicate resilient labor demand. Downside scenario: April's jump reverses and openings return toward the March 6.887 million level. Outside-the-interval scenarios require either an unusually large vacancy retrenchment below 6.65 million or a broad demand reacceleration above 8.05 million."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted resolver tightening to specify the first-published table or archived first-print artifact and reject later-revised series values or rounded prose; accepted explicit persistence/mean-reversion prior; accepted clearer interval calibration as judgmental uncertainty tied to recent absolute monthly changes; kept Employment Situation evidence as pre-release context only."
+      },
+      {
+        "kind": "forecast",
+        "point": 7350,
+        "ciLow": 6650,
+        "ciHigh": 8050
+      }
+    ]
+  }
+]

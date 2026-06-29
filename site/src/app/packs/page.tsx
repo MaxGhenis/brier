@@ -98,7 +98,7 @@ export default function PacksPage() {
                   v{pack.latestVersion}
                 </span>
                 <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.08em] text-[var(--color-accent)]">
-                  run input
+                  {pack.runCount > 0 ? "run input" : "registered"}
                 </span>
               </div>
               <h2 className="mb-3 [font-family:var(--font-display)] text-[1rem] font-semibold leading-[1.3] text-[var(--theme-text)]">

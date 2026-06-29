@@ -1,0 +1,424 @@
+[
+  {
+    "slug": "usda-fns-snap-persons-april-2026",
+    "country": "US",
+    "type": "data",
+    "title": "SNAP persons April 2026",
+    "question": "USDA Food and Nutrition Service Supplemental Nutrition Assistance Program FY2026 National View Summary monthly table, April 2026 row, Participation Persons, national total, first posted fixed-vintage print converted to millions of persons.",
+    "unit": "millions",
+    "pointEstimate": 39.8,
+    "ciLow": 38.4,
+    "ciHigh": 41.2,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-24",
+    "resolutionSource": "USDA Food and Nutrition Service SNAP Data Tables",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap",
+    "resolutionRule": "Resolve to the first USDA FNS SNAP monthly data-table print for the FY2026 National View Summary monthly table, April 2026 row, Participation Persons field, national total. Convert the published person count to millions by dividing by 1,000,000. Use the first posted fixed-vintage USDA FNS value; ignore later revisions unless the first print is formally withdrawn before scoring.",
+    "dataPointId": "usda.fns.snap.persons.2026-04.first_print",
+    "historicalContext": [
+      {
+        "label": "Apr 2023 persons, current table at lookup, millions",
+        "value": 41.91381
+      },
+      {
+        "label": "Apr 2024 persons, current table at lookup, millions",
+        "value": 41.612145
+      },
+      {
+        "label": "Nov 2024 persons, current table at lookup, millions",
+        "value": 43.018848
+      },
+      {
+        "label": "Apr 2025 persons, current table at lookup, millions",
+        "value": 42.353149
+      },
+      {
+        "label": "Oct 2025 persons, latest FY2026 table, millions",
+        "value": 41.0918
+      },
+      {
+        "label": "Nov 2025 persons, latest available month on fetched page, millions",
+        "value": 40.395735
+      }
+    ],
+    "drivers": [
+      "Recent FY2026 participation is materially below FY2025 levels",
+      "April same-month reference class has been near 42 million but latest months imply a lower level",
+      "SNAP participation is countercyclical, limiting downside if labor-market conditions soften",
+      "State reporting and disaster-assistance timing can move first-print monthly totals",
+      "Policy and administrative changes may continue to reduce caseloads into spring 2026"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap",
+      "https://www.fns.usda.gov/sites/default/files/resource-files/snap-4fymonthly-2.pdf",
+      "https://www.fns.usda.gov/data-research/data-release-calendar"
+    ],
+    "runAt": "2026-06-27T13:41:51Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast USDA FNS SNAP persons for April 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the national SNAP FY2026 National View Summary monthly table, April 2026 row, Participation Persons field, resolved from USDA FNS SNAP Data Tables on the first public monthly print and converted from persons to millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened USDA FNS SNAP Data Tables page and checked the national monthly table status.",
+        "result": "The page listed FY 23 through FY 26 National View Summary with Latest Available Month: November 2025 and Page updated: February 24, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the USDA FNS SNAP monthly PDF linked from the SNAP Data Tables page.",
+        "result": "Fetched current-table April same-month persons counts: Apr 2023 41,913,810; Apr 2024 41,612,145; Apr 2025 42,353,149."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the prior-year and latest FY2026 rows in the USDA FNS SNAP monthly PDF.",
+        "result": "Fetched Nov 2024 persons count 43,018,848 and FY2026 persons counts: Oct 2025 41,091,800; Nov 2025 40,395,735; the table also showed FY2026 average 40,743,768 for the available months."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official FNS data release calendar for the resolver date.",
+        "result": "The official release schedule placed the SNAP monthly data update covering April 2026 on 2026-07-24, which is 1 scheduled release date for this first-print target."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate reference class: April observations in the fetched current table for 2023-2025 were 41.914 million, 41.612 million, and 42.353 million, so the simple same-month base rate is about 41.96 million before current-release adjustments."
+      },
+      {
+        "kind": "math",
+        "text": "Current-level adjustment: Nov 2025 was 40.395735 million versus Nov 2024 43.018848 million, a ratio of 0.9390. Applying that ratio to Apr 2025 42.353149 million gives 39.77 million; rounding and allowing partial stabilization gives a 39.8 million point estimate."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the sharp Oct-Nov 2025 drop may include timing, reporting, or temporary administrative noise; SNAP is also countercyclical, so a softer economy could keep April 2026 closer to 41 million than the recent downtrend implies."
+      },
+      {
+        "kind": "text",
+        "text": "Downside outside scenario: continued eligibility tightening, administrative churn, or unusually low state reporting pushes the first print below 38.4 million. Upside outside scenario: reporting rebound, disaster assistance, or weaker household income conditions lift participation above 41.2 million."
+      },
+      {
+        "kind": "math",
+        "text": "Interval sizing: the fetched April same-month 2023-2025 range is 0.741 million and the Oct-Nov 2025 move is -0.696 million, but policy and first-print reporting risk make a wider judgmental 80% half-width appropriate. I use +/-1.4 million around 39.8, about twice those recent realized moves, for an 80% interval of 38.4 to 41.2 million."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver clarification by naming the exact FY2026 National View Summary monthly table and Participation Persons field, accepted adding Nov 2024 evidence before the ratio calculation, accepted making the interval width explicitly judgmental and tied to fetched realized moves, and clarified that historical values are current-table lookup values while resolution uses the first posted April 2026 print."
+      },
+      {
+        "kind": "forecast",
+        "point": 39.8,
+        "ciLow": 38.4,
+        "ciHigh": 41.2
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/prompt.md",
+        "sha256": "143ed79ebd330db941651abc914c451b24a9cef755a36f3d96ce30f9d117c4a6",
+        "bytes": 4151,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_command.json",
+        "sha256": "3df9ab5ac8d81bfa073f4ae0bfffee57fbb03a6569c8199aea52da9bb4dc5224",
+        "bytes": 771,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_codex_stdout.jsonl",
+        "sha256": "77407e2c451a8fe5208c96a632ab41bdc226c2a872241d289d7c1d2585ab263f",
+        "bytes": 14100,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_codex_stderr.log",
+        "sha256": "6efb85b9d28924084851bdb4e568486e8f54a2e04a72692ae9f28215bfe123ea",
+        "bytes": 2943,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_codex_events.jsonl",
+        "sha256": "6a3373952e256743d252c551523ef68bb341ff02f9d958e3667124c1898286e5",
+        "bytes": 14101,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_codex_last_message.txt",
+        "sha256": "7d59ba3b3b0b0553b7af5289bde7df8c10d7c4c9da784246a9091ef8636f65e4",
+        "bytes": 4995,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_codex_trace.json",
+        "sha256": "e744a11a2a9a0135c6bee43c194b86e5d58cebbb5160bbaf772d29aa57ec3ff1",
+        "bytes": 507,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_stdout.txt",
+        "sha256": "7d59ba3b3b0b0553b7af5289bde7df8c10d7c4c9da784246a9091ef8636f65e4",
+        "bytes": 4995,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_stderr.txt",
+        "sha256": "1ac119694e77cf238f89542d470904f2c6b1e4ea46c4a9f745c3cf46dd67d2c8",
+        "bytes": 3078,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_prompt.md",
+        "sha256": "551cd6adc297deab55aaf16233ce56ef7bb8075d1b390cdcfe58d82c1b895846",
+        "bytes": 6503,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_command.json",
+        "sha256": "273fbd291f24c1ef0dac8c49d5f09a8f53b00d8a5f66b76b09f888b329fc7d48",
+        "bytes": 767,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "f0d213363f35ee6084fae3e33790be5d6d8fbc4a672747b0c20ed62af82a43fd",
+        "bytes": 2106,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_stderr.log",
+        "sha256": "73ad62eea92c87ab6fabe1ab02f8a406b37126bfb3d3d1c87c280cf8fc19caf8",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_events.jsonl",
+        "sha256": "180c2c1706fd3836d9da5a895b505e91c981d642715a10464a42a4dbe889dc79",
+        "bytes": 2128,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_last_message.txt",
+        "sha256": "8f94eac1a7e1d59d7b19ae2034855c8a08e7c9f336791149b6d3f85e144e2624",
+        "bytes": 1729,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_trace.json",
+        "sha256": "3cbb881af9eff4054acac874fd3ae338bb990a5f6607ece7d1509b1dc8cf12e3",
+        "bytes": 504,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_stdout.txt",
+        "sha256": "8f94eac1a7e1d59d7b19ae2034855c8a08e7c9f336791149b6d3f85e144e2624",
+        "bytes": 1729,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_stderr.txt",
+        "sha256": "447f66e85bfa75d456fc0f98ca2817780c58ad58f8b8acede36c1ef8c5e119ae",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/revision_prompt.md",
+        "sha256": "58c60e83ca958addc4566bebf486256151e7be700e484f5ea13328ee11991a13",
+        "bytes": 11811,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/command.json",
+        "sha256": "319d3424f2474ad7c011a30285210589684aed361786e84b16056c46d5c66279",
+        "bytes": 765,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/codex_stdout.jsonl",
+        "sha256": "c8b9052475b4cd9e28da522a6c43db88f63d271d2ae6e9300666b3e0a0df24a3",
+        "bytes": 6857,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/codex_stderr.log",
+        "sha256": "934c5fd6d4cfd7ab19d216d51253d7df465c15d94518ea2418e83d36dcdf5d4f",
+        "bytes": 3231,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/codex_events.jsonl",
+        "sha256": "302b693f5023968fd29073cc415748ce5b692e5989b075354fc46167b746bc3a",
+        "bytes": 6907,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/codex_last_message.txt",
+        "sha256": "9dbf36821289a91eceeed0af1b6f67cfef9e8c98b3637db05938eff46d04236b",
+        "bytes": 5881,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/codex_trace.json",
+        "sha256": "56d4b6b23849a0da08d1771597ab0c204f7a49b3523a3838f3255814bafed360",
+        "bytes": 505,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/stdout.txt",
+        "sha256": "9dbf36821289a91eceeed0af1b6f67cfef9e8c98b3637db05938eff46d04236b",
+        "bytes": 5881,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/stderr.txt",
+        "sha256": "fd97293058f6716c0f4dc520647773103b85f603818eaeb3c62114283cf3aff4",
+        "bytes": 3374,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/raw_response.txt",
+        "sha256": "9dbf36821289a91eceeed0af1b6f67cfef9e8c98b3637db05938eff46d04236b",
+        "bytes": 5881,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/parsed_cells.json",
+        "sha256": "52d771b837203c7db4d69a123f957af5adf3cfff81ab773348faf99cc9571ab8",
+        "bytes": 6832,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/normalized_cells.json",
+        "sha256": "2dd970eb40f0262ba886af3a76cfff3981cfd4b0575abfd17d74e5efa5ad09ee",
+        "bytes": 6452,
+        "createdAt": "2026-06-27T13:39:40Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/validation.json",
+        "sha256": "2074e570d72ce5d6ba0ad29fbcea1704ee5f06620620ad1e8bac281dc2555e36",
+        "bytes": 133,
+        "createdAt": "2026-06-27T13:39:40Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T13:39:40Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "f608f7c4edf965e8ff0a01e6be35448f178fca673515c4f78bed21e4210ef302"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-39-40z-usda-fns-snap-persons-april-2026-april-2026-fixed-vintage/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "Resolver names the USDA FNS SNAP Data Tables and first-print rule, but does not specify the exact table/field path enough to prevent ambiguity if the page has multiple files or formats.",
+          "actionRequested": "Specify the exact national table and field used for resolution, e.g. FY2026 National View Summary monthly table, April 2026 row, Participation Persons, national total, first posted USDA FNS print."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The forecast calculation uses Nov 2024 = 43.018848 million, but that value is not included in historicalContext or the cited tool-result evidence shown in the draft.",
+          "actionRequested": "Add Nov 2024 to historicalContext or explicitly cite it in the reasoning evidence before using it in the ratio calculation."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval of +/-1.4 million is plausible but only loosely tied to 'recent movements' and policy uncertainty, without a concrete volatility or error reference.",
+          "actionRequested": "State the realized volatility or reference-class spread used to size the interval, or explicitly say it is judgmental and explain why +/-1.4 million is the chosen 80% uncertainty width."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether historical values are first-print values or current-table values, since the target is fixed-vintage first print."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State that later USDA revisions after the first posted April 2026 print are excluded unless the first print is withdrawn."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver clarification by naming the exact FY2026 National View Summary monthly table and Participation Persons field, accepted adding Nov 2024 evidence before the ratio calculation, accepted making the interval width explicitly judgmental and tied to fetched realized moves, and clarified that historical values are current-table lookup values while resolution uses the first posted April 2026 print.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver clarification by naming the exact FY2026 National View Summary monthly table and Participation Persons field, accepted adding Nov 2024 evidence before the ratio calculation, accepted making the interval width explicitly judgmental and tied to fetched realized moves, and clarified that historical values are current-table lookup values while resolution uses the first posted April 2026 print.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver clarification by naming the exact FY2026 National View Summary monthly table and Participation Persons field, accepted adding Nov 2024 evidence before the ratio calculation, accepted making the interval width explicitly judgmental and tied to fetched realized moves, and clarified that historical values are current-table lookup values while resolution uses the first posted April 2026 print.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver clarification by naming the exact FY2026 National View Summary monthly table and Participation Persons field, accepted adding Nov 2024 evidence before the ratio calculation, accepted making the interval width explicitly judgmental and tied to fetched realized moves, and clarified that historical values are current-table lookup values while resolution uses the first posted April 2026 print.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver clarification by naming the exact FY2026 National View Summary monthly table and Participation Persons field, accepted adding Nov 2024 evidence before the ratio calculation, accepted making the interval width explicitly judgmental and tied to fetched realized moves, and clarified that historical values are current-table lookup values while resolution uses the first posted April 2026 print.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publication-ready, but it needs tighter fixed-vintage resolver specificity and stronger support for the interval and ratio update evidence."
+    }
+  }
+]

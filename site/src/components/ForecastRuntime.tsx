@@ -602,6 +602,9 @@ function RunComparisonPanel({
   const packSetCount = new Set(
     displayRuns.map((run) => run.packSet?.packSetId ?? "unreported"),
   ).size;
+  const reviewedCount = displayRuns.filter(
+    (run) => run.predictionRun?.preSubmitReview?.status === "completed",
+  ).length;
   const activePackKey =
     packs.find((pack) => pack.key === selectedPackKey)?.key ??
     packs[0]?.key ??
@@ -620,11 +623,12 @@ function RunComparisonPanel({
           same target · agents, packs, updates
         </span>
       </div>
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <RunStat label="runs" value={displayRuns.length} />
         <RunStat label="agents" value={agentCount} />
         <RunStat label="models" value={modelCount} />
         <RunStat label="pack sets" value={packSetCount} />
+        <RunStat label="reviewed" value={reviewedCount} />
       </div>
       {packs.length > 0 && activePackKey && (
         <PackVisualizer
@@ -714,6 +718,12 @@ function ForecastRunLane({
                 update {agentOrdinal.index}/{agentOrdinal.count}
               </span>
             )}
+            {run.predictionRun?.preSubmitReview && (
+              <span className="rounded-full border border-[var(--theme-border)] px-2 py-[1px]">
+                review{" "}
+                {run.predictionRun.preSubmitReview.status.replace(/_/g, " ")}
+              </span>
+            )}
           </div>
           {run.description && (
             <p className="mt-2 text-[0.74rem] leading-[1.45] text-[var(--theme-text-muted)]">
@@ -784,11 +794,66 @@ function RunTraceDetails({
         public trace
       </summary>
       <div className="mt-3 space-y-2">
+        {run.predictionRun?.preSubmitReview && (
+          <PreSubmitReviewTrace review={run.predictionRun.preSubmitReview} />
+        )}
         {run.reasoning.map((step, index) => (
           <RunTraceStep key={index} step={step} unit={unit} />
         ))}
       </div>
     </details>
+  );
+}
+
+function PreSubmitReviewTrace({
+  review,
+}: {
+  review: NonNullable<
+    NonNullable<ForecastRunEntry["predictionRun"]>["preSubmitReview"]
+  >;
+}) {
+  return (
+    <div
+      className="border-l-2 border-[var(--color-accent)] pl-3"
+      data-pre-submit-review=""
+    >
+      <div className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--color-accent)]">
+        pre-submit review · {review.status.replace(/_/g, " ")}
+      </div>
+      <p className="mt-1 text-[0.74rem] leading-[1.55] text-[var(--theme-text-muted)]">
+        {review.summary}
+      </p>
+      {review.findings.length > 0 && (
+        <ul className="mt-2 space-y-1">
+          {review.findings.slice(0, 3).map((finding) => (
+            <li
+              className="text-[0.72rem] leading-[1.45] text-[var(--theme-text-muted)]"
+              key={finding.findingId}
+            >
+              <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                {finding.severity}
+              </span>{" "}
+              {finding.rubricItem}: {finding.summary}
+            </li>
+          ))}
+        </ul>
+      )}
+      {review.dispositions.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {review.dispositions.slice(0, 3).map((disposition) => (
+            <p
+              className="text-[0.72rem] leading-[1.45] text-[var(--theme-text-muted)]"
+              key={disposition.findingId}
+            >
+              <span className="[font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                disposition
+              </span>{" "}
+              {disposition.decision.replace(/_/g, " ")}: {disposition.rationale}
+            </p>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1669,7 +1734,9 @@ function liveModeDescription(slug: string) {
 function isoCalendarDate(iso: string): Date | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
   if (!match) return null;
-  return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  return new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+  );
 }
 
 function formatFullDate(iso: string): string {

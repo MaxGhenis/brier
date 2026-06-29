@@ -1,0 +1,446 @@
+[
+  {
+    "slug": "census-official-poverty-rate-2025",
+    "country": "US",
+    "type": "data",
+    "title": "US official poverty rate, 2025",
+    "question": "U.S. Census Bureau official poverty measure, percentage of people in poverty in calendar year 2025, United States, first print in the Poverty in the United States: 2025 report/Table A-1 from the CPS ASEC; not the Supplemental Poverty Measure.",
+    "unit": "percent",
+    "pointEstimate": 11.0,
+    "ciLow": 10.3,
+    "ciHigh": 11.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-08",
+    "resolutionSource": "U.S. Census Bureau Poverty in the United States: 2025 first-release report and Table A-1",
+    "resolutionSourceUrl": "https://www.census.gov/library/publications/2026/demo.html",
+    "resolutionRule": "Resolve to the first Census Bureau published official poverty measure rate for calendar year 2025, percentage of people in poverty, in the Poverty in the United States: 2025 report or its Table A-1. Use the value as published in percent to one decimal place. Do not use SPM, ACS poverty, later revised tables, FRED mirrors, news reports, or post-release corrections unless Census withdraws and replaces the first print on the same release day.",
+    "dataPointId": "census.cps_asec.official_poverty_rate.people.2025.first_print",
+    "historicalContext": [
+      {
+        "label": "2024 official poverty rate",
+        "value": 10.6
+      },
+      {
+        "label": "2023 official poverty rate",
+        "value": 11.1
+      },
+      {
+        "label": "2022 official poverty rate",
+        "value": 11.5
+      },
+      {
+        "label": "2024 people in poverty, millions",
+        "value": 35.9
+      },
+      {
+        "label": "2023 people in poverty, millions",
+        "value": 36.8
+      },
+      {
+        "label": "2022 people in poverty, millions",
+        "value": 37.9
+      }
+    ],
+    "drivers": [
+      "Official measure uses pretax cash income, so SNAP, tax credits, noncash transfers, housing adjustments, medical expenses, and taxes are not counted in the resolver",
+      "2024 first print was low by recent standards at 10.6 percent after a 0.4 point decline from 2023",
+      "Weak 2025 labor-market context raises risk of some reversal from the 2024 low",
+      "Continued employment and cash-income growth would limit the size of any poverty-rate increase",
+      "Threshold inflation mechanically raises the income cutoff, but this forecast does not rely on an uncited CPI adjustment",
+      "Migration, family composition, and CPS ASEC sampling error can move the first print by several tenths"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/library/publications/2025/demo/p60-287.html",
+      "https://www.census.gov/library/publications/2024/demo/p60-283.html",
+      "https://www.census.gov/library/publications/2023/demo/p60-280.html",
+      "https://www.census.gov/newsroom/releases/calendar.html",
+      "https://www.bls.gov/news.release/archives/empsit_02112026.htm"
+    ],
+    "runAt": "2026-06-27T14:15:02Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for the 2025 U.S. official poverty rate first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the Census Bureau official poverty measure for calendar year 2025, reported as the percentage of people in poverty in the first Poverty in the United States: 2025 release/Table A-1 from CPS ASEC. This is not the SPM: taxes, refundable credits, SNAP, housing-cost adjustments, work expenses, medical expenses, and geographic threshold adjustments do not define this official-poverty target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2024 report page and highlights.",
+        "result": "Fetched 2024 official poverty rate 10.6 percent, 35.9 million people in poverty, 0.4 percentage point decrease from 2023, SPM 12.9 percent, Social Security moved 28.7 million people out of SPM poverty, report date 2025-09-09."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2023 report page and highlights.",
+        "result": "Fetched 2023 official poverty rate 11.1 percent, 36.8 million people in poverty, 0.4 percentage point decrease from 2022, SPM 12.9 percent, child SPM 13.7 percent, report date 2024-09-10."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2022 report page and highlights.",
+        "result": "Fetched 2022 official poverty rate 11.5 percent, 37.9 million people in poverty, SPM 12.4 percent, child SPM 12.4 percent, report date 2023-09-12."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census release-calendar path and recent first-release dates for the same report series.",
+        "result": "Fetched recent same-series release dates 2023-09-12, 2024-09-10, and 2025-09-09; used the Census release calendar/schedule path for the 2026 first-release target date 2026-09-08."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked labor-market release context for 2025 from the February 2026 Employment Situation reporting cycle.",
+        "result": "Fetched January 2026 unemployment rate 4.3 percent, December 2025 unemployment rate 4.4 percent, January 2026 payroll gain 130000, and revised 2025 payroll gain 181000."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: the last three first-print official poverty rates are 11.5, 11.1, and 10.6 percent. A simple recent average is 11.07 percent, while the latest level is 10.6 percent. The explicit model prior is persistence blended with the recent mean and realized one-year changes, not a richer time-series model, because only a short recent first-print official series was fetched in this fast run."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum: 2024 was already low, so further large declines are harder. The cited labor-market evidence points to some upward risk from 10.6, but the update is kept moderate because the draft did not fetch a full cited table for 2025 earnings, inflation, or transfer-income offsets."
+      },
+      {
+        "kind": "text",
+        "text": "Policy mechanism: because the official measure is pretax cash income, many 2025 changes to taxes, credits, SNAP, medical costs, and housing costs matter less directly than they would for the SPM. Cash earnings, Social Security cash income, unemployment, and official poverty-threshold changes are the main channels for this resolver."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: a downside-to-poverty scenario is that cash earnings and Social Security income keep pretax cash income ahead of thresholds, leaving the rate near 10.5. An upside poverty scenario is that weak hiring, reduced hours, and CPS sampling produce a sharper reversal to 11.7 or more. Outside the interval would likely require either a surprisingly broad cash-income gain below the median or a much worse late-2025 labor shock than the annual averages imply."
+      },
+      {
+        "kind": "math",
+        "text": "Recent mean = (10.6 + 11.1 + 11.5) / 3 = 11.07. Recent year-to-year first-print changes were -0.4 and -0.5 percentage points, and the three-year level range is 0.9 points. Start from the 2024 level of 10.6 and apply a +0.4 point labor-market and mean-reversion update, giving 10.6 + 0.4 = 11.0. The 80 percent interval uses about +/-0.75 points: roughly 0.5 points for recent annual movement plus several tenths for CPS sampling, income-composition, and release uncertainty, rounded to 10.3 to 11.8."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the coherence fix by making the update +0.4 throughout, added an explicit persistence/recent-mean model prior, tied the update mainly to cited labor evidence, weakened uncited wage and inflation claims, and added an uncertainty decomposition for the 80 percent interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 11.0,
+        "ciLow": 10.3,
+        "ciHigh": 11.8
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/prompt.md",
+        "sha256": "7e03aeb10fc6766f771f9e7bcc986e9675f608af6fb379f43326c44c9c814032",
+        "bytes": 4254,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_command.json",
+        "sha256": "d1bffd0b92badcfd86ed4aa685c2c18d1959d7a1ab6b8f976f41b3d78074c0de",
+        "bytes": 766,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_codex_stdout.jsonl",
+        "sha256": "e10dc1a57473f991198df4b6d5957342183d5a83e7c8976ca5875ff666e77f0d",
+        "bytes": 29139,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_codex_stderr.log",
+        "sha256": "195e895dbfa43b38503135e8cf6949b65dacad835b73354cbc7ec890ddc29610",
+        "bytes": 3231,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_codex_events.jsonl",
+        "sha256": "4ab669de674c663e9ec324b93f427ce70451b316bde1431d44e22da5554409a6",
+        "bytes": 29058,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_codex_last_message.txt",
+        "sha256": "150aa0e7879fee25f6ed17b0a072635cbb906b87cb5eeb2f69969644eda71f57",
+        "bytes": 6881,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_codex_trace.json",
+        "sha256": "db15e73e57af662f4fa60b1be93db6cc1ac06405e931b24f60cc3b8e853fe87d",
+        "bytes": 508,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_stdout.txt",
+        "sha256": "150aa0e7879fee25f6ed17b0a072635cbb906b87cb5eeb2f69969644eda71f57",
+        "bytes": 6881,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_stderr.txt",
+        "sha256": "a771dcb2ba9bff6969c018f66c2fb9c63b222ead7f3e65ec0fb56f77eb0db2b5",
+        "bytes": 3374,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_prompt.md",
+        "sha256": "2800893d2a19e733a083e7555e95b73df72b18133e39d9cdfe10f1233f390798",
+        "bytes": 8384,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_command.json",
+        "sha256": "5c7b01209febce51bc5e967280532c43ed755afd13a8e809781952267a7c00ef",
+        "bytes": 762,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "14e2fd59d8f3b8ffff192c3e447a592c81ff8d52b962ba38834ffeb98559bfea",
+        "bytes": 2501,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_stderr.log",
+        "sha256": "c900589d2a2cb8c2c223a49e74e6641e6e4ce6dbda7322096e701931353715ed",
+        "bytes": 615,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_events.jsonl",
+        "sha256": "62ec9aa4fdda299e0e11c936d23afc11fb898f6787f663845299af0b0e8467ad",
+        "bytes": 2523,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_last_message.txt",
+        "sha256": "3ca27be27448d81191ac5354fed710a85744bbb72c930b2e82066e0f3dfb4f62",
+        "bytes": 2076,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_trace.json",
+        "sha256": "11a1020c5c1b9bcdeac7d3571634e8c1e48143e50ab1b912f408e87daccec627",
+        "bytes": 504,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+        "sha256": "3ca27be27448d81191ac5354fed710a85744bbb72c930b2e82066e0f3dfb4f62",
+        "bytes": 2076,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_stderr.txt",
+        "sha256": "a5c6580ce3fef61f480a37cf827ffa61d1facfd17d741f6237a26040aebc1a78",
+        "bytes": 638,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/revision_prompt.md",
+        "sha256": "a5a8da40c362ec3f25d8aa397cf8a6f23db3042e5a11a0214b2ae50e2443afbe",
+        "bytes": 14147,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/command.json",
+        "sha256": "5d458942107729a5f4c712906802de3e046c4efc99cf0da75be5622f0d9fae59",
+        "bytes": 760,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/codex_stdout.jsonl",
+        "sha256": "e6f5d7a93581aa492887943c6c4cae81944f67df7c65479a80c711ade8c31c36",
+        "bytes": 8324,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/codex_stderr.log",
+        "sha256": "26d1e2498e68f884a784a086ed444204588004455ac8b321b92c32454cf91c9e",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/codex_events.jsonl",
+        "sha256": "b2762383d4ef44cfb08845658210654b81e86ca3bd7da4aad5e1fcb54c94a86e",
+        "bytes": 8374,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/codex_last_message.txt",
+        "sha256": "928b7ba8d0d6fa9c8e09183a4d749cf112775f0ea3bac90a7b4ff122f4c2c051",
+        "bytes": 7326,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/codex_trace.json",
+        "sha256": "1b140bc0243b80dadcc6d41c1cfeda36d2db8ff58e403173706e6b812b931b61",
+        "bytes": 505,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/stdout.txt",
+        "sha256": "928b7ba8d0d6fa9c8e09183a4d749cf112775f0ea3bac90a7b4ff122f4c2c051",
+        "bytes": 7326,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/stderr.txt",
+        "sha256": "52d771229531487b628a49cca305764cb1d6617e64ba62ac88c953f5f9f756ab",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/raw_response.txt",
+        "sha256": "928b7ba8d0d6fa9c8e09183a4d749cf112775f0ea3bac90a7b4ff122f4c2c051",
+        "bytes": 7326,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/parsed_cells.json",
+        "sha256": "783e54c3451bc038897be5248be3de0f38644d240726ccee5bc6a69acc2821de",
+        "bytes": 8352,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/normalized_cells.json",
+        "sha256": "079a663c9896c1a2824478a0ea0c77fa60cb2d770bf74617a7b5298579083c54",
+        "bytes": 7941,
+        "createdAt": "2026-06-27T14:09:39Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/validation.json",
+        "sha256": "54f57445944deb162bf00f5466811546e5927c0131ea9a3beaee5249ec16dc06",
+        "bytes": 134,
+        "createdAt": "2026-06-27T14:09:39Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T14:09:39Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "da6a5e27433743cb31752103c2c294191cca5a1298b864e66166a5b0f769847c"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-09-39z-census-official-poverty-rate-2025-calendar-year-2025/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The draft gives a recent average and persistence anchor, but does not use or explicitly rule out a time-series/model prior.",
+          "actionRequested": "Add a sentence either specifying a simple model prior, such as persistence or recent mean with realized one-year changes, or explicitly state why a richer time-series model is not used."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "update",
+          "summary": "The +0.4 point move from the 2024 level relies on weak labor market, wage, and inflation claims, but the cited evidence only clearly supports some labor-market context.",
+          "actionRequested": "Tie the update more directly to cited public evidence, or weaken the update language if wage growth and inflation evidence are not cited in the draft."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval of 10.3 to 11.8 is described as based on recent dispersion and uncertainty, but the realized-volatility calculation is not shown.",
+          "actionRequested": "Add the realized year-to-year volatility or a clear uncertainty decomposition explaining why roughly +/-0.75 points is appropriate for an 80% interval."
+        },
+        {
+          "findingId": "review.finding.4",
+          "severity": "blocking",
+          "rubricItem": "coherence",
+          "summary": "The final math step says apply +0.3 points, then calculates 10.6 + 0.4 = 11.0.",
+          "actionRequested": "Make the update size internally consistent, either +0.4 from 10.6 or a +0.3 update yielding 10.9 before any rounding adjustment."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Use a more exact Census release-calendar citation or placeholder page for the September 8, 2026 resolution date if available."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the cited 2025 payroll gain is an annual average, annual total, or revision figure."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the coherence fix by making the update +0.4 throughout, added an explicit persistence/recent-mean model prior, tied the update mainly to cited labor evidence, weakened uncited wage and inflation claims, and added an uncertainty decomposition for the 80 percent interval.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the coherence fix by making the update +0.4 throughout, added an explicit persistence/recent-mean model prior, tied the update mainly to cited labor evidence, weakened uncited wage and inflation claims, and added an uncertainty decomposition for the 80 percent interval.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the coherence fix by making the update +0.4 throughout, added an explicit persistence/recent-mean model prior, tied the update mainly to cited labor evidence, weakened uncited wage and inflation claims, and added an uncertainty decomposition for the 80 percent interval.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.4",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the coherence fix by making the update +0.4 throughout, added an explicit persistence/recent-mean model prior, tied the update mainly to cited labor evidence, weakened uncited wage and inflation claims, and added an uncertainty decomposition for the 80 percent interval.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the coherence fix by making the update +0.4 throughout, added an explicit persistence/recent-mean model prior, tied the update mainly to cited labor evidence, weakened uncited wage and inflation claims, and added an uncertainty decomposition for the 80 percent interval.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the coherence fix by making the update +0.4 throughout, added an explicit persistence/recent-mean model prior, tied the update mainly to cited labor evidence, weakened uncited wage and inflation claims, and added an uncertainty decomposition for the 80 percent interval.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is close, but it needs tighter support for the model/interval/update logic and one arithmetic coherence fix before publication."
+    }
+  }
+]

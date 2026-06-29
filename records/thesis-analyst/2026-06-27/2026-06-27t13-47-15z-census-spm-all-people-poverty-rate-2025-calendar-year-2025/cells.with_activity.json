@@ -1,0 +1,431 @@
+[
+  {
+    "slug": "us-census-spm-all-people-poverty-rate-2025",
+    "country": "US",
+    "type": "data",
+    "title": "US SPM poverty rate, 2025",
+    "question": "What will the U.S. Census Bureau first report as the all-people Supplemental Poverty Measure poverty rate for calendar year 2025 in Poverty in the United States: 2025, Table B-2?",
+    "unit": "percent",
+    "pointEstimate": 12.6,
+    "ciLow": 11.6,
+    "ciHigh": 13.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-08",
+    "resolutionSource": "U.S. Census Bureau Poverty in the United States: 2025 first-release tables and Census Bureau event calendar",
+    "resolutionSourceUrl": "https://www.census.gov/about/event-calendar.html",
+    "resolutionRule": "Resolve to the first Census Bureau published percentage for all people using the Supplemental Poverty Measure for calendar year 2025, normally Table B-2 in Poverty in the United States: 2025. Use the initially released value rounded to one decimal percentage point; ignore later errata, benchmark updates, or revised tables unless Census labels the original first print as withdrawn before public release.",
+    "dataPointId": "census.p60.spm.all_people_poverty_rate.2025.first_print",
+    "historicalContext": [
+      {
+        "label": "2024 first print",
+        "value": 12.9
+      },
+      {
+        "label": "2023 first print",
+        "value": 12.9
+      },
+      {
+        "label": "2022 first print",
+        "value": 12.4
+      },
+      {
+        "label": "2021 first print",
+        "value": 7.8
+      }
+    ],
+    "drivers": [
+      "Recent SPM rate was flat at 12.9 percent in 2023 and 2024",
+      "Persistence prior from the 2022-2024 post-pandemic-transfer regime dominates the forecast",
+      "No large 2025 federal child-tax-credit expansion comparable to 2021",
+      "Labor-market and price assumptions are used only as small qualitative adjustments",
+      "Inflation and housing costs still pressure SPM thresholds and necessary expenses",
+      "Benefit and tax-transfer mechanics likely keep the rate near the post-pandemic plateau"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/about/event-calendar.html",
+      "https://www.census.gov/topics/income-poverty/supplemental-poverty-measure/data/tables.html",
+      "https://www.census.gov/data/tables/2025/demo/income-poverty/p60-287.html",
+      "https://www2.census.gov/programs-surveys/demo/tables/p60/287/tableB-2.xlsx"
+    ],
+    "runAt": "2026-06-27T13:50:50Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for 2025 all-people SPM poverty rate"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the Census Bureau first print for calendar-year 2025 all people under the Supplemental Poverty Measure, not a later revised table and not the official poverty measure."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Census Bureau Event Calendar for the Income, Poverty, and Health Insurance release covering calendar-year 2025.",
+        "result": "Official Census event-calendar lookup identified the 2025 income, poverty, and health-insurance release date as 2026-09-08; the calendar page revision observed was 2026-01-29."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the Census Bureau Supplemental Poverty Measure Data Tables page and latest Poverty in the United States table listing.",
+        "result": "Census listed Poverty in the United States: 2024 with release date 2025-09-09 and report number P60-287; the page linked Table B-2 for 2009 to 2024."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Used Census Table B-2 for the all-people SPM reference class.",
+        "result": "Fetched recent all-people SPM rates: 2024=12.9 percent, 2023=12.9 percent, 2022=12.4 percent, 2021=7.8 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the model prior is a simple persistence prior using the 2022-2024 post-pandemic-transfer-regime mean, about 12.7 percent, because the 2020 and 2021 pandemic-transfer years are poor comparators for 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census Table B-series context around official and supplemental poverty tables for the latest release.",
+        "result": "The latest Census table page showed 2024 official poverty table A-1 and SPM tables B-2 through B-7; latest official poverty context was 2024=10.6 percent while SPM all-people was 2024=12.9 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum: because this run did not fetch a separate quantitative 2025 macro model, the inside-view update is deliberately small. I treat labor-market, inflation, shelter, medical-expense, and transfer assumptions as qualitative reasons for near-persistence rather than a strong directional override."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: if 2025 shelter and medical out-of-pocket adjustments run hotter than cash-income gains, or if survey income measurement weakens, the rate could stay near 13.5 or above despite continued employment growth."
+      },
+      {
+        "kind": "math",
+        "text": "Point estimate: start from the 2022-2024 average (12.4+12.9+12.9)/3=12.73, apply only a small -0.1 persistence-plus-mild-income adjustment, and round to 12.6. For the 80% interval, recent non-pandemic-transfer year-to-year moves include 2022 to 2023 of +0.5 and 2023 to 2024 of 0.0, but SPM is sensitive to thresholds, expenses, survey measurement, and policy mechanics, so I use a subjective central interval of about -1.0/+1.2 percentage points around the point: 11.6 to 13.8."
+      },
+      {
+        "kind": "text",
+        "text": "Upside scenario: a weaker 2025 CPS ASEC income print, higher necessary expenses, or reduced effective transfers puts the first print around 13.8 to 14.3. Downside scenario: stronger lower-wage real earnings and stable transfer receipt bring it near 11.5. Outside-the-interval downside would require a broader income surprise or policy effect not evident from the baseline."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer requests to name the persistence model prior, reduce the inside-view adjustment to a mostly persistence forecast, state an interval basis tied to recent non-pandemic SPM movement plus subjective measurement/policy uncertainty, and make the Census event-calendar URL the auditable resolver source."
+      },
+      {
+        "kind": "forecast",
+        "point": 12.6,
+        "ciLow": 11.6,
+        "ciHigh": 13.8
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/prompt.md",
+        "sha256": "77a59c6f41e22a82d8583309bbb21022995b3188de84676820b84dc74074330f",
+        "bytes": 4131,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_command.json",
+        "sha256": "0bcaae563ec7966038325b625fb8691ec507078f70ad9b8f52a9772b06ce3d7d",
+        "bytes": 772,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_codex_stdout.jsonl",
+        "sha256": "ddc10ee219bd42494c35ffcd31f859a60467c768ff3191185a5939305b9044f9",
+        "bytes": 32780,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_codex_stderr.log",
+        "sha256": "23edaf2f2183b34e654d601ec15cb98aab347c34a409e9bf90e885725175571e",
+        "bytes": 3072,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_codex_events.jsonl",
+        "sha256": "a54607266e7b260ec7dd344e0dd97e37e764c52995a0b2ecd163f01cb043b684",
+        "bytes": 32698,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_codex_last_message.txt",
+        "sha256": "64cd4dcb307389440dab68f34c48febfb8dd5631f0f0c94ccf1addb49ff7fc0f",
+        "bytes": 5228,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_codex_trace.json",
+        "sha256": "57877b58070f365e1391cc9a11abbab0755b37bd64ada0fa261460a384e8f3fd",
+        "bytes": 507,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_stdout.txt",
+        "sha256": "64cd4dcb307389440dab68f34c48febfb8dd5631f0f0c94ccf1addb49ff7fc0f",
+        "bytes": 5228,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_stderr.txt",
+        "sha256": "0d72b79c5fd0babfb08b4cecb8665863bc6ecd194cecb5de537ec592d00e60b0",
+        "bytes": 3215,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_prompt.md",
+        "sha256": "352a6baa566ab4a90dc1dfbc3a3c27a7bd90918b7ce5cf2aea1d5e8b2e1d96ea",
+        "bytes": 6737,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_command.json",
+        "sha256": "c01c53276f40ee3cb15a1c5d269143ac8d0931875baf0f595586bd7f7b1674a6",
+        "bytes": 768,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "607d54905f09ee9750800cacc59cc1aa041f8107b32bcc7f6eb2c99f56d5bdf9",
+        "bytes": 2520,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_stderr.log",
+        "sha256": "ce8e9aee64cd2e0a01c8fa9bb36c4830b5c0f558b43a5546b17897c0f76c1c49",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_events.jsonl",
+        "sha256": "2d3a0d2e848406247a475a09e75e7e2388507685107472a0696a14dedf825aaa",
+        "bytes": 2542,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_last_message.txt",
+        "sha256": "8d03c4b2c079803df67b297dbd7829d8cdcbc50b10adec4abf340b7e4ab0555e",
+        "bytes": 2127,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_trace.json",
+        "sha256": "ce39ba355130bb15a8fdb0a94d8b1cdfb4ac50448201a612440239f85a1984c8",
+        "bytes": 504,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+        "sha256": "8d03c4b2c079803df67b297dbd7829d8cdcbc50b10adec4abf340b7e4ab0555e",
+        "bytes": 2127,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_stderr.txt",
+        "sha256": "d60eca2fecd8223228569b39d8fc8aa8feb15e6d966bda60d6fb7455e30b7d36",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/revision_prompt.md",
+        "sha256": "a06aab490208cb4297e7de769f141bca31e97678868da7e81cb5868f5489156d",
+        "bytes": 12422,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/command.json",
+        "sha256": "ac15bc4b59f259ebaa8be9e2fcdfdfc5eaec89331c1e8a29ecbddb3af6ee687f",
+        "bytes": 766,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/codex_stdout.jsonl",
+        "sha256": "16e62008a4981a19dd6815b6c7179a91a2a046a90566b7f7707a865cc38be9f4",
+        "bytes": 6885,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/codex_stderr.log",
+        "sha256": "8bf73668ab615637b92af9fa9c3436e3b4c20d972ba7330f57771c2d7b23a788",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/codex_events.jsonl",
+        "sha256": "8680e000d4eb73eff3c76ce269c4272519cdf44d7964520891225a9281847f71",
+        "bytes": 6935,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/codex_last_message.txt",
+        "sha256": "5c14f1c52b1048f9e525a716e817486ed8f04f9b94fec404f8bbff8b554b1724",
+        "bytes": 5918,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/codex_trace.json",
+        "sha256": "527cabe21eb6e950427c3caacb74958a420b5bf29dd1a1ae43067ede5500f5be",
+        "bytes": 504,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/stdout.txt",
+        "sha256": "5c14f1c52b1048f9e525a716e817486ed8f04f9b94fec404f8bbff8b554b1724",
+        "bytes": 5918,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/stderr.txt",
+        "sha256": "34b153e17725359fa1f48c66144a5c20a26425ec22ee39cc53653d2e15608221",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/raw_response.txt",
+        "sha256": "5c14f1c52b1048f9e525a716e817486ed8f04f9b94fec404f8bbff8b554b1724",
+        "bytes": 5918,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/parsed_cells.json",
+        "sha256": "085f7b74f2ab0f3518e71c0ebba7d7e9f4475171c59ce736619cee7d700bb0f7",
+        "bytes": 6815,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/normalized_cells.json",
+        "sha256": "2476dfde76c145113a3e3034557bd88c68d7a507533e7237f4f4a709db13b091",
+        "bytes": 6457,
+        "createdAt": "2026-06-27T13:47:15Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/validation.json",
+        "sha256": "ed2d51a5e1da8d5cc413c6bc1e1fdb4402325548984262c47b83b22be33f6048",
+        "bytes": 143,
+        "createdAt": "2026-06-27T13:47:15Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T13:47:15Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "f0d772594269d3c67fcc10f56101d880014978e42a7895b86a7e22be4870a8f3"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-47-15z-census-spm-all-people-poverty-rate-2025-calendar-year-2025/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The draft uses a 2022-2024 average as a persistence prior but does not explicitly state whether a time-series/model prior was used or ruled out.",
+          "actionRequested": "Add one sentence naming the model prior, e.g. a persistence/three-year post-pandemic-regime mean, or explicitly state why no formal time-series model is used."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "update",
+          "summary": "The movement from the 12.7 prior to 12.6 relies on claims about 2025 labor market, inflation, housing costs, transfers, and real income, but the cited public evidence is almost entirely Census release/table material rather than evidence for those 2025 conditions.",
+          "actionRequested": "Either cite public evidence for the 2025 labor/inflation/housing/transfer assumptions or reduce the inside-view adjustment and describe it as mostly persistence."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is asserted as roughly -1.0/+1.2 points but is not tied to realized volatility, backtest error, survey error, or a stated subjective uncertainty calculation.",
+          "actionRequested": "State the empirical or subjective basis for the interval width, such as recent SPM year-to-year volatility excluding pandemic-transfer outliers plus added policy/measurement uncertainty."
+        },
+        {
+          "findingId": "review.finding.4",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The resolver is mostly clear, but the resolution date evidence is described in reasoning while the resolutionSourceUrl points only to the generic SPM tables page.",
+          "actionRequested": "Add the Census event-calendar URL or exact cited release-calendar evidence to the resolver/source context so the 2026-09-08 resolution date is auditable."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that the interval is an 80% interval to match confidence=0.8."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the upside and downside tail scenarios mention concrete approximate values outside the central interval."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer requests to name the persistence model prior, reduce the inside-view adjustment to a mostly persistence forecast, state an interval basis tied to recent non-pandemic SPM movement plus subjective measurement/policy uncertainty, and make the Census event-calendar URL the auditable resolver source.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer requests to name the persistence model prior, reduce the inside-view adjustment to a mostly persistence forecast, state an interval basis tied to recent non-pandemic SPM movement plus subjective measurement/policy uncertainty, and make the Census event-calendar URL the auditable resolver source.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer requests to name the persistence model prior, reduce the inside-view adjustment to a mostly persistence forecast, state an interval basis tied to recent non-pandemic SPM movement plus subjective measurement/policy uncertainty, and make the Census event-calendar URL the auditable resolver source.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.4",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the reviewer requests to name the persistence model prior, reduce the inside-view adjustment to a mostly persistence forecast, state an interval basis tied to recent non-pandemic SPM movement plus subjective measurement/policy uncertainty, and make the Census event-calendar URL the auditable resolver source.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer requests to name the persistence model prior, reduce the inside-view adjustment to a mostly persistence forecast, state an interval basis tied to recent non-pandemic SPM movement plus subjective measurement/policy uncertainty, and make the Census event-calendar URL the auditable resolver source.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer requests to name the persistence model prior, reduce the inside-view adjustment to a mostly persistence forecast, state an interval basis tied to recent non-pandemic SPM movement plus subjective measurement/policy uncertainty, and make the Census event-calendar URL the auditable resolver source.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is broadly publishable but needs clearer cited support for the 2025 inside-view update, an explicit model-prior statement, and a defensible interval basis."
+    }
+  }
+]

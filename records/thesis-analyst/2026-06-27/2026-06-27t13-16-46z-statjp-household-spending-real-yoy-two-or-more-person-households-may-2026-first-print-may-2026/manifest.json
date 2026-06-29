@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:16:46Z",
+  "series": "statjp.household_spending.real_yoy.two_or_more_person_households.may_2026.first_print",
+  "period": "May 2026",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:16:46Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "274265e74b410963f08495deadeb91ab251bd53603b2239d7c814528b2967907"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The resolver names the Statistics Bureau monthly preliminary report, but the URL is a rolling PDF and the draft does not specify the exact table/line/field to read within the report.",
+        "actionRequested": "Add the exact table or field label for the May 2026 first preliminary value, e.g. the consumption expenditures, two-or-more-person households, real year-over-year percent-change line, and note that the rolling PDF must be archived or captured at first print."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a simple 12-month and latest-four-month average, but does not clearly state whether a time-series model was used or intentionally ruled out.",
+        "actionRequested": "Add one sentence explicitly saying no formal ARIMA/ETS/regression model was used, and that the prior is a transparent persistence/reference-class blend."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The movement from the 12-month mean near -0.2 to the final -1.1 is plausible, but the high-base adjustment is described only qualitatively.",
+        "actionRequested": "State the approximate weight or arithmetic used in the blend and the size of the high-base adjustment."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval is said to come from realized monthly dispersion, but the draft does not report the realized volatility or quantile calculation.",
+        "actionRequested": "Add the standard deviation, mean absolute error, or empirical 80% range from the cited 12-print reference class that supports the -4.0 to 2.2 interval."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether confidence 0.8 means an 80% central interval."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Use one-decimal formatting consistently for ciLow and ciHigh, e.g. -4.0 and 2.2."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the downside tail distinguish outside-interval from interval-edge movement, since below -4.0 is also the lower bound."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver-specificity fix by naming the exact table field and rolling-PDF capture rule; accepted the model-prior, arithmetic, and interval-calibration clarifications; accepted one-decimal interval formatting and explicit 80 percent central interval interpretation.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver-specificity fix by naming the exact table field and rolling-PDF capture rule; accepted the model-prior, arithmetic, and interval-calibration clarifications; accepted one-decimal interval formatting and explicit 80 percent central interval interpretation.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver-specificity fix by naming the exact table field and rolling-PDF capture rule; accepted the model-prior, arithmetic, and interval-calibration clarifications; accepted one-decimal interval formatting and explicit 80 percent central interval interpretation.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver-specificity fix by naming the exact table field and rolling-PDF capture rule; accepted the model-prior, arithmetic, and interval-calibration clarifications; accepted one-decimal interval formatting and explicit 80 percent central interval interpretation.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver-specificity fix by naming the exact table field and rolling-PDF capture rule; accepted the model-prior, arithmetic, and interval-calibration clarifications; accepted one-decimal interval formatting and explicit 80 percent central interval interpretation.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver-specificity fix by naming the exact table field and rolling-PDF capture rule; accepted the model-prior, arithmetic, and interval-calibration clarifications; accepted one-decimal interval formatting and explicit 80 percent central interval interpretation.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver-specificity fix by naming the exact table field and rolling-PDF capture rule; accepted the model-prior, arithmetic, and interval-calibration clarifications; accepted one-decimal interval formatting and explicit 80 percent central interval interpretation.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready, with one blocking issue around source specificity and several warnings where the evidence and uncertainty math should be made more explicit."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/prompt.md",
+      "sha256": "9549d9ab0fe379298db1d73058821f012a6d13ef1735f31bffe192ae8ad97996",
+      "bytes": 4063,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_command.json",
+      "sha256": "a2d8c46b1249b67d71fa3f8821dcdf66c76ae6b0c0b45181c933fde07d715c8e",
+      "bytes": 808,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_codex_stdout.jsonl",
+      "sha256": "22a2b09e5664d4cf66ef6e2e1868894ad9031dd6198ba581ff1c4be2a9c89039",
+      "bytes": 17707,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_codex_stderr.log",
+      "sha256": "57721039a3d461b6bd17a1ab4cb9cbb9a0e03577e97b5604e2ffc942411b525b",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_codex_events.jsonl",
+      "sha256": "7da414e7d6a46e2dc2f3c08c2415f02d50bba7f1dbdde27ef817f1c4dfe361d8",
+      "bytes": 18594,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_codex_last_message.txt",
+      "sha256": "7c8801848ef0ad22950f8198640aa06226d09b09be54896d6816bf876ac63593",
+      "bytes": 5903,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_codex_trace.json",
+      "sha256": "fdcff34ec576ba9cc8b82755a97e5d494ba71c91e738701892f6d25c0122b1b5",
+      "bytes": 507,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_stdout.txt",
+      "sha256": "7c8801848ef0ad22950f8198640aa06226d09b09be54896d6816bf876ac63593",
+      "bytes": 5903,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/draft_stderr.txt",
+      "sha256": "8f4070dd7d2c26cd814a3e5e5de7fbb3e5b2a001f320beaa198656051ace90e2",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_prompt.md",
+      "sha256": "55d04149558016fb41ea890cdbcb6518ada62a584871b904de9d495840fd7f53",
+      "bytes": 7448,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_command.json",
+      "sha256": "3deb2031a013228fbecc3e9916080b91b8933d016bde74e7590e964645fd704c",
+      "bytes": 804,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "dad1dc165b648f51d0ab97b85779f2dbc53f24be3eddd6ff1c4328073a2fd619",
+      "bytes": 2738,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_codex_stderr.log",
+      "sha256": "733f3053b427fd989c2e7d2538bd58f8c814ecd01f3ed06d9fa0b5f90f1ea05b",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "dfbaa7ad27cb45fb92262ee5566826bbd81de97179c78fe75874ba71e59727b0",
+      "bytes": 2760,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "2412baf15f52ad6ca4cd6ab252027c4362a6c2ce9f4a642bc1b9e872e67b9fa2",
+      "bytes": 2311,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_codex_trace.json",
+      "sha256": "2a3c1fcd83c901aa0635fc36a3b656ff52a8495446a21f61a6b017f264279f2d",
+      "bytes": 503,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_stdout.txt",
+      "sha256": "2412baf15f52ad6ca4cd6ab252027c4362a6c2ce9f4a642bc1b9e872e67b9fa2",
+      "bytes": 2311,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/pre_submit_review_stderr.txt",
+      "sha256": "335006e7934f5208b0c2be584486004d08fce63d656d8f2ff49153b51151687d",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/revision_prompt.md",
+      "sha256": "f01c56d5e35fc473a676bd506699edc7c56edbec40992149dfafb5c835cab1a3",
+      "bytes": 13213,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/command.json",
+      "sha256": "a712d1882bb5fe60644106e9d5e02799048ceb09ddd7b2c8f6c1d7f0fda62cd0",
+      "bytes": 802,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/codex_stdout.jsonl",
+      "sha256": "6c8cdd2f5759395cadd37b5c0481802e9c127cbab5d7dfd84d01ad4e591fe26e",
+      "bytes": 9212,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/codex_stderr.log",
+      "sha256": "b98905794291c47942c4084829b84e4cabf9e2f7bcd269891c20913acb4d3b6a",
+      "bytes": 3519,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/codex_events.jsonl",
+      "sha256": "3ae0172367d86b587a7ae24fe4e9b88b3f3dc2c8fc2f54edf57bea9e417121d4",
+      "bytes": 9290,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/codex_last_message.txt",
+      "sha256": "9231f4722ce6bb3931061da2110f83f97896c9f61cf62ad1a7f091446914123c",
+      "bytes": 6468,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/codex_trace.json",
+      "sha256": "d49b147817c712e40817bd9ab3e043f2c297d131c3cf324058ef23971393c67c",
+      "bytes": 505,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/stdout.txt",
+      "sha256": "9231f4722ce6bb3931061da2110f83f97896c9f61cf62ad1a7f091446914123c",
+      "bytes": 6468,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/stderr.txt",
+      "sha256": "d80112b2b625f50d6d2bcb3440e83807440cd3f2d73765a676179180e9173ce9",
+      "bytes": 3670,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/raw_response.txt",
+      "sha256": "9231f4722ce6bb3931061da2110f83f97896c9f61cf62ad1a7f091446914123c",
+      "bytes": 6468,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/parsed_cells.json",
+      "sha256": "de0ae3fe1f6be75fc95618038518cffdd7ac809228c183b21e9dbb5bb4d8b377",
+      "bytes": 7365,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/normalized_cells.json",
+      "sha256": "12263e167c203b9adb7813b465fd6d3b60e9281ce84b0003d85d5cad5f40f528",
+      "bytes": 7007,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/validation.json",
+      "sha256": "4f5bd8b7d5a1c9565852925236820501fcd56d98289b0d162438f9d369c7087c",
+      "bytes": 186,
+      "createdAt": "2026-06-27T13:16:46Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-16-46z-statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print-may-2026/manifest.json",
+      "sha256": "2aa632cd6320e9074f3772ee16f4f5b38ab517c1477d68148ba47ac7d8d6a00f",
+      "bytes": 20381,
+      "createdAt": "2026-06-27T13:16:46Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "statjp-household-spending-real-yoy-two-or-more-person-households-may-2026-first-print",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

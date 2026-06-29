@@ -135,13 +135,38 @@ def comparison_run(
     agent = manifest["agent"]
     prompt_mode = manifest.get("promptMode", "full")
     run_at = cell["runAt"]
-    label = f"Thesis analyst {prompt_mode} run"
+    pre_submit_review = manifest.get("preSubmitReview", cell.get("preSubmitReview"))
+    reviewed = bool(pre_submit_review)
+    label = (
+        f"Thesis analyst reviewed {prompt_mode} run"
+        if reviewed
+        else f"Thesis analyst {prompt_mode} run"
+    )
     scale = effective_scale(cell, scale, target_unit)
     value_note = (
         " Values converted to the catalog target unit."
         if scale != 1
         else ""
     )
+    prediction_run = {
+        "kind": "recorded-agent-run",
+        "runAt": run_at,
+        "agent": agent["agent"],
+        "model": infer_runtime_model(manifest) or agent["model"],
+        "agentVersion": agent.get("agentVersion"),
+        "promptHash": agent.get("promptHash"),
+        "toolPolicyHash": agent.get("toolPolicyHash"),
+        "promptMode": prompt_mode,
+        "runLabel": label,
+        "runDescription": (
+            "Live thesis.analyst run promoted from the recorded manifest."
+        ),
+        "sourceContext": cell["sourceContext"],
+        "activityLog": manifest.get("artifacts", cell.get("activityLog", [])),
+    }
+    if pre_submit_review:
+        prediction_run["preSubmitReview"] = pre_submit_review
+
     return {
         "variantId": (
             f"{target_slug}-thesis-analyst-{slugify(prompt_mode)}-"
@@ -152,6 +177,7 @@ def comparison_run(
             "Validated live Codex-backed thesis.analyst run with prompt, "
             "command, stdout/stderr, parsed cell, normalized cell, validation, "
             f"and manifest artifacts captured. Prompt mode: {prompt_mode}."
+            f"{' Pre-submit review artifacts captured.' if reviewed else ''}"
             f"{value_note}"
         ),
         "pointEstimate": scaled(cell["pointEstimate"], scale),
@@ -159,22 +185,7 @@ def comparison_run(
         "ciHigh": scaled(cell["ciHigh"], scale),
         "confidence": cell["confidence"],
         "drivers": cell["drivers"],
-        "predictionRun": {
-            "kind": "recorded-agent-run",
-            "runAt": run_at,
-            "agent": agent["agent"],
-            "model": infer_runtime_model(manifest) or agent["model"],
-            "agentVersion": agent.get("agentVersion"),
-            "promptHash": agent.get("promptHash"),
-            "toolPolicyHash": agent.get("toolPolicyHash"),
-            "promptMode": prompt_mode,
-            "runLabel": label,
-            "runDescription": (
-                "Live thesis.analyst run promoted from the recorded manifest."
-            ),
-            "sourceContext": cell["sourceContext"],
-            "activityLog": manifest.get("artifacts", cell.get("activityLog", [])),
-        },
+        "predictionRun": prediction_run,
         "reasoning": scale_reasoning(cell["reasoning"], scale),
     }
 

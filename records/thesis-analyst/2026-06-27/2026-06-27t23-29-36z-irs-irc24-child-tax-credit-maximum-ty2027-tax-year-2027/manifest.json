@@ -1,0 +1,359 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T23:29:36Z",
+  "series": "irs.irc24.child_tax_credit.maximum.ty2027",
+  "period": "tax year 2027",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "9435029c5fb9fe58418ef5babb124260905fbe7fa5d6dab83401fd7546d0a3e1",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T23:29:36Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "54949070fe69528859690c5d20a68c09bd21a7aca6e18f1c3499f2bbd8cc5ac6"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "Resolution date is set to 2026-09-11, the scheduled August 2026 CPI release, but the resolver is the first IRS TY2027 inflation-adjustment revenue procedure or equivalent IRS release.",
+        "actionRequested": "Change resolutionDate to the expected IRS first-print release date or a justified IRS release placeholder, and state that BLS September 11 only fixes an input, not the resolving publication."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "resolutionSourceUrl points to Rev. Proc. 2025-32 for TY2026, not the future TY2027 first-print source.",
+        "actionRequested": "Use a stable IRS annual inflation-adjustments/irs-drop source as the expected resolver placeholder, and specify that the final resolved URL must be the TY2027 IRS revenue procedure or formal IRS correction if issued."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft gives threshold math but does not clearly state a quantitative time-series/model prior or explicitly rule out using one.",
+        "actionRequested": "Add one sentence saying whether a simple chained-CPI persistence/nowcast model was used, with approximate probabilities for $2,200/$2,300/$2,400, or explicitly state why no time-series model is used."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is plausible but not tied to realized volatility or a quantified uncertainty distribution.",
+        "actionRequested": "Anchor the $2,200-$2,400 interval to a concrete uncertainty calculation, such as remaining June-August chained-CPI scenarios, historical forecast errors, or discrete probability mass by rounded credit amount."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the target is the nonrefundable maximum under IRC 24(a)/(h)(2), not the refundable portion under 24(h)(5)."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Separate statutory citations from forecast drivers so the JSON drivers do not depend on shorthand like OBBBA without defining the law in-source."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critique that the BLS September 11, 2026 CPI date fixes an input but is not the IRS resolving publication; changed the resolver to the expected IRS TY2027 first-print release with a stable IRS placeholder URL, clarified the refundable-portion exclusion, added a discrete nowcast prior, and tied the interval to probability mass over rounded statutory outcomes.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critique that the BLS September 11, 2026 CPI date fixes an input but is not the IRS resolving publication; changed the resolver to the expected IRS TY2027 first-print release with a stable IRS placeholder URL, clarified the refundable-portion exclusion, added a discrete nowcast prior, and tied the interval to probability mass over rounded statutory outcomes.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critique that the BLS September 11, 2026 CPI date fixes an input but is not the IRS resolving publication; changed the resolver to the expected IRS TY2027 first-print release with a stable IRS placeholder URL, clarified the refundable-portion exclusion, added a discrete nowcast prior, and tied the interval to probability mass over rounded statutory outcomes.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critique that the BLS September 11, 2026 CPI date fixes an input but is not the IRS resolving publication; changed the resolver to the expected IRS TY2027 first-print release with a stable IRS placeholder URL, clarified the refundable-portion exclusion, added a discrete nowcast prior, and tied the interval to probability mass over rounded statutory outcomes.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critique that the BLS September 11, 2026 CPI date fixes an input but is not the IRS resolving publication; changed the resolver to the expected IRS TY2027 first-print release with a stable IRS placeholder URL, clarified the refundable-portion exclusion, added a discrete nowcast prior, and tied the interval to probability mass over rounded statutory outcomes.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critique that the BLS September 11, 2026 CPI date fixes an input but is not the IRS resolving publication; changed the resolver to the expected IRS TY2027 first-print release with a stable IRS placeholder URL, clarified the refundable-portion exclusion, added a discrete nowcast prior, and tied the interval to probability mass over rounded statutory outcomes.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is directionally coherent but has a blocking resolver/date/source problem because it resolves on the BLS CPI input date while the target asks for the IRS first official dollar print."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/prompt.md",
+      "sha256": "f0ca373af7555a39472266eccab1ae8445bc5db72b876c4286454dcce8eff78d",
+      "bytes": 4820,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_command.json",
+      "sha256": "093af2c779a6b0bc8dd592692f5b1655a0582986d551342171252807aa6d7765",
+      "bytes": 769,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_codex_stdout.jsonl",
+      "sha256": "fb0582b45a52eb815bb6c33c95d60792adb371072d48809fd8726c5b12599074",
+      "bytes": 1145657,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_codex_stderr.log",
+      "sha256": "fb664804d005dbe9a9aed35381d83d848a3422ad938f868c21d7186300057437",
+      "bytes": 2943,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_codex_events.jsonl",
+      "sha256": "4d7b8fc1ece1391f21ff21223f68e565f99e3afece009fcfd131f6f390dce1ed",
+      "bytes": 1146245,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_codex_last_message.txt",
+      "sha256": "1a8a69e7e903218d4f5eed1033c2c241adec26b18885ca815c73b904eda99f31",
+      "bytes": 7341,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_codex_trace.json",
+      "sha256": "e4f2e2c54e98102c4809dab086c1637f76de516d1adaecedd3d0cf2b36f3345c",
+      "bytes": 508,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_stdout.txt",
+      "sha256": "1a8a69e7e903218d4f5eed1033c2c241adec26b18885ca815c73b904eda99f31",
+      "bytes": 7341,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/draft_stderr.txt",
+      "sha256": "6a2324a537067bff765e935a5812c7a97f54c686b484dfcdfa082c83c4c23e0e",
+      "bytes": 3078,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_prompt.md",
+      "sha256": "2273f5f41b3ff9c30dc5b8706afac87f2c107b0d1c2658bf38944efe6fa46ca7",
+      "bytes": 8971,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_command.json",
+      "sha256": "426ba907fa33f5ab317abd132c3ef12702ff6884916c172d83c517d53ab815b2",
+      "bytes": 765,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "c65d80c73d7e4f1928ec0cfd6e6f89bf0537d2e7eb65f432b497506aec4970c0",
+      "bytes": 2573,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_codex_stderr.log",
+      "sha256": "3ef4c53063bae2bcafa56fb5dd5d55edc407bf9fe28353fec6ce16a09a20b085",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_codex_events.jsonl",
+      "sha256": "0e7c8ff0c8b5122e556a387dcf50674358378f3de2b89279e75946edda241451",
+      "bytes": 2595,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_codex_last_message.txt",
+      "sha256": "3a30e110e1d5cf5d11ed02c5c6e6a40883b928609c2430499b8deea2acd8d490",
+      "bytes": 2180,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_codex_trace.json",
+      "sha256": "8fb0faf11e8e34d6e1e61008f2c09c35c81975f764fc8617f83426882aa32135",
+      "bytes": 504,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_stdout.txt",
+      "sha256": "3a30e110e1d5cf5d11ed02c5c6e6a40883b928609c2430499b8deea2acd8d490",
+      "bytes": 2180,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/pre_submit_review_stderr.txt",
+      "sha256": "34e4df5a06f622dcb949db70dadfaef2c974e12c0a87240fded085769a49c961",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/revision_prompt.md",
+      "sha256": "56b15729f83ea709c8cd35fd75bbdfe1b5a917dc5508d18f0b7685e3723dcbb5",
+      "bytes": 15277,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/command.json",
+      "sha256": "52fbb5bf0f514f85fc60c6d298ec9767f959caba2da7109d073c44f9365b5060",
+      "bytes": 763,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/codex_stdout.jsonl",
+      "sha256": "7a780fddf8c0edfb6a1880b10d9b0ae4a3db56b8e6bbc53a1eb47ee624af7588",
+      "bytes": 9228,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/codex_stderr.log",
+      "sha256": "74f071cb8005959434369f524f0f3642dbed0ece0605f980c20a1231b587e0dc",
+      "bytes": 615,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/codex_events.jsonl",
+      "sha256": "507ad2d73734aa1cb942393c88ce3684069a44b6cc96efbe45ae69771f26522c",
+      "bytes": 9250,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/codex_last_message.txt",
+      "sha256": "4ac2cf1ec361c687bf8da0c65c446d64ac7522793772d881e7e8b97c8395845d",
+      "bytes": 8642,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/codex_trace.json",
+      "sha256": "20160b7cf81d16bc5d90bbaca74168c646648684740a98c38710ce6a25fada6a",
+      "bytes": 504,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/stdout.txt",
+      "sha256": "4ac2cf1ec361c687bf8da0c65c446d64ac7522793772d881e7e8b97c8395845d",
+      "bytes": 8642,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/stderr.txt",
+      "sha256": "8e176c22fd571658a6034f81230c06dbbd43e9966445e888753b9f50aa3c21c9",
+      "bytes": 638,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/raw_response.txt",
+      "sha256": "4ac2cf1ec361c687bf8da0c65c446d64ac7522793772d881e7e8b97c8395845d",
+      "bytes": 8642,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/parsed_cells.json",
+      "sha256": "dea3a6cc593cd1ef2c914d4cf939028d44d361111e6032033b3484962ad4b55d",
+      "bytes": 9627,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/normalized_cells.json",
+      "sha256": "6cbcf02fe59463a789ca1ff559246a5a2a8ae3b50565fab1e63a24319c55dded",
+      "bytes": 9233,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/validation.json",
+      "sha256": "1e4c6e42800f00b6960737e9b1f1aa4a7ef075f1bfdf7b2e89ab5ee128092277",
+      "bytes": 129,
+      "createdAt": "2026-06-27T23:29:36Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-29-36z-irs-irc24-child-tax-credit-maximum-ty2027-tax-year-2027/manifest.json",
+      "sha256": "34329b3a884122927608ae3045e197c580e6399466accd061d8b240237bf066e",
+      "bytes": 19025,
+      "createdAt": "2026-06-27T23:29:36Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "ctc-maximum-per-child-ty2027",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

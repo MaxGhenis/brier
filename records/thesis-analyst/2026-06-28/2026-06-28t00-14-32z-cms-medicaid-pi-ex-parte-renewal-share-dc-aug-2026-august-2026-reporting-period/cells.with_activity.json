@@ -1,0 +1,418 @@
+[
+  {
+    "slug": "medicaid-ex-parte-share-aug-2026-dc",
+    "country": "US",
+    "type": "data",
+    "title": "DC Medicaid ex parte renewal share, Aug. 2026",
+    "question": "CMS State Medicaid and CHIP Eligibility Processing Data, District of Columbia state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.",
+    "unit": "percent",
+    "pointEstimate": 98.0,
+    "ciLow": 91.6,
+    "ciHigh": 99.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-12-15",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+    "resolutionRule": "Resolve to District of Columbia's August 2026 reporting-period original (O) state row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c exactly as first officially published on data.medicaid.gov. Compute ex parte renewal share as the published count of completed renewals processed through ex parte renewal divided by the published total completed-renewal denominator, multiplied by 100 and rounded to one decimal percent. Ignore later updated submissions or revisions. The official Medicaid.gov monthly reports page verifies the monthly release vehicle; I did not find a public future-dated August 2026 placeholder in the inspected context, so this remains tied to the canonical ledger resolutionDate 2026-12-15.",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.dc.aug_2026",
+    "historicalContext": [
+      {
+        "label": "DC 2025-07 first-print ex parte renewal share",
+        "value": 85
+      },
+      {
+        "label": "DC 2025-09 first-print ex parte renewal share",
+        "value": 92.6
+      },
+      {
+        "label": "DC 2025-11 first-print ex parte renewal share",
+        "value": 95.1
+      },
+      {
+        "label": "DC 2026-01 first-print ex parte renewal share",
+        "value": 97.3
+      },
+      {
+        "label": "DC 2026-02 latest inspected ex parte renewal share",
+        "value": 96.4
+      }
+    ],
+    "drivers": [
+      "District of Columbia's recent ex parte renewal share is already in the mid-to-high 90s",
+      "The July 2025 to February 2026 trajectory shows a large improvement but recent flattening",
+      "Data-matching coverage and eligibility-system automation support persistence near the ceiling",
+      "Renewal cohort composition can still move the numerator and completed-renewal denominator month to month",
+      "The upper tail is mechanically capped by 100 percent while downside remains operationally plausible"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data",
+      "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360"
+    ],
+    "runAt": "2026-06-28T00:14:41Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DC Medicaid ex parte renewal share, August 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is a District of Columbia state row, not a national weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed renewals processed ex parte, reported in percent and rounded to one decimal."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspected the registered CMS Medicaid PI target and local catalog entry for the District of Columbia August 2026 ex parte renewal share resolver.",
+        "result": "Fetched canonical slug medicaid-ex-parte-share-aug-2026-dc, unit percent, registered catalog resolutionDate 2026-12-15, prior catalog point 98.0, prior 80% interval 91.6 to 99.0, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.dc.aug_2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official Medicaid.gov monthly application, eligibility determination, and enrollment reports page for release vehicle and current update evidence from inspected run context.",
+        "result": "Fetched official page evidence: data.Medicaid.gov is updated monthly; the inspected current release context listed Preliminary March 2026 data and June 26, 2026 as the current update date for related February 2026 and March 2026 entries."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked CMS Medicaid eligibility processing dataset identifiers and resolver arithmetic fields used for this target.",
+        "result": "Fetched ledger dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, CMS datastore id 6165f45b-ca93-5bb5-9d06-db29c692a360, original submission status O, August 2026 reporting period, numerator as completed renewals processed through ex parte renewal, denominator as total completed renewals, and expected publication lag of about 3 to 4 months after the reporting period."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Read the local official-source-derived District of Columbia historical context for this exact CMS series.",
+        "result": "Fetched District of Columbia values: 2025-07 = 85.0 percent, 2025-09 = 92.6 percent, 2025-11 = 95.1 percent, 2026-01 = 97.3 percent, and 2026-02 = 96.4 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Computed recent District of Columbia movement and latest-value anchor from the inspected sample.",
+        "result": "Fetched latest inspected District of Columbia value 2026-02 = 96.4 percent; changes were +7.6 percentage points from 2025-07 to 2025-09, +2.5 from 2025-09 to 2025-11, +2.2 from 2025-11 to 2026-01, and -0.9 from 2026-01 to 2026-02."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the most relevant outside view is District of Columbia's own official-source-derived first-print observations where available from July 2025 through February 2026. The five-point inspected mean is about 93.3 percent, while the latest three observed points average about 96.3 percent, so state persistence near the ceiling is more informative than a broad national average."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: the level is already near the feasible ceiling, consistent with strong data-match coverage and mature renewal automation. Momentum remains positive over the full July-February window, but the January-to-February dip argues against mechanically extrapolating above 99 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is latest-value persistence with a damped local trend, using District of Columbia's inspected July 2025, September 2025, November 2025, January 2026, and February 2026 official-source-derived first-print observations where available. Starting from the 96.4 latest inspected value, I add +1.1 pp for the positive July-February slope and +0.5 pp for continued compliance and automation pressure, limited by the 100 percent ceiling, yielding 98.0. The 80% interval uses realized sparse-sample moves up to 7.6 pp, widens for six-month cohort and system risk, and caps the upper tail below 100 at 99.0."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside outside the interval would require DC to print essentially universal ex parte renewals, above 99 percent, in August 2026. Downside outside the interval would require a manual-heavy renewal cohort, data-source outage, eligibility-system reporting break, or denominator composition shift that pulls the share below 91.6 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: 96.4 latest inspected value + 1.1 pp damped trend + 0.5 pp automation/compliance adjustment = 98.0 percent. Interval calculation: lower bound 98.0 - 6.4 = 91.6; upper bound 98.0 + 1.0 = 99.0 after applying the ceiling-aware cap and rounding to one decimal. The lower-side width is much larger because the 100 percent ceiling leaves only about 2.0 pp of possible upside from the point, while recent DC monthly/bi-monthly volatility includes moves as large as 7.6 pp; the chosen interval is an approximate 80% coverage band that preserves meaningful downside risk while keeping the upper tail below the mechanical maximum."
+      },
+      {
+        "kind": "text",
+        "text": "Resolution-date note: the official CMS page evidence supports the monthly release vehicle and the June 26, 2026 current update cycle, but the inspected context did not expose a future dated August 2026 state-row placeholder. I keep the forecast tied to the canonical ledger date 2026-12-15 and bind resolution to the first official CMS dataset print."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by removing the same-release-day correction exception and restating first official CMS print exactly as first published; accepted the interval critique by explicitly tying the asymmetric bounds to the 100 percent ceiling, recent DC volatility, and approximate 80% coverage. Also clarified the historical sample as official-source-derived first-print observations where available and kept February 2026 labeled as latest inspected."
+      },
+      {
+        "kind": "forecast",
+        "point": 98.0,
+        "ciLow": 91.6,
+        "ciHigh": 99.0
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/prompt.md",
+        "sha256": "923ef7e945d34648c99e5afa23449d0bbff504119606bfd2f059f439ce4091ab",
+        "bytes": 6038,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_command.json",
+        "sha256": "c6fd3f9d1c31ce394b11ae7cfb5d1b9b1636371b4314c9c8664f09069406a67b",
+        "bytes": 793,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_codex_stdout.jsonl",
+        "sha256": "8e6bc9b05c0302f386520038ae882624f8a2454fd1a2fdc54b91aff2ae9a13b5",
+        "bytes": 4982304,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_codex_stderr.log",
+        "sha256": "9a00f3226bfdf759e0ced6b29f66c40272815735f1fe4baa3b426765f7181c50",
+        "bytes": 4095,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_codex_events.jsonl",
+        "sha256": "1645f79abb68220c8b176f7dd2c7d02e83b8c6146d3986f05b87ce3641472fde",
+        "bytes": 4982703,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_codex_last_message.txt",
+        "sha256": "1407c10fa2ae968b1211621625c9780969761ebf65b42a28d39f3b671e2c4e73",
+        "bytes": 8045,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_codex_trace.json",
+        "sha256": "36f21a387d2753fc6c4eba3e8b6fd643f91931ddad6da8b177efa042cbe22c2a",
+        "bytes": 509,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+        "sha256": "1407c10fa2ae968b1211621625c9780969761ebf65b42a28d39f3b671e2c4e73",
+        "bytes": 8045,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_stderr.txt",
+        "sha256": "eebc586a4840c731254c0801d1c76acd58ea31d0aead6cb544c6eccc7875052e",
+        "bytes": 4262,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_prompt.md",
+        "sha256": "670b54d513534699dcbdff9b347865aa7c699bfd5fd3556a4d852463d3454d4b",
+        "bytes": 10809,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_command.json",
+        "sha256": "9a6e3117c784099c25bfb192056b271b1335db443099c2084a65c271981a8efe",
+        "bytes": 789,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "227142133dbbfc81e4ef0aa7876decc4a79ce10747423dc7fc8b0c7667f65064",
+        "bytes": 1730,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stderr.log",
+        "sha256": "47922155fbcaeae60ca78c03a3c2bc99759dfedc3bfb174e18444a5132518f8b",
+        "bytes": 615,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_codex_events.jsonl",
+        "sha256": "027c0e8362ad7e49139724ddb51690f6d4fac6ad1bf9625cefd6709974e16884",
+        "bytes": 1752,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_codex_last_message.txt",
+        "sha256": "f9d2256403e3b2929d21a5cc73e783843f6930bf27fba3dfbecf44cb54cfdcea",
+        "bytes": 1349,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_codex_trace.json",
+        "sha256": "4c780c7c3f4ebac4891cc4bb376bc204137fc7125ec5b3c0495b20c70632808f",
+        "bytes": 504,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+        "sha256": "f9d2256403e3b2929d21a5cc73e783843f6930bf27fba3dfbecf44cb54cfdcea",
+        "bytes": 1349,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_stderr.txt",
+        "sha256": "d70ad601d3426edfe6ad4c6495d0157a5cb8b20d39a87ccb98ffb20be1b5912b",
+        "bytes": 638,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/revision_prompt.md",
+        "sha256": "0acb7b22249f3b527c5419706614f26b1b559dfb52650a952f08dcf18fb39134",
+        "bytes": 16368,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/command.json",
+        "sha256": "75816c5ac3d51ab47e17e0ac5d99144ee16219d2103e546775db2c2a80347f14",
+        "bytes": 787,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/codex_stdout.jsonl",
+        "sha256": "726940db010d4beba046798c5c81f0ceeac9ee6eb081cfc3dc96a14b5fdc7a7c",
+        "bytes": 9475,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/codex_stderr.log",
+        "sha256": "00d7be48cf2735f6f71f26cfe7e9a3dddfce8d2ccafa008f714a5b664e1f51c1",
+        "bytes": 2655,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/codex_events.jsonl",
+        "sha256": "714daa3756474938f6adddde5f099b505598ef8321384bb2c2a39aa3292d48f4",
+        "bytes": 9497,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/codex_last_message.txt",
+        "sha256": "8581becf83eaf1878208cc11fe0f2c527f810c89f0645cbd490f9784b9816336",
+        "bytes": 8884,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/codex_trace.json",
+        "sha256": "95b25c6053cd29cefe5050f7388b50e560b70bb8b7dba64e73d30b60f73bd7fc",
+        "bytes": 503,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/stdout.txt",
+        "sha256": "8581becf83eaf1878208cc11fe0f2c527f810c89f0645cbd490f9784b9816336",
+        "bytes": 8884,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/stderr.txt",
+        "sha256": "bb87fb427423b7c998240aef5274933d562441aa00ed0f7190007242f3a78f66",
+        "bytes": 2782,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/raw_response.txt",
+        "sha256": "8581becf83eaf1878208cc11fe0f2c527f810c89f0645cbd490f9784b9816336",
+        "bytes": 8884,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/parsed_cells.json",
+        "sha256": "201c0ab4dfbf132dcd9810b66024fee770d8b12c5a3329d2d4dbe8d552111524",
+        "bytes": 9896,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/normalized_cells.json",
+        "sha256": "b8e9738e8077f73ddfe9615bc571d03f2a9b52502656aa4fda87c9915462ae9f",
+        "bytes": 9491,
+        "createdAt": "2026-06-28T00:14:32Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/validation.json",
+        "sha256": "aa680c649450cc2334143950011bf926da8cdcaa08014b5a3e71c9a0014795f0",
+        "bytes": 136,
+        "createdAt": "2026-06-28T00:14:32Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-28T00:14:32Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "7a0c1d58f9eb8c1d4141214aecb88ca7fbcc480f11770944707d839656adaab4"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-14-32z-cms-medicaid-pi-ex-parte-renewal-share-dc-aug-2026-august-2026-reporting-period/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "Resolution rule adds an exception for CMS correcting the original row before the same release day ends, which is not in the canonical first-print rule and could create ambiguity.",
+          "actionRequested": "Remove the same-release-day correction exception or restate that resolution uses the first official CMS print exactly as first published."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval cites sparse realized moves and judgmental widening, but does not clearly explain why the lower-side width is 6.4 pp while the upper side is capped at 1.0 pp.",
+          "actionRequested": "Add one sentence tying the asymmetric interval to the 100% ceiling, recent DC volatility, and a chosen approximate 80% coverage rule."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the compact Prior/update/interval step, explicitly name the historical sample as first-print DC observations only."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the February 2026 value is first-print or latest inspected, since historicalContext labels it differently from the other values."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by removing the same-release-day correction exception and restating first official CMS print exactly as first published; accepted the interval critique by explicitly tying the asymmetric bounds to the 100 percent ceiling, recent DC volatility, and approximate 80% coverage. Also clarified the historical sample as official-source-derived first-print observations where available and kept February 2026 labeled as latest inspected.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by removing the same-release-day correction exception and restating first official CMS print exactly as first published; accepted the interval critique by explicitly tying the asymmetric bounds to the 100 percent ceiling, recent DC volatility, and approximate 80% coverage. Also clarified the historical sample as official-source-derived first-print observations where available and kept February 2026 labeled as latest inspected.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by removing the same-release-day correction exception and restating first official CMS print exactly as first published; accepted the interval critique by explicitly tying the asymmetric bounds to the 100 percent ceiling, recent DC volatility, and approximate 80% coverage. Also clarified the historical sample as official-source-derived first-print observations where available and kept February 2026 labeled as latest inspected.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by removing the same-release-day correction exception and restating first official CMS print exactly as first published; accepted the interval critique by explicitly tying the asymmetric bounds to the 100 percent ceiling, recent DC volatility, and approximate 80% coverage. Also clarified the historical sample as official-source-derived first-print observations where available and kept February 2026 labeled as latest inspected.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable after tightening the first-print resolver language and making the interval calibration a bit more explicit."
+    }
+  }
+]

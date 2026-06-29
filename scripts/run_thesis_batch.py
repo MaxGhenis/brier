@@ -19,11 +19,7 @@ from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "scripts" / "run_thesis_analyst.py"
-DEFAULT_COMMAND = (
-    "/Users/maxghenis/.bun/bin/codex --search exec --ignore-user-config "
-    "-m gpt-5.5 -c 'service_tier=\"fast\"' --sandbox read-only "
-    "-C {repo_root} -"
-)
+DEFAULT_CODEX_MODEL = "gpt-5.5"
 
 DEFAULT_TARGETS: list[dict[str, Any]] = [
     {
@@ -194,7 +190,12 @@ def run_one(
     target: dict[str, Any],
     args: argparse.Namespace,
 ) -> dict[str, Any]:
-    command = args.command or os.environ.get("THESIS_AGENT_COMMAND") or DEFAULT_COMMAND
+    command = args.command or os.environ.get("THESIS_AGENT_COMMAND")
+    codex_model = (
+        args.codex_model
+        or os.environ.get("THESIS_CODEX_MODEL")
+        or DEFAULT_CODEX_MODEL
+    )
     argv = [
         sys.executable,
         str(RUNNER),
@@ -207,9 +208,28 @@ def run_one(
         "--timeout-seconds",
         str(args.timeout_seconds),
         "--allow-existing-slug",
-        "--command",
-        command,
+        "--target-context-json",
+        json.dumps(target, sort_keys=True),
     ]
+    if target.get("conditional"):
+        argv.extend(["--conditional", target["conditional"]])
+    if command:
+        argv.extend(["--command", command])
+    else:
+        argv.extend(["--codex-model", codex_model])
+        if args.no_codex_search:
+            argv.append("--no-codex-search")
+        if args.codex_reasoning_effort:
+            argv.extend(["--codex-reasoning-effort", args.codex_reasoning_effort])
+    if args.pre_submit_review_codex_model:
+        argv.extend(
+            [
+                "--pre-submit-review-codex-model",
+                args.pre_submit_review_codex_model,
+            ]
+        )
+        if args.pre_submit_review_codex_search:
+            argv.append("--pre-submit-review-codex-search")
     started_at = utc_now()
     completed = subprocess.run(
         argv,
@@ -281,6 +301,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--timeout-seconds", type=int, default=300)
     parser.add_argument("--max-failures", type=int, default=999)
     parser.add_argument("--command")
+    parser.add_argument("--codex-model")
+    parser.add_argument("--codex-reasoning-effort", default="low")
+    parser.add_argument("--no-codex-search", action="store_true")
+    parser.add_argument("--pre-submit-review-codex-model")
+    parser.add_argument("--pre-submit-review-codex-search", action="store_true")
     parser.add_argument("--out")
     return parser.parse_args()
 

@@ -146,6 +146,8 @@ def to_forecast_cell(cell: dict) -> dict:
     }
     if cell.get("activityLog"):
         out["predictionRun"]["activityLog"] = cell["activityLog"]
+    if cell.get("preSubmitReview"):
+        out["predictionRun"]["preSubmitReview"] = cell["preSubmitReview"]
     out["reasoning"] = cell["reasoning"]
     return out
 

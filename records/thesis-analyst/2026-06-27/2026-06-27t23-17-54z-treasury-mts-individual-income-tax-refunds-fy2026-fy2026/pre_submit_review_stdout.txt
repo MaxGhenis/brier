@@ -1,0 +1,27 @@
+{
+  "summary": "The forecast has a clear official resolver and coherent JSON fields, but its main upward update relies on uncited, unquantified mid-2026 evidence and lacks an explicit model/time-series prior.",
+  "requiredFixes": [
+    {
+      "rubricItem": "update",
+      "severity": "blocking",
+      "summary": "The +10% uplift from FY2025 is justified by 'mid-2026 filing-season evidence' and policy changes, but the draft does not cite or quantify the filing-season evidence or identify the policy source.",
+      "actionRequested": "Add the specific public source(s), observed refund-dollar comparison, as-of date, and explain why that evidence maps to FY2026 MTS Table 4 cash refunds rather than only IRS filing-season timing."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft states historical averages and persistence anchors but does not present a distinct time-series/model prior or explicitly rule one out.",
+      "actionRequested": "Add a simple model prior such as latest-year persistence, trailing mean, trend, or AR-style baseline before judgmental updates, or state why no time-series model is appropriate."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 325-410 interval is plausible but described narratively rather than tied to realized volatility, forecast error, or a stated uncertainty calculation.",
+      "actionRequested": "Anchor the interval to observed FY2021-FY2025 volatility, year-over-year changes, or an explicit judgmental error range around the point estimate."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify whether 2026-10-20 is the scheduled first final September 2026 MTS release date from the Fiscal Data calendar and note how to handle a delayed first print.",
+    "Make tail scenarios more numeric, for example naming approximate refund-dollar outcomes that would push the series below 325 or above 410."
+  ]
+}

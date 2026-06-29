@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:51:18Z",
+  "series": "census.spm.child_poverty_rate.2025",
+  "period": "calendar year 2025",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:51:18Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d3cb4d4969887e6c559386ff1f93ffd8ce1f0148651db4b73c000bef8b3a9655"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "The -0.4 pp movement from the 2024 anchor rests on claims about 2025 labor market, inflation, real income support, housing, and child care costs, but the cited evidence shown is mainly Census 2024/SPM context and does not substantiate those 2025 conditions.",
+        "actionRequested": "Either cite public 2025 evidence for the macro and cost claims used in the adjustment, or reduce/reframe the adjustment as judgmental with a smaller or explicitly uncertain update from the persistence prior."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a post-expansion mean and latest-year anchor, but does not explicitly identify this as the time-series/model prior or explain why a richer model is ruled out.",
+        "actionRequested": "Add a sentence naming the prior as a persistence/post-2021 mean blend and explicitly state that a formal time-series model is not used because the relevant post-policy regime has only three observations."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is described as about +/-1.8 pp from recent dispersion and skew, but the calculation is not shown and the cited recent post-expansion observations alone do not obviously imply that width.",
+        "actionRequested": "Tie the interval to a stated empirical volatility or explicit uncertainty components, such as recent year-to-year changes, sampling/error risk, and SPM expense-policy uncertainty, with enough arithmetic to justify 11.7 to 15.4."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolver is specific, but the resolution source URL is a generic release calendar page that may change and the exact first-print table location is not pinned.",
+        "actionRequested": "Add the expected Census SPM table package or annual poverty/SPM release page as the resolution source when available, while keeping the release calendar as date support."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether confidence means an 80% central interval so it matches ciLow and ciHigh."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State that the unit is percentage points/percent rounded to one decimal in both the question and resolution rule."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add one concrete upside and downside numeric tail example tied to plausible child SPM mechanisms."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the 2025 adjustment explicitly judgmental, name the persistence/post-2021 mean-blend prior, strengthen the interval arithmetic, and point resolution to the Census SPM table package while keeping the release calendar as date support.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the 2025 adjustment explicitly judgmental, name the persistence/post-2021 mean-blend prior, strengthen the interval arithmetic, and point resolution to the Census SPM table package while keeping the release calendar as date support.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the 2025 adjustment explicitly judgmental, name the persistence/post-2021 mean-blend prior, strengthen the interval arithmetic, and point resolution to the Census SPM table package while keeping the release calendar as date support.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the 2025 adjustment explicitly judgmental, name the persistence/post-2021 mean-blend prior, strengthen the interval arithmetic, and point resolution to the Census SPM table package while keeping the release calendar as date support.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to make the 2025 adjustment explicitly judgmental, name the persistence/post-2021 mean-blend prior, strengthen the interval arithmetic, and point resolution to the Census SPM table package while keeping the release calendar as date support.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to make the 2025 adjustment explicitly judgmental, name the persistence/post-2021 mean-blend prior, strengthen the interval arithmetic, and point resolution to the Census SPM table package while keeping the release calendar as date support.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to make the 2025 adjustment explicitly judgmental, name the persistence/post-2021 mean-blend prior, strengthen the interval arithmetic, and point resolution to the Census SPM table package while keeping the release calendar as date support.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent on target definition and prior, but it needs stronger cited support for the 2025 inside-view adjustment and a clearer model/interval rationale before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/prompt.md",
+      "sha256": "0384abf1074096d440309a5915afb8cd702cdaf0b3cc0faa893ab3cc9084399b",
+      "bytes": 4126,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_command.json",
+      "sha256": "7f37ac18de9e85b7d697be1ad930afd3610ef095ab140e31a8e6e3c426542e3e",
+      "bytes": 767,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_codex_stdout.jsonl",
+      "sha256": "afc9968d46f9acd43e12ba77922bb43205db610f9e1800dec982c59931e31296",
+      "bytes": 27014,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_codex_stderr.log",
+      "sha256": "07962a567f34c970c71a1dce8bd5dcf69df81fc283f9b19aa92e086b4c61e2e3",
+      "bytes": 2943,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_codex_events.jsonl",
+      "sha256": "63ac74e48086526f4efd6c29706397101fb0f324609e6da7201fad58d3ac8bed",
+      "bytes": 27044,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_codex_last_message.txt",
+      "sha256": "6a0183634d0e5df404dceb845902274df079601231234167702e4ab38efb2129",
+      "bytes": 6149,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_codex_trace.json",
+      "sha256": "6e657407985307384e96cdfbf72dbada794351624d03a5f91e3a7f6c370aafd8",
+      "bytes": 507,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_stdout.txt",
+      "sha256": "6a0183634d0e5df404dceb845902274df079601231234167702e4ab38efb2129",
+      "bytes": 6149,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/draft_stderr.txt",
+      "sha256": "7a88c59f3380fbfd9f9c9b6c8f755c7a5685872c7daaca6b4140e8d6906b1e11",
+      "bytes": 3078,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_prompt.md",
+      "sha256": "453571af7d0fdac9891ecb6b37687b07937351551e720e3e7fb87ba8e77fd707",
+      "bytes": 7653,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_command.json",
+      "sha256": "8f6f7e008b0ec74742926393de5a6304764dfd4a1da59a48b07cfc7de83b5400",
+      "bytes": 763,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "c86e9095b5a8832282483ab304613979c1e819de5cab8d13bf552fa64514fb32",
+      "bytes": 3272,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_stderr.log",
+      "sha256": "c8e589d214ffad542872d7c511abdf352dc4ae9a1024ee9dac96c5cb690aadcd",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_events.jsonl",
+      "sha256": "07a16f42c6ab46e7e620e4f8337a69518691f2c8b9b770a01bf48a82968cb9f1",
+      "bytes": 3288,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_last_message.txt",
+      "sha256": "839d43729791b2e48c0d8937499af45d5d7953687b327efef2b4fbfff5e02052",
+      "bytes": 2478,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_codex_trace.json",
+      "sha256": "35435454e8ef60977b8e0b4bb8b6d6baaf2ce63aba7a3067ea66aab840bbd290",
+      "bytes": 505,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_stdout.txt",
+      "sha256": "839d43729791b2e48c0d8937499af45d5d7953687b327efef2b4fbfff5e02052",
+      "bytes": 2478,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/pre_submit_review_stderr.txt",
+      "sha256": "6a2d9389ed0cc3a31e9387542a4f58b7a44a94f686d2ef5dcb14e3b15645fd38",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/revision_prompt.md",
+      "sha256": "5b805ceb7cb11a5730e9effa01371c229b8121cb621076dad93638e6c4f209d0",
+      "bytes": 13689,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/command.json",
+      "sha256": "61b15e5067d48b1aefe18d53967f844f3edce9e117d79e878a109bf20b5e4a42",
+      "bytes": 761,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/codex_stdout.jsonl",
+      "sha256": "076759e25a33b08e07933e626b5a9ed394153dcc4e57443439f52b5618fd488d",
+      "bytes": 8340,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/codex_stderr.log",
+      "sha256": "814ca8ba0a631c2afda9546283a82bfd6c2af9a9a5520c7d9870a2eb95f8a9a1",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/codex_events.jsonl",
+      "sha256": "f72942d1ee5c70be9f4050e762a859d1566321b88d1a6d7098772efe723c1d9f",
+      "bytes": 8362,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/codex_last_message.txt",
+      "sha256": "c8cba4908771d51e860b02dae704261be5048a3c7df99f8ce2ec059802c8a713",
+      "bytes": 7754,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/codex_trace.json",
+      "sha256": "121e94df4f7a9979fb15ec553879b628cf4037dd397ca00286d0f2ba213348f1",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/stdout.txt",
+      "sha256": "c8cba4908771d51e860b02dae704261be5048a3c7df99f8ce2ec059802c8a713",
+      "bytes": 7754,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/stderr.txt",
+      "sha256": "cf9b268267a2eeff1cd1e17f65aa5ea33d4ee11d9651a18b7ee7db6d6769d487",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/raw_response.txt",
+      "sha256": "c8cba4908771d51e860b02dae704261be5048a3c7df99f8ce2ec059802c8a713",
+      "bytes": 7754,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/parsed_cells.json",
+      "sha256": "26eabdd2a875bbcbe0ac1ee7bb5f17ce61b7aa85175326fe038c6a0c33f997e6",
+      "bytes": 8746,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/normalized_cells.json",
+      "sha256": "7fcddbd5e2c71666b27b037974a521454173b3c92ce25bd6853e0ab87d8e1ef3",
+      "bytes": 8349,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/validation.json",
+      "sha256": "dd9fb03ebf6f8a12ff45c4cdceee3ae65026b736ccf2040d95bfc88defc85dc8",
+      "bytes": 138,
+      "createdAt": "2026-06-27T13:51:18Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-51-18z-census-spm-child-poverty-rate-2025-calendar-year-2025/manifest.json",
+      "sha256": "854ba8a25c8b7a6dd239d42d87d5432011bf119ff44afe8b04789c2190bac834",
+      "bytes": 19128,
+      "createdAt": "2026-06-27T13:51:18Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-census-spm-child-poverty-rate-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

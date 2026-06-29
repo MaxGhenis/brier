@@ -1,0 +1,333 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:11:32Z",
+  "series": "abs.building_approvals.total_dwellings_mom.australia.may_2026.first_print",
+  "period": "May 2026",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:11:32Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "342c2842f95c255c57e8fedae8fd7cf5bdbc5e320d2cd8f89066f1f9a1fef661"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses recent observations and trend levels but does not clearly state whether a formal time-series/model prior was used or ruled out.",
+        "actionRequested": "Add one sentence explicitly saying the model prior is a persistence/recent-volatility prior, or that no formal time-series model was fit and why."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The cited `latest-release` URL is unstable and will later point to May 2026 or newer data, weakening the audit trail for April 2026 evidence.",
+        "actionRequested": "Replace the `latest-release` evidence URL with the stable April 2026 ABS release URL, or clearly label the captured latest-release page as April 2026 context."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State the 80% interval as derived from recent first-print volatility despite the small four-month sample."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the unit is percentage points of month-over-month percent change, matching ABS one-decimal reporting."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to clarify the persistence/recent-volatility model prior, replace the unstable latest-release evidence URL with the stable April 2026 release URL, state the small-sample basis for the 80% interval, and clarify the unit as percentage points of month-over-month percent change.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to clarify the persistence/recent-volatility model prior, replace the unstable latest-release evidence URL with the stable April 2026 release URL, state the small-sample basis for the 80% interval, and clarify the unit as percentage points of month-over-month percent change.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to clarify the persistence/recent-volatility model prior, replace the unstable latest-release evidence URL with the stable April 2026 release URL, state the small-sample basis for the 80% interval, and clarify the unit as percentage points of month-over-month percent change.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to clarify the persistence/recent-volatility model prior, replace the unstable latest-release evidence URL with the stable April 2026 release URL, state the small-sample basis for the 80% interval, and clarify the unit as percentage points of month-over-month percent change.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after minor cleanup: resolver and forecast fields are mostly coherent, but the model-prior treatment and one evidence citation need tightening."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/prompt.md",
+      "sha256": "0f009e067467b33abe8af615ace94f57fa1e9145df338934cd7a5ec1005f174b",
+      "bytes": 4036,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_command.json",
+      "sha256": "5c509e53292079a93bb882ff2f1fafa216303eca126c5b3222355c9ed637b14d",
+      "bytes": 796,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_codex_stdout.jsonl",
+      "sha256": "fc66228eeed424d7d295fc3a87d00d4f8defb2312f5c34ecf48427d1dddc1a64",
+      "bytes": 12233,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_codex_stderr.log",
+      "sha256": "a5f58e6941c13db83345c2ecd80d22efd2639da45a91d23ca7cb811edf9ad445",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_codex_events.jsonl",
+      "sha256": "e0ad89dbd3f0a17357a66b9f2f14bf3c7c6b9f1e03bbcd861ca93a04cd4c8a4a",
+      "bytes": 12247,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_codex_last_message.txt",
+      "sha256": "e5f3b53976f0ce59f0d03df6bd7d89834154bb4114de67b8c1165c92638c2ca8",
+      "bytes": 6062,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_codex_trace.json",
+      "sha256": "62400bd645777ab7c7db70a013427cbe385cc106f9fc665c7adbf64d9ac1c24c",
+      "bytes": 507,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_stdout.txt",
+      "sha256": "e5f3b53976f0ce59f0d03df6bd7d89834154bb4114de67b8c1165c92638c2ca8",
+      "bytes": 6062,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/draft_stderr.txt",
+      "sha256": "fcedc0b80c412758cd5eba700a408585f9d1c7a35b7fc21cd1d42d9dc344ff4d",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_prompt.md",
+      "sha256": "40b99f8e9f894309d48afc8662619a807cf4faf1e245a22f9c03c80f8f2667ec",
+      "bytes": 7595,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_command.json",
+      "sha256": "18c3c4a19568f64c8ad7e5e5107720229c32cb9d7de4f42daa797a08a948e649",
+      "bytes": 792,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "a234bb280f9ab007b02b20187d48bb36d7db625dd414e436432bd01dad55c645",
+      "bytes": 1557,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_codex_stderr.log",
+      "sha256": "09df1f3e0b34ac369fb272fcbcc5f4362c21adb065f5710ee98efdea4fd6f2f3",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "3fe55204f299ea18340e4ee781fb6fd9d8b3ffc9f16ed1f92e86e39e58c79a8a",
+      "bytes": 1579,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "5bb85664d2d9114248fb4dc710ceab74ef0c57f18a315fa1b4b91d68bc6d90e2",
+      "bytes": 1196,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_codex_trace.json",
+      "sha256": "04342e8b2a14c6d53edc2e10938248f9e115002d5d672a04069ff947ed55b6d8",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_stdout.txt",
+      "sha256": "5bb85664d2d9114248fb4dc710ceab74ef0c57f18a315fa1b4b91d68bc6d90e2",
+      "bytes": 1196,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/pre_submit_review_stderr.txt",
+      "sha256": "ef4e0b4cedb87b42447ef7313851503aa0f45a4f6d9658bebab5bb0c833b22a4",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/revision_prompt.md",
+      "sha256": "d357f93a35380b96f94226dca47517ff2b7f022500d30a6cdb47d15531036445",
+      "bytes": 12230,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/command.json",
+      "sha256": "4742ff6b76e0b96d20313806b7bcd1a49f567c276f178018534fe8f950393dec",
+      "bytes": 790,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/codex_stdout.jsonl",
+      "sha256": "73b86bc9e5b2d680a53bd8111c6c0620f49b5664588f77bc22893a20c0a4044d",
+      "bytes": 7364,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/codex_stderr.log",
+      "sha256": "408c2714cdd58d62077db6d90d6c630a8f9894c5c2927814bc650d1edc3bfb12",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/codex_events.jsonl",
+      "sha256": "ba1975ff765455a6a101e8f4f795af738ccac55228d76ee915de370c91e94481",
+      "bytes": 7386,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/codex_last_message.txt",
+      "sha256": "3393c738196172d0af45a6a9b2a095b99c3686d47a6b8091612283aa54534711",
+      "bytes": 6786,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/codex_trace.json",
+      "sha256": "420157711f8aefa70d5392a8694d7f30693f431009c27eb4145cb0d0ddfd602f",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/stdout.txt",
+      "sha256": "3393c738196172d0af45a6a9b2a095b99c3686d47a6b8091612283aa54534711",
+      "bytes": 6786,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/stderr.txt",
+      "sha256": "72ade78481f3ed9b02b562ff216fdbd353d35d2b46ded245dcdafa5a3c1dfce3",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/raw_response.txt",
+      "sha256": "3393c738196172d0af45a6a9b2a095b99c3686d47a6b8091612283aa54534711",
+      "bytes": 6786,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/parsed_cells.json",
+      "sha256": "4d0dfe2916e8ec9950bccc49fbed10fdaece62ac6ec4af4c3190c7aa6913748c",
+      "bytes": 7751,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/normalized_cells.json",
+      "sha256": "a51c7c29b0a824146ad4e7a65fe3a95a8302e08e3f45182b14dca8029dd963a4",
+      "bytes": 7365,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/validation.json",
+      "sha256": "eed24e1111d94b272356c1809ace57bcea591008c9e0ba07322ef30f3d697db7",
+      "bytes": 174,
+      "createdAt": "2026-06-27T13:11:32Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-11-32z-abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print-may-2026/manifest.json",
+      "sha256": "d016451627d4ac5d4d90c09983f591511b43550b381c589e2175053f1a4d4f7a",
+      "bytes": 17424,
+      "createdAt": "2026-06-27T13:11:32Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "abs-building-approvals-total-dwellings-mom-australia-may-2026-first-print",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

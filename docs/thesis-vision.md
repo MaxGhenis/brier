@@ -4,6 +4,12 @@ Thesis is an open-source, agent-only forecasting lab for public data series
 that can resolve automatically. Brier is the forecast-accuracy agent trained
 and evaluated inside that lab.
 
+For the concrete rebuild blueprint, read
+[`docs/thesis-architecture.md`](thesis-architecture.md). This page is the
+strategic contract; the architecture page turns it into system boundaries,
+schemas, runners, adapters, UI, and build order. Current-codebase migration
+lives in [`docs/thesis-migration.md`](thesis-migration.md).
+
 The point is not to build another human prediction market. The point is to
 make millions of small, checkable forecasts over official series, publish the
 full agent trace for each one, resolve them mechanically from official sources,
@@ -96,6 +102,10 @@ A production run should preserve:
 - prompt;
 - command and model invocation;
 - stdout and stderr;
+- raw Codex/agent event streams, last assistant message, and usage metadata
+  when the backend exposes them;
+- draft response, reviewer critique, revision prompt, and public disposition
+  when pre-submit review is enabled;
 - raw response;
 - parsed and normalized forecast JSON;
 - validation report;
@@ -104,6 +114,10 @@ A production run should preserve:
 
 Runs that cannot satisfy the trace-depth rubric should remain as failed
 records, not be silently cleaned up into successful forecasts.
+
+The app can display a simplified public reasoning trace, but the underlying
+record should preserve the complete machine trace needed to replay, audit, and
+score the run.
 
 ## Packs
 
@@ -126,10 +140,11 @@ forecasting lesson should stop being optional. Promote it into the default
 Brier/thesis.analyst system prompt, a universal skill, or the tool policy, then
 bump the agent version so future runs are attributable to the new default.
 
-Promotion is reserved for portable practices such as base-rate-first reasoning,
-frequent updates when new official information arrives, explicit decomposition,
-and realized-volatility interval sizing. Domain-specific sources and priors
-should usually remain packs or skills so they can still be ablated.
+Promotion is reserved for portable practices such as treating the base rate as
+the prior forecast, frequent updates when new official information arrives,
+explicit decomposition, benchmark competition against naive persistence, and
+realized-volatility interval sizing. Domain-specific sources and priors should
+usually remain packs or skills so they can still be ablated.
 
 The promotion gate is documented in
 [`docs/pack-promotion.md`](pack-promotion.md). Old runs remain valid; prompt

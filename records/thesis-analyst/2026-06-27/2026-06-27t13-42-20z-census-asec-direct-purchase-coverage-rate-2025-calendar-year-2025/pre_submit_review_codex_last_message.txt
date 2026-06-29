@@ -1,0 +1,27 @@
+{
+  "summary": "Draft is mostly coherent, but the resolution date/source needs stronger official support and the interval justification is thin.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft sets resolutionDate to 2026-09-08 but the reasoning only documents checking the 2025 schedule for the 2024 release, so the 2026 date appears inferred from cadence rather than verified from an official 2026 calendar or placeholder.",
+      "actionRequested": "Cite the official Census 2026 income/poverty/health-insurance release schedule or release placeholder that explicitly gives September 8, 2026, or change the date/source to match the verified official schedule evidence."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "resolutionSourceUrl points to the schedule page, while the resolver is the first printed Health Insurance Coverage: 2025 report or HHI-01 table.",
+      "actionRequested": "Distinguish the schedule URL used for timing from the actual resolution source URL, or state that the final resolving URL will be the Census 2026 press kit/report/HHI-01 table once published."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is justified mainly from two recent annual changes plus qualitative survey/category noise, which is a weak realized-volatility basis.",
+      "actionRequested": "Either compute realized volatility from a longer HHI-01 direct-purchase history or explicitly label the +/-0.6 interval as judgmental uncertainty and explain why it is calibrated to 80% coverage."
+    }
+  ],
+  "optionalSuggestions": [
+    "Name the exact HHI-01 row/column or all-persons universe used for the resolving cell.",
+    "Make the persistence prior slightly clearer by separating the 2024 level anchor from the momentum extrapolation before applying ACA marketplace evidence."
+  ]
+}

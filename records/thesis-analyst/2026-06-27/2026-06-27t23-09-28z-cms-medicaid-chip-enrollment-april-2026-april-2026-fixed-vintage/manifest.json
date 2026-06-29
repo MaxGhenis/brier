@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T23:09:28Z",
+  "series": "cms.medicaid_chip.enrollment.april_2026",
+  "period": "April 2026 fixed vintage",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "9435029c5fb9fe58418ef5babb124260905fbe7fa5d6dab83401fd7546d0a3e1",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T23:09:28Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "674c5db1a0f544007e8d0d361b83ba88ef4621af3d6808a244d61ac5e6ca2b46"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "Resolver names CMS and the field, but the first-print rule lacks a fallback if no April 2026 updated national file is posted by 2026-09-30 and does not name the exact table/file field as precisely as possible.",
+        "actionRequested": "Specify the exact CMS/data.Medicaid.gov file or dataset/table and column to use, and add a clear fallback rule for no qualifying updated April 2026 file by 2026-09-30."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "model_prior",
+        "summary": "The draft does not use a time-series/model prior and does not explicitly rule one out; it only anchors on March 2026 and applies judgmental adjustments.",
+        "actionRequested": "Add a stated model prior, such as recent month-over-month changes in the same CMS updated series, or explicitly justify why a time-series prior is unavailable or inappropriate."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is described as 'wider' and about +/-1.45 million but is not tied to realized volatility, recent revision error, or a calibrated uncertainty assumption.",
+        "actionRequested": "Derive the interval from historical month-over-month volatility, preliminary-to-updated revision history, or a stated quantitative uncertainty model."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The -0.20 million attrition and +0.06 million updated-vintage adjustment are plausible but not tied to observed recent changes or revision magnitudes.",
+        "actionRequested": "Tie these adjustments to recent CMS monthly movement and/or preliminary-to-updated differences, or label them explicitly as judgmental assumptions."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Quote the March 2026 CMS level as the persistence prior before the adjusted point calculation."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the tail scenarios numeric, for example what monthly drop or retroactive revision would be needed to breach each interval bound."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Check that '50 states and DC' matches the exact national total used by CMS and excludes territories if CMS publishes separate territory rows."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by naming the updated-data national Total Medicaid and CHIP Enrollment field and adding a no-file fallback; accepted the model-prior and interval critiques by stating March persistence as the prior and using an explicit quantitative uncertainty model. The attrition and updated-vintage adjustments remain judgmental because the fast-run evidence did not fetch a clean recent same-vintage sequence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by naming the updated-data national Total Medicaid and CHIP Enrollment field and adding a no-file fallback; accepted the model-prior and interval critiques by stating March persistence as the prior and using an explicit quantitative uncertainty model. The attrition and updated-vintage adjustments remain judgmental because the fast-run evidence did not fetch a clean recent same-vintage sequence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by naming the updated-data national Total Medicaid and CHIP Enrollment field and adding a no-file fallback; accepted the model-prior and interval critiques by stating March persistence as the prior and using an explicit quantitative uncertainty model. The attrition and updated-vintage adjustments remain judgmental because the fast-run evidence did not fetch a clean recent same-vintage sequence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by naming the updated-data national Total Medicaid and CHIP Enrollment field and adding a no-file fallback; accepted the model-prior and interval critiques by stating March persistence as the prior and using an explicit quantitative uncertainty model. The attrition and updated-vintage adjustments remain judgmental because the fast-run evidence did not fetch a clean recent same-vintage sequence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by naming the updated-data national Total Medicaid and CHIP Enrollment field and adding a no-file fallback; accepted the model-prior and interval critiques by stating March persistence as the prior and using an explicit quantitative uncertainty model. The attrition and updated-vintage adjustments remain judgmental because the fast-run evidence did not fetch a clean recent same-vintage sequence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by naming the updated-data national Total Medicaid and CHIP Enrollment field and adding a no-file fallback; accepted the model-prior and interval critiques by stating March persistence as the prior and using an explicit quantitative uncertainty model. The attrition and updated-vintage adjustments remain judgmental because the fast-run evidence did not fetch a clean recent same-vintage sequence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by naming the updated-data national Total Medicaid and CHIP Enrollment field and adding a no-file fallback; accepted the model-prior and interval critiques by stating March persistence as the prior and using an explicit quantitative uncertainty model. The attrition and updated-vintage adjustments remain judgmental because the fast-run evidence did not fetch a clean recent same-vintage sequence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable only after tightening the resolver/fallback and replacing the hand-waved model and interval with an explicit historical or uncertainty basis."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/prompt.md",
+      "sha256": "e32c561c91ce2e0286093ebaee0c40666121f4e1f32d19f2da04c5de7b376c66",
+      "bytes": 4829,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_command.json",
+      "sha256": "d5e448647aba2fffe2bb972d49ab758786b6b11bd24530b34259decdf0222e29",
+      "bytes": 778,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_codex_stdout.jsonl",
+      "sha256": "89823e3bd4359b1b40dfea25a54dc7fd8593a50a85afdcfe8451a97697c288cf",
+      "bytes": 2093407,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_codex_stderr.log",
+      "sha256": "a9f7479c8f7fc15a4d7480600ba503bec31cc9d49fa8afd76926bf9187e32ee9",
+      "bytes": 4383,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_codex_events.jsonl",
+      "sha256": "cf70ef8b6fc987882101ae9c63d3bcd4628031df38075ea95a14db782cc1e2b0",
+      "bytes": 2093873,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_codex_last_message.txt",
+      "sha256": "6a96edd1d9642106554a6451df5ed2d2702d93f4e7e164cd5500f35859597840",
+      "bytes": 6666,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_codex_trace.json",
+      "sha256": "2d87c5f82980a6b924a43ae955fae7b8ee411e01ff854803afc8dbf7c00a4269",
+      "bytes": 509,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_stdout.txt",
+      "sha256": "6a96edd1d9642106554a6451df5ed2d2702d93f4e7e164cd5500f35859597840",
+      "bytes": 6666,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/draft_stderr.txt",
+      "sha256": "36edd3894c0d2be55d6d700414d04f020efa31717c405cf0d8c33f09b21c718a",
+      "bytes": 4558,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_prompt.md",
+      "sha256": "4c2f6212159e9ac60c753d6b7666d3c4f0fb59690a0d4d8cfc2ca47cd7bba25b",
+      "bytes": 8305,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_command.json",
+      "sha256": "4f8e6ded567b6c515a0c725a156f6e84fa52c07c29da554f07cac566b2360a6d",
+      "bytes": 774,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "fde18e51f53e998a6ddf418d8c8ccb8499cfc0652dd4e5b0d7c80cf55cbf671b",
+      "bytes": 2636,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_stderr.log",
+      "sha256": "5dd908187a513ef8e9f0f41f1847931cd9ee2b79f51087040bfe1ace365b706d",
+      "bytes": 615,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_events.jsonl",
+      "sha256": "791f43f3ea61d3cd4ac0e1c1720e164ac28fcfe32b02024ac26127c868cb5530",
+      "bytes": 2658,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_last_message.txt",
+      "sha256": "58740731dbff5699fae450ec433fb542fb20f48de742c8f6c9896c3ca9801bf2",
+      "bytes": 2241,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_codex_trace.json",
+      "sha256": "59a1846de73309617363511c107eb2cc5c21bf3d4722b6144b42fcdbb0479a33",
+      "bytes": 504,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_stdout.txt",
+      "sha256": "58740731dbff5699fae450ec433fb542fb20f48de742c8f6c9896c3ca9801bf2",
+      "bytes": 2241,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/pre_submit_review_stderr.txt",
+      "sha256": "86c8e9d11885e83842eb9379168ea73159c6246babbbdb1e6639475140315597",
+      "bytes": 638,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/revision_prompt.md",
+      "sha256": "62e270e44150770cc20a10388ceaf82f506620a732f22b15fe03e954a1af8a3c",
+      "bytes": 14672,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/command.json",
+      "sha256": "04042ef483395e381728d1f0e0f0b32b04dc4f95f0f1ef3a1f28d99606b1b324",
+      "bytes": 772,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/codex_stdout.jsonl",
+      "sha256": "17a339e7f8ee03c15ebb7873c82509d97d56d0a500541baa9ce43909e2093e75",
+      "bytes": 8258,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/codex_stderr.log",
+      "sha256": "a3a15a4a5313dda19c97506945950c385d3aa300a670101c0948326352a9674c",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/codex_events.jsonl",
+      "sha256": "66a171c33ac4a774c5500d5b7452a6dce5f9b0728ff06db8ef2c702c83a1c75d",
+      "bytes": 8280,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/codex_last_message.txt",
+      "sha256": "c9db390a37df62ba90193002bce6c7fae59c94123dae444894c8e7d150f1fa2f",
+      "bytes": 7696,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/codex_trace.json",
+      "sha256": "1e783957839d347520f0dddcf5cf6d102be2278845ed109ad7fe30f2c62beda4",
+      "bytes": 504,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/stdout.txt",
+      "sha256": "c9db390a37df62ba90193002bce6c7fae59c94123dae444894c8e7d150f1fa2f",
+      "bytes": 7696,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/stderr.txt",
+      "sha256": "26642e75cef33ab1dd3140d89afaadaf772d7cf347ced7ee0c9d5c988419b4e2",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/raw_response.txt",
+      "sha256": "c9db390a37df62ba90193002bce6c7fae59c94123dae444894c8e7d150f1fa2f",
+      "bytes": 7696,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/parsed_cells.json",
+      "sha256": "86e9dce4e7b0bb1f1ccec68e49ca1fed4dd7a0a1d30fdf54422c24d813e0881b",
+      "bytes": 8586,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/normalized_cells.json",
+      "sha256": "e84ef76f1dd3d29c1c0f1b1a87c7d626974df9a60dcf6d185d17370a454044f0",
+      "bytes": 8231,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/validation.json",
+      "sha256": "11612b9a3fea712e17071bfee3aaca3f772467e0a4ea0be1db4c902898ddf79e",
+      "bytes": 136,
+      "createdAt": "2026-06-27T23:09:28Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-09-28z-cms-medicaid-chip-enrollment-april-2026-april-2026-fixed-vintage/manifest.json",
+      "sha256": "4889363e93467b0e4d33a1ee32ffb946dc75e7107323537526f0d3f8e0ed5491",
+      "bytes": 20451,
+      "createdAt": "2026-06-27T23:09:28Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "medicaid-chip-enrollment-april-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

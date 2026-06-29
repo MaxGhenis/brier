@@ -1,0 +1,429 @@
+[
+  {
+    "slug": "individual-income-tax-refunds-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "Individual income tax refunds, FY2026",
+    "question": "What will the U.S. Treasury Bureau of the Fiscal Service Monthly Treasury Statement Table 4 report as current fiscal year-to-date refunds deducted from Total -- Individual Income Taxes for fiscal year 2026 in the first final September 2026 print, in nominal USD billions?",
+    "unit": "usd_billions",
+    "pointEstimate": 340,
+    "ciLow": 295,
+    "ciHigh": 395,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-20",
+    "resolutionSource": "U.S. Treasury Monthly Treasury Statement, September 2026",
+    "resolutionSourceUrl": "https://fiscal.treasury.gov/accounting/monthly-treasury-statement/",
+    "resolutionRule": "Resolve to the first official final Monthly Treasury Statement for September 2026, Table 4, row Total -- Individual Income Taxes, Current Fiscal Year to Date column Refunds (Deduct). Convert the published $ millions value to USD billions and round to the nearest 0.001 billion for scoring. If the scheduled release is delayed, use the first posted final September 2026 MTS. Ignore later revisions, Combined Statement restatements, and IRS filing-season refund tables.",
+    "dataPointId": "treasury.mts.individual_income_tax_refunds.fy2026.first_print",
+    "historicalContext": [
+      {
+        "label": "FY2025 MTS Table 4 individual income tax refunds",
+        "value": 327.268
+      },
+      {
+        "label": "FY2024 MTS Table 4 individual income tax refunds",
+        "value": 299.426
+      },
+      {
+        "label": "FY2023 MTS Table 4 individual income tax refunds",
+        "value": 373.321
+      },
+      {
+        "label": "FY2022 MTS Table 4 individual income tax refunds",
+        "value": 246.316
+      },
+      {
+        "label": "FY2021 MTS Table 4 individual income tax refunds",
+        "value": 278.436
+      }
+    ],
+    "drivers": [
+      "FY2025 final MTS refunds were 327.268 billion, above FY2024 but below the FY2023 spike",
+      "latest-year persistence is the strongest simple prior for this cash-accounting MTS line",
+      "five-year history shows large realized swings, with FY2023 unusually high and FY2022 unusually low",
+      "cash refunds can shift across fiscal years because of filing and processing timing",
+      "withholding, tax liability, refundable credits, and processing capacity affect cash refund outlays before the fiscal-year close"
+    ],
+    "sourceContext": [
+      "https://fiscal.treasury.gov/accounting/monthly-treasury-statement/",
+      "https://fiscal.treasury.gov/accounting/monthly-treasury-statement/previous",
+      "https://fiscal.treasury.gov/system/files/files/reports-statements/mts/mts0925.pdf",
+      "https://fiscal.treasury.gov/system/files/files/reports-statements/mts/mts0924.pdf",
+      "https://fiscal.treasury.gov/system/files/files/reports-statements/mts/mts0922.pdf",
+      "https://fiscaldata.treasury.gov/release-calendar/"
+    ],
+    "runAt": "2026-06-27T23:24:07Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "FY2026 MTS individual income tax refunds"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first final September 2026 Monthly Treasury Statement, not an IRS filing-season table. The target is Table 4 refunds deducted from Total -- Individual Income Taxes, current fiscal year to date, converted from millions to billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the Bureau of the Fiscal Service Monthly Treasury Statement page and previous-issues page for the official source family and table location.",
+        "result": "Fetched official MTS source text showing the MTS summarizes receipts, outlays, surplus or deficit, and means of financing; the page was last updated January 15, 2026, and previous issues include FY2025, FY2024, FY2023, FY2022, and FY2021 final September statements."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the FY2025 final September MTS PDF and read Table 4 Total -- Individual Income Taxes.",
+        "result": "Fetched FY2025 Table 4 Total -- Individual Income Taxes: gross receipts 2983.312 billion, refunds deducted 327.268 billion, and net receipts 2656.044 billion; September 2025 this-month refunds were 8.430 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the FY2024 final September MTS PDF and read Table 4 Total -- Individual Income Taxes plus prior-period FY2023 context.",
+        "result": "Fetched FY2024 Table 4 Total -- Individual Income Taxes: gross receipts 2725.493 billion, refunds deducted 299.426 billion, and net receipts 2426.067 billion; the same table's prior FY2023 refunds were 373.321 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened FY2022 and FY2021 final September MTS PDFs for older refund reference points.",
+        "result": "Fetched FY2022 Table 4 individual income tax refunds deducted 246.316 billion from gross receipts 2878.461 billion; fetched FY2021 refunds deducted 278.436 billion from gross receipts 2322.813 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Checked the Fiscal Data release calendar page for the September 2026 MTS release schedule and the MTS publication timing note in official MTS PDFs.",
+        "result": "Fetched official Fiscal Data release calendar surface showing Release Calendar, copyright 2026, and the upcoming-data-release schedule; September 2026 Monthly Treasury Statement is scheduled for 2026-10-20, and MTS PDFs state the statement is normally released on the 8th workday after the reporting month."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: the clean official MTS Table 4 refund history is 278.436, 246.316, 373.321, 299.426, and 327.268 billion for FY2021-FY2025. The five-year average is about 304.0 billion, the latest two years average 313.3 billion, and the latest year is 327.3 billion."
+      },
+      {
+        "kind": "text",
+        "text": "Simple model prior: use latest-year persistence as the main prior because this is an annual cash-accounting line with large timing noise and no stable five-year linear trend. A trailing-mean-only model would underweight the FY2024-FY2025 rebound, while extrapolating FY2023 would overfit a spike."
+      },
+      {
+        "kind": "text",
+        "text": "Judgmental update: move modestly above FY2025 rather than applying an unverified filing-season surge. The direction reflects continued nominal wage and withholding base growth plus normal refund-dollar drift; the size is restrained because MTS cash refunds can be moved by processing timing."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: start with FY2025 MTS Table 4 refunds of 327.268 billion and apply a small 4 percent uplift for nominal base growth and recent rebound persistence: 327.268 x 1.04 = 340.359 billion, rounded to 340 billion. Interval calibration: FY2021-FY2025 refunds had a sample standard deviation near 49 billion and year-over-year absolute changes averaged about 61 billion, so an 80 percent interval of roughly +/-45 to +/-55 billion around the point is appropriate; I use 295 to 395 billion, slightly narrower than raw one-year changes because the extreme FY2022-FY2023 swing was pandemic-era normalization."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: below-295 outcomes are plausible if FY2025 was temporarily high and late processing shifts cash refunds outside FY2026; above-395 outcomes require a repeat or exceedance of the FY2023 spike through broad overwithholding, refundable-credit effects, or unusually fast processing before September close."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique that the draft's +10 percent uplift depended on uncited mid-2026 filing-season evidence, so the final forecast removes that as a quantified driver, lowers the point estimate, adds an explicit latest-year-persistence prior, and ties the interval to FY2021-FY2025 realized volatility. The official resolver and calendar treatment are retained with delayed-release clarification."
+      },
+      {
+        "kind": "forecast",
+        "point": 340,
+        "ciLow": 295,
+        "ciHigh": 395
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/prompt.md",
+        "sha256": "4b7cc35936a872c8cb41215ce42c1f3823de6c52236a8e3ffd12d1bfc92c679b",
+        "bytes": 4752,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_command.json",
+        "sha256": "9c2183ce3ec1b5e61d553e24fd3fb6b2cd9a8a9cea3eb8a37e6f63b9c22dd252",
+        "bytes": 770,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_codex_stdout.jsonl",
+        "sha256": "728603aa65414e3e356d7b0211c489111b09d84c78f468d888017de7ced13cf5",
+        "bytes": 205070,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_codex_stderr.log",
+        "sha256": "7225cfc86152261da61d933f2a8e4720b736529f8f1c0612b28910211f06fa59",
+        "bytes": 3807,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_codex_events.jsonl",
+        "sha256": "ade125b21399b1cf3563a19d51e5296e8f5751c673afdc0979df197e1df251aa",
+        "bytes": 205275,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_codex_last_message.txt",
+        "sha256": "fe75c9e2305cb0ae1ceca06817d251e037e4ca0a640e62de9e89dedba7391e84",
+        "bytes": 6926,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_codex_trace.json",
+        "sha256": "9ae4405ae9d5921ae4d0cff24e103b47b675a2dde861778b3dd44957b3ebd324",
+        "bytes": 510,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_stdout.txt",
+        "sha256": "fe75c9e2305cb0ae1ceca06817d251e037e4ca0a640e62de9e89dedba7391e84",
+        "bytes": 6926,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_stderr.txt",
+        "sha256": "dd55f19a8578cf5dc4224f3e71be6588fba28c2390af6871184a46687ed64a41",
+        "bytes": 3966,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_prompt.md",
+        "sha256": "0123c0bdf944323a2f9ffc7a1e074053c78b6025a33c46259465f173c4289219",
+        "bytes": 8557,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_command.json",
+        "sha256": "a749b588dd13e22829b62daa0c524c1369b990402760532da5452c23ab36cc9d",
+        "bytes": 766,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "b0f25f63fd9fd7d364783cea43f84417c790a114893a42cb83f816e048c466b5",
+        "bytes": 2984,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_codex_stderr.log",
+        "sha256": "51820001028736bccf10ac8eba57ce8022bbba051a52885638d7553580017135",
+        "bytes": 615,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "fc1c281f7d6cc77fd4a66f902eff7315ea6f7ba78852ba6754ce3c4082144213",
+        "bytes": 3004,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "11532ef08ea46698b87e1c5382c5ea886ca06bcbc7f87cae4636509314c75104",
+        "bytes": 1964,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_codex_trace.json",
+        "sha256": "e273a7fbe29bb5d896c865425ad1b3345bef210e524aa3a6cb5d6d162eef2992",
+        "bytes": 504,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_stdout.txt",
+        "sha256": "11532ef08ea46698b87e1c5382c5ea886ca06bcbc7f87cae4636509314c75104",
+        "bytes": 1964,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_stderr.txt",
+        "sha256": "b02cd16d08cfe32260d76f974f959439ed1c9fe8a37f5f83635fbc4067b57b18",
+        "bytes": 638,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/revision_prompt.md",
+        "sha256": "f0feb782c13d642770924f045911b08bcf7a5891a0c10a1f1e1aea07467159a9",
+        "bytes": 14578,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/command.json",
+        "sha256": "14b20468b831f340e201e6cca601a34c7e5bc5082c3505d50d18a38d7942256d",
+        "bytes": 764,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/codex_stdout.jsonl",
+        "sha256": "9c024c75d8b2122008324684a13363faf921ef46de5d9e94adbc572848652b7c",
+        "bytes": 10976,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/codex_stderr.log",
+        "sha256": "38204406c91e433649a84c40f61a4a7152a84f6ba8e4d4b4e583bd18b4bbf6f6",
+        "bytes": 2943,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/codex_events.jsonl",
+        "sha256": "f481499d02fb2d237e7fcc447a9e9ae6d01a68b6bbe9f09ec813e386551ff9d0",
+        "bytes": 11017,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/codex_last_message.txt",
+        "sha256": "40137a889c37edd1bf0d4b9bebe3f570c163bf28c68c5af1361db4b5cd7a9a1d",
+        "bytes": 7576,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/codex_trace.json",
+        "sha256": "9a440f3b27fbbbb6fe553e563fafd1a94a646c58e44826819f45a5a666c8bbb2",
+        "bytes": 507,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/stdout.txt",
+        "sha256": "40137a889c37edd1bf0d4b9bebe3f570c163bf28c68c5af1361db4b5cd7a9a1d",
+        "bytes": 7576,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/stderr.txt",
+        "sha256": "5f9c79826ef06281fd8df326a9465d9d29d14fad4c07e7b76b9ca86bdd7c5a45",
+        "bytes": 3078,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/raw_response.txt",
+        "sha256": "40137a889c37edd1bf0d4b9bebe3f570c163bf28c68c5af1361db4b5cd7a9a1d",
+        "bytes": 7576,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/parsed_cells.json",
+        "sha256": "1c6a0518375dbcce4391fd182a16c7a1ea11ee252d9dcae02cbd59bfceb67d43",
+        "bytes": 8568,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/normalized_cells.json",
+        "sha256": "f9a890a8d39869f0bd8055e092d3649150c074d43f657be5263e70bfab3cde2f",
+        "bytes": 8171,
+        "createdAt": "2026-06-27T23:17:54Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/validation.json",
+        "sha256": "6aca0d14bcb9882b71ea15805838e1011b7a6abc39926fae1ab4f16d51b45911",
+        "bytes": 137,
+        "createdAt": "2026-06-27T23:17:54Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T23:17:54Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "5b0c8c80f5ac703876619ed33a24cb083b736761a2cc1157865903c6b12d1eb4"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t23-17-54z-treasury-mts-individual-income-tax-refunds-fy2026-fy2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "update",
+          "summary": "The +10% uplift from FY2025 is justified by 'mid-2026 filing-season evidence' and policy changes, but the draft does not cite or quantify the filing-season evidence or identify the policy source.",
+          "actionRequested": "Add the specific public source(s), observed refund-dollar comparison, as-of date, and explain why that evidence maps to FY2026 MTS Table 4 cash refunds rather than only IRS filing-season timing."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The draft states historical averages and persistence anchors but does not present a distinct time-series/model prior or explicitly rule one out.",
+          "actionRequested": "Add a simple model prior such as latest-year persistence, trailing mean, trend, or AR-style baseline before judgmental updates, or state why no time-series model is appropriate."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 325-410 interval is plausible but described narratively rather than tied to realized volatility, forecast error, or a stated uncertainty calculation.",
+          "actionRequested": "Anchor the interval to observed FY2021-FY2025 volatility, year-over-year changes, or an explicit judgmental error range around the point estimate."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether 2026-10-20 is the scheduled first final September 2026 MTS release date from the Fiscal Data calendar and note how to handle a delayed first print."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make tail scenarios more numeric, for example naming approximate refund-dollar outcomes that would push the series below 325 or above 410."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the draft's +10 percent uplift depended on uncited mid-2026 filing-season evidence, so the final forecast removes that as a quantified driver, lowers the point estimate, adds an explicit latest-year-persistence prior, and ties the interval to FY2021-FY2025 realized volatility. The official resolver and calendar treatment are retained with delayed-release clarification.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the draft's +10 percent uplift depended on uncited mid-2026 filing-season evidence, so the final forecast removes that as a quantified driver, lowers the point estimate, adds an explicit latest-year-persistence prior, and ties the interval to FY2021-FY2025 realized volatility. The official resolver and calendar treatment are retained with delayed-release clarification.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the draft's +10 percent uplift depended on uncited mid-2026 filing-season evidence, so the final forecast removes that as a quantified driver, lowers the point estimate, adds an explicit latest-year-persistence prior, and ties the interval to FY2021-FY2025 realized volatility. The official resolver and calendar treatment are retained with delayed-release clarification.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the draft's +10 percent uplift depended on uncited mid-2026 filing-season evidence, so the final forecast removes that as a quantified driver, lowers the point estimate, adds an explicit latest-year-persistence prior, and ties the interval to FY2021-FY2025 realized volatility. The official resolver and calendar treatment are retained with delayed-release clarification.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the draft's +10 percent uplift depended on uncited mid-2026 filing-season evidence, so the final forecast removes that as a quantified driver, lowers the point estimate, adds an explicit latest-year-persistence prior, and ties the interval to FY2021-FY2025 realized volatility. The official resolver and calendar treatment are retained with delayed-release clarification.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The forecast has a clear official resolver and coherent JSON fields, but its main upward update relies on uncited, unquantified mid-2026 evidence and lacks an explicit model/time-series prior."
+    }
+  }
+]

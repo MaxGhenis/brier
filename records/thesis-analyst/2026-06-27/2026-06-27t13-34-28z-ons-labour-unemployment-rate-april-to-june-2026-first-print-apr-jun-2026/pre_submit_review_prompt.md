@@ -1,0 +1,40 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review only the draft forecast, the target spec, and public evidence cited in the draft. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: ons.labour.unemployment_rate.april_to_june_2026.first_print
+- period: Apr-Jun 2026
+- conditional: null
+
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. Tail scenarios are concrete and tied to the target.
+7. Point, interval, final forecast step, and JSON fields are coherent.
+8. No leakage, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+0046550360bb51ebef176dc5aec45bc2be87f82b65ded9109eddc1836e863ac8
+
+# Draft forecast response
+{"slug":"uk-ons-unemployment-rate-apr-jun-2026-first-print","country":"UK","type":"data","title":"UK unemployment Apr-Jun 2026","question":"ONS UK unemployment rate for people aged 16 years and over, seasonally adjusted Labour Force Survey estimate, April to June 2026, first print","unit":"percent","pointEstimate":5.1,"ciLow":4.7,"ciHigh":5.5,"confidence":0.8,"resolutionDate":"2026-08-11","resolutionSource":"Office for National Statistics Labour market overview, UK: August 2026","resolutionSourceUrl":"https://www.ons.gov.uk/releases/labourmarketoverviewukaugust2026","resolutionRule":"Resolve to the first ONS-published UK unemployment rate for people aged 16 years and over for April to June 2026, seasonally adjusted, in the August 2026 Labour market overview or linked ONS time-series page. Use the one-decimal percent first print only; ignore later revisions or reweighting changes published after the first print.","dataPointId":"ons.lms.unemployment_rate_16plus.apr_jun_2026.first_print","historicalContext":[{"label":"Nov 2025-Jan 2026","value":5.2},{"label":"Dec 2025-Feb 2026","value":4.9},{"label":"Jan-Mar 2026","value":5.0},{"label":"Feb-Apr 2026","value":4.9},{"label":"Mar-May 2026 vacancies","value":707},{"label":"May 2026 claimant count","value":1.712}],"drivers":["recent LFS unemployment has held near 5 percent","vacancies are at a five-year low","PAYE payroll has weakened into spring","claimant count is rising","LFS volatility argues for a wider interval"],"sourceContext":["https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket/june2026","https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket/may2026","https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket/april2026","https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/bulletins/uklabourmarket/march2026","https://www.ons.gov.uk/releasecalendar?highlight=true&limit=10&page=8&release-type=type-upcoming&sort=date-newest"],"runAt":"2026-06-27T13:34:32Z","reasoning":[{"kind":"heading","text":"Forecast UK Apr-Jun 2026 unemployment first print"},{"kind":"text","text":"The resolver is the first ONS print of the seasonally adjusted UK unemployment rate for people aged 16 years and over covering April to June 2026. ONS labour-market rates are reported to one decimal percent, and later revisions should not change the resolved value."},{"kind":"tool","tool":"official.lookup","call":"Opened ONS Labour market overview, UK: June 2026 for the latest LFS and labour-market indicators.","result":"Fetched February to April 2026 unemployment rate 4.9%, employment rate 75.0%, economic inactivity rate 21.0%, May 2026 claimant count 1.712 million, vacancies 707,000, payrolled employees down 31,000 over the comparable quarter and May payroll up 2,000 on the month."},{"kind":"tool","tool":"official.lookup","call":"Opened ONS Labour market overview, UK: May 2026 for the prior first-print LFS reference point.","result":"Fetched January to March 2026 unemployment rate 5.0%, employment rate 75.0%, economic inactivity rate 20.9%, April 2026 claimant count 1.699 million, vacancies 705,000, and April payrolled employees down 100,000 on the month."},{"kind":"tool","tool":"official.lookup","call":"Opened ONS Labour market overview, UK: April 2026 and March 2026 for the recent reference class.","result":"Fetched December 2025 to February 2026 unemployment rate 4.9%, January to March 2026 vacancies 711,000, November 2025 to January 2026 unemployment rate 5.2%, and December 2025 to February 2026 vacancies 721,000."},{"kind":"tool","tool":"official.lookup","call":"Checked ONS publication timing surfaces for labour-market releases and upcoming calendar context.","result":"Fetched June 2026 labour-market release date 18 June 2026, next release 21 July 2026, and upcoming calendar page around August 2026 showing confirmed releases including 5 August 2026 and 12 August 2026 entries; I use the August labour-market calendar slot for the Apr-Jun first print."},{"kind":"text","text":"Base-rate/reference-class anchor: the last four available rolling three-month first prints are 5.2, 4.9, 5.0, and 4.9, averaging 5.0. Month-to-month realized moves in this short reference class are about 0.1 to 0.3 percentage points, so a neutral outside view starts near 5.0 with an 80% band around plus or minus 0.4."},{"kind":"text","text":"Level and momentum: unemployment is already near 5%, vacancies have fallen from 721,000 to 711,000 to 705,000 to 707,000, and claimant count rose to 1.712 million. That pushes the Apr-Jun estimate modestly above the recent LFS average despite the latest headline dip to 4.9."},{"kind":"text","text":"Counter-consideration: LFS estimates remain volatile and ONS warns against over-reading short-term movements; May payroll was nearly flat after the April drop, so a continuation at 4.9 or a dip to 4.8 remains plausible if survey composition offsets payroll weakness."},{"kind":"math","text":"Start with recent first-print mean (5.2+4.9+5.0+4.9)/4 = 5.0. Add 0.1 percentage point for weak vacancies, rising claimant count, and spring PAYE weakness, giving 5.1. Use an 80% interval of 4.7 to 5.5: roughly the 5.1 center plus or minus 0.4, widened for LFS volatility and possible seasonal-adjustment/reweighting noise."},{"kind":"text","text":"Upside scenario: April-June layoffs and hiring freezes show through clearly in the LFS and unemployment prints 5.4 or 5.5. Downside scenario: April payroll weakness is revised away and survey volatility holds unemployment near 4.8 or 4.9. Outside-the-interval scenarios require either a sharp labour-market break above 5.5 or a strong participation/employment surprise below 4.7."},{"kind":"forecast","point":5.1,"ciLow":4.7,"ciHigh":5.5}]}

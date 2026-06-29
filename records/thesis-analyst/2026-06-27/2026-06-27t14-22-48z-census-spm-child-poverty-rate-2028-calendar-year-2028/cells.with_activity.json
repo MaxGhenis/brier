@@ -1,0 +1,466 @@
+[
+  {
+    "slug": "census-spm-child-poverty-rate-2028-tcja-house-extension",
+    "country": "US",
+    "type": "data",
+    "title": "2028 child SPM poverty rate",
+    "question": "U.S. Census Bureau Supplemental Poverty Measure poverty rate for people under age 18 in calendar year 2028, first print, conditional on a TCJA extension package matching the House framework being enacted by 2026-06-30.",
+    "unit": "percent",
+    "pointEstimate": 14.2,
+    "ciLow": 10.8,
+    "ciHigh": 18,
+    "confidence": 0.8,
+    "resolutionDate": "2029-09-30",
+    "resolutionSource": "U.S. Census Bureau, Poverty in the United States: 2028, Supplemental Poverty Measure age table first print",
+    "resolutionSourceUrl": "https://www.census.gov/library/publications/time-series/demo/p60.html",
+    "resolutionRule": "Resolve to the first Census Bureau published percentage for people under age 18 in the Supplemental Poverty Measure age table for calendar year 2028, expected successor to Table B-2 in Poverty in the United States: 2028. Use the first print rounded to one decimal percentage point; ignore later revisions, errata, redesigned-table backcasts, or microdata reweighting updates unless Census withdraws the first release on release day and replaces it before the next business day. The 2029-09-30 date is a resolution-check deadline because the exact 2029 Census release-calendar entry was not yet posted; resolve earlier if Census publishes the first 2028 SPM print before that date.",
+    "dataPointId": "census.cps_asec.spm.under18.poverty_rate.2028.first_print",
+    "historicalContext": [
+      {
+        "label": "2021 child SPM poverty rate",
+        "value": 5.2
+      },
+      {
+        "label": "2022 child SPM poverty rate",
+        "value": 12.4
+      },
+      {
+        "label": "2023 child SPM poverty rate",
+        "value": 13.7
+      },
+      {
+        "label": "2024 overall SPM poverty rate",
+        "value": 12.9
+      }
+    ],
+    "drivers": [
+      "SPM includes taxes, refundable credits, SNAP, housing subsidies, work expenses, medical expenses, and geographic housing adjustments",
+      "TCJA-style extension avoids a large scheduled child tax credit drop but does not recreate the fully refundable 2021 expansion",
+      "House-framework fiscal offsets are likely to reduce some transfer resources or raise expenses for low-income families by 2028",
+      "Labor-market and wage conditions matter because earnings are still the main resource source for families with children",
+      "Shelter and medical out-of-pocket costs can keep SPM child poverty elevated even when cash income improves"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/library/publications/2025/demo/p60-287.html",
+      "https://www.census.gov/newsroom/press-releases/2025/income-poverty-health-insurance-coverage.html",
+      "https://www.census.gov/library/publications/2024/demo/p60-283.html",
+      "https://www.census.gov/library/stories/2024/09/supplemental-poverty-measure.html",
+      "https://www.census.gov/library/publications/time-series/demo/p60.html"
+    ],
+    "runAt": "2026-06-27T14:25:13Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for 2028 Census child SPM poverty under a TCJA House-framework extension"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the Census Bureau first-print Supplemental Poverty Measure poverty rate for people under 18 in calendar year 2028. This is not the official poverty measure: SPM resources include taxes and credits, in-kind transfers such as SNAP and housing assistance, and subtract work, child care, child support paid, and medical out-of-pocket expenses while applying housing-cost adjustments."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2024 publication page and press release.",
+        "result": "Fetched 2024 first-print publication date September 09, 2025; 2024 official poverty rate 10.6%; 2024 overall SPM rate 12.9%; 2024 Social Security antipoverty effect 28.7 million people."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2023 publication page.",
+        "result": "Fetched 2023 publication date September 10, 2024; 2023 overall SPM rate 12.9%; 2023 child SPM poverty rate 13.7%; 2023 child SPM increase 1.3 percentage points from 2022."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census 2024 poverty report table list for the SPM age table and historical table identity.",
+        "result": "Fetched Table B-2 title covering SPM poverty by age, race, and Hispanic origin for 2009 to 2024; fetched Table B-3 covering 2023 and 2024; fetched 2024 CPS ASEC collection year 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.lookup",
+        "call": "Checked public reporting summarizing Census child SPM context after the pandemic credit expansion.",
+        "result": "Fetched child SPM poverty rates of 5.2% in 2021, 12.4% in 2022, and 13.7% in 2023; fetched 2019 comparison level of 12.5%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census publication-series and release metadata availability for future poverty reports.",
+        "result": "Fetched official Census P60 publication series path and 2024 report number P60-287; fetched 2024 report publication date September 09, 2025; no numeric 2029 release-calendar date was available in the cited draft evidence."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the relevant prior is not a 2022-2024 child series because the draft evidence did not fetch the 2024 child value. I use 2022 and 2023 child SPM values plus the 2024 overall SPM signal. After the 2021 refundable-credit expansion expired, child SPM returned to low-to-mid teens, with 2021 at 5.2% treated as an exceptional policy year."
+      },
+      {
+        "kind": "text",
+        "text": "Model prior: I am using a persistence/random-walk prior rather than a formal time-series model because the child SPM history is short, mechanically altered by large tax-credit changes, and the target is conditional on a major fiscal package. A persistence prior around the recent post-expansion level is more transparent than fitting a trend through policy breaks."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum: 2024 overall SPM stayed at 12.9%, and Census described most groups other than older adults and Black individuals as not significantly changed from 2023. That points to a child rate near the 2023 level rather than a decisive downtrend before the conditional policy shock."
+      },
+      {
+        "kind": "text",
+        "text": "Policy mechanism: under the condition, a House-style TCJA extension prevents the child credit from falling back toward the pre-TCJA $1,000 structure, which is poverty-reducing versus expiration. But the extension is not the 2021 fully refundable CTC and therefore does much less for the lowest-income children than the ARPA design that produced the 5.2% child SPM rate."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: if the enacted package preserves more SNAP, Medicaid-linked expense protection, or refundable child credit value than assumed, child SPM could fall toward 11%. Conversely, deeper nutrition cuts, weak employment, or high shelter inflation by 2028 could push the first print above 18%."
+      },
+      {
+        "kind": "math",
+        "text": "Start with a post-expansion base of 13.0% to 13.3% from 12.4% in 2022, 13.7% in 2023, and the 12.9% overall SPM signal for 2024. Add about 0.4 percentage point for partial-refundable-credit limits versus a stronger anti-poverty design and about 0.5 point for likely transfer and expense headwinds under the House framework by 2028, giving 14.2%. The interval 10.8% to 18.0% allows roughly -3.4 to +3.8 points around the point, wider than the observed 2022-to-2023 child SPM move of 1.3 points because the horizon is four years, the target is conditional on fiscal legislation, and labor, housing, and medical-expense shocks can compound."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence."
+      },
+      {
+        "kind": "forecast",
+        "point": 14.2,
+        "ciLow": 10.8,
+        "ciHigh": 18
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/prompt.md",
+        "sha256": "906b1ed5e8cf87a1c05c75ed8a74e4751c4dbe22e162153623324a1edd6c55ec",
+        "bytes": 4320,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_command.json",
+        "sha256": "8402f37d2a6a07b7fed852af00e19a5a13912cd521d868347c3a1a6a0c880629",
+        "bytes": 767,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_codex_stdout.jsonl",
+        "sha256": "ed1e70fde1058ca6a5a6424ed1b8407d6b897368a0b38d7e32bf3623191b7f6f",
+        "bytes": 20856,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_codex_stderr.log",
+        "sha256": "a39e47f51979d1ceef1253cdeafc7fdd10ef6c2dd19e70ce8304d5bd1faaff1a",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_codex_events.jsonl",
+        "sha256": "fd11821e1bf21fde411320da8457bb9f0cf1f76d4cb341cbcceeb76e9c9c35a9",
+        "bytes": 20832,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_codex_last_message.txt",
+        "sha256": "df311f0d0dd3d088a185ccfaa487d7c7991d53355534b59eff85019feca21bd6",
+        "bytes": 6239,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_codex_trace.json",
+        "sha256": "3054a846b50e641855fc034425e9be7a8dd244bebbeb8da4adeb51bcd0ee51b6",
+        "bytes": 507,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_stdout.txt",
+        "sha256": "df311f0d0dd3d088a185ccfaa487d7c7991d53355534b59eff85019feca21bd6",
+        "bytes": 6239,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_stderr.txt",
+        "sha256": "56feafd6b1f3c7789f51207ac53fa67080c2125822d2f868a76138a96a9467cd",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_prompt.md",
+        "sha256": "5089ff9a315cac55f8729fe06970da913ce981cf3f6e7cc30ad0be65bd833fa8",
+        "bytes": 7808,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_command.json",
+        "sha256": "24bddd42e966c5a2fd7c284a254bbfe5a659fc39a7edf256a5177004e7642507",
+        "bytes": 763,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "8b39dd04491159345c858f5c035b17d33a397e48736d9fb8ce68f92271fee31d",
+        "bytes": 3076,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_codex_stderr.log",
+        "sha256": "ceb900a65a0b8370aaa3c9395d952b2c13995a30487ba4ee5e3918cbc5b42b4d",
+        "bytes": 615,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_codex_events.jsonl",
+        "sha256": "6561194773886fa624294d66cff71f710605eb201fb33c56208ea7101005e084",
+        "bytes": 3098,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_codex_last_message.txt",
+        "sha256": "0595659a820a007a2657c3551b4d7be27e150135847ca5779d1a77ced05e77a4",
+        "bytes": 2665,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_codex_trace.json",
+        "sha256": "598d4868016f3acfa288c139338a5783e382521d4ebbdf75c6d4cf8e1e23114a",
+        "bytes": 504,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_stdout.txt",
+        "sha256": "0595659a820a007a2657c3551b4d7be27e150135847ca5779d1a77ced05e77a4",
+        "bytes": 2665,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_stderr.txt",
+        "sha256": "40c4e3e21dcc71992ab34da7b68a3d744ce4cc570db42a993d92ddd841ff1b2a",
+        "bytes": 638,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/revision_prompt.md",
+        "sha256": "7001d2aa2a4fca4159010db3e1d923eb496f31ca3d6bb8a169d93c8fdf3befb4",
+        "bytes": 14160,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/command.json",
+        "sha256": "eb36d6a9e2b85627958e9b7a85b3de7e3c98e311a0d4a87fb0fc57e95f824ba9",
+        "bytes": 761,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/codex_stdout.jsonl",
+        "sha256": "ceaa5eea9d1aba607c12a04e051ac967139b424f65c2f68be078855adbc06c0b",
+        "bytes": 13288,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/codex_stderr.log",
+        "sha256": "7559a26c488b85d43b16e46f2a289b150042e9f7d8eeb36e1c54f212f9cce5e1",
+        "bytes": 2943,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/codex_events.jsonl",
+        "sha256": "22e4729fe6f6b4a164b6ce639d00d461b4d85e2cd41778bd11b72477e9ded5f2",
+        "bytes": 13321,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/codex_last_message.txt",
+        "sha256": "dfbcaf2eac9059ffb948a698b9152983b0f5674a4f458fc0b38aaf9b9f4c0852",
+        "bytes": 7961,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/codex_trace.json",
+        "sha256": "cfea8ca5c9bebd0ef39c7a95b502326ad09276868a0f640b676cbbfbfbeac923",
+        "bytes": 507,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/stdout.txt",
+        "sha256": "dfbcaf2eac9059ffb948a698b9152983b0f5674a4f458fc0b38aaf9b9f4c0852",
+        "bytes": 7961,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/stderr.txt",
+        "sha256": "11702d0e5c2074cb1210b95597024936c99809c8f5a9dff961db1024ff13c49e",
+        "bytes": 3078,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/raw_response.txt",
+        "sha256": "dfbcaf2eac9059ffb948a698b9152983b0f5674a4f458fc0b38aaf9b9f4c0852",
+        "bytes": 7961,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/parsed_cells.json",
+        "sha256": "17e6a5faa0c694b63e568490953246dd8b653e12ad54c4d4c19bc9396ff11a7d",
+        "bytes": 8946,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/normalized_cells.json",
+        "sha256": "024a597fba270a3eada304a2ac9680a2d6b9e3dc7fd69bdce380473ff6850069",
+        "bytes": 8552,
+        "createdAt": "2026-06-27T14:22:48Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/validation.json",
+        "sha256": "f7035c618f7c17fa80ac7955dff254c7860448b8157fc524989f85ca5d4fab3a",
+        "bytes": 156,
+        "createdAt": "2026-06-27T14:22:48Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T14:22:48Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "f17436a8d2e4698bf40f74ca0edccd20d98afb2bb0c0fa67efbdfc76f7e4d69e"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-22-48z-census-spm-child-poverty-rate-2028-calendar-year-2028/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "Resolution URL points to the 2024 report page, not a 2028 Census source or official release placeholder, and the 2029-09-11 resolution date appears inferred from cadence rather than verified.",
+          "actionRequested": "Replace the URL with an official Census 2028 report page, release-calendar placeholder, or policy for the first 2028 SPM print; if unavailable, state a mechanically verifiable release trigger instead of a specific inferred date."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "base_rate",
+          "summary": "The base-rate prior uses 2022 and 2023 child SPM plus 2024 overall SPM, but describes a 2022-2024 child regime without citing the 2024 child value.",
+          "actionRequested": "Either cite the 2024 under-18 SPM rate directly from the Census SPM age table or rephrase the prior as based on 2022-2023 child values plus a 2024 overall signal."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "No time-series or model prior is used or explicitly ruled out; the forecast relies on a hand-built level adjustment.",
+          "actionRequested": "Add a sentence explicitly ruling out a formal time-series model and explaining why the short, policy-distorted SPM history makes the stated persistence prior preferable, or add a simple persistence/random-walk prior."
+        },
+        {
+          "findingId": "review.finding.4",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is described as wider because the forecast is four years ahead and policy-conditional, but it is not tied to realized volatility or quantified uncertainty.",
+          "actionRequested": "Anchor the 10.8-18.0 interval to observed child SPM year-to-year moves, post-2010 range, policy-scenario dispersion, or an explicit error assumption."
+        },
+        {
+          "findingId": "review.finding.5",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The resolution source title says 'Poverty in the United States: 2028' but the URL and cited evidence are for the 2024 report, creating publication metadata inconsistency.",
+          "actionRequested": "Make title, source URL, resolution rule, and dataPointId consistently reference the future 2028 first-print Census SPM age table or a documented placeholder rule."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Add the exact table cell path expected in Table B-2, such as people under age 18, number/percent in poverty, SPM, calendar year 2028."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether confidence means central 80% interval coverage."
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Keep the conditional policy mechanism tied to specific House-framework provisions rather than broad transfer headwinds where possible."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.4",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.5",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to avoid using the 2024 report URL as if it were the 2028 source, to rephrase the base rate as 2022-2023 child evidence plus a 2024 overall signal, to state a persistence prior instead of implying a formal model, and to tie the interval to observed movement plus policy uncertainty. I retained the same point forecast because the critique did not materially change the central evidence.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is directionally usable but needs blocking fixes to resolver/source/date and stronger support for the prior and interval before publication."
+    }
+  }
+]

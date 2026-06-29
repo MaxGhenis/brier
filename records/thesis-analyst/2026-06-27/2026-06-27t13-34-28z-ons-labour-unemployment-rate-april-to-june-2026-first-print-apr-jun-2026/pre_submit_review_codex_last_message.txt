@@ -1,0 +1,21 @@
+{
+  "summary": "The forecast is mostly coherent, but the resolution date is not supported by the cited calendar evidence and the model-prior step should be made more explicit.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft sets resolutionDate to 2026-08-11, but its cited calendar check only mentions August entries including 2026-08-05 and 2026-08-12, not 2026-08-11.",
+      "actionRequested": "Verify the official ONS August 2026 labour-market release placeholder or calendar entry and set resolutionDate to the exact confirmed first-print publication date, with the cited source supporting that date."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft uses a recent rolling mean/persistence anchor, but does not clearly say whether this is the intended time-series prior or whether a fuller model prior was ruled out.",
+      "actionRequested": "Add one explicit sentence stating that the model prior is a persistence/recent-mean time-series prior, or explain why a separate time-series model is not used."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify units in historicalContext for vacancies and claimant count so they cannot be mistaken for percent values.",
+    "Tie the plus 0.1 inside-view adjustment more directly to expected movement in the Apr-Jun LFS unemployment target rather than general labour-market weakness."
+  ]
+}

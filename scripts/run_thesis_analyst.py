@@ -5,7 +5,8 @@ The runner is intentionally thin:
 
 1. Build the prompt from agents/thesis-analyst/build_prompt.py, or use the
    inline fast prompt for high-volume release-series runs.
-2. Execute a headless agent command, or read a saved response / mock cell.
+2. Execute Codex CLI through subscription auth, run a custom headless command,
+   or read a saved response / mock cell.
 3. Extract JSON, normalize the cell shape, and validate the spawned-cell
    contract.
 4. Write every activity artifact: prompt, command, stdout, stderr, raw
@@ -15,9 +16,7 @@ Usage:
   python3 scripts/run_thesis_analyst.py \
       --series ons.labour.unemployment_rate --period 2026-Q4 \
       --prompt-mode fast \
-      --command "codex --search exec --ignore-user-config -m gpt-5.5 \
-      -c 'service_tier=\"fast\"' \
-      --sandbox read-only -C {repo_root} -"
+      --codex-model gpt-5.5
 
   python3 scripts/run_thesis_analyst.py \
       --series ons.labour.unemployment_rate --period 2026-Q4 \
@@ -32,11 +31,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import re
 import shlex
+import shutil
 import subprocess
 import sys
+import tempfile
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -112,13 +115,52 @@ def build_run_prompt(
     period: str,
     conditional: str | None,
     mode: str,
+    target_context: dict[str, Any] | None = None,
 ) -> tuple[str, dict]:
     prompt, meta = build_prompt(series, period, conditional)
+    target_context_block = format_target_context(target_context)
     if mode == "full":
+        if target_context_block:
+            prompt = f"{prompt}\n\n{target_context_block}"
         return prompt, meta
     if mode == "fast":
-        return build_fast_prompt(series, period, conditional, meta), meta
+        return build_fast_prompt(
+            series,
+            period,
+            conditional,
+            meta,
+            target_context,
+        ), meta
     raise ValueError(f"Unsupported prompt mode {mode!r}")
+
+
+def format_target_context(target_context: dict[str, Any] | None) -> str:
+    if not target_context:
+        return ""
+    keys = [
+        "catalogSlug",
+        "targetUnit",
+        "dataPointId",
+        "resolutionDate",
+        "resolutionSource",
+        "resolutionSourceUrl",
+        "resolutionRule",
+        "resolutionPolicy",
+        "conditional",
+    ]
+    lines = [
+        "# Canonical ledger target context",
+        "Use these ledger fields as the target contract for slug, unit, "
+        "dataPointId, resolutionDate, and resolver text. If you find a "
+        "concrete ledger error, keep the forecast tied to the same target and "
+        "state the discrepancy in reasoning rather than silently changing the "
+        "target.",
+    ]
+    for key in keys:
+        value = target_context.get(key)
+        if value not in (None, ""):
+            lines.append(f"- {key}: {json.dumps(value, sort_keys=True)}")
+    return "\n".join(lines)
 
 
 def build_fast_prompt(
@@ -126,12 +168,13 @@ def build_fast_prompt(
     period: str,
     conditional: str | None,
     meta: dict[str, Any],
+    target_context: dict[str, Any] | None = None,
 ) -> str:
     """Compact prompt for scheduled public-release batches.
 
     The full prompt is better for one-off reasoning audits. This one is for
-    scale: it inlines the contract and explicitly keeps the child agent away
-    from local repo inspection.
+    scale: it inlines the contract while allowing optional read-only access to
+    local repo context, prior runs, packs, and traces.
     """
 
     schema = {
@@ -176,15 +219,28 @@ def build_fast_prompt(
         if conditional
         else "- conditional_on: null\n"
     )
+    target_context_block = format_target_context(target_context)
+    target_context_text = f"{target_context_block}\n\n" if target_context_block else ""
     return (
         "# Thesis analyst fast public-release run\n\n"
         "Return exactly one JSON object and no Markdown. Do not wrap it in a "
         "code fence.\n\n"
-        "Hard scope: Do not inspect the local repository or workspace. Do not "
-        "run ls, cat, sed, rg, find, git, or open local files. The schema is "
-        "fully specified below. You may use web search, official public URLs, "
-        "`date -u +%Y-%m-%dT%H:%M:%SZ`, and short inline arithmetic commands "
-        "only.\n\n"
+        "# Context access\n"
+        "You may inspect the local repository/workspace when useful. This is "
+        "optional, not required. Useful read-only context can include "
+        "docs/cell-contract.md, site/src/data/forecast-cells.ts, "
+        "site/src/data/ledger-targets.ts, prediction packs, generated "
+        "comparison data, records/thesis-analyst run manifests, full activity "
+        "artifacts, prior reasoning traces, and model-candidate files. You may "
+        "run read-only commands such as rg, sed, cat, find, git log/status/show, "
+        "`date -u +%Y-%m-%dT%H:%M:%SZ`, and short inline arithmetic commands. "
+        "Do not modify files. Treat prior forecasts as historical forecasts or "
+        "strategy context, not as ground-truth outcomes. If prior runs affect "
+        "your forecast, briefly state the update from the previous run; if they "
+        "do not matter, ignore them. Existing catalog pointEstimate, ciLow, "
+        "and ciHigh values are not official evidence for a new forecast; use "
+        "local catalog context to verify target identity/resolver fields only "
+        "unless explicitly auditing an existing forecast.\n\n"
         "Goal: produce one auditable forecast for an automatically resolvable "
         "government/public statistical release. Resolve on the first official "
         "print unless the series itself is a policy decision level after an "
@@ -193,6 +249,7 @@ def build_fast_prompt(
         f"- series: {series}\n"
         f"- period: {period}\n"
         f"{conditional_line}\n"
+        f"{target_context_text}"
         "# Source hints\n"
         f"{domain_notes}\n\n"
         "# Default promoted forecasting practices\n"
@@ -202,6 +259,13 @@ def build_fast_prompt(
         "adjustments.\n"
         "- Separate level, momentum, one-off, and policy-mechanism effects "
         "before combining them.\n"
+        "- Include one public reasoning step beginning "
+        '"Prior/update/interval:" that names the model or persistence prior, '
+        "historical sample, adjustment components, interval method, and final "
+        "implied bounds.\n"
+        "- For strict first-print or original-vintage targets, keep the "
+        "ledger resolver in substance and do not add same-day correction or "
+        "release-day grace exceptions unless the target rule includes them.\n"
         "- Size the 80% interval from realized first-print dispersion, then "
         "widen or skew only for stated reasons.\n"
         "- Name concrete upside, downside, and outside-the-interval scenarios.\n\n"
@@ -216,11 +280,17 @@ def build_fast_prompt(
         "- reasoning must contain at least 7 steps, at least 3 tool steps "
         "whose result strings include fetched numbers, one explicit base-rate "
         "or reference-class step, one math step, one counter-consideration, "
-        "and a final forecast step whose numbers exactly match the cell.\n"
+        "one step beginning Prior/update/interval:, and a final forecast step "
+        "whose numbers exactly match the cell.\n"
         "- Every tool step result must include at least one fetched numeric "
-        "value. Put qualitative source notes in text steps instead.\n"
+        "value. Put qualitative source notes in text steps instead. Numbers "
+        "may come from official public sources or inspected local run/model "
+        "artifacts, but the provenance must be clear.\n"
         "- resolutionDate must be verified from an official release calendar "
         "or announcement schedule this run. Do not infer it from cadence.\n"
+        "- Do not use existing local catalog point estimates or intervals as "
+        "forecast evidence. If inspected, treat them only as non-authoritative "
+        "prior strategy context and keep them out of tool-result evidence.\n"
         "- runAt must be the actual UTC date command output from this run.\n"
         "- Slug should be stable and descriptive; if the same target already "
         "exists, reuse the obvious canonical slug rather than inventing a "
@@ -270,6 +340,16 @@ def fast_domain_notes(series: str) -> list[str]:
             "Australia CPI indicator rates print to one decimal.",
             "Resolution source should be the ABS release page.",
         ]
+    if series.startswith("census."):
+        return [
+            "Use Census income, poverty, SPM, and health-insurance release "
+            "pages, CPS ASEC historical tables, and the Census release calendar.",
+            "For official-poverty targets, distinguish the official poverty "
+            "measure from SPM and cite the exact Census table or report.",
+            "For SPM targets, name the population group, calendar year, and "
+            "whether taxes, credits, transfers, medical expenses, or housing "
+            "adjustments matter for the forecast.",
+        ]
     if series.startswith(("bls.", "bea.", "census.", "dol.", "fed.", "us.")):
         return [
             "Use the official agency release calendar, not inferred cadence.",
@@ -277,6 +357,43 @@ def fast_domain_notes(series: str) -> list[str]:
             "For FOMC targets, resolve to the target range upper bound after "
             "the announcement.",
             "For DOL claims, name the week-ending date and cite the release date.",
+        ]
+    if series.startswith("cms."):
+        return [
+            "Use Medicaid.gov enrollment and eligibility-report pages plus "
+            "data.medicaid.gov datasets.",
+            "For fixed-vintage Medicaid/CHIP targets, name the reporting "
+            "period, preliminary/updated status, and whether the target is a "
+            "national total, weighted average, or state row.",
+            "If the catalog unit is millions, convert official person counts "
+            "to millions in the emitted cell.",
+        ]
+    if series.startswith(("fns.", "usda.fns.")):
+        return [
+            "Use USDA FNS program-data pages, official data tables, and the "
+            "FNS data release calendar.",
+            "For SNAP, WIC, and QC targets, distinguish annual fiscal-year "
+            "quality-control releases from monthly participation tables.",
+            "If the catalog unit is millions, convert official person counts "
+            "to millions in the emitted cell.",
+        ]
+    if series.startswith("treasury."):
+        return [
+            "Use U.S. Treasury Monthly Treasury Statement pages, fiscal-year "
+            "tables, and official release schedules.",
+            "For MTS targets, distinguish monthly amounts, fiscal-year-to-date "
+            "amounts, receipts, outlays, refunds, and deficit concepts.",
+            "Match the catalog unit, usually billions of nominal dollars.",
+        ]
+    if series.startswith("irs."):
+        return [
+            "Use IRS filing-season statistics, annual inflation-adjustment "
+            "revenue procedures, and official IRS release pages.",
+            "For threshold targets, resolve to the first official IRS value "
+            "for the named tax year and parameter, not an inferred estimate "
+            "once the official figure is available.",
+            "Match the catalog unit, usually nominal dollars or billions of "
+            "nominal dollars.",
         ]
     return [
         "Use the official agency data page and release calendar.",
@@ -343,6 +460,671 @@ def run_agent_command(
             "stdout": stdout,
             "stderr": stderr,
         }
+
+
+def resolve_codex_cli() -> str:
+    """Return the Codex executable, preferring the Desktop-bundled CLI."""
+    override = os.getenv("THESIS_CODEX_BIN")
+    if override:
+        return override
+
+    app_binary = pathlib.Path("/Applications/Codex.app/Contents/Resources/codex")
+    if app_binary.exists():
+        return str(app_binary)
+
+    return shutil.which("codex") or "codex"
+
+
+def prepare_codex_home(codex_home: pathlib.Path) -> pathlib.Path:
+    """Create a minimal CODEX_HOME that reuses subscription auth, not config."""
+    codex_home.mkdir(parents=True, exist_ok=True)
+    (codex_home / "skills").mkdir(exist_ok=True)
+    source_home = pathlib.Path(
+        os.environ.get("CODEX_HOME") or pathlib.Path.home() / ".codex"
+    )
+    for filename in ("auth.json", "installation_id"):
+        source = source_home / filename
+        target = codex_home / filename
+        if target.exists() or target.is_symlink() or not source.exists():
+            continue
+        try:
+            target.symlink_to(source)
+        except OSError:
+            shutil.copy2(source, target)
+    return codex_home
+
+
+def positive_int_env(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
+def wait_for_codex_process(
+    process: subprocess.Popen[str],
+    last_message_file: pathlib.Path,
+    timeout_seconds: int,
+    *,
+    heartbeat_paths: list[pathlib.Path],
+    settle_seconds: float = 5.0,
+    max_output_wait_seconds: float = 30.0,
+    max_idle_seconds: float = 120.0,
+    poll_interval: float = 0.5,
+) -> bool:
+    """Wait for Codex, terminating once the last assistant message is stable."""
+    start = time.time()
+    last_snapshot: tuple[int, int] | None = None
+    stable_since: float | None = None
+    output_seen_at: float | None = None
+    last_activity_at = start
+    heartbeat_snapshot: tuple[tuple[int, int, int], ...] | None = None
+
+    def snapshot_activity() -> tuple[tuple[int, int, int], ...]:
+        snapshot: list[tuple[int, int, int]] = []
+        for path in [last_message_file, *heartbeat_paths]:
+            if not path.exists():
+                snapshot.append((0, 0, 0))
+                continue
+            try:
+                stat = path.stat()
+            except OSError:
+                snapshot.append((0, 0, 0))
+                continue
+            snapshot.append((1, stat.st_size, stat.st_mtime_ns))
+        return tuple(snapshot)
+
+    while True:
+        if process.poll() is not None:
+            return False
+
+        now = time.time()
+        if now - start > timeout_seconds:
+            raise subprocess.TimeoutExpired(process.args, timeout_seconds)
+
+        current_heartbeat = snapshot_activity()
+        if current_heartbeat != heartbeat_snapshot:
+            heartbeat_snapshot = current_heartbeat
+            last_activity_at = now
+        elif now - last_activity_at >= max_idle_seconds:
+            process.terminate()
+            try:
+                process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+            raise subprocess.TimeoutExpired(process.args, max_idle_seconds)
+
+        if last_message_file.exists():
+            try:
+                text = last_message_file.read_text().strip()
+                stat = last_message_file.stat()
+            except OSError:
+                text = ""
+                stat = None
+
+            if text and stat is not None:
+                output_seen_at = output_seen_at or now
+                snapshot = (stat.st_size, stat.st_mtime_ns)
+                if snapshot == last_snapshot:
+                    stable_since = stable_since or now
+                    if now - stable_since >= settle_seconds:
+                        process.terminate()
+                        try:
+                            process.wait(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            process.kill()
+                            process.wait()
+                        return True
+                else:
+                    last_snapshot = snapshot
+                    stable_since = None
+
+                if now - output_seen_at >= max_output_wait_seconds:
+                    process.terminate()
+                    try:
+                        process.wait(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait()
+                    return True
+
+        time.sleep(poll_interval)
+
+
+def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
+    events: list[dict[str, Any]] = []
+    assistant_messages: list[str] = []
+    usage_payload: dict[str, Any] | None = None
+    last_error: str | None = None
+    non_json_lines: list[str] = []
+
+    for stream_name, text in (("stdout", stdout_text), ("stderr", stderr_text)):
+        for line in text.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                payload = json.loads(stripped)
+            except json.JSONDecodeError:
+                non_json_lines.append(f"{stream_name}: {line}")
+                continue
+            if not isinstance(payload, dict):
+                continue
+            events.append(payload)
+            if payload.get("type") == "item.completed":
+                item = payload.get("item") or {}
+                if item.get("type") == "agent_message" and item.get("text"):
+                    assistant_messages.append(str(item["text"]))
+            elif payload.get("type") == "turn.completed":
+                usage_payload = payload.get("usage") or {}
+            elif payload.get("type") == "error":
+                last_error = payload.get("message") or "codex exec error"
+
+    events_jsonl = "\n".join(json.dumps(event) for event in events)
+    if events_jsonl:
+        events_jsonl += "\n"
+    return {
+        "events": events,
+        "eventsJsonl": events_jsonl,
+        "assistantText": "\n".join(assistant_messages).strip(),
+        "usage": usage_payload,
+        "lastError": last_error,
+        "nonJsonStderr": "\n".join(non_json_lines),
+    }
+
+
+def run_codex_agent_command(
+    *,
+    prompt: str,
+    timeout_seconds: int,
+    model: str,
+    out_dir: pathlib.Path,
+    prefix: str,
+    search: bool,
+    sandbox: str,
+    reasoning_effort: str | None,
+) -> dict[str, Any]:
+    """Run a prompt through Codex CLI/ChatGPT auth and retain the full trace."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    last_message_file = out_dir / f"{prefix}codex_last_message.txt"
+    last_message_file.unlink(missing_ok=True)
+
+    cmd = [resolve_codex_cli()]
+    if search:
+        cmd.append("--search")
+    cmd.extend(
+        [
+            "exec",
+            "--json",
+            "--skip-git-repo-check",
+            "--ignore-user-config",
+            "-o",
+            str(last_message_file),
+            "-m",
+            model,
+        ]
+    )
+    if reasoning_effort:
+        cmd.extend(["-c", f'reasoning_effort="{reasoning_effort}"'])
+    cmd.extend(["-C", str(ROOT), "-s", sandbox, prompt])
+    logged_cmd = [*cmd[:-1], "<prompt>"]
+
+    started_at = utc_now()
+    terminated_after_output = False
+    timed_out = False
+    timeout_reason: str | None = None
+    stdout_text = ""
+    stderr_text = ""
+    process_return_code = 1
+
+    try:
+        codex_home_dir = tempfile.mkdtemp(prefix="thesis-codex-home-")
+        try:
+            with (
+                tempfile.NamedTemporaryFile(mode="w+", delete=False) as stdout_file,
+                tempfile.NamedTemporaryFile(mode="w+", delete=False) as stderr_file,
+            ):
+                codex_home = prepare_codex_home(pathlib.Path(codex_home_dir))
+                codex_env = os.environ.copy()
+                codex_env["CODEX_HOME"] = str(codex_home)
+                stdout_path = pathlib.Path(stdout_file.name)
+                stderr_path = pathlib.Path(stderr_file.name)
+                process = subprocess.Popen(
+                    cmd,
+                    stdin=subprocess.DEVNULL,
+                    stdout=stdout_file,
+                    stderr=stderr_file,
+                    text=True,
+                    cwd=ROOT,
+                    env=codex_env,
+                )
+                try:
+                    terminated_after_output = wait_for_codex_process(
+                        process,
+                        last_message_file,
+                        timeout_seconds,
+                        heartbeat_paths=[stdout_path, stderr_path],
+                        max_idle_seconds=positive_int_env(
+                            "THESIS_CODEX_IDLE_TIMEOUT_SECONDS",
+                            min(timeout_seconds, 120),
+                        ),
+                    )
+                except subprocess.TimeoutExpired as exc:
+                    timed_out = True
+                    timeout_reason = (
+                        "idle"
+                        if exc.timeout
+                        == positive_int_env(
+                            "THESIS_CODEX_IDLE_TIMEOUT_SECONDS",
+                            min(timeout_seconds, 120),
+                        )
+                        else "wall"
+                    )
+                    process.kill()
+                    process.wait()
+                process_return_code = process.returncode or 0
+        finally:
+            shutil.rmtree(codex_home_dir, ignore_errors=True)
+
+        stdout_text = stdout_path.read_text()
+        stderr_text = stderr_path.read_text()
+        stdout_path.unlink(missing_ok=True)
+        stderr_path.unlink(missing_ok=True)
+    except FileNotFoundError:
+        finished_at = utc_now()
+        return {
+            "argv": logged_cmd,
+            "startedAt": started_at,
+            "finishedAt": finished_at,
+            "returnCode": 127,
+            "timedOut": False,
+            "stdout": "",
+            "stderr": "codex CLI not found",
+        }
+    except Exception as exc:
+        finished_at = utc_now()
+        return {
+            "argv": logged_cmd,
+            "startedAt": started_at,
+            "finishedAt": finished_at,
+            "returnCode": 1,
+            "timedOut": False,
+            "stdout": "",
+            "stderr": f"Error running codex CLI: {exc}",
+        }
+
+    finished_at = utc_now()
+    parsed = parse_codex_jsonl(stdout_text, stderr_text)
+    final_text = parsed["assistantText"]
+    last_message_text = ""
+    if last_message_file.exists():
+        last_message_text = last_message_file.read_text().strip()
+        if last_message_text:
+            final_text = last_message_text
+    if not final_text and parsed["lastError"]:
+        final_text = str(parsed["lastError"])
+
+    effective_return_code = process_return_code
+    if final_text and (
+        process_return_code == 0 or terminated_after_output or timed_out
+    ):
+        effective_return_code = 0
+
+    return {
+        "argv": logged_cmd,
+        "startedAt": started_at,
+        "finishedAt": finished_at,
+        "returnCode": effective_return_code,
+        "processReturnCode": process_return_code,
+        "timedOut": timed_out,
+        "timeoutReason": timeout_reason,
+        "terminatedAfterOutput": terminated_after_output,
+        "stdout": final_text,
+        "stderr": parsed["nonJsonStderr"] or stderr_text,
+        "codexStdoutRaw": stdout_text,
+        "codexStderrRaw": stderr_text,
+        "codexEventsJsonl": parsed["eventsJsonl"],
+        "codexLastMessage": last_message_text,
+        "codexTrace": {
+            "provider": "openai",
+            "backend": "codex-exec",
+            "auth": "codex-cli-subscription",
+            "model": model,
+            "searchEnabled": search,
+            "sandbox": sandbox,
+            "reasoningEffort": reasoning_effort,
+            "timedOut": timed_out,
+            "timeoutReason": timeout_reason,
+            "terminatedAfterOutput": terminated_after_output,
+            "processReturnCode": process_return_code,
+            "effectiveReturnCode": effective_return_code,
+            "usage": parsed["usage"],
+            "eventCount": len(parsed["events"]),
+            "lastError": parsed["lastError"],
+        },
+    }
+
+
+def command_hash(command_result: dict[str, Any] | None) -> str | None:
+    if not command_result:
+        return None
+    return sha256_bytes(json.dumps(command_result.get("argv", [])).encode())
+
+
+def append_command_artifacts(
+    refs: list[dict[str, Any]],
+    out_dir: pathlib.Path,
+    *,
+    prefix: str,
+    command_result: dict[str, Any],
+    created_at: str,
+    stdout_artifact_type: str = "stdout",
+) -> dict[str, Any]:
+    refs.append(
+        write_artifact(
+            out_dir,
+            "command",
+            f"{prefix}command.json",
+            json.dumps(
+                {
+                    "argv": command_result["argv"],
+                    "returnCode": command_result["returnCode"],
+                    "processReturnCode": command_result.get("processReturnCode"),
+                    "timedOut": command_result.get("timedOut", False),
+                    "timeoutReason": command_result.get("timeoutReason"),
+                    "terminatedAfterOutput": command_result.get(
+                        "terminatedAfterOutput"
+                    ),
+                    "startedAt": command_result["startedAt"],
+                    "finishedAt": command_result["finishedAt"],
+                },
+                indent=2,
+            ),
+            created_at,
+        )
+    )
+    if command_result.get("codexStdoutRaw") is not None:
+        refs.append(
+            write_artifact(
+                out_dir,
+                "codex_stdout_jsonl",
+                f"{prefix}codex_stdout.jsonl",
+                command_result["codexStdoutRaw"],
+                created_at,
+            )
+        )
+    if command_result.get("codexStderrRaw") is not None:
+        refs.append(
+            write_artifact(
+                out_dir,
+                "codex_stderr_log",
+                f"{prefix}codex_stderr.log",
+                command_result["codexStderrRaw"],
+                created_at,
+            )
+        )
+    if command_result.get("codexEventsJsonl"):
+        refs.append(
+            write_artifact(
+                out_dir,
+                "codex_events_jsonl",
+                f"{prefix}codex_events.jsonl",
+                command_result["codexEventsJsonl"],
+                created_at,
+            )
+        )
+    if command_result.get("codexLastMessage"):
+        refs.append(
+            write_artifact(
+                out_dir,
+                "codex_last_message",
+                f"{prefix}codex_last_message.txt",
+                command_result["codexLastMessage"],
+                created_at,
+            )
+        )
+    if command_result.get("codexTrace") is not None:
+        refs.append(
+            write_artifact(
+                out_dir,
+                "codex_trace",
+                f"{prefix}codex_trace.json",
+                json.dumps(command_result["codexTrace"], indent=2),
+                created_at,
+            )
+        )
+    stdout_ref = write_artifact(
+        out_dir,
+        stdout_artifact_type,
+        f"{prefix}stdout.txt",
+        command_result["stdout"],
+        created_at,
+    )
+    refs.append(stdout_ref)
+    refs.append(
+        write_artifact(
+            out_dir,
+            "stderr",
+            f"{prefix}stderr.txt",
+            command_result["stderr"],
+            created_at,
+        )
+    )
+    return stdout_ref
+
+
+def build_pre_submit_review_prompt(
+    *,
+    series: str,
+    period: str,
+    conditional: str | None,
+    target_context: dict[str, Any] | None,
+    original_prompt: str,
+    draft_response: str,
+) -> str:
+    conditional_line = conditional if conditional else "null"
+    target_context_block = format_target_context(target_context)
+    target_context_text = f"\n{target_context_block}\n" if target_context_block else ""
+    return (
+        "# Thesis pre-submit forecast review\n\n"
+        "You are a reviewer for a forecast before publication. Review the "
+        "draft forecast, the target spec, cited public evidence, and any "
+        "relevant local repo context or prior traces if useful. This extra "
+        "context is optional; do not require it when the draft is already "
+        "clear. Do not use future outcomes, private knowledge, or hidden "
+        "chain-of-thought. Do not produce a replacement forecast.\n\n"
+        "# Target\n"
+        f"- series: {series}\n"
+        f"- period: {period}\n"
+        f"- conditional: {conditional_line}\n\n"
+        f"{target_context_text}"
+        "# Rubric\n"
+        "Check these items and name concrete fixes when needed:\n"
+        "1. Exact resolver, source, first-print rule, and resolution date.\n"
+        "2. Base-rate or persistence prior stated before inside-view updates.\n"
+        "3. Time-series/model prior used or explicitly ruled out.\n"
+        "4. Current evidence justifies material movement from the prior.\n"
+        "5. Interval size comes from realized volatility or explicit uncertainty.\n"
+        "6. A compact Prior/update/interval step names the prior, historical "
+        "sample, adjustment components, interval method, and implied bounds.\n"
+        "7. Tail scenarios are concrete and tied to the target.\n"
+        "8. Point, interval, final forecast step, and JSON fields are coherent.\n"
+        "9. No leakage, catalog point/interval circularity, subjective "
+        "resolver, or unit ambiguity.\n\n"
+        "# Required response\n"
+        "Return JSON only, with this shape:\n"
+        "{\n"
+        '  "summary": "one sentence",\n'
+        '  "requiredFixes": [\n'
+        "    {\n"
+        '      "rubricItem": "resolver|base_rate|model_prior|update|'
+        'interval|prior_update_interval|tails|coherence|leakage",\n'
+        '      "severity": "warning|blocking",\n'
+        '      "summary": "specific issue",\n'
+        '      "actionRequested": "specific change requested"\n'
+        "    }\n"
+        "  ],\n"
+        '  "optionalSuggestions": ["short suggestions"]\n'
+        "}\n\n"
+        "# Original forecaster prompt hash material\n"
+        f"{sha256_bytes(original_prompt.encode())}\n\n"
+        "# Draft forecast response\n"
+        f"{draft_response}\n"
+    )
+
+
+def build_revision_prompt(
+    *,
+    original_prompt: str,
+    draft_response: str,
+    review_response: str,
+) -> str:
+    return (
+        f"{original_prompt}\n\n"
+        "# Pre-submit review loop\n\n"
+        "You already drafted the response below. A reviewer then checked the "
+        "draft against the Thesis rubric. Produce the final JSON forecast now.\n\n"
+        "Rules for the final submission:\n"
+        "- Return exactly one JSON object and no Markdown.\n"
+        "- Use only pre-resolution public evidence available to the draft.\n"
+        "- Accept reviewer fixes only when they improve resolver clarity, "
+        "source grounding, base-rate discipline, uncertainty calibration, or "
+        "internal coherence.\n"
+        "- Add a public reasoning text step beginning with "
+        '"Review disposition:" that states which critique items were accepted '
+        "or rejected. Keep this concise; do not reveal hidden chain-of-thought.\n"
+        "- Put the Review disposition text step before the final forecast step.\n"
+        "- The final reasoning step must be the forecast step, and its numbers "
+        "must exactly match pointEstimate, ciLow, and ciHigh.\n\n"
+        "# Draft forecast response\n"
+        f"{draft_response}\n\n"
+        "# Reviewer critique\n"
+        f"{review_response}\n\n"
+        "Emit the final JSON object only.\n"
+    )
+
+
+def parse_review_payload(text: str) -> dict[str, Any]:
+    try:
+        payloads = extract_json_payload(text)
+    except ValueError:
+        return {
+            "summary": text.strip().splitlines()[0][:240] if text.strip() else "",
+            "requiredFixes": [],
+            "optionalSuggestions": [],
+        }
+    payload = payloads[0] if payloads else {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def build_pre_submit_review_metadata(
+    *,
+    status: str,
+    requested_at: str,
+    review_result: dict[str, Any] | None,
+    review_payload: dict[str, Any] | None,
+    draft_ref: dict[str, Any] | None,
+    review_ref: dict[str, Any] | None,
+    revision_prompt_ref: dict[str, Any] | None,
+    normalized_cells: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    fixes = list((review_payload or {}).get("requiredFixes") or [])
+    suggestions = list((review_payload or {}).get("optionalSuggestions") or [])
+    findings: list[dict[str, Any]] = []
+    for index, fix in enumerate(fixes):
+        findings.append(
+            {
+                "findingId": f"review.finding.{index + 1}",
+                "severity": str(fix.get("severity") or "warning"),
+                "rubricItem": str(fix.get("rubricItem") or "review"),
+                "summary": str(fix.get("summary") or "").strip(),
+                "actionRequested": str(fix.get("actionRequested") or "").strip()
+                or None,
+            }
+        )
+    for index, suggestion in enumerate(suggestions):
+        findings.append(
+            {
+                "findingId": f"review.suggestion.{index + 1}",
+                "severity": "info",
+                "rubricItem": "optional_suggestion",
+                "summary": str(suggestion).strip(),
+            }
+        )
+
+    disposition_text = extract_review_disposition(normalized_cells or [])
+    dispositions = [
+        {
+            "findingId": finding["findingId"],
+            "decision": (
+                "accepted"
+                if disposition_text and finding["severity"] != "info"
+                else "not_applicable"
+            ),
+            "rationale": disposition_text
+            or "No explicit review disposition was found in the final public trace.",
+            "forecastChanged": bool(disposition_text and finding["severity"] != "info"),
+        }
+        for finding in findings
+    ]
+
+    summary = str((review_payload or {}).get("summary") or "").strip()
+    if not summary:
+        summary = (
+            "Pre-submit review completed and was recorded before publication."
+            if status == "completed"
+            else f"Pre-submit review status: {status.replace('_', ' ')}."
+        )
+
+    return without_none(
+        {
+            "schemaVersion": "thesis_pre_submit_review_v1",
+            "status": status,
+            "requestedAt": requested_at,
+            "reviewer": {
+                "agent": "thesis.pre_submit_reviewer",
+                "model": infer_command_model(review_result),
+                "promptVersion": "pre-submit-review-v0.1",
+                "commandHash": command_hash(review_result),
+            },
+            "draftArtifactPath": draft_ref.get("path") if draft_ref else None,
+            "reviewArtifactPath": review_ref.get("path") if review_ref else None,
+            "revisionPromptPath": (
+                revision_prompt_ref.get("path") if revision_prompt_ref else None
+            ),
+            "findings": findings,
+            "dispositions": dispositions,
+            "summary": summary,
+        }
+    )
+
+
+def without_none(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            key: without_none(entry)
+            for key, entry in value.items()
+            if entry is not None
+        }
+    if isinstance(value, list):
+        return [without_none(entry) for entry in value]
+    return value
+
+
+def extract_review_disposition(cells: list[dict[str, Any]]) -> str | None:
+    for cell in cells:
+        for step in cell.get("reasoning", []):
+            if not isinstance(step, dict):
+                continue
+            text = str(step.get("text") or "")
+            if text.lower().startswith("review disposition:"):
+                return text
+    return None
 
 
 def infer_command_model(command_result: dict[str, Any] | None) -> str | None:
@@ -475,6 +1257,7 @@ def normalize_cells(parsed_path: pathlib.Path, normalized_path: pathlib.Path) ->
 def validate_cells(
     cells: list[dict],
     allow_existing_slug: bool = False,
+    target_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -491,6 +1274,7 @@ def validate_cells(
         errors = validate(cell, taken | seen)
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
+        errors.extend(target_context_validation_errors(cell, target_context))
         if errors:
             ok = False
         else:
@@ -499,19 +1283,93 @@ def validate_cells(
     return {"ok": ok, "cells": rows}
 
 
+def target_context_validation_errors(
+    cell: dict[str, Any],
+    target_context: dict[str, Any] | None,
+) -> list[str]:
+    if not target_context:
+        return []
+    checks = [
+        ("catalogSlug", "slug"),
+        ("targetUnit", "unit"),
+        ("dataPointId", "dataPointId"),
+        ("resolutionDate", "resolutionDate"),
+    ]
+    errors = []
+    for context_key, cell_key in checks:
+        expected = target_context.get(context_key)
+        if expected in (None, ""):
+            continue
+        actual = cell.get(cell_key)
+        if actual != expected:
+            errors.append(
+                f"{cell_key} {actual!r} does not match target context "
+                f"{context_key} {expected!r}"
+            )
+    errors.extend(first_print_resolution_rule_errors(cell, target_context))
+    return errors
+
+
+def first_print_resolution_rule_errors(
+    cell: dict[str, Any],
+    target_context: dict[str, Any],
+) -> list[str]:
+    target_rule = str(target_context.get("resolutionRule") or "")
+    if not is_strict_first_print_rule(target_rule):
+        return []
+    cell_rule = str(cell.get("resolutionRule") or "")
+    target_lower = target_rule.lower()
+    cell_lower = cell_rule.lower()
+    forbidden_phrases = [
+        "same release day",
+        "same-day",
+        "release-day grace",
+        "corrected before release day ends",
+        "unless cms corrects",
+        "unless the agency corrects",
+    ]
+    errors = []
+    for phrase in forbidden_phrases:
+        if phrase in cell_lower and phrase not in target_lower:
+            errors.append(
+                "resolutionRule adds correction/grace exception not present "
+                f"in target context: {phrase!r}"
+            )
+    return errors
+
+
+def is_strict_first_print_rule(rule: str) -> bool:
+    lower = rule.lower()
+    return any(
+        token in lower
+        for token in [
+            "first print",
+            "first-print",
+            "first publishes",
+            "first published",
+            "first-published",
+            "original (o)",
+        ]
+    )
+
+
 def attach_activity_log(
     cells: list[dict],
     refs: list[dict],
     meta: dict[str, Any],
+    pre_submit_review: dict[str, Any] | None = None,
 ) -> list[dict]:
-    return [
-        {
+    output = []
+    for cell in cells:
+        row = {
             **cell,
             "model": cell.get("model", meta.get("model")),
             "activityLog": refs,
         }
-        for cell in cells
-    ]
+        if pre_submit_review:
+            row["preSubmitReview"] = pre_submit_review
+        output.append(row)
+    return output
 
 
 def write_ts_module(
@@ -627,9 +1485,17 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--series", required=True)
     parser.add_argument("--period", required=True)
     parser.add_argument("--conditional")
+    parser.add_argument("--target-context-json")
     parser.add_argument("--prompt-mode", choices=["full", "fast"], default="full")
     parser.add_argument("--out-dir")
     parser.add_argument("--command")
+    parser.add_argument("--codex-model")
+    parser.add_argument("--codex-sandbox", default="read-only")
+    parser.add_argument("--codex-reasoning-effort", default="low")
+    parser.add_argument("--no-codex-search", action="store_true")
+    parser.add_argument("--pre-submit-review-command")
+    parser.add_argument("--pre-submit-review-codex-model")
+    parser.add_argument("--pre-submit-review-codex-search", action="store_true")
     parser.add_argument("--timeout-seconds", type=int, default=600)
     parser.add_argument("--response-file")
     parser.add_argument("--mock-cell", action="store_true")
@@ -640,25 +1506,117 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def parse_target_context(value: str | None) -> dict[str, Any] | None:
+    if not value:
+        return None
+    try:
+        parsed = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Invalid --target-context-json: {exc}") from exc
+    if not isinstance(parsed, dict):
+        raise SystemExit("--target-context-json must be a JSON object")
+    return parsed
+
+
+def run_forecaster(
+    args: argparse.Namespace,
+    *,
+    prompt: str,
+    prompt_path: pathlib.Path,
+    out_dir: pathlib.Path,
+    prefix: str,
+) -> dict[str, Any]:
+    if args.codex_model:
+        return run_codex_agent_command(
+            prompt=prompt,
+            timeout_seconds=args.timeout_seconds,
+            model=args.codex_model,
+            out_dir=out_dir,
+            prefix=prefix,
+            search=not args.no_codex_search,
+            sandbox=args.codex_sandbox,
+            reasoning_effort=args.codex_reasoning_effort,
+        )
+    return run_agent_command(
+        args.command,
+        prompt,
+        prompt_path,
+        args.timeout_seconds,
+    )
+
+
+def run_pre_submit_reviewer(
+    args: argparse.Namespace,
+    *,
+    prompt: str,
+    prompt_path: pathlib.Path,
+    out_dir: pathlib.Path,
+) -> dict[str, Any]:
+    if args.pre_submit_review_codex_model:
+        return run_codex_agent_command(
+            prompt=prompt,
+            timeout_seconds=args.timeout_seconds,
+            model=args.pre_submit_review_codex_model,
+            out_dir=out_dir,
+            prefix="pre_submit_review_",
+            search=args.pre_submit_review_codex_search,
+            sandbox=args.codex_sandbox,
+            reasoning_effort=args.codex_reasoning_effort,
+        )
+    return run_agent_command(
+        args.pre_submit_review_command,
+        prompt,
+        prompt_path,
+        args.timeout_seconds,
+    )
+
+
 def main() -> int:
     args = parse_args()
     run_at = utc_now()
+    target_context = parse_target_context(args.target_context_json)
     prompt, meta = build_run_prompt(
         args.series,
         args.period,
         args.conditional,
         args.prompt_mode,
+        target_context,
     )
     if args.print_prompt:
         print(prompt)
         return 0
 
     if (
-        sum(bool(value) for value in [args.command, args.response_file, args.mock_cell])
+        sum(
+            bool(value)
+            for value in [
+                args.command,
+                args.codex_model,
+                args.response_file,
+                args.mock_cell,
+            ]
+        )
         != 1
     ):
         raise SystemExit(
-            "Choose exactly one of --command, --response-file, or --mock-cell"
+            "Choose exactly one of --command, --codex-model, --response-file, "
+            "or --mock-cell"
+        )
+    review_sources = [
+        args.pre_submit_review_command,
+        args.pre_submit_review_codex_model,
+    ]
+    if sum(bool(value) for value in review_sources) > 1:
+        raise SystemExit(
+            "Choose at most one of --pre-submit-review-command or "
+            "--pre-submit-review-codex-model"
+        )
+    if any(bool(value) for value in review_sources) and not (
+        args.command or args.codex_model
+    ):
+        raise SystemExit(
+            "Pre-submit review requires --command or --codex-model for the "
+            "forecaster"
         )
 
     out_dir = (
@@ -670,42 +1628,120 @@ def main() -> int:
     refs.append(write_artifact(out_dir, "prompt", "prompt.md", prompt, run_at))
 
     command_result: dict[str, Any] | None = None
-    if args.command:
-        command_result = run_agent_command(
-            args.command,
-            prompt,
-            out_dir / "prompt.md",
-            args.timeout_seconds,
-        )
-        refs.append(
-            write_artifact(
+    review_status: str | None = None
+    review_result: dict[str, Any] | None = None
+    review_payload: dict[str, Any] | None = None
+    draft_ref: dict[str, Any] | None = None
+    review_ref: dict[str, Any] | None = None
+    revision_prompt_ref: dict[str, Any] | None = None
+    if args.command or args.codex_model:
+        if args.pre_submit_review_command or args.pre_submit_review_codex_model:
+            draft_result = run_forecaster(
+                args,
+                prompt=prompt,
+                prompt_path=out_dir / "prompt.md",
+                out_dir=out_dir,
+                prefix="draft_",
+            )
+            draft_ref = append_command_artifacts(
+                refs,
                 out_dir,
-                "command",
-                "command.json",
-                json.dumps(
-                    {
-                        "argv": command_result["argv"],
-                        "returnCode": command_result["returnCode"],
-                        "timedOut": command_result.get("timedOut", False),
-                        "startedAt": command_result["startedAt"],
-                        "finishedAt": command_result["finishedAt"],
-                    },
-                    indent=2,
-                ),
-                run_at,
+                prefix="draft_",
+                command_result=draft_result,
+                created_at=run_at,
+                stdout_artifact_type="draft_forecast",
             )
-        )
-        refs.append(
-            write_artifact(
-                out_dir, "stdout", "stdout.txt", command_result["stdout"], run_at
+            if draft_result["returnCode"] != 0:
+                review_status = "draft_failed"
+                command_result = draft_result
+                raw_response = draft_result["stdout"]
+            else:
+                review_prompt = build_pre_submit_review_prompt(
+                    series=args.series,
+                    period=args.period,
+                    conditional=args.conditional,
+                    target_context=target_context,
+                    original_prompt=prompt,
+                    draft_response=draft_result["stdout"],
+                )
+                refs.append(
+                    write_artifact(
+                        out_dir,
+                        "review_prompt",
+                        "pre_submit_review_prompt.md",
+                        review_prompt,
+                        run_at,
+                    )
+                )
+                review_result = run_pre_submit_reviewer(
+                    args,
+                    prompt=review_prompt,
+                    prompt_path=out_dir / "pre_submit_review_prompt.md",
+                    out_dir=out_dir,
+                )
+                review_ref = append_command_artifacts(
+                    refs,
+                    out_dir,
+                    prefix="pre_submit_review_",
+                    command_result=review_result,
+                    created_at=run_at,
+                    stdout_artifact_type="pre_submit_review",
+                )
+                review_payload = parse_review_payload(review_result["stdout"])
+                if review_result["returnCode"] != 0:
+                    review_status = "review_failed"
+                    command_result = review_result
+                    raw_response = draft_result["stdout"]
+                else:
+                    revision_prompt = build_revision_prompt(
+                        original_prompt=prompt,
+                        draft_response=draft_result["stdout"],
+                        review_response=review_result["stdout"],
+                    )
+                    revision_prompt_ref = write_artifact(
+                        out_dir,
+                        "revision_prompt",
+                        "revision_prompt.md",
+                        revision_prompt,
+                        run_at,
+                    )
+                    refs.append(revision_prompt_ref)
+                    command_result = run_forecaster(
+                        args,
+                        prompt=revision_prompt,
+                        prompt_path=out_dir / "revision_prompt.md",
+                        out_dir=out_dir,
+                        prefix="",
+                    )
+                    append_command_artifacts(
+                        refs,
+                        out_dir,
+                        prefix="",
+                        command_result=command_result,
+                        created_at=run_at,
+                    )
+                    raw_response = command_result["stdout"]
+                    review_status = (
+                        "completed"
+                        if command_result["returnCode"] == 0
+                        else "revision_failed"
+                    )
+        else:
+            command_result = run_forecaster(
+                args,
+                prompt=prompt,
+                prompt_path=out_dir / "prompt.md",
+                out_dir=out_dir,
+                prefix="",
             )
-        )
-        refs.append(
-            write_artifact(
-                out_dir, "stderr", "stderr.txt", command_result["stderr"], run_at
+            append_command_artifacts(
+                refs,
+                out_dir,
+                prefix="",
+                command_result=command_result,
+                created_at=run_at,
             )
-        )
-        raw_response = command_result["stdout"]
+            raw_response = command_result["stdout"]
         if command_result["returnCode"] != 0:
             print(
                 f"agent command exited {command_result['returnCode']}", file=sys.stderr
@@ -782,7 +1818,11 @@ def main() -> int:
         }
     )
 
-    validation = validate_cells(normalized_cells, args.allow_existing_slug)
+    validation = validate_cells(
+        normalized_cells,
+        args.allow_existing_slug,
+        target_context,
+    )
     validation_ref = write_artifact(
         out_dir,
         "validation_report",
@@ -792,7 +1832,26 @@ def main() -> int:
     )
     refs.append(validation_ref)
 
-    cells_with_activity = attach_activity_log(normalized_cells, refs, runtime_meta)
+    pre_submit_review = (
+        build_pre_submit_review_metadata(
+            status=review_status or "not_requested",
+            requested_at=run_at,
+            review_result=review_result,
+            review_payload=review_payload,
+            draft_ref=draft_ref,
+            review_ref=review_ref,
+            revision_prompt_ref=revision_prompt_ref,
+            normalized_cells=normalized_cells,
+        )
+        if args.pre_submit_review_command or args.pre_submit_review_codex_model
+        else None
+    )
+    cells_with_activity = attach_activity_log(
+        normalized_cells,
+        refs,
+        runtime_meta,
+        pre_submit_review,
+    )
     cells_path = out_dir / "cells.with_activity.json"
     cells_path.write_text(json.dumps(cells_with_activity, indent=2))
 
@@ -802,8 +1861,10 @@ def main() -> int:
         "series": args.series,
         "period": args.period,
         "conditional": args.conditional,
+        "targetContext": target_context,
         "promptMode": args.prompt_mode,
         "agent": runtime_meta,
+        "preSubmitReview": pre_submit_review,
         "ok": validation["ok"]
         and (not command_result or command_result["returnCode"] == 0),
         "cellsPath": repo_relative(cells_path),

@@ -1,0 +1,450 @@
+[
+  {
+    "slug": "census-spm-child-poverty-rate-2026-ctc-3000",
+    "country": "US",
+    "type": "data",
+    "title": "2026 child SPM poverty with refundable CTC",
+    "question": "U.S. Census Bureau Supplemental Poverty Measure poverty rate for people under age 18 in calendar year 2026, conditional on a $3,000 fully refundable Child Tax Credit being in effect for tax year 2026, first print in the Census Poverty in the United States release",
+    "unit": "percent",
+    "pointEstimate": 8.7,
+    "ciLow": 5.7,
+    "ciHigh": 12.0,
+    "confidence": 0.8,
+    "resolutionDate": "2027-09-14",
+    "resolutionSource": "U.S. Census Bureau Poverty in the United States: 2026 first-print publication and Supplemental Poverty Measure Table B-2 or successor age table",
+    "resolutionSourceUrl": "https://www.census.gov/library/publications.html",
+    "resolutionRule": "Resolve to the first Census Bureau published one-decimal percentage for people under age 18 in poverty using the Supplemental Poverty Measure for calendar year 2026, conditional on a $3,000 fully refundable Child Tax Credit being in effect for tax year 2026. Use Table B-2 or the first successor SPM age table in Poverty in the United States: 2026; if Census posts a more specific 2027 publication URL or release calendar entry before release, use that first-print page. Ignore later revisions, errata, or rebenchmarked historical tables unless Census withdraws the first print before public release.",
+    "dataPointId": "census.p60.spm.under18.poverty_rate.2026.first_print.ctc_3000_refundable",
+    "historicalContext": [
+      {
+        "label": "2021 child SPM poverty rate",
+        "value": 5.2
+      },
+      {
+        "label": "2022 child SPM poverty rate",
+        "value": 12.4
+      },
+      {
+        "label": "2023 child SPM poverty rate",
+        "value": 13.7
+      },
+      {
+        "label": "2024 overall SPM poverty rate, latest overall context",
+        "value": 12.9
+      }
+    ],
+    "drivers": [
+      "Recent non-expanded-CTC child SPM poverty has been near 12-14 percent",
+      "A fully refundable $3,000 CTC directly raises SPM resources through refundable tax credits",
+      "2021 shows large child-poverty sensitivity to refundable credits, but also included stimulus and larger young-child credits",
+      "Labor-market and wage conditions by 2026 affect pre-tax resources before credits",
+      "SPM housing, medical, work, child-care, SNAP, and tax modeling can shift the rate even with the same statutory CTC"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/library/publications/2022/demo/p60-277.html",
+      "https://www.census.gov/library/publications/2023/demo/p60-280.html",
+      "https://www.census.gov/library/publications/2024/demo/p60-283.html",
+      "https://www.census.gov/library/publications/2025/demo/p60-287.html",
+      "https://www.census.gov/library/publications.html"
+    ],
+    "runAt": "2026-06-27T14:21:25Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for 2026 child SPM poverty conditional on a refundable $3,000 CTC"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the Census Bureau first print for the Supplemental Poverty Measure poverty rate among people under age 18 for calendar year 2026. This is not the official poverty measure: SPM resources include taxes, refundable credits, transfers and noncash benefits, and subtract medical, work, and child-care expenses while adjusting thresholds for housing costs."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2021 publication page.",
+        "result": "Fetched 2021 child SPM poverty rate 5.2 percent, 2020 child SPM 9.7 percent, refundable tax credits moving 9.6 million people out of SPM poverty, and stimulus payments moving 8.9 million people out."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2022 publication page.",
+        "result": "Fetched 2022 child SPM poverty rate 12.4 percent, up from 5.2 percent in 2021; overall SPM rate 12.4 percent; refundable tax credits moved 6.4 million people out of SPM poverty, down from 9.6 million in 2021."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2023 publication page.",
+        "result": "Fetched 2023 overall SPM rate 12.9 percent and 2023 child SPM poverty rate 13.7 percent, an increase of 1.3 percentage points from 2022."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Poverty in the United States: 2024 publication page and SPM table list.",
+        "result": "Fetched publication date September 09, 2025; report number P60-287; 2024 overall SPM rate 12.9 percent; official poverty rate 10.6 percent; Table B-2 is the age, race, and Hispanic origin SPM table for 2009 to 2024."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census first-print publication pages for recent poverty reports.",
+        "result": "Fetched first-print publication dates September 13, 2022 for 2021, September 12, 2023 for 2022, September 10, 2024 for 2023, and September 09, 2025 for 2024; the exact 2027 first-print URL was not yet posted in the fetched public evidence."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: without the 2021 expanded credit and stimulus environment, recent child SPM poverty sits around 12.4 to 13.7 percent. I use 13.4 percent as the current-policy outside-view anchor before adding the conditional $3,000 fully refundable CTC."
+      },
+      {
+        "kind": "text",
+        "text": "Time-series prior: I do not extrapolate a simple linear trend because the child SPM series has large policy discontinuities from pandemic stimulus, expanded refundable credits, and their expiration; a persistence prior around the recent non-expanded-CTC level is more defensible."
+      },
+      {
+        "kind": "text",
+        "text": "Policy mechanism: a fully refundable $3,000 CTC would count in SPM tax-credit resources for eligible families and would matter most for children in low-earnings households who receive little or no current-law nonrefundable credit. It should not mechanically recreate the 2021 5.2 percent rate because the 2021 outcome also reflected larger under-age-6 credits, stimulus payments, and pandemic-era safety-net conditions."
+      },
+      {
+        "kind": "math",
+        "text": "Anchor 13.4 percent. Subtract 4.7 percentage points for the $3,000 fully refundable CTC, smaller than the 7.2 point 2021-to-2022 child SPM reversal because this condition excludes stimulus and the $3,600 young-child amount. Point = 13.4 - 4.7 = 8.7. For the 80% interval, combine about 1.3 points of recent annual child-SPM movement, roughly 1.5-2.0 points of policy-effect uncertainty, and macro/SPM modeling risk, giving an asymmetric judgmental interval of 5.7 to 12.0."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: an outcome near 5.7 percent or lower could happen if wage growth is broad, housing and food burdens ease, and refundable-credit take-up is near-complete. An outcome near 12.0 percent or higher could happen if unemployment rises, rent or medical out-of-pocket costs lift SPM needs, or filing and implementation frictions limit receipt among low-income families."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table."
+      },
+      {
+        "kind": "forecast",
+        "point": 8.7,
+        "ciLow": 5.7,
+        "ciHigh": 12.0
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/prompt.md",
+        "sha256": "3cd245a78b2e667491285ce2c520e0d1c45bc25c4e3e65fdeca3cda4646a12c1",
+        "bytes": 4319,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_command.json",
+        "sha256": "fe2546cd8752fbab839cde87dfdcf3f52f0787f915cfa4ed29df1e9608420820",
+        "bytes": 767,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_codex_stdout.jsonl",
+        "sha256": "7c3c89f32eccd16677645d3e2d545b5ccc26a2980e3b9047200863cc641707e9",
+        "bytes": 18952,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_codex_stderr.log",
+        "sha256": "1264c8c6923ab56775807acc5a44bf7438ed1c05b14630dfce6c1ded79a187e0",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_codex_events.jsonl",
+        "sha256": "117f9730b60c464624d99306bdf493ad271335838d4951957ce39526a057f434",
+        "bytes": 18940,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_codex_last_message.txt",
+        "sha256": "f9df582c38c2137574a86c1cda7ddee42cfbd93a7833d840933fcf0970dd6c6e",
+        "bytes": 6191,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_codex_trace.json",
+        "sha256": "3fcc0045a9e4f4617ffd835a5c2a0ca6714f2c3c4e02e442a590fd2c93682c04",
+        "bytes": 507,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_stdout.txt",
+        "sha256": "f9df582c38c2137574a86c1cda7ddee42cfbd93a7833d840933fcf0970dd6c6e",
+        "bytes": 6191,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_stderr.txt",
+        "sha256": "b0312260960874acd4b5a7028e0380a1f1dcfb3802a7dc9dd97dc6a869b6e0a3",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_prompt.md",
+        "sha256": "ee7badcb22801bcd69a9a336e3ec5059c3feecd9fa92695a4691f71464a4b1bf",
+        "bytes": 7759,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_command.json",
+        "sha256": "2abb023853c67b39720e6a8aade3d127f136b97e8ecc03e225b253ecd5890f92",
+        "bytes": 763,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "83660551c5e8fce6918be2c5467c599082f45da2219c0a68bc77560a090973f5",
+        "bytes": 3115,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_codex_stderr.log",
+        "sha256": "ba07f88f1a6d95ea6b76f0e6ae0385953fa6b680ed8115d8ff460a9b16e85893",
+        "bytes": 615,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "29cd7614ecfd171e7fece3a07f0a322dab53ef2d2739daedacb28f2d52f0a546",
+        "bytes": 3137,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "226bfd06cfc2cd37a586f9bd012b10e64c8cf7cbeeb458ea41b7b23ed5af2827",
+        "bytes": 2668,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_codex_trace.json",
+        "sha256": "c1e535b3be39695e28a52d40b09154310e2b5ce178d9fb8be1a68ec80d0429ed",
+        "bytes": 504,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_stdout.txt",
+        "sha256": "226bfd06cfc2cd37a586f9bd012b10e64c8cf7cbeeb458ea41b7b23ed5af2827",
+        "bytes": 2668,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_stderr.txt",
+        "sha256": "a522615944108a17704686d903d2f219e156ec0f2fcf5e1cedf1774313c35cc0",
+        "bytes": 638,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/revision_prompt.md",
+        "sha256": "e3d213b896ae14bea25e150ef6c7becb26079c456493695466cf3a431cad0159",
+        "bytes": 14114,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/command.json",
+        "sha256": "60415d22928b1224ed6ed6a77c0d1339076f1dfa6c2fd8ebc60faf1fd106b035",
+        "bytes": 761,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/codex_stdout.jsonl",
+        "sha256": "fcc20426523e824fd9ef30a3a147f4cc260ca3cfdb9b478a5827c49e892c950d",
+        "bytes": 15223,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/codex_stderr.log",
+        "sha256": "86997899b457369efe15cf554081687e731c6e58430565de532979fe46da0f60",
+        "bytes": 2655,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/codex_events.jsonl",
+        "sha256": "55526b1ef211dea5c9665e945add336786037a8f5db07fbd57b89e62be9f4e0a",
+        "bytes": 15229,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/codex_last_message.txt",
+        "sha256": "73ddd11a256c1863e9b934b0833662ea6203c7ab595184e3c7dda3edaa47132e",
+        "bytes": 7273,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/codex_trace.json",
+        "sha256": "19739487ea36dbf5eaf2f6fb28a8237eb7ba0d640a324d242fdd89fc891af161",
+        "bytes": 507,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/stdout.txt",
+        "sha256": "73ddd11a256c1863e9b934b0833662ea6203c7ab595184e3c7dda3edaa47132e",
+        "bytes": 7273,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/stderr.txt",
+        "sha256": "0c788179381f8d90807e643e01018867ed68e995cc669729fc08ad9ce582da76",
+        "bytes": 2782,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/raw_response.txt",
+        "sha256": "73ddd11a256c1863e9b934b0833662ea6203c7ab595184e3c7dda3edaa47132e",
+        "bytes": 7273,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/parsed_cells.json",
+        "sha256": "ac86cb7f324ce29c1dccfa2be8a7f79ebe1c89de0af5f4e5484eee6e73214093",
+        "bytes": 8224,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/normalized_cells.json",
+        "sha256": "c0402d9efbcd07ea6d6b61655801162593e1a91b36d59ed75cc2781f34a42aed",
+        "bytes": 7844,
+        "createdAt": "2026-06-27T14:19:11Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/validation.json",
+        "sha256": "cd0da3ac6cfe07ed61ff800d05ba394fae04523145626d7087fe15fcb69732a4",
+        "bytes": 144,
+        "createdAt": "2026-06-27T14:19:11Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-06-27T14:19:11Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "f58dce60344962227b918354cace9e37894f633685b3a2f33a8de83fe231b2ca"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t14-19-11z-census-spm-child-poverty-rate-2026-calendar-year-2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "Resolution date is inferred from prior September publication patterns rather than verified from an official Census calendar, release placeholder, or policy-state rule.",
+          "actionRequested": "Replace or qualify the 2027-09-14 resolutionDate using an official Census 2026 poverty/SPM release calendar or state a rule such as resolving on the first Census publication date once posted."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "resolutionSourceUrl points to the generic Census publications index rather than the exact publication page, table page, or release placeholder.",
+          "actionRequested": "Use the most specific stable Census URL available for the Poverty in the United States: 2026 report or the SPM table location; if unavailable, say the exact URL is pending and define how it will be selected."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The draft gives a recent-history base rate but does not explicitly use or rule out a time-series/model prior.",
+          "actionRequested": "Add one sentence explaining whether a persistence/simple time-series prior was used, and if not, why recent-policy discontinuities make it inappropriate."
+        },
+        {
+          "findingId": "review.finding.4",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is described as roughly +/-3 points, but it is not tied to realized child SPM volatility, policy-effect uncertainty, or an explicit error model.",
+          "actionRequested": "Justify the interval using historical child SPM variation, uncertainty around the CTC effect size, or a stated judgmental error distribution."
+        },
+        {
+          "findingId": "review.finding.5",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "historicalContext includes 2024 overall SPM poverty rather than the target child SPM rate, while the target is under-18 SPM poverty.",
+          "actionRequested": "Replace the 2024 overall SPM context with the 2024 child SPM rate if cited evidence supports it, or label it clearly as overall context and explain why the child value is unavailable."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State the first-print table identifier more tightly if Census continues using a named SPM table for under-18 poverty."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the lower-tail and upper-tail scenarios include approximate numeric outcomes, not just directional conditions."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.4",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.5",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critiques to clarify the first-print resolver, identify Table B-2 as the likely target table, state why a simple time-series prior is not used, justify the interval from volatility plus policy-effect uncertainty, and label the 2024 value as overall SPM context. The exact 2027 Census publication URL was not available in the public evidence fetched, so the rule specifies using the first posted Census page or successor table.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is directionally coherent but needs a verified Census resolver/release date and a more defensible interval basis before publication."
+    }
+  }
+]

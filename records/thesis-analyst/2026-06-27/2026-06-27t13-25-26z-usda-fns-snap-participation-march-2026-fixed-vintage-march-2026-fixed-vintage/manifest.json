@@ -1,0 +1,372 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:25:26Z",
+  "series": "usda.fns.snap.participation.march_2026.fixed_vintage",
+  "period": "March 2026 fixed vintage",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:25:26Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "017b5657d844e8ebe99f51c184468328bbe6181dd19a2bf0d29de3eabdbfffad"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolver and first-print rule are clear, but the draft asserts the 2026-07-10 posting date without quoting or identifying the exact calendar entry name/date from the cited release calendar.",
+        "actionRequested": "Add the exact USDA FNS release-calendar entry used to verify that the March 2026 SNAP data first print is scheduled for 2026-07-10."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft states a persistence/base-rate prior but does not clearly say whether a time-series model was used or ruled out.",
+        "actionRequested": "Add one sentence explicitly ruling out a formal time-series model, or state the simple persistence/trend model used and why it is adequate."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is plausible but not tied to a measured realized volatility, revision error, or explicit uncertainty calculation.",
+        "actionRequested": "Explain the interval width using recent month-to-month variation, historical first-print misses/revisions, or a named judgmental uncertainty assumption."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The +0.20 million macro/need adjustment and -0.03 to -0.05 million policy adjustment are directionally explained but weakly evidenced from the cited public sources.",
+        "actionRequested": "Either cite concrete public evidence for these adjustment sizes from the cited materials or label them explicitly as judgmental adjustments."
+      },
+      {
+        "findingId": "review.finding.5",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The drivers mention a -0.05 million policy drag, while the math uses -0.03 million.",
+        "actionRequested": "Make the policy/churn adjustment numerically consistent across the reasoning and point calculation."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether historicalContext values are first-print values or latest visible official values."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State that the unit conversion is from persons to millions for all displayed historical points as well as the final resolved value."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer requests to identify the release-calendar entry more specifically, state the persistence-model choice, label the macro and policy adjustments as judgmental, tie the interval to recent observed dispersion plus named policy/reporting uncertainty, keep the policy adjustment consistent at -0.03 million, and clarify that displayed historical values are latest visible official values converted to millions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer requests to identify the release-calendar entry more specifically, state the persistence-model choice, label the macro and policy adjustments as judgmental, tie the interval to recent observed dispersion plus named policy/reporting uncertainty, keep the policy adjustment consistent at -0.03 million, and clarify that displayed historical values are latest visible official values converted to millions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer requests to identify the release-calendar entry more specifically, state the persistence-model choice, label the macro and policy adjustments as judgmental, tie the interval to recent observed dispersion plus named policy/reporting uncertainty, keep the policy adjustment consistent at -0.03 million, and clarify that displayed historical values are latest visible official values converted to millions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer requests to identify the release-calendar entry more specifically, state the persistence-model choice, label the macro and policy adjustments as judgmental, tie the interval to recent observed dispersion plus named policy/reporting uncertainty, keep the policy adjustment consistent at -0.03 million, and clarify that displayed historical values are latest visible official values converted to millions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.5",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer requests to identify the release-calendar entry more specifically, state the persistence-model choice, label the macro and policy adjustments as judgmental, tie the interval to recent observed dispersion plus named policy/reporting uncertainty, keep the policy adjustment consistent at -0.03 million, and clarify that displayed historical values are latest visible official values converted to millions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer requests to identify the release-calendar entry more specifically, state the persistence-model choice, label the macro and policy adjustments as judgmental, tie the interval to recent observed dispersion plus named policy/reporting uncertainty, keep the policy adjustment consistent at -0.03 million, and clarify that displayed historical values are latest visible official values converted to millions.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer requests to identify the release-calendar entry more specifically, state the persistence-model choice, label the macro and policy adjustments as judgmental, tie the interval to recent observed dispersion plus named policy/reporting uncertainty, keep the policy adjustment consistent at -0.03 million, and clarify that displayed historical values are latest visible official values converted to millions.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is mostly publishable, but it needs tighter support for the release-date rule and interval derivation before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/prompt.md",
+      "sha256": "65a9b2aaaf9d32da76ff3e985bc5cbb113825ce6cc992a3900a3d151a290c26f",
+      "bytes": 4046,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_command.json",
+      "sha256": "b3fdca600ec1c3bd17920880184d9a57e1e92c503ce351a60beda0c5ad7dbda7",
+      "bytes": 791,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_stdout.jsonl",
+      "sha256": "169bd90e12f92782ee10e76c0cf91d87b08e379d7de891c933811b2550950cf3",
+      "bytes": 22204,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_stderr.log",
+      "sha256": "cb566f7598fa2f9b6e5ff6a15e02be1ceb1a10b1ba228208abac897ca8a62920",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_events.jsonl",
+      "sha256": "3656095db9bd03ba49cb92f358ea2c56620dbbad71160082988342bfeef04607",
+      "bytes": 22180,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_last_message.txt",
+      "sha256": "ba8e8bd6af0b1a032f630ae3d40baa5d1caa187a0ebd1dde39b13142d2cac6e5",
+      "bytes": 4890,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_codex_trace.json",
+      "sha256": "7ad85f6f0f1a8e0944778d8d40a8c2e9c9a3edfb3c5586d66538e7893fddebec",
+      "bytes": 507,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_stdout.txt",
+      "sha256": "ba8e8bd6af0b1a032f630ae3d40baa5d1caa187a0ebd1dde39b13142d2cac6e5",
+      "bytes": 4890,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/draft_stderr.txt",
+      "sha256": "4b079ece655a9bbb5413a4d91f8ae8f3bf396621c2bd84d389c452aa2e2c4936",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_prompt.md",
+      "sha256": "cb7f40c6c8be7c824d6c7bae72a6cd7038ac5fdeade39ec3d17c0d20e36278c8",
+      "bytes": 6418,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_command.json",
+      "sha256": "1b6d59394578d1719791330cba0bf3f13602dec3ad47c59c96213f3405a35c57",
+      "bytes": 787,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "a00bf3afa9f9f5fdeec0fb3e8a8f931caf133ab8906bbb99d712912b7c14d68c",
+      "bytes": 2590,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_stderr.log",
+      "sha256": "2ac4dd86a6e55dc66bb44777ae12bd2ff0182c451cf0dff975ff4f6fc103cafb",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_events.jsonl",
+      "sha256": "7b574fb7280e178c41be3257a149014642e7076de60fa23ebd42788b250ddad4",
+      "bytes": 2612,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_last_message.txt",
+      "sha256": "5da4eafe35675ef3cd2044cc1bd613f2f3cd8ed975c3b716452074ca47c2cf6c",
+      "bytes": 2182,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_codex_trace.json",
+      "sha256": "0d63f218afd1cc4abc61a92107e5e3500e8929039628db4ac9b65dffc48ff4e9",
+      "bytes": 503,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_stdout.txt",
+      "sha256": "5da4eafe35675ef3cd2044cc1bd613f2f3cd8ed975c3b716452074ca47c2cf6c",
+      "bytes": 2182,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/pre_submit_review_stderr.txt",
+      "sha256": "5936bb9cdc9a7032f1471e87e934a13e516cf26f0cd7cd6b4348f534a9663c2c",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/revision_prompt.md",
+      "sha256": "4ab00cf2722d7a14aee11d1fda6a001b532fa779cab09a5ce3d093f951f8ad30",
+      "bytes": 12054,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/command.json",
+      "sha256": "a8d8a024c88e62c4ae9b0bbfe10818c623b4a7fc1a8c0cbf5b1d6d7221f4f0a4",
+      "bytes": 785,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_stdout.jsonl",
+      "sha256": "be9aeb3816a211c6e4c5cc85f4b204b6a09e6c2de5764137340a26912afbf278",
+      "bytes": 9499,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_stderr.log",
+      "sha256": "df3b7442987298af50e7883d4248d0c2543ddc8d2c7bdd50efb9f5efe8f6bb47",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_events.jsonl",
+      "sha256": "9b2b8e614c89918faedc23ace11d91feeadb168842a0593cc2ac3309a5b5492e",
+      "bytes": 9540,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_last_message.txt",
+      "sha256": "1fadaa13ba39dcb2099af4eca575ce40929742ecca78af3f7cbf96436b77ecbe",
+      "bytes": 6186,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/codex_trace.json",
+      "sha256": "222ed1c85c5bc4f4fd982e5872e858c6e617daf34dc1af88700edd30d3720782",
+      "bytes": 506,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/stdout.txt",
+      "sha256": "1fadaa13ba39dcb2099af4eca575ce40929742ecca78af3f7cbf96436b77ecbe",
+      "bytes": 6186,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/stderr.txt",
+      "sha256": "aa10a63661e5b85df35e7c395b2da2cb394e849e7dcd5f7a7fcc7386df53fa9e",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/raw_response.txt",
+      "sha256": "1fadaa13ba39dcb2099af4eca575ce40929742ecca78af3f7cbf96436b77ecbe",
+      "bytes": 6186,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/parsed_cells.json",
+      "sha256": "c22ed7b294c2b57789707a2e200fedcbc7f46c05aad23bbb967b474cbee65c1d",
+      "bytes": 7049,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/normalized_cells.json",
+      "sha256": "ce7ec2d5e74bb69953f7678ea8815e19114d9eb8772c891b788a2aa84fc5743f",
+      "bytes": 6705,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/validation.json",
+      "sha256": "8bca7f1bfeedcdb66cf9144be948dc51b8953678b27c7187304e294fcc9fcf3f",
+      "bytes": 153,
+      "createdAt": "2026-06-27T13:25:26Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-25-26z-usda-fns-snap-participation-march-2026-fixed-vintage-march-2026-fixed-vintage/manifest.json",
+      "sha256": "ea9fa80bbf5f4a7300377305acc92fccea7f65f64818e3ad186eb2a36ada5957",
+      "bytes": 20784,
+      "createdAt": "2026-06-27T13:25:26Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "usda-fns-snap-participation-march-2026-fixed-vintage",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}
