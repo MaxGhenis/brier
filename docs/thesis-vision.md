@@ -112,6 +112,12 @@ A production run should preserve:
 - manifest;
 - later resolution event and score.
 
+Because the trace is public training data, it must never rely on private
+meeting notes, call transcripts, pasted attachments, email/chat content,
+personal notes, or other non-public local files. If private material exists in
+the operator's workspace, agents must ignore it. Public official sources and
+public/generated Thesis repository artifacts are the evidence boundary.
+
 Runs that cannot satisfy the trace-depth rubric should remain as failed
 records, not be silently cleaned up into successful forecasts.
 

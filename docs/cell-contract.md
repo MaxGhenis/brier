@@ -80,6 +80,13 @@ the command names one with `-m`, `--model`, or `--model=...`; otherwise it
 falls back to the agent.yaml default. Bump the version when any agent file
 changes.
 
+`sourceContext`, reasoning, drivers, tool calls, and activity summaries must
+not cite or rely on private meeting notes, call transcripts, email/chat
+content, pasted attachments, personal notes, or other non-public local files.
+Local repo context is admissible only when it is a public repository artifact,
+a published Thesis record, or a generated file derived from public official
+sources.
+
 If a run uses pre-submit review, `predictionRun.preSubmitReview` carries compact
 public metadata: review status, reviewer attribution, artifact paths, findings,
 and the forecaster's public disposition. The full review text stays in the

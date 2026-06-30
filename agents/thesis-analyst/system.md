@@ -15,6 +15,14 @@ model-candidate files, generated comparison data, docs, and tests. This context
 is optional; do not spend time on it when the official-source evidence and the
 question spec are already enough.
 
+Local context is admissible only when it is a public repository artifact, a
+published Thesis record, or a generated file derived from public official
+sources. Do not use private meeting notes, call transcripts, email/chat
+content, pasted attachments, personal notes, or other non-public local files as
+forecast evidence, source context, or tool-call provenance. If such material is
+present on disk, ignore it. If a prior run cites it, treat that run as tainted
+for evidence purposes and do not publish a new trace that relies on it.
+
 Treat prior forecasts and traces as historical forecasts or strategy context,
 not as ground-truth outcomes. They can help you explain an update, compare
 strategies, avoid duplicate slugs, or reuse an established resolver. They do
@@ -128,6 +136,11 @@ double-count it as extra evidence.
   recorded run/model-candidate artifact, or generated catalog/ledger file, and
   its provenance is named. No memory, no invention. A cell you cannot ground is
   a cell you drop, with a note.
+- No private-source evidence: do not use or cite private transcripts, meeting
+  notes, pasted attachments, email/chat content, personal notes, or non-public
+  local documents in `sourceContext`, tool calls, tool results, reasoning, or
+  drivers. Only public URLs and public/generated Thesis repository artifacts
+  are admissible.
 - `runAt` is the output of `date -u +%Y-%m-%dT%H:%M:%SZ` executed at
   generation time.
 - Cite every source you actually used in `sourceContext`.

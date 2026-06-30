@@ -67,6 +67,9 @@ import {
   type PredictionRecordedLogEntry,
 } from "@/data/thesis-log";
 
+const PRIVATE_SOURCE_PATTERN =
+  /granola|\btranscripts?\b|meeting notes?|meeting with max|pasted-text|\.codex\/attachments|codex attachments|private meeting|call notes?|email thread|chat transcript/i;
+
 describe("forecast catalog", () => {
   let policyEngineLedger: PolicyEngineLedgerEntry[] = [];
   let resolvedForecastCells: ForecastCell[] = [];
@@ -82,6 +85,33 @@ describe("forecast catalog", () => {
   it("has unique slugs", () => {
     const slugs = FORECAST_CELLS.map((forecast) => forecast.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it("does not publish private-source provenance", () => {
+    const publicCatalogPayload = JSON.stringify({
+      forecasts: FORECAST_CELLS,
+      thesisLog: buildThesisLogExport(resolvedForecastCells, policyEngineLedger),
+      targetArchitecture: buildTargetArchitectureProjection(
+        resolvedForecastCells,
+        policyEngineLedger,
+      ),
+    });
+
+    expect(publicCatalogPayload).not.toMatch(PRIVATE_SOURCE_PATTERN);
+  });
+
+  it("keeps private-source bans in agent prompts and validators", () => {
+    const files = [
+      "../../../agents/thesis-analyst/system.md",
+      "../../../scripts/run_thesis_analyst.py",
+      "../../../scripts/spawned_cells_to_ts.py",
+    ];
+
+    for (const file of files) {
+      const text = readFileSync(new URL(file, import.meta.url), "utf8");
+      expect(text).toMatch(/private/i);
+      expect(text).toMatch(/transcript/i);
+    }
   });
 
   it("has valid 80% intervals", () => {

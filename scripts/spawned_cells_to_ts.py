@@ -26,6 +26,26 @@ REQUIRED = [
     "resolutionSourceUrl", "resolutionRule", "dataPointId",
     "historicalContext", "drivers", "sourceContext", "runAt", "reasoning",
 ]
+PRIVATE_SOURCE_RE = re.compile(
+    r"(?i)(granola|\btranscripts?\b|meeting notes?|meeting with max|"
+    r"pasted-text|\.codex/attachments|codex attachments|private meeting|"
+    r"call notes?|email thread|chat transcript)"
+)
+
+
+def private_source_hits(cell: dict) -> list[str]:
+    hits = []
+    fields = {
+        "sourceContext": cell.get("sourceContext"),
+        "drivers": cell.get("drivers"),
+        "reasoning": cell.get("reasoning"),
+        "historicalContext": cell.get("historicalContext"),
+    }
+    for name, value in fields.items():
+        text = json.dumps(value, ensure_ascii=False, sort_keys=True)
+        if PRIVATE_SOURCE_RE.search(text):
+            hits.append(name)
+    return hits
 
 
 def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
@@ -89,6 +109,12 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
             h["value"] = int(h["value"])
     if len(cell["sourceContext"]) < 2:
         errs.append("needs >=2 source URLs")
+    private_hits = private_source_hits(cell)
+    if private_hits:
+        errs.append(
+            "private-source provenance is not allowed in "
+            + ", ".join(private_hits)
+        )
 
     steps = cell["reasoning"]
     if len(steps) < 7:

@@ -10,7 +10,6 @@ const RECORDED_US_DEFENSE_RUN: NonNullable<PredictionSeries["predictionRun"]> =
     agent: "brier-defense-public-data",
     model: "Codex recorded source-context synthesis",
     sourceContext: [
-      "Granola transcript: Meeting with Max (PolicyEngine) (Arun Seraphin), Jun 29, 2026",
       "BLS public API, CES3133640001 aerospace product and parts employment",
       "BLS public API, CES3133660001 ship and boat building employment",
       "BLS public API, CES9091911001 federal Department of Defense employment",
@@ -81,10 +80,10 @@ const US_DEFENSE_PREDICTION_SERIES_BASE = [
         ciHigh: 596,
         tools: [
           {
-            tool: "brier.context.extract",
-            call: 'brier.context.extract({ source: "Arun Seraphin transcript", themes: ["defense industrial base", "contracts", "resource allocation"] })',
+            tool: "brier.public_series_inventory",
+            call: 'brier.public_series_inventory({ public_sources: ["BLS CES", "Treasury MTS", "USAspending"], themes: ["defense industrial base", "funding", "contract obligations"] })',
             result:
-              "{ useful_public_series: ['funding data', 'contract data', 'industrial capacity proxies'], demonstration_need: 'show value on public data before seeking deeper Pentagon data access' }",
+              "{ useful_public_series: ['BLS CES aerospace employment', 'BLS CES shipbuilding employment', 'Treasury MTS DoD outlays', 'USAspending DoD contract obligations'], selected_proxy: 'BLS CES aerospace employment' }",
           },
         ],
         rationale:
@@ -207,10 +206,10 @@ const US_DEFENSE_PREDICTION_SERIES_BASE = [
         ciHigh: 501,
         tools: [
           {
-            tool: "brier.context.extract",
-            call: 'brier.context.extract({ source: "Arun Seraphin transcript", themes: ["DARPA hiring authorities", "civil service law", "execution capacity"] })',
+            tool: "brier.public_series_inventory",
+            call: 'brier.public_series_inventory({ public_sources: ["BLS CES"], themes: ["personnel capacity", "federal defense workforce"] })',
             result:
-              "{ policy_link: 'personnel authorities are a measurable input to defense policy execution', public_proxy: 'BLS CES DoD employment' }",
+              "{ useful_public_series: ['BLS CES federal Department of Defense employment'], selected_proxy: 'BLS CES DoD employment', latest_public_history_points: 6 }",
           },
         ],
         rationale:
@@ -279,10 +278,10 @@ const US_DEFENSE_PREDICTION_SERIES_BASE = [
         ciHigh: 86,
         tools: [
           {
-            tool: "brier.context.extract",
-            call: 'brier.context.extract({ source: "Arun Seraphin transcript", themes: ["appropriations", "contracts", "schedule realism"] })',
+            tool: "brier.public_series_inventory",
+            call: 'brier.public_series_inventory({ public_sources: ["Treasury MTS", "USAspending"], themes: ["appropriations", "outlays", "contract obligations"] })',
             result:
-              "{ motivating_question: 'can we model whether requested funding turns into executable schedules and contract activity?', first_public_endpoint: 'MTS DoD military programs outlays' }",
+              "{ useful_public_series: ['Treasury MTS DoD military programs gross outlays', 'USAspending DoD contract obligations'], selected_proxy: 'MTS DoD military programs outlays', latest_public_history_points: 6 }",
           },
         ],
         rationale:
