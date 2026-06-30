@@ -2,10 +2,6 @@ const DEFAULT_ORIGINS = [
   "https://thesisinstitute.org",
   "https://www.thesisinstitute.org",
   "https://app.thesisinstitute.org",
-  "https://brieralmanac.org",
-  "https://www.brieralmanac.org",
-  "https://farness.ai",
-  "https://www.farness.ai",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:3001",
@@ -15,9 +11,7 @@ const DEFAULT_ORIGINS = [
 export function corsHeaders(request: Request): HeadersInit {
   const origin = request.headers.get("origin");
   const allowedOrigins = (
-    process.env.THESIS_SITE_ORIGINS?.split(",") ??
-    process.env.BRIER_SITE_ORIGINS?.split(",") ??
-    DEFAULT_ORIGINS
+    process.env.THESIS_SITE_ORIGINS?.split(",") ?? DEFAULT_ORIGINS
   ).map((value) => value.trim());
   const allowOrigin =
     origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0];

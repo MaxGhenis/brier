@@ -82,7 +82,7 @@ export const LAUNCH_PREDICTION_SERIES = [
       "threshold",
     ],
     whyItMatters:
-      "Payrolls are crowded, but that is useful: the Almanac can score itself against survey medians and show whether agents add value beyond consensus.",
+      "Payrolls are crowded, but that is useful: Thesis can score itself against survey medians and show whether agents add value beyond consensus.",
     drivers: [
       "Private payroll diffusion",
       "Government hiring",
@@ -419,7 +419,7 @@ export const LAUNCH_PREDICTION_SERIES = [
       "threshold",
     ],
     whyItMatters:
-      "SNAP participation is the Almanac niche in the working doc: monthly, public, objective, decision-relevant, and under-forecasted compared with macro indicators.",
+      "SNAP participation is a Thesis niche in the working doc: monthly, public, objective, decision-relevant, and under-forecasted compared with macro indicators.",
     drivers: [
       "Unemployment and underemployment",
       "Recertification churn",

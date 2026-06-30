@@ -35,7 +35,7 @@ export const BENEFIT_PROGRAM_EXAMPLES = [
       { kind: "heading", text: "Benefits-flow target" },
       {
         kind: "text",
-        text: "Redemptions are the administrative spending flow that reaches retailers and households. They give the Almanac a near-term benefits target that can calibrate both eligibility and benefit-formula simulations.",
+        text: "Redemptions are the administrative spending flow that reaches retailers and households. They give Thesis a near-term benefits target that can calibrate both eligibility and benefit-formula simulations.",
       },
       {
         kind: "tool",

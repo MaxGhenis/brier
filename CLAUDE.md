@@ -103,7 +103,7 @@ an agent researches the question with REAL fetches from official sources
 (release calendars for resolutionDate, series history for the base rate),
 derives point + 80% CI from the data, and emits JSON with a full trace and
 `runAt` = actual generation time. Convert with
-`python3 scripts/spawned_cells_to_ts.py site/src/data/almanac-examples/<name>.ts CONST_NAME in.json`,
+`python3 scripts/spawned_cells_to_ts.py site/src/data/forecast-examples/<name>.ts CONST_NAME in.json`,
 which enforces the same trace-depth rubric CI does
 (`site/src/__tests__/trace-depth.test.ts`): >=7 steps, >=3 real tool steps,
 math derivation, base rate, disconfirming consideration. Resolved outcomes
@@ -117,7 +117,7 @@ new predictions so their pre-registration timestamp is tight.
 ### Site (`site/`)
 
 Next.js App Router site with Tailwind CSS v4, deployed to Vercel as the
-`brier-almanac` project behind app.thesisinstitute.org (standard SSG build —
+`thesis-forecasts` project behind app.thesisinstitute.org (standard SSG build —
 all forecast pages prerender from `src/data/markets.ts`; four live cells
 stream from forecast-api at runtime).
 

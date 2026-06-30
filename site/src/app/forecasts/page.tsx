@@ -44,7 +44,7 @@ export default async function ForecastsPage() {
             <strong>government data points</strong> on published statistics,{" "}
             <strong>policy state forecasts</strong> on formal settings and
             encoded parameters, and <strong>conditional forecasts</strong> on
-            outcomes given policy states. The Almanac shows the target agent
+            outcomes given policy states. Thesis shows the target agent
             workflow: call public data and the PolicyEngine microsim, then
             publish calibrated uncertainty with an audit trail behind it.
           </p>

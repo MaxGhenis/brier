@@ -1,19 +1,19 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
-import { AGENT_RUN_PREDICTION_SERIES } from "@/data/almanac-examples/agent-runs";
-import { CANADA_AUSTRALIA_PREDICTION_SERIES } from "@/data/almanac-examples/canada-australia";
-import { EURO_JAPAN_PREDICTION_SERIES } from "@/data/almanac-examples/euro-japan";
-import { GLOBAL_NEAR_TERM_PREDICTION_SERIES } from "@/data/almanac-examples/global-near-term";
-import { LAUNCH_PREDICTION_SERIES } from "@/data/almanac-examples/launch-cadence";
+import { AGENT_RUN_PREDICTION_SERIES } from "@/data/forecast-examples/agent-runs";
+import { CANADA_AUSTRALIA_PREDICTION_SERIES } from "@/data/forecast-examples/canada-australia";
+import { EURO_JAPAN_PREDICTION_SERIES } from "@/data/forecast-examples/euro-japan";
+import { GLOBAL_NEAR_TERM_PREDICTION_SERIES } from "@/data/forecast-examples/global-near-term";
+import { LAUNCH_PREDICTION_SERIES } from "@/data/forecast-examples/launch-cadence";
 import {
   BLS_2034_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
   CPS_JUNE_2026_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
   OEWS_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
-} from "@/data/almanac-examples/occupation-employment";
-import { OEWS_OCCUPATION_WAGE_PREDICTION_SERIES } from "@/data/almanac-examples/occupation-wages";
-import { UK_PREDICTION_SERIES } from "@/data/almanac-examples/uk";
-import { US_DEFENSE_PREDICTION_SERIES } from "@/data/almanac-examples/us-defense";
-import { US_NEAR_TERM_PREDICTION_SERIES } from "@/data/almanac-examples/us-near-term";
+} from "@/data/forecast-examples/occupation-employment";
+import { OEWS_OCCUPATION_WAGE_PREDICTION_SERIES } from "@/data/forecast-examples/occupation-wages";
+import { UK_PREDICTION_SERIES } from "@/data/forecast-examples/uk";
+import { US_DEFENSE_PREDICTION_SERIES } from "@/data/forecast-examples/us-defense";
+import { US_NEAR_TERM_PREDICTION_SERIES } from "@/data/forecast-examples/us-near-term";
 import {
   FORECAST_CELLS,
   LIVE_FORECAST_SLUGS,

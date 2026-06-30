@@ -2,13 +2,7 @@ import type { NextConfig } from "next";
 
 const CANONICAL_HOST = "thesisinstitute.org";
 const APP_HOST = "app.thesisinstitute.org";
-const LEGACY_HOSTS = [
-  "www.thesisinstitute.org",
-  "brieralmanac.org",
-  "www.brieralmanac.org",
-  "farness.ai",
-  "www.farness.ai",
-];
+const LEGACY_HOSTS = ["www.thesisinstitute.org"];
 
 const nextConfig: NextConfig = {
   async redirects() {

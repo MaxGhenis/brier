@@ -50,7 +50,7 @@ def private_source_hits(cell: dict) -> list[str]:
 
 def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
     slugs = set()
-    for f in list(site_data.glob("almanac-examples/*.ts")) + [site_data / "forecast-cells.ts"]:
+    for f in list(site_data.glob("forecast-examples/*.ts")) + [site_data / "forecast-cells.ts"]:
         if f.resolve() == out_ts.resolve():
             continue  # rerunning over our own previous output is not a collision
         slugs |= set(re.findall(r'slug:\s*"([^"]+)"', f.read_text()))

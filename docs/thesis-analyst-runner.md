@@ -171,7 +171,7 @@ python3 scripts/run_thesis_analyst.py \
   --series ons.labour.unemployment_rate \
   --period 2026-Q4 \
   --codex-model gpt-5.5 \
-  --write-ts site/src/data/almanac-examples/generated-thesis-agent.ts \
+  --write-ts site/src/data/forecast-examples/generated-thesis-agent.ts \
   --const-name GENERATED_THESIS_AGENT_CELLS
 ```
 

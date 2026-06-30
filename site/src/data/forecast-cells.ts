@@ -1,21 +1,21 @@
-import { BENEFIT_PROGRAM_EXAMPLES } from "./almanac-examples/benefits";
-import { BENEFITS_DELIVERY_EXAMPLES } from "./almanac-examples/benefits-delivery";
-import { JUNE_2026_WAVE } from "./almanac-examples/june-2026-wave";
-import { AGENT_RUN_EXAMPLES } from "./almanac-examples/agent-runs";
-import { CANADA_AUSTRALIA_EXAMPLES } from "./almanac-examples/canada-australia";
-import { EURO_JAPAN_EXAMPLES } from "./almanac-examples/euro-japan";
-import { GLOBAL_NEAR_TERM_EXAMPLES } from "./almanac-examples/global-near-term";
-import { HEALTH_COVERAGE_EXAMPLES } from "./almanac-examples/health";
-import { LAUNCH_CADENCE_EXAMPLES } from "./almanac-examples/launch-cadence";
-import { OCCUPATION_EMPLOYMENT_EXAMPLES } from "./almanac-examples/occupation-employment";
-import { OCCUPATION_WAGE_EXAMPLES } from "./almanac-examples/occupation-wages";
-import { SNAP_FY2026_PAYMENT_ERROR_RATE_EXAMPLES } from "./almanac-examples/snap-per-fy2026";
-import { TAX_CREDIT_EXAMPLES } from "./almanac-examples/tax";
+import { BENEFIT_PROGRAM_EXAMPLES } from "./forecast-examples/benefits";
+import { BENEFITS_DELIVERY_EXAMPLES } from "./forecast-examples/benefits-delivery";
+import { JUNE_2026_WAVE } from "./forecast-examples/june-2026-wave";
+import { AGENT_RUN_EXAMPLES } from "./forecast-examples/agent-runs";
+import { CANADA_AUSTRALIA_EXAMPLES } from "./forecast-examples/canada-australia";
+import { EURO_JAPAN_EXAMPLES } from "./forecast-examples/euro-japan";
+import { GLOBAL_NEAR_TERM_EXAMPLES } from "./forecast-examples/global-near-term";
+import { HEALTH_COVERAGE_EXAMPLES } from "./forecast-examples/health";
+import { LAUNCH_CADENCE_EXAMPLES } from "./forecast-examples/launch-cadence";
+import { OCCUPATION_EMPLOYMENT_EXAMPLES } from "./forecast-examples/occupation-employment";
+import { OCCUPATION_WAGE_EXAMPLES } from "./forecast-examples/occupation-wages";
+import { SNAP_FY2026_PAYMENT_ERROR_RATE_EXAMPLES } from "./forecast-examples/snap-per-fy2026";
+import { TAX_CREDIT_EXAMPLES } from "./forecast-examples/tax";
 import { RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS } from "./thesis-analyst-live-comparisons";
 import { buildTimeSeriesPriorComparisonRun } from "./time-series-priors";
-import { UK_EXAMPLES } from "./almanac-examples/uk";
-import { US_DEFENSE_EXAMPLES } from "./almanac-examples/us-defense";
-import { US_NEAR_TERM_EXAMPLES } from "./almanac-examples/us-near-term";
+import { UK_EXAMPLES } from "./forecast-examples/uk";
+import { US_DEFENSE_EXAMPLES } from "./forecast-examples/us-defense";
+import { US_NEAR_TERM_EXAMPLES } from "./forecast-examples/us-near-term";
 import {
   buildNumericCdfFromInterval,
   type PredictionDistribution,
