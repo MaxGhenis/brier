@@ -1,0 +1,333 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:34:28Z",
+  "series": "ons.labour.unemployment_rate.april_to_june_2026.first_print",
+  "period": "Apr-Jun 2026",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:34:28Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "1ee249aca38a73822747d5de889f6dd2b1e451655cd27c964ceef67a88c7951c"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft sets resolutionDate to 2026-08-11, but its cited calendar check only mentions August entries including 2026-08-05 and 2026-08-12, not 2026-08-11.",
+        "actionRequested": "Verify the official ONS August 2026 labour-market release placeholder or calendar entry and set resolutionDate to the exact confirmed first-print publication date, with the cited source supporting that date."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a recent rolling mean/persistence anchor, but does not clearly say whether this is the intended time-series prior or whether a fuller model prior was ruled out.",
+        "actionRequested": "Add one explicit sentence stating that the model prior is a persistence/recent-mean time-series prior, or explain why a separate time-series model is not used."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify units in historicalContext for vacancies and claimant count so they cannot be mistaken for percent values."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tie the plus 0.1 inside-view adjustment more directly to expected movement in the Apr-Jun LFS unemployment target rather than general labour-market weakness."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the August 2026 ONS release placeholder the explicit date source, accepted the model-prior critique by naming the persistence/recent-mean prior, and accepted the optional unit-label clarification for historical context.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the August 2026 ONS release placeholder the explicit date source, accepted the model-prior critique by naming the persistence/recent-mean prior, and accepted the optional unit-label clarification for historical context.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the August 2026 ONS release placeholder the explicit date source, accepted the model-prior critique by naming the persistence/recent-mean prior, and accepted the optional unit-label clarification for historical context.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the August 2026 ONS release placeholder the explicit date source, accepted the model-prior critique by naming the persistence/recent-mean prior, and accepted the optional unit-label clarification for historical context.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The forecast is mostly coherent, but the resolution date is not supported by the cited calendar evidence and the model-prior step should be made more explicit."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/prompt.md",
+      "sha256": "0046550360bb51ebef176dc5aec45bc2be87f82b65ded9109eddc1836e863ac8",
+      "bytes": 4070,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_command.json",
+      "sha256": "660d7f23e8689821d003aef7e8878eb70ebf2b2bbaac602de5b9de787d73298d",
+      "bytes": 786,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_codex_stdout.jsonl",
+      "sha256": "9aac02a5ee5e6d1015a76fdf790c0972c6dac36baa631fc338c6a6f738fbb3cb",
+      "bytes": 34374,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_codex_stderr.log",
+      "sha256": "84dc9eb4943c4c507dc960600e6435d49b3edc3f96516eceb1b310b25cc9aede",
+      "bytes": 3231,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_codex_events.jsonl",
+      "sha256": "8c6ef50e52cfa545030e227af5304747ea624dd347396257feb75140a2aaa0b3",
+      "bytes": 34203,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_codex_last_message.txt",
+      "sha256": "a7f7c19332f72c524beb265fed97594f50dabe7e944da9c13c9a656291ea384e",
+      "bytes": 5904,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_codex_trace.json",
+      "sha256": "dcad6f73532a4454dd8867dd0542664a53a0e4457fc661c8d83999242e31a570",
+      "bytes": 509,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_stdout.txt",
+      "sha256": "a7f7c19332f72c524beb265fed97594f50dabe7e944da9c13c9a656291ea384e",
+      "bytes": 5904,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/draft_stderr.txt",
+      "sha256": "da0acb9352aaf94bbff9201798f1eacba39be361ebafab3b61ceb745d5d6e7da",
+      "bytes": 3374,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_prompt.md",
+      "sha256": "c8a102d26a5d948f9d15b9fd034bc1c0e76a06497c6069a305d29da7b4a1b549",
+      "bytes": 7427,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_command.json",
+      "sha256": "0b017ce8096b2908fc2f7d4bee6acc176d21602358f36a8acbcf4d474d5835e1",
+      "bytes": 782,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "13e19e07502ab0c595abf50d4279030803e34571bae3a21fcf77933ce595d27b",
+      "bytes": 1848,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_codex_stderr.log",
+      "sha256": "11deb048a426e6acf4052ce2f364ae402a61ce1bb6be797e6e5dfedd1c391ffd",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "0c697f78cfd1dcd58b8d7a182aecf3baf55371e90002d10859743d063d1189d0",
+      "bytes": 1870,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "124a129851dd5a0240bce132db1014081508714dda88b7f7a3ca37ee5bbcc505",
+      "bytes": 1467,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_codex_trace.json",
+      "sha256": "8188a9113ded5dbaf7b5ebf0c8c226dfbafffdd35af195a29b76f537a7ac55e4",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_stdout.txt",
+      "sha256": "124a129851dd5a0240bce132db1014081508714dda88b7f7a3ca37ee5bbcc505",
+      "bytes": 1467,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/pre_submit_review_stderr.txt",
+      "sha256": "1092f245fd0b45bf256a8505a2216dacc30b234021d56371ba7ef5d6b8975831",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/revision_prompt.md",
+      "sha256": "43e3dac15d522a0a26ef5f195e64b5f7f594665057c76416ae2dcef3816cdd8f",
+      "bytes": 12377,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/command.json",
+      "sha256": "8984445d32677eea6dee4767f424bdd1a45df08f7c68ff14a6b627a8eeb301b1",
+      "bytes": 780,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/codex_stdout.jsonl",
+      "sha256": "e311290473440ca19b706faef6d03237537f579f3edc34bf04215e9eda6c8fc6",
+      "bytes": 11216,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/codex_stderr.log",
+      "sha256": "9ecd62c2527b2299e39703ecbad6eec19e6d422740a374fad85c306a9fe9667d",
+      "bytes": 2655,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/codex_events.jsonl",
+      "sha256": "b7e95e32cb30b1ee0274fffd4f6e40dc9e4708a93508094e529f0a727beda8b7",
+      "bytes": 11248,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/codex_last_message.txt",
+      "sha256": "7ead6b683427e30e50dcc40bd800f341e55f1418bfffed676b4ac5f58e55c5af",
+      "bytes": 6136,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/codex_trace.json",
+      "sha256": "26225f0453bb75d6270d794980c3281c0d8be3109ee4efbee180e0fdd2b5ed10",
+      "bytes": 506,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/stdout.txt",
+      "sha256": "7ead6b683427e30e50dcc40bd800f341e55f1418bfffed676b4ac5f58e55c5af",
+      "bytes": 6136,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/stderr.txt",
+      "sha256": "c3527b13b05e2a53a1f6e71d0d10b1285f13cb00c5aab4e72ea604e8a0a2f79b",
+      "bytes": 2782,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/raw_response.txt",
+      "sha256": "7ead6b683427e30e50dcc40bd800f341e55f1418bfffed676b4ac5f58e55c5af",
+      "bytes": 6136,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/parsed_cells.json",
+      "sha256": "cd53ce088598a014db9ccc9340aa01a9fa519c56e3c007c88d661386d5961637",
+      "bytes": 7101,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/normalized_cells.json",
+      "sha256": "8c3353a872446936d267a1a21cbd5d07aaf9b36f41ab44ce9bf9225ad7aeda4c",
+      "bytes": 6715,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/validation.json",
+      "sha256": "058bcbacb103181fc841119dfb10b2e77b2acbde6ac8cc4b11a268dd2f41c87b",
+      "bytes": 150,
+      "createdAt": "2026-06-27T13:34:28Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-34-28z-ons-labour-unemployment-rate-april-to-june-2026-first-print-apr-jun-2026/manifest.json",
+      "sha256": "f4cf6dd8ad2500af52cddae917e4fd5c5ae3f58835b1f70a2f5148c2d8d5673f",
+      "bytes": 17054,
+      "createdAt": "2026-06-27T13:34:28Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "uk-ons-unemployment-rate-apr-jun-2026-first-print",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

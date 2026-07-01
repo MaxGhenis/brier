@@ -4,6 +4,7 @@ import type {
   ForecastCell,
   ForecastCellType,
   PredictionRunActivityArtifact,
+  PredictionPreSubmitReviewWorkflow,
   PredictionPackSet,
   ReasoningStep,
   ResolutionPolicy,
@@ -87,6 +88,7 @@ export interface PredictionRunRecord {
   runDescription?: string;
   packSet?: PredictionPackSet;
   activityLog?: PredictionRunActivityArtifact[];
+  preSubmitReview?: PredictionPreSubmitReviewWorkflow;
   idempotencyKey: string;
   createdAt: string;
   modelVersion?: string;
@@ -107,6 +109,7 @@ export interface PredictionRunRecord {
     targetFactRef?: string;
     packSetId?: string;
     packIds: string[];
+    preSubmitReview?: PredictionPreSubmitReviewWorkflow;
   };
   output: {
     pointEstimate: number;
@@ -273,7 +276,10 @@ export function buildRecordedPredictionRunRecord(
     run.variantId,
   );
   const agentId = buildAgentId(run);
-  const publicTrace = buildPublicTrace(run.reasoning);
+  const publicTrace = buildPublicTrace(
+    run.reasoning,
+    run.predictionRun?.preSubmitReview,
+  );
   const toolCalls = extractToolCalls(run.reasoning, runId, spec);
   const promptHash = stableHash({
     specVersionId: spec.specVersionId,
@@ -301,6 +307,7 @@ export function buildRecordedPredictionRunRecord(
     runDescription: run.description,
     packSet: run.packSet,
     activityLog: run.predictionRun?.activityLog,
+    preSubmitReview: run.predictionRun?.preSubmitReview,
     idempotencyKey: stableHash({
       specVersionId: spec.specVersionId,
       agentId,
@@ -327,6 +334,7 @@ export function buildRecordedPredictionRunRecord(
       targetFactRef: spec.resolution.targetFactRef,
       packSetId: run.packSet?.packSetId,
       packIds: run.packSet?.packs.map((pack) => pack.packId) ?? [],
+      preSubmitReview: run.predictionRun?.preSubmitReview,
     },
     output: {
       pointEstimate: run.pointEstimate,
@@ -519,7 +527,27 @@ function extractToolNames(reasoning: ReasoningStep[]) {
   });
 }
 
-function buildPublicTrace(reasoning: ReasoningStep[]) {
+function buildPublicTrace(
+  reasoning: ReasoningStep[],
+  preSubmitReview?: PredictionPreSubmitReviewWorkflow,
+) {
+  const reviewTrace = preSubmitReview
+    ? [
+        `Pre-submit review ${preSubmitReview.status}: ${preSubmitReview.summary}`,
+        ...preSubmitReview.findings
+          .slice(0, 2)
+          .map(
+            (finding) =>
+              `Reviewer ${finding.severity}: ${finding.rubricItem} - ${finding.summary}`,
+          ),
+        ...preSubmitReview.dispositions
+          .slice(0, 2)
+          .map(
+            (disposition) =>
+              `Forecaster disposition: ${disposition.decision} ${disposition.findingId}; ${disposition.rationale}`,
+          ),
+      ]
+    : [];
   const trace = reasoning.flatMap((step) => {
     if (
       step.kind === "heading" ||
@@ -536,7 +564,7 @@ function buildPublicTrace(reasoning: ReasoningStep[]) {
     return [];
   });
 
-  return trace.slice(0, 8);
+  return [...reviewTrace, ...trace].slice(0, 10);
 }
 
 function isMonotoneDistribution(distribution: PredictionDistribution) {

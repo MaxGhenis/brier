@@ -47,8 +47,15 @@ The following practices are already treated as default thesis.analyst behavior:
 
 - resolve the exact first-print target before forecasting;
 - fetch recent official-source history in the run;
-- state the outside-view base rate before inside-view adjustments;
-- blend persistence, recent momentum, and the base rate with explicit weights;
+- treat the outside-view base rate as the prior forecast before inside-view
+  adjustments;
+- weight the base-rate prior heavily by default, with explicit weights when
+  blending persistence, recent momentum, and current evidence;
+- publish simple benchmark baselines, including last-print persistence and
+  panel shrinkage when applicable, before scoring the agent's own update;
+- require named, direct current evidence before moving materially away from
+  the strongest benchmark baseline, and shrink back when evidence is weak or
+  already reflected in the official history;
 - size 80% intervals from realized first-print dispersion;
 - name concrete scenarios that would land outside each tail;
 - update a forecast when new relevant official information arrives, while

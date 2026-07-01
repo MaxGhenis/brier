@@ -1,0 +1,357 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-28T00:43:53Z",
+  "series": "cms.medicaid_pi.ex_parte_renewal_share.il.aug_2026",
+  "period": "August 2026 reporting period",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "medicaid-ex-parte-share-aug-2026-il",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.il.aug_2026",
+    "period": "August 2026 reporting period",
+    "resolutionDate": "2026-12-15",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolves to Illinois's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "series": "cms.medicaid_pi.ex_parte_renewal_share.il.aug_2026",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "83e05e226a8325a4401ecbaa78717c8b5705e8ac5c31873a8eb84843c29080ef",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-28T00:43:53Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "0f189f2e35aac5b665291bb807c95c89f230cd4c80b61e74cf4f0e99f937cee1"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update step says the five-point mean near 80.7 supports a +0.4 pp adjustment from the latest value of 81.0, which is mathematically unclear because the mean is below the latest value.",
+        "actionRequested": "Revise the point-estimate bridge to name an explicit blend or adjustment formula, or relabel the +0.4 pp component so it is not attributed to mean reversion toward 80.7."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The reasoning gives conflicting realized-volatility inputs: one sentence says mean absolute adjacent step is about 4.1 pp, while the math block correctly computes about 4.6 pp from the listed changes.",
+        "actionRequested": "Use one volatility figure consistently, preferably 4.6 pp from the displayed adjacent changes, and briefly connect it to the chosen 8.3 pp half-width."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The interval text says lower and upper half-widths are both 8.3 pp, but the upper bound is rounded to 90 rather than 90.0 in the JSON while the resolution rule specifies one decimal percent.",
+        "actionRequested": "Make the forecast JSON and final forecast text use one-decimal formatting consistently, e.g. ciHigh 90.0 if the schema permits numeric trailing-zero display elsewhere."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolution-date note; it appropriately flags that 2026-12-15 is ledger-driven rather than independently verified from an exact CMS August 2026 placeholder."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider stating whether the sparse five-observation history rules out a heavier time-series model because there are too few first-print observations for a meaningful fitted trend."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the point-estimate bridge an explicit latest/mean blend plus operational adjustment, to use 4.6 pp consistently as the realized adjacent-step volatility input, and to display the upper interval as 90.0 percent consistently. Retained the resolution-date note because it clarifies the ledger-driven date limitation without changing the target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the point-estimate bridge an explicit latest/mean blend plus operational adjustment, to use 4.6 pp consistently as the realized adjacent-step volatility input, and to display the upper interval as 90.0 percent consistently. Retained the resolution-date note because it clarifies the ledger-driven date limitation without changing the target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the point-estimate bridge an explicit latest/mean blend plus operational adjustment, to use 4.6 pp consistently as the realized adjacent-step volatility input, and to display the upper interval as 90.0 percent consistently. Retained the resolution-date note because it clarifies the ledger-driven date limitation without changing the target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to make the point-estimate bridge an explicit latest/mean blend plus operational adjustment, to use 4.6 pp consistently as the realized adjacent-step volatility input, and to display the upper interval as 90.0 percent consistently. Retained the resolution-date note because it clarifies the ledger-driven date limitation without changing the target.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to make the point-estimate bridge an explicit latest/mean blend plus operational adjustment, to use 4.6 pp consistently as the realized adjacent-step volatility input, and to display the upper interval as 90.0 percent consistently. Retained the resolution-date note because it clarifies the ledger-driven date limitation without changing the target.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Publishable after tightening the quantitative bridge: resolver fields match the ledger, but the prior/update and interval arithmetic need correction for internal consistency."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/prompt.md",
+      "sha256": "4d7fe7d86aa3b3b7a59eeb39b6e15cf9c53e50a93b39f4f9add7435e5ea9499d",
+      "bytes": 6686,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_command.json",
+      "sha256": "0ca2b15bd8195638594fd43e1910c2f51a9af7e12533b37feec7fbf90dfe86e0",
+      "bytes": 793,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_codex_stdout.jsonl",
+      "sha256": "fc44f22b2d9ffa8b041b4d82e5909c2445f5280b0910a7e749e3e9eaf4671fc4",
+      "bytes": 6096574,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_codex_stderr.log",
+      "sha256": "3ff394bad7acb2aa415e60c7273df4434420840377ad6777fe7c4ef207df8338",
+      "bytes": 4671,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_codex_events.jsonl",
+      "sha256": "9b65689c066a8f126ee5c5a5319b95ad763be8232c38902494cbb62116a8de5c",
+      "bytes": 6097166,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_codex_last_message.txt",
+      "sha256": "11155e551ec3765f3e63fa22a5b491b7d2ff8844565dac9783113aaa498d7d19",
+      "bytes": 7562,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_codex_trace.json",
+      "sha256": "c8ff62534106f4f6e2c14ba24b3ddbe792418bf1720c00026fee1ddf02d27391",
+      "bytes": 509,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+      "sha256": "11155e551ec3765f3e63fa22a5b491b7d2ff8844565dac9783113aaa498d7d19",
+      "bytes": 7562,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/draft_stderr.txt",
+      "sha256": "390d63ac04c0ece3ccd2fee446daa5a20f5cdd80ab2a794956373372f964d1ed",
+      "bytes": 4854,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_prompt.md",
+      "sha256": "5d18a784e1c17702df5e032afa834ecab050ca5edd6752bfaa6da2b10e976632",
+      "bytes": 10384,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_command.json",
+      "sha256": "c215c4011140285612796afe1aa8b846029266cd6c1c3d806573a88b4f73723e",
+      "bytes": 789,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "d859a9349bccc47e842a59ebffda57a7b7b1009a8c3a89218c828c6dd87554ee",
+      "bytes": 2291,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stderr.log",
+      "sha256": "80a000b4e202bbb12b485d865b64d44d7543932b85ccdd8f3175aad48f40cbf3",
+      "bytes": 615,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_codex_events.jsonl",
+      "sha256": "bff1c01e173189daa6f718b164084729dafdc206062d01fef2ae20be3f833798",
+      "bytes": 2313,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_codex_last_message.txt",
+      "sha256": "1d9c4b3ce1a4c13893f8360e12963601c4cc64538dd67d84c2e79c952cde3858",
+      "bytes": 1914,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_codex_trace.json",
+      "sha256": "27c9819a3222de465c2425256b11a8adc003909a5356ea3e85074a086ccc01a1",
+      "bytes": 504,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+      "sha256": "1d9c4b3ce1a4c13893f8360e12963601c4cc64538dd67d84c2e79c952cde3858",
+      "bytes": 1914,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/pre_submit_review_stderr.txt",
+      "sha256": "603b71a919f8764d96f7a988dc5c50323e4935d508a03149bbfe2c597a5343f0",
+      "bytes": 638,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/revision_prompt.md",
+      "sha256": "971f81a2ea6500f95644b45294c3a70e08a8e50db852c2eeca2ad403583096af",
+      "bytes": 17098,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/command.json",
+      "sha256": "8159bc29f22c4219cdc83472e8bff2f883ce851898fe096b99af90ae2494116f",
+      "bytes": 787,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/codex_stdout.jsonl",
+      "sha256": "0ba8e4f80f1f66b77a9fb7b1c0b150ca260e05f66426b51c2d30b31b260d7bf0",
+      "bytes": 8704,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/codex_stderr.log",
+      "sha256": "3d83991bf5bbe4984ffc0f289646e0141175c69aa56280b2da0bce6e2a3d9126",
+      "bytes": 2655,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/codex_events.jsonl",
+      "sha256": "4764ba190ff4e8b7b2e57f49651ed6dc6a12f523d62131b0986bdc7a9bd8f7fc",
+      "bytes": 8726,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/codex_last_message.txt",
+      "sha256": "2b9ca0f6b077e52cbe7f50c921f1b404a3d8faacb406c8604a060f81a8c1695a",
+      "bytes": 8122,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/codex_trace.json",
+      "sha256": "89ba3786ff93a954e69a1e5402b677f58778f9cac3b6aab1be8d10f9308d1085",
+      "bytes": 504,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/stdout.txt",
+      "sha256": "2b9ca0f6b077e52cbe7f50c921f1b404a3d8faacb406c8604a060f81a8c1695a",
+      "bytes": 8122,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/stderr.txt",
+      "sha256": "df7f2925ab46f4ca8a74c4363534fa21bf61419e1eb1cb86dafae6a7f0b4d4a3",
+      "bytes": 2782,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/raw_response.txt",
+      "sha256": "2b9ca0f6b077e52cbe7f50c921f1b404a3d8faacb406c8604a060f81a8c1695a",
+      "bytes": 8122,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/parsed_cells.json",
+      "sha256": "275456ef41f07ce3214d64fac9be75f640155070b4a8bf894f828106bdb576ff",
+      "bytes": 9107,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/normalized_cells.json",
+      "sha256": "5a81cdc21fbed9363342744718941702336244100419203542cbd8e93f2bc586",
+      "bytes": 8713,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/validation.json",
+      "sha256": "e6e5cc57de041dc7cdd81f778bd7e7dbad6943863461f27fd91f0dc70c4701ba",
+      "bytes": 136,
+      "createdAt": "2026-06-28T00:43:53Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-43-53z-cms-medicaid-pi-ex-parte-renewal-share-il-aug-2026-august-2026-reporting-period/manifest.json",
+      "sha256": "f2fcd325c50584bad98bb307ec09d03003a1c1ed0deb9d28f3136ebd89c09fb0",
+      "bytes": 19774,
+      "createdAt": "2026-06-28T00:43:53Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "medicaid-ex-parte-share-aug-2026-il",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

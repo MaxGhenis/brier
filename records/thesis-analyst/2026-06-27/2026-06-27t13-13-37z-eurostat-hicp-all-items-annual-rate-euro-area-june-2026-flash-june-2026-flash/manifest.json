@@ -1,0 +1,346 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-27T13:13:37Z",
+  "series": "eurostat.hicp.all_items_annual_rate.euro_area.june_2026.flash",
+  "period": "June 2026 flash",
+  "conditional": null,
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "3a08d7c397df424c5c94958bb88812aea7a5af7fb229ba2df7637e26852ef67c",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-27T13:13:37Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "a75cf4a9b7c892c2848a98c124b87fd2ae7e419884866b292067d1e7b4b7321e"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "Resolver allows either the euro-indicators flash release or the first posted dataset value, but the data browser may later show revised/final HICP rather than preserving the first flash print.",
+        "actionRequested": "State that the Eurostat euro-indicators June 2026 flash release is the primary resolver, with the dataset only usable if it demonstrably records the same first flash value; ignore later final/revised prc_hicp_manr values."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a latest-print/five-month-mean prior but does not explicitly state whether a time-series model prior was used or ruled out.",
+        "actionRequested": "Add one sentence explicitly naming the model prior, e.g. persistence/random-walk from the latest flash plus light mean reversion, or explicitly rule out a fitted model due to short-horizon flash-data constraints."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is justified by 'recent realized monthly first-print dispersion' but no realized-volatility sample or calculation is shown.",
+        "actionRequested": "Add the sample basis for the +/-0.3 pp interval, or rephrase it as explicit judgmental uncertainty rather than a volatility-derived interval."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether all historicalContext values are first flash prints or later official monthly values."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the release timezone for the 2026-07-01 resolution date if the catalog supports it."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the euro-indicators flash release primary and limiting dataset use to the same first flash value; accepted the model-prior critique by naming a persistence/random-walk prior with light mean reversion; accepted the interval critique by describing the interval as judgmental uncertainty rather than an unshown volatility calculation.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the euro-indicators flash release primary and limiting dataset use to the same first flash value; accepted the model-prior critique by naming a persistence/random-walk prior with light mean reversion; accepted the interval critique by describing the interval as judgmental uncertainty rather than an unshown volatility calculation.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the euro-indicators flash release primary and limiting dataset use to the same first flash value; accepted the model-prior critique by naming a persistence/random-walk prior with light mean reversion; accepted the interval critique by describing the interval as judgmental uncertainty rather than an unshown volatility calculation.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the euro-indicators flash release primary and limiting dataset use to the same first flash value; accepted the model-prior critique by naming a persistence/random-walk prior with light mean reversion; accepted the interval critique by describing the interval as judgmental uncertainty rather than an unshown volatility calculation.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the euro-indicators flash release primary and limiting dataset use to the same first flash value; accepted the model-prior critique by naming a persistence/random-walk prior with light mean reversion; accepted the interval critique by describing the interval as judgmental uncertainty rather than an unshown volatility calculation.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after tightening the first-print resolver and making the model/interval basis more explicit."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/prompt.md",
+      "sha256": "dd0a58118dcc254b13780daa246b7e1027682c2d82fb1d431347e1c9c6cc8ae6",
+      "bytes": 4039,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_command.json",
+      "sha256": "6a7efcb9412769a4c28c2dcb3a0d05a8da64b7c290a6c758119ba08ccd739a2e",
+      "bytes": 791,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_codex_stdout.jsonl",
+      "sha256": "ead0e55116f2c245f1c606d51b3d0b9d7dbd9ef7c7ef1c5fd04e4a2b50654e51",
+      "bytes": 17834,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_codex_stderr.log",
+      "sha256": "1de1d493b1d4fe3c1cc2ef9f414e7007d658b235b1e18f4287276b8a4d31cc18",
+      "bytes": 2943,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_codex_events.jsonl",
+      "sha256": "75f48bc7c9d4d990b78d1cf9be0df97bf9eb0d65856f0d490c7204e3a95584ba",
+      "bytes": 17846,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_codex_last_message.txt",
+      "sha256": "c78e7007b88c38ed33849b9cb67b1297ba7f94f535e019dde9b78cd0a8d2c990",
+      "bytes": 5454,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_codex_trace.json",
+      "sha256": "486f41f68d97966c9b75b5127e6ef8f78df50c9ed5e986cc8a15145ede4e2e65",
+      "bytes": 507,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_stdout.txt",
+      "sha256": "c78e7007b88c38ed33849b9cb67b1297ba7f94f535e019dde9b78cd0a8d2c990",
+      "bytes": 5454,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/draft_stderr.txt",
+      "sha256": "bc0d04a41379f45b7646bfc0443430276e2f420721dcfe847cd1311d295005fe",
+      "bytes": 3078,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_prompt.md",
+      "sha256": "ded3675f1c514bd9d719caac561c0a4c69392efc9fc6bbb4051cbb8fbe716963",
+      "bytes": 6982,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_command.json",
+      "sha256": "6d1d9a1b01b37e378cb52a64feaf19fd02142a596bd6bed9e03d0ade381ebc95",
+      "bytes": 787,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "4e7a49466db39203b08a53f222b04f20640c4b46d015e814c3d34adda3865e6a",
+      "bytes": 2439,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_codex_stderr.log",
+      "sha256": "505d25ed5f750726d43befb7e5e83341f8df8d057f4590aae71df1db2dbd996e",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_codex_events.jsonl",
+      "sha256": "1f4102f26a6182368738870035f2001cec6c2be96957fea54ea4a90ff5a9e687",
+      "bytes": 2455,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_codex_last_message.txt",
+      "sha256": "3cf5d7c6d0fbac69d22ac2c28d0b6dabaa858f1e3619c5f054de0797b0fbed34",
+      "bytes": 1654,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_codex_trace.json",
+      "sha256": "7a9c08f0758c1f9716542015c0ab3c8320c2ee6c65b90c24431384e4fb92fd93",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_stdout.txt",
+      "sha256": "3cf5d7c6d0fbac69d22ac2c28d0b6dabaa858f1e3619c5f054de0797b0fbed34",
+      "bytes": 1654,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/pre_submit_review_stderr.txt",
+      "sha256": "52589f0c0768cfb707677c9d9d2400515b275bac287a09f8b8a73223073d4440",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/revision_prompt.md",
+      "sha256": "055116b110a8b88c00692c17ab2123e53958e22bf628e8ca34d5662254ae6e9f",
+      "bytes": 12083,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/command.json",
+      "sha256": "db32031d091bdd5e886c149fdc681963d0d9bee5a8cd10a29f58c39720ab7c25",
+      "bytes": 785,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/codex_stdout.jsonl",
+      "sha256": "7d61b657e4b584e062b70b627485a304cd7b27e42e1f48e69b173aef111eafe2",
+      "bytes": 6511,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/codex_stderr.log",
+      "sha256": "54448776ef9a2a706c496191df498e8518733b16968f8ec033623399b88ba0d3",
+      "bytes": 615,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/codex_events.jsonl",
+      "sha256": "d87adbbad77cc9f7adfabd95f3cc8c188772cbf00709b6770301695ca5dfceac",
+      "bytes": 6533,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/codex_last_message.txt",
+      "sha256": "226e2c94ac4d5a2e73178e2b0d7e1fcb59d0b329301f461c72acdfcc7f7afbfe",
+      "bytes": 5953,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/codex_trace.json",
+      "sha256": "4a8cc9557ab9c36634a85ffb54bc04c8125b8a31faefd328b358a2a67d670c9b",
+      "bytes": 504,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/stdout.txt",
+      "sha256": "226e2c94ac4d5a2e73178e2b0d7e1fcb59d0b329301f461c72acdfcc7f7afbfe",
+      "bytes": 5953,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/stderr.txt",
+      "sha256": "5a779650c71ae7616bd4897e6de412398d98888314c9d1142974e7b991fb7cd7",
+      "bytes": 638,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/raw_response.txt",
+      "sha256": "226e2c94ac4d5a2e73178e2b0d7e1fcb59d0b329301f461c72acdfcc7f7afbfe",
+      "bytes": 5953,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/parsed_cells.json",
+      "sha256": "52e9a5da59546aa05bba1a1514ea437864caee8c9137d41f73fbfd0a905b99f9",
+      "bytes": 6850,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/normalized_cells.json",
+      "sha256": "e142b4a24fddd54fbe5d5efe8cca0d08c764840534a328223de6e10a382be421",
+      "bytes": 6492,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/validation.json",
+      "sha256": "50b3623b605070471eb3fe9a9870d4fe20f547e2c78a4a37dc4bba0486c9942e",
+      "bytes": 145,
+      "createdAt": "2026-06-27T13:13:37Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-27/2026-06-27t13-13-37z-eurostat-hicp-all-items-annual-rate-euro-area-june-2026-flash-june-2026-flash/manifest.json",
+      "sha256": "ca4cd2dd20ad449e784e598d8638ef59c20a6d1f5f8821f24e4d97645db7042e",
+      "bytes": 18607,
+      "createdAt": "2026-06-27T13:13:37Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "eurostat-hicp-ea-annual-rate-june-2026-flash",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

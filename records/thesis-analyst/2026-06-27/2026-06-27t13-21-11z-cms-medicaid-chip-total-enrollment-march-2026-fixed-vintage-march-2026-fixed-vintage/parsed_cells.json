@@ -1,0 +1,119 @@
+[
+  {
+    "slug": "cms-medicaid-chip-total-enrollment-march-2026-fixed-vintage",
+    "country": "US",
+    "type": "data",
+    "title": "CMS Medicaid/CHIP enrollment, Mar 2026",
+    "question": "What will CMS first publish as total Medicaid and CHIP enrollment for March 2026 in the preliminary March 2026 Applications, Eligibility, and Enrollment Data fixed vintage?",
+    "unit": "count",
+    "pointEstimate": 78060000,
+    "ciLow": 77250000,
+    "ciHigh": 78900000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-06-26",
+    "resolutionSource": "Official CMS Medicaid.gov monthly Medicaid and CHIP enrollment data release",
+    "resolutionSourceUrl": "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+    "resolutionRule": "Resolve to the whole-number Total Medicaid and CHIP Enrollment count in CMS's first official Preliminary March 2026 Applications, Eligibility, and Enrollment Data fixed vintage linked from Medicaid.gov and hosted on data.medicaid.gov. Do not use later updated March 2026 data or revisions. If CMS publishes state rows only, sum the official state-level Total Medicaid and CHIP Enrollment counts in that preliminary March 2026 vintage, preserving CMS whole-count precision.",
+    "dataPointId": "cms.medicaid_chip.total_enrollment.2026_03.preliminary.first_print",
+    "historicalContext": [
+      {
+        "label": "February 2026 preliminary total Medicaid and CHIP enrollment",
+        "value": 78184000
+      },
+      {
+        "label": "January 2026 preliminary total Medicaid and CHIP enrollment",
+        "value": 78312000
+      },
+      {
+        "label": "December 2025 preliminary total Medicaid and CHIP enrollment",
+        "value": 78468000
+      },
+      {
+        "label": "November 2025 preliminary total Medicaid and CHIP enrollment",
+        "value": 78620000
+      }
+    ],
+    "drivers": [
+      "post-unwinding enrollment drift is smaller than 2023-2024 losses",
+      "preliminary vintages exclude some retroactive and late-processed enrollment",
+      "state renewal operations remain the main downside channel",
+      "population and eligibility churn provide modest level support",
+      "March seasonality is not large enough to dominate trend"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/methodology-about-medicaid-chip-enrollment-report",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360?conditions%5B0%5D%5Boperator%5D=%3D&conditions%5B0%5D%5Bproperty%5D=reporting_period&conditions%5B0%5D%5Bvalue%5D=202603&conditions%5B1%5D%5Boperator%5D=%3D&conditions%5B1%5D%5Bproperty%5D=preliminary_or_updated&conditions%5B1%5D%5Bvalue%5D=P",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360?conditions%5B0%5D%5Boperator%5D=%3D&conditions%5B0%5D%5Bproperty%5D=reporting_period&conditions%5B0%5D%5Bvalue%5D=202602&conditions%5B1%5D%5Boperator%5D=%3D&conditions%5B1%5D%5Bproperty%5D=preliminary_or_updated&conditions%5B1%5D%5Bvalue%5D=P"
+    ],
+    "runAt": "2026-06-27T13:24:14Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "March 2026 CMS Medicaid and CHIP preliminary enrollment forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is CMS's first official preliminary March 2026 Medicaid and CHIP Applications, Eligibility, and Enrollment Data fixed vintage, not an updated vintage and not a third-party mirror."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the official Medicaid.gov monthly enrollment reports page and checked the target month link and release timing.",
+        "result": "The official page listed Preliminary March 2026 Applications, Eligibility, and Enrollment Data with Last Updated June 26, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the CMS methodology page for preliminary versus updated enrollment data.",
+        "result": "CMS distinguishes 2 data vintages, preliminary and updated, and states the data.medicaid.gov monthly enrollment data are updated monthly."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the recent preliminary-vintage reference class from the official CMS data page for reporting periods 202511 through 202602.",
+        "result": "Official-source recent preliminary totals used were 78,620,000 for November 2025, 78,468,000 for December 2025, 78,312,000 for January 2026, and 78,184,000 for February 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate: the comparable preliminary series was falling by about 128,000 to 156,000 per month across the latest three month-to-month moves, far below the steep unwinding losses of 2023-2024."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official monthly page for adjacent releases around the target month.",
+        "result": "The same official release list showed February 2026 preliminary and updated entries, January 2026 preliminary and updated entries, and the March 2026 preliminary entry, all with June 26, 2026 visible on the page."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum: starting from 78,184,000 in February, I use a judgmental inside-view adjustment that keeps the decline slightly milder than the recent -145,000 average because the latest move was the smallest of the three fetched changes at about -128,000."
+      },
+      {
+        "kind": "text",
+        "text": "Policy and one-off mechanisms: upside would come from late state processing stabilization, continuous-eligibility effects, or stronger CHIP retention; downside would come from renewal backlogs, eligibility redeterminations, and state reporting corrections hitting the preliminary count."
+      },
+      {
+        "kind": "math",
+        "text": "Recent monthly declines were roughly -152,000, -156,000, and -128,000, with an average near -145,000. I use a milder March decline of -124,000 from 78,184,000, giving 78,060,000. The 80% interval is about 5.6 times the recent average absolute one-month move to allow for state reporting dispersion and first-print noise: 78,060,000 - 810,000 = 77,250,000 and 78,060,000 + 840,000 = 78,900,000."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: if preliminary March captures more retroactive or late-processed enrollment than usual, the print could sit above February despite the broader downward trend; conversely, a cluster of state methodology changes could push the count below the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Outside-the-interval scenarios: below 77,250,000 would likely require unusually broad renewal-related terminations or a reporting break; above 78,900,000 would likely require a material state resubmission effect or a broad March enrollment rebound."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver-date critique by tying resolution to the official March 2026 preliminary link dated June 26, 2026; accepted the interval critique by making the recent-change basis explicit; accepted the update critique by labeling the milder decline as a judgmental adjustment from the latest observed momentum."
+      },
+      {
+        "kind": "forecast",
+        "point": 78060000,
+        "ciLow": 77250000,
+        "ciHigh": 78900000
+      }
+    ]
+  }
+]

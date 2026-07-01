@@ -179,6 +179,11 @@ function PackList({ title, items }: { title: string; items: string[] }) {
 }
 
 function PackUsageTable({ pack }: { pack: PredictionPackCatalogEntry }) {
+  const packSetLabel =
+    pack.packSetLabels.length > 0
+      ? pack.packSetLabels.join(", ")
+      : "not used yet";
+
   return (
     <section className="border-t border-[var(--theme-border)] pt-6">
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
@@ -186,9 +191,18 @@ function PackUsageTable({ pack }: { pack: PredictionPackCatalogEntry }) {
           Runs using this pack
         </h2>
         <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
-          {pack.packSetLabels.join(", ")}
+          {packSetLabel}
         </span>
       </div>
+      {pack.usage.length === 0 ? (
+        <div className="border-y border-[var(--theme-border)] py-5">
+          <p className="max-w-[620px] text-[0.88rem] leading-[1.6] text-[var(--theme-text-muted)]">
+            No recorded runs yet. This pack is registered for future ablations,
+            so the first runs can be compared against no-pack controls before
+            any promotion decision.
+          </p>
+        </div>
+      ) : null}
       <div className="space-y-4">
         {pack.usage.map((usage) => (
           <PackUsageRow key={buildUsageKey(usage)} usage={usage} />

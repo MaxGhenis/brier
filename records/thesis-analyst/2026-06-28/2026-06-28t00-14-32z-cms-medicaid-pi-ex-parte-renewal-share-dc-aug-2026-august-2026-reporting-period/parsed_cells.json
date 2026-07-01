@@ -1,0 +1,129 @@
+[
+  {
+    "slug": "medicaid-ex-parte-share-aug-2026-dc",
+    "country": "US",
+    "type": "data",
+    "title": "DC Medicaid ex parte renewal share, Aug. 2026",
+    "question": "CMS State Medicaid and CHIP Eligibility Processing Data, District of Columbia state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.",
+    "unit": "percent",
+    "pointEstimate": 98.0,
+    "ciLow": 91.6,
+    "ciHigh": 99.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-12-15",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+    "resolutionRule": "Resolve to District of Columbia's August 2026 reporting-period original (O) state row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c exactly as first officially published on data.medicaid.gov. Compute ex parte renewal share as the published count of completed renewals processed through ex parte renewal divided by the published total completed-renewal denominator, multiplied by 100 and rounded to one decimal percent. Ignore later updated submissions or revisions. The official Medicaid.gov monthly reports page verifies the monthly release vehicle; I did not find a public future-dated August 2026 placeholder in the inspected context, so this remains tied to the canonical ledger resolutionDate 2026-12-15.",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.dc.aug_2026",
+    "historicalContext": [
+      {
+        "label": "DC 2025-07 first-print ex parte renewal share",
+        "value": 85.0
+      },
+      {
+        "label": "DC 2025-09 first-print ex parte renewal share",
+        "value": 92.6
+      },
+      {
+        "label": "DC 2025-11 first-print ex parte renewal share",
+        "value": 95.1
+      },
+      {
+        "label": "DC 2026-01 first-print ex parte renewal share",
+        "value": 97.3
+      },
+      {
+        "label": "DC 2026-02 latest inspected ex parte renewal share",
+        "value": 96.4
+      }
+    ],
+    "drivers": [
+      "District of Columbia's recent ex parte renewal share is already in the mid-to-high 90s",
+      "The July 2025 to February 2026 trajectory shows a large improvement but recent flattening",
+      "Data-matching coverage and eligibility-system automation support persistence near the ceiling",
+      "Renewal cohort composition can still move the numerator and completed-renewal denominator month to month",
+      "The upper tail is mechanically capped by 100 percent while downside remains operationally plausible"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data",
+      "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360"
+    ],
+    "runAt": "2026-06-28T00:14:41Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DC Medicaid ex parte renewal share, August 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is a District of Columbia state row, not a national weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed renewals processed ex parte, reported in percent and rounded to one decimal."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspected the registered CMS Medicaid PI target and local catalog entry for the District of Columbia August 2026 ex parte renewal share resolver.",
+        "result": "Fetched canonical slug medicaid-ex-parte-share-aug-2026-dc, unit percent, registered catalog resolutionDate 2026-12-15, prior catalog point 98.0, prior 80% interval 91.6 to 99.0, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.dc.aug_2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official Medicaid.gov monthly application, eligibility determination, and enrollment reports page for release vehicle and current update evidence from inspected run context.",
+        "result": "Fetched official page evidence: data.Medicaid.gov is updated monthly; the inspected current release context listed Preliminary March 2026 data and June 26, 2026 as the current update date for related February 2026 and March 2026 entries."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked CMS Medicaid eligibility processing dataset identifiers and resolver arithmetic fields used for this target.",
+        "result": "Fetched ledger dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, CMS datastore id 6165f45b-ca93-5bb5-9d06-db29c692a360, original submission status O, August 2026 reporting period, numerator as completed renewals processed through ex parte renewal, denominator as total completed renewals, and expected publication lag of about 3 to 4 months after the reporting period."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Read the local official-source-derived District of Columbia historical context for this exact CMS series.",
+        "result": "Fetched District of Columbia values: 2025-07 = 85.0 percent, 2025-09 = 92.6 percent, 2025-11 = 95.1 percent, 2026-01 = 97.3 percent, and 2026-02 = 96.4 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Computed recent District of Columbia movement and latest-value anchor from the inspected sample.",
+        "result": "Fetched latest inspected District of Columbia value 2026-02 = 96.4 percent; changes were +7.6 percentage points from 2025-07 to 2025-09, +2.5 from 2025-09 to 2025-11, +2.2 from 2025-11 to 2026-01, and -0.9 from 2026-01 to 2026-02."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the most relevant outside view is District of Columbia's own official-source-derived first-print observations where available from July 2025 through February 2026. The five-point inspected mean is about 93.3 percent, while the latest three observed points average about 96.3 percent, so state persistence near the ceiling is more informative than a broad national average."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: the level is already near the feasible ceiling, consistent with strong data-match coverage and mature renewal automation. Momentum remains positive over the full July-February window, but the January-to-February dip argues against mechanically extrapolating above 99 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is latest-value persistence with a damped local trend, using District of Columbia's inspected July 2025, September 2025, November 2025, January 2026, and February 2026 official-source-derived first-print observations where available. Starting from the 96.4 latest inspected value, I add +1.1 pp for the positive July-February slope and +0.5 pp for continued compliance and automation pressure, limited by the 100 percent ceiling, yielding 98.0. The 80% interval uses realized sparse-sample moves up to 7.6 pp, widens for six-month cohort and system risk, and caps the upper tail below 100 at 99.0."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside outside the interval would require DC to print essentially universal ex parte renewals, above 99 percent, in August 2026. Downside outside the interval would require a manual-heavy renewal cohort, data-source outage, eligibility-system reporting break, or denominator composition shift that pulls the share below 91.6 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: 96.4 latest inspected value + 1.1 pp damped trend + 0.5 pp automation/compliance adjustment = 98.0 percent. Interval calculation: lower bound 98.0 - 6.4 = 91.6; upper bound 98.0 + 1.0 = 99.0 after applying the ceiling-aware cap and rounding to one decimal. The lower-side width is much larger because the 100 percent ceiling leaves only about 2.0 pp of possible upside from the point, while recent DC monthly/bi-monthly volatility includes moves as large as 7.6 pp; the chosen interval is an approximate 80% coverage band that preserves meaningful downside risk while keeping the upper tail below the mechanical maximum."
+      },
+      {
+        "kind": "text",
+        "text": "Resolution-date note: the official CMS page evidence supports the monthly release vehicle and the June 26, 2026 current update cycle, but the inspected context did not expose a future dated August 2026 state-row placeholder. I keep the forecast tied to the canonical ledger date 2026-12-15 and bind resolution to the first official CMS dataset print."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by removing the same-release-day correction exception and restating first official CMS print exactly as first published; accepted the interval critique by explicitly tying the asymmetric bounds to the 100 percent ceiling, recent DC volatility, and approximate 80% coverage. Also clarified the historical sample as official-source-derived first-print observations where available and kept February 2026 labeled as latest inspected."
+      },
+      {
+        "kind": "forecast",
+        "point": 98.0,
+        "ciLow": 91.6,
+        "ciHigh": 99.0
+      }
+    ]
+  }
+]

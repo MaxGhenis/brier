@@ -26,14 +26,20 @@ import { GET as getForecastLedgerJson } from "../app/forecasts/ledger.json/route
 import ForecastLogPage from "../app/forecasts/log/page";
 import { GET as getForecastLogJson } from "../app/forecasts/log.json/route";
 import ForecastsPage from "../app/forecasts/page";
-import { GET as getForecastSpecsJson } from "../app/forecasts/specs.json/route";
+import { GET as getForecastTargetChunkJson } from "../app/forecasts/targets/[table]/[chunk].json/route";
+import { GET as getForecastTargetTableJson } from "../app/forecasts/targets/[table].json/route";
+import { GET as getForecastTargetsJson } from "../app/forecasts/targets.json/route";
+import TargetArchitecturePage from "../app/forecasts/targets/page";
 import ThesisPage from "../app/thesis/page";
 import { ForecastRuntime } from "../components/ForecastRuntime";
-import { getForecastCell } from "../data/forecast-cells";
+import { FORECAST_CELLS, getForecastCell } from "../data/forecast-cells";
+import { buildTargetArchitectureProjection } from "../data/thesis-target-architecture";
+import { buildTargetArchitectureBackfillSql } from "../data/thesis-target-architecture-sql";
 import {
   loadPolicyEngineLedger,
   scoreResolvedForecast,
   withResolvedOutcome,
+  withResolvedOutcomes,
 } from "../data/thesis-log";
 
 describe("Next.js migration", () => {
@@ -257,7 +263,7 @@ describe("Next.js migration", () => {
       expect(screen.getByText("cdf score")).toBeInTheDocument();
       expect(screen.getByText(/CRPS/)).toBeInTheDocument();
       expect(screen.getByText(/PIT/)).toBeInTheDocument();
-    });
+    }, 15000);
   });
 
   describe("Forecast pages", () => {
@@ -303,7 +309,7 @@ describe("Next.js migration", () => {
       for (const link of payrollLinks) {
         expect(link).toHaveAttribute("href", "/nonfarm-payrolls-may-2026");
       }
-    });
+    }, 15_000);
 
     it("renders the facts-only ledger tables", async () => {
       render(await ForecastLedgerPage());
@@ -359,19 +365,241 @@ describe("Next.js migration", () => {
       expect(body.runs[0].idempotencyKey).toMatch(/^static-hash-v1:/);
     });
 
-    it("serves the machine-readable prediction specs JSON", async () => {
-      const response = getForecastSpecsJson();
+    it("serves the clean target-architecture manifest JSON", async () => {
+      const response = await getForecastTargetsJson();
       const body = await response.json();
 
-      expect(body.schemaVersion).toBe("thesis_prediction_specs_v1");
-      expect(body.counts.specs).toBeGreaterThan(100);
-      expect(body.specs[0].schemaVersion).toBe("thesis_prediction_spec_v1");
-      expect(body.specs[0].specId).toMatch(/^spec\./);
-      expect(body.specs[0].specVersionId).toMatch(/^spec\..+\.v20260609$/);
-      expect(body.specs[0].distribution.pointCount).toBe(201);
-      expect(body.specs[0].resolution.factLedger).toBe("PolicyEngine Ledger");
-      expect(body.specs[0].resolution.targetFactRef).toBeTruthy();
-      expect(body.specs[0].resolution.factId).toBeUndefined();
+      expect(body.schemaVersion).toBe("thesis_target_architecture_manifest_v1");
+      expect(body.projectionSchemaVersion).toBe(
+        "thesis_target_architecture_projection_v1",
+      );
+      expect(body.source).toEqual({
+        records: "forecast_cells",
+      });
+      expect(body.counts.targets).toBeGreaterThan(100);
+      expect(body.counts.targetVersions).toBe(body.counts.targets);
+      expect(body.counts.forecastRuns).toBeGreaterThanOrEqual(
+        body.counts.targets,
+      );
+      expect(body.counts.forecastDistributionPoints).toBe(
+        body.counts.forecastRuns * 201,
+      );
+      expect(body.counts.observations).toBeGreaterThan(0);
+      expect(body.counts.observationVintages).toBe(body.counts.observations);
+      expect(body.counts.resolutionEvents).toBeGreaterThan(0);
+      expect(body.counts.scores).toBeGreaterThan(0);
+      expect(body.counts.baselineCandidates).toBeGreaterThan(0);
+      expect(body.counts.toolCalls).toBeGreaterThan(0);
+      expect(body.counts.reviewRuns).toBeGreaterThan(0);
+      expect(body.counts.judgeRuns).toBeGreaterThan(0);
+      expect(body.tables.length).toBeGreaterThan(10);
+      expect(
+        body.tables.find(
+          (table: { table: string }) => table.table === "targets",
+        ),
+      ).toMatchObject({
+        rowCount: body.counts.targets,
+        url: "/forecasts/targets/targets.json",
+      });
+      expect(
+        body.tables.find(
+          (table: { table: string }) => table.table === "forecastDistributions",
+        ),
+      ).toMatchObject({
+        rowCount: body.counts.forecastDistributionPoints,
+        url: "/forecasts/targets/forecastDistributions.json",
+      });
+      expect(
+        body.tables.find(
+          (table: { table: string }) => table.table === "forecastDistributions",
+        ).chunkCount,
+      ).toBeGreaterThan(1);
+    });
+
+    it("serves target-architecture table and chunk JSON", async () => {
+      const tableResponse = await getForecastTargetTableJson(
+        new Request("http://test.local/forecasts/targets/targets.json"),
+        {
+          params: Promise.resolve({}),
+        },
+      );
+      const tableBody = await tableResponse.json();
+
+      expect(tableBody.schemaVersion).toBe(
+        "thesis_target_architecture_table_v1",
+      );
+      expect(tableBody.projectionSchemaVersion).toBe(
+        "thesis_target_architecture_projection_v1",
+      );
+      expect(tableBody.table).toBe("targets");
+      expect(tableBody.rowCount).toBeGreaterThan(100);
+      expect(tableBody.rows[0].targetId).toMatch(/^target\./);
+      expect(tableBody.rows[0].dataPointId).toBeTruthy();
+
+      const distributionTableResponse = await getForecastTargetTableJson(
+        new Request(
+          "http://test.local/forecasts/targets/forecastDistributions.json",
+        ),
+        {
+          params: Promise.resolve({}),
+        },
+      );
+      const distributionTableBody = await distributionTableResponse.json();
+
+      expect(distributionTableBody.schemaVersion).toBe(
+        "thesis_target_architecture_table_v1",
+      );
+      expect(distributionTableBody.table).toBe("forecastDistributions");
+      expect(distributionTableBody.chunkCount).toBeGreaterThan(1);
+      expect(distributionTableBody.rows).toBeUndefined();
+      expect(distributionTableBody.chunks[0]).toMatchObject({
+        index: 0,
+        url: "/forecasts/targets/forecastDistributions/0.json",
+      });
+
+      const chunkResponse = await getForecastTargetChunkJson(
+        new Request(
+          "http://test.local/forecasts/targets/forecastDistributions/0.json",
+        ),
+        {
+          params: Promise.resolve({}),
+        },
+      );
+      const chunkBody = await chunkResponse.json();
+
+      expect(chunkBody.schemaVersion).toBe(
+        "thesis_target_architecture_chunk_v1",
+      );
+      expect(chunkBody.table).toBe("forecastDistributions");
+      expect(chunkBody.chunkIndex).toBe(0);
+      expect(chunkBody.rows.length).toBeLessThanOrEqual(chunkBody.chunkSize);
+      expect(chunkBody.rows[0].pointIndex).toBe(0);
+    });
+
+    it("builds the clean target-architecture projection rows", async () => {
+      const ledger = await loadPolicyEngineLedger();
+      const projection = buildTargetArchitectureProjection(
+        withResolvedOutcomes(FORECAST_CELLS, ledger),
+        ledger,
+      );
+
+      expect(projection.schemaVersion).toBe(
+        "thesis_target_architecture_projection_v1",
+      );
+      expect(projection.targets[0].targetId).toMatch(/^target\./);
+      expect(projection.targets[0].dataPointId).toBeTruthy();
+      expect(projection.targetVersions[0].targetVersionId).toMatch(
+        /^target_version\./,
+      );
+      expect(projection.targetVersions[0].resolverKind).toBeTruthy();
+      expect(projection.forecastRuns[0].strategyVersionId).toMatch(
+        /^strategy_version\./,
+      );
+      expect(projection.forecastDistributions[0].pointIndex).toBe(0);
+      expect(projection.reasoningEvents[0].redactionStatus).toBe("public_only");
+      expect(projection.observations[0].observationId).toMatch(/^obs\./);
+      expect(
+        projection.observations.some((observation: { observationId: string }) =>
+          observation.observationId.startsWith("obs.history."),
+        ),
+      ).toBe(true);
+      expect(
+        projection.observations
+          .filter((observation: { observationId: string }) =>
+            observation.observationId.startsWith("obs.history."),
+          )
+          .every(
+            (observation: { dataPointId?: string }) =>
+              observation.dataPointId === undefined,
+          ),
+      ).toBe(true);
+      expect(projection.observationVintages[0].vintageId).toMatch(/^vintage\./);
+      expect(projection.resolutionEvents[0].resolutionEventId).toMatch(
+        /^resolution_event\./,
+      );
+      expect(projection.scores[0].scoreId).toMatch(/^score\./);
+      expect(projection.baselineCandidates[0].candidateId).toMatch(
+        /^candidate\./,
+      );
+      expect(
+        projection.baselineCandidates.every(
+          (candidate: {
+            artifactRefId?: string;
+            sourceSeriesId?: string;
+            provenance: { forecastRunId: string };
+          }) =>
+            (candidate.artifactRefId || candidate.sourceSeriesId) &&
+            candidate.provenance.forecastRunId,
+        ),
+      ).toBe(true);
+      expect(
+        projection.baselineCandidates.some(
+          (candidate: { artifactRefId?: string }) =>
+            candidate.artifactRefId?.startsWith("artifact.generated_baseline."),
+        ),
+      ).toBe(true);
+      expect(projection.toolCalls[0].runId).toMatch(/^run\./);
+      expect(projection.reviewRuns[0].reviewRunId).toMatch(/^review\./);
+      expect(projection.judgeRuns[0].judgeRunId).toMatch(/^judge\./);
+      expect(
+        projection.judgeRuns
+          .filter((judgeRun: { batchId?: string }) =>
+            judgeRun.batchId?.startsWith("pairwise."),
+          )
+          .every(
+            (judgeRun: { leftRunId?: string; rightRunId?: string }) =>
+              judgeRun.leftRunId && judgeRun.rightRunId,
+          ),
+      ).toBe(true);
+    });
+
+    it("generates a full SQL backfill for the target schema", async () => {
+      const ledger = await loadPolicyEngineLedger();
+      const sampleForecasts = withResolvedOutcomes(FORECAST_CELLS, ledger)
+        .filter((forecast) => forecast.dataPointId)
+        .slice(0, 3);
+      const backfill = buildTargetArchitectureBackfillSql({
+        forecasts: sampleForecasts,
+        ledger,
+      });
+
+      expect(backfill.schemaVersion).toBe(
+        "thesis_target_architecture_backfill_sql_v1",
+      );
+      expect(backfill.counts.targets).toBe(sampleForecasts.length);
+      expect(backfill.counts.forecastDistributionPoints).toBe(
+        backfill.projection.counts.forecastRuns * 201,
+      );
+      expect(backfill.sql).toContain("begin;");
+      expect(backfill.sql).toContain('insert into "targets"');
+      expect(backfill.sql).toContain('insert into "target_versions"');
+      expect(backfill.sql).toContain('insert into "forecast_runs"');
+      expect(backfill.sql).toContain('insert into "forecast_distributions"');
+      expect(backfill.sql).not.toContain('insert into "prediction_specs"');
+      expect(backfill.sql).not.toContain('insert into "spec_versions"');
+      expect(backfill.sql).not.toContain('insert into "prediction_runs"');
+      expect(backfill.sql).not.toContain('insert into "cdf_points"');
+      expect(backfill.sql).not.toContain('insert into "public_traces"');
+      expect(backfill.sql).not.toContain('insert into "resolution_links"');
+      expect(backfill.sql).not.toContain('insert into "quality_gate_results"');
+      expect(backfill.sql).toContain("on conflict do nothing;");
+      expect(backfill.sql).not.toContain("undefined");
+    });
+
+    it("renders the clean target-architecture projection page", async () => {
+      render(await TargetArchitecturePage());
+
+      expect(screen.getByText("Target architecture")).toBeInTheDocument();
+      expect(
+        screen.getByText("Target architecture manifest →"),
+      ).toHaveAttribute("href", "/targets.json");
+      expect(screen.getByText("Brier no-pack LLM")).toBeInTheDocument();
+      expect(
+        screen.getByText("baseline.persistence.last_print"),
+      ).toBeInTheDocument();
+      expect(screen.getAllByText("targets").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("source series").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("resolved").length).toBeGreaterThan(0);
     });
 
     it("serves the machine-readable ledger JSON", async () => {

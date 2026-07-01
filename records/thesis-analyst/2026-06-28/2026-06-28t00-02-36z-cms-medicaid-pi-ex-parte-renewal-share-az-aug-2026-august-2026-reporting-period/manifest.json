@@ -1,0 +1,368 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-06-28T00:02:36Z",
+  "series": "cms.medicaid_pi.ex_parte_renewal_share.az.aug_2026",
+  "period": "August 2026 reporting period",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "medicaid-ex-parte-share-aug-2026-az",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.az.aug_2026",
+    "period": "August 2026 reporting period",
+    "resolutionDate": "2026-12-15",
+    "resolutionRule": "Resolves to Arizona's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it (expected roughly three to four months after the period). Numerator and denominator as published; share computed to one decimal.",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "series": "cms.medicaid_pi.ex_parte_renewal_share.az.aug_2026",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.1.0",
+    "model": "gpt-5.5",
+    "promptHash": "ce864bb22030b077c369522163e5d109a88877fd6fd11f2fcd1b64de2498b931",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-06-28T00:02:36Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "82d638692eda808c5ec3c92ef76f57660c020532eb74384dc102f55fb59f9a1b"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolver text says to use the August 2026 original (O) CMS row, but the cited current-data URL filters a February 2026 preliminary row and does not visibly demonstrate the O-submission field or numerator/denominator fields used for the first-print rule.",
+        "actionRequested": "Add or revise source evidence so it explicitly supports the CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c original/O first-print state row and the exact numerator and completed-renewal denominator fields used to compute the share."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The draft has runAt 2026-06-28T00:02:42Z, which is after the stated review date of 2026-06-27 and may look like a future-dated trace artifact.",
+        "actionRequested": "Correct or explain the runAt timestamp so the publication record does not appear to use future context."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval is justified from a very small, sparse Arizona sample with observed moves, but it does not state whether skipped monthly observations were unavailable or intentionally excluded.",
+        "actionRequested": "State that the historical sample is the available inspected first-print points, or include the missing monthly first-print points if they were available and materially affect volatility."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the CMS variables for ex parte renewals and completed renewals in the reasoning or resolution rule for auditability."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the prior/update arithmetic clearer by distinguishing the 93.3 catalog baseline from the 91.5 latest-value starting point."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the 99.0 upper bound is a calibrated 80% cap or a judgmental cap below the mechanical 100% maximum."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by naming the original O row and the numerator/denominator concept in the rule; accepted the timestamp critique by replacing runAt with the actual UTC command output, which falls on June 28 UTC while the local review date is June 27; accepted the interval critique by labeling the historical sample as the available inspected first-print points and noting missing-month uncertainty.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by naming the original O row and the numerator/denominator concept in the rule; accepted the timestamp critique by replacing runAt with the actual UTC command output, which falls on June 28 UTC while the local review date is June 27; accepted the interval critique by labeling the historical sample as the available inspected first-print points and noting missing-month uncertainty.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by naming the original O row and the numerator/denominator concept in the rule; accepted the timestamp critique by replacing runAt with the actual UTC command output, which falls on June 28 UTC while the local review date is June 27; accepted the interval critique by labeling the historical sample as the available inspected first-print points and noting missing-month uncertainty.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by naming the original O row and the numerator/denominator concept in the rule; accepted the timestamp critique by replacing runAt with the actual UTC command output, which falls on June 28 UTC while the local review date is June 27; accepted the interval critique by labeling the historical sample as the available inspected first-print points and noting missing-month uncertainty.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by naming the original O row and the numerator/denominator concept in the rule; accepted the timestamp critique by replacing runAt with the actual UTC command output, which falls on June 28 UTC while the local review date is June 27; accepted the interval critique by labeling the historical sample as the available inspected first-print points and noting missing-month uncertainty.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by naming the original O row and the numerator/denominator concept in the rule; accepted the timestamp critique by replacing runAt with the actual UTC command output, which falls on June 28 UTC while the local review date is June 27; accepted the interval critique by labeling the historical sample as the available inspected first-print points and noting missing-month uncertainty.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Publishable with warnings: the forecast is coherent overall, but it should tighten the first-print/O resolver evidence and fix a future run timestamp before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/prompt.md",
+      "sha256": "8cbcbc33d116437240fd1b34ead2fbaa5fa35c79c89c1e27e74352454c8f60fa",
+      "bytes": 6025,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_command.json",
+      "sha256": "455f495630bff8864d48cf23ccabe34b158e427e137372c6a8c19d294aaf3ead",
+      "bytes": 793,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_codex_stdout.jsonl",
+      "sha256": "86d6285ea14e8624013f635a53dbb5804b707999d8e2dd543a7cf3142fa1b171",
+      "bytes": 3777399,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_codex_stderr.log",
+      "sha256": "bbbe1910d6db99dcf3a8eae533587f2f9a20fb4c0948c3f17b80188cd6b44bad",
+      "bytes": 4959,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_codex_events.jsonl",
+      "sha256": "09968c6a11d63a5e60e03661d783f8d0c979f443f973533721067bcc48815c58",
+      "bytes": 3778021,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_codex_last_message.txt",
+      "sha256": "94f5d5cbc455398a375e959a8135da1dbbc7b3c81ece3ca28245ea7aefd22297",
+      "bytes": 8143,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_codex_trace.json",
+      "sha256": "f5adb733b74d4602eb3a51987e7815a13fc7df9fed20bce29b9e8d7930e65ba3",
+      "bytes": 509,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+      "sha256": "94f5d5cbc455398a375e959a8135da1dbbc7b3c81ece3ca28245ea7aefd22297",
+      "bytes": 8143,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/draft_stderr.txt",
+      "sha256": "5fc9d0cdb2198bd46d5cde5b8608c18ec771444aab287d0b318f878bdfd2dbb4",
+      "bytes": 5150,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_prompt.md",
+      "sha256": "bfefd63401a5a1f77e14e313235630ca62780da9ac42e59afa43c955bfacc084",
+      "bytes": 10894,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_command.json",
+      "sha256": "3f81d48b735144231c427fabd8522ff0279fcce62cdb0c0979ac50174f23e916",
+      "bytes": 789,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "2086427708991dbd9c1ee582b13a977026d32f12221c5956f7e6e7179ed41e4e",
+      "bytes": 2331,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stderr.log",
+      "sha256": "197b59c18414793310cdf835c0b1e7f5d7ab371a4b71a8aaf4e3e2be3e2261da",
+      "bytes": 615,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_codex_events.jsonl",
+      "sha256": "5cd6ef28201d6337b761054b4f5b95c679f40f743993939d46b1a7042f41e799",
+      "bytes": 2353,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_codex_last_message.txt",
+      "sha256": "55abd54cd96508ae0525afafae2d5aca21c20e953dd2085416582f2b756ba631",
+      "bytes": 1952,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_codex_trace.json",
+      "sha256": "1a33cf4831b5be2224ed4346c5ab46122162d066bcf5c333196e8a3fdab45728",
+      "bytes": 504,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+      "sha256": "55abd54cd96508ae0525afafae2d5aca21c20e953dd2085416582f2b756ba631",
+      "bytes": 1952,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/pre_submit_review_stderr.txt",
+      "sha256": "b2ebc088603848477b0c2db07a5924aa1a2152692b19fbf9bb88c299152f5e00",
+      "bytes": 638,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/revision_prompt.md",
+      "sha256": "6ac509d029364c965efafbf3117f26f39b62f9311750e20615e7070ca61b0b34",
+      "bytes": 17056,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/command.json",
+      "sha256": "495260082b1d903df4cc4474297875d6cb63f971f7ec2c2f3b0f0833b332ad39",
+      "bytes": 787,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/codex_stdout.jsonl",
+      "sha256": "b06515ae7e480b3f8f712167efb86ac990f38683bc867120fde135e9704fe266",
+      "bytes": 2396216,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/codex_stderr.log",
+      "sha256": "0a91e85994ee5742f827c6ba17bd984e9b560bacc29cb788c6b06c94f09d8650",
+      "bytes": 3519,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/codex_events.jsonl",
+      "sha256": "331d4384edec42d26e0cf67be2ce49e2addc186a66b7fca9a4ed0a9b0e5ccabf",
+      "bytes": 2396545,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/codex_last_message.txt",
+      "sha256": "c07db95cf54633a34f74094f4bfb336a5ced77bcd469f93aa09295bed45940a4",
+      "bytes": 8769,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/codex_trace.json",
+      "sha256": "602f0c83bd606dce233a40938d4c3d00f13b74976afd74fa5c25a08f2db50819",
+      "bytes": 507,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/stdout.txt",
+      "sha256": "c07db95cf54633a34f74094f4bfb336a5ced77bcd469f93aa09295bed45940a4",
+      "bytes": 8769,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/stderr.txt",
+      "sha256": "ebc57daff8b2f4b92677dae77bb04999f1b12bfbd084e4af4cbc04b45008db25",
+      "bytes": 3670,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/raw_response.txt",
+      "sha256": "c07db95cf54633a34f74094f4bfb336a5ced77bcd469f93aa09295bed45940a4",
+      "bytes": 8769,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/parsed_cells.json",
+      "sha256": "a62bbe5ad8e8a88b2d6a5479d189beb49dfa8fc9db39c38e05ac6789c4531c34",
+      "bytes": 9767,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/normalized_cells.json",
+      "sha256": "d3adae7c9de2f925223164f119fa96d8d14001c998ab5a3c58e183d2245c0113",
+      "bytes": 9368,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/validation.json",
+      "sha256": "00351ddf327453afe63a7d4921958f14f703dfaff3e1021bf3e8f36d0b61d84f",
+      "bytes": 136,
+      "createdAt": "2026-06-28T00:02:36Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-06-28/2026-06-28t00-02-36z-cms-medicaid-pi-ex-parte-renewal-share-az-aug-2026-august-2026-reporting-period/manifest.json",
+      "sha256": "8879fd3b3119605666b28123f4bc68373ed32ae99d29557b6023d8a5ac989e81",
+      "bytes": 20731,
+      "createdAt": "2026-06-28T00:02:36Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "medicaid-ex-parte-share-aug-2026-az",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

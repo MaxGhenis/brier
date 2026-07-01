@@ -1,0 +1,34 @@
+{
+  "summary": "Draft is mostly publication-ready, with one blocking issue around source specificity and several warnings where the evidence and uncertainty math should be made more explicit.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The resolver names the Statistics Bureau monthly preliminary report, but the URL is a rolling PDF and the draft does not specify the exact table/line/field to read within the report.",
+      "actionRequested": "Add the exact table or field label for the May 2026 first preliminary value, e.g. the consumption expenditures, two-or-more-person households, real year-over-year percent-change line, and note that the rolling PDF must be archived or captured at first print."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft uses a simple 12-month and latest-four-month average, but does not clearly state whether a time-series model was used or intentionally ruled out.",
+      "actionRequested": "Add one sentence explicitly saying no formal ARIMA/ETS/regression model was used, and that the prior is a transparent persistence/reference-class blend."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The movement from the 12-month mean near -0.2 to the final -1.1 is plausible, but the high-base adjustment is described only qualitatively.",
+      "actionRequested": "State the approximate weight or arithmetic used in the blend and the size of the high-base adjustment."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval is said to come from realized monthly dispersion, but the draft does not report the realized volatility or quantile calculation.",
+      "actionRequested": "Add the standard deviation, mean absolute error, or empirical 80% range from the cited 12-print reference class that supports the -4.0 to 2.2 interval."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify whether confidence 0.8 means an 80% central interval.",
+    "Use one-decimal formatting consistently for ciLow and ciHigh, e.g. -4.0 and 2.2.",
+    "Make the downside tail distinguish outside-interval from interval-edge movement, since below -4.0 is also the lower bound."
+  ]
+}

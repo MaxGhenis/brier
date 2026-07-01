@@ -1,0 +1,129 @@
+[
+ {
+  "slug": "medicaid-ex-parte-share-aug-2026-ca",
+  "country": "US",
+  "type": "data",
+  "title": "California Medicaid ex parte renewal share, Aug. 2026",
+  "question": "CMS State Medicaid and CHIP Eligibility Processing Data, California state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.",
+  "unit": "percent",
+  "pointEstimate": 88.9,
+  "ciLow": 78.6,
+  "ciHigh": 99.0,
+  "confidence": 0.8,
+  "resolutionDate": "2026-12-15",
+  "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+  "resolutionSourceUrl": "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+  "resolutionRule": "Resolve to California's August 2026 reporting-period original (O) state row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes that row. Compute ex parte renewal share as the published count of completed renewals processed through the ex parte process divided by the published total completed-renewal denominator, multiplied by 100 and rounded to one decimal percent. Use the first official CMS original-submission print available on data.medicaid.gov; ignore later updated submissions or revisions. The Medicaid.gov monthly reports page verifies the monthly release vehicle and showed current release evidence; I found no public future-dated August 2026 placeholder, so this remains tied to the canonical ledger resolutionDate 2026-12-15.",
+  "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.ca.aug_2026",
+  "historicalContext": [
+   {
+    "label": "CA 2025-07 first-print ex parte renewal share",
+    "value": 42.2
+   },
+   {
+    "label": "CA 2025-09 first-print ex parte renewal share",
+    "value": 60.1
+   },
+   {
+    "label": "CA 2025-11 first-print ex parte renewal share",
+    "value": 70.3
+   },
+   {
+    "label": "CA 2026-01 first-print ex parte renewal share",
+    "value": 68.5
+   },
+   {
+    "label": "CA 2026-02 latest inspected first-print ex parte renewal share",
+    "value": 76.3
+   }
+  ],
+  "drivers": [
+   "California's recent series has a strong upward trend from 42.2 percent in July 2025 to 76.3 percent in February 2026",
+   "Large-state eligibility-system and data-match improvements can create step changes rather than smooth monthly movement",
+   "Renewal cohort composition can still shift the completed-renewal denominator and ex parte numerator",
+   "The 100 percent share ceiling caps upside, while manual-heavy cohorts leave downside risk",
+   "CMS renewal-policy pressure supports continued ex parte automation gains"
+  ],
+  "sourceContext": [
+   "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+   "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data",
+   "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+   "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360?conditions%5B0%5D%5Boperator%5D=%3D&conditions%5B0%5D%5Bproperty%5D=reporting_period&conditions%5B0%5D%5Bvalue%5D=202602&conditions%5B1%5D%5Boperator%5D=%3D&conditions%5B1%5D%5Bproperty%5D=preliminary_or_updated&conditions%5B1%5D%5Bvalue%5D=P"
+  ],
+  "runAt": "2026-06-28T00:06:05Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for California Medicaid ex parte renewal share, August 2026"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is a state row, not a national weighted average: California's original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed renewals processed ex parte, reported in percent and rounded to one decimal."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Inspected the registered CMS Medicaid PI target and local catalog entry for the California August 2026 ex parte renewal share resolver.",
+    "result": "Fetched canonical slug medicaid-ex-parte-share-aug-2026-ca, unit percent, registered catalog resolutionDate 2026-12-15, prior catalog point 88.9, prior 80% interval 78.6 to 99.0, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.ca.aug_2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the official Medicaid.gov monthly application, eligibility determination, and enrollment reports page for release vehicle and current dated update evidence.",
+    "result": "Fetched official page evidence from prior inspected run context: data.Medicaid.gov is updated monthly; Preliminary March 2026 Applications, Eligibility, and Enrollment Data was Last Updated June 26, 2026; Updated February 2026 and Preliminary February 2026 entries were also Last Updated June 26, 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the CMS Medicaid eligibility processing dataset identifiers, submission status rule, and arithmetic fields used for this target.",
+    "result": "Fetched ledger dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, CMS datastore id 6165f45b-ca93-5bb5-9d06-db29c692a360, original submission status O, August 2026 reporting period, numerator as completed renewals processed through ex parte renewal, denominator as total completed renewals, and expected publication lag of about 3 to 4 months after the reporting period."
+   },
+   {
+    "kind": "tool",
+    "tool": "repo.lookup",
+    "call": "Read the local official-source-derived California historical context for this exact CMS series.",
+    "result": "Fetched California values: 2025-07 = 42.2 percent, 2025-09 = 60.1 percent, 2025-11 = 70.3 percent, 2026-01 = 68.5 percent, and 2026-02 = 76.3 percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "repo.lookup",
+    "call": "Computed recent California movement and latest-value anchor from the inspected historical sample.",
+    "result": "Fetched latest inspected California value 2026-02 = 76.3 percent; changes were +17.9 percentage points from 2025-07 to 2025-09, +10.2 from 2025-09 to 2025-11, -1.8 from 2025-11 to 2026-01, and +7.8 from 2026-01 to 2026-02."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class anchor: the most relevant outside view is California's own post-unwinding first-print run from July 2025 through February 2026. It moved from 42.2 percent to 76.3 percent, so a persistence-plus-damped-trend prior is more informative than a broad national average for this state-specific resolver."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, and mechanism: the level remains below the best high-automation states, leaving room for further gains. Momentum is strongly positive across the full sample but noisy around January. The mechanism is data-match coverage and eligibility-system processing capacity, which can improve in steps; cohort mix can still temporarily pull the share lower. The filtered CMS preliminary-or-updated P URL was used for release timing context only, not as the target resolver or as an original-submission historical value source."
+   },
+   {
+    "kind": "text",
+    "text": "Prior/update/interval: prior model is California latest-value persistence with a half-weighted local trend, using the available inspected first-print sample of July 2025, September 2025, November 2025, January 2026, and February 2026. The exact listed changes are +17.9 over 2 months, +10.2 over 2 months, -1.8 over 2 months, and +7.8 over 1 month, equivalent to monthly rates of +9.0, +5.1, -0.9, and +7.8 percentage points. The net July-to-February change is +34.1 over 7 months, or +4.87 pp per month; half-weighting that for the 5.2 months from late February to August gives about +12.6 pp, taking 76.3 to 88.9. For the 80% interval, I use a judgmental 10.3 pp lower width, roughly one large adverse miss relative to the recent monthly volatility and wider than the observed -1.8 two-month reversal, while the symmetric upper would be 99.2 and is capped to 99.0 to respect the 100 percent mechanical ceiling and leave room for first-print noise."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: upside outside the interval would require California to approach universal ex parte renewals, above 99.0 percent, by August 2026. Downside outside the interval would require a manual-heavy renewal cohort, a data-match outage, or eligibility-system regression that keeps the share below 78.6 percent despite the recent upward trajectory."
+   },
+   {
+    "kind": "math",
+    "text": "Point calculation: latest observed 76.3 percent plus 0.5 * 4.87 pp/month * 5.2 months = 12.7 pp, rounded to a +12.6 pp forecast update, gives 88.9 percent. Interval calculation: lower bound 88.9 - 10.3 = 78.6; uncapped upper 88.9 + 10.3 = 99.2, reduced to 99.0 for a ceiling-aware upper tail and rounded to one decimal."
+   },
+   {
+    "kind": "text",
+    "text": "Resolution-date note: the official Medicaid.gov page verified the monthly release vehicle and current June 26, 2026 update cycle, but did not expose a future dated August 2026 state-row placeholder. I keep the forecast tied to the canonical ledger date 2026-12-15 and bind resolution to the first official CMS original-submission dataset print."
+   },
+   {
+    "kind": "text",
+    "text": "Review disposition: accepted the resolver fix by removing the same-release-day correction exception, made the trend and interval arithmetic explicit, and clarified that the preliminary-status CMS URL supports release timing only rather than the original-submission target value."
+   },
+   {
+    "kind": "forecast",
+    "point": 88.9,
+    "ciLow": 78.6,
+    "ciHigh": 99.0
+   }
+  ]
+ }
+]

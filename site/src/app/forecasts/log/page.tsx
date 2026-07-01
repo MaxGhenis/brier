@@ -110,7 +110,7 @@ export default async function ThesisLogPage() {
           </h1>
           <p className="text-[1.02rem] leading-[1.65] text-[var(--theme-text-muted)]">
             Thesis Log records predictions, distributions, trace metadata,
-            resolution links, and scores. Resolved predictions reference facts
+            resolution events, and scores. Resolved predictions reference facts
             in the PolicyEngine Ledger.
           </p>
           <div className="mt-5 flex flex-wrap gap-4">
@@ -121,11 +121,17 @@ export default async function ThesisLogPage() {
               Machine-readable log JSON →
             </a>
             <a
-              href="/specs.json"
+              href="/targets.json"
               className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
             >
-              Prediction specs JSON →
+              Target architecture manifest →
             </a>
+            <Link
+              href="/forecasts/targets"
+              className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
+            >
+              Target architecture →
+            </Link>
             <a
               href="/ledger"
               className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"

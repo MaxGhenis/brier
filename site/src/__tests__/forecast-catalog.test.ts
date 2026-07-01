@@ -1,18 +1,19 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
-import { AGENT_RUN_PREDICTION_SERIES } from "@/data/almanac-examples/agent-runs";
-import { CANADA_AUSTRALIA_PREDICTION_SERIES } from "@/data/almanac-examples/canada-australia";
-import { EURO_JAPAN_PREDICTION_SERIES } from "@/data/almanac-examples/euro-japan";
-import { GLOBAL_NEAR_TERM_PREDICTION_SERIES } from "@/data/almanac-examples/global-near-term";
-import { LAUNCH_PREDICTION_SERIES } from "@/data/almanac-examples/launch-cadence";
+import { AGENT_RUN_PREDICTION_SERIES } from "@/data/forecast-examples/agent-runs";
+import { CANADA_AUSTRALIA_PREDICTION_SERIES } from "@/data/forecast-examples/canada-australia";
+import { EURO_JAPAN_PREDICTION_SERIES } from "@/data/forecast-examples/euro-japan";
+import { GLOBAL_NEAR_TERM_PREDICTION_SERIES } from "@/data/forecast-examples/global-near-term";
+import { LAUNCH_PREDICTION_SERIES } from "@/data/forecast-examples/launch-cadence";
 import {
   BLS_2034_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
   CPS_JUNE_2026_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
   OEWS_OCCUPATION_EMPLOYMENT_PREDICTION_SERIES,
-} from "@/data/almanac-examples/occupation-employment";
-import { OEWS_OCCUPATION_WAGE_PREDICTION_SERIES } from "@/data/almanac-examples/occupation-wages";
-import { UK_PREDICTION_SERIES } from "@/data/almanac-examples/uk";
-import { US_NEAR_TERM_PREDICTION_SERIES } from "@/data/almanac-examples/us-near-term";
+} from "@/data/forecast-examples/occupation-employment";
+import { OEWS_OCCUPATION_WAGE_PREDICTION_SERIES } from "@/data/forecast-examples/occupation-wages";
+import { UK_PREDICTION_SERIES } from "@/data/forecast-examples/uk";
+import { US_DEFENSE_PREDICTION_SERIES } from "@/data/forecast-examples/us-defense";
+import { US_NEAR_TERM_PREDICTION_SERIES } from "@/data/forecast-examples/us-near-term";
 import {
   FORECAST_CELLS,
   LIVE_FORECAST_SLUGS,
@@ -33,11 +34,20 @@ import {
   getPredictionPackCatalogEntry,
 } from "@/data/prediction-packs";
 import { buildBrierRewardExport } from "@/data/brier-lab";
+import { buildForecastJudgeExport } from "@/data/forecast-judges";
+import { buildStrategyLabReport } from "@/data/strategy-lab";
+import { buildTimeSeriesPriorAdjustmentReport } from "@/data/time-series-priors";
+import {
+  assertValidTargetArchitectureProjection,
+  buildTargetArchitectureProjection,
+  validateTargetArchitectureProjection,
+} from "@/data/thesis-target-architecture";
 import {
   THESIS_TARGET_LEDGER,
   getLedgerTargetByDataPointId,
   type TargetRegisteredLedgerEntry,
 } from "@/data/ledger-targets";
+import { findUncoveredLedgerObservationSeries } from "@/data/ledger-coverage";
 import {
   buildPolicyEngineLedgerExport,
   buildResolvedPredictionLogEntries,
@@ -57,6 +67,9 @@ import {
   type PredictionRecordedLogEntry,
 } from "@/data/thesis-log";
 
+const PRIVATE_SOURCE_PATTERN =
+  /granola|\btranscripts?\b|meeting notes?|meeting with max|pasted-text|\.codex\/attachments|codex attachments|private meeting|call notes?|email thread|chat transcript/i;
+
 describe("forecast catalog", () => {
   let policyEngineLedger: PolicyEngineLedgerEntry[] = [];
   let resolvedForecastCells: ForecastCell[] = [];
@@ -72,6 +85,33 @@ describe("forecast catalog", () => {
   it("has unique slugs", () => {
     const slugs = FORECAST_CELLS.map((forecast) => forecast.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
+  });
+
+  it("does not publish private-source provenance", () => {
+    const publicCatalogPayload = JSON.stringify({
+      forecasts: FORECAST_CELLS,
+      thesisLog: buildThesisLogExport(resolvedForecastCells, policyEngineLedger),
+      targetArchitecture: buildTargetArchitectureProjection(
+        resolvedForecastCells,
+        policyEngineLedger,
+      ),
+    });
+
+    expect(publicCatalogPayload).not.toMatch(PRIVATE_SOURCE_PATTERN);
+  });
+
+  it("keeps private-source bans in agent prompts and validators", () => {
+    const files = [
+      "../../../agents/thesis-analyst/system.md",
+      "../../../scripts/run_thesis_analyst.py",
+      "../../../scripts/spawned_cells_to_ts.py",
+    ];
+
+    for (const file of files) {
+      const text = readFileSync(new URL(file, import.meta.url), "utf8");
+      expect(text).toMatch(/private/i);
+      expect(text).toMatch(/transcript/i);
+    }
   });
 
   it("has valid 80% intervals", () => {
@@ -193,6 +233,14 @@ describe("forecast catalog", () => {
     );
     expect(exportPayload.counts.scored).toBeGreaterThan(0);
     expect(exportPayload.counts.pendingResolution).toBe(resolutionQueue.length);
+    expect(exportPayload.counts.preSubmitReviews).toBe(
+      exportPayload.runs.filter((run) => run.preSubmitReview).length,
+    );
+    expect(exportPayload.counts.judgeTraceEvals).toBe(expectedRunCount);
+    expect(exportPayload.counts.judgePairwiseEvals).toBeGreaterThan(0);
+    expect(exportPayload.counts.judgePostResolutionEvals).toBe(
+      exportPayload.counts.scored,
+    );
     expect(exportPayload.entries.some(isObservationRecordedLedgerEntry)).toBe(
       false,
     );
@@ -222,6 +270,22 @@ describe("forecast catalog", () => {
       exportPayload.scores[0].normalizedAbsoluteError,
     ).toBeGreaterThanOrEqual(0);
     expect(exportPayload.scores[0].packMode).toBeTruthy();
+    expect(exportPayload.judgeResults.schemaVersion).toBe(
+      "thesis_forecast_judges_summary_v1",
+    );
+    expect(exportPayload.judgeResults.policy.rewardEligible).toBe(false);
+    expect(exportPayload.judgeResults.calibration.counts.judgedRuns).toBe(
+      expectedRunCount,
+    );
+    expect(
+      exportPayload.judgeResults.calibration.counts.postResolutionReviews,
+    ).toBe(exportPayload.scores.length);
+    expect(exportPayload.judgeResults.fullExportJsonUrl).toBe(
+      "https://app.thesisinstitute.org/forecasts/judges.json",
+    );
+    expect(exportPayload.counts.judgePostResolutionEvals).toBe(
+      exportPayload.scores.length,
+    );
     expect(exportPayload.resolutionQueue).toHaveLength(
       exportPayload.counts.pendingResolution,
     );
@@ -267,6 +331,14 @@ describe("forecast catalog", () => {
     expect(exportPayload.mission.objective).toBe("maximize_forecast_accuracy");
     expect(exportPayload.mission.reward).toBe("negative_normalized_crps");
     expect(exportPayload.counts.runs).toBe(runs.length);
+    expect(exportPayload.counts.traceJudgedRuns).toBe(runs.length);
+    expect(exportPayload.counts.postResolutionJudgeRows).toBe(
+      exportPayload.counts.scoredRuns,
+    );
+    expect(exportPayload.counts.preSubmitReviewedRuns).toBe(
+      exportPayload.rewardRows.filter((row) => row.preSubmitReview.reviewed)
+        .length,
+    );
     expect(exportPayload.rewardRows).toHaveLength(runs.length);
     expect(splitRunCount).toBe(exportPayload.counts.runs);
     expect(splitScoredCount).toBe(exportPayload.counts.scoredRuns);
@@ -274,13 +346,432 @@ describe("forecast catalog", () => {
       "validation",
       "test",
     ]);
+    expect(exportPayload.judgePolicy.rewardEligible).toBe(false);
+    expect(exportPayload.judgeResults.policy.rewardEligible).toBe(false);
     expect(scoredRow?.reward.value).toBeLessThanOrEqual(0);
     expect(scoredRow?.reward.components.normalizedCrps).toBeGreaterThanOrEqual(
       0,
     );
+    expect(scoredRow?.auxiliaryJudges.rewardEligible).toBe(false);
+    expect(scoredRow?.auxiliaryJudges.traceQualityScore).toEqual(
+      expect.any(Number),
+    );
+    expect(scoredRow?.preSubmitReview.status).toBe("not_requested");
+    expect(scoredRow?.preSubmitReview.reviewed).toBe(false);
     expect(liveRun?.split).toBe("unresolved");
     expect(liveRun?.provenance.activityArtifactCount).toBe(8);
     expect(exportPayload.leaderboard.length).toBeGreaterThan(0);
+  });
+
+  it("builds LLM judge records without replacing proper scoring", () => {
+    const scores = scoreResolvedForecasts(
+      resolvedForecastCells,
+      policyEngineLedger,
+    );
+    const runs = buildRecordedPredictionRunRecords(
+      resolvedForecastCells,
+      buildPredictionSpecs(resolvedForecastCells),
+    );
+    const exportPayload = buildForecastJudgeExport({
+      forecasts: resolvedForecastCells,
+      scores,
+    });
+    const traceRunIds = new Set(
+      exportPayload.traceQuality.map((judge) => judge.runId),
+    );
+    const scoreRunIds = new Set(scores.map((score) => score.runId));
+
+    expect(exportPayload.schemaVersion).toBe("thesis_forecast_judges_v1");
+    expect(exportPayload.policy.role).toBe("auxiliary_process_eval");
+    expect(exportPayload.policy.rewardEligible).toBe(false);
+    expect(exportPayload.traceQuality).toHaveLength(runs.length);
+    expect(exportPayload.postResolution).toHaveLength(scores.length);
+    expect(exportPayload.calibration.counts.judgedRuns).toBe(runs.length);
+    expect(exportPayload.calibration.counts.scoredJudgedRuns).toBe(
+      scores.length,
+    );
+    expect(exportPayload.calibration.counts.pairwiseComparisons).toBe(
+      exportPayload.pairwise.length,
+    );
+    expect(exportPayload.calibration.scoreBands.length).toBe(3);
+
+    for (const run of runs) {
+      expect(traceRunIds.has(run.runId)).toBe(true);
+    }
+    for (const score of scores) {
+      expect(scoreRunIds.has(score.runId)).toBe(true);
+    }
+    for (const judge of exportPayload.traceQuality) {
+      expect(judge.schemaVersion).toBe("thesis_forecast_trace_judge_v1");
+      expect(judge.judge.kind).toBe("llm_judge");
+      expect(judge.judge.rewardEligible).toBe(false);
+      expect(judge.overallScore).toBeGreaterThanOrEqual(0);
+      expect(judge.overallScore).toBeLessThanOrEqual(4);
+      expect(judge.dimensions).toHaveLength(7);
+      expect(judge.prompt.system).toContain("LLM-as-judge");
+    }
+    for (const pair of exportPayload.pairwise) {
+      expect(pair.schemaVersion).toBe("thesis_forecast_pairwise_judge_v1");
+      expect(["left", "right", "tie"]).toContain(pair.winner);
+      expect(traceRunIds.has(pair.leftRunId)).toBe(true);
+      expect(traceRunIds.has(pair.rightRunId)).toBe(true);
+    }
+    for (const review of exportPayload.postResolution) {
+      expect(review.schemaVersion).toBe("thesis_forecast_resolution_judge_v1");
+      expect(scoreRunIds.has(review.runId)).toBe(true);
+      expect(review.judge.rewardEligible).toBe(false);
+    }
+  });
+
+  it("projects current records into the clean target architecture", () => {
+    const specs = buildPredictionSpecs(FORECAST_CELLS);
+    const runs = buildRecordedPredictionRunRecords(FORECAST_CELLS, specs);
+    const exportPayload = buildTargetArchitectureProjection(
+      resolvedForecastCells,
+      policyEngineLedger,
+    );
+    const strategyVersionIds = new Set(
+      exportPayload.strategyVersions.map(
+        (strategyVersion) => strategyVersion.strategyVersionId,
+      ),
+    );
+    const strategyById = new Map(
+      exportPayload.forecastStrategies.map((strategy) => [
+        strategy.strategyId,
+        strategy,
+      ]),
+    );
+    const packVersionIds = new Set(
+      exportPayload.packVersions.map(
+        (packVersion) => packVersion.packVersionId,
+      ),
+    );
+    const artifactRefIds = new Set(
+      exportPayload.artifactRefs.map(
+        (artifactRef) => artifactRef.artifactRefId,
+      ),
+    );
+    const sourceSeriesSqlKeys = exportPayload.sourceSeries.map((sourceSeries) =>
+      [
+        sourceSeries.adapterId,
+        sourceSeries.agencySeriesId ?? "",
+        sourceSeries.sourceUrl,
+        sourceSeries.unit,
+        sourceSeries.measureKey,
+      ].join("::"),
+    );
+    const timeSeriesPriorRun = exportPayload.forecastRuns.find((run) =>
+      run.runId.includes("time-series-prior"),
+    );
+    const blsProjectionRun = exportPayload.forecastRuns.find((run) =>
+      run.runId.includes("bls-published-2024-2034-projection"),
+    );
+    const oewsCarryForwardRun = exportPayload.forecastRuns.find((run) =>
+      run.runId.includes("may-2025-oews-carry-forward"),
+    );
+    const ensembleRun = exportPayload.forecastRuns.find(
+      (run) =>
+        run.agentId.includes("ensemble") ||
+        run.model?.toLowerCase().includes("ensemble"),
+    );
+
+    expect(exportPayload.schemaVersion).toBe(
+      "thesis_target_architecture_projection_v1",
+    );
+    expect(exportPayload.counts.targets).toBe(FORECAST_CELLS.length);
+    expect(exportPayload.counts.targetVersions).toBe(FORECAST_CELLS.length);
+    expect(exportPayload.counts.forecastRuns).toBe(runs.length);
+    expect(exportPayload.counts.forecastDistributionPoints).toBe(
+      runs.length * 201,
+    );
+    expect(exportPayload.counts.runArtifactRefs).toBeGreaterThan(0);
+    expect(exportPayload.counts.sourceSeries).toBeGreaterThan(0);
+    expect(exportPayload.counts.observations).toBeGreaterThan(0);
+    expect(exportPayload.counts.observationVintages).toBe(
+      exportPayload.counts.observations,
+    );
+    expect(
+      exportPayload.observations.some((observation) =>
+        observation.observationId.startsWith("obs.history."),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.observations
+        .filter((observation) =>
+          observation.observationId.startsWith("obs.history."),
+        )
+        .every((observation) => observation.dataPointId === undefined),
+    ).toBe(true);
+    expect(exportPayload.counts.resolutionEvents).toBeGreaterThan(0);
+    expect(exportPayload.counts.scores).toBeGreaterThan(0);
+    expect(exportPayload.counts.baselineCandidates).toBeGreaterThan(0);
+    expect(exportPayload.counts.toolCalls).toBeGreaterThan(0);
+    expect(exportPayload.counts.reviewRuns).toBeGreaterThan(0);
+    expect(exportPayload.counts.judgeRuns).toBeGreaterThan(0);
+    expect(new Set(sourceSeriesSqlKeys).size).toBe(sourceSeriesSqlKeys.length);
+    expect(
+      exportPayload.counts.targetObservationBindings,
+    ).toBeGreaterThanOrEqual(exportPayload.counts.targetVersions);
+    expect(exportPayload.counts.forecastStrategies).toBeGreaterThanOrEqual(3);
+    expect(exportPayload.counts.strategyVersions).toBe(
+      exportPayload.counts.forecastStrategies,
+    );
+    expect(validateTargetArchitectureProjection(exportPayload)).toEqual([]);
+    expect(() =>
+      assertValidTargetArchitectureProjection(exportPayload),
+    ).not.toThrow();
+    expect(
+      validateTargetArchitectureProjection({
+        ...exportPayload,
+        forecastRuns: [
+          {
+            ...exportPayload.forecastRuns[0],
+            strategyVersionId: "strategy_version.missing",
+          },
+          ...exportPayload.forecastRuns.slice(1),
+        ],
+      }).some((issue) => issue.code === "run_strategy_version_fk"),
+    ).toBe(true);
+    expect(
+      validateTargetArchitectureProjection({
+        ...exportPayload,
+        sourceSeries: [
+          {
+            ...exportPayload.sourceSeries[0],
+            unit:
+              exportPayload.sourceSeries[0].unit === "count"
+                ? "percent"
+                : "count",
+          },
+          ...exportPayload.sourceSeries.slice(1),
+        ],
+      }).some((issue) => issue.code === "binding_source_series_unit_mismatch"),
+    ).toBe(true);
+    for (const strategyVersion of exportPayload.strategyVersions) {
+      const strategy = strategyById.get(strategyVersion.strategyId);
+      expect(strategy).toBeTruthy();
+      const expectedConstraint = [
+        "persistence_baseline",
+        "time_series_baseline",
+        "official_projection_anchor",
+        "formula_nowcast",
+      ].includes(strategy?.strategyKind ?? "")
+        ? "deterministic"
+        : "llm";
+      expect(strategyVersion.modelFamilyConstraints).toEqual([
+        expectedConstraint,
+      ]);
+    }
+    expect(
+      new Set(exportPayload.targets.map((target) => target.targetId)).size,
+    ).toBe(exportPayload.targets.length);
+    expect(
+      new Set(
+        exportPayload.targetVersions.map(
+          (targetVersion) => targetVersion.targetVersionId,
+        ),
+      ).size,
+    ).toBe(exportPayload.targetVersions.length);
+    expect(
+      exportPayload.targets.every((target) =>
+        target.targetId.startsWith("target."),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.targetVersions.every((targetVersion) =>
+        targetVersion.targetVersionId.startsWith("target_version."),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.forecastRuns.every((run) =>
+        strategyVersionIds.has(run.strategyVersionId),
+      ),
+    ).toBe(true);
+    expect(timeSeriesPriorRun?.strategyVersionId).toContain(
+      "baseline.persistence.last_print",
+    );
+    expect(blsProjectionRun?.strategyVersionId).toContain(
+      "baseline.official_projection.bls_employment_projections",
+    );
+    expect(oewsCarryForwardRun?.strategyVersionId).toContain(
+      "baseline.official_table.current_print",
+    );
+    expect(ensembleRun?.strategyVersionId).toContain(
+      "agent.brier.meta_aggregator",
+    );
+    expect(
+      exportPayload.runPackVersions.every((runPackVersion) =>
+        packVersionIds.has(runPackVersion.packVersionId),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.runArtifactRefs.every((runArtifactRef) =>
+        artifactRefIds.has(runArtifactRef.artifactRefId),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.baselineCandidates.some(
+        (candidate) =>
+          candidate.modelAdapter === "baseline.persistence.last_print",
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.baselineCandidates.every((candidate) =>
+        exportPayload.targetVersions.some(
+          (targetVersion) =>
+            targetVersion.targetVersionId === candidate.targetVersionId,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.baselineCandidates.every(
+        (candidate) => candidate.artifactRefId || candidate.sourceSeriesId,
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.baselineCandidates.some((candidate) =>
+        candidate.artifactRefId?.startsWith("artifact.generated_baseline."),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.baselineCandidates.every((candidate) =>
+        exportPayload.forecastRuns.some(
+          (run) => run.runId === candidate.provenance.forecastRunId,
+        ),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.targetObservationBindings
+        .filter((binding) => binding.bindingRole === "history")
+        .every((binding) =>
+          exportPayload.observations.some(
+            (observation) =>
+              observation.sourceSeriesId === binding.sourceSeriesId,
+          ),
+        ),
+    ).toBe(true);
+    expect(
+      exportPayload.toolCalls.every((toolCall) =>
+        exportPayload.forecastRuns.some((run) => run.runId === toolCall.runId),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.reviewRuns.every((reviewRun) =>
+        exportPayload.forecastRuns.some((run) => run.runId === reviewRun.runId),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.judgeRuns.every((judgeRun) => !judgeRun.rewardEligible),
+    ).toBe(true);
+    expect(exportPayload.judgeRuns.some((judgeRun) => judgeRun.runId)).toBe(
+      true,
+    );
+    expect(
+      exportPayload.judgeRuns
+        .filter((judgeRun) => judgeRun.batchId?.startsWith("pairwise."))
+        .every((judgeRun) => judgeRun.leftRunId && judgeRun.rightRunId),
+    ).toBe(true);
+    expect(
+      exportPayload.artifactRefs.every((artifactRef) =>
+        [
+          ...exportPayload.runArtifactRefs.map(
+            (runArtifactRef) => runArtifactRef.artifactRefId,
+          ),
+          ...exportPayload.baselineCandidates.flatMap((candidate) =>
+            candidate.artifactRefId ? [candidate.artifactRefId] : [],
+          ),
+        ].includes(artifactRef.artifactRefId),
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.forecastDistributions.every(
+        (point) => point.pointIndex >= 0 && point.pointIndex <= 200,
+      ),
+    ).toBe(true);
+    expect(
+      exportPayload.reasoningEvents.every(
+        (event) => event.redactionStatus === "public_only",
+      ),
+    ).toBe(true);
+  });
+
+  it("scores the Strategy Lab against replayable SNAP baselines", () => {
+    const report = buildStrategyLabReport(resolvedForecastCells);
+    const family = report.families.find(
+      (candidate) => candidate.familyId === "snap_payment_error_fy2025_panel",
+    );
+    const persistence = report.summaries.find(
+      (summary) => summary.strategyId === "baseline.persistence.last_print",
+    );
+    const shrinkage = report.summaries.find(
+      (summary) => summary.strategyId === "baseline.panel_shrinkage",
+    );
+    const agent = report.summaries.find(
+      (summary) => summary.strategyId === "agent.brier.primary",
+    );
+
+    expect(report.schemaVersion).toBe("brier_strategy_lab_v1");
+    expect(report.counts.strategies).toBe(3);
+    expect(family?.targetCount).toBe(53);
+    expect(family?.resolvedTargetCount).toBe(53);
+    expect(report.counts.scoredRows).toBe(159);
+    expect(persistence?.evidenceMode).toBe("historical_replay");
+    expect(persistence?.scoredRows).toBe(53);
+    expect(shrinkage?.scoredRows).toBe(53);
+    expect(agent?.evidenceMode).toBe("forward_only");
+    expect(agent?.scoredRows).toBe(53);
+    expect(persistence?.meanAbsoluteError).toBeGreaterThan(0);
+    expect(agent?.meanAbsoluteErrorVsPersistence).toBeGreaterThan(0);
+    expect(
+      family?.largestAgentNcrpsMissesVsPersistence[0]
+        ?.agentMinusPersistenceNormalizedCrps,
+    ).toBeGreaterThan(0);
+
+    const oneUnresolvedReport = buildStrategyLabReport(
+      resolvedForecastCells.map((forecast) =>
+        forecast.dataPointId === "fns.snap.total_payment_error_rate.ak.fy2025"
+          ? { ...forecast, resolvedOutcome: undefined }
+          : forecast,
+      ),
+    );
+    const oneUnresolvedFamily = oneUnresolvedReport.families.find(
+      (candidate) => candidate.familyId === "snap_payment_error_fy2025_panel",
+    );
+
+    expect(oneUnresolvedFamily?.targetCount).toBe(53);
+    expect(oneUnresolvedFamily?.resolvedTargetCount).toBe(52);
+    expect(oneUnresolvedReport.counts.scoredRows).toBe(156);
+  });
+
+  it("generates time-series prior comparisons for agent adjustment audits", () => {
+    const report = buildTimeSeriesPriorAdjustmentReport(FORECAST_CELLS);
+    const computerMath = report.rows.find(
+      (row) => row.forecastSlug === "cps-computer-math-employment-june-2026",
+    );
+    const fomc = report.rows.find(
+      (row) => row.forecastSlug === "fomc-rate-upper-june-2026",
+    );
+
+    expect(report.schemaVersion).toBe("time_series_prior_adjustment_report_v1");
+    expect(report.counts.forecastsWithPrior).toBeGreaterThan(200);
+    expect(
+      report.counts.adjustedUp +
+        report.counts.adjustedDown +
+        report.counts.flat,
+    ).toBe(report.counts.forecastsWithPrior);
+    expect(report.summary.medianAbsoluteShareOfPriorInterval).toBeGreaterThan(
+      0,
+    );
+    expect(report.largestPriorIntervalShareAdjustments.length).toBeGreaterThan(
+      0,
+    );
+    expect(computerMath?.priorModel).toBe("persistence.last_print");
+    expect(computerMath?.priorPointEstimate).toBe(6903);
+    expect(computerMath?.agentPointEstimate).toBe(6920);
+    expect(computerMath?.adjustment).toBe(17);
+    expect(computerMath?.direction).toBe("up");
+    expect(fomc?.latestHistoricalValue).toBe(3.75);
+    expect(fomc?.priorPointEstimate).toBe(3.75);
   });
 
   it("exports a facts-only PolicyEngine Ledger payload", () => {
@@ -474,6 +965,7 @@ describe("forecast catalog", () => {
         "energy-price-nowcast",
         "housing-activity-nowcast",
         "labor-market-momentum",
+        "panel-persistence-shrinkage",
         "pce-cpi-bridge",
         "release-vintage-calibration",
         "tariff-pass-through",
@@ -579,24 +1071,50 @@ describe("forecast catalog", () => {
     expect(
       blsProjection?.usage.every((usage) => usage.deltaVsNoPack !== undefined),
     ).toBe(true);
+
+    const panelPersistence = getPredictionPackCatalogEntry(
+      "panel-persistence-shrinkage",
+      FORECAST_CELLS,
+    );
+    expect(panelPersistence).toBeTruthy();
+    expect(panelPersistence?.latestVersion).toBe("0.1.0");
+    expect(panelPersistence?.kind).toBe("method");
+    expect(panelPersistence?.targetCount).toBe(0);
+    expect(panelPersistence?.runCount).toBe(0);
+    expect(panelPersistence?.agents).toEqual([]);
+    expect(panelPersistence?.detail?.qualityChecks).toContain(
+      "The trace reports the persistence benchmark and the agent's delta from it.",
+    );
   });
 
-  it("defines the first normalized Supabase tables for Thesis Log", () => {
+  it("defines the clean target-architecture Supabase schema", () => {
     const sql = readFileSync(
-      `${process.cwd()}/supabase/migrations/20260609_thesis_log.sql`,
+      `${process.cwd()}/supabase/migrations/20260629_thesis_target_architecture.sql`,
       "utf8",
     );
     const tableNames = [
-      "prediction_specs",
-      "spec_versions",
-      "prediction_runs",
-      "cdf_points",
-      "public_traces",
+      "artifact_refs",
+      "targets",
+      "target_versions",
+      "source_series",
+      "observations",
+      "observation_vintages",
+      "target_observation_bindings",
+      "baseline_candidates",
+      "forecast_strategies",
+      "strategy_versions",
+      "packs",
+      "pack_versions",
+      "forecast_runs",
+      "run_artifact_refs",
+      "run_pack_versions",
+      "forecast_distributions",
+      "reasoning_events",
+      "review_runs",
+      "judge_runs",
       "tool_calls",
-      "resolution_links",
       "resolution_events",
       "scores",
-      "quality_gate_results",
       "audit_events",
     ];
 
@@ -605,17 +1123,103 @@ describe("forecast catalog", () => {
       expect(sql).toContain(
         `alter table ${tableName} enable row level security`,
       );
+      expect(sql).toContain(`create trigger ${tableName}_append_only`);
+      expect(sql).toContain(`create policy ${tableName}_public_read`);
     }
+
+    expect(sql).toContain("target_id text primary key");
+    expect(sql).toContain("data_point_id text not null unique");
+    expect(sql).toContain("target_version_id text primary key");
+    expect(sql).toContain("resolver_kind text not null check");
+    expect(sql).toContain("resolution_policy text not null check");
     expect(sql).toContain(
-      "unique (spec_version_id, agent_id, idempotency_key)",
+      "cdf_point_count integer not null default 201 check (cdf_point_count = 201)",
     );
-    expect(sql).toContain("pack_set_id text");
-    expect(sql).toContain("pack_manifest jsonb");
-    expect(sql).toContain("unique (run_id, artifact_type)");
-    expect(sql).toContain("confidence_mass_check_status");
-    expect(sql).toContain("thesis_prevent_update_delete");
-    expect(sql).toContain("previous_event_hash");
+    expect(sql).toContain("source_series_id text primary key");
+    expect(sql).toContain("agency_series_id text not null default ''");
+    expect(sql).toContain("measure_key text not null");
+    expect(sql).toContain(
+      "unique (adapter_id, agency_series_id, source_url, unit, measure_key)",
+    );
+    expect(sql).toContain("observation_id text primary key");
+    expect(sql).toContain("vintage_id text primary key");
+    expect(sql).toContain(
+      "check (source_series_id is not null or observation_id is not null)",
+    );
+    expect(sql).toContain(
+      "source_series_id text references source_series (source_series_id)",
+    );
+    expect(sql).toContain("provenance jsonb not null default");
+    expect(sql).toContain(
+      "check (artifact_ref_id is not null or source_series_id is not null)",
+    );
+    expect(sql).toContain("strategy_version_id text primary key");
+    expect(sql).toContain("pack_version_id text primary key");
+    expect(sql).toContain(
+      "unique (target_version_id, strategy_version_id, agent_id, idempotency_key)",
+    );
+    expect(sql).toContain("primary key (run_id, point_index)");
+    expect(sql).toContain(
+      "point_index integer not null check (point_index between 0 and 200)",
+    );
+    expect(sql).toContain(
+      "reward_eligible boolean not null default false check (reward_eligible = false)",
+    );
+    expect(sql).toContain("left_run_id text references forecast_runs (run_id)");
+    expect(sql).toContain(
+      "right_run_id text references forecast_runs (run_id)",
+    );
+    expect(sql).toContain("tool_call_id text primary key");
+    expect(sql).toContain("unique (run_id, sequence_index)");
+    expect(sql).toContain("resolution_event_id text primary key");
+    expect(sql).toContain(
+      "vintage_id text references observation_vintages (vintage_id)",
+    );
+    expect(sql).toContain("score_id text primary key");
+    expect(sql).toContain("normalized_crps numeric");
     expect(sql).toContain("event_hash text not null unique");
+    expect(sql).toContain(
+      "create or replace function thesis_record_insert_audit_event()",
+    );
+    expect(sql).toContain("artifact_refs_public_read on artifact_refs");
+    expect(sql).toContain(
+      "drop trigger if exists forecast_runs_append_only on forecast_runs",
+    );
+    expect(sql).toContain(
+      "drop trigger if exists forecast_runs_insert_audit on forecast_runs",
+    );
+    expect(sql).toContain(
+      "drop policy if exists forecast_runs_public_read on forecast_runs",
+    );
+    expect(sql).toContain("public_visibility = 'public'");
+    expect(sql).toContain("observation_vintages_public_read");
+    expect(sql).toContain("baseline_candidates_public_read");
+    expect(sql).toContain("run_artifact_refs_public_read");
+    expect(sql).toContain("reasoning_events_public_read on reasoning_events");
+    expect(sql).toContain("redaction_status = 'public_only'");
+    expect(sql).toContain("review_runs_public_read on review_runs");
+    expect(sql).toContain("drop policy if exists tool_calls_public_read");
+    expect(sql).toContain("resolution_events_public_read on resolution_events");
+    expect(sql).toContain("scores_public_read on scores");
+    expect(sql).toContain("audit_events_public_read on audit_events");
+    expect(sql).toContain("request_artifact_ref_id is null");
+    expect(sql).toContain("response_artifact_ref_id is null");
+    expect(sql).toContain(
+      "perform pg_advisory_xact_lock(hashtext('thesis.audit_events')::bigint)",
+    );
+    expect(sql).toContain("forecast_runs_insert_audit");
+    expect(sql).toContain("forecast_distributions_insert_audit");
+    expect(sql).toContain("tool_calls_insert_audit");
+    expect(sql).toContain("resolution_events_insert_audit");
+    expect(sql).toContain("scores_insert_audit");
+    expect(sql).not.toContain("prediction_specs");
+    expect(sql).not.toContain("spec_versions");
+    expect(sql).not.toContain("prediction_runs");
+    expect(sql).not.toContain("cdf_points");
+    expect(sql).not.toContain("public_traces");
+    expect(sql).not.toContain("resolution_links");
+    expect(sql).not.toContain("legacy_spec_id");
+    expect(sql).not.toContain("legacy_prediction");
   });
 
   it("has enough public context to stand alone", () => {
@@ -660,6 +1264,61 @@ describe("forecast catalog", () => {
     expect(new Set(forecastDataPointIds).size).toBe(targetDataPointIds.size);
     for (const dataPointId of forecastDataPointIds) {
       expect(targetDataPointIds.has(dataPointId)).toBe(true);
+    }
+  });
+
+  it("forecasts every registered ledger target", () => {
+    const forecastDataPointIds = new Set(
+      FORECAST_CELLS.flatMap((forecast) =>
+        forecast.dataPointId ? [forecast.dataPointId] : [],
+      ),
+    );
+    const missingForecastTargets = THESIS_TARGET_LEDGER.filter(
+      (target) => !forecastDataPointIds.has(target.dataPointId),
+    );
+
+    expect(missingForecastTargets).toEqual([]);
+  });
+
+  it("covers every observed ledger series with an exact or derived forecast family", () => {
+    const observations = policyEngineLedger.filter(
+      (entry): entry is ObservationRecordedLedgerEntry =>
+        isObservationRecordedLedgerEntry(entry),
+    );
+    const uncoveredObservations = findUncoveredLedgerObservationSeries(
+      observations,
+      FORECAST_CELLS,
+    );
+
+    expect(uncoveredObservations).toEqual([]);
+  });
+
+  it("forecasts national SNAP component error rates with model traces", () => {
+    const componentForecasts = [
+      {
+        slug: "snap-overpayment-error-rate-fy2026",
+        dataPointId: "fns.snap.overpayment_payment_error_rate.us.fy2026",
+      },
+      {
+        slug: "snap-underpayment-error-rate-fy2026",
+        dataPointId: "fns.snap.underpayment_payment_error_rate.us.fy2026",
+      },
+    ];
+
+    for (const expected of componentForecasts) {
+      const forecast = FORECAST_CELLS.find(
+        (cell) => cell.slug === expected.slug,
+      );
+
+      expect(forecast?.dataPointId).toBe(expected.dataPointId);
+      expect(getLedgerTargetByDataPointId(expected.dataPointId)).toBeTruthy();
+      expect(
+        forecast?.reasoning.some(
+          (step) =>
+            step.kind === "tool" &&
+            step.tool === "forecast_model.damped_log_trend",
+        ),
+      ).toBe(true);
     }
   });
 
@@ -827,14 +1486,43 @@ describe("forecast catalog", () => {
   });
 
   it("registers OEWS occupation wage targets in the ledger before forecasting", () => {
-    const expectedSlugs = [
-      "oews-business-financial-median-wage-may-2026",
-      "oews-computer-math-median-wage-may-2026",
-      "oews-healthcare-support-median-wage-may-2026",
-      "oews-office-admin-median-wage-may-2026",
-      "oews-production-median-wage-may-2026",
-      "oews-transport-material-moving-median-wage-may-2026",
+    const expectedSlugBases = [
+      "management",
+      "business-financial",
+      "computer-math",
+      "architecture-engineering",
+      "life-physical-social-science",
+      "community-social-service",
+      "legal",
+      "education-library",
+      "arts-media",
+      "healthcare-practitioners-technical",
+      "healthcare-support",
+      "protective-service",
+      "food-prep-serving",
+      "building-grounds",
+      "personal-care-service",
+      "sales",
+      "office-admin",
+      "farming-fishing-forestry",
+      "construction-extraction",
+      "installation-maintenance-repair",
+      "production",
+      "transport-material-moving",
     ];
+    const expectedStatisticSlugs = [
+      "10th-percentile",
+      "25th-percentile",
+      "median",
+      "mean",
+      "75th-percentile",
+      "90th-percentile",
+    ];
+    const expectedSlugs = expectedSlugBases.flatMap((base) =>
+      expectedStatisticSlugs.map(
+        (statistic) => `oews-${base}-${statistic}-wage-may-2026`,
+      ),
+    );
     const seriesIds = new Set(
       OEWS_OCCUPATION_WAGE_PREDICTION_SERIES.map((series) => series.seriesId),
     );
@@ -848,20 +1536,54 @@ describe("forecast catalog", () => {
     expect(wageCells.map((forecast) => forecast.slug).sort()).toEqual(
       expectedSlugs.sort(),
     );
-    expect(wageCells).toHaveLength(6);
+    expect(wageCells).toHaveLength(expectedSlugs.length);
+
+    const management = wageCells.find(
+      (forecast) => forecast.slug === "oews-management-median-wage-may-2026",
+    );
+    expect(management?.pointEstimate).toBe(130900);
+    expect(management?.historicalContext).toEqual([
+      { label: "May 2025 OEWS median", value: 126520 },
+    ]);
+
+    const managementMean = wageCells.find(
+      (forecast) => forecast.slug === "oews-management-mean-wage-may-2026",
+    );
+    expect(managementMean?.pointEstimate).toBe(150300);
+    expect(managementMean?.historicalContext).toEqual([
+      { label: "May 2025 OEWS mean", value: 145260 },
+    ]);
+
+    const managementP90 = wageCells.find(
+      (forecast) =>
+        forecast.slug === "oews-management-90th-percentile-wage-may-2026",
+    );
+    expect(managementP90?.pointEstimate).toBe(266200);
+    expect(managementP90?.historicalContext).toEqual([
+      { label: "May 2025 OEWS 90th percentile", value: 257310 },
+    ]);
 
     const computerMath = wageCells.find(
       (forecast) => forecast.slug === "oews-computer-math-median-wage-may-2026",
     );
-    expect(computerMath?.pointEstimate).toBe(112900);
+    expect(computerMath?.pointEstimate).toBe(113000);
     expect(computerMath?.historicalContext).toEqual([
       { label: "May 2025 OEWS median", value: 109280 },
     ]);
+    expect(
+      computerMath?.reasoning.some(
+        (step) =>
+          step.kind === "tool" &&
+          step.tool === "forecast_model.damped_log_trend" &&
+          step.call.includes("damped_log_trend_v1") &&
+          step.result.includes("status: 'fallback'"),
+      ),
+    ).toBe(true);
 
     for (const forecast of wageCells) {
       expect(forecast.dataPointId).toBeTruthy();
-      expect(forecast.dataPointId).toContain(
-        "bls.oews.national_occupation_median_annual_wage",
+      expect(forecast.dataPointId).toMatch(
+        /bls\.oews\.national_occupation_(10th_percentile|25th_percentile|median|mean|75th_percentile|90th_percentile)_annual_wage/,
       );
       expect(targetDataPointIds.has(forecast.dataPointId!)).toBe(true);
 
@@ -877,14 +1599,19 @@ describe("forecast catalog", () => {
       expect(forecast.unit).toBe("usd");
       expect(forecast.unit).toBe(target?.unit);
       expect(forecast.resolutionDate).toBe("2027-05-14");
-      expect(forecast.resolutionRule).toContain("annual median wage");
-      expect(forecast.resolutionRule).toContain("A_MEDIAN");
+      expect(forecast.resolutionRule).toMatch(
+        /annual (10th percentile|25th percentile|median|mean|75th percentile|90th percentile) wage/,
+      );
+      expect(forecast.resolutionRule).toMatch(
+        /A_(PCT10|PCT25|MEDIAN|MEAN|PCT75|PCT90)/,
+      );
       expect(forecast.series?.resolutionPolicy).toBe("first_print");
 
       const runs = getForecastRunEntries(forecast);
       expect(runs.map((run) => run.variantId)).toEqual([
         "primary",
         "may-2025-oews-carry-forward",
+        "time-series-prior",
       ]);
       expect(runs[0].packSet?.mode).toBe("none");
       expect(runs[1].predictionRun?.agent).toBe("BLS OEWS current table");
@@ -953,6 +1680,7 @@ describe("forecast catalog", () => {
         "primary",
         "with-bls-employment-projections",
         "bls-published-2024-2034-projection",
+        "time-series-prior",
       ]);
       expect(runs.some((run) => run.packSet?.mode === "none")).toBe(true);
 
@@ -1020,11 +1748,13 @@ describe("forecast catalog", () => {
       expect(forecast.resolutionRule).toContain("not seasonally adjusted");
 
       const runs = getForecastRunEntries(forecast);
-      expect(runs).toHaveLength(1);
+      const expectedRunIds = ["primary", "time-series-prior"];
+      expect(runs.map((run) => run.variantId)).toEqual(expectedRunIds);
       expect(runs[0].predictionRun?.agent).toBe(
         "brier-cps-occupation-fast-proxy",
       );
       expect(runs[0].packSet?.mode).toBe("none");
+      expect(runs[1].predictionRun?.model).toBe("persistence.last_print");
     }
   });
 
@@ -1264,6 +1994,35 @@ describe("forecast catalog", () => {
       expect(getForecastCountry(forecast)).toBe("US");
       expect(forecast.predictionRun?.kind).toBe("recorded-agent-run");
       expect(getForecastRuntimeKind(forecast)).toBe("agent-run");
+    }
+  });
+
+  it("includes US defense public-data forecast targets", () => {
+    expect(US_DEFENSE_PREDICTION_SERIES).toHaveLength(5);
+
+    const slugs = new Set(FORECAST_CELLS.map((forecast) => forecast.slug));
+    expect(slugs.has("us-defense-aerospace-employment-june-2026")).toBe(true);
+    expect(slugs.has("us-defense-shipbuilding-employment-june-2026")).toBe(
+      true,
+    );
+    expect(slugs.has("us-defense-dod-employment-june-2026")).toBe(true);
+    expect(slugs.has("us-defense-dod-military-outlays-june-2026")).toBe(true);
+    expect(slugs.has("us-defense-dod-contract-obligations-fy2026")).toBe(true);
+
+    const seriesIds = new Set(
+      US_DEFENSE_PREDICTION_SERIES.map((series) => series.seriesId),
+    );
+    const cells = FORECAST_CELLS.filter(
+      (forecast) => forecast.series && seriesIds.has(forecast.series.seriesId),
+    );
+    expect(cells).toHaveLength(US_DEFENSE_PREDICTION_SERIES.length);
+    for (const forecast of cells) {
+      expect(getForecastCountry(forecast)).toBe("US");
+      expect(forecast.predictionRun?.agent).toBe("brier-defense-public-data");
+      expect(getForecastRuntimeKind(forecast)).toBe("agent-run");
+      expect(
+        getLedgerTargetByDataPointId(forecast.dataPointId ?? ""),
+      ).toBeTruthy();
     }
   });
 

@@ -1,0 +1,128 @@
+[
+  {
+    "slug": "medicaid-ex-parte-share-aug-2026-la",
+    "country": "US",
+    "type": "data",
+    "title": "Louisiana Medicaid ex parte renewal share, Aug. 2026",
+    "question": "CMS State Medicaid and CHIP Eligibility Processing Data, Louisiana state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.",
+    "unit": "percent",
+    "pointEstimate": 67.4,
+    "ciLow": 53.2,
+    "ciHigh": 81.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-12-15",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+    "resolutionRule": "Resolves to Louisiana's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it. Compute as the published completed renewals processed through ex parte renewal numerator divided by the published total completed renewals denominator, multiplied by 100 and rounded to one decimal percent. Use the first official CMS print available through data.medicaid.gov and ignore later updated submissions or revisions.",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.la.aug_2026",
+    "historicalContext": [
+      {
+        "label": "LA 2025-07 first-print ex parte renewal share",
+        "value": 71.9
+      },
+      {
+        "label": "LA 2025-09 first-print ex parte renewal share",
+        "value": 65.5
+      },
+      {
+        "label": "LA 2025-11 first-print ex parte renewal share",
+        "value": 66.1
+      },
+      {
+        "label": "LA 2026-01 first-print ex parte renewal share",
+        "value": 75.1
+      },
+      {
+        "label": "LA 2026-02 latest inspected ex parte renewal share",
+        "value": 69.8
+      }
+    ],
+    "drivers": [
+      "Louisiana's recent ex parte renewal share is centered around the high 60s to low 70s",
+      "Recent state-row movement is volatile, with large renewal-cohort swings",
+      "Data-match coverage and eligibility-system operations drive step changes more than smooth trend",
+      "CMS renewal-policy pressure supports continued automation, but Louisiana's February pullback argues against extrapolating January's high",
+      "August renewal cohort mix can move numerator and denominator materially"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+      "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360?conditions%5B0%5D%5Boperator%5D=%3D&conditions%5B0%5D%5Bproperty%5D=reporting_period&conditions%5B0%5D%5Bvalue%5D=202602&conditions%5B1%5D%5Boperator%5D=%3D&conditions%5B1%5D%5Bproperty%5D=preliminary_or_updated&conditions%5B1%5D%5Bvalue%5D=p"
+    ],
+    "runAt": "2026-07-01T05:23:05Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Louisiana Medicaid ex parte renewal share, August 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is a Louisiana state row, not a national weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed Medicaid renewals processed ex parte, reported in percent and rounded to one decimal."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the official Medicaid.gov monthly Medicaid and CHIP application, eligibility determination, and enrollment reports page for release vehicle and current-update evidence.",
+        "result": "Fetched official page evidence: Beginning with the October 2018 report, monthly enrollment data are available only on data.Medicaid.gov; the page says data.Medicaid.gov is updated monthly; Preliminary February 2026 Applications, Eligibility, and Enrollment Data was Last Updated May 29, 2026; Updated January 2026 and Preliminary January 2026 entries were also Last Updated May 29, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the official data.medicaid.gov dataset page for CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c and checked the official data URL used by the target resolver.",
+        "result": "Fetched official dataset identifier 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c and official data.medicaid.gov source context; the current Medicaid.gov monthly reports page links the February 2026 preliminary data to datastore URL 6165f45b-ca93-5bb5-9d06-db29c692a360 with reporting_period=202602 and preliminary_or_updated=p."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Inspected the canonical ledger identity fields for the Louisiana August 2026 CMS Medicaid eligibility-processing ex parte renewal-share target, without using catalog point estimates or intervals as evidence.",
+        "result": "Fetched canonical slug medicaid-ex-parte-share-aug-2026-la, unit percent, registered resolutionDate 2026-12-15, dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.la.aug_2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Read local public-repository, official-source-derived Louisiana historical context for this exact CMS series; existing catalog point and interval were ignored as forecast evidence.",
+        "result": "Fetched Louisiana ex parte renewal shares: 2025-07 = 71.9 percent, 2025-09 = 65.5 percent, 2025-11 = 66.1 percent, 2026-01 = 75.1 percent, and 2026-02 = 69.8 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "shell.lookup",
+        "call": "Attempted direct official data.medicaid.gov API access from the sandbox for dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c.",
+        "result": "Fetched shell network result code 6 with 0 downloaded bytes, so direct API confirmation was blocked in this sandbox; the 5 Louisiana historical shares above come from local public official-source-derived repository artifacts."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: the most relevant outside view is Louisiana's own recent original-submission CMS eligibility-processing run because this resolves a single state row. The five inspected values average 69.7 percent, span 65.5 to 75.1 percent, and the latest inspected point is 69.8 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: Louisiana is not near the 100 percent ceiling, so both improvement and deterioration remain plausible. The January spike to 75.1 followed by February at 69.8 looks more like renewal-cohort or processing volatility than a clean trend break; data-match coverage and eligibility-system operations remain the key mechanism."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is Louisiana latest-value persistence blended with a five-point state mean and damped local trend, using observed values from 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. Starting from latest 69.8, I subtract 1.4 pp for weak July-to-February drift and the January-to-February pullback, subtract 0.6 pp for August renewal-cohort/manual-processing risk, and subtract 0.4 pp because the recent mean does not confirm January's high as durable, yielding 67.4. The 80% interval starts from realized first-print dispersion, with 9.6 pp recent range and 5.3 pp mean absolute adjacent move, then widens over the six-month horizon to about 14 pp each side."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside outside the interval would require Louisiana's January 2026 high to be a durable automation step plus an August cohort that is easy to renew ex parte, pushing the first print above 81.5 percent. Downside outside the interval would require a manual-heavy renewal cohort, data-source outage, eligibility-system issue, or reporting break pushing the share below 53.2 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Historical mean = (71.9 + 65.5 + 66.1 + 75.1 + 69.8) / 5 = 69.7 percent. Observed adjacent changes were -6.4, +0.6, +9.0, and -5.3 pp, with mean absolute change 5.3 pp. Point calculation: 69.8 latest inspected value - 1.4 pp damped drift/pullback - 0.6 pp cohort risk - 0.4 pp mean-reversion adjustment = 67.4 percent. Interval calculation: center 67.4, lower half-width 14.2 pp and upper half-width 14.1 pp, yielding 53.2 to 81.5 after one-decimal rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Prior-run update: a public local Thesis analyst run earlier on 2026-07-01 produced the same 67.4 point and 53.2 to 81.5 interval. I used it only as a consistency check, not as ground truth; the current official-page check still supports the same release vehicle and no new Louisiana official observation changed the forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Resolution-date note: the official Medicaid.gov page verified the monthly data.Medicaid.gov release vehicle and current May 29, 2026 update cycle, but I did not find a separate future-dated CMS placeholder for the exact August 2026 Louisiana row in this sandbox. I keep the forecast tied to the canonical ledger resolutionDate 2026-12-15 and bind resolution to the first official CMS dataset print."
+      },
+      {
+        "kind": "forecast",
+        "point": 67.4,
+        "ciLow": 53.2,
+        "ciHigh": 81.5
+      }
+    ]
+  }
+]

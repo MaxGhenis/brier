@@ -63,6 +63,17 @@ export interface PredictionPackCatalogEntry {
   runCount: number;
 }
 
+const REGISTERED_PACKS: PredictionPackReference[] = [
+  {
+    packId: "panel-persistence-shrinkage",
+    version: "0.1.0",
+    label: "Panel persistence shrinkage",
+    kind: "method",
+    summary:
+      "For repeated jurisdiction, occupation, or agency panels, scores the last-print baseline and shrinks agent updates toward it unless current evidence clears a stated bar.",
+  },
+];
+
 const PACK_DETAILS: Record<string, Omit<PredictionPackDetail, "packId">> = {
   "base-rate-first": {
     purpose:
@@ -248,6 +259,30 @@ const PACK_DETAILS: Record<string, Omit<PredictionPackDetail, "packId">> = {
       "Multifamily project timing remains a judgmental adjustment.",
     ],
   },
+  "panel-persistence-shrinkage": {
+    purpose:
+      "Prevent agents from overreacting on stable panel targets where last year's official value is usually the strongest single predictor.",
+    mechanism: [
+      "Record a last-print persistence benchmark and score it beside the agent run.",
+      "Estimate a panel-level drift or shrinkage term from comparable entities before applying inside-view adjustments.",
+      "Require explicit current evidence before moving materially away from the persistence-plus-shrinkage baseline.",
+    ],
+    qualityChecks: [
+      "The trace reports the persistence benchmark and the agent's delta from it.",
+      "Large departures name the evidence source and the expected sign of the departure.",
+      "Intervals widen for entities with volatile prior prints, small samples, or known release noise.",
+    ],
+    inputs: [
+      "Prior official print for the same entity",
+      "Comparable panel history across entities or occupations",
+      "Current entity-specific evidence strong enough to justify a departure",
+    ],
+    limitations: [
+      "Can underreact to true breaks, new policy regimes, or one-off administrative shocks.",
+      "Should not be used when the target is a new series with no entity-level prior.",
+      "Needs walk-forward scoring before promotion beyond panel-style targets.",
+    ],
+  },
   "bls-employment-projections-baseline": {
     purpose:
       "Use the official BLS 2024-2034 occupational employment projections as an outside-view prior for OEWS occupation forecasts.",
@@ -370,6 +405,15 @@ export function buildPredictionPackCatalog(
   forecasts: ForecastCell[] = FORECAST_CELLS,
 ): PredictionPackCatalogEntry[] {
   const entries = new Map<string, MutablePackCatalogEntry>();
+
+  for (const pack of REGISTERED_PACKS) {
+    const entry = createMutablePackEntry(pack);
+    entry.versions.set(
+      buildPredictionPackVersionKey(pack),
+      createMutableVersionEntry(pack),
+    );
+    entries.set(pack.packId, entry);
+  }
 
   for (const forecast of forecasts) {
     const runs = getForecastRunEntries(forecast);

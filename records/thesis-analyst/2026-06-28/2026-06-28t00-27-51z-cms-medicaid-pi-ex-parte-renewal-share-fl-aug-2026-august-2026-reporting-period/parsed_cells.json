@@ -1,0 +1,129 @@
+[
+  {
+    "slug": "medicaid-ex-parte-share-aug-2026-fl",
+    "country": "US",
+    "type": "data",
+    "title": "Florida Medicaid ex parte renewal share, Aug. 2026",
+    "question": "CMS State Medicaid and CHIP Eligibility Processing Data, Florida state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.",
+    "unit": "percent",
+    "pointEstimate": 40.4,
+    "ciLow": 33.8,
+    "ciHigh": 48.3,
+    "confidence": 0.8,
+    "resolutionDate": "2026-12-15",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+    "resolutionRule": "Resolve to Florida's August 2026 reporting-period original (O) state row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes that row. Compute ex parte renewal share as the published count of completed renewals processed through the ex parte process divided by the published total completed-renewal denominator, multiplied by 100 and rounded to one decimal percent. Use the first official CMS print available on data.medicaid.gov and ignore later updated submissions or revisions.",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.fl.aug_2026",
+    "historicalContext": [
+      {
+        "label": "FL 2025-07 first-print ex parte renewal share",
+        "value": 37.8
+      },
+      {
+        "label": "FL 2025-09 first-print ex parte renewal share",
+        "value": 32.5
+      },
+      {
+        "label": "FL 2025-11 first-print ex parte renewal share",
+        "value": 35.5
+      },
+      {
+        "label": "FL 2026-01 first-print ex parte renewal share",
+        "value": 39.4
+      },
+      {
+        "label": "FL 2026-02 latest inspected ex parte renewal share",
+        "value": 38.9
+      }
+    ],
+    "drivers": [
+      "Florida's recent observed ex parte renewal share remains in the high 30s rather than near a high-automation ceiling",
+      "September 2025 to February 2026 showed recovery from 32.5 percent to 38.9 percent",
+      "Renewal cohort composition can move the numerator and denominator several percentage points month to month",
+      "Automation and compliance pressure support only a modest judgmental upward drift without stronger Florida-specific evidence",
+      "Manual-heavy cohorts or data-match outages are the main downside risks"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data",
+      "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360"
+    ],
+    "runAt": "2026-06-28T00:28:06Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Florida Medicaid ex parte renewal share, August 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is a Florida state row, not a national weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed renewals processed ex parte, reported in percent and rounded to one decimal."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspected the registered CMS Medicaid PI target and local catalog identity fields for the Florida August 2026 ex parte renewal share resolver.",
+        "result": "Fetched canonical slug medicaid-ex-parte-share-aug-2026-fl, unit percent, registered catalog resolutionDate 2026-12-15, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.fl.aug_2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official Medicaid.gov monthly application, eligibility determination, and enrollment reports page for release vehicle and current update evidence from inspected run context.",
+        "result": "Fetched official page evidence: data.Medicaid.gov is updated monthly; the inspected current release context listed Preliminary March 2026 data and June 26, 2026 as the current update date for related February 2026 and March 2026 entries."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked CMS Medicaid eligibility processing dataset identifiers and resolver arithmetic fields used for this target.",
+        "result": "Fetched ledger dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, CMS datastore id 6165f45b-ca93-5bb5-9d06-db29c692a360, original submission status O, August 2026 reporting period, numerator as completed renewals processed through ex parte renewal, denominator as total completed renewals, and expected publication lag of about 3 to 4 months after the reporting period."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Read the local official-source-derived Florida historical context for this exact CMS series.",
+        "result": "Fetched Florida values: 2025-07 = 37.8 percent, 2025-09 = 32.5 percent, 2025-11 = 35.5 percent, 2026-01 = 39.4 percent, and 2026-02 = 38.9 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Computed recent Florida movement and latest-value anchor from the inspected sample.",
+        "result": "Fetched latest inspected Florida value 2026-02 = 38.9 percent; changes were -5.3 percentage points from 2025-07 to 2025-09, +3.0 from 2025-09 to 2025-11, +3.9 from 2025-11 to 2026-01, and -0.5 from 2026-01 to 2026-02."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the most relevant outside view is Florida's own recent first-print run for this CMS eligibility-processing series. The five observed points average 36.8 percent, the latest three average 37.9 percent, and the latest inspected value is 38.9 percent, so latest-value persistence with limited trend continuation is the prior."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: Florida is not near a high-automation ceiling, so there is room for improvement. The September-to-February recovery supports a mild upward update, but the January-to-February dip and lack of concrete Florida-specific policy evidence argue against carrying the full trend through August."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is Florida latest-value persistence, using five inspected observations from 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. Starting from latest inspected 38.9 percent, I add +1.0 pp for damped recovery from the 2025 trough and +0.5 pp for judgmental automation/compliance drift, yielding 40.4. The 80% interval is judgmentally calibrated from the sparse five-point Florida sample and widened for missing March-August first prints, not statistically estimated from a large sample."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: the forecast could be too high if Florida's January 39.4 and February 38.9 values are a temporary cohort mix rather than a new level. Upside outside the interval would require a major system or matching improvement that lifts the August first print above 48.3 percent; downside outside the interval would require a manual-heavy cohort, data-source outage, eligibility-system issue, or reporting break pushing the share below 33.8 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: 38.9 latest inspected value + 1.0 pp damped recent recovery + 0.5 pp judgmental automation/compliance drift = 40.4 percent. Interval calculation: observed low-to-high range is 39.4 - 32.5 = 6.9 pp, and observed move range is from -5.3 to +3.9 = 9.2 pp; I use about 6.6 pp lower and 7.9 pp upper half-widths for six-month first-print uncertainty, yielding 33.8 to 48.3 after one-decimal rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Resolution-date note: the canonical ledger target uses 2026-12-15. The checked CMS release context supports the official data.Medicaid.gov monthly release vehicle and the three-to-four-month publication lag, but I did not find a separate public future-dated CMS placeholder for the exact August 2026 Florida row; the forecast remains tied to the registered first-print CMS target."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique that the previous upward adjustment was weakly grounded in Florida-specific evidence, so I reduced and reframed it as modest judgmental drift; accepted clarifications that the February 2026 value is latest inspected and that the interval is sparse-sample judgmental calibration."
+      },
+      {
+        "kind": "forecast",
+        "point": 40.4,
+        "ciLow": 33.8,
+        "ciHigh": 48.3
+      }
+    ]
+  }
+]
