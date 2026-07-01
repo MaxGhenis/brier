@@ -420,7 +420,7 @@ describe("Next.js migration", () => {
       const tableResponse = await getForecastTargetTableJson(
         new Request("http://test.local/forecasts/targets/targets.json"),
         {
-          params: Promise.resolve({ table: "targets" }),
+          params: Promise.resolve({}),
         },
       );
       const tableBody = await tableResponse.json();
@@ -441,7 +441,7 @@ describe("Next.js migration", () => {
           "http://test.local/forecasts/targets/forecastDistributions.json",
         ),
         {
-          params: Promise.resolve({ table: "forecastDistributions" }),
+          params: Promise.resolve({}),
         },
       );
       const distributionTableBody = await distributionTableResponse.json();
@@ -462,7 +462,7 @@ describe("Next.js migration", () => {
           "http://test.local/forecasts/targets/forecastDistributions/0.json",
         ),
         {
-          params: Promise.resolve({ table: "forecastDistributions", chunk: "0" }),
+          params: Promise.resolve({}),
         },
       );
       const chunkBody = await chunkResponse.json();

@@ -7,13 +7,11 @@ import { loadTargetArchitectureProjection } from "@/data/thesis-target-architect
 export const dynamic = "force-static";
 
 interface TargetTableRouteContext {
-  params: Promise<{ table: string }>;
+  params: Promise<{}>;
 }
 
-export async function GET(_request: Request, context: TargetTableRouteContext) {
-  // Use the resolved route param, not request.url — see [chunk].json/route.ts.
-  const params = await context.params;
-  const table = params.table.replace(/\.json$/, "");
+export async function GET(request: Request, _context: TargetTableRouteContext) {
+  const table = getTableFromPath(request.url);
   if (!isTargetArchitectureTableKey(table)) {
     return Response.json(
       {
@@ -26,4 +24,15 @@ export async function GET(_request: Request, context: TargetTableRouteContext) {
 
   const projection = await loadTargetArchitectureProjection();
   return Response.json(buildTargetArchitectureTableExport(projection, table));
+}
+
+// Suffixed dynamic segments ([table].json) expose no route params (Next types
+// them Promise<{}>), so the segment comes from the URL. Strip .json
+// repeatedly: behind the app-host rewrite Vercel reconstructs the handler URL
+// with the suffix doubled (…/targets.json.json) while next start passes it
+// singly — stripping once 404'd every table in production.
+function getTableFromPath(url: string) {
+  const pathname = new URL(url).pathname;
+  const lastSegment = pathname.split("/").filter(Boolean).at(-1) ?? "";
+  return lastSegment.replace(/(\.json)+$/, "");
 }
