@@ -1,0 +1,291 @@
+[
+  {
+    "slug": "medicaid-ex-parte-share-aug-2026-la",
+    "country": "US",
+    "type": "data",
+    "title": "Louisiana Medicaid ex parte renewal share, Aug. 2026",
+    "question": "CMS State Medicaid and CHIP Eligibility Processing Data, Louisiana state row, August 2026 reporting period, original first-print submission: ex parte renewals as a share of completed Medicaid renewals.",
+    "unit": "percent",
+    "pointEstimate": 67.4,
+    "ciLow": 53.2,
+    "ciHigh": 81.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-12-15",
+    "resolutionSource": "CMS, State Medicaid and CHIP Eligibility Processing Data (data.medicaid.gov)",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+    "resolutionRule": "Resolves to Louisiana's ex parte renewal share for the August 2026 reporting period, computed from the original (O) submission row in CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c when CMS first publishes it. Compute as the published completed renewals processed through ex parte renewal numerator divided by the published total completed renewals denominator, multiplied by 100 and rounded to one decimal percent. Use the first official CMS print available through data.medicaid.gov and ignore later updated submissions or revisions.",
+    "dataPointId": "cms.medicaid_pi.ex_parte_renewal_share.la.aug_2026",
+    "historicalContext": [
+      {
+        "label": "LA 2025-07 first-print ex parte renewal share",
+        "value": 71.9
+      },
+      {
+        "label": "LA 2025-09 first-print ex parte renewal share",
+        "value": 65.5
+      },
+      {
+        "label": "LA 2025-11 first-print ex parte renewal share",
+        "value": 66.1
+      },
+      {
+        "label": "LA 2026-01 first-print ex parte renewal share",
+        "value": 75.1
+      },
+      {
+        "label": "LA 2026-02 latest inspected ex parte renewal share",
+        "value": 69.8
+      }
+    ],
+    "drivers": [
+      "Louisiana's recent ex parte renewal share is centered around the high 60s to low 70s",
+      "Recent state-row movement is volatile, with large renewal-cohort swings",
+      "Data-match coverage and eligibility-system operations drive step changes more than smooth trend",
+      "CMS renewal-policy pressure supports continued automation, but Louisiana's February pullback argues against extrapolating January's high",
+      "August renewal cohort mix can move numerator and denominator materially"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+      "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data",
+      "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+      "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360?conditions%5B0%5D%5Boperator%5D=%3D&conditions%5B0%5D%5Bproperty%5D=reporting_period&conditions%5B0%5D%5Bvalue%5D=202602&conditions%5B1%5D%5Boperator%5D=%3D&conditions%5B1%5D%5Bproperty%5D=preliminary_or_updated&conditions%5B1%5D%5Bvalue%5D=P"
+    ],
+    "runAt": "2026-07-01T05:14:56Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Louisiana Medicaid ex parte renewal share, August 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is a Louisiana state row, not a national weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed Medicaid renewals processed ex parte, reported in percent and rounded to one decimal."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the official Medicaid.gov monthly Medicaid and CHIP application, eligibility determination, and enrollment reports page for release vehicle and dated current-update evidence.",
+        "result": "Fetched official page evidence: data.Medicaid.gov is updated monthly; Preliminary March 2026 Applications, Eligibility, and Enrollment Data was Last Updated June 26, 2026; Updated February 2026 and Preliminary February 2026 entries were also Last Updated June 26, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Inspected the canonical ledger identity fields for the Louisiana August 2026 CMS Medicaid eligibility-processing ex parte renewal-share target.",
+        "result": "Fetched canonical slug medicaid-ex-parte-share-aug-2026-la, unit percent, registered resolutionDate 2026-12-15, dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.la.aug_2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Read local public-repository, official-source-derived Louisiana historical context for this exact CMS series; existing catalog point and interval were ignored as forecast evidence.",
+        "result": "Fetched Louisiana ex parte renewal shares: 2025-07 = 71.9 percent, 2025-09 = 65.5 percent, 2025-11 = 66.1 percent, 2026-01 = 75.1 percent, and 2026-02 = 69.8 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Computed recent Louisiana movement and latest-value anchor from the inspected official-source-derived sample.",
+        "result": "Fetched latest inspected Louisiana value 2026-02 = 69.8 percent; adjacent changes were -6.4 percentage points from 2025-07 to 2025-09, +0.6 from 2025-09 to 2025-11, +9.0 from 2025-11 to 2026-01, and -5.3 from 2026-01 to 2026-02."
+      },
+      {
+        "kind": "tool",
+        "tool": "shell.lookup",
+        "call": "Attempted direct official data.medicaid.gov API access for dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c from the run sandbox.",
+        "result": "Fetched shell network result code 6 with 0 downloaded bytes, so direct API confirmation was blocked in this sandbox; the 5 numeric Louisiana shares above come from local public official-source-derived repository artifacts."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: the most relevant outside view is Louisiana's own recent original-submission CMS eligibility-processing run because this resolves a single state row. The five inspected values average 69.7 percent, span 65.5 to 75.1 percent, and the latest inspected point is 69.8 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: Louisiana is not near the 100 percent ceiling, so both improvement and deterioration remain plausible. The January spike to 75.1 followed by February at 69.8 looks more like renewal-cohort or processing volatility than a clean trend break; data-match coverage and eligibility-system operations remain the key mechanism."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is Louisiana latest-value persistence blended with a five-point state mean and damped local trend, using observed values from 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. Starting from latest 69.8, I subtract 1.4 pp for weak July-to-February drift and the January-to-February pullback, subtract 0.6 pp for August renewal-cohort/manual-processing risk, and subtract 0.4 pp because the recent mean does not confirm January's high as durable, yielding 67.4. The 80% interval starts from realized first-print dispersion, with 9.6 pp recent range and 5.3 pp mean absolute adjacent move, then widens over the six-month horizon to about 14 pp each side."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside outside the interval would require Louisiana's January 2026 high to be a durable automation step plus an August cohort that is easy to renew ex parte, pushing the first print above 81.5 percent. Downside outside the interval would require a manual-heavy renewal cohort, data-source outage, eligibility-system issue, or reporting break pushing the share below 53.2 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Historical mean = (71.9 + 65.5 + 66.1 + 75.1 + 69.8) / 5 = 69.7 percent. Observed adjacent changes were -6.4, +0.6, +9.0, and -5.3 pp, with mean absolute change 5.3 pp. Point calculation: 69.8 latest inspected value - 1.4 pp damped drift/pullback - 0.6 pp cohort risk - 0.4 pp mean-reversion adjustment = 67.4 percent. Interval calculation: center 67.4, lower half-width 14.2 pp and upper half-width 14.1 pp, yielding 53.2 to 81.5 after one-decimal rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Resolution-date note: the official Medicaid.gov page verified the monthly data.Medicaid.gov release vehicle and current June 26, 2026 update cycle, but I did not find a separate future-dated CMS placeholder for the exact August 2026 Louisiana row in this sandbox. I keep the forecast tied to the canonical ledger resolutionDate 2026-12-15 and bind resolution to the first official CMS dataset print."
+      },
+      {
+        "kind": "forecast",
+        "point": 67.4,
+        "ciLow": 53.2,
+        "ciHigh": 81.5
+      }
+    ],
+    "model": "gpt-5.5-mini",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/prompt.md",
+        "sha256": "43c3adb32cd84fdb59d8333c55877f863808c846bdf75c77e8bb061ae4c0c875",
+        "bytes": 7368,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_command.json",
+        "sha256": "a13b4956a4838d8249d64a77760974e2e8d7392b0bf729478deaea784329f848",
+        "bytes": 793,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_codex_stdout.jsonl",
+        "sha256": "05b2c752c1d8e2a6b9f9bd0c119423c74860686ed0935a51b3a11288627e004e",
+        "bytes": 3999997,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_codex_stderr.log",
+        "sha256": "e7b2175472b59b5a0323e919d2323aee96653230a4d0e634e651a4054bae9387",
+        "bytes": 3807,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_codex_events.jsonl",
+        "sha256": "51973d31f3fcecf9a5e156c9d7ecd9df0e0eaae74aa2edfd7865de1c234518d9",
+        "bytes": 4000296,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_codex_last_message.txt",
+        "sha256": "23642fde80089730cfa708877e4db0e7c9fe2cddb9df1b36a2b77cb5927b4189",
+        "bytes": 8290,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_codex_trace.json",
+        "sha256": "401d94e5d94e7ec27d45f91dbfbb78c9ab3661dfec8376baa92ece246fe49c10",
+        "bytes": 509,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+        "sha256": "23642fde80089730cfa708877e4db0e7c9fe2cddb9df1b36a2b77cb5927b4189",
+        "bytes": 8290,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_stderr.txt",
+        "sha256": "a65770541a7425476079ff8da15f2603ba7f78d9d565881d84ac25c9a1326f62",
+        "bytes": 3966,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_prompt.md",
+        "sha256": "0f92e9c0f13af1c1901cb01ee642b7465d09949b49bcf6e64a98d1173bab54a0",
+        "bytes": 11113,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_command.json",
+        "sha256": "1ae59e59eda8e997840b847aa023ef728ab5717565e9ba9ca84e2548ff9d9e68",
+        "bytes": 810,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "2428595e137c04f8eea46d65b558f0b865f66a3899fae48ed6fd093a1813e6a5",
+        "bytes": 539,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_codex_stderr.log",
+        "sha256": "0499e230e1c15b13d4c27e5a08d8fec9bb46383b001a3c4e1e63c7c6e6832ed1",
+        "bytes": 316,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_codex_events.jsonl",
+        "sha256": "2579a31c0f228f1a2aa9106ed3d1735f8f794ded1b18d94348440af5014c7239",
+        "bytes": 550,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_codex_trace.json",
+        "sha256": "d345f62cb56ea25cfe3667bb50dc938224b750dbfa3f963aa842c6cf9107a233",
+        "bytes": 565,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+        "sha256": "69e9c8ed13925a656d92982593a5fcaa478677c7499f3a76669a69d59c5fbd36",
+        "bytes": 165,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_stderr.txt",
+        "sha256": "e0bb0b3206aae17da0b55e1087e469ce2d75d98a1c9a04bba85786c6e614e89b",
+        "bytes": 331,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/raw_response.txt",
+        "sha256": "23642fde80089730cfa708877e4db0e7c9fe2cddb9df1b36a2b77cb5927b4189",
+        "bytes": 8290,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/parsed_cells.json",
+        "sha256": "a15d1041fe9e2657154268204be70587755987ddff21a2fb952dc76537da6d6f",
+        "bytes": 9268,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/normalized_cells.json",
+        "sha256": "1111061013470dc0d7da7d15ab3e96364c7e767eb2cb12e4971ef948596d2e16",
+        "bytes": 8877,
+        "createdAt": "2026-07-01T05:14:47Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/validation.json",
+        "sha256": "d09b11046381b575ce6e7c811419277d95d50b65c91d7fa9fffc9b8e66007a54",
+        "bytes": 136,
+        "createdAt": "2026-07-01T05:14:47Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "review_failed",
+      "requestedAt": "2026-07-01T05:14:47Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5-mini",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "70a7f11b6f8d18578b0b5437caf973a16bacc0ba6d4580e3a80aa59d5ce24e55"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-01/2026-07-01t05-14-47z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/pre_submit_review_stdout.txt",
+      "findings": [],
+      "dispositions": [],
+      "summary": "Pre-submit review status: review failed."
+    }
+  }
+]

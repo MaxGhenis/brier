@@ -17003,6 +17003,949 @@ export const RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS: Record<
       ],
     },
   ],
+  "medicaid-ex-parte-share-aug-2026-ks": [
+    {
+      variantId:
+        "medicaid-ex-parte-share-aug-2026-ks-thesis-analyst-fast-2026-07-01t05-19-30z",
+      label: "Thesis analyst fast run",
+      description:
+        "Validated live Codex-backed thesis.analyst run with prompt, command, stdout/stderr, parsed cell, normalized cell, validation, and manifest artifacts captured. Prompt mode: fast.",
+      pointEstimate: 56.4,
+      ciLow: 46.8,
+      ciHigh: 67.2,
+      confidence: 0.8,
+      drivers: [
+        "Kansas peaked near 68 percent in late 2025 but fell in the latest two inspected points",
+        "The latest inspected value of 58.3 percent is still above the July 2025 low",
+        "Renewal cohort composition can shift the numerator and denominator materially month to month",
+        "Further gains depend on data-match coverage and eligibility-system operations",
+        "CMS renewal compliance pressure supports persistence but does not eliminate operational volatility",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-07-01T05:19:30Z",
+        agent: "thesis.analyst",
+        model: "gpt-5.5",
+        agentVersion: "2.2.0",
+        promptHash:
+          "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+        toolPolicyHash:
+          "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+        promptMode: "fast",
+        runLabel: "Thesis analyst fast run",
+        runDescription:
+          "Live thesis.analyst run promoted from the recorded manifest.",
+        sourceContext: [
+          "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+          "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+          "https://www.medicaid.gov/medicaid/enrollment-strategies/index.html",
+        ],
+        activityLog: [
+          {
+            artifactType: "prompt",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/prompt.md",
+            sha256:
+              "cff82e3f7203104e683ba772bfd089e6f99daa717321fa38f9bf971db398f117",
+            bytes: 7365,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "command",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/command.json",
+            sha256:
+              "2e91123e0f84b86e4565694ee8314a75c6b29a649464a18839533c9d682284ed",
+            bytes: 787,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "codex_stdout_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/codex_stdout.jsonl",
+            sha256:
+              "936ac937925cc20f1d755c0bee1e5ad817e39dcc79dc962f84644214d12d4fff",
+            bytes: 4667154,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "codex_stderr_log",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/codex_stderr.log",
+            sha256:
+              "8c985076b587b5fe5eaf63ff1af921aa638d3e74ba50ce6c315f3fa726d73dde",
+            bytes: 3807,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "codex_events_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/codex_events.jsonl",
+            sha256:
+              "d4ed9b1411067bdfa98dae1c79c41a408e8e83841e072074b0d18d410aacc29b",
+            bytes: 4667518,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "codex_last_message",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/codex_last_message.txt",
+            sha256:
+              "4a108a21740f195fbea13c6cf8d20960d97e980250145561f74cb8c1f71a7fe9",
+            bytes: 7948,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "codex_trace",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/codex_trace.json",
+            sha256:
+              "60ef58dab27e5479604e263efc0546001e5a6c646889c188956afe0c59ad7eeb",
+            bytes: 509,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "stdout",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/stdout.txt",
+            sha256:
+              "4a108a21740f195fbea13c6cf8d20960d97e980250145561f74cb8c1f71a7fe9",
+            bytes: 7948,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "stderr",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/stderr.txt",
+            sha256:
+              "de25d62e695b99ceec1d33969aa928ee41c45624fecc195107830ff68ff9f150",
+            bytes: 3966,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "raw_response",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/raw_response.txt",
+            sha256:
+              "4a108a21740f195fbea13c6cf8d20960d97e980250145561f74cb8c1f71a7fe9",
+            bytes: 7948,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "parsed_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/parsed_cells.json",
+            sha256:
+              "ee4cc6e7921521b97d3b3394674770b25d2e2a0f11897fdf5e5b70b10fd81174",
+            bytes: 8953,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "normalized_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/normalized_cells.json",
+            sha256:
+              "5b4b0326ef025de1814ed7af1232f4f84d73f6fdec8017aa963c4778e17e5209",
+            bytes: 8551,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "validation_report",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/validation.json",
+            sha256:
+              "c0c0c693a1559a805d8f6e1b05a45abefa18bcff8f8e282396bfe396c00a026f",
+            bytes: 136,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+          {
+            artifactType: "manifest",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-19-22z-cms-medicaid-pi-ex-parte-renewal-share-ks-aug-2026-august-2026-reporting-period/manifest.json",
+            sha256:
+              "fce5aeb1f8909d389455c753c06449de5e7c30116843009259b0bebab47690a2",
+            bytes: 6805,
+            createdAt: "2026-07-01T05:19:22Z",
+          },
+        ],
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Forecast for Kansas Medicaid ex parte renewal share, August 2026",
+        },
+        {
+          kind: "text",
+          text: "The resolver is Kansas's state row, not a national weighted average: the original first-publication August 2026 reporting-period row in CMS State Medicaid and CHIP Eligibility Processing Data. The target is the share of completed Medicaid renewals processed ex parte, in percent rounded to one decimal.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Checked the CMS monthly Medicaid and CHIP reports page for the official release vehicle and latest public update evidence.",
+          result:
+            "Fetched official CMS page evidence: Preliminary March 2026 Applications, Eligibility, and Enrollment Data was listed with Last Updated June 26, 2026; Updated February 2026 and Preliminary February 2026 entries were also listed with Last Updated June 26, 2026; the page states data.Medicaid.gov is updated monthly.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Inspected the canonical ledger target identity for the Kansas August 2026 CMS Medicaid eligibility-processing ex parte renewal-share target.",
+          result:
+            "Fetched canonical slug medicaid-ex-parte-share-aug-2026-ks, unit percent, resolutionDate 2026-12-15, dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.ks.aug_2026.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Read the official-source-derived Kansas historical context for this exact CMS series from the public repository catalog and prior public Thesis trace.",
+          result:
+            "Fetched Kansas original ex parte renewal shares: 2025-07 = 49.7 percent, 2025-09 = 62.3 percent, 2025-11 = 68.3 percent, 2026-01 = 62.9 percent, and 2026-02 = 58.3 percent.",
+        },
+        {
+          kind: "tool",
+          tool: "shell.lookup",
+          call: "Attempted direct official data.medicaid.gov API access for dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c from the run sandbox.",
+          result:
+            "Fetched shell network result curl code 6 with 0 downloaded bytes, so direct API confirmation was blocked in this sandbox; the 5 numeric Kansas values above come from local public official-source-derived catalog and trace context.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.calc",
+          call: "Computed recent Kansas movement and base-rate statistics from the inspected sample.",
+          result:
+            "Fetched computed statistics: five-point mean = 60.3 percent, latest three-point mean = 63.2 percent, sample range = 18.6 percentage points, adjacent changes = +12.6, +6.0, -5.4, and -4.6 percentage points, with mean absolute adjacent change = 7.2 percentage points.",
+        },
+        {
+          kind: "text",
+          text: "Base-rate/reference class: the most relevant outside view is Kansas's own recent original-submission CMS eligibility-processing run. It centers near 60 percent, with a late-2025 peak of 68.3 percent and a latest inspected value of 58.3 percent after two declines.",
+        },
+        {
+          kind: "text",
+          text: "Level, momentum, and mechanism: Kansas improved sharply from July to November 2025, then gave back part of the gain in January and February 2026. I treat the latest decline as informative because ex parte performance is operational and cohort-sensitive, but I do not extrapolate a collapse because the latest level remains above the July 2025 low and CMS compliance pressure favors continued automation.",
+        },
+        {
+          kind: "text",
+          text: "Prior/update/interval: prior model is latest-value persistence blended with Kansas's five-point first-print mean and a damped negative local trend, using the observed sample 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. Starting from latest 58.3, I subtract 1.5 pp for the recent two-print downtrend and 0.4 pp for renewal-cohort volatility, with no additional policy lift beyond persistence, giving 56.4. The 80% interval uses realized Kansas first-print dispersion: an 18.6 pp range and 7.2 pp mean absolute adjacent move, widened over the six-month horizon to asymmetric bounds of 46.8 to 67.2.",
+        },
+        {
+          kind: "text",
+          text: "Counter-consideration: the forecast could be too low if Kansas's late-2025 improvement reflects a durable data-match or eligibility-system release and the February drop was a cohort effect; it could be too high if the state continues moving away from the November peak or has an August cohort with unusually low automatic-match rates.",
+        },
+        {
+          kind: "math",
+          text: "Historical mean = (49.7 + 62.3 + 68.3 + 62.9 + 58.3) / 5 = 60.3 percent. Recent adjacent changes were +12.6, +6.0, -5.4, and -4.6 pp. Point calculation: latest 58.3 - 1.5 pp downtrend adjustment - 0.4 pp cohort-volatility adjustment = 56.4. Interval calculation: center 56.4, lower half-width 9.6 pp and upper half-width 10.8 pp from observed Kansas dispersion and remaining-month uncertainty, yielding 46.8 to 67.2 after rounding.",
+        },
+        {
+          kind: "text",
+          text: "Resolution-date note: the official CMS page checked this run verifies the monthly data.Medicaid.gov release vehicle and current June 26, 2026 update status, but I did not find a separate future-dated CMS placeholder for the exact August 2026 Kansas row. I keep the forecast tied to the canonical ledger date of 2026-12-15 and bind resolution to the first official CMS dataset print.",
+        },
+        {
+          kind: "text",
+          text: "Outside-the-interval scenarios: above 67.2 would likely require the November 2025 peak to resume through a durable automation or data-match improvement; below 46.8 would likely require a data-source outage, eligibility-system issue, reporting break, or an unusually manual-heavy August renewal cohort.",
+        },
+        {
+          kind: "forecast",
+          point: 56.4,
+          ciLow: 46.8,
+          ciHigh: 67.2,
+        },
+      ],
+    },
+  ],
+  "medicaid-ex-parte-share-aug-2026-ky": [
+    {
+      variantId:
+        "medicaid-ex-parte-share-aug-2026-ky-thesis-analyst-fast-2026-07-01t05-21-15z",
+      label: "Thesis analyst fast run",
+      description:
+        "Validated live Codex-backed thesis.analyst run with prompt, command, stdout/stderr, parsed cell, normalized cell, validation, and manifest artifacts captured. Prompt mode: fast.",
+      pointEstimate: 92,
+      ciLow: 82.8,
+      ciHigh: 98.6,
+      confidence: 0.8,
+      drivers: [
+        "Kentucky's recent ex parte renewal share is already high, near 90 percent",
+        "The observed series has a ceiling near 100 percent, limiting upside more than downside",
+        "Renewal cohort composition can move numerator and denominator several percentage points month to month",
+        "Eligibility data-match coverage and CMS renewal-policy compliance pressure support persistence at a high level",
+        "Manual-heavy cohorts, reporting breaks, or data-source outages are the main downside risks",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-07-01T05:21:15Z",
+        agent: "thesis.analyst",
+        model: "gpt-5.5",
+        agentVersion: "2.2.0",
+        promptHash:
+          "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+        toolPolicyHash:
+          "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+        promptMode: "fast",
+        runLabel: "Thesis analyst fast run",
+        runDescription:
+          "Live thesis.analyst run promoted from the recorded manifest.",
+        sourceContext: [
+          "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+          "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data",
+          "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+          "https://data.medicaid.gov/api/1/datastore/query/6165f45b-ca93-5bb5-9d06-db29c692a360/0",
+        ],
+        activityLog: [
+          {
+            artifactType: "prompt",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/prompt.md",
+            sha256:
+              "180d06b61d1ffaca288aa4dc9f5b148592c4dc3dda073567ae0ff40f302e5aa4",
+            bytes: 7367,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "command",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/command.json",
+            sha256:
+              "8673656f9bd5edadb24ba04ac34fafe68510d52c7a25631ecde6a0af64f4cdf6",
+            bytes: 787,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "codex_stdout_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/codex_stdout.jsonl",
+            sha256:
+              "10b6e5e1c4ef20228ade8c268604fa1f72bc6e358c3c808aa1e7aff8ca89ecab",
+            bytes: 1545204,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "codex_stderr_log",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/codex_stderr.log",
+            sha256:
+              "c506c6ee887b8ad7808e4f14eaa9f20b67c59f5abf769a23efaaa6ed05c9c4a2",
+            bytes: 4383,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "codex_events_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/codex_events.jsonl",
+            sha256:
+              "0f0b155d3fca1c4820a11e2f5b02440037d85780c906bd13794e68757af89931",
+            bytes: 1545421,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "codex_last_message",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/codex_last_message.txt",
+            sha256:
+              "c5cb30578f076e654e97dcd66f31abc596a4a9cfd55d238b2b35b6e30c0a3936",
+            bytes: 8053,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "codex_trace",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/codex_trace.json",
+            sha256:
+              "c7e6c337b3da4c25cd4210bdb9866f4591c44dc5e94fc3c9470d8d71f1c095bf",
+            bytes: 509,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "stdout",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/stdout.txt",
+            sha256:
+              "c5cb30578f076e654e97dcd66f31abc596a4a9cfd55d238b2b35b6e30c0a3936",
+            bytes: 8053,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "stderr",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/stderr.txt",
+            sha256:
+              "506c07e9450a24c40e5747987ecf9886c96199a4b3bb323364e9bddca7b9f6d8",
+            bytes: 4558,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "raw_response",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/raw_response.txt",
+            sha256:
+              "c5cb30578f076e654e97dcd66f31abc596a4a9cfd55d238b2b35b6e30c0a3936",
+            bytes: 8053,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "parsed_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/parsed_cells.json",
+            sha256:
+              "74864bd09598e178c9402210675d89a6ba901e96a8a2d4df9608b6c00ff32524",
+            bytes: 9031,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "normalized_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/normalized_cells.json",
+            sha256:
+              "1ca149a76abef432aae1015e642b2700b739321c41d5f5f974cfd1e244948183",
+            bytes: 8640,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "validation_report",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/validation.json",
+            sha256:
+              "61a7040d781fee73b6cf3b39b327b69cbb1d307ee4f6a7379ee122c257cffffc",
+            bytes: 136,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+          {
+            artifactType: "manifest",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-21-04z-cms-medicaid-pi-ex-parte-renewal-share-ky-aug-2026-august-2026-reporting-period/manifest.json",
+            sha256:
+              "07cf79f18d800cd0e224f816dfe3cb08b3228fd57569d95b7fb0eee01d14dd69",
+            bytes: 6807,
+            createdAt: "2026-07-01T05:21:04Z",
+          },
+        ],
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Forecast for Kentucky Medicaid ex parte renewal share, August 2026",
+        },
+        {
+          kind: "text",
+          text: "The resolver is a Kentucky state row, not a national weighted average: the original first-publication August 2026 reporting-period row in CMS State Medicaid and CHIP Eligibility Processing Data. The target is the share of completed Medicaid renewals processed ex parte, reported in percent and rounded to one decimal.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Checked the CMS Medicaid.gov monthly reports page for the official release vehicle and current public update pattern.",
+          result:
+            "Fetched official CMS monthly page evidence: Preliminary March 2026 Applications, Eligibility, and Enrollment Data was listed; March 2026, February 2026, January 2026, December 2025, November 2025, October 2025, September 2025, August 2025, and July 2025 entries were Last Updated June 26, 2026; the page states data.Medicaid.gov is updated monthly.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Checked the Medicaid.gov enrollment-data page and data.medicaid.gov target context for the CMS eligibility-processing series.",
+          result:
+            "Fetched official context that all 50 states and DC provide monthly eligibility and enrollment activity data; the March 2026 highlight page listed 74,294,361 total Medicaid and CHIP enrollees, 67,080,865 Medicaid enrollees, 7,213,496 CHIP enrollees, and a June 26, 2026 update date.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Inspected the canonical ledger target identity for the Kentucky August 2026 CMS Medicaid eligibility-processing ex parte renewal-share target.",
+          result:
+            "Fetched canonical slug medicaid-ex-parte-share-aug-2026-ky, unit percent, resolutionDate 2026-12-15, dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, datastore id 6165f45b-ca93-5bb5-9d06-db29c692a360, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.ky.aug_2026.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Read public generated official-source-derived Kentucky history for this exact CMS ex parte renewal-share series, excluding the existing catalog point and interval from evidence.",
+          result:
+            "Fetched Kentucky original first-print shares: 2025-07 = 84.3 percent, 2025-09 = 88.2 percent, 2025-11 = 95.3 percent, 2026-01 = 89.6 percent, and 2026-02 = 89.9 percent.",
+        },
+        {
+          kind: "tool",
+          tool: "shell.math",
+          call: "Computed summary statistics from the five inspected Kentucky official-source-derived points.",
+          result:
+            "Fetched calculated summaries: five-point mean = 89.5 percent, latest-three mean = 91.6 percent, adjacent changes = +3.9, +7.1, -5.7, and +0.3 percentage points, mean absolute adjacent change = 4.3 percentage points, and observed range = 11.0 percentage points.",
+        },
+        {
+          kind: "text",
+          text: "Base-rate/reference-class anchor: the most relevant outside view is Kentucky's own recent original-submission first-print run for this CMS eligibility-processing series. The level is high and stable enough that latest-value persistence near 90 percent is a stronger prior than a national or multi-state average.",
+        },
+        {
+          kind: "text",
+          text: "Level, momentum, and mechanism: Kentucky has already reached a high-ex-parte regime, with 2025-11 at 95.3 percent and February 2026 at 89.9 percent. Momentum is mildly positive from July 2025 to February 2026, but the January 2026 pullback shows the path is cohort-sensitive rather than a smooth trend to 100 percent.",
+        },
+        {
+          kind: "text",
+          text: "Prior/update/interval: prior model is Kentucky latest-value persistence blended with the latest-three mean, using the five inspected original first-print points from 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. Starting from latest 89.9 percent, I add +1.3 pp for the latest-three mean being 91.6 percent, +0.8 pp for high-level persistence and CMS compliance pressure, and 0.0 pp for the ceiling-constrained trend after the January dip, giving 92.0 after rounding. The 80% interval starts from realized first-print dispersion of 11.0 pp and mean adjacent move of 4.3 pp, widened for missing March-August first prints and skewed downward because upside is capped near 100.",
+        },
+        {
+          kind: "text",
+          text: "Counter-consideration: downside outside the interval would require a manual-heavy renewal cohort, data-source outage, eligibility-system issue, or reporting break pushing Kentucky below 82.8 percent. Upside outside the interval would require nearly universal ex parte processing and favorable cohort mix pushing the first print above 98.6 percent despite the natural ceiling.",
+        },
+        {
+          kind: "math",
+          text: "Point calculation: 89.9 latest value + 1.3 pp pull toward latest-three mean of 91.6 + 0.8 pp high-level persistence/compliance adjustment = 92.0 percent after one-decimal rounding. Interval calculation: use a lower half-width of 9.2 pp and upper half-width of 6.6 pp, reflecting the 11.0 pp observed range, 4.3 pp mean absolute move, six-month missing-data horizon, and 100 percent ceiling; 92.0 - 9.2 = 82.8 and 92.0 + 6.6 = 98.6.",
+        },
+        {
+          kind: "text",
+          text: "Resolution-date note: the official CMS page checked this run verifies the monthly public data.Medicaid.gov release vehicle and current June 26, 2026 update pattern; I did not find a separate CMS future-dated placeholder for the exact Kentucky August 2026 row. I therefore keep the forecast tied to the canonical ledger date of 2026-12-15 and bind resolution to the first official CMS dataset print.",
+        },
+        {
+          kind: "forecast",
+          point: 92.0,
+          ciLow: 82.8,
+          ciHigh: 98.6,
+        },
+      ],
+    },
+  ],
+  "medicaid-ex-parte-share-aug-2026-la": [
+    {
+      variantId:
+        "medicaid-ex-parte-share-aug-2026-la-thesis-analyst-fast-2026-07-01t05-23-05z",
+      label: "Thesis analyst fast run",
+      description:
+        "Validated live Codex-backed thesis.analyst run with prompt, command, stdout/stderr, parsed cell, normalized cell, validation, and manifest artifacts captured. Prompt mode: fast.",
+      pointEstimate: 67.4,
+      ciLow: 53.2,
+      ciHigh: 81.5,
+      confidence: 0.8,
+      drivers: [
+        "Louisiana's recent ex parte renewal share is centered around the high 60s to low 70s",
+        "Recent state-row movement is volatile, with large renewal-cohort swings",
+        "Data-match coverage and eligibility-system operations drive step changes more than smooth trend",
+        "CMS renewal-policy pressure supports continued automation, but Louisiana's February pullback argues against extrapolating January's high",
+        "August renewal cohort mix can move numerator and denominator materially",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-07-01T05:23:05Z",
+        agent: "thesis.analyst",
+        model: "gpt-5.5",
+        agentVersion: "2.2.0",
+        promptHash:
+          "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+        toolPolicyHash:
+          "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+        promptMode: "fast",
+        runLabel: "Thesis analyst fast run",
+        runDescription:
+          "Live thesis.analyst run promoted from the recorded manifest.",
+        sourceContext: [
+          "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+          "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+          "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360?conditions%5B0%5D%5Boperator%5D=%3D&conditions%5B0%5D%5Bproperty%5D=reporting_period&conditions%5B0%5D%5Bvalue%5D=202602&conditions%5B1%5D%5Boperator%5D=%3D&conditions%5B1%5D%5Bproperty%5D=preliminary_or_updated&conditions%5B1%5D%5Bvalue%5D=p",
+        ],
+        activityLog: [
+          {
+            artifactType: "prompt",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/prompt.md",
+            sha256:
+              "43c3adb32cd84fdb59d8333c55877f863808c846bdf75c77e8bb061ae4c0c875",
+            bytes: 7368,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "command",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/command.json",
+            sha256:
+              "1c48a81a923ea9e972f3b5459ed5de75beb2426898b05b1d86d905d8683cfcc6",
+            bytes: 787,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "codex_stdout_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/codex_stdout.jsonl",
+            sha256:
+              "f0260c1c65caca87f26cab38b6bc0af37cbb746cf0b2463996ac18674d1341d0",
+            bytes: 1351706,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "codex_stderr_log",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/codex_stderr.log",
+            sha256:
+              "b4fa36e0efedecef0a79867e59fa1bfe86a58cea5e4579ce0ec57116849e6eeb",
+            bytes: 3519,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "codex_events_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/codex_events.jsonl",
+            sha256:
+              "44cc1e18c88084050aa12cafab1adc6515993167a4b4c74364fc48e309a03332",
+            bytes: 1351880,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "codex_last_message",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/codex_last_message.txt",
+            sha256:
+              "fbbcf5b9fdf659154e40696f5705b996ea4664f1c47640085dbcd54f61ae0d0a",
+            bytes: 8858,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "codex_trace",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/codex_trace.json",
+            sha256:
+              "b69c9165da846141ff219411415869f6d73bd9b456a7b1ad5c514771563b6390",
+            bytes: 508,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "stdout",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/stdout.txt",
+            sha256:
+              "fbbcf5b9fdf659154e40696f5705b996ea4664f1c47640085dbcd54f61ae0d0a",
+            bytes: 8858,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "stderr",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/stderr.txt",
+            sha256:
+              "72b3b82e4df70945d3309e16b11b7fbc112d94fc4ec425aad8b5d601174ca870",
+            bytes: 3670,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "raw_response",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/raw_response.txt",
+            sha256:
+              "fbbcf5b9fdf659154e40696f5705b996ea4664f1c47640085dbcd54f61ae0d0a",
+            bytes: 8858,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "parsed_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/parsed_cells.json",
+            sha256:
+              "d1507f8435141d631bb95697de5e8d70946d8aeb312b36bda52fad8674efb588",
+            bytes: 9863,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "normalized_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/normalized_cells.json",
+            sha256:
+              "f4c82ec98c1a9d01f9f8fbfc84501206c5cc05414472e240585361764928d6a0",
+            bytes: 9461,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "validation_report",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/validation.json",
+            sha256:
+              "d09b11046381b575ce6e7c811419277d95d50b65c91d7fa9fffc9b8e66007a54",
+            bytes: 136,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+          {
+            artifactType: "manifest",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-22-59z-cms-medicaid-pi-ex-parte-renewal-share-la-aug-2026-august-2026-reporting-period/manifest.json",
+            sha256:
+              "56532206636bfc47db9426b05a81e8afa9b53e1cd2b21af027e0357dbdb805da",
+            bytes: 6808,
+            createdAt: "2026-07-01T05:22:59Z",
+          },
+        ],
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Forecast for Louisiana Medicaid ex parte renewal share, August 2026",
+        },
+        {
+          kind: "text",
+          text: "The resolver is a Louisiana state row, not a national weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the share of completed Medicaid renewals processed ex parte, reported in percent and rounded to one decimal.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Opened the official Medicaid.gov monthly Medicaid and CHIP application, eligibility determination, and enrollment reports page for release vehicle and current-update evidence.",
+          result:
+            "Fetched official page evidence: Beginning with the October 2018 report, monthly enrollment data are available only on data.Medicaid.gov; the page says data.Medicaid.gov is updated monthly; Preliminary February 2026 Applications, Eligibility, and Enrollment Data was Last Updated May 29, 2026; Updated January 2026 and Preliminary January 2026 entries were also Last Updated May 29, 2026.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Opened the official data.medicaid.gov dataset page for CMS dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c and checked the official data URL used by the target resolver.",
+          result:
+            "Fetched official dataset identifier 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c and official data.medicaid.gov source context; the current Medicaid.gov monthly reports page links the February 2026 preliminary data to datastore URL 6165f45b-ca93-5bb5-9d06-db29c692a360 with reporting_period=202602 and preliminary_or_updated=p.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Inspected the canonical ledger identity fields for the Louisiana August 2026 CMS Medicaid eligibility-processing ex parte renewal-share target, without using catalog point estimates or intervals as evidence.",
+          result:
+            "Fetched canonical slug medicaid-ex-parte-share-aug-2026-la, unit percent, registered resolutionDate 2026-12-15, dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.la.aug_2026.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Read local public-repository, official-source-derived Louisiana historical context for this exact CMS series; existing catalog point and interval were ignored as forecast evidence.",
+          result:
+            "Fetched Louisiana ex parte renewal shares: 2025-07 = 71.9 percent, 2025-09 = 65.5 percent, 2025-11 = 66.1 percent, 2026-01 = 75.1 percent, and 2026-02 = 69.8 percent.",
+        },
+        {
+          kind: "tool",
+          tool: "shell.lookup",
+          call: "Attempted direct official data.medicaid.gov API access from the sandbox for dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c.",
+          result:
+            "Fetched shell network result code 6 with 0 downloaded bytes, so direct API confirmation was blocked in this sandbox; the 5 Louisiana historical shares above come from local public official-source-derived repository artifacts.",
+        },
+        {
+          kind: "text",
+          text: "Base-rate/reference class: the most relevant outside view is Louisiana's own recent original-submission CMS eligibility-processing run because this resolves a single state row. The five inspected values average 69.7 percent, span 65.5 to 75.1 percent, and the latest inspected point is 69.8 percent.",
+        },
+        {
+          kind: "text",
+          text: "Level, momentum, and mechanism: Louisiana is not near the 100 percent ceiling, so both improvement and deterioration remain plausible. The January spike to 75.1 followed by February at 69.8 looks more like renewal-cohort or processing volatility than a clean trend break; data-match coverage and eligibility-system operations remain the key mechanism.",
+        },
+        {
+          kind: "text",
+          text: "Prior/update/interval: prior model is Louisiana latest-value persistence blended with a five-point state mean and damped local trend, using observed values from 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. Starting from latest 69.8, I subtract 1.4 pp for weak July-to-February drift and the January-to-February pullback, subtract 0.6 pp for August renewal-cohort/manual-processing risk, and subtract 0.4 pp because the recent mean does not confirm January's high as durable, yielding 67.4. The 80% interval starts from realized first-print dispersion, with 9.6 pp recent range and 5.3 pp mean absolute adjacent move, then widens over the six-month horizon to about 14 pp each side.",
+        },
+        {
+          kind: "text",
+          text: "Counter-consideration: upside outside the interval would require Louisiana's January 2026 high to be a durable automation step plus an August cohort that is easy to renew ex parte, pushing the first print above 81.5 percent. Downside outside the interval would require a manual-heavy renewal cohort, data-source outage, eligibility-system issue, or reporting break pushing the share below 53.2 percent.",
+        },
+        {
+          kind: "math",
+          text: "Historical mean = (71.9 + 65.5 + 66.1 + 75.1 + 69.8) / 5 = 69.7 percent. Observed adjacent changes were -6.4, +0.6, +9.0, and -5.3 pp, with mean absolute change 5.3 pp. Point calculation: 69.8 latest inspected value - 1.4 pp damped drift/pullback - 0.6 pp cohort risk - 0.4 pp mean-reversion adjustment = 67.4 percent. Interval calculation: center 67.4, lower half-width 14.2 pp and upper half-width 14.1 pp, yielding 53.2 to 81.5 after one-decimal rounding.",
+        },
+        {
+          kind: "text",
+          text: "Prior-run update: a public local Thesis analyst run earlier on 2026-07-01 produced the same 67.4 point and 53.2 to 81.5 interval. I used it only as a consistency check, not as ground truth; the current official-page check still supports the same release vehicle and no new Louisiana official observation changed the forecast.",
+        },
+        {
+          kind: "text",
+          text: "Resolution-date note: the official Medicaid.gov page verified the monthly data.Medicaid.gov release vehicle and current May 29, 2026 update cycle, but I did not find a separate future-dated CMS placeholder for the exact August 2026 Louisiana row in this sandbox. I keep the forecast tied to the canonical ledger resolutionDate 2026-12-15 and bind resolution to the first official CMS dataset print.",
+        },
+        {
+          kind: "forecast",
+          point: 67.4,
+          ciLow: 53.2,
+          ciHigh: 81.5,
+        },
+      ],
+    },
+  ],
+  "medicaid-ex-parte-share-aug-2026-ma": [
+    {
+      variantId:
+        "medicaid-ex-parte-share-aug-2026-ma-thesis-analyst-fast-2026-07-01t05-25-13z",
+      label: "Thesis analyst fast run",
+      description:
+        "Validated live Codex-backed thesis.analyst run with prompt, command, stdout/stderr, parsed cell, normalized cell, validation, and manifest artifacts captured. Prompt mode: fast.",
+      pointEstimate: 79.2,
+      ciLow: 68.5,
+      ciHigh: 90.4,
+      confidence: 0.8,
+      drivers: [
+        "Massachusetts's recent ex parte share is centered near 80 percent",
+        "February 2026 pullback argues against extrapolating January's high",
+        "State renewal cohort composition can move numerator and denominator month to month",
+        "Eligibility-system data matching supports a high level but not a smooth trend",
+        "CMS renewal-policy pressure supports continued automation",
+      ],
+      predictionRun: {
+        kind: "recorded-agent-run",
+        runAt: "2026-07-01T05:25:13Z",
+        agent: "thesis.analyst",
+        model: "gpt-5.5",
+        agentVersion: "2.2.0",
+        promptHash:
+          "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+        toolPolicyHash:
+          "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+        promptMode: "fast",
+        runLabel: "Thesis analyst fast run",
+        runDescription:
+          "Live thesis.analyst run promoted from the recorded manifest.",
+        sourceContext: [
+          "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+          "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/methodology-about-medicaid-chip-enrollment-report",
+          "https://data.medicaid.gov/dataset/5abea2e0-3f8e-4b49-a50d-d63d5fd9103c",
+        ],
+        activityLog: [
+          {
+            artifactType: "prompt",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/prompt.md",
+            sha256:
+              "87864d1f0655ebd24bd09d0efa08ad53b9a2c0e638ac1055be403618ff0487fc",
+            bytes: 7372,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "command",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/command.json",
+            sha256:
+              "cda5cb81e45176ca2fe4a4405b807c97340ff873a17f5139c2e403afc1ec6574",
+            bytes: 787,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "codex_stdout_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/codex_stdout.jsonl",
+            sha256:
+              "1b556ead5846f822d951aa6ec1a04efdb98952ee6ea28a7dfed3ab5d244b194a",
+            bytes: 2817844,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "codex_stderr_log",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/codex_stderr.log",
+            sha256:
+              "6cc944d696d98215dd3845709cc9a042764818c836ba3a0546ebf742e3cd63ac",
+            bytes: 2943,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "codex_events_jsonl",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/codex_events.jsonl",
+            sha256:
+              "83fe23c5248b50550b3151e4a8c6338dfe2bf658a10b221a21f0c7bb64573066",
+            bytes: 2817950,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "codex_last_message",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/codex_last_message.txt",
+            sha256:
+              "51478269622a1f3dbc16b69b3d4ddfb75e6ac08bc642b9ef33de39b72ffdfce9",
+            bytes: 9365,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "codex_trace",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/codex_trace.json",
+            sha256:
+              "5628325587e1fbbf739430e12a90c4a25caf5efe6f201a802ee0e8f64dcd212f",
+            bytes: 508,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "stdout",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/stdout.txt",
+            sha256:
+              "51478269622a1f3dbc16b69b3d4ddfb75e6ac08bc642b9ef33de39b72ffdfce9",
+            bytes: 9365,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "stderr",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/stderr.txt",
+            sha256:
+              "6177f2794d2a896cb974d6d6df4386ffb4d02215850410e9382041da1e67a16b",
+            bytes: 3078,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "raw_response",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/raw_response.txt",
+            sha256:
+              "51478269622a1f3dbc16b69b3d4ddfb75e6ac08bc642b9ef33de39b72ffdfce9",
+            bytes: 9365,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "parsed_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/parsed_cells.json",
+            sha256:
+              "d28421e58adafc2fb1b920616b883e535ae6103674edfb678e03ac23d5a9674e",
+            bytes: 10478,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "normalized_cell",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/normalized_cells.json",
+            sha256:
+              "1a607128ea5de210d6c7c00eccd31af19be9d67f5db746f7b574153a023244d1",
+            bytes: 10032,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "validation_report",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/validation.json",
+            sha256:
+              "87daa630f4593e3280d38dd5808350c74593172963a8291573b5df52c133fd4a",
+            bytes: 136,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+          {
+            artifactType: "manifest",
+            path: "records/thesis-analyst/2026-07-01/2026-07-01t05-24-50z-cms-medicaid-pi-ex-parte-renewal-share-ma-aug-2026-august-2026-reporting-period/manifest.json",
+            sha256:
+              "cea42c439aa73ed4639b5a6cce1bb1e5e1b2def35923c633247e92c91897443e",
+            bytes: 6814,
+            createdAt: "2026-07-01T05:24:50Z",
+          },
+        ],
+      },
+      reasoning: [
+        {
+          kind: "heading",
+          text: "Forecast for Massachusetts Medicaid ex parte renewal share, August 2026",
+        },
+        {
+          kind: "text",
+          text: "The resolver is a Massachusetts state row, not a national total or weighted average: the original first-publication August 2026 reporting-period row in the CMS eligibility processing dataset. The target is the percent of completed Medicaid renewals processed ex parte, rounded to one decimal.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Opened the official Medicaid.gov monthly Medicaid and CHIP application, eligibility determination, and enrollment reports page for release vehicle and dated current-update evidence.",
+          result:
+            "Fetched official page evidence: monthly enrollment data are available only on data.Medicaid.gov beginning with the October 2018 report; data.Medicaid.gov is updated monthly; Preliminary February 2026 Applications, Eligibility, and Enrollment Data was Last Updated May 29, 2026; Updated January 2026 and Preliminary January 2026 entries were also Last Updated May 29, 2026.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Opened the official Medicaid and CHIP enrollment report methodology page for publication timing and vintage treatment.",
+          result:
+            "Fetched official methodology evidence: states report preliminary data approximately 1 week after the close of the reporting period, updated data 1 month after the close of the reporting period, and CMS releases updated data for the previous month with each current monthly report.",
+        },
+        {
+          kind: "tool",
+          tool: "official.lookup",
+          call: "Opened the official data.medicaid.gov dataset page for the CMS source used by the resolver.",
+          result:
+            "Fetched official dataset URL containing dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c; the linked official monthly page's February 2026 data URL used datastore id 6165f45b-ca93-5bb5-9d06-db29c692a360 with reporting_period=202602 and preliminary_or_updated=p.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Inspected the canonical ledger identity fields for the Massachusetts August 2026 CMS Medicaid eligibility-processing ex parte renewal-share target, without using catalog point estimates or intervals as evidence.",
+          result:
+            "Fetched canonical slug medicaid-ex-parte-share-aug-2026-ma, unit percent, registered resolutionDate 2026-12-15, dataset id 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c, and dataPointId cms.medicaid_pi.ex_parte_renewal_share.ma.aug_2026.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Read local public-repository, official-source-derived Massachusetts historical context for this exact CMS series; existing catalog point and interval were ignored as forecast evidence.",
+          result:
+            "Fetched Massachusetts ex parte renewal shares: 2025-07 = 79.3 percent, 2025-09 = 77.8 percent, 2025-11 = 82.5 percent, 2026-01 = 84.6 percent, and 2026-02 = 77.8 percent.",
+        },
+        {
+          kind: "tool",
+          tool: "repo.lookup",
+          call: "Computed recent Massachusetts movement and latest-value anchor from the inspected official-source-derived sample.",
+          result:
+            "Fetched latest inspected Massachusetts value 2026-02 = 77.8 percent; adjacent changes were -1.5 percentage points from 2025-07 to 2025-09, +4.7 from 2025-09 to 2025-11, +2.1 from 2025-11 to 2026-01, and -6.8 from 2026-01 to 2026-02.",
+        },
+        {
+          kind: "tool",
+          tool: "shell.lookup",
+          call: "Captured the run timestamp and attempted direct official data.medicaid.gov API access from the sandbox for dataset 5abea2e0-3f8e-4b49-a50d-d63d5fd9103c.",
+          result:
+            "Fetched runAt 2026-07-01T05:25:13Z and shell network result code 6 with 0 downloaded bytes, so direct API confirmation was blocked in this sandbox; the 5 numeric Massachusetts shares above come from local public official-source-derived repository artifacts.",
+        },
+        {
+          kind: "text",
+          text: "Base-rate/reference class: the most relevant outside view is Massachusetts's own recent original-submission CMS eligibility-processing history. The five inspected values average 80.4 percent, the latest three average 81.6 percent, and the latest inspected value is 77.8 percent, so the prior is latest-value persistence with partial mean reversion rather than continuation of the January high.",
+        },
+        {
+          kind: "text",
+          text: "Level, momentum, and mechanism: Massachusetts appears to operate around a high but not ceiling-level ex parte share. The January 2026 value of 84.6 followed by February at 77.8 looks like cohort or processing volatility, while data-match capacity and CMS compliance pressure support staying near the high-70s to low-80s.",
+        },
+        {
+          kind: "text",
+          text: "Prior/update/interval: prior model is Massachusetts latest-value persistence blended with a five-point state mean, using observed values from 2025-07, 2025-09, 2025-11, 2026-01, and 2026-02. Starting from latest 77.8, I add +1.1 pp for mean reversion toward the 80.4 percent sample average and +0.3 pp for continued automation/compliance pressure, yielding 79.2. The 80% interval uses realized first-print dispersion, with a 6.8 pp recent range and 3.8 pp mean absolute adjacent move, widened over the six-month horizon and renewal-cohort uncertainty to about -10.7/+11.2 pp.",
+        },
+        {
+          kind: "math",
+          text: "Historical mean = (79.3 + 77.8 + 82.5 + 84.6 + 77.8) / 5 = 80.4 percent. Observed adjacent changes were -1.5, +4.7, +2.1, and -6.8 pp, with mean absolute change 3.8 pp. Point calculation: 77.8 latest inspected value + 1.1 pp mean-reversion adjustment + 0.3 pp automation/compliance adjustment = 79.2 percent. Interval calculation: center 79.2, lower half-width 10.7 pp and upper half-width 11.2 pp, yielding 68.5 to 90.4 after one-decimal rounding.",
+        },
+        {
+          kind: "text",
+          text: "Counter-consideration: upside outside the interval would require the January high to become a durable automation step plus an easy August renewal cohort, pushing the first print above 90.4 percent. Downside outside the interval would require a manual-heavy cohort, data-source outage, eligibility-system issue, or reporting break pushing the share below 68.5 percent.",
+        },
+        {
+          kind: "text",
+          text: "Prior-run update: a public local Thesis analyst run earlier on 2026-07-01 produced the same 79.2 point and 68.5 to 90.4 interval. I used it only as a consistency check, not as ground truth; the current official-page check still supports the same release vehicle and no new Massachusetts official observation changed the forecast.",
+        },
+        {
+          kind: "text",
+          text: "Resolution-date note: the official Medicaid.gov pages verified the monthly data.Medicaid.gov release vehicle, preliminary and updated reporting timing, and the current May 29, 2026 update cycle. I did not find a separate future-dated CMS placeholder for the exact August 2026 Massachusetts row in this sandbox; I therefore keep the forecast tied to the canonical ledger resolutionDate 2026-12-15 and bind resolution to the first official CMS dataset print.",
+        },
+        {
+          kind: "forecast",
+          point: 79.2,
+          ciLow: 68.5,
+          ciHigh: 90.4,
+        },
+      ],
+    },
+  ],
   "nonfarm-payrolls-june-2026": [
     {
       variantId:
