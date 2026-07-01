@@ -7,11 +7,13 @@ import { loadTargetArchitectureProjection } from "@/data/thesis-target-architect
 export const dynamic = "force-static";
 
 interface TargetTableRouteContext {
-  params: Promise<{}>;
+  params: Promise<{ table: string }>;
 }
 
-export async function GET(request: Request, _context: TargetTableRouteContext) {
-  const table = getTableFromPath(request.url);
+export async function GET(_request: Request, context: TargetTableRouteContext) {
+  // Use the resolved route param, not request.url — see [chunk].json/route.ts.
+  const params = await context.params;
+  const table = params.table.replace(/\.json$/, "");
   if (!isTargetArchitectureTableKey(table)) {
     return Response.json(
       {
@@ -24,10 +26,4 @@ export async function GET(request: Request, _context: TargetTableRouteContext) {
 
   const projection = await loadTargetArchitectureProjection();
   return Response.json(buildTargetArchitectureTableExport(projection, table));
-}
-
-function getTableFromPath(url: string) {
-  const pathname = new URL(url).pathname;
-  const lastSegment = pathname.split("/").filter(Boolean).at(-1) ?? "";
-  return lastSegment.replace(/\.json$/, "");
 }

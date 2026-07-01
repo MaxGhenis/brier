@@ -8,11 +8,16 @@ import { loadTargetArchitectureProjection } from "@/data/thesis-target-architect
 export const dynamic = "force-static";
 
 interface TargetChunkRouteContext {
-  params: Promise<{}>;
+  params: Promise<{ table: string; chunk: string }>;
 }
 
-export async function GET(request: Request, _context: TargetChunkRouteContext) {
-  const { table, chunk } = getTableAndChunkFromPath(request.url);
+export async function GET(_request: Request, context: TargetChunkRouteContext) {
+  // Use the resolved route params, not request.url: behind the app-host
+  // rewrite Vercel hands the handler a URL whose shape differs from `next
+  // start`, and string-parsing it 404'd every chunk in production.
+  const params = await context.params;
+  const table = params.table;
+  const chunk = params.chunk.replace(/\.json$/, "");
   if (!isTargetArchitectureTableKey(table)) {
     return Response.json(
       {
@@ -54,11 +59,4 @@ export async function GET(request: Request, _context: TargetChunkRouteContext) {
   return Response.json(
     buildTargetArchitectureChunkExport(projection, table, chunkIndex),
   );
-}
-
-function getTableAndChunkFromPath(url: string) {
-  const segments = new URL(url).pathname.split("/").filter(Boolean);
-  const chunk = segments.at(-1)?.replace(/\.json$/, "") ?? "";
-  const table = segments.at(-2) ?? "";
-  return { table, chunk };
 }
