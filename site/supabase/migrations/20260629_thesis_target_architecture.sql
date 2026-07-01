@@ -340,6 +340,11 @@ create table if not exists audit_events (
   metadata jsonb not null default '{}'::jsonb
 );
 
+-- The insert-audit trigger reads the latest event per row inserted; without
+-- this index the tail lookup is a full sort and bulk loads go quadratic.
+create index if not exists audit_events_tail_idx
+  on audit_events (event_time desc, audit_event_id desc);
+
 drop trigger if exists artifact_refs_append_only on artifact_refs;
 create trigger artifact_refs_append_only
 before update or delete on artifact_refs
@@ -610,7 +615,7 @@ create or replace function thesis_record_insert_audit_event()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   new_payload jsonb;
