@@ -1144,7 +1144,17 @@ function buildObservationProjections({
       });
     }
   }
-  return [...rows.values()].sort((left, right) =>
+  // The database enforces unique (source_series_id, period_label,
+  // payload_hash); a repeated historicalContext point produces two ids for
+  // byte-identical content, which downstream vintages then reference
+  // inconsistently. Content is identical (the hash is part of the key), so
+  // keeping the first id is lossless.
+  const byNaturalKey = new Map<string, ObservationProjection>();
+  for (const row of rows.values()) {
+    const key = `${row.sourceSeriesId} ${row.periodLabel} ${row.payloadHash}`;
+    if (!byNaturalKey.has(key)) byNaturalKey.set(key, row);
+  }
+  return [...byNaturalKey.values()].sort((left, right) =>
     left.observationId.localeCompare(right.observationId),
   );
 }
