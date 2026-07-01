@@ -46,9 +46,24 @@ jobs:
             python3 -m json.tool "/tmp/$f.json" > /dev/null
           done
           python3 - "$DIR" <<'PY'
-          import hashlib, json, sys
+          import hashlib, json, re, sys
+          from pathlib import Path
           outdir = sys.argv[1]
           digest = {}
+          # Chain this digest to the most recent prior day's, so the record
+          # is a verifiable hash chain, not independent snapshots — see
+          # scripts/verify_record_chain.py.
+          prior = sorted(
+              p for p in Path("records").iterdir()
+              if p.is_dir() and re.fullmatch(r"\d{4}-\d{2}-\d{2}", p.name)
+              and p.name < Path(outdir).name and (p / "digest.json").exists()
+          )
+          if prior:
+              prev = prior[-1] / "digest.json"
+              digest["chain"] = {
+                  "prevDay": prior[-1].name,
+                  "prevDigestSha256": hashlib.sha256(prev.read_bytes()).hexdigest(),
+              }
           for name in ("log", "ledger", "targets", "reward"):
               raw = open(f"/tmp/{name}.json", "rb").read()
               digest[name] = {
@@ -76,6 +91,9 @@ jobs:
             [ -s "$DIR/live/$slug.json" ] || echo '{"error":"no forecast event captured"}' > "$DIR/live/$slug.json"
           done
           echo "{\"snapshotAt\": \"$(date -u +%FT%TZ)\"}" > "$DIR/meta.json"
+
+      - name: Verify record chain
+        run: python3 scripts/verify_record_chain.py records
 
       - name: Commit snapshot
         run: |
