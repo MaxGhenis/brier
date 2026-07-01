@@ -53,6 +53,20 @@ const nextConfig: NextConfig = {
           has: [{ type: "host" as const, value: APP_HOST }],
           destination: "/forecasts/ledger.json",
         },
+        {
+          source: "/judges.json",
+          has: [{ type: "host" as const, value: APP_HOST }],
+          destination: "/forecasts/judges.json",
+        },
+        // The target-architecture projection chunks live under
+        // /forecasts/targets/*; the app-host redirect strips the /forecasts
+        // prefix, so without this rewrite every chunk URL in the published
+        // targets.json manifest 308s into a 404.
+        {
+          source: "/targets/:path*",
+          has: [{ type: "host" as const, value: APP_HOST }],
+          destination: "/forecasts/targets/:path*",
+        },
       ],
     };
   },
