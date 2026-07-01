@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   record:
@@ -27,19 +28,28 @@ jobs:
           DAY=$(date -u +%F)
           DIR="records/$DAY"
           mkdir -p "$DIR/live"
-          # The full log/specs/ledger JSON regenerates deterministically from
-          # this repo, so the daily record stores their sha256 (binding what the
+          # The full published JSON regenerates deterministically from this
+          # repo, so the daily record stores their sha256 (binding what the
           # PUBLIC site served to an external timestamp) plus a compact digest —
           # not the multi-MB bodies.
-          for f in log specs ledger; do
-            curl -sSf -m 60 "https://app.thesisinstitute.org/$f.json" -o "/tmp/$f.json"
+          # Surfaces must match what the deployed app serves; /specs.json was
+          # retired 2026-06-30 for /targets.json (target architecture), which
+          # broke this job for two days — see records/2026-06-30/GAP.md.
+          declare -A SURFACES=(
+            [log]="log.json"
+            [ledger]="ledger.json"
+            [targets]="targets.json"
+            [reward]="brier/reward.json"
+          )
+          for f in "${!SURFACES[@]}"; do
+            curl -sSf -m 60 "https://app.thesisinstitute.org/${SURFACES[$f]}" -o "/tmp/$f.json"
             python3 -m json.tool "/tmp/$f.json" > /dev/null
           done
           python3 - "$DIR" <<'PY'
           import hashlib, json, sys
           outdir = sys.argv[1]
           digest = {}
-          for name in ("log", "specs", "ledger"):
+          for name in ("log", "ledger", "targets", "reward"):
               raw = open(f"/tmp/{name}.json", "rb").read()
               digest[name] = {
                   "sha256": hashlib.sha256(raw).hexdigest(),
@@ -75,3 +85,19 @@ jobs:
           git add records/
           git commit -m "Record forecast surfaces $(date -u +%F) [skip ci]" || echo "nothing new to commit"
           git push origin main
+
+      # The record chain is the integrity proof; a silent failure is a hole in
+      # it (2026-06-30/07-01 went unrecorded for two days before anyone
+      # noticed). File an issue so a broken run surfaces the same day.
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Record forecasts failed $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" \
+              --body "The daily forecast-surface recorder failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Every unrecorded day is a gap in the pre-registration chain — fix the same day if possible."
+          fi
