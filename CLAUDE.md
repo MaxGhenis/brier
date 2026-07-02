@@ -68,9 +68,13 @@ bun run build    # Build for production (standard Vercel SSG, not a static expor
 bun run test     # Run vitest tests
 ```
 
-Production deploys of the site and forecast-api go ONLY through the
-self-verifying scripts in `~/thesis-institute` (`deploy-app.sh`); never run a
-bare `vercel --prod` from a checkout or worktree.
+Production deploys are git-integrated (2026-07-02): pushing `main` deploys
+the site (Vercel project `thesis-forecasts`, root `site/`) and the API
+(`thesis-api`, root `forecast-api/`); builds are skipped when the root
+directory didn't change, and `[skip ci]` commits skip Vercel entirely.
+Never run `vercel --prod` from any checkout or worktree — CLI deploys
+capture the production alias and caused both 2026-06 incidents. The
+`~/thesis-institute` scripts are break-glass only (`THESIS_BREAK_GLASS=1`).
 
 ### Paper
 
@@ -109,10 +113,9 @@ which enforces the same trace-depth rubric CI does
 math derivation, base rate, disconfirming consideration. Resolved outcomes
 are recorded as observations in PolicyEngine/arch-data
 (`ledger/official_observations.jsonl`, branch `codex/thesis-ledger-facts`),
-which the site fetches at build time. Deploy strictly via
-`~/thesis-institute/deploy-app.sh`; run the recorder workflow
-(`gh workflow run record-forecasts.yml --ref main`) right after deploying
-new predictions so their pre-registration timestamp is tight.
+which the site fetches at build time. Deploy by pushing `main`; run the
+recorder workflow (`gh workflow run record-forecasts.yml --ref main`) right
+after new predictions go live so their pre-registration timestamp is tight.
 
 ### Site (`site/`)
 
@@ -120,6 +123,22 @@ Next.js App Router site with Tailwind CSS v4, deployed to Vercel as the
 `thesis-forecasts` project behind app.thesisinstitute.org (standard SSG build —
 all forecast pages prerender from `src/data/markets.ts`; four live cells
 stream from forecast-api at runtime).
+
+### Ledger database (Supabase)
+
+The target-architecture schema
+(`site/supabase/migrations/20260629_thesis_target_architecture.sql`) runs in
+Supabase project `thesis` (`fvzmphrwcurwikkbiduq`, PolicyEngine org). Load or
+refresh it from the published projection with:
+
+```bash
+export THESIS_SUPABASE_DB_URL="postgresql://postgres.fvzmphrwcurwikkbiduq:$(agent-secret get THESIS_SUPABASE_DB_PASSWORD)@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+uv run --with "psycopg[binary]" --with requests scripts/ingest_target_architecture.py
+```
+
+Idempotent (append-only tables, ON CONFLICT DO NOTHING); exits nonzero if any
+table's row count disagrees with the published manifest. The site remains the
+source of truth until surfaces read from the database directly.
 
 ## Key Design Decisions
 
