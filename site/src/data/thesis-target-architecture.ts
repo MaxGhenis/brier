@@ -344,6 +344,7 @@ export interface ScoreProjection {
   interval80Covered: boolean;
   signedError: number;
   absoluteError: number;
+  scoreHash: string;
   createdAt: string;
 }
 
@@ -1547,6 +1548,20 @@ function buildScoreProjections({
           interval80Covered: score.interval80Covered,
           signedError: score.signedError,
           absoluteError: score.absoluteError,
+          // Binds the scored numbers to the score row; the ledger schema
+          // requires it (score_hash not null).
+          scoreHash: stableHash({
+            scoreId: score.scoreId,
+            runId: score.runId,
+            resolutionEventId: score.resolutionEventId,
+            scoringRule: score.scoringRule,
+            crps: score.crps,
+            normalizedCrps: score.normalizedCrps,
+            probabilityIntegralTransform: score.probabilityIntegralTransform,
+            interval80Covered: score.interval80Covered,
+            signedError: score.signedError,
+            absoluteError: score.absoluteError,
+          }),
           createdAt: PROJECTION_GENERATED_AT,
         },
       ];

@@ -287,7 +287,9 @@ create table if not exists tool_calls (
   source_role text,
   request_artifact_ref_id text references artifact_refs (artifact_ref_id),
   response_artifact_ref_id text references artifact_refs (artifact_ref_id),
-  started_at timestamptz not null,
+  -- Null for tool calls replayed from recorded public traces, which
+  -- carry no wall-clock timing.
+  started_at timestamptz,
   completed_at timestamptz,
   created_at timestamptz not null default now(),
   unique (run_id, sequence_index)

@@ -159,7 +159,7 @@ function buildTableManifest(
   return {
     table,
     rowCount: rows.length,
-    url: `/forecasts/targets/${table}.json`,
+    url: `/forecasts/targets/${table}/manifest.json`,
     chunkCount: getChunkCount(rows.length),
     chunks: buildChunkManifests(table, rows.length),
   };

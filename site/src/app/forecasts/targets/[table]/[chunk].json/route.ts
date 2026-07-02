@@ -1,6 +1,7 @@
 import {
   buildTargetArchitectureChunkExport,
   buildTargetArchitectureManifest,
+  buildTargetArchitectureTableExport,
   isTargetArchitectureTableKey,
 } from "@/data/thesis-target-architecture-export";
 import { loadTargetArchitectureProjection } from "@/data/thesis-target-architecture-runtime";
@@ -11,6 +12,11 @@ interface TargetChunkRouteContext {
   params: Promise<{}>;
 }
 
+// Serves /forecasts/targets/{table}/{index}.json (a row chunk) and
+// /forecasts/targets/{table}/manifest.json (the per-table manifest). One
+// route for both: the suffixed dynamic segment [chunk].json outranks a
+// literal manifest.json sibling in routing, and the previous [table].json
+// shape never matched requests at all — locally or on Vercel.
 export async function GET(request: Request, _context: TargetChunkRouteContext) {
   const { table, chunk } = getTableAndChunkFromPath(request.url);
   if (!isTargetArchitectureTableKey(table)) {
@@ -21,6 +27,12 @@ export async function GET(request: Request, _context: TargetChunkRouteContext) {
       },
       { status: 404 },
     );
+  }
+
+  const projection = await loadTargetArchitectureProjection();
+
+  if (chunk === "manifest") {
+    return Response.json(buildTargetArchitectureTableExport(projection, table));
   }
 
   const chunkIndex = Number(chunk);
@@ -35,7 +47,6 @@ export async function GET(request: Request, _context: TargetChunkRouteContext) {
     );
   }
 
-  const projection = await loadTargetArchitectureProjection();
   const manifest = buildTargetArchitectureManifest(projection);
   const tableManifest = manifest.tables.find(
     (candidate) => candidate.table === table,
@@ -56,8 +67,11 @@ export async function GET(request: Request, _context: TargetChunkRouteContext) {
   );
 }
 
-// Suffixed dynamic segments expose no route params — see [table].json/route.ts
-// for why .json is stripped repeatedly (Vercel doubles it behind rewrites).
+// Suffixed dynamic segments expose no route params, so the segments come
+// from the URL. Strip .json repeatedly: behind the app-host rewrite Vercel
+// reconstructs the handler URL with the suffix doubled (…/0.json.json)
+// while next start passes it singly — stripping once 404'd every chunk in
+// production.
 function getTableAndChunkFromPath(url: string) {
   const segments = new URL(url).pathname.split("/").filter(Boolean);
   const chunk = segments.at(-1)?.replace(/(\.json)+$/, "") ?? "";

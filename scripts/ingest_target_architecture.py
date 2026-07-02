@@ -104,35 +104,43 @@ def ingest_table(conn, session, base: str, entry: dict) -> tuple[int, int]:
             )
         if not rows:
             continue
-        keys = sorted(rows[0].keys())
-        mapped = {k: snake(k) for k in keys}
-        unknown = [k for k, v in mapped.items() if v not in columns]
-        if unknown:
-            raise SystemExit(
-                f"{table}: projection fields {unknown} have no matching column "
-                f"(columns: {sorted(columns)})"
-            )
-        col_list = ", ".join(mapped[k] for k in keys)
-        # COPY into a per-chunk temp staging table, then INSERT … ON CONFLICT
-        # DO NOTHING into the real one: bulk speed (the distributions table is
-        # ~220k rows) while re-runs stay idempotent against append-only
-        # triggers.
-        with conn.cursor() as cur:
-            cur.execute(
-                f"create temp table staging (like {table} including defaults) "
-                f"on commit drop"
-            )
-            with cur.copy(f"copy staging ({col_list}) from stdin") as copy:
-                for row in rows:
-                    copy.write_row(
-                        tuple(adapt(row.get(k), columns[mapped[k]]) for k in keys)
-                    )
-            cur.execute(
-                f"insert into {table} ({col_list}) "
-                f"select {col_list} from staging on conflict do nothing"
-            )
-            inserted += cur.rowcount if cur.rowcount >= 0 else 0
-        conn.commit()
+        # Rows omit fields they don't use (a pairwise judge run has
+        # batchId/leftRunId/rightRunId, a trace judge doesn't; some columns
+        # have defaults that an explicit NULL would violate). Batch rows by
+        # their exact key set so each COPY names exactly the columns its rows
+        # populate.
+        groups: dict[tuple[str, ...], list[dict]] = {}
+        for row in rows:
+            groups.setdefault(tuple(sorted(row)), []).append(row)
+        for keys, group_rows in groups.items():
+            mapped = {k: snake(k) for k in keys}
+            unknown = [k for k, v in mapped.items() if v not in columns]
+            if unknown:
+                raise SystemExit(
+                    f"{table}: projection fields {unknown} have no matching "
+                    f"column (columns: {sorted(columns)})"
+                )
+            col_list = ", ".join(mapped[k] for k in keys)
+            # COPY into a temp staging table, then INSERT … ON CONFLICT DO
+            # NOTHING into the real one: bulk speed (the distributions table
+            # is ~220k rows) while re-runs stay idempotent against
+            # append-only triggers.
+            with conn.cursor() as cur:
+                cur.execute(
+                    f"create temp table staging "
+                    f"(like {table} including defaults) on commit drop"
+                )
+                with cur.copy(f"copy staging ({col_list}) from stdin") as copy:
+                    for row in group_rows:
+                        copy.write_row(
+                            tuple(adapt(row[k], columns[mapped[k]]) for k in keys)
+                        )
+                cur.execute(
+                    f"insert into {table} ({col_list}) "
+                    f"select {col_list} from staging on conflict do nothing"
+                )
+                inserted += cur.rowcount if cur.rowcount >= 0 else 0
+            conn.commit()
         print(f"    {table} chunk {chunk['index']}: {len(rows)} rows", flush=True)
     count = conn.execute(f"select count(*) from {table}").fetchone()[0]
     return inserted, count

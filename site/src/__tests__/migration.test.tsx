@@ -27,7 +27,7 @@ import ForecastLogPage from "../app/forecasts/log/page";
 import { GET as getForecastLogJson } from "../app/forecasts/log.json/route";
 import ForecastsPage from "../app/forecasts/page";
 import { GET as getForecastTargetChunkJson } from "../app/forecasts/targets/[table]/[chunk].json/route";
-import { GET as getForecastTargetTableJson } from "../app/forecasts/targets/[table].json/route";
+import { GET as getForecastTargetTableJson } from "../app/forecasts/targets/[table]/[chunk].json/route";
 import { GET as getForecastTargetsJson } from "../app/forecasts/targets.json/route";
 import TargetArchitecturePage from "../app/forecasts/targets/page";
 import ThesisPage from "../app/thesis/page";
@@ -399,7 +399,7 @@ describe("Next.js migration", () => {
         ),
       ).toMatchObject({
         rowCount: body.counts.targets,
-        url: "/forecasts/targets/targets.json",
+        url: "/forecasts/targets/targets/manifest.json",
       });
       expect(
         body.tables.find(
@@ -407,7 +407,7 @@ describe("Next.js migration", () => {
         ),
       ).toMatchObject({
         rowCount: body.counts.forecastDistributionPoints,
-        url: "/forecasts/targets/forecastDistributions.json",
+        url: "/forecasts/targets/forecastDistributions/manifest.json",
       });
       expect(
         body.tables.find(
@@ -418,7 +418,7 @@ describe("Next.js migration", () => {
 
     it("serves target-architecture table and chunk JSON", async () => {
       const tableResponse = await getForecastTargetTableJson(
-        new Request("http://test.local/forecasts/targets/targets.json"),
+        new Request("http://test.local/forecasts/targets/targets/manifest.json"),
         {
           params: Promise.resolve({}),
         },
@@ -438,7 +438,7 @@ describe("Next.js migration", () => {
 
       const distributionTableResponse = await getForecastTargetTableJson(
         new Request(
-          "http://test.local/forecasts/targets/forecastDistributions.json",
+          "http://test.local/forecasts/targets/forecastDistributions/manifest.json",
         ),
         {
           params: Promise.resolve({}),
