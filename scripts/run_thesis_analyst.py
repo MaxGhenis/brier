@@ -276,7 +276,10 @@ def build_fast_prompt(
         "release-day grace exceptions unless the target rule includes them.\n"
         "- Size the 80% interval from realized first-print dispersion, then "
         "widen or skew only for stated reasons.\n"
-        "- Name concrete upside, downside, and outside-the-interval scenarios.\n\n"
+        "- Name concrete upside, downside, and outside-the-interval scenarios, "
+        'using the literal phrases "upside risk", "downside risk", and '
+        '"outside the interval" (or "would land above/below the interval") so '
+        "the falsification step is machine-checkable.\n\n"
         "# Required JSON shape\n"
         f"{json.dumps(schema, indent=2)}\n\n"
         "# Validation rules\n"
@@ -290,7 +293,10 @@ def build_fast_prompt(
         "pasted attachments, personal notes, or non-public local files.\n"
         "- reasoning must contain at least 7 steps, at least 3 tool steps "
         "whose result strings include fetched numbers, one explicit base-rate "
-        "or reference-class step, one math step, one counter-consideration, "
+        "or reference-class step (literally say \"base rate\" or \"reference "
+        "class\"), one math step, one counter-consideration that states what "
+        "would land outside the 80% interval (literally use \"upside risk\", "
+        "\"downside risk\", or \"outside the interval\"), "
         "one step beginning Prior/update/interval:, and a final forecast step "
         "whose numbers exactly match the cell.\n"
         "- Every tool step result must include at least one fetched numeric "

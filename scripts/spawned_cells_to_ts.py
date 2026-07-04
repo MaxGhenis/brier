@@ -127,6 +127,38 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
             errs.append(f"tool step without numeric result: {t.get('tool')}")
     if not any(s.get("kind") == "math" for s in steps):
         errs.append("no math step")
+    # Mirror site/src/__tests__/trace-depth.test.ts exactly: CI requires an
+    # explicit reference-class phrase and interval-falsification wording, and
+    # cells that validated here but failed there have shipped-then-bounced.
+    # Keep these three regexes byte-identical to the test.
+    trace_text = " ".join(
+        s.get("text") or f"{s.get('call', '')} {s.get('result', '')}"
+        for s in steps
+    ).lower()
+    base_rate_re = (
+        r"base rate|reference class|last \d+ (prints|releases|months|meetings|"
+        r"weeks|weekly|monthly|obs)|distribution of|(trailing|past|realized) "
+        r"\d+|\d+-(week|month) (range|distribution|history)|realized "
+        r"(volatility|distribution)|historical (range|distribution)|"
+        r"trailing-?\d+|month-to-month volatility|std_samp|modal outcome|"
+        r"market-implied|implied probabilit|p_hold"
+    )
+    falsification_re = (
+        r"outside (the|our|this) interval|outside \[|would (push|put|land|"
+        r"break)|upside risk|downside risk|miss(es)? (high|low)|surprise|tail "
+        r"(scenario|risk)|break (the|this) (model|forecast)|breach|lands? "
+        r"(above|below)|(above|below) the (interval|band|range)|forecast "
+        r"(high|low)|probability would (fall|rise)|would (fail|flip)|fails? "
+        r"(only )?if|wrong if|blow past|revert (into|to)|exceed (my|the) "
+        r"central|right-skewed|saturation tail"
+    )
+    if not re.search(base_rate_re, trace_text):
+        errs.append("no explicit base-rate/reference-class phrasing (CI regex)")
+    if not re.search(falsification_re, trace_text):
+        errs.append(
+            "no interval-falsification phrasing (CI regex — say what would "
+            "land outside the 80% interval / upside risk / downside risk)"
+        )
     last = steps[-1]
     if last.get("kind") != "forecast":
         errs.append("last step is not the forecast")
