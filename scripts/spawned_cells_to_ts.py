@@ -15,9 +15,9 @@ from datetime import datetime, timezone
 ALLOWED_UNITS = {
     "count", "percent", "gbp_billions", "usd", "usd_billions", "usd_monthly",
     "thousands", "millions", "per_1000_live_births", "ratio", "minutes",
-    "percent_growth",
+    "percent_growth", "index_points",
 }
-ALLOWED_COUNTRIES = {"US", "UK", "CA", "AU", "EA", "JP"}
+ALLOWED_COUNTRIES = {"US", "UK", "CA", "AU", "EA", "JP", "BE"}
 ALLOWED_TYPES = {"data", "policy", "conditional"}
 SLUG_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 REQUIRED = [

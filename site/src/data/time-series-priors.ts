@@ -367,6 +367,9 @@ function getFallbackHalfWidth({
     ratio: 0.05,
     minutes: 0.05,
     percent_growth: 0.5,
+    // Survey balances move in absolute points, not relative to the level
+    // (which sits near zero) — the increment floor below does the work.
+    index_points: 0.1,
   };
   return Math.max(Math.abs(pointEstimate) * rateByUnit[unit], increment);
 }
@@ -390,6 +393,7 @@ function inferIncrement(forecast: ForecastCell, history: HistoricalPoint[]) {
     ratio: 0.01,
     minutes: 1,
     percent_growth: 0.1,
+    index_points: 1,
   };
   return increments[unit];
 }

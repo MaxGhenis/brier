@@ -1,0 +1,204 @@
+[
+  {
+    "slug": "belgium-nbb-business-barometer-july-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Belgium NBB business barometer, July 2026",
+    "question": "National Bank of Belgium overall business barometer synthetic curve for July 2026, seasonally adjusted, first official print",
+    "unit": "index_points",
+    "pointEstimate": -12.2,
+    "ciLow": -17.5,
+    "ciHigh": -7.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-24",
+    "resolutionSource": "National Bank of Belgium business survey release",
+    "resolutionSourceUrl": "https://www.nbb.be/en/statistics/business-surveys/business-survey",
+    "resolutionRule": "Resolve to the first National Bank of Belgium published overall business barometer synthetic curve for 2026-07, seasonally adjusted, reported in index points and rounded to the agency's published one-decimal precision. Use the first official print only; ignore later NBB.Stat revisions, corrections after the first release, and mirrors.",
+    "dataPointId": "nbb.business_barometer.overall.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 overall business barometer",
+        "value": -12.6
+      },
+      {
+        "label": "2026-05 overall business barometer",
+        "value": -13.8
+      },
+      {
+        "label": "2026-04 overall business barometer",
+        "value": -15.4
+      },
+      {
+        "label": "2026-03 overall business barometer",
+        "value": -12.1
+      },
+      {
+        "label": "2026-02 overall business barometer",
+        "value": -11.4
+      }
+    ],
+    "drivers": [
+      "June barometer improved from April's trough but stayed negative",
+      "recent NBB survey levels remain below neutral and below early-2026 readings",
+      "Belgian inflation and services costs remain a drag on confidence",
+      "euro-area consumer confidence improved in June but remained weak",
+      "monthly survey balances have several-point first-print volatility"
+    ],
+    "sourceContext": [
+      "https://www.nbb.be/en/statistics/business-surveys/business-survey",
+      "https://www.nbb.be/en/calendar",
+      "https://stat.nbb.be/"
+    ],
+    "runAt": "2026-07-04T23:47:58Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium July 2026 NBB Business Barometer Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the National Bank of Belgium's first published July 2026 overall business barometer synthetic curve, seasonally adjusted, in signed index points. The ledger target is Belgian even though the local country enum uses EA for Belgium-linked public releases, so this forecast keeps the source and resolver tied to NBB."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official NBB release calendar for the July 2026 business survey publication date.",
+        "result": "Fetched official schedule context: the NBB business survey release for reference month 2026-07 is scheduled for 24 July 2026, with 2026-07 as the period and one first-print release date."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the official NBB business survey page and NBB.Stat series context for the overall synthetic curve.",
+        "result": "Fetched target identity: NBB.Stat business survey overall synthetic curve is a monthly seasonally adjusted barometer for 1 country, Belgium, displayed in index points with 0.1-point rounding precision."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched recent official NBB overall business barometer history from the business survey/NBB.Stat source surface.",
+        "result": "Fetched recent official overall barometer values: February 2026 -11.4, March 2026 -12.1, April 2026 -15.4, May 2026 -13.8, and June 2026 -12.6 index points."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read nearby official Belgian and euro-area public macro context for current-release adjustments.",
+        "result": "Fetched current context: Belgian June 2026 headline CPI inflation was 3.40%, May was 4.08%, services inflation was 5.10%, and euro area June 2026 inflation was 2.8% after 3.2% in May."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for this monthly survey-balance target, persistence plus a short moving average is the outside-view anchor. The last five official NBB values average -13.1, the last three average -13.9, and the latest print is -12.6, so the base rate points to a July reading still negative and near -13 rather than a return to neutral."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: the level is weak but not collapsing; momentum improved from the April trough of -15.4 to -12.6 in June; the main one-off risk is survey sentiment around energy/geopolitical conditions; policy and price mechanisms are mixed, with easing euro-area inflation helping but Belgian services inflation and high costs still restraining firms."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: Use a persistence prior of -12.6 from the June 2026 official print and a short-sample mean of -13.1 from February-June 2026; adjustment components are +0.4 points for post-April recovery momentum, +0.2 points for easing euro-area inflation, and -0.2 points for Belgian services-cost pressure, giving an unrounded center near -12.2. The 80% interval uses realized monthly first-print dispersion in the recent NBB sample, widened for survey volatility and geopolitical/energy uncertainty, giving -17.5 to -7.0."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is a stronger manufacturing/services sentiment rebound, helped by easing energy prices, that would land above the interval if the July overall barometer prints -6.9 or higher. Downside risk is renewed cost pressure, export weakness, or another confidence shock that would land below the interval if the first print is -17.6 or lower. The central case is partial stabilization, not a sharp normalization."
+      },
+      {
+        "kind": "forecast",
+        "point": -12.2,
+        "ciLow": -17.5,
+        "ciHigh": -7.0
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/prompt.md",
+        "sha256": "68b668dd5df662e5b3e5041000da81bf7848ec88669d80fe451784bd9a339a5c",
+        "bytes": 6922,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/command.json",
+        "sha256": "5da1ea5527ff422bbb9be6328a479f72117212face36a5b412621d407af8ff29",
+        "bytes": 838,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/codex_stdout.jsonl",
+        "sha256": "50f910bb36d3337b079a5b6bd508ef3d826becd5e72f7b870e9c10378d1797b9",
+        "bytes": 1305637,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/codex_events.jsonl",
+        "sha256": "1aef9c637dda594d6243a108a586ecc3affdbc49b996ebae5d0747fa5d3515bc",
+        "bytes": 1306077,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/codex_last_message.txt",
+        "sha256": "bb5ed905e12c41558e082371f0ed0c0e8f51aa2a65592ac5f7ad5370ba863c75",
+        "bytes": 5569,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/codex_trace.json",
+        "sha256": "8dd25ae826127c9a2a8943b3a3b730af3b6dac57c38fb7d6adf2b8464e8a3461",
+        "bytes": 509,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/stdout.txt",
+        "sha256": "bb5ed905e12c41558e082371f0ed0c0e8f51aa2a65592ac5f7ad5370ba863c75",
+        "bytes": 5569,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/raw_response.txt",
+        "sha256": "bb5ed905e12c41558e082371f0ed0c0e8f51aa2a65592ac5f7ad5370ba863c75",
+        "bytes": 5569,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/parsed_cells.json",
+        "sha256": "7955f4b07a128549e11cdfd7b11bb344daa1e5d9e5dc5a80bd549b2e49375018",
+        "bytes": 6418,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/normalized_cells.json",
+        "sha256": "469a828e53ff810a3352431695732a5b37020e240cd5593e66de97c2e76fabbd",
+        "bytes": 6080,
+        "createdAt": "2026-07-04T23:47:40Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-47-40z-nbb-business-barometer-overall-2026-07/validation.json",
+        "sha256": "6cc5f0edf7dba2b5d2bd720ac7193d330c67e99eaae0f5c153a884781a6d5870",
+        "bytes": 141,
+        "createdAt": "2026-07-04T23:47:40Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,110 @@
+[
+ {
+  "slug": "belgium-consumer-confidence-july-2026",
+  "country": "EA",
+  "type": "data",
+  "title": "Belgium consumer confidence, July 2026",
+  "question": "National Bank of Belgium consumer confidence indicator for July 2026, seasonally adjusted, first official print",
+  "unit": "index_points",
+  "pointEstimate": -8.4,
+  "ciLow": -15.0,
+  "ciHigh": -2.0,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-20",
+  "resolutionSource": "National Bank of Belgium consumer survey release",
+  "resolutionSourceUrl": "https://www.nbb.be/en/statistics/business-surveys/consumer-survey",
+  "resolutionRule": "Resolve to the first National Bank of Belgium published consumer confidence indicator for 2026-07, seasonally adjusted, reported in signed index points and rounded to the agency's published one-decimal precision. Use the first official NBB print only; ignore later NBB.Stat revisions, corrections after the first release, FRED, and third-party mirrors.",
+  "dataPointId": "nbb.consumer_confidence.indicator.2026-07.first_print",
+  "historicalContext": [
+   {
+    "label": "2026-06 consumer confidence indicator",
+    "value": -8.0
+   },
+   {
+    "label": "2026-05 consumer confidence indicator",
+    "value": -10.0
+   },
+   {
+    "label": "2026-04 consumer confidence indicator",
+    "value": -12.0
+   },
+   {
+    "label": "2026-03 consumer confidence indicator",
+    "value": -8.0
+   },
+   {
+    "label": "2026-02 consumer confidence indicator",
+    "value": -7.0
+   }
+  ],
+  "drivers": [
+   "June consumer confidence recovered from the April trough but stayed negative",
+   "recent NBB survey balances remain below neutral",
+   "Belgian inflation pressure is easing but services inflation remains high",
+   "euro-area consumer confidence improved in June from weak levels",
+   "household survey balances can move several points month to month"
+  ],
+  "sourceContext": [
+   "https://www.nbb.be/en/statistics/business-surveys/consumer-survey",
+   "https://www.nbb.be/en/calendar",
+   "https://stat.nbb.be/"
+  ],
+  "runAt": "2026-07-04T23:50:10Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Belgium July 2026 NBB Consumer Confidence Forecast"
+   },
+   {
+    "kind": "text",
+    "text": "Framing and exact resolver: the target is the National Bank of Belgium's first published July 2026 consumer confidence indicator, seasonally adjusted, in signed index points. The local country enum does not include BE, so this Belgium target is encoded as EA while keeping the resolver tied to NBB."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the official NBB release calendar for the July 2026 consumer survey publication date.",
+    "result": "Fetched official schedule context: the NBB consumer survey release for reference month 2026-07 is scheduled for 20 July 2026, with 2026-07 as the period and 1 first-print release date."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the official NBB consumer survey page and NBB.Stat series context for the headline confidence indicator.",
+    "result": "Fetched target identity: NBB.Stat consumer survey headline indicator is a monthly seasonally adjusted Belgian consumer confidence balance for 1 country, Belgium, displayed in signed index points with 0.1-point rounding precision."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Fetched recent official NBB consumer confidence history from the consumer survey/NBB.Stat source surface.",
+    "result": "Fetched recent official consumer confidence indicator values: February 2026 -7.0, March 2026 -8.0, April 2026 -12.0, May 2026 -10.0, and June 2026 -8.0 index points."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read nearby official Belgian and euro-area public macro context for current-release adjustments.",
+    "result": "Fetched current context: Belgian June 2026 headline CPI inflation was 3.40%, May was 4.08%, Belgian services inflation was 5.10%, and euro area consumer confidence improved in June 2026 to -17.7 from -19.0 in May."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate/reference class: for this monthly survey-balance target, the outside-view anchor is persistence plus a short moving average. The last five official NBB values average -9.0, the last three average -10.0, and the latest print is -8.0, so the base rate points to a July reading still negative and close to -9."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, one-off, and policy mechanisms: the level is weak but not crisis-like; momentum improved from April's -12.0 trough to -8.0 in June; one-off sentiment risk remains tied to energy and geopolitical shocks; the policy and price mechanism is mixed because lower headline inflation supports purchasing power while high services inflation restrains households."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: Use a persistence prior of -8.0 from the June 2026 official print and a short-sample mean of -9.0 from February-June 2026; adjustment components are +0.3 points for the June rebound, +0.2 points for easing headline inflation, and -0.9 points for still-high services costs and fragile euro-area sentiment, giving -8.4. The 80% interval uses realized recent month-to-month first-print dispersion, widened for survey volatility, giving -8.4 - 6.6 = -15.0 and -8.4 + 6.4 = -2.0."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration and falsification: upside risk is a stronger household sentiment rebound from lower energy prices and better real-income expectations, which would land above the interval if July prints -1.9 or higher. Downside risk is renewed inflation, unemployment, or geopolitical concern, which would land below the interval if the first print is -15.1 or lower. Outside the interval would imply a sharper regime shift than the recent NBB reference class."
+   },
+   {
+    "kind": "forecast",
+    "point": -8.4,
+    "ciLow": -15.0,
+    "ciHigh": -2.0
+   }
+  ]
+ }
+]

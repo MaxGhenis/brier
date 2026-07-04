@@ -1,0 +1,106 @@
+[
+ {
+  "slug": "belgium-cpi-annual-rate-july-2026",
+  "country": "EA",
+  "type": "data",
+  "title": "Belgium CPI inflation, July 2026",
+  "question": "Statbel Belgian headline consumer price index annual inflation rate for July 2026, not seasonally adjusted, first official print",
+  "unit": "percent",
+  "pointEstimate": 3.2,
+  "ciLow": 2.4,
+  "ciHigh": 4.1,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-30",
+  "resolutionSource": "Statbel Consumer Price Index - Health Index release",
+  "resolutionSourceUrl": "https://statbel.fgov.be/en/themes/consumer-prices/consumer-price-index",
+  "resolutionRule": "Resolve to the first Statbel-published annual inflation rate for the Belgian headline Consumer Price Index for m-2026-07, reported in percent and rounded to the agency's published precision; do not use later revisions or mirrors.",
+  "dataPointId": "statbel.cpi.headline_yoy.2026-07.first_print",
+  "historicalContext": [
+   {
+    "label": "2026-06 headline CPI inflation",
+    "value": 3.4
+   },
+   {
+    "label": "2026-05 headline CPI inflation",
+    "value": 4.08
+   },
+   {
+    "label": "2026-04 headline CPI inflation",
+    "value": 4.01
+   },
+   {
+    "label": "2026-03 headline CPI inflation",
+    "value": 1.65
+   },
+   {
+    "label": "2025-07 headline CPI inflation",
+    "value": 1.92
+   }
+  ],
+  "drivers": [
+   "June headline inflation fell from May but remained above the 13-month average",
+   "Energy inflation was still positive but eased in June",
+   "Food inflation was near zero and pulls down the July base case",
+   "Services and rents remain sticky upside pressure",
+   "July travel and holiday components can add seasonal volatility"
+  ],
+  "sourceContext": [
+   "https://statbel.fgov.be/en/themes/consumer-prices/consumer-price-index",
+   "https://statbel.fgov.be/en/calendar",
+   "https://bestat.statbel.fgov.be/bestat/crosstable.xhtml?view=31b8021d-3fcd-4a8b-ac49-92beabf434e9"
+  ],
+  "runAt": "2026-07-04T23:31:20Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Belgium July 2026 Headline CPI Inflation Forecast"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the first Statbel print for Belgian headline CPI annual inflation for July 2026, not a HICP flash estimate and not a revised database value. Statbel defines inflation as the ratio of the CPI for a month to the CPI for the same month one year earlier."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked Statbel release calendar for the target month and publication date.",
+    "result": "The official calendar lists Consumer Price Index - Health Index for m-2026-07 on 30 July 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the latest Statbel CPI release page for recent headline CPI inflation and index levels.",
+    "result": "For June 2026, Statbel reported headline inflation at 3.40%, May at 4.08%, April at 4.01%, March at 1.65%, CPI index 102.95 in June, and CPI index 103.26 in May."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the latest Statbel release details for components and monthly movements.",
+    "result": "June 2026 CPI fell by 0.31 points or 0.30% month on month; health-index inflation was 2.99%, core inflation was 3.04%, energy inflation was 10.31%, food inflation was 0.06%, services inflation was 5.10%, and rent inflation was 3.38%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the official be.STAT table for the 13-month annual-inflation reference class.",
+    "result": "The be.STAT last-13-month global headline inflation values include July 2025 at 1.92%, January 2026 at 1.10%, April 2026 at 4.01%, May 2026 at 4.08%, and June 2026 at 3.40%."
+   },
+   {
+    "kind": "text",
+    "text": "The base rate/reference class from the last 13 official monthly headline prints averages about 2.33%, but the latest 3 prints average about 3.83%. I weight the near-term state more heavily because the April-June regime includes the current energy and services configuration, while keeping the longer reference class as a pull toward lower inflation."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: Start with a June persistence prior of 3.40% and a latest-3-month state anchor of 3.83% against a 13-month historical sample mean of 2.33%; update by -0.25 pp for easing energy from 11.20% in May to 10.31% in June and by -0.10 pp for food at 0.06%, offset by +0.10 pp for services at 5.10%, rents at 3.38%, and July travel seasonality. Rounded point = 3.20%. The 80% interval uses recent first-print monthly volatility around persistence, widened for July energy/travel swings, giving 2.40% to 4.10%."
+   },
+   {
+    "kind": "text",
+    "text": "Upside risk: renewed electricity, gas, motor-fuel, air-ticket, or package-holiday increases could keep the annual rate near May's 4.08% or would land above the interval if they combine with stronger services. Downside risk: another June-like monthly CPI decline, weaker fuel prices, or broader goods discounts could push the print below 2.40% outside the interval."
+   },
+   {
+    "kind": "forecast",
+    "point": 3.2,
+    "ciLow": 2.4,
+    "ciHigh": 4.1
+   }
+  ]
+ }
+]

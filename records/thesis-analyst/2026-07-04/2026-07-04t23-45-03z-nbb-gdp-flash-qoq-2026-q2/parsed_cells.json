@@ -1,0 +1,106 @@
+[
+  {
+    "slug": "belgium-gdp-flash-q2-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Belgium GDP flash, Q2 2026",
+    "question": "National Bank of Belgium flash estimate of Belgian real GDP, seasonally adjusted quarter-on-quarter percent growth, 2026-Q2, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.2,
+    "ciLow": -0.1,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "National Bank of Belgium national accounts flash estimate release",
+    "resolutionSourceUrl": "https://www.nbb.be/en/statistics/nationalregional-accounts",
+    "resolutionRule": "Resolve to the first National Bank of Belgium or Institute for National Accounts flash-estimate publication for Belgian real GDP growth in 2026-Q2, seasonally adjusted quarter-on-quarter percent change, rounded to the agency's published one-decimal precision. Use the first official print only; ignore later detailed national-accounts releases, database revisions, and mirrors such as Eurostat or FRED.",
+    "dataPointId": "nbb.gdp.flash_qoq.2026_q2.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-Q1 flash GDP qoq growth",
+        "value": 0.3
+      },
+      {
+        "label": "2025-Q4 flash GDP qoq growth",
+        "value": 0.2
+      },
+      {
+        "label": "2025-Q3 flash GDP qoq growth",
+        "value": 0.3
+      },
+      {
+        "label": "2025-Q2 flash GDP qoq growth",
+        "value": 0.3
+      }
+    ],
+    "drivers": [
+      "recent Belgian GDP flash prints clustered around modest positive growth",
+      "Q2 starts from low but still positive euro-area demand momentum",
+      "sticky Belgian inflation and weak real-income pressure cap domestic upside",
+      "industrial and export exposure leaves downside risk if external demand softens",
+      "first-print GDP rounding to one decimal makes small differences material"
+    ],
+    "sourceContext": [
+      "https://www.nbb.be/en/statistics/nationalregional-accounts",
+      "https://www.nbb.be/en/calendar",
+      "https://stat.nbb.be/"
+    ],
+    "runAt": "2026-07-04T23:46:53Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium 2026-Q2 GDP flash forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the first official NBB/Institute for National Accounts flash estimate for Belgian real GDP growth in 2026-Q2, seasonally adjusted quarter-on-quarter percent growth. The ledger target is Belgian even though the local country enum lacks Belgium, so I use EA while keeping the source and resolver tied to NBB."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official NBB release calendar for the 2026-Q2 GDP flash-estimate publication date.",
+        "result": "Fetched official schedule context: the Q2 2026 Belgian GDP flash-estimate target is scheduled for 2026-07-30, about 30 days after quarter end, and the target period is 2026-Q2."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the official NBB national accounts data context for recent flash quarter-on-quarter GDP growth prints.",
+        "result": "Fetched recent official-source reference points: 2026-Q1 GDP flash qoq growth was 0.3%, 2025-Q4 was 0.2%, 2025-Q3 was 0.3%, and 2025-Q2 was 0.3%, all in one-decimal percent growth terms."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked NBB.Stat and national accounts source identity for the target measure and rounding precision.",
+        "result": "Fetched target identity: Belgian GDP flash is published as quarter-on-quarter percent growth for 1 country, Belgium, with agency display precision of 0.1 percentage point."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read nearby Belgian public macro context from official Statbel/NBB-style public release artifacts for current price and demand conditions.",
+        "result": "Fetched current Belgium context: June 2026 headline CPI inflation was 3.40%, May was 4.08%, April was 4.01%, services inflation was 5.10%, and food inflation was 0.06%."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent official first-print reference class for this exact qoq GDP-flash target is tightly centered around modest positive growth: 0.3, 0.2, 0.3, and 0.3 average 0.275%. That supports an outside-view prior near +0.3 rather than a contraction or acceleration."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: level growth is positive but not strong; momentum from Q1 is stable rather than accelerating; there is no clear one-off Q2 reopening or shutdown effect; policy and price mechanisms lean mildly restrictive because inflation and services costs remain high, while euro-area demand provides only limited support."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: Start with a persistence prior of +0.3% from the recent official first-print historical sample of 2025-Q2 through 2026-Q1; update by -0.05 pp for high inflation and soft real-income pressure, -0.03 pp for external-demand/export risk, and +0.02 pp for continued low positive euro-area growth momentum, giving an unrounded center near +0.24%, rounded to +0.2%. The 80% interval uses recent first-print dispersion plus one-decimal rounding risk and a wider macro-shock allowance, giving -0.1% to +0.5%."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is a stronger services quarter or export rebound that would land above the interval if the flash print reaches +0.6% or more. Downside risk is a manufacturing/export stall or household-demand pullback that would land below the interval if the first print is -0.2% or weaker. The central case is continued slow positive growth."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.2,
+        "ciLow": -0.1,
+        "ciHigh": 0.5
+      }
+    ]
+  }
+]

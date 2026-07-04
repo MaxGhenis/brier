@@ -1,0 +1,204 @@
+[
+  {
+    "slug": "belgium-consumer-confidence-july-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Belgium consumer confidence, July 2026",
+    "question": "National Bank of Belgium consumer confidence indicator for July 2026, seasonally adjusted, first official print",
+    "unit": "index_points",
+    "pointEstimate": -8.4,
+    "ciLow": -15.0,
+    "ciHigh": -2.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-20",
+    "resolutionSource": "National Bank of Belgium consumer survey release",
+    "resolutionSourceUrl": "https://www.nbb.be/en/statistics/business-surveys/consumer-survey",
+    "resolutionRule": "Resolve to the first National Bank of Belgium published consumer confidence indicator for 2026-07, seasonally adjusted, reported in signed index points and rounded to the agency's published one-decimal precision. Use the first official NBB print only; ignore later NBB.Stat revisions, corrections after the first release, FRED, and third-party mirrors.",
+    "dataPointId": "nbb.consumer_confidence.indicator.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 consumer confidence indicator",
+        "value": -8
+      },
+      {
+        "label": "2026-05 consumer confidence indicator",
+        "value": -10
+      },
+      {
+        "label": "2026-04 consumer confidence indicator",
+        "value": -12
+      },
+      {
+        "label": "2026-03 consumer confidence indicator",
+        "value": -8
+      },
+      {
+        "label": "2026-02 consumer confidence indicator",
+        "value": -7
+      }
+    ],
+    "drivers": [
+      "June consumer confidence recovered from the April trough but stayed negative",
+      "recent NBB survey balances remain below neutral",
+      "Belgian inflation pressure is easing but services inflation remains high",
+      "euro-area consumer confidence improved in June from weak levels",
+      "household survey balances can move several points month to month"
+    ],
+    "sourceContext": [
+      "https://www.nbb.be/en/statistics/business-surveys/consumer-survey",
+      "https://www.nbb.be/en/calendar",
+      "https://stat.nbb.be/"
+    ],
+    "runAt": "2026-07-04T23:50:10Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium July 2026 NBB Consumer Confidence Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the National Bank of Belgium's first published July 2026 consumer confidence indicator, seasonally adjusted, in signed index points. The local country enum does not include BE, so this Belgium target is encoded as EA while keeping the resolver tied to NBB."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official NBB release calendar for the July 2026 consumer survey publication date.",
+        "result": "Fetched official schedule context: the NBB consumer survey release for reference month 2026-07 is scheduled for 20 July 2026, with 2026-07 as the period and 1 first-print release date."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the official NBB consumer survey page and NBB.Stat series context for the headline confidence indicator.",
+        "result": "Fetched target identity: NBB.Stat consumer survey headline indicator is a monthly seasonally adjusted Belgian consumer confidence balance for 1 country, Belgium, displayed in signed index points with 0.1-point rounding precision."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched recent official NBB consumer confidence history from the consumer survey/NBB.Stat source surface.",
+        "result": "Fetched recent official consumer confidence indicator values: February 2026 -7.0, March 2026 -8.0, April 2026 -12.0, May 2026 -10.0, and June 2026 -8.0 index points."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read nearby official Belgian and euro-area public macro context for current-release adjustments.",
+        "result": "Fetched current context: Belgian June 2026 headline CPI inflation was 3.40%, May was 4.08%, Belgian services inflation was 5.10%, and euro area consumer confidence improved in June 2026 to -17.7 from -19.0 in May."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for this monthly survey-balance target, the outside-view anchor is persistence plus a short moving average. The last five official NBB values average -9.0, the last three average -10.0, and the latest print is -8.0, so the base rate points to a July reading still negative and close to -9."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: the level is weak but not crisis-like; momentum improved from April's -12.0 trough to -8.0 in June; one-off sentiment risk remains tied to energy and geopolitical shocks; the policy and price mechanism is mixed because lower headline inflation supports purchasing power while high services inflation restrains households."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: Use a persistence prior of -8.0 from the June 2026 official print and a short-sample mean of -9.0 from February-June 2026; adjustment components are +0.3 points for the June rebound, +0.2 points for easing headline inflation, and -0.9 points for still-high services costs and fragile euro-area sentiment, giving -8.4. The 80% interval uses realized recent month-to-month first-print dispersion, widened for survey volatility, giving -8.4 - 6.6 = -15.0 and -8.4 + 6.4 = -2.0."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is a stronger household sentiment rebound from lower energy prices and better real-income expectations, which would land above the interval if July prints -1.9 or higher. Downside risk is renewed inflation, unemployment, or geopolitical concern, which would land below the interval if the first print is -15.1 or lower. Outside the interval would imply a sharper regime shift than the recent NBB reference class."
+      },
+      {
+        "kind": "forecast",
+        "point": -8.4,
+        "ciLow": -15.0,
+        "ciHigh": -2.0
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/prompt.md",
+        "sha256": "e911d7a4703ad7657906b77c02cdbf77c0c7e948590baaf2817dfdc346d6846a",
+        "bytes": 6922,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/command.json",
+        "sha256": "92e7cb60eb857499bf7c4c62e255f6abd19cc150aec48f8e71b4505000f0a46f",
+        "bytes": 841,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/codex_stdout.jsonl",
+        "sha256": "0a1995097c6f7b6d0cde1683d27f3ba7f02e36ef136eaa2463e24a5dbf9ce2f3",
+        "bytes": 1777204,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/codex_events.jsonl",
+        "sha256": "085ac4d3c25d1d255e8217bab40e839d0b1476530961f9f14b86a3790944a8dd",
+        "bytes": 1777723,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/codex_last_message.txt",
+        "sha256": "478ccacb84e6ec1fdeec154f5d6a1511528c2456d2397f487770118ba6c36e80",
+        "bytes": 5508,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/codex_trace.json",
+        "sha256": "01618dfbe68f6499af95794710bb847bc79d74abe121fb82ce45e1dfd6409587",
+        "bytes": 509,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/stdout.txt",
+        "sha256": "478ccacb84e6ec1fdeec154f5d6a1511528c2456d2397f487770118ba6c36e80",
+        "bytes": 5508,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/raw_response.txt",
+        "sha256": "478ccacb84e6ec1fdeec154f5d6a1511528c2456d2397f487770118ba6c36e80",
+        "bytes": 5508,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/parsed_cells.json",
+        "sha256": "44cd7192b10ef5019688b62a94411072b2ab18d078dc24e8c034bfe040d41bea",
+        "bytes": 6357,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/normalized_cells.json",
+        "sha256": "a049ffcbad7bf802b51bbb445478bf9ee08229ce8b6f6a8c525b3e19c79faa10",
+        "bytes": 6019,
+        "createdAt": "2026-07-04T23:49:51Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-49-51z-nbb-consumer-confidence-indicator-2026-07/validation.json",
+        "sha256": "6375fa6b48ca0b8a35b7cc78629f3e11736ce96a0565e99d203206d48bb67369",
+        "bytes": 138,
+        "createdAt": "2026-07-04T23:49:51Z"
+      }
+    ]
+  }
+]

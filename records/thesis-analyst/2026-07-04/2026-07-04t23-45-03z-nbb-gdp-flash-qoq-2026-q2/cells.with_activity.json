@@ -1,0 +1,200 @@
+[
+  {
+    "slug": "belgium-gdp-flash-q2-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Belgium GDP flash, Q2 2026",
+    "question": "National Bank of Belgium flash estimate of Belgian real GDP, seasonally adjusted quarter-on-quarter percent growth, 2026-Q2, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.2,
+    "ciLow": -0.1,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "National Bank of Belgium national accounts flash estimate release",
+    "resolutionSourceUrl": "https://www.nbb.be/en/statistics/nationalregional-accounts",
+    "resolutionRule": "Resolve to the first National Bank of Belgium or Institute for National Accounts flash-estimate publication for Belgian real GDP growth in 2026-Q2, seasonally adjusted quarter-on-quarter percent change, rounded to the agency's published one-decimal precision. Use the first official print only; ignore later detailed national-accounts releases, database revisions, and mirrors such as Eurostat or FRED.",
+    "dataPointId": "nbb.gdp.flash_qoq.2026_q2.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-Q1 flash GDP qoq growth",
+        "value": 0.3
+      },
+      {
+        "label": "2025-Q4 flash GDP qoq growth",
+        "value": 0.2
+      },
+      {
+        "label": "2025-Q3 flash GDP qoq growth",
+        "value": 0.3
+      },
+      {
+        "label": "2025-Q2 flash GDP qoq growth",
+        "value": 0.3
+      }
+    ],
+    "drivers": [
+      "recent Belgian GDP flash prints clustered around modest positive growth",
+      "Q2 starts from low but still positive euro-area demand momentum",
+      "sticky Belgian inflation and weak real-income pressure cap domestic upside",
+      "industrial and export exposure leaves downside risk if external demand softens",
+      "first-print GDP rounding to one decimal makes small differences material"
+    ],
+    "sourceContext": [
+      "https://www.nbb.be/en/statistics/nationalregional-accounts",
+      "https://www.nbb.be/en/calendar",
+      "https://stat.nbb.be/"
+    ],
+    "runAt": "2026-07-04T23:46:53Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium 2026-Q2 GDP flash forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the first official NBB/Institute for National Accounts flash estimate for Belgian real GDP growth in 2026-Q2, seasonally adjusted quarter-on-quarter percent growth. The ledger target is Belgian even though the local country enum lacks Belgium, so I use EA while keeping the source and resolver tied to NBB."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official NBB release calendar for the 2026-Q2 GDP flash-estimate publication date.",
+        "result": "Fetched official schedule context: the Q2 2026 Belgian GDP flash-estimate target is scheduled for 2026-07-30, about 30 days after quarter end, and the target period is 2026-Q2."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the official NBB national accounts data context for recent flash quarter-on-quarter GDP growth prints.",
+        "result": "Fetched recent official-source reference points: 2026-Q1 GDP flash qoq growth was 0.3%, 2025-Q4 was 0.2%, 2025-Q3 was 0.3%, and 2025-Q2 was 0.3%, all in one-decimal percent growth terms."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked NBB.Stat and national accounts source identity for the target measure and rounding precision.",
+        "result": "Fetched target identity: Belgian GDP flash is published as quarter-on-quarter percent growth for 1 country, Belgium, with agency display precision of 0.1 percentage point."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read nearby Belgian public macro context from official Statbel/NBB-style public release artifacts for current price and demand conditions.",
+        "result": "Fetched current Belgium context: June 2026 headline CPI inflation was 3.40%, May was 4.08%, April was 4.01%, services inflation was 5.10%, and food inflation was 0.06%."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent official first-print reference class for this exact qoq GDP-flash target is tightly centered around modest positive growth: 0.3, 0.2, 0.3, and 0.3 average 0.275%. That supports an outside-view prior near +0.3 rather than a contraction or acceleration."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: level growth is positive but not strong; momentum from Q1 is stable rather than accelerating; there is no clear one-off Q2 reopening or shutdown effect; policy and price mechanisms lean mildly restrictive because inflation and services costs remain high, while euro-area demand provides only limited support."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: Start with a persistence prior of +0.3% from the recent official first-print historical sample of 2025-Q2 through 2026-Q1; update by -0.05 pp for high inflation and soft real-income pressure, -0.03 pp for external-demand/export risk, and +0.02 pp for continued low positive euro-area growth momentum, giving an unrounded center near +0.24%, rounded to +0.2%. The 80% interval uses recent first-print dispersion plus one-decimal rounding risk and a wider macro-shock allowance, giving -0.1% to +0.5%."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is a stronger services quarter or export rebound that would land above the interval if the flash print reaches +0.6% or more. Downside risk is a manufacturing/export stall or household-demand pullback that would land below the interval if the first print is -0.2% or weaker. The central case is continued slow positive growth."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.2,
+        "ciLow": -0.1,
+        "ciHigh": 0.5
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/prompt.md",
+        "sha256": "6f3c38ff36893e684c9cadd687cd2a38e3e9812cbc5d72bb322ff5dd6b446859",
+        "bytes": 6865,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/command.json",
+        "sha256": "1cd47274d010ac000033621701d71306cdbe1ea12acd0133b833e33be81b91da",
+        "bytes": 825,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/codex_stdout.jsonl",
+        "sha256": "f38192dc94ac18710c8b10078f049d543803a04b8e8081491a9c1152a5dfb237",
+        "bytes": 2503405,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/codex_events.jsonl",
+        "sha256": "94799720d974962799f1eb555950b6d26c7005e1d69d8e3bb5640e8990db48d8",
+        "bytes": 2503916,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/codex_last_message.txt",
+        "sha256": "844d58835aeebfd83de3c8a4f574c8829d74246cc1fb4fa9aee302a966775d87",
+        "bytes": 5352,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/codex_trace.json",
+        "sha256": "959a22fac0b95652b365b7e6c2cb351e93ad2143acdaaf739f1954438ffdccc0",
+        "bytes": 509,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/stdout.txt",
+        "sha256": "844d58835aeebfd83de3c8a4f574c8829d74246cc1fb4fa9aee302a966775d87",
+        "bytes": 5352,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/raw_response.txt",
+        "sha256": "844d58835aeebfd83de3c8a4f574c8829d74246cc1fb4fa9aee302a966775d87",
+        "bytes": 5352,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/parsed_cells.json",
+        "sha256": "5315d101752ec3b7ad697b14ac7053212e6a064d4f5d8128937022ebf30947f5",
+        "bytes": 6167,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/normalized_cells.json",
+        "sha256": "b7cc001a9d0c470b0e4668f6b7f621c6dce184f473596f3d11fd2f117951c406",
+        "bytes": 5843,
+        "createdAt": "2026-07-04T23:45:03Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-45-03z-nbb-gdp-flash-qoq-2026-q2/validation.json",
+        "sha256": "d10f9632805c6b9bb894eea158f24dedaf9da9320abf1ff5ddf830205d4bc358",
+        "bytes": 126,
+        "createdAt": "2026-07-04T23:45:03Z"
+      }
+    ]
+  }
+]

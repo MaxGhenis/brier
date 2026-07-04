@@ -1,0 +1,213 @@
+[
+  {
+    "slug": "belgium-unemployment-rate-june-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Belgium unemployment rate, June 2026",
+    "question": "What will Eurostat first publish as Belgium's June 2026 seasonally adjusted unemployment rate, total sex, age 15-74, in percent of the active population, rounded to one decimal?",
+    "unit": "percent",
+    "pointEstimate": 6.3,
+    "ciLow": 5.9,
+    "ciHigh": 6.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "Eurostat monthly unemployment euro-indicators release / une_rt_m data page",
+    "resolutionSourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en",
+    "resolutionRule": "Resolve to the first Eurostat-published June 2026 Belgium seasonally adjusted unemployment rate in dataset une_rt_m or the corresponding euro-indicators monthly unemployment release, total sex, age 15-74, unit percent of active population, rounded to one decimal. Use the first official print only; later revisions to June 2026 do not change the resolved value.",
+    "dataPointId": "eurostat.une_rt_m.unemployment_rate.belgium.2026_06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 Belgium unemployment rate",
+        "value": 6.3
+      },
+      {
+        "label": "2026-04 Belgium unemployment rate",
+        "value": 6.2
+      },
+      {
+        "label": "2026-03 Belgium unemployment rate",
+        "value": 6.2
+      },
+      {
+        "label": "2026-02 Belgium unemployment rate",
+        "value": 6.3
+      },
+      {
+        "label": "2025-05 Belgium unemployment rate",
+        "value": 6
+      }
+    ],
+    "drivers": [
+      "May Belgium rate was 6.3%, up from 6.2% in April",
+      "Belgium unemployed persons rose from 343 thousand in April to 347 thousand in May",
+      "Recent Belgium one-decimal rates are clustered at 6.2% to 6.3%",
+      "Euro area unemployment was stable at 6.2% in May",
+      "June euro-area inflation cooled, limiting near-term policy-shock pressure"
+    ],
+    "sourceContext": [
+      "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/3-02072026-ap",
+      "https://ec.europa.eu/eurostat/web/main/news/euro-indicators/release-calendar",
+      "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/2-01072026-ap",
+      "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en"
+    ],
+    "runAt": "2026-07-04T23:52:25Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium June 2026 unemployment-rate first print"
+      },
+      {
+        "kind": "text",
+        "text": "The target is Eurostat's first official June 2026 Belgium seasonally adjusted unemployment rate, total sex and age 15-74, in percent of the active population. The 2 July 2026 Eurostat unemployment release for May says the next release is 30 July 2026, so I use 2026-07-30 as the verified resolution date."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the Eurostat euro-indicators unemployment release dated 2 July 2026 for May 2026 and read the Belgium row in the seasonally adjusted totals table.",
+        "result": "Fetched Belgium rates: May-25 6.0%, Feb-26 6.3%, Mar-26 6.2%, Apr-26 6.2%, May-26 6.3%; fetched Belgium unemployed persons: May-25 333 thousand, Feb-26 345 thousand, Mar-26 343 thousand, Apr-26 343 thousand, May-26 347 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the same Eurostat May 2026 release for euro-area and EU labour-market context.",
+        "result": "Fetched May 2026 euro area unemployment rate 6.2%, April 2026 6.2%, May 2025 6.3%, EU May 2026 5.9%, and euro area unemployed persons 10.986 million."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Eurostat release timing from the May unemployment release and the Euro indicators release-calendar page.",
+        "result": "Fetched publication date 2 July 2026, next release date 30 July 2026, and calendar time-zone note Europe/Luxembourg for 2026 releases."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Eurostat's 1 July 2026 euro area flash inflation release for broad macro context before the June labour print.",
+        "result": "Fetched June 2026 euro area annual inflation 2.8%, May 2026 3.2%, energy annual rate 8.7% in June versus 10.8% in May, and services 3.2% in June versus 3.5% in May."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the best outside-view base rate is latest-value persistence on Eurostat's one-decimal country unemployment series. Belgium's recent official sequence is 6.3, 6.2, 6.2, 6.3 from February through May 2026, so the reference class starts around 6.25 to 6.30 rather than extrapolating the 2025-to-2026 rise aggressively."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum: the level is slightly above its May 2025 value of 6.0%, but the recent month-to-month path is flat to mildly higher. The rise in unemployed persons from 343 thousand to 347 thousand in May supports holding the rounded central forecast at 6.3 rather than dropping back to 6.2."
+      },
+      {
+        "kind": "text",
+        "text": "One-off and policy mechanisms: the euro-area labour market was stable in May and June inflation cooled, so I do not add a near-term recession or policy-tightening shock. The Belgium-specific signal is mostly survey/statistical noise around a stable labour-market level."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: persistence prior is the latest official rounded Belgium print of 6.3 from the February-May 2026 Eurostat sample {6.3, 6.2, 6.2, 6.3}; adjustment components are +0.05pp for the May unemployed-person rise, -0.02pp for stable euro-area context, and 0.00pp for inflation-policy context, leaving a rounded point of 6.3. Interval method uses recent one-month first-print dispersion on the one-decimal country series, widened for Belgium sampling and country-level volatility to about +/-0.4pp, implying final bounds of 5.9 to 6.7."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a broader June weakening in Belgian hiring or participation that pushes the rounded rate to 6.5-6.7. Downside risk is a reversal of May's unemployed-person rise that returns the rate to 6.1-6.2. Outside the interval, a print above 6.7 would require a sharp country-specific deterioration or major first-print instability; a print below 5.9 would require an unusually strong employment surprise."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: start from May 2026 Belgium rate 6.3, add +0.05 for the 347 thousand versus 343 thousand unemployed-person move and -0.02 for stable euro-area context, giving 6.33 before one-decimal rounding and 6.3 as the forecast point. Interval calculation: 6.3 minus 0.4 = 5.9 and 6.3 plus 0.4 = 6.7 for an 80% interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.3,
+        "ciLow": 5.9,
+        "ciHigh": 6.7
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/prompt.md",
+        "sha256": "70da3751b238091916629f1479762515007b5094a075abdd9c68d06dc751310b",
+        "bytes": 6885,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/command.json",
+        "sha256": "541488f68dbfc911b02b1629c016455136ca188bf86de51231ebf4ff03299a20",
+        "bytes": 842,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/codex_stdout.jsonl",
+        "sha256": "3382c421786d2380dd3619cfae0761cac0c56807619fde1c959466e0fda7bbc7",
+        "bytes": 2637163,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/codex_events.jsonl",
+        "sha256": "b3813d63b752317dc2d74822460311893f98135a6ba3824292d9543849674a7e",
+        "bytes": 2637495,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/codex_last_message.txt",
+        "sha256": "1c975bc56de833b452b98ac5221eeb8b10ccc59392b47e9e08a42b2c490681d9",
+        "bytes": 6338,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/codex_trace.json",
+        "sha256": "c670cdfb906a585b36412d2bafdce68991f978e1722618e2b140722a4ed38412",
+        "bytes": 509,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/stdout.txt",
+        "sha256": "1c975bc56de833b452b98ac5221eeb8b10ccc59392b47e9e08a42b2c490681d9",
+        "bytes": 6338,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/raw_response.txt",
+        "sha256": "1c975bc56de833b452b98ac5221eeb8b10ccc59392b47e9e08a42b2c490681d9",
+        "bytes": 6338,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/parsed_cells.json",
+        "sha256": "96b4d81297e1314396a0d70afd8aa7d99a83cce5788523e0bc926597f591549c",
+        "bytes": 7262,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/normalized_cells.json",
+        "sha256": "0282848472fadfa9eade2d7de0a08c5383b2a1297cfad3edb222ec7775556603",
+        "bytes": 6893,
+        "createdAt": "2026-07-04T23:52:17Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-52-17z-eurostat-unemployment-rate-belgium-2026-06/validation.json",
+        "sha256": "298f61319384c15acb011654a1596ed1fb5a0b823b38a5835a8f6816cdba7f88",
+        "bytes": 136,
+        "createdAt": "2026-07-04T23:52:17Z"
+      }
+    ]
+  }
+]

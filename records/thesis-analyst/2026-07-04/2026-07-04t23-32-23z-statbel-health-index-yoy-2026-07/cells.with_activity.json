@@ -1,0 +1,207 @@
+[
+  {
+    "slug": "belgium-health-index-annual-rate-july-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Belgium health-index inflation, July 2026",
+    "question": "Statbel Belgian inflation based on the health index for July 2026, not seasonally adjusted, first official print",
+    "unit": "percent",
+    "pointEstimate": 3.1,
+    "ciLow": 2.4,
+    "ciHigh": 3.9,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "Statbel Consumer Price Index - Health Index release",
+    "resolutionSourceUrl": "https://statbel.fgov.be/en/themes/consumer-prices/consumer-price-index",
+    "resolutionRule": "Resolve to the first Statbel-published inflation rate based on the health index for m-2026-07, reported in percent and rounded to the agency's published precision; do not use later revisions or mirrors.",
+    "dataPointId": "statbel.health_index.yoy.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 health-index inflation",
+        "value": 2.99
+      },
+      {
+        "label": "2026-05 health-index inflation",
+        "value": 3.48
+      },
+      {
+        "label": "2026-04 health-index inflation",
+        "value": 3.38
+      },
+      {
+        "label": "2026-06 health index level",
+        "value": 102.59
+      },
+      {
+        "label": "2026-05 health index level",
+        "value": 102.69
+      }
+    ],
+    "drivers": [
+      "June health-index inflation eased from May but remained near 3%",
+      "Health index excludes motor fuels, alcohol and tobacco, dampening headline fuel noise",
+      "Electricity and natural gas remain upside pressure",
+      "Food inflation was near zero in June",
+      "July travel and holiday prices can lift the monthly health index"
+    ],
+    "sourceContext": [
+      "https://statbel.fgov.be/en/themes/consumer-prices/consumer-price-index",
+      "https://statbel.fgov.be/en/themes/consumer-prices/health-index",
+      "https://statbel.fgov.be/en/calendar",
+      "https://statbel.fgov.be/en/open-data/consumer-price-index-and-health-index"
+    ],
+    "runAt": "2026-07-04T23:32:35Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium July 2026 Health-Index Inflation Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is Statbel's first July 2026 annual inflation rate based on the Belgian health index. The ledger target is Belgian even though the catalog country enum has no Belgium code, so I use EA consistently with nearby Thesis Statbel cells and keep the resolver tied to Statbel."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official Statbel release calendar for Consumer Price Index - Health Index, m-2026-07.",
+        "result": "The official calendar lists Consumer Price Index - Health Index for m-2026-07 on 30 July 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the latest Statbel CPI release page for the most recent health-index annual rates.",
+        "result": "Statbel reported inflation based on the health index at 2.99% in June 2026, 3.48% in May 2026, and 3.38% in April 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the latest Statbel release page for health-index levels and monthly movement.",
+        "result": "The health index decreased by 0.10 points in June 2026 to 102.59, down from 102.69 in May 2026; the smoothed health index was 100.37 in June."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Statbel component commentary relevant to July health-index pressure.",
+        "result": "June 2026 energy inflation was 10.31%, electricity rose 2.5% month on month, natural gas rose 1.5%, services inflation was 5.10%, rents inflation was 3.38%, and food inflation was 0.06%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Statbel health-index methodology and open-data page for target identity.",
+        "result": "Statbel says the health index has been calculated since January 1994 and removes alcoholic beverages, tobacco products and motor fuels except LPG; the open-data page covers consumer price index since 1920 and health index since 1994."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is recent official health-index inflation: the April-June 2026 average is 3.28%, while the latest print is 2.99%. I anchor near June persistence because this is a one-month-ahead first-print target, but I do not fully extrapolate the June drop because July often has travel and holiday-price volatility."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: Start with a June persistence prior of 2.99% and an April-June reference-class mean of 3.28%; update by +0.10 pp for July package-holiday and travel-service seasonality, +0.05 pp for electricity and natural-gas pressure, -0.05 pp for near-zero food inflation, and no direct motor-fuel pass-through because the health index excludes most motor fuels. Rounded point = 3.10%. The 80% interval uses recent one-month first-print dispersion around health-index persistence, widened for July travel and energy uncertainty, giving 2.40% to 3.90%."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: stronger July package holidays, air travel, rents, electricity or natural gas could push health-index inflation toward May's 3.48% or would land above the interval if several components rise together. Downside risk: another monthly decline in the health index, weaker food prices, or a reversal in energy service components could push the first print below 2.40% outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.1,
+        "ciLow": 2.4,
+        "ciHigh": 3.9
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/prompt.md",
+        "sha256": "76b0c37401e0c7031740ec50c46567253c33e0b91dbadf30f46f9f45cf1b9e96",
+        "bytes": 6889,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/command.json",
+        "sha256": "637f214f8a3f61e2b710da6783a54394efd9e99c239d544def9d1706584a388d",
+        "bytes": 832,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/codex_stdout.jsonl",
+        "sha256": "7ae287c00d270179673a0cbb5d59df5510a4851e3e4ada1a953cf13bb26c6d9d",
+        "bytes": 56030,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/codex_events.jsonl",
+        "sha256": "05cdab10012839f307030212b41b4ac8f7f3b4767a0b7f8d451c2b9a3b405f54",
+        "bytes": 56213,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/codex_last_message.txt",
+        "sha256": "f8a834eb9aa78e6dd0b829b3dfe93a7e9cfaf221a4e32b74db9e80ad9e584fa1",
+        "bytes": 5076,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/codex_trace.json",
+        "sha256": "63cbeb7511c07c622f7a0b8f8c8488c5a44445236cd34e8adc786a6c85c2e64d",
+        "bytes": 509,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/stdout.txt",
+        "sha256": "f8a834eb9aa78e6dd0b829b3dfe93a7e9cfaf221a4e32b74db9e80ad9e584fa1",
+        "bytes": 5076,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/raw_response.txt",
+        "sha256": "f8a834eb9aa78e6dd0b829b3dfe93a7e9cfaf221a4e32b74db9e80ad9e584fa1",
+        "bytes": 5076,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/parsed_cells.json",
+        "sha256": "dd53cb409dc9702d0d2467ce7f4676ab4f87023b1838d3f8b764dd8f6d2907c1",
+        "bytes": 5952,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/normalized_cells.json",
+        "sha256": "fcbf7ac207398774ad22be41b19455c035032e2e8a470824e280d3d81f4b22cb",
+        "bytes": 5603,
+        "createdAt": "2026-07-04T23:32:23Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t23-32-23z-statbel-health-index-yoy-2026-07/validation.json",
+        "sha256": "7f0372874dc1c6f9dd6cbfef5822ac0bc4ffa9084bff423083e5d2ce0afc6282",
+        "bytes": 143,
+        "createdAt": "2026-07-04T23:32:23Z"
+      }
+    ]
+  }
+]

@@ -51,6 +51,7 @@ const COUNTRY_FILTERS: { key: CountryFilter; label: string }[] = [
   { key: "AU", label: COUNTRY_LABEL.AU },
   { key: "EA", label: COUNTRY_LABEL.EA },
   { key: "JP", label: COUNTRY_LABEL.JP },
+  { key: "BE", label: COUNTRY_LABEL.BE },
 ];
 
 export function ForecastBrowser({ forecasts }: ForecastBrowserProps) {

@@ -2,6 +2,7 @@ import { BENEFIT_PROGRAM_EXAMPLES } from "./forecast-examples/benefits";
 import { BENEFITS_DELIVERY_EXAMPLES } from "./forecast-examples/benefits-delivery";
 import { JUNE_2026_WAVE } from "./forecast-examples/june-2026-wave";
 import { JULY_2026_WAVE } from "./forecast-examples/july-2026-wave";
+import { BELGIUM_JULY_2026_WAVE } from "./forecast-examples/belgium-july-2026";
 import { AGENT_RUN_EXAMPLES } from "./forecast-examples/agent-runs";
 import { CANADA_AUSTRALIA_EXAMPLES } from "./forecast-examples/canada-australia";
 import { EURO_JAPAN_EXAMPLES } from "./forecast-examples/euro-japan";
@@ -49,7 +50,8 @@ export type Unit =
   | "per_1000_live_births"
   | "ratio"
   | "minutes"
-  | "percent_growth";
+  | "percent_growth"
+  | "index_points";
 
 export interface HistoricalPoint {
   label: string;
@@ -68,7 +70,7 @@ export type ForecastHorizon =
 
 export type ResolutionPolicy = "first_print" | "fixed_vintage" | "final";
 
-export type CountryCode = "US" | "UK" | "CA" | "AU" | "EA" | "JP";
+export type CountryCode = "US" | "UK" | "CA" | "AU" | "EA" | "JP" | "BE";
 
 export interface ForecastSeriesMetadata {
   seriesId: string;
@@ -389,6 +391,7 @@ export const COUNTRY_LABEL: Record<CountryCode, string> = {
   AU: "Australia",
   EA: "Euro area",
   JP: "Japan",
+  BE: "Belgium",
 };
 
 const PACK_REFERENCES = {
@@ -5152,6 +5155,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   ...SNAP_FY2026_PAYMENT_ERROR_RATE_EXAMPLES,
   ...JUNE_2026_WAVE,
   ...JULY_2026_WAVE,
+  ...BELGIUM_JULY_2026_WAVE,
 
   // ─── Conditional forecast cells ──────────────────────────────────────────
   {
@@ -7459,6 +7463,9 @@ export function formatValue(value: number, unit: Unit): string {
       return `${value.toFixed(2)} per 1,000`;
     case "ratio":
       return value.toFixed(2);
+    case "index_points":
+      // Survey balances (NBB barometer, consumer confidence) print signed.
+      return `${value >= 0 ? "+" : ""}${value.toFixed(1)}`;
     case "minutes":
       return `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })} min`;
     default:
