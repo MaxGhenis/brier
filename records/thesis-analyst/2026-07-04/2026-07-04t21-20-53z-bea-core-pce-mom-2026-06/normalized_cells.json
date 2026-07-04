@@ -1,0 +1,118 @@
+[
+ {
+  "slug": "us-core-pce-mom-june-2026",
+  "country": "US",
+  "type": "data",
+  "title": "US core PCE MoM June 2026",
+  "question": "BEA Personal Income and Outlays: PCE price index excluding food and energy, seasonally adjusted percent change from preceding month, June 2026, first print",
+  "unit": "percent_growth",
+  "pointEstimate": 0.31,
+  "ciLow": 0.16,
+  "ciHigh": 0.47,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-30",
+  "resolutionSource": "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+  "resolutionSourceUrl": "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+  "resolutionRule": "Resolve to the first BEA Personal Income and Outlays print for June 2026 PCE price index excluding food and energy, seasonally adjusted percent change from the preceding month, released July 30, 2026 at 8:30 a.m. EDT. Use the first published value at BEA's reported precision; ignore later revisions or benchmark updates.",
+  "dataPointId": "us.bea.core_pce.mom_sa.2026-06",
+  "historicalContext": [
+   {
+    "label": "May 2026 BEA core PCE MoM first print",
+    "value": 0.3
+   },
+   {
+    "label": "April 2026 BEA core PCE MoM first print",
+    "value": 0.2
+   },
+   {
+    "label": "March 2026 BEA core PCE MoM first print",
+    "value": 0.3
+   },
+   {
+    "label": "February 2026 BEA core PCE MoM first print",
+    "value": 0.4
+   },
+   {
+    "label": "January 2026 BEA core PCE MoM first print",
+    "value": 0.4
+   },
+   {
+    "label": "May 2026 BEA core PCE YoY",
+    "value": 3.4
+   }
+  ],
+  "drivers": [
+   "Recent core PCE monthly prints are clustered around 0.3 percent",
+   "The 12-month core PCE rate rose to 3.4 percent, keeping the level elevated",
+   "April-May momentum is stable rather than clearly cooling",
+   "Energy is excluded from core PCE but indirect pass-through remains an upside risk",
+   "No June BEA PCE source data were yet available at run time"
+  ],
+  "sourceContext": [
+   "https://www.bea.gov/news/schedule",
+   "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-april-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-march-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-february-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-january-2026"
+  ],
+  "runAt": "2026-07-04T21:21:04Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast June 2026 US core PCE monthly inflation"
+   },
+   {
+    "kind": "text",
+    "text": "The target is the first BEA Personal Income and Outlays print for June 2026: the PCE price index excluding food and energy, seasonally adjusted percent change from the prior month. The BEA release and data page are the resolver; later revised tables do not change this first-print target."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BEA 2026 release schedule for Personal Income and Outlays, June 2026",
+    "result": "Fetched official schedule: Personal Income and Outlays, June 2026 is listed for July 30, 2026 at 8:30 AM; Personal Income and Outlays, July 2026 is listed for August 26, 2026 at 8:30 AM."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BEA core PCE data page for current release status and 12-month reference class",
+    "result": "Fetched BEA data page: May 2026 core PCE 12-month change was 3.4%, April 2026 was 3.3%, March 2026 was 3.3%, February 2026 was 3.0%; current release date was June 25, 2026 and next release date was July 30, 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BEA May 2026 Personal Income and Outlays release",
+    "result": "Fetched May 2026 release: core PCE increased 0.3% month over month, headline PCE increased 0.4%, real PCE rose 0.3%, current-dollar PCE rose 0.7%, and core PCE rose 3.4% from one year ago."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BEA January through April 2026 Personal Income and Outlays releases",
+    "result": "Fetched recent BEA monthly prints: January 2026 core PCE rose 0.4%, February 2026 core PCE rose 0.4%, March 2026 core PCE rose 0.3%, and April 2026 first-print core PCE rose 0.2%; headline PCE rose 0.3% in January, 0.4% in February, 0.7% in March, and 0.4% in April."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class anchor: the official BEA monthly core PCE prints available for January through May 2026 are 0.4, 0.4, 0.3, 0.2, and 0.3. Their simple mean is 0.32, while latest-print persistence is 0.30, so the base rate centers just above 0.30 before June-specific adjustments."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, one-off, and policy-mechanism split: the elevated 3.4% year-over-year core rate argues against a rapid return to benign 0.1 to 0.2 monthly prints. Recent monthly momentum is stable near 0.3. Food and energy are excluded, but energy-related pass-through can still appear in transportation services and input-sensitive categories; weaker goods or services categories are the main offset."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: persistence prior = 0.30 from the May 2026 BEA first print; historical sample = Jan-May BEA monthly core PCE values 0.4, 0.4, 0.3, 0.2, 0.3 with mean 0.32; adjustment components = +0.02 for the elevated 3.4% year-over-year core level and still-firm services inflation, -0.01 for the April-May stabilization and no June source-data confirmation yet; point = 0.31. Interval method = realized recent first-print dispersion plus release-rounding risk: recent values span 0.2 to 0.4, so an 80% band of about +/-0.15 around 0.31 gives 0.16 to 0.47."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration and tails: downside risk outside the interval would require broad June goods deflation, softer medical or financial services, and shelter materially below recent readings, pushing core PCE below 0.16. Upside risk outside the interval would require energy pass-through plus a transportation-services or portfolio-management jump, pushing core PCE above 0.47. The central case is persistence near 0.3 with modest upside pressure."
+   },
+   {
+    "kind": "forecast",
+    "point": 0.31,
+    "ciLow": 0.16,
+    "ciHigh": 0.47
+   }
+  ]
+ }
+]

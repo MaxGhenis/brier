@@ -1,0 +1,211 @@
+[
+  {
+    "slug": "us-core-cpi-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US core CPI July 2026 MoM",
+    "question": "BLS CPI-U all items less food and energy, July 2026, seasonally adjusted month-over-month percent change, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.3,
+    "ciLow": 0.1,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index news release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first BLS-published July 2026 seasonally adjusted percent change from the preceding month for CPI-U all items less food and energy, as shown in the Consumer Price Index news release scheduled for 2026-08-12 at 08:30 ET. Use the first print rounded to BLS's reported one decimal place; ignore later seasonal-adjustment revisions or corrections unless BLS replaces the first release before public posting.",
+    "dataPointId": "bls.cpi.u.core_mom.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 core CPI MoM first print",
+        "value": 0.2
+      },
+      {
+        "label": "Apr 2026 core CPI MoM first print",
+        "value": 0.4
+      },
+      {
+        "label": "Mar 2026 core CPI MoM first print",
+        "value": 0.2
+      },
+      {
+        "label": "Feb 2026 core CPI MoM first print",
+        "value": 0.2
+      },
+      {
+        "label": "Jan 2026 core CPI MoM first print",
+        "value": 0.3
+      },
+      {
+        "label": "Dec 2025 core CPI MoM first print",
+        "value": 0.2
+      }
+    ],
+    "drivers": [
+      "Recent core CPI prints cluster near 0.2 to 0.3 percent",
+      "April's 0.4 percent print shows upside risk remains live",
+      "Shelter inflation was still positive at 0.3 percent in May",
+      "Core goods were soft in May, with new vehicles and furnishings declining",
+      "Energy shock raises second-round risk but May core pass-through looked limited"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm"
+    ],
+    "runAt": "2026-07-04T19:06:14Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast July 2026 BLS core CPI monthly inflation"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first official BLS print for CPI-U all items less food and energy, seasonally adjusted monthly percent change for July 2026. The official calendar verifies the July 2026 CPI release date as August 12, 2026, not an inferred cadence date."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS CPI release schedule for the July 2026 reference month",
+        "result": "Fetched official schedule: July 2026 CPI reference month releases on Aug. 12, 2026 at 08:30 AM; June 2026 releases on Jul. 14, 2026 at 08:30 AM; May 2026 released Jun. 10, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS May 2026 CPI Summary Table A for recent seasonally adjusted core CPI monthly changes",
+        "result": "Fetched core CPI monthly changes from BLS Table A: Dec. 2025 0.2, Jan. 2026 0.3, Feb. 2026 0.2, Mar. 2026 0.2, Apr. 2026 0.4, May 2026 0.2; 12-month core CPI May 2026 was 2.9."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS May 2026 CPI Summary component detail for current-release mechanisms",
+        "result": "Fetched May 2026 component context: core CPI rose 0.2; shelter rose 0.3; owners' equivalent rent rose 0.3; rent rose 0.4; airline fares rose 2.7; communication rose 1.3; motor vehicle insurance fell 1.7; new vehicles fell 0.3."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS headline and energy context from the May 2026 CPI Summary",
+        "result": "Fetched May 2026 headline context: all items rose 0.5; energy rose 3.9 after 3.8 in April and 10.9 in March; gasoline rose 7.0; all-items 12-month inflation was 4.2; energy 12-month inflation was 23.5."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the recent official six-print core CPI sample has values 0.2, 0.3, 0.2, 0.2, 0.4, and 0.2, with a median near 0.2 and an average near 0.25. A rounded first print of 0.3 is the natural persistence prior because BLS reports one decimal and the 2.9 percent year-over-year pace is still above target-consistent inflation."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and one-off split: shelter is still adding steady positive pressure, while May's soft core goods and vehicle readings pull down the near-term center. The April 0.4 print prevents treating May's 0.2 as a new low-inflation regime; the best center is between those prints."
+      },
+      {
+        "kind": "text",
+        "text": "Policy-mechanism split: the energy shock is outside core directly, but the May evidence showed limited broad pass-through into core prices. Tariff, shipping, and energy-cost pass-through remain upside risks for July, while weak durable-goods prices and insurance normalization are downside risks."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is recent BLS first-print core CPI, using the Dec. 2025-May 2026 sample of 0.2, 0.3, 0.2, 0.2, 0.4, 0.2. Start from a 0.25 percent unrounded base, add +0.03 for shelter stickiness and possible energy/tariff pass-through, subtract -0.02 for May core-goods softness, giving 0.26 and rounding to a 0.3 percent first-print forecast. Size the 80 percent interval from recent first-print dispersion plus one-decimal release granularity: central recent mass is 0.2-0.4, widened by 0.1 on each side for July pass-through and component noise, yielding 0.1 to 0.5."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and scenarios: downside outside the interval would require another broad core-goods decline plus softer shelter, producing 0.0 or below. Upside outside the interval would require energy or tariff pass-through into airfares, goods, and services at the same time, producing 0.6 or higher. The central case is sticky services with only partial goods offset."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.3,
+        "ciLow": 0.1,
+        "ciHigh": 0.5
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/prompt.md",
+        "sha256": "f50bbed98a7976d85dba6c16e870579aa81aedab659e23fb743362644f84a478",
+        "bytes": 6618,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/command.json",
+        "sha256": "820d33a49a4f9d99ec5eacb68cc5a4bbf1d71f897f78e4bac1e651b0d05d4c0a",
+        "bytes": 827,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/codex_stdout.jsonl",
+        "sha256": "5811017c681b1501cba9a50a310958d495e78d648545feb7793ac4c728c6d1ef",
+        "bytes": 1187232,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/codex_events.jsonl",
+        "sha256": "2558ee05fe94650249a3c432b1728c88ae0018b295056b3226da662b0db8e5c6",
+        "bytes": 1187366,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/codex_last_message.txt",
+        "sha256": "8f289e29b9c47b00315b03cc918f0b89f43b956ef1371ad6c8213fcf64cf3d81",
+        "bytes": 5647,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/codex_trace.json",
+        "sha256": "147d5060cb3bd9dc58547f18637c9057afaa4dd950ef9a19fad8c98b3e89b9e3",
+        "bytes": 509,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/stdout.txt",
+        "sha256": "8f289e29b9c47b00315b03cc918f0b89f43b956ef1371ad6c8213fcf64cf3d81",
+        "bytes": 5647,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/raw_response.txt",
+        "sha256": "8f289e29b9c47b00315b03cc918f0b89f43b956ef1371ad6c8213fcf64cf3d81",
+        "bytes": 5647,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/parsed_cells.json",
+        "sha256": "b0919c7488082c7bbcc40f215b10d7703aa000e3bd34bbffe72f37d30f93ba85",
+        "bytes": 6557,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/normalized_cells.json",
+        "sha256": "7edd7d3e5964b84cbd9cf69e2cfed65debe4b307cf506d501a9ee7363e338fa0",
+        "bytes": 6194,
+        "createdAt": "2026-07-04T19:04:57Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-04-57z-bls-cpi-u-core-mom-2026-07/validation.json",
+        "sha256": "af9f592dc7b5fa636b15333678f69081c57af6dc926295fe2c75045744b50803",
+        "bytes": 126,
+        "createdAt": "2026-07-04T19:04:57Z"
+      }
+    ]
+  }
+]

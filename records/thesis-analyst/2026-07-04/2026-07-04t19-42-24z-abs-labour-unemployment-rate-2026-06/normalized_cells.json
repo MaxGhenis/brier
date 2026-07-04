@@ -1,0 +1,113 @@
+[
+ {
+  "slug": "australia-unemployment-rate-june-2026",
+  "country": "AU",
+  "type": "data",
+  "title": "Australia unemployment rate, June 2026",
+  "question": "What will the Australian Bureau of Statistics first report as Australia's seasonally adjusted unemployment rate for June 2026?",
+  "unit": "percent",
+  "pointEstimate": 4.4,
+  "ciLow": 4.1,
+  "ciHigh": 4.8,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-23",
+  "resolutionSource": "Australian Bureau of Statistics Labour Force, Australia, June 2026",
+  "resolutionSourceUrl": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+  "resolutionRule": "Resolves to the first published seasonally adjusted unemployment rate for June 2026 in ABS Labour Force, Australia, reported in percent to one decimal place. Later revisions do not change the resolved value.",
+  "dataPointId": "abs.labour.unemployment_rate.australia.june_2026.first_print",
+  "historicalContext": [
+   {
+    "label": "Mar 2026 SA unemployment rate",
+    "value": 4.3
+   },
+   {
+    "label": "Apr 2026 SA unemployment rate",
+    "value": 4.5
+   },
+   {
+    "label": "May 2026 SA unemployment rate",
+    "value": 4.4
+   },
+   {
+    "label": "May 2026 trend unemployment rate",
+    "value": 4.4
+   },
+   {
+    "label": "May 2026 participation rate",
+    "value": 66.7
+   }
+  ],
+  "drivers": [
+   "May unemployment rate fell to 4.4 percent after April's 4.5 percent spike",
+   "Trend unemployment rate rose marginally to 4.4 percent",
+   "May employment rose 40,300 while unemployed people fell 18,300",
+   "Participation was stable at 66.7 percent",
+   "Labour Force Survey modernisation adds modest release-noise risk"
+  ],
+  "sourceContext": [
+   "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+   "https://www.abs.gov.au/articles/how-abs-quality-assures-labour-force-data-during-times-change"
+  ],
+  "runAt": "2026-07-04T19:42:59Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Australia June 2026 unemployment-rate first print"
+   },
+   {
+    "kind": "text",
+    "text": "The target is the ABS Labour Force, Australia first-print seasonally adjusted unemployment rate for reference month June 2026, in percent to one decimal place. The ABS latest-release page verifies the next Labour Force release as June 2026 on 23 July 2026, so the ledger resolution date is kept at 2026-07-23."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "ABS Labour Force latest-release page: release date, next-release schedule, and target identity",
+    "result": "Fetched latest reference period May 2026, released 25/06/2026 at 11:30am AEST; future releases list Next Release 23/07/2026 for Labour Force, Australia, June 2026, then 20/08/2026 for July 2026 and 24/09/2026 for August 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "ABS Labour Force May 2026 key statistics, seasonally adjusted and trend",
+    "result": "Fetched seasonally adjusted Apr-26 unemployment rate 4.5%, May-26 unemployment rate 4.4%, unemployed people 689,600 to 671,300, employment 14,698,500 to 14,738,800, participation rate 66.6% to 66.7%, monthly hours 2,032 million to 2,010 million; trend unemployment rate 4.3% to 4.4%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "ABS Labour Force historical unemployment-rate table, recent monthly rounded rates",
+    "result": "Fetched seasonally adjusted unemployment rates: Jan-26 4.1%, Feb-26 4.3%, Mar-26 4.3%, Apr-26 4.5%, May-26 4.4%; trend rates Jan-26 4.3%, Feb-26 4.3%, Mar-26 4.3%, Apr-26 4.3%, May-26 4.4%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "ABS Labour Force survey-modernisation quality-assurance article",
+    "result": "Fetched article released 16/04/2026; modernisation changes are being implemented between April and August 2026; LFS sample is approximately 24,000 dwellings and 50,000 people; the sample has 8 rotation groups; ABS ran a 2,000-household field test in October and November 2025."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate/reference class: recent ABS first prints are sticky on a one-decimal grid. Since early 2024, most month-to-month rounded unemployment-rate changes are 0.0 or 0.1 percentage point, with occasional 0.2 point moves such as Feb 2024 and Apr 2026. The outside view therefore starts from May's 4.4 percent with a central 80 percent band of roughly plus or minus 0.3 point before current-release adjustments."
+   },
+   {
+    "kind": "text",
+    "text": "Current-release update: level is centered at 4.4 because May's rounded and trend rates both sit at 4.4. Momentum is mildly upward over the quarter because Feb was 4.3, Apr was 4.5, and trend moved from 4.3 to 4.4, but May's employment gain and fall in unemployed people argue against extrapolating a clean rise to 4.6 or higher."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: the June survey period, 31 May to 13 June, could still catch slower hiring or higher participation, and the ABS modernisation transition runs through April-August 2026. Those factors keep a 4.7 or 4.8 print in the 80 percent upper tail even though the modal rounded print remains 4.4."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: persistence prior is May 2026 SA unemployment at 4.4 using ABS rounded monthly first-print behavior from the 2024-2026 recent sample; adjustments are +0.05 for trend softening, -0.03 for May employment/unemployed-person improvement, and +0.00 for participation stability, giving an unrounded center near 4.42 and rounded point 4.4. Interval method uses recent one-month first-print dispersion, widened for April-August 2026 modernisation and skewed slightly upward for trend softening, implying an 80% interval of 4.1 to 4.8."
+   },
+   {
+    "kind": "text",
+    "text": "Upside scenario: a renewed participation rise or weaker June employment gain pushes the rounded rate to 4.6-4.8. Downside scenario: May's employment strength persists and unemployment falls back toward 4.2-4.3. Outside-the-interval scenarios are a survey-noise or labour-demand shock producing 4.0 or lower, or a sharp rise in unemployed people producing 4.9 or higher."
+   },
+   {
+    "kind": "forecast",
+    "point": 4.4,
+    "ciLow": 4.1,
+    "ciHigh": 4.8
+   }
+  ]
+ }
+]

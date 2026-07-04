@@ -1,0 +1,208 @@
+[
+  {
+    "slug": "jolts-openings-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "JOLTS job openings, Jun 2026",
+    "question": "BLS Job Openings and Labor Turnover Survey total nonfarm job openings, seasonally adjusted level, June 2026, first print",
+    "unit": "millions",
+    "pointEstimate": 7.45,
+    "ciLow": 6.85,
+    "ciHigh": 8.05,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-04",
+    "resolutionSource": "U.S. Bureau of Labor Statistics, Job Openings and Labor Turnover Survey",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/jolts.nr0.htm",
+    "resolutionRule": "Resolve to the first-published seasonally adjusted total nonfarm job openings level for June 2026 in the BLS Job Openings and Labor Turnover Survey news release scheduled for 2026-08-04, converted from thousands to millions and rounded to three decimals if necessary. Later monthly revisions or annual updates do not change the resolved value.",
+    "dataPointId": "bls.jolts.job_openings.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 total openings, preliminary, millions",
+        "value": 7.594
+      },
+      {
+        "label": "Apr 2026 total openings, revised, millions",
+        "value": 7.585
+      },
+      {
+        "label": "May 2025 total openings, revised, millions",
+        "value": 7.31
+      },
+      {
+        "label": "May 2026 hires, preliminary, millions",
+        "value": 5.17
+      },
+      {
+        "label": "June 2026 unemployment rate, percent",
+        "value": 4.2
+      }
+    ],
+    "drivers": [
+      "May openings held near 7.6 million after the April jump, supporting a persistence-heavy prior.",
+      "June payroll growth slowed to +57,000 and April-May payrolls were revised down by 74,000, a downside labor-demand signal.",
+      "The unemployment rate remained low at 4.2 percent and unemployed people were 7.1 million, limiting the case for a sharp vacancy collapse.",
+      "May hires were 5.170 million versus April 5.215 million, consistent with cautious hiring but not a broad stoppage.",
+      "JOLTS openings are noisy month to month, so the 80 percent interval remains wide around the persistence-adjusted point."
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/jolts.htm",
+      "https://www.bls.gov/news.release/jolts.a.htm",
+      "https://www.bls.gov/news.release/empsit.nr0.htm"
+    ],
+    "runAt": "2026-07-04T21:18:39Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "JOLTS June 2026 job openings forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the first BLS-published seasonally adjusted total nonfarm job openings level for June 2026 in the JOLTS release, expressed in millions. The first print governs; later revisions are excluded."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS JOLTS release calendar for the June 2026 reference month.",
+        "result": "Fetched official schedule: June 2026 JOLTS release date is Aug. 04, 2026 at 10:00 AM; adjacent calendar rows list May 2026 on Jun. 30, 2026 and July 2026 on Sep. 01, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS JOLTS Table A for the latest available May 2026 release.",
+        "result": "Fetched total job openings levels in thousands: May 2025 7,310; Apr. 2026 7,585; May 2026 preliminary 7,594. Fetched total hires: May 2025 5,328; Apr. 2026 5,215; May 2026 preliminary 5,170."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS JOLTS industry details from Table A to identify sector concentration in the latest openings print.",
+        "result": "Fetched May 2026 preliminary openings in thousands: private education and health services 1,539; professional and business services 1,485; trade, transportation, and utilities 1,234; leisure and hospitality 941; government 800."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the BLS June 2026 Employment Situation release for current labor-market cross-checks.",
+        "result": "Fetched June 2026 labor indicators: nonfarm payroll employment +57,000; unemployment rate 4.2 percent; unemployed people 7.1 million; labor force participation 61.5 percent; April-May payroll revisions totaled -74,000."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: for a one-month-ahead JOLTS openings first print, persistence around the latest official openings level is the base rate because monthly openings changes are noisy and weak payroll data often affects hires before posted vacancies."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum split: May's 7.594 million was essentially flat versus April's 7.585 million and above May 2025's 7.310 million, so the level signal starts high. Momentum is not strongly positive because hires slipped from 5.215 million in April to 5.170 million in May."
+      },
+      {
+        "kind": "text",
+        "text": "Current-release adjustment: June payroll growth of +57,000 and -74,000 in April-May revisions point to softer labor demand, so I subtract about 0.14 to 0.15 million from pure May persistence. The 4.2 percent unemployment rate and 7.1 million unemployed count keep the adjustment moderate rather than recession-sized."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses latest official May 2026 openings of 7.594 million; adjustment components are -0.14 million for weak June payrolls/revisions, -0.01 million for lower May hires, and +0.01 million for still-low unemployment, giving 7.45 million after rounding. Interval method uses realized JOLTS first-print monthly dispersion around 0.35 to 0.40 million, widened to about +/-0.60 million for survey noise and the elevated May level, implying 6.85 to 8.05 million."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is that employers keep vacancies posted even while slowing fills, which could keep openings above 7.9 million. Downside risk is that the weak June payroll print reflects a broad pullback in postings, pulling openings toward 6.9 million. A shock or survey-noise print below 6.85 million or above 8.05 million would land outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 7.45,
+        "ciLow": 6.85,
+        "ciHigh": 8.05
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/prompt.md",
+        "sha256": "88b62a9e016c2c149284d94afce5c139ef98a2b7e8c65d8f12664c96399960c8",
+        "bytes": 6998,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/command.json",
+        "sha256": "d962f12f7f68c213af2df3fa047f12f2ee9c69ded7153d0bc5268ffc5fc333ef",
+        "bytes": 830,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/codex_stdout.jsonl",
+        "sha256": "67eedddcfd1757180b4cf1940af200019b3d43e619a7b43cc80fecbb45c56fc1",
+        "bytes": 1242385,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/codex_events.jsonl",
+        "sha256": "11ee2886e42817b18009059b7915cf59e5b0950f14cb4fa3ca72fc1a4e5ef22c",
+        "bytes": 1242490,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/codex_last_message.txt",
+        "sha256": "f7f62919776860cabcb9ba152e8b2951567647348d1659af39f1617722148d6b",
+        "bytes": 5770,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/codex_trace.json",
+        "sha256": "941e7758c720461dd229d80ae95f148c46fbb557e058903a7b26d9ddb6c3b0c4",
+        "bytes": 509,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/stdout.txt",
+        "sha256": "f7f62919776860cabcb9ba152e8b2951567647348d1659af39f1617722148d6b",
+        "bytes": 5770,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/raw_response.txt",
+        "sha256": "f7f62919776860cabcb9ba152e8b2951567647348d1659af39f1617722148d6b",
+        "bytes": 5770,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/parsed_cells.json",
+        "sha256": "3d1d0207e0bc7cf150d96e5b0242ffdfa8a612ae5d2dbd9c158e8bd3db33c71d",
+        "bytes": 6653,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/normalized_cells.json",
+        "sha256": "f0020badb50fefa868b37d6f4ee4d8e5b399521ce8a9631f731d69f234355420",
+        "bytes": 6301,
+        "createdAt": "2026-07-04T21:18:26Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t21-18-26z-bls-jolts-job-openings-2026-06/validation.json",
+        "sha256": "ea3057b44afb210170bd25766cc519d2acf98f33bf1a03d4ff1a47774887482f",
+        "bytes": 125,
+        "createdAt": "2026-07-04T21:18:26Z"
+      }
+    ]
+  }
+]

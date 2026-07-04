@@ -1,0 +1,118 @@
+[
+  {
+    "slug": "us-core-cpi-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US core CPI July 2026 MoM",
+    "question": "BLS CPI-U all items less food and energy, July 2026, seasonally adjusted month-over-month percent change, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.3,
+    "ciLow": 0.1,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index news release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first BLS-published July 2026 seasonally adjusted percent change from the preceding month for CPI-U all items less food and energy, as shown in the Consumer Price Index news release scheduled for 2026-08-12 at 08:30 ET. Use the first print rounded to BLS's reported one decimal place; ignore later seasonal-adjustment revisions or corrections.",
+    "dataPointId": "bls.cpi.u.core_mom.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 core CPI MoM first print",
+        "value": 0.2
+      },
+      {
+        "label": "Apr 2026 core CPI MoM first print",
+        "value": 0.4
+      },
+      {
+        "label": "Mar 2026 core CPI MoM first print",
+        "value": 0.2
+      },
+      {
+        "label": "Feb 2026 core CPI MoM first print",
+        "value": 0.2
+      },
+      {
+        "label": "Jan 2026 core CPI MoM first print",
+        "value": 0.3
+      },
+      {
+        "label": "Dec 2025 core CPI MoM first print",
+        "value": 0.2
+      }
+    ],
+    "drivers": [
+      "Recent core CPI prints cluster around 0.2 to 0.3 percent",
+      "April's 0.4 percent print keeps upside risk live",
+      "Shelter inflation remained positive at 0.3 percent in May",
+      "Core goods softness in May offsets some tariff and supply-chain pressure",
+      "Energy shock raises indirect pass-through risk but May core response was contained"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/news.release/cpi.t01.htm"
+    ],
+    "runAt": "2026-07-04T21:37:45Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast July 2026 US core CPI month-over-month"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first official BLS print for CPI-U all items less food and energy, seasonally adjusted monthly percent change for July 2026. The local catalog slug matches the requested target; I used local context only to confirm slug and dataPointId, not as forecast evidence."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS CPI release calendar for July 2026 reference month",
+        "result": "Fetched official schedule: July 2026 CPI reference month is scheduled for release on Aug. 12, 2026 at 08:30 AM; June 2026 CPI is scheduled for Jul. 14, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS May 2026 CPI Summary Table A for recent core CPI monthly changes",
+        "result": "Fetched BLS Table A numbers for all items less food and energy: Dec. 2025 0.2, Jan. 2026 0.3, Feb. 2026 0.2, Mar. 2026 0.2, Apr. 2026 0.4, May 2026 0.2, and 12-month May 2026 change 2.9."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS May 2026 CPI Summary and component notes",
+        "result": "Fetched May 2026 CPI summary numbers: all items rose 0.5, energy rose 3.9, shelter rose 0.3, food rose 0.2, and all items less food and energy rose 0.2 after 0.4 in April."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Table 1 May 2026 expenditure category details for core components",
+        "result": "Fetched May 2026 component numbers: all items less food and energy relative importance 79.014, shelter relative importance 35.237 and May SA change 0.3, services less energy services relative importance 60.158 and May SA change 0.3, commodities less food and energy commodities relative importance 18.856 and May SA change -0.1, new vehicles May SA change -0.3, motor vehicle insurance May SA change -1.7, airline fares May SA change 2.7."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent official first-print reference class for core CPI is tightly centered: the six available monthly changes from Dec. 2025 through May 2026 are 0.2, 0.3, 0.2, 0.2, 0.4, and 0.2, with median 0.2 and mean 0.25. That makes a 0.2 to 0.3 percent prior more defensible than extrapolating from headline energy volatility."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum split: May core slowed back to 0.2 after April's 0.4, while the 12-month core rate was 2.9. That says underlying core inflation is still above a 2 percent annualized target pace but not accelerating sharply in the latest official print."
+      },
+      {
+        "kind": "text",
+        "text": "Mechanism split: shelter and core services provide a sticky positive floor, while May core goods softness, lower new vehicle prices, and falling motor vehicle insurance reduce the chance of a broad July breakout. Energy is excluded from core, but the March-May energy shock can still leak into airfares, delivery-sensitive goods, and expectations with a lag."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: use a persistence/recent-first-print prior from the Dec. 2025-May 2026 BLS core CPI sample, centered at about 0.25 percent. Update by +0.05 percentage point for sticky shelter/services and possible indirect energy pass-through, and by 0.00 for core goods because May softness offsets tariff/supply risks, giving a rounded point forecast of 0.3 percent. Size the 80 percent interval from realized first-print dispersion in the recent sample, where observations ran 0.2 to 0.4, then widen for missing June and July information and unresolved pass-through risk to 0.1 to 0.5 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk would land above the interval if energy pass-through, airfares, medical care, shelter, and tariff-sensitive core goods all firm together, pushing the rounded first print above 0.5. Downside risk would land below the interval if June-July goods deflation deepens, vehicle/insurance declines repeat, and shelter decelerates enough to pull core below 0.1. The central case is persistent but not reaccelerating core inflation near 0.3."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.3,
+        "ciLow": 0.1,
+        "ciHigh": 0.5
+      }
+    ]
+  }
+]

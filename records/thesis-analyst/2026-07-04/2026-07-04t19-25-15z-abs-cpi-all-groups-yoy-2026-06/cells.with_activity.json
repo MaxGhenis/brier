@@ -1,0 +1,225 @@
+[
+  {
+    "slug": "australia-cpi-annual-rate-june-2026",
+    "country": "AU",
+    "type": "data",
+    "title": "Australia CPI inflation, Jun 2026",
+    "question": "ABS Consumer Price Index, Australia, All groups CPI, annual percentage change for June 2026, original terms, first print",
+    "unit": "percent",
+    "pointEstimate": 4.4,
+    "ciLow": 3.7,
+    "ciHigh": 5.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-29",
+    "resolutionSource": "Australian Bureau of Statistics Consumer Price Index, Australia release",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+    "resolutionRule": "Resolve to the first ABS-published All groups CPI annual movement for June 2026 in Consumer Price Index, Australia, original terms, rounded as published to one decimal percentage point. Ignore later revisions or backcast changes unless the first release is explicitly corrected in the original first-print release.",
+    "dataPointId": "abs.cpi.all_groups.yoy.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 annual CPI",
+        "value": 4
+      },
+      {
+        "label": "April 2026 annual CPI",
+        "value": 4.2
+      },
+      {
+        "label": "March 2026 annual CPI",
+        "value": 4.6
+      },
+      {
+        "label": "June 2025 monthly CPI",
+        "value": 0.1
+      },
+      {
+        "label": "May 2026 monthly CPI",
+        "value": -0.7
+      },
+      {
+        "label": "May 2026 trimmed mean annual CPI",
+        "value": 3.6
+      }
+    ],
+    "drivers": [
+      "May all-groups annual CPI was 4.0 percent after a temporary monthly fall",
+      "June 2025 base month was only 0.1 percent month over month",
+      "transport weakness in May can partially reverse in June",
+      "housing and electricity remain firm annual contributors",
+      "trimmed mean at 3.6 percent keeps the central tendency below the headline upside tail"
+    ],
+    "sourceContext": [
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+      "https://www.abs.gov.au/about/key-priorities/big-data-timely-insights-phase-2/complete-monthly-measure-cpi/release-schedule"
+    ],
+    "runAt": "2026-07-04T19:26:12Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast: ABS All groups CPI annual inflation for June 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the ABS Consumer Price Index, Australia first release for June 2026, using the All groups CPI annual movement in original terms. The target is a first-print rounded annual percentage rate, not a later revision or a third-party mirror."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ABS Consumer Price Index, Australia latest release page for the current CPI publication and future-release listing.",
+        "result": "Fetched reference period May 2026, released 24/06/2026 at 11:30am AEST; ABS listed the next Consumer Price Index, Australia release for June 2026 on 29/07/2026 and July 2026 on 26/08/2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the official ABS complete Monthly CPI release schedule page.",
+        "result": "Fetched schedule details: first complete Monthly CPI on 26/11/2025 for October 2025, publication on the last Wednesday after the reference month, with listed early releases including February 2026 on 25/03/2026, March 2026 on 29/04/2026, and April 2026 on 27/05/2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the ABS May 2026 key statistics and main All groups CPI table.",
+        "result": "Fetched May 2026 All groups CPI annual movement 4.0%, April 2026 annual movement 4.2%, March 2026 annual movement 4.6%, February 2026 annual movement 3.7%, and May 2026 monthly movement -0.7%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the ABS May 2026 historical monthly movement table for base-month and recent-month mechanics.",
+        "result": "Fetched June 2025 monthly CPI 0.1%, July 2025 monthly CPI 1.3%, December 2025 monthly CPI 1.0%, March 2026 monthly CPI 1.1%, April 2026 monthly CPI 0.4%, and May 2026 monthly CPI -0.7%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the ABS May 2026 component and analytical series tables.",
+        "result": "Fetched May 2026 component context: Housing annual inflation 6.5%, Transport annual inflation 3.3%, Food and non-alcoholic beverages 3.3%, trimmed mean annual inflation 3.6%, Goods annual inflation 4.2%, and Services annual inflation 3.7%."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the comparable complete monthly CPI annual readings since late 2025 are clustered around 3.4% to 4.6%, with the latest three prints at 4.6%, 4.2%, and 4.0%. A simple latest-value prior starts at 4.0%, but the June 2025 base month was a low 0.1%, so a normal positive June 2026 month lifts the annual rate mechanically."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum: May's -0.7% monthly fall pulled the headline annual rate down despite still-firm housing and underlying inflation. I treat part of that May drop, especially transport and recreation, as likely to mean-revert rather than persist fully into June."
+      },
+      {
+        "kind": "text",
+        "text": "One-off and policy mechanisms: housing remains the main upside channel because May Housing was 6.5% year over year and electricity was affected by rebate timing, while automotive fuel and travel prices are the main downside-or-rebound channels after May Transport fell 3.9% month over month."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is latest-value annual CPI persistence with a base-month bridge, using the official monthly sample from June 2025 through May 2026 and the latest annual prints of 4.6%, 4.2%, and 4.0%. Adjustment components are +0.4 pp for replacing June 2025's 0.1% base with an assumed roughly 0.5% June 2026 month, +0.1 pp for rebound from May's temporary transport/recreation weakness, and -0.1 pp for trimmed-mean restraint near 3.6%. The 80% interval maps a realized monthly first-print range of about -0.2% to +1.1% for June 2026 through the same annual-rate bridge, rounded to final implied bounds of 3.7% to 5.0%."
+      },
+      {
+        "kind": "math",
+        "text": "Annual-rate bridge from May: May annual CPI 4.0% implies index ratio 1.040 versus May 2025. Using June 2025 monthly CPI 0.1% and a central June 2026 monthly CPI of 0.5%, the implied June annual rate is 1.040 * 1.005 / 1.001 - 1 = 0.0442, or 4.4% after one-decimal rounding. For the interval, June 2026 monthly outcomes from about -0.2% to +1.1% imply roughly 3.7% to 5.0% after rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: if May's fuel and travel weakness continues rather than reverses, the release could remain near 4.0% or below despite the low June 2025 base; conversely, an electricity or fuel rebound could push headline inflation materially above the underlying trend."
+      },
+      {
+        "kind": "text",
+        "text": "Outside-the-interval scenarios: below 3.7% would likely require another broad monthly fall led by fuel, airfares, or goods discounting; above 5.0% would likely require a large June price jump from electricity, fuel, rents, or a travel-price rebound coinciding with little offset elsewhere."
+      },
+      {
+        "kind": "forecast",
+        "point": 4.4,
+        "ciLow": 3.7,
+        "ciHigh": 5.0
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/prompt.md",
+        "sha256": "adc89decd5ea808d7ff9bb4cb0e30499d34cd6a3693e90d6564d18268b9307c0",
+        "bytes": 6513,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/command.json",
+        "sha256": "d3e8334542f8d775bc028cc050367d752e6f3998269be56bd8567c575c10bc29",
+        "bytes": 830,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/codex_stdout.jsonl",
+        "sha256": "b771ac6f2945e55a301e0a645052d09e139c2c0d175a0a282798df0d7ca10422",
+        "bytes": 2549156,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/codex_stderr.log",
+        "sha256": "83089f1932b225cb6d27284acbf5135498549f26b1958ac956631ba408cd7917",
+        "bytes": 325,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/codex_events.jsonl",
+        "sha256": "90e6a642829fbce36b44ea54cd6bab03118f8af626458d45bd39268afbeba2d2",
+        "bytes": 2549403,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/codex_last_message.txt",
+        "sha256": "a1fee6ffe980b907e85b0f0b4869d52ae6e621c220ef63097e12dca24d1cce87",
+        "bytes": 6858,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/codex_trace.json",
+        "sha256": "d8fb7d573c5c4e70b1b7cc814bc95741000b431aa7aea878f42d07f2b92dac89",
+        "bytes": 508,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/stdout.txt",
+        "sha256": "a1fee6ffe980b907e85b0f0b4869d52ae6e621c220ef63097e12dca24d1cce87",
+        "bytes": 6858,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/stderr.txt",
+        "sha256": "f3b52f42accd4cea58c2112353680c605694103738f4a349ac5cd325f802bf00",
+        "bytes": 348,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/raw_response.txt",
+        "sha256": "a1fee6ffe980b907e85b0f0b4869d52ae6e621c220ef63097e12dca24d1cce87",
+        "bytes": 6858,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/parsed_cells.json",
+        "sha256": "7affdd64f21379430560a130b520ed0c856ba6543fe286df8ed618e288ad9df2",
+        "bytes": 7890,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/normalized_cells.json",
+        "sha256": "79aa37d5aba4aed34194734f17b71e5291b5c10e9e84822f048d68ff847f626f",
+        "bytes": 7477,
+        "createdAt": "2026-07-04T19:25:15Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-25-15z-abs-cpi-all-groups-yoy-2026-06/validation.json",
+        "sha256": "6332c829c7ba27940e37b095ceac2a27764321e888eac0fbe8cc247a05b49e81",
+        "bytes": 136,
+        "createdAt": "2026-07-04T19:25:15Z"
+      }
+    ]
+  }
+]

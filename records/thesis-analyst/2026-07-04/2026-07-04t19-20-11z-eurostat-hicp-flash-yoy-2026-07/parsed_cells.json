@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "euro-flash-hicp-july-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Euro area flash HICP annual inflation, July 2026",
+    "question": "Eurostat euro area all-items HICP annual inflation flash estimate for July 2026, year-on-year percent change, first print",
+    "unit": "percent",
+    "pointEstimate": 2.6,
+    "ciLow": 2.1,
+    "ciHigh": 3.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "Eurostat, Euro indicators, euro area flash HICP estimate, July 2026",
+    "resolutionSourceUrl": "https://ec.europa.eu/eurostat/web/products-euro-indicators",
+    "resolutionRule": "Resolves to Eurostat's first flash estimate of the euro area all-items HICP annual inflation rate for July 2026, rounded to one decimal percent as first released in the Euro indicators flash-estimate publication on 31 July 2026. Ignore the later complete HICP release and any revisions.",
+    "dataPointId": "eurostat.ea.hicp.flash.yoy.2026-07",
+    "historicalContext": [
+      {
+        "label": "2026-03 flash all-items annual rate",
+        "value": 2.6
+      },
+      {
+        "label": "2026-04 flash all-items annual rate",
+        "value": 3.0
+      },
+      {
+        "label": "2026-05 flash all-items annual rate",
+        "value": 3.2
+      },
+      {
+        "label": "2026-06 flash all-items annual rate",
+        "value": 2.8
+      },
+      {
+        "label": "2026-06 flash all-items monthly rate",
+        "value": -0.1
+      }
+    ],
+    "drivers": [
+      "June flash fell to 2.8 percent from 3.2 percent in May",
+      "June monthly all-items HICP was -0.1 percent, weakening near-term momentum",
+      "Energy inflation was still high at 8.7 percent but down from 10.8 percent in May",
+      "Services inflation eased to 3.2 percent from 3.5 percent",
+      "Food, alcohol and tobacco eased to 1.6 percent from 1.9 percent",
+      "The July flash release is scheduled as the next Eurostat euro-indicators inflation release on 31 July 2026"
+    ],
+    "sourceContext": [
+      "https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-01072026-ap",
+      "https://ec.europa.eu/eurostat/web/hicp",
+      "https://ec.europa.eu/eurostat/web/main/news/euro-indicators/release-calendar"
+    ],
+    "runAt": "2026-07-04T19:20:34Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Euro area July 2026 flash HICP forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first Eurostat Euro indicators flash estimate for euro area all-items HICP annual inflation in July 2026. The official 1 July 2026 June flash release states the next release is 31 July 2026, so I use that as the verified resolution date for the July first print."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Eurostat Euro indicators flash estimate published 1 July 2026 for the latest official headline path and next-release date.",
+        "result": "Fetched official headline data: June 2026 euro area annual inflation 2.8%, May 2026 3.2%, April 2026 3.0%, March 2026 2.6%, February 2026 1.9%, January 2026 1.7%; June 2026 monthly all-items rate -0.1%; Next release 31 July 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the Eurostat June 2026 flash component table for inflation mechanism inputs.",
+        "result": "Fetched component rates: energy 8.7% in June versus 10.8% in May; services 3.2% versus 3.5%; food, alcohol and tobacco 1.6% versus 1.9%; non-energy industrial goods 0.9% versus 0.9%; core ex energy, food, alcohol and tobacco 2.4% versus 2.6%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Eurostat HICP overview and release-calendar pages for release vehicle and official series context.",
+        "result": "Fetched HICP overview latest-news entry dated 1 July 2026 for euro area annual inflation down to 2.8%; release-calendar page lists Inflation as a Euro indicator and states Europe/Luxembourg CET/CEST time zone."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: the recent first-print annual-rate changes are +0.2, +0.7, +0.4, +0.2, and -0.4 percentage points from January through June. A simple persistence prior after the June break is near 2.8, but the latest monthly rate of -0.1 and broad component easing argue for a modest further decline rather than a flat repeat."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism split: the level is still above the ECB-style 2 percent benchmark, but June momentum weakened across headline, services, food, and energy. Energy remains the main upside risk because 8.7 percent is still high, while services at 3.2 percent keeps underlying inflation from falling sharply."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is a transparent persistence-plus-recent-change model using the January-June 2026 official flash sample, anchored on June's 2.8 percent first print; update components are -0.15 pp for negative June monthly headline momentum, -0.10 pp for energy/services/food easing, and +0.05 pp for still-sticky core/services, giving 2.6 percent after one-decimal rounding. The 80 percent interval uses realized recent first-print change dispersion of roughly 0.4 pp and a one-month shock allowance, giving 2.1 to 3.1 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Prior-run update: an earlier June run had expected persistence near 3.3 before Eurostat printed 2.8; the official downside miss makes me downweight energy-persistence extrapolation for July and anchor more heavily on the June first print and its negative monthly rate."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and scenarios: upside outside the interval would come from a renewed energy-price jump, hot travel-services seasonality, or national flash prints from Germany, Spain, Italy, and France all surprising high enough to push the euro-area rate above 3.1 percent. Downside outside the interval would come from energy base effects and weaker goods or food prices pulling the annual rate below 2.1 percent. Central case is a further but not dramatic easing to the mid-2s."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: 2.8 latest official print - 0.15 for June monthly all-items weakness - 0.10 for broad component deceleration + 0.05 for sticky services/core = 2.60, rounded to 2.6. Interval calculation: 2.6 +/- 0.5 percentage point gives an 80% range of 2.1 to 3.1 after one-decimal rounding."
+      },
+      {
+        "kind": "forecast",
+        "point": 2.6,
+        "ciLow": 2.1,
+        "ciHigh": 3.1
+      }
+    ]
+  }
+]

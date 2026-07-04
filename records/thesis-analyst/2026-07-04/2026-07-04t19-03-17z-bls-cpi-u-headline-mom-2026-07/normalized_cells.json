@@ -1,0 +1,111 @@
+[
+ {
+  "slug": "us-cpi-u-mom-july-2026",
+  "country": "US",
+  "type": "data",
+  "title": "US CPI-U July 2026 MoM",
+  "question": "BLS Consumer Price Index for All Urban Consumers (CPI-U), U.S. city average, all items, seasonally adjusted percent change from preceding month, July 2026, first print",
+  "unit": "percent_growth",
+  "pointEstimate": 0.3,
+  "ciLow": -0.1,
+  "ciHigh": 0.8,
+  "confidence": 0.8,
+  "resolutionDate": "2026-08-12",
+  "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index news release",
+  "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+  "resolutionRule": "Resolve to the first BLS-published July 2026 seasonally adjusted percent change from preceding month for CPI-U all items, U.S. city average, as released on 2026-08-12 at 8:30 a.m. ET. Use the one-decimal first print in the BLS CPI news release table; ignore later revisions, annual seasonal-adjustment revisions, errata after the first print, and FRED mirrors.",
+  "dataPointId": "bls.cpi.u.headline_mom.july_2026.first_print",
+  "historicalContext": [
+   {
+    "label": "May 2026 CPI-U all items MoM first print",
+    "value": 0.5
+   },
+   {
+    "label": "April 2026 CPI-U all items MoM first print",
+    "value": 0.6
+   },
+   {
+    "label": "March 2026 CPI-U all items MoM first print",
+    "value": 0.9
+   },
+   {
+    "label": "May 2026 core CPI-U MoM first print",
+    "value": 0.2
+   },
+   {
+    "label": "June 29 2026 EIA U.S. regular gasoline price dollars per gallon",
+    "value": 3.831
+   }
+  ],
+  "drivers": [
+   "Recent headline CPI was elevated by energy, but weekly gasoline prices were falling by late June",
+   "Core CPI slowed to 0.2 percent in May after 0.4 percent in April",
+   "Shelter remains a persistent positive contribution but not enough alone for another 0.6-0.9 percent headline print",
+   "Food inflation was positive but moderate in the latest CPI release",
+   "July remains exposed to renewed energy or tariff pass-through shocks"
+  ],
+  "sourceContext": [
+   "https://www.bls.gov/schedule/news_release/cpi.htm",
+   "https://www.bls.gov/news.release/cpi.nr0.htm",
+   "https://www.bls.gov/news.release/archives/cpi_05122026.htm",
+   "https://www.eia.gov/petroleum/gasdiesel/"
+  ],
+  "runAt": "2026-07-04T19:03:43Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast July 2026 BLS CPI-U headline monthly first print"
+   },
+   {
+    "kind": "text",
+    "text": "The target is BLS CPI-U all items, U.S. city average, seasonally adjusted percent change from the preceding month for July 2026. The first print is the August CPI news release, not a FRED mirror or later revised seasonal-adjustment vintage."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BLS CPI release calendar for the July 2026 reference month",
+    "result": "Fetched official schedule: July 2026 CPI reference month release date is Aug. 12, 2026 at 08:30 AM; June 2026 is scheduled Jul. 14, 2026 at 08:30 AM; August 2026 is scheduled Sep. 11, 2026 at 08:30 AM."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BLS May 2026 CPI news release headline, core, food, and energy details",
+    "result": "Fetched May 2026 first-print context: CPI-U all items rose 0.5 percent after 0.6 percent in April; 12-month all items inflation was 4.2 percent; energy rose 3.9 percent; core CPI rose 0.2 percent; shelter rose 0.3 percent; food rose 0.2 percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BLS April 2026 CPI archive for prior first-print composition",
+    "result": "Fetched April 2026 first-print context: CPI-U all items rose 0.6 percent after 0.9 percent in March; energy rose 3.8 percent; gasoline rose 5.4 percent; core CPI rose 0.4 percent; shelter rose 0.6 percent; food rose 0.5 percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "EIA Gasoline and Diesel Fuel Update, late-June 2026 U.S. regular gasoline prices",
+    "result": "Fetched EIA weekly gasoline prices: U.S. regular gasoline was 4.052 dollars per gallon on 06/15/26, 3.914 on 06/22/26, and 3.831 on 06/29/26, a -0.083 dollar week-over-week change on 06/29/26 and 0.667 dollars above a year earlier."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class anchor: the recent official first-print headline sequence is February 0.3, March 0.9, April 0.6, and May 0.5 percent, with the high prints heavily energy-driven. A simple recent median anchor is about 0.55 percent, but that reference class is contaminated by a March-May energy shock."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, and mechanism split: core momentum cooled to 0.2 percent in May from 0.4 percent in April, shelter slowed to 0.3 percent from 0.6 percent, and food was 0.2 percent. Energy is still the main upside mechanism, but EIA gasoline prices were falling into late June, making a repeat of March-April gasoline-driven headline spikes less likely for July."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: this is still a forecast made before the June CPI first print and before most July price collection is observable. Upside outside the interval would come from renewed Middle East energy disruption, gasoline rebounding sharply in July, or broad tariff pass-through lifting core goods; downside outside the interval would require a larger gasoline retracement plus soft airfares, vehicles, and lodging."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: use a persistence/recent-first-print prior from the February-May headline sample with median about 0.55 percent and realized range 0.3 to 0.9. Update by -0.15 percentage points for late-June gasoline declines, -0.05 for cooler May core/shelter momentum, and -0.05 for mean reversion from unusually energy-heavy March-May prints, giving 0.30 percent. Size the 80 percent interval from recent first-print dispersion, widened for missing June and July information: 0.30 minus 0.40 to 0.30 plus 0.50, rounded to [-0.1, 0.8]."
+   },
+   {
+    "kind": "forecast",
+    "point": 0.3,
+    "ciLow": -0.1,
+    "ciHigh": 0.8
+   }
+  ]
+ }
+]

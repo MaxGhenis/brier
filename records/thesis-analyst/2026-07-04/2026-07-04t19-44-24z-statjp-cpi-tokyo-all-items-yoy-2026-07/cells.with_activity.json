@@ -1,0 +1,209 @@
+[
+  {
+    "slug": "japan-tokyo-cpi-annual-rate-july-2026-prelim",
+    "country": "JP",
+    "type": "data",
+    "title": "Tokyo CPI annual inflation, July 2026 prelim",
+    "question": "Statistics Bureau of Japan Consumer Price Index for Ku-area of Tokyo, all items, July 2026, change over the year, first preliminary print",
+    "unit": "percent",
+    "pointEstimate": 3.3,
+    "ciLow": 2.5,
+    "ciHigh": 4.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "Statistics Bureau of Japan Consumer Price Index, Ku-area of Tokyo preliminary release",
+    "resolutionSourceUrl": "https://www.stat.go.jp/english/data/cpi/1581-z.html",
+    "resolutionRule": "Resolve to the first published Ku-area of Tokyo preliminary all-items CPI change-over-the-year percentage for July 2026 in the Statistics Bureau of Japan/e-Stat Consumer Price Index release, using the agency's one-decimal percent rounding. Ignore later revisions, corrections, and the scheduled 2025-base revision unless incorporated in the first July 2026 preliminary print itself.",
+    "dataPointId": "statjp.cpi.tokyo_all_items_annual_rate.july_2026.preliminary",
+    "historicalContext": [
+      {
+        "label": "Jun 2026 Tokyo all-items YoY preliminary context",
+        "value": 3.4
+      },
+      {
+        "label": "May 2026 Tokyo all-items YoY preliminary",
+        "value": 3.4
+      },
+      {
+        "label": "Apr 2026 Tokyo all-items YoY preliminary",
+        "value": 3.5
+      },
+      {
+        "label": "Mar 2026 Tokyo all-items YoY preliminary",
+        "value": 2.9
+      },
+      {
+        "label": "Feb 2026 Tokyo all-items YoY preliminary",
+        "value": 2.9
+      }
+    ],
+    "drivers": [
+      "recent Tokyo headline inflation has persisted around the low-to-mid 3 percent range",
+      "food and rice prices remain an upside risk for headline all-items CPI",
+      "energy subsidy and utility-base effects can move the headline YoY rate quickly",
+      "July is immediately before the scheduled 2025-base CPI revision period, so first-print handling matters",
+      "monthly Tokyo CPI YoY changes are persistent but can move several tenths on fresh food and energy"
+    ],
+    "sourceContext": [
+      "https://www.stat.go.jp/english/data/cpi/1581-z.html",
+      "https://www.stat.go.jp/english/data/cpi/1582.html",
+      "https://www.e-stat.go.jp/en/dbview?sid=0003427113",
+      "https://www.e-stat.go.jp/en/stat-search/files?cycle=1&layout=datalist&page=1&tclass1=000001150149&toukei=00200573&tstat=000001150147"
+    ],
+    "runAt": "2026-07-04T19:44:59Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast Tokyo all-items CPI YoY for July 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first preliminary Statistics Bureau of Japan/e-Stat Ku-area of Tokyo CPI print for July 2026, all items, change over the year, rounded to one decimal percent. I keep the catalog target substance; the visible local ledger has the same pattern for June 2026 but did not show a July registration in the inspected slice."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Statistics Bureau of Japan CPI schedule page for the July 2026 Ku-area of Tokyo preliminary release date.",
+        "result": "Fetched official release schedule last updated 23 January 2026: Japan June 2026 CPI releases July 24, 2026; Ku-area of Tokyo July 2026 preliminary releases July 31, 2026; the same schedule notes revision to 2025-base Consumer Price Index in August 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Statistics Bureau CPI latest-results page and e-Stat database landing page for the target data source.",
+        "result": "Fetched official source metadata: Statistics Bureau latest monthly results page points to e-Stat; e-Stat table 0003427113 is Consumer Price Index 2020-Base, table number 1, published date and time 2026-06-26 08:30, with time entries including Jun. 2026, May 2026, Apr. 2026, Mar. 2026, Feb. 2026, and Jan. 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read public prior official-history context from the earlier Thesis June Tokyo CPI run record, which cited the same Statistics Bureau/e-Stat source.",
+        "result": "Fetched prior official-history values used for the immediately previous target: May 2026 Tokyo all-items YoY 3.4 percent, Apr. 2026 3.5 percent, Mar. 2026 2.9 percent, Feb. 2026 2.9 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked e-Stat file-list metadata for the 2026 May monthly report to verify official Tokyo monthly update timing and table identity.",
+        "result": "Fetched e-Stat file-list metadata: Table 1-2 Subgroup Index for Ku-area of Tokyo, Monthly, survey date 2026 May, update date 2026-06-26; Table 4-2 Indices of Items for Ku-area of Tokyo, Monthly, survey date 2026 May, update date 2026-06-26."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference-class anchor: a one-month-ahead Tokyo all-items YoY forecast should start from persistence around the latest official monthly cluster rather than from a fresh trend break. The recent public official context is 2.9, 2.9, 3.5, and 3.4 percent through May, and the June database update confirms the target table is current for the next release cycle."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum split: the level is high by Japan's pre-2022 standards but stable within the recent 2.9 to 3.5 percent band. Momentum from March to May was upward then flat, so I avoid extrapolating another large rise but keep the center above 3 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Mechanism split: food and rice inflation keep an upside tail in all-items CPI, while energy and utility subsidy timing can pull the annual rate down. Services persistence supports the center, but fresh-food volatility argues against a narrow interval."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior from recent official Tokyo all-items YoY prints uses a short-sample average of Feb-May 2026: (2.9 + 2.9 + 3.5 + 3.4) / 4 = 3.175. I round the prior center to 3.2, add +0.1 for sticky food/services pressure, and make no additional June-catalog-estimate adjustment, giving 3.3. For the 80% interval, recent first-print dispersion spans 0.6 percentage points, but headline energy/fresh-food risk and the small sample justify about +/-0.8 around the point, giving 2.5 to 4.1."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and scenarios: downside outside the interval would come from a sharp energy-subsidy or gasoline-base-effect drop plus softer fresh food, pushing the July print below 2.5. Upside outside the interval would require renewed rice/food acceleration or utility pass-through pushing above 4.1. The central case is persistence near the low-to-mid 3 percent range."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.3,
+        "ciLow": 2.5,
+        "ciHigh": 4.1
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/prompt.md",
+        "sha256": "9bce05c99de101ddd14a45146d21f44100a4d51f75e053d2a1142964776ce37f",
+        "bytes": 6545,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/command.json",
+        "sha256": "ac9589238f324a62760f6ea92640189133814ceee090156c4b841e04841bc44c",
+        "bytes": 838,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_stdout.jsonl",
+        "sha256": "c94732b7c485627ae842bd889a3c119563575312c9778a6c7c7596cf5dc61b15",
+        "bytes": 1340731,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_events.jsonl",
+        "sha256": "548fd511ae146a11e157cca9ac9b80c503083ab699cd1b9246c7df075cd298bf",
+        "bytes": 1341215,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_last_message.txt",
+        "sha256": "a3497bff45dd4e2d0c1474f34816f36c7bf0cbf73c195809819c345bc8cb7314",
+        "bytes": 6373,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_trace.json",
+        "sha256": "d5340693a2b4337e64572d93d599ea0ddab435a33befa0bf6698030c593fa285",
+        "bytes": 509,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/stdout.txt",
+        "sha256": "a3497bff45dd4e2d0c1474f34816f36c7bf0cbf73c195809819c345bc8cb7314",
+        "bytes": 6373,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/raw_response.txt",
+        "sha256": "a3497bff45dd4e2d0c1474f34816f36c7bf0cbf73c195809819c345bc8cb7314",
+        "bytes": 6373,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/parsed_cells.json",
+        "sha256": "b6304fa9c3e60c4a93a3ef440c2f8e42ca7a1c9d6e6e0005805bb33538d8479e",
+        "bytes": 7263,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/normalized_cells.json",
+        "sha256": "e3806bafc07ccc52eb3bb12645695297b0d37007b0c732d6a56d8d2ee446f761",
+        "bytes": 6908,
+        "createdAt": "2026-07-04T19:44:24Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-04/2026-07-04t19-44-24z-statjp-cpi-tokyo-all-items-yoy-2026-07/validation.json",
+        "sha256": "7229d20eb26ac0719bcd7c45420d4ed295a954c1b57a6bc61263b853f95e76f4",
+        "bytes": 145,
+        "createdAt": "2026-07-04T19:44:24Z"
+      }
+    ]
+  }
+]

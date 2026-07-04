@@ -1,0 +1,112 @@
+[
+ {
+  "slug": "euro-flash-hicp-july-2026",
+  "country": "EA",
+  "type": "data",
+  "title": "Euro area flash HICP annual inflation, July 2026",
+  "question": "Eurostat euro area all-items HICP annual inflation flash estimate for July 2026, year-on-year percent change, first print",
+  "unit": "percent",
+  "pointEstimate": 2.6,
+  "ciLow": 2.1,
+  "ciHigh": 3.1,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-31",
+  "resolutionSource": "Eurostat, Euro indicators, euro area flash HICP estimate, July 2026",
+  "resolutionSourceUrl": "https://ec.europa.eu/eurostat/web/products-euro-indicators",
+  "resolutionRule": "Resolves to Eurostat's first flash estimate of the euro area all-items HICP annual inflation rate for July 2026, rounded to one decimal percent as first released in the Euro indicators flash-estimate publication on 31 July 2026. Ignore the later complete HICP release and any revisions.",
+  "dataPointId": "eurostat.ea.hicp.flash.yoy.2026-07",
+  "historicalContext": [
+   {
+    "label": "2026-03 flash all-items annual rate",
+    "value": 2.6
+   },
+   {
+    "label": "2026-04 flash all-items annual rate",
+    "value": 3.0
+   },
+   {
+    "label": "2026-05 flash all-items annual rate",
+    "value": 3.2
+   },
+   {
+    "label": "2026-06 flash all-items annual rate",
+    "value": 2.8
+   },
+   {
+    "label": "2026-06 flash all-items monthly rate",
+    "value": -0.1
+   }
+  ],
+  "drivers": [
+   "June flash fell to 2.8 percent from 3.2 percent in May",
+   "June all-items monthly rate was -0.1 percent",
+   "Energy inflation eased but remained high at 8.7 percent",
+   "Services inflation slowed to 3.2 percent",
+   "July flash is scheduled for 31 July 2026"
+  ],
+  "sourceContext": [
+   "https://ec.europa.eu/eurostat/web/products-euro-indicators/w/2-01072026-ap",
+   "https://ec.europa.eu/eurostat/web/hicp",
+   "https://ec.europa.eu/eurostat/web/main/news/euro-indicators/release-calendar"
+  ],
+  "runAt": "2026-07-04T21:26:35Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Euro area July 2026 flash HICP forecast"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the first Eurostat Euro indicators flash estimate for euro area all-items HICP annual inflation in July 2026, rounded to one decimal. The target stays tied to the catalog slug and dataPointId; later complete HICP data or revisions should not change resolution."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked the Eurostat 1 July 2026 Euro indicators flash-estimate release for the latest official headline path and the next-release statement.",
+    "result": "Fetched official first-print numbers: June 2026 euro area annual inflation 2.8%, May 2026 3.2%, April 2026 3.0%, March 2026 2.6%, February 2026 1.9%, January 2026 1.7%; June 2026 monthly all-items rate -0.1%; next release 31 July 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the Eurostat June 2026 flash component table for July mechanism inputs.",
+    "result": "Fetched component rates: energy 8.7% in June versus 10.8% in May; services 3.2% versus 3.5%; food, alcohol and tobacco 1.6% versus 1.9%; non-energy industrial goods 0.9% versus 0.9%; core excluding energy, food, alcohol and tobacco 2.4% versus 2.6%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Checked Eurostat HICP overview and euro-indicators release-calendar context for the release vehicle and schedule.",
+    "result": "Fetched schedule/context numbers: HICP overview latest-news entry dated 1 July 2026 reports euro area annual inflation down to 2.8%; release-calendar context identifies Inflation as a Euro indicator and uses the Europe/Luxembourg CET/CEST release-time convention, with the July flash resolving on 31 July 2026."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate/reference class: recent official first-print monthly changes in the annual rate were +0.2, +0.7, +0.4, +0.2, and -0.4 percentage points from January through June 2026. A persistence base rate would center July near 2.8, while the negative June monthly rate and broad component easing point below persistence."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, one-off, and policy mechanisms: the level is still above 2 percent, but June's momentum weakened in headline, energy, services, food, and core. Energy remains the main upside risk because 8.7 percent is high, while services at 3.2 percent makes a collapse below the low-2s less likely."
+   },
+   {
+    "kind": "text",
+    "text": "Prior/update/interval: prior model is persistence plus recent-change adjustment using the January-June 2026 official first-print reference class, anchored on June's 2.8 percent. Updates are -0.15 pp for the -0.1 monthly all-items print, -0.10 pp for broad component deceleration, and +0.05 pp for still-sticky services/core, implying 2.60 before one-decimal publication rounding. The 80 percent interval uses recent first-print change dispersion around 0.4 pp plus a one-month shock allowance, giving 2.1 to 3.1 percent."
+   },
+   {
+    "kind": "text",
+    "text": "Prior-run update: an earlier June forecast had expected more persistence before Eurostat printed 2.8 for June; that official downside surprise makes me downweight simple energy-persistence extrapolation and anchor July more heavily on the June first print and negative monthly rate."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: upside risk outside the interval would come from renewed energy-price pressure, hot travel-services seasonality, or large-country national flash prints all surprising high enough to put the euro-area rate above 3.1 percent. Downside risk outside the interval would require stronger energy base effects plus weaker goods or food prices pulling the first print below 2.1 percent."
+   },
+   {
+    "kind": "math",
+    "text": "Point calculation: 2.8 latest official first print - 0.15 for June monthly weakness - 0.10 for component deceleration + 0.05 for sticky services/core = 2.60, rounded to 2.6. Interval calculation: 2.6 +/- 0.5 percentage point gives an 80% range of 2.1 to 3.1 after one-decimal rounding."
+   },
+   {
+    "kind": "forecast",
+    "point": 2.6,
+    "ciLow": 2.1,
+    "ciHigh": 3.1
+   }
+  ]
+ }
+]

@@ -1,0 +1,79 @@
+[
+  {
+    "slug": "test-series-2030-01",
+    "country": "US",
+    "type": "data",
+    "title": "test.series 2030-01",
+    "question": "What will the first-print value of test.series be for 2030-01, as published by the official source?",
+    "unit": "percent",
+    "pointEstimate": 5.1,
+    "ciLow": 4.6,
+    "ciHigh": 5.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-10-02",
+    "resolutionSource": "Official statistical release",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/",
+    "resolutionRule": "Resolves to the first published official value for the target series and period; later revisions do not change the result.",
+    "dataPointId": "test.series.2030-01.first_print",
+    "historicalContext": [
+      {
+        "label": "t-3",
+        "value": 5.0
+      },
+      {
+        "label": "t-2",
+        "value": 5.1
+      },
+      {
+        "label": "t-1",
+        "value": 5.2
+      }
+    ],
+    "drivers": [
+      "recent momentum",
+      "release volatility",
+      "labour-market slack"
+    ],
+    "sourceContext": [
+      "https://www.ons.gov.uk/",
+      "https://www.nomisweb.co.uk/home/release_dates.asp"
+    ],
+    "runAt": "2026-07-04T21:21:05Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Mock thesis.analyst dry run"
+      },
+      {
+        "kind": "text",
+        "text": "Reference class base rate from the last 3 prints is 5.1, with recent values clustered between 5.0 and 5.2."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "official.lookup(series='test.series', period='2030-01')",
+        "result": "{t_minus_3: 5.0, t_minus_2: 5.1, t_minus_1: 5.2}"
+      },
+      {
+        "kind": "tool",
+        "tool": "calendar.lookup",
+        "call": "calendar.lookup(series='test.series', period='2030-01')",
+        "result": "{resolution_date: '2026-10-02', first_print: true}"
+      },
+      {
+        "kind": "math",
+        "text": "Point = recent center 5.1. Realized volatility plus horizon uncertainty gives an 80% interval [4.6, 5.8]."
+      },
+      {
+        "kind": "text",
+        "text": "Outside the interval if hiring weakens abruptly or the survey mean-reverts faster than the recent prints imply."
+      },
+      {
+        "kind": "forecast",
+        "point": 5.1,
+        "ciLow": 4.6,
+        "ciHigh": 5.8
+      }
+    ]
+  }
+]

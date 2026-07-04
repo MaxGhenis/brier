@@ -1,0 +1,120 @@
+[
+ {
+  "slug": "us-core-pce-mom-june-2026",
+  "country": "US",
+  "type": "data",
+  "title": "US core PCE MoM June 2026",
+  "question": "BEA Personal Income and Outlays: PCE price index excluding food and energy, seasonally adjusted percent change from preceding month, June 2026, first print",
+  "unit": "percent_growth",
+  "pointEstimate": 0.31,
+  "ciLow": 0.16,
+  "ciHigh": 0.47,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-30",
+  "resolutionSource": "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+  "resolutionSourceUrl": "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+  "resolutionRule": "Resolve to the first BEA Personal Income and Outlays print for June 2026 PCE price index excluding food and energy, seasonally adjusted percent change from the preceding month, released July 30, 2026 at 8:30 a.m. EDT. Use the first published value at BEA's reported precision; ignore later revisions or benchmark updates.",
+  "dataPointId": "us.bea.core_pce.mom_sa.2026-06",
+  "historicalContext": [
+   {
+    "label": "May 2026 BEA core PCE MoM first print",
+    "value": 0.3
+   },
+   {
+    "label": "April 2026 BEA core PCE MoM as shown in May release",
+    "value": 0.3
+   },
+   {
+    "label": "March 2026 BEA core PCE MoM first print",
+    "value": 0.3
+   },
+   {
+    "label": "February 2026 BEA core PCE MoM first print",
+    "value": 0.4
+   },
+   {
+    "label": "January 2026 BEA core PCE MoM first print",
+    "value": 0.4
+   },
+   {
+    "label": "May 2026 BEA core PCE YoY",
+    "value": 3.4
+   }
+  ],
+  "drivers": [
+   "Recent core PCE persistence is clustered around 0.3 percent",
+   "Core CPI cooled to 0.2 percent in May while core services remained firm",
+   "PPI services and core final demand were still elevated in May",
+   "Energy shock mostly affects headline PCE, but some indirect pass-through risk remains",
+   "No June CPI or PPI prints were available at run time"
+  ],
+  "sourceContext": [
+   "https://www.bea.gov/news/schedule",
+   "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-april-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-march-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-february-2026",
+   "https://www.bea.gov/news/2026/personal-income-and-outlays-january-2026",
+   "https://www.bls.gov/news.release/archives/cpi_06102026.htm",
+   "https://www.bls.gov/news.release/archives/ppi_06112026.htm"
+  ],
+  "runAt": "2026-07-04T19:14:20Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast June 2026 US core PCE monthly inflation"
+   },
+   {
+    "kind": "text",
+    "text": "The target is the first BEA Personal Income and Outlays print for June 2026: PCE price index excluding food and energy, seasonally adjusted percent change from the prior month. The BEA release page, not FRED or later revised tables, is the resolving source."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BEA 2026 release schedule for Personal Income and Outlays, June 2026",
+    "result": "Fetched official schedule: Personal Income and Outlays, June 2026 is listed for July 30, 2026 at 8:30 AM; the same schedule also lists Personal Income and Outlays, July 2026 for August 26, 2026 at 8:30 AM."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BEA core PCE data page and May 2026 Personal Income and Outlays release",
+    "result": "Fetched BEA current context: core PCE 12-month change was 3.4% in May 2026, 3.3% in April 2026, 3.3% in March 2026, and 3.0% in February 2026; the current release date was June 25, 2026 and the next release date was July 30, 2026. May 2026 core PCE increased 0.3% month over month, headline PCE increased 0.4%, April core PCE in the May table was 0.3%, and May real PCE rose 0.3%."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BEA January through April 2026 Personal Income and Outlays releases",
+    "result": "Fetched recent BEA monthly prints: January 2026 core PCE rose 0.4%, February 2026 core PCE rose 0.4%, March 2026 core PCE rose 0.3%, and April 2026 first print core PCE rose 0.2%; headline PCE rose 0.3% in January, 0.4% in February, 0.7% in March, and 0.4% in April."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "BLS May 2026 CPI and PPI releases for public source-price context before June PCE inputs",
+    "result": "Fetched BLS May 2026 context: CPI-U rose 0.5%, core CPI rose 0.2%, shelter rose 0.3%, services less energy services rose 0.3%, PPI final demand rose 1.1%, final demand services rose 0.3%, final demand less foods, energy, and trade rose 0.8%, and PPI final demand goods less foods and energy rose 0.8%."
+   },
+   {
+    "kind": "text",
+    "text": "Base-rate/reference-class anchor: the official BEA recent monthly core PCE prints available this run are 0.4, 0.4, 0.3, 0.2, and 0.3 for January through May 2026, with a simple mean of 0.32 and a latest-print persistence prior of 0.30. The outside-view center is therefore just above 0.30, before June-specific information."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, one-off, and policy-mechanism split: the 12-month core PCE rate rose to 3.4%, so the level is still too high for a quick return to 0.2 prints. Momentum is stable around 0.3 after April-May. Energy is a headline shock, but PPI and transportation inputs create some indirect upside risk; cooling May core CPI and softer motor-vehicle prices cap the upside."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: persistence prior = 0.30 from the May 2026 BEA first print; historical sample = Jan-May BEA monthly core PCE values 0.4, 0.4, 0.3, 0.2, 0.3 with mean 0.32; adjustment components = +0.02 for elevated 3.4% year-over-year core PCE and firm PPI services/core final demand, -0.01 for May core CPI cooling to 0.2 and no June CPI/PPI yet; point = 0.31. Interval method = realized recent first-print dispersion plus rounding risk: recent values span 0.2 to 0.4, so use an 80% band of about +/-0.15 around 0.31, yielding 0.16 to 0.47."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration and tails: downside outside the interval would require a June CPI/PPI mix with broad goods deflation, softer medical/financial services, and shelter below recent 0.3 readings, pushing core PCE below 0.16. Upside outside the interval would require energy pass-through plus another portfolio-management, airfares, or transportation-services jump like the May PPI details, pushing core PCE above 0.47. The central case is persistence near 0.3 with modest upside pressure."
+   },
+   {
+    "kind": "forecast",
+    "point": 0.31,
+    "ciLow": 0.16,
+    "ciHigh": 0.47
+   }
+  ]
+ }
+]
