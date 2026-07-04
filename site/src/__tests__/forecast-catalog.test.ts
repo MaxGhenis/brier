@@ -211,7 +211,7 @@ describe("forecast catalog", () => {
       getForecastRunEntries,
     ).length;
 
-    expect(exportPayload.schemaVersion).toBe("thesis_log_v1");
+    expect(exportPayload.schemaVersion).toBe("thesis_log_v2");
     expect(exportPayload.source.name).toBe("Thesis Log");
     expect(exportPayload.source.url).toBe(
       "https://app.thesisinstitute.org/log",

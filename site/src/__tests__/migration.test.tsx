@@ -336,7 +336,7 @@ describe("Next.js migration", () => {
       const response = await getForecastLogJson();
       const body = await response.json();
 
-      expect(body.schemaVersion).toBe("thesis_log_v1");
+      expect(body.schemaVersion).toBe("thesis_log_v2");
       expect(body.source.name).toBe("Thesis Log");
       expect(body.source.url).toBe("https://app.thesisinstitute.org/log");
       expect(body.source.factLedger.name).toBe("PolicyEngine Ledger");

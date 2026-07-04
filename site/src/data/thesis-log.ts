@@ -191,7 +191,7 @@ export interface PolicyEngineLedgerExport {
 }
 
 export interface ThesisLogExport {
-  schemaVersion: "thesis_log_v1";
+  schemaVersion: "thesis_log_v2";
   source: {
     name: "Thesis Log";
     url: "https://app.thesisinstitute.org/log";
@@ -218,7 +218,7 @@ export interface ThesisLogExport {
   };
   entries: ThesisLogEntry[];
   specs: PredictionSpec[];
-  runs: PredictionRunRecord[];
+  runs: ThesisLogRunRecord[];
   resolutionLinks: PredictionResolutionLink[];
   resolutionEvents: PredictionResolutionEvent[];
   scores: ResolvedForecastScore[];
@@ -762,6 +762,34 @@ export function buildPolicyEngineLedgerExport(
   };
 }
 
+// v2: the log embeds run records without their 201-point CDFs. The full
+// distributions are served (chunked) by the target-architecture projection
+// and shown on each cell page; inlining them here pushed log.json past
+// Vercel's 19 MB prerender cap once the docket crossed ~600 cells.
+export type ThesisLogRunRecord = Omit<PredictionRunRecord, "output"> & {
+  output: Omit<PredictionRunRecord["output"], "distribution"> & {
+    distribution: {
+      format: PredictionRunRecord["output"]["distribution"]["format"];
+      pointCount: number;
+      pointsUrl: string;
+    };
+  };
+};
+
+function toLogRunRecord(run: PredictionRunRecord): ThesisLogRunRecord {
+  return {
+    ...run,
+    output: {
+      ...run.output,
+      distribution: {
+        format: run.output.distribution.format,
+        pointCount: run.output.distribution.pointCount,
+        pointsUrl: "/forecasts/targets/forecastDistributions/manifest.json",
+      },
+    },
+  };
+}
+
 export function buildThesisLogExport(
   forecasts: ForecastCell[],
   ledger: PolicyEngineLedgerEntry[],
@@ -781,7 +809,7 @@ export function buildThesisLogExport(
   const resolutionQueue = buildResolutionQueue(forecasts, ledger);
 
   return {
-    schemaVersion: "thesis_log_v1",
+    schemaVersion: "thesis_log_v2",
     source: {
       name: "Thesis Log",
       url: "https://app.thesisinstitute.org/log",
@@ -808,7 +836,7 @@ export function buildThesisLogExport(
     },
     entries,
     specs,
-    runs,
+    runs: runs.map(toLogRunRecord),
     resolutionLinks,
     resolutionEvents,
     scores,
