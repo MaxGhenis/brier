@@ -127,6 +127,17 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
             errs.append(f"tool step without numeric result: {t.get('tool')}")
     if not any(s.get("kind") == "math" for s in steps):
         errs.append("no math step")
+    # Interval width must be derived, not vibed: the math step has to show
+    # sigma (or the 1.28 z-multiplier) so the width is auditable. Mirrors
+    # trace-depth.test.ts (cells run on/after 2026-07-05); keep the regex
+    # byte-identical to the test.
+    math_text = " ".join(
+        s.get("text") or "" for s in steps if s.get("kind") == "math"
+    )
+    if not re.search(r"sigma\s*[=≈:]|1\.28", math_text, re.IGNORECASE):
+        errs.append(
+            "math step does not show interval derivation (sigma = X or 1.28)"
+        )
     # Mirror site/src/__tests__/trace-depth.test.ts exactly: CI requires an
     # explicit reference-class phrase and interval-falsification wording, and
     # cells that validated here but failed there have shipped-then-bounced.

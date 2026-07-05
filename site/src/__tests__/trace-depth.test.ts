@@ -31,6 +31,19 @@ describe("agent-run trace depth", () => {
 
       expect(steps.some((s) => s.kind === "math")).toBe(true);
 
+      // Cells spawned on/after 2026-07-05 must SHOW the interval derivation
+      // (sigma or the 1.28 z-multiplier) in a math step — width from realized
+      // dispersion, not a hedged template. Byte-identical regex lives in
+      // scripts/spawned_cells_to_ts.py; keep them in sync.
+      const runAt = cell.predictionRun?.runAt ?? "";
+      if (runAt >= "2026-07-05") {
+        const mathText = steps
+          .filter((s) => s.kind === "math")
+          .map((s) => ("text" in s ? s.text : ""))
+          .join(" ");
+        expect(mathText).toMatch(/sigma\s*[=≈:]|1\.28/i);
+      }
+
       const text = steps
         .map((s) =>
           "text" in s ? s.text : "result" in s ? `${s.call} ${s.result}` : "",

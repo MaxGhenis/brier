@@ -221,7 +221,9 @@ def run_one(
             argv.append("--no-codex-search")
         if args.codex_reasoning_effort:
             argv.extend(["--codex-reasoning-effort", args.codex_reasoning_effort])
-    if args.pre_submit_review_codex_model:
+    if args.no_pre_submit_review:
+        pass
+    elif args.pre_submit_review_codex_model:
         argv.extend(
             [
                 "--pre-submit-review-codex-model",
@@ -304,7 +306,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--codex-model")
     parser.add_argument("--codex-reasoning-effort", default="low")
     parser.add_argument("--no-codex-search", action="store_true")
-    parser.add_argument("--pre-submit-review-codex-model")
+    # Review is on by default: the reviewer rubric (interval-from-realized-
+    # volatility, resolver exactness, variant pinning) is exactly the failure
+    # profile of unreviewed fast-mode runs. --no-pre-submit-review to opt out.
+    parser.add_argument("--pre-submit-review-codex-model", default="gpt-5.5")
+    parser.add_argument("--no-pre-submit-review", action="store_true")
     parser.add_argument("--pre-submit-review-codex-search", action="store_true")
     parser.add_argument("--out")
     return parser.parse_args()
