@@ -1285,13 +1285,27 @@ function buildRunPackVersionProjections(
 function buildRunArtifactRefProjections(
   run: PredictionRunRecord,
 ): RunArtifactRefProjection[] {
-  return (run.activityLog ?? []).map((artifact, sequenceIndex) => ({
-    runArtifactRefId: `run_artifact.${run.runId}.${sequenceIndex}`,
-    runId: run.runId,
-    artifactRefId: buildArtifactRefId(artifact),
-    artifactRole: artifact.artifactType,
-    sequenceIndex,
-  }));
+  // The ledger schema treats a run's reference to an artifact in a role as
+  // one fact — unique (run_id, artifact_ref_id, artifact_role). Review-loop
+  // runs reference the same artifact at several sequence points (draft,
+  // review, revision), so dedupe on the schema's key and keep the first
+  // sequence position.
+  const seen = new Set<string>();
+  const refs: RunArtifactRefProjection[] = [];
+  for (const [sequenceIndex, artifact] of (run.activityLog ?? []).entries()) {
+    const artifactRefId = buildArtifactRefId(artifact);
+    const key = `${artifactRefId} ${artifact.artifactType}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    refs.push({
+      runArtifactRefId: `run_artifact.${run.runId}.${sequenceIndex}`,
+      runId: run.runId,
+      artifactRefId,
+      artifactRole: artifact.artifactType,
+      sequenceIndex,
+    });
+  }
+  return refs;
 }
 
 function buildBaselineCandidateProjections({
