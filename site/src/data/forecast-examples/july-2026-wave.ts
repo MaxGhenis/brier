@@ -1760,6 +1760,389 @@ export const JULY_2026_WAVE: ForecastCell[] = [
     ]
   },
   {
+    "slug": "japan-tokyo-cpi-annual-rate-july-2026-prelim",
+    "country": "JP",
+    "type": "data",
+    "title": "Tokyo CPI annual inflation, July 2026 prelim",
+    "question": "Statistics Bureau of Japan Consumer Price Index for Ku-area of Tokyo, all items, July 2026, change over the year, first preliminary print",
+    "unit": "percent",
+    "pointEstimate": 3.4,
+    "ciLow": 2.7,
+    "ciHigh": 4.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "Statistics Bureau of Japan Consumer Price Index, Ku-area of Tokyo preliminary release",
+    "resolutionSourceUrl": "https://www.e-stat.go.jp/en/dbview?sid=0003427113",
+    "resolutionRule": "Resolve to the first published Ku-area of Tokyo preliminary all-items CPI change-over-the-year percentage for July 2026 in the Statistics Bureau of Japan/e-Stat Consumer Price Index release, using the agency's one-decimal percent rounding. Later revisions, corrections, or base-change restatements do not change the resolved value unless they are incorporated in the first July 2026 preliminary print itself.",
+    "historicalContext": [
+      {
+        "label": "Jun 2026 Tokyo all-items YoY preliminary",
+        "value": 3.4
+      },
+      {
+        "label": "May 2026 Tokyo all-items YoY preliminary",
+        "value": 3.4
+      },
+      {
+        "label": "Apr 2026 Tokyo all-items YoY preliminary",
+        "value": 3.5
+      },
+      {
+        "label": "Mar 2026 Tokyo all-items YoY preliminary",
+        "value": 2.9
+      },
+      {
+        "label": "Feb 2026 Tokyo all-items YoY preliminary",
+        "value": 2.9
+      }
+    ],
+    "drivers": [
+      "Tokyo headline CPI has persisted around the low-to-mid 3 percent range",
+      "food and rice prices keep upside pressure in all-items CPI",
+      "energy and utility subsidy timing can pull headline inflation down or up",
+      "services persistence supports a forecast above 3 percent",
+      "July first print precedes the August 2025-base CPI revision schedule"
+    ],
+    "dataPointId": "statjp.cpi.tokyo_all_items_annual_rate.july_2026.preliminary",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-07-05T13:48:51Z",
+      "agent": "thesis.analyst",
+      "model": "gpt-5.5",
+      "agentVersion": "2.2.0",
+      "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+      "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+      "sourceContext": [
+        "https://www.stat.go.jp/english/data/cpi/1582.html",
+        "https://www.stat.go.jp/english/data/cpi/1581-z.html",
+        "https://www.stat.go.jp/english/data/cpi/index.html",
+        "https://www.e-stat.go.jp/en/dbview?sid=0003427113"
+      ],
+      "activityLog": [
+        {
+          "artifactType": "prompt",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/prompt.md",
+          "sha256": "ae192f2c54ba9abcb15dbf64d44980f9a138611e5dd6d159ed0f3e188f98cff5",
+          "bytes": 7754,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_command.json",
+          "sha256": "3a0f54ae1435ffb3eb9b0fcb1680403ae097990cce8eabaec2e65b08090971a3",
+          "bytes": 844,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_codex_stdout.jsonl",
+          "sha256": "39f52a1030c0fb85a5a6361e53229ea1533c98fa417425cd89711a67261abe42",
+          "bytes": 3996921,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_codex_stderr.log",
+          "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+          "bytes": 39,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_codex_events.jsonl",
+          "sha256": "da66f53d525e15b8795aaee1a27ce4dbee6ecae717eb7dce5e2e75b0347f5519",
+          "bytes": 3997204,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_codex_last_message.txt",
+          "sha256": "3200648ef31215784e3da7879567be5803518f087990fcea9a88523785823251",
+          "bytes": 5748,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_codex_trace.json",
+          "sha256": "550154dbaa6557bb76b28538329849fd48fed510cedcdf6efe85abbadd9ce0a7",
+          "bytes": 509,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "draft_forecast",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_stdout.txt",
+          "sha256": "3200648ef31215784e3da7879567be5803518f087990fcea9a88523785823251",
+          "bytes": 5748,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_stderr.txt",
+          "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+          "bytes": 46,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "review_prompt",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_prompt.md",
+          "sha256": "612a9e16c26a3a72c3aa6363e573ef01838247df2429e601a1b98d9006a2c9f5",
+          "bytes": 7923,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_command.json",
+          "sha256": "04433a4c5772ecc8abc7eb953b0fcb483139cb46afa3f05752105ce70225cc86",
+          "bytes": 840,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_codex_stdout.jsonl",
+          "sha256": "faeb239094115027391fe48187318cd57bd37930c21469626ed55b1886d56711",
+          "bytes": 930,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_codex_stderr.log",
+          "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+          "bytes": 39,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_codex_events.jsonl",
+          "sha256": "eaf971b3ac1e40f3c302f01afda7afabde1b0f89ba5d3027d7fa3e38803570d6",
+          "bytes": 952,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_codex_last_message.txt",
+          "sha256": "6a4864751850cb6506e0adc04fa910b9c98aef18a572f52a006221f28669e99c",
+          "bytes": 601,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_codex_trace.json",
+          "sha256": "436e64c547205899ca8621603fa485f7a702ac426efcadcd90b25b42878ae361",
+          "bytes": 504,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "pre_submit_review",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_stdout.txt",
+          "sha256": "6a4864751850cb6506e0adc04fa910b9c98aef18a572f52a006221f28669e99c",
+          "bytes": 601,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_stderr.txt",
+          "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+          "bytes": 46,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "revision_prompt",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/revision_prompt.md",
+          "sha256": "82fe248c8648e95e91c2559684101e2c63efd64fdbc46fe11a04218bfc52a81a",
+          "bytes": 15039,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/command.json",
+          "sha256": "8821ba5752a4b2356efabe6f699bf9a888d9bcbd53c9d2ffe59c4f7499ee27ca",
+          "bytes": 838,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_stdout.jsonl",
+          "sha256": "0820ca5d23f6c4961b1d1d22fbf84c63e7670d9be573fcd74c06a0378e572c61",
+          "bytes": 6605,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_stderr.log",
+          "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+          "bytes": 39,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_events.jsonl",
+          "sha256": "25d5f1de015a575dfc6097ed1609cfab5bb326560f5928ce09e4bcd4adcaa265",
+          "bytes": 6627,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_last_message.txt",
+          "sha256": "91e2135ff13eccb35587aa0fb6c628e4deafb5ee60e94a6d1b2172024bbbfba6",
+          "bytes": 6046,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/codex_trace.json",
+          "sha256": "1826ae158ebea9f89b0fd4ec93fb1768bd5db7a64458a27642342337767194b8",
+          "bytes": 503,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "stdout",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/stdout.txt",
+          "sha256": "91e2135ff13eccb35587aa0fb6c628e4deafb5ee60e94a6d1b2172024bbbfba6",
+          "bytes": 6046,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/stderr.txt",
+          "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+          "bytes": 46,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "raw_response",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/raw_response.txt",
+          "sha256": "91e2135ff13eccb35587aa0fb6c628e4deafb5ee60e94a6d1b2172024bbbfba6",
+          "bytes": 6046,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "parsed_cell",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/parsed_cells.json",
+          "sha256": "5bef768bc943b24eab886d4013147e9367c90cba8f81e8fe8d319e61d8a62877",
+          "bytes": 6936,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "normalized_cell",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/normalized_cells.json",
+          "sha256": "95a0814192d9c82315702edff5c87b37a8a56b5e57bcca6bd68effdfb27a3619",
+          "bytes": 6581,
+          "createdAt": "2026-07-05T13:48:29Z"
+        },
+        {
+          "artifactType": "validation_report",
+          "path": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/validation.json",
+          "sha256": "7229d20eb26ac0719bcd7c45420d4ed295a954c1b57a6bc61263b853f95e76f4",
+          "bytes": 145,
+          "createdAt": "2026-07-05T13:48:29Z"
+        }
+      ],
+      "preSubmitReview": {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "requestedAt": "2026-07-05T13:48:29Z",
+        "reviewer": {
+          "agent": "thesis.pre_submit_reviewer",
+          "model": "gpt-5.5",
+          "promptVersion": "pre-submit-review-v0.1",
+          "commandHash": "639787dd6851df1b8fe92a45028a61c31c832673d799b42dd7c8322c7e9778c5"
+        },
+        "draftArtifactPath": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/draft_stdout.txt",
+        "reviewArtifactPath": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/pre_submit_review_stdout.txt",
+        "revisionPromptPath": "records/thesis-analyst/2026-07-05/2026-07-05t13-48-29z-statjp-cpi-tokyo-all-items-yoy-2026-07/revision_prompt.md",
+        "findings": [
+          {
+            "findingId": "review.suggestion.1",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Consider citing the direct official e-Stat observations for the Feb-Jun 2026 values instead of relying on a public Thesis run record for that historical context."
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "If the canonical ledger has a different dataPointId naming convention for this series, note that discrepancy explicitly in reasoning while keeping the catalog slug unchanged."
+          }
+        ],
+        "dispositions": [
+          {
+            "findingId": "review.suggestion.1",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the reviewer finding that there were no blocking fixes. I retained the e-Stat/Statistics Bureau resolver, schedule, and public Thesis-record-derived recent observations tied to the same official table; no catalog estimate was used as evidence.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the reviewer finding that there were no blocking fixes. I retained the e-Stat/Statistics Bureau resolver, schedule, and public Thesis-record-derived recent observations tied to the same official table; no catalog estimate was used as evidence.",
+            "forecastChanged": false
+          }
+        ],
+        "summary": "Draft is publishable with no blocking issues; it states the official first-print resolver, July 31 2026 resolution date, persistence prior, update logic, interval method, tails, and coherent JSON fields."
+      }
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast Tokyo all-items CPI YoY for July 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first preliminary Statistics Bureau of Japan/e-Stat Ku-area of Tokyo CPI print for July 2026, all items, change over the year, rounded to one decimal percent. This uses the same all-items, non-seasonally-adjusted, change-over-year variant for the target, anchors, and history."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Statistics Bureau of Japan CPI schedule page for the July 2026 Ku-area of Tokyo preliminary release date.",
+        "result": "Fetched official release schedule last updated 23 January 2026: Japan June 2026 CPI releases July 24, 2026; Ku-area of Tokyo July 2026 preliminary releases July 31, 2026; August 2026 line notes revision to 2025-base Consumer Price Index."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Statistics Bureau CPI landing and latest-results pages for official target source and base-revision context.",
+        "result": "Fetched official CPI page information: 2025-base item information release is 10 July 2026, historical 2025-base data release is 7 August 2026, and monthly reports begin 2025-base on 21 August 2026; latest-results page links Japan / Ku-area of Tokyo CPI to e-Stat."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the e-Stat dbview for the exact CPI table and latest available time entries.",
+        "result": "Fetched e-Stat table metadata: sid 0003427113, Consumer Price Index 2020-Base, table number 1, published date and time 2026-06-26 08:30, with time entries including Jun. 2026, May 2026, Apr. 2026, Mar. 2026, Feb. 2026, and Jan. 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read recent official Tokyo all-items change-over-year context from the public Thesis run record tied to the same Statistics Bureau/e-Stat source and June database update.",
+        "result": "Fetched recent Tokyo all-items YoY values: Jun. 2026 3.4 percent, May 2026 3.4 percent, Apr. 2026 3.5 percent, Mar. 2026 2.9 percent, Feb. 2026 2.9 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base-rate/reference class: for one-month-ahead Tokyo all-items YoY CPI, persistence around the latest official Tokyo prints is the base rate. The recent reference class is clustered at 2.9, 2.9, 3.5, 3.4, and 3.4 percent rather than showing a sustained break away from the low-to-mid 3 percent range."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism split: the level is elevated by Japan's pre-2022 standards, but momentum is roughly flat after April-June held near 3.4 to 3.5. Food and rice inflation are the main upside mechanism, while energy, gasoline, and utility subsidy/base effects are the main downside mechanism."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior from recent official Tokyo all-items YoY prints uses Feb-Jun 2026 values 2.9, 2.9, 3.5, 3.4, 3.4; latest-value prior = 3.4 and five-month average = 3.22, so I keep the point at 3.4 after a small food/services upside offset to flat momentum. Successive changes are 0.0, +0.6, -0.1, 0.0, so sample sigma = 0.32 percentage point; 1.28*sigma = 0.41. I widen to a 0.7-point half-width because headline all-items CPI has fresh-food and energy/subsidy risk beyond the tiny five-print sample, giving 2.7 to 4.1."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and scenarios: downside risk outside the interval would be a sharp energy-subsidy or gasoline-base-effect drop plus softer fresh food, pushing July below 2.7. Upside risk outside the interval would be renewed rice/food acceleration or utility pass-through pushing the first print above 4.1. The central case is persistence near 3.4."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer finding that there were no blocking fixes. I retained the e-Stat/Statistics Bureau resolver, schedule, and public Thesis-record-derived recent observations tied to the same official table; no catalog estimate was used as evidence."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.4,
+        "ciLow": 2.7,
+        "ciHigh": 4.1
+      }
+    ]
+  },
+  {
     "slug": "jolts-openings-june-2026",
     "country": "US",
     "type": "data",
