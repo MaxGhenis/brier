@@ -11,7 +11,8 @@ export function Header({
     | "paper"
     | "forecasts"
     | "packs"
-    | "log";
+    | "log"
+    | "calibration";
 }) {
   return (
     <header
@@ -128,6 +129,21 @@ export function Header({
             }
           >
             Log
+          </Link>
+          <Link
+            href="/calibration"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "calibration"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "calibration"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Calibration
           </Link>
           <a
             href="/paper"
