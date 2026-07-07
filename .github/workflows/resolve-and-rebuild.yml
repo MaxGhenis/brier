@@ -1,0 +1,59 @@
+name: Resolve pending cells
+
+# The grading loop: capture official first prints for pending cells
+# (advance-vintage, adapter-based), append them to the fact ledger, and
+# rebuild the site so scores land the same day. Runs before the daily
+# recorder (14:17 UTC) so the snapshot captures fresh resolutions.
+
+on:
+  schedule:
+    - cron: "40 13 * * *" # daily 13:40 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency: resolve-pending
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - name: Resolve pending cells against official prints
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.ARCH_DATA_TOKEN }}
+        run: |
+          set -euo pipefail
+          OUT=$(python3 scripts/resolve_pending.py)
+          echo "$OUT"
+          if echo "$OUT" | grep -q "^appended"; then
+            echo "appended=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "appended=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Rebuild the site
+        if: steps.resolve.outputs.appended == '1'
+        run: |
+          curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" > /dev/null
+          echo "deploy hook fired — scores surface when the build completes"
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Resolution loop failed $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" \
+              --body "The resolve-pending loop failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Unresolved cells stay pending — fix before the next release day."
+          fi

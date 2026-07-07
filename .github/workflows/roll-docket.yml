@@ -1,0 +1,129 @@
+name: Roll the docket
+
+# The compounding loop: compute next periods for every registry series,
+# run the reviewed analyst pipeline on them, publish the passing cells,
+# and stamp the pre-registration record. Idempotent — when there is
+# nothing to roll it exits quietly.
+
+on:
+  schedule:
+    - cron: "30 16 * * 1,5" # Mon + Fri 16:30 UTC (after Thursday resolutions)
+  workflow_dispatch:
+    inputs:
+      max_targets:
+        description: "Cap on targets this run"
+        default: "10"
+      cadence:
+        description: "weekly|monthly|quarterly (empty = all)"
+        default: ""
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency: roll-docket
+
+jobs:
+  roll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install codex CLI
+        run: bun add -g @openai/codex
+
+      - name: Authenticate codex
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: printenv OPENAI_API_KEY | codex login --with-api-key
+
+      - name: Compute targets
+        id: targets
+        run: |
+          set -euo pipefail
+          CADENCE_FLAG=""
+          if [ -n "${{ github.event.inputs.cadence }}" ]; then
+            CADENCE_FLAG="--cadence ${{ github.event.inputs.cadence }}"
+          fi
+          python3 scripts/roll_docket.py $CADENCE_FLAG \
+            --max-targets "${{ github.event.inputs.max_targets || 10 }}" \
+            --out /tmp/roll-targets.json
+          COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/roll-targets.json'))['targets']))")
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Run the analyst batch
+        if: steps.targets.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          DAY=$(date -u +%F)
+          python3 scripts/run_thesis_batch.py \
+            --targets-file /tmp/roll-targets.json \
+            --timeout-seconds 540 \
+            --out "records/thesis-analyst/batches/$DAY/auto-roll.json" || true
+          # Failures are recorded in the batch manifest; partial success
+          # publishes the passing subset below.
+
+      - name: Publish passing cells
+        if: steps.targets.outputs.count != '0'
+        id: publish
+        run: |
+          set -euo pipefail
+          DAY=$(date -u +%F)
+          if python3 scripts/register_wave.py \
+              --name "auto-$DAY" \
+              --batch "records/thesis-analyst/batches/$DAY/auto-roll.json" \
+              --allow-missing; then
+            echo "published=1" >> "$GITHUB_OUTPUT"
+          else
+            code=$?
+            if [ "$code" = "2" ]; then
+              echo "published=0" >> "$GITHUB_OUTPUT"
+            else
+              exit "$code"
+            fi
+          fi
+
+      - name: Test site
+        if: steps.publish.outputs.published == '1'
+        run: |
+          cd site
+          bun install
+          bun run test
+
+      - name: Commit and push
+        if: steps.targets.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-roller"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/ site/src/data scripts 2>/dev/null || true
+          git commit -m "Auto-roll the docket $(date -u +%F)" || {
+            echo "nothing to commit"; exit 0; }
+          git pull --rebase origin main
+          git push origin main
+
+      - name: Stamp the record
+        if: steps.publish.outputs.published == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sleep 240 # let the git deploy finish so the recorder sees new cells
+          gh workflow run record-forecasts.yml --ref main
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Docket roll failed $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" \
+              --body "The auto-roll loop failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          fi

@@ -1,0 +1,38 @@
+{
+  "comment": "Registry for the auto-roll loop (scripts/roll_docket.py). Next period per series derives from the latest recorded run in records/thesis-analyst/; the live catalog slug set is the final dup guard. Only series with at least one rubric-passing published run belong here.",
+  "series": [
+    {"series": "us.dol.initial_claims.sa", "cadence": "weekly", "slug": "initial-claims-week-{period}", "extras": {"valueScale": 0.001, "targetUnit": "thousands"}},
+    {"series": "dol.eta.continued_claims.sa", "cadence": "weekly", "slug": "continued-claims-week-{period}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
+
+    {"series": "bls.cpi.u.headline_mom", "cadence": "monthly", "slug": "us-cpi-u-mom-{month}-{year}"},
+    {"series": "bls.cpi.u.core_mom", "cadence": "monthly", "slug": "us-core-cpi-mom-{month}-{year}"},
+    {"series": "bls.ces.nonfarm_payrolls.change", "cadence": "monthly", "slug": "nonfarm-payrolls-{month}-{year}"},
+    {"series": "bls.cps.unemployment_rate", "cadence": "monthly", "slug": "unemployment-rate-{month}-{year}"},
+    {"series": "bls.jolts.job_openings", "cadence": "monthly", "slug": "jolts-openings-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
+    {"series": "bls.jolts.quits_rate", "cadence": "monthly", "slug": "jolts-quits-rate-{month}-{year}"},
+    {"series": "bls.real_earnings.avg_hourly_mom", "cadence": "monthly", "slug": "us-real-avg-hourly-earnings-mom-{month}-{year}"},
+    {"series": "bls.cps.telework_share", "cadence": "monthly", "slug": "us-telework-rate-{month}-{year}"},
+    {"series": "bea.core_pce.mom", "cadence": "monthly", "slug": "us-core-pce-mom-{month}-{year}"},
+    {"series": "treasury.mts.monthly_deficit", "cadence": "monthly", "slug": "us-mts-deficit-{month}-{year}"},
+    {"series": "fns.wic.total_participation", "cadence": "monthly", "slug": "wic-participation-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
+    {"series": "fns.snap.total_persons", "cadence": "monthly", "slug": "snap-participation-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
+    {"series": "ssa.ssi.total_recipients", "cadence": "monthly", "slug": "ssi-recipients-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
+
+    {"series": "eurostat.hicp.flash.yoy", "cadence": "monthly", "slug": "euro-flash-hicp-{month}-{year}"},
+    {"series": "eurostat.unemployment_rate", "cadence": "monthly", "slug": "euro-area-unemployment-rate-{month}-{year}"},
+    {"series": "abs.cpi.all_groups.yoy", "cadence": "monthly", "slug": "australia-cpi-annual-rate-{month}-{year}"},
+    {"series": "abs.labour.unemployment_rate", "cadence": "monthly", "slug": "australia-unemployment-rate-{month}-{year}"},
+    {"series": "statcan.gdp_by_industry.monthly_growth", "cadence": "monthly", "slug": "canada-monthly-gdp-growth-{month}-{year}"},
+    {"series": "statcan.employment_insurance.regular_beneficiaries", "cadence": "monthly", "slug": "canada-ei-regular-beneficiaries-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "thousands"}},
+    {"series": "statjp.cpi.tokyo_all_items_yoy", "cadence": "monthly", "slug": "japan-tokyo-cpi-annual-rate-{month}-{year}-prelim"},
+
+    {"series": "statbel.cpi.headline_yoy", "cadence": "monthly", "slug": "belgium-cpi-annual-rate-{month}-{year}", "extras": {"country": "BE"}},
+    {"series": "statbel.health_index.yoy", "cadence": "monthly", "slug": "belgium-health-index-annual-rate-{month}-{year}", "extras": {"country": "BE"}},
+    {"series": "eurostat.unemployment_rate.belgium", "cadence": "monthly", "slug": "belgium-unemployment-rate-{month}-{year}", "extras": {"country": "BE"}},
+    {"series": "nbb.business_barometer.overall", "cadence": "monthly", "slug": "belgium-nbb-business-barometer-{month}-{year}", "extras": {"country": "BE", "targetUnit": "index_points"}},
+    {"series": "nbb.consumer_confidence.indicator", "cadence": "monthly", "slug": "belgium-consumer-confidence-{month}-{year}", "extras": {"country": "BE", "targetUnit": "index_points"}},
+
+    {"series": "nbb.gdp.flash_qoq", "cadence": "quarterly", "slug": "belgium-gdp-flash-q{quarter}-{year}", "extras": {"country": "BE"}},
+    {"series": "bls.productivity.nonfarm_qoq_prelim", "cadence": "quarterly", "slug": "us-nonfarm-productivity-q{quarter}-{year}-prelim"}
+  ]
+}
