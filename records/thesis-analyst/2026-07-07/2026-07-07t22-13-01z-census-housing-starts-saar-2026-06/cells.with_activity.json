@@ -1,0 +1,379 @@
+[
+  {
+    "slug": "census-housing-starts-saar-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US housing starts SAAR, June 2026",
+    "question": "What will the U.S. Census Bureau and HUD first report for privately owned housing starts, seasonally adjusted annual rate, United States total, June 2026?",
+    "unit": "millions",
+    "pointEstimate": 1.237,
+    "ciLow": 1.092,
+    "ciHigh": 1.382,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-17",
+    "resolutionSource": "U.S. Census Bureau and HUD Monthly New Residential Construction release",
+    "resolutionSourceUrl": "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+    "resolutionRule": "Resolve to the first Census/HUD Monthly New Residential Construction print for June 2026, Table 3a, New Privately-Owned Housing Units Started, United States total, seasonally adjusted annual rate. Use the preliminary first-print value in thousands divided by 1,000 to convert to millions; ignore subsequent revisions or historical-table backfills.",
+    "dataPointId": "census.housing_starts.saar.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 housing starts SAAR",
+        "value": 1.177
+      },
+      {
+        "label": "April 2026 housing starts SAAR",
+        "value": 1.392
+      },
+      {
+        "label": "March 2026 housing starts SAAR",
+        "value": 1.522
+      },
+      {
+        "label": "May 2026 building permits SAAR",
+        "value": 1.413
+      },
+      {
+        "label": "May 2025 housing starts SAAR",
+        "value": 1.289
+      }
+    ],
+    "drivers": [
+      "May 2026 total starts fell to 1.177 million SAAR, mainly from multifamily weakness",
+      "Single-family starts and permits were comparatively stable near 0.88 million SAAR",
+      "Multifamily starts are volatile and likely to partially mean-revert after May's drop",
+      "May permits at 1.413 million SAAR provide a higher near-term construction pipeline than May starts",
+      "High mortgage rates and weak builder sentiment cap the rebound"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/construction/nrc/current/index.html",
+      "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+      "https://www.census.gov/construction/nrc/data/series.html",
+      "https://www.census.gov/construction/soc/schedule.html",
+      "https://www.census.gov/economic-indicators/calendar-listview.html"
+    ],
+    "runAt": "2026-07-07T22:13:30Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 U.S. housing starts SAAR forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecast targets the Census/HUD New Residential Construction first print for privately owned housing units started, United States total, seasonally adjusted annual rate, June 2026. The table variant is Table 3a, seasonally adjusted annual rate, not not-seasonally-adjusted starts and not permits or completions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open Census Economic Indicator Release Schedule and Survey of Construction release schedule for June 2026 New Residential Construction.",
+        "result": "The Census schedule lists New Residential Construction for June 2026 at 8:30 AM on July 17, 2026; the SOC schedule also lists June 2026 New Residential Construction on July 17, 2026 and New Residential Sales on July 24, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open the Census/HUD May 2026 New Residential Construction press release page.",
+        "result": "For May 2026, housing starts were 1,177,000 SAAR, down 15.4% from revised April 2026 at 1,392,000 and down 8.7% from May 2025 at 1,289,000; May building permits were 1,413,000 SAAR and single-family permits were 886,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open the Census/HUD current press release PDF, Table 3a, housing units started, seasonally adjusted annual rate.",
+        "result": "Recent current-vintage United States total starts in thousands SAAR were May 2025 1,289, June 2025 1,379, July 2025 1,432, August 2025 1,291, September 2025 1,319, October 2025 1,273, November 2025 1,319, December 2025 1,378, January 2026 1,385, February 2026 1,346, March 2026 1,522, April 2026 1,392, and May 2026 1,177."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read component detail from the May 2026 Census/HUD release for starts and permits.",
+        "result": "May 2026 single-family starts were 882,000 SAAR versus revised April 2026 at 899,000; May 2026 starts in buildings with 5 units or more were 284,000; May 2026 authorizations in buildings with 5 units or more were 474,000."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: over the latest official 13-month current-vintage starts sequence, the level has mostly run between 1.27 million and 1.43 million SAAR before the May 2026 drop to 1.177 million. A persistence base rate from the latest print would be 1.177 million, but the component mix suggests May was unusually weak in multifamily rather than a broad collapse."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanisms: single-family starts were only 17,000 below April and single-family permits were 886,000, so I keep that component near 0.88 million. Multifamily starts at 0.284 million were far below recent starts and below May 5-plus-unit permits at 0.474 million, so I add a partial rebound of about 0.060 million rather than a full snapback."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is May 2026 starts at 1.177 million SAAR using the official Table 3a reference class from May 2025 through May 2026; adjustments are +0.000 million for single-family level, +0.060 million for partial multifamily mean reversion, and +0.000 million for policy/timing effects, giving 1.177 + 0.060 = 1.237. Successive monthly changes in millions are +0.090, +0.053, -0.141, +0.028, -0.046, +0.046, +0.059, +0.007, -0.039, +0.176, -0.130, -0.215, so sigma = 0.113; using an approximately normal 80% half-width, 1.28*sigma = 0.145, giving 1.237 - 0.145 = 1.092 and 1.237 + 0.145 = 1.382."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a faster multifamily rebound toward the 0.40-0.48 million area implied by recent starts and permits, which would land above the interval if single-family also improves. Downside risk is that high mortgage rates and builder caution keep starts near May's depressed multifamily level, which would land below the interval if single-family starts also break below 0.85 million."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional reviewer suggestions to state the normal 80% interval mapping explicitly and to identify the 13-month history as current-vintage Table 3a context; no required fixes were raised."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.237,
+        "ciLow": 1.092,
+        "ciHigh": 1.382
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/prompt.md",
+        "sha256": "c079885f05df7db29d8d17bb5c08c185d1318a94fda15e9f0eab597098866ac6",
+        "bytes": 8000,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_command.json",
+        "sha256": "2505074bfc0795a68e0551e528827b21d938583842b4e44cb19e5f76793b7771",
+        "bytes": 679,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "ed0d214417cca735b9659942f06bc060b57929e0e6c90c64b96b90b26055eb50",
+        "bytes": 10784,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_stderr.log",
+        "sha256": "50fd9bcdf46202b5204349563d7d480b4aaddb30ad4fa8328374b7b227ee50cf",
+        "bytes": 233,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_events.jsonl",
+        "sha256": "56205895225f70ab05b9b1e62b6cad421e5a173bf9a8305a9d7d2b48d9bbfc60",
+        "bytes": 10777,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_last_message.txt",
+        "sha256": "1533d010c28d1b384b91a8f5155985144dde72f6000ca281c2c42912b15924f3",
+        "bytes": 6068,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_trace.json",
+        "sha256": "c1b8db4b0de2095be4446b5301f6cc44ad6b8f4e026a19bcc10aa82262b3bde0",
+        "bytes": 507,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_stdout.txt",
+        "sha256": "1533d010c28d1b384b91a8f5155985144dde72f6000ca281c2c42912b15924f3",
+        "bytes": 6068,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_stderr.txt",
+        "sha256": "575e4c103df5da4c7fe781f3b0d893ab0ec2608acf7960b808e9f26215ac1fff",
+        "bytes": 248,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_prompt.md",
+        "sha256": "ad458d0711010a72e35ad15857ac4fdad61709c617d7d9c65da6748949abeb93",
+        "bytes": 8256,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_command.json",
+        "sha256": "bc58ec33fd321ee80845c92dd2d8072ed6619bd5601c84413ba9bd31a5edb320",
+        "bytes": 675,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "d07745954cb608d86af6ecd0506eff6fb571373079a4cab89f308a60e8d3d428",
+        "bytes": 890,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "3085a7119491cc8e4701da70ee70767fe1dc13ffdd43bad57be5bae68b5a9097",
+        "bytes": 233,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "b9a52cc20bcf6568346644e31aac8a50a6515f24a7ae736a06e8925a556e9475",
+        "bytes": 912,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "b651dbad370c7d1b689419a49ce442c2596fe443fd84d60e666f648c958c6bfd",
+        "bytes": 561,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "ec310640332c4dd70a9416ccf87cf372dee36e7e09592a71104e9756cecca9a9",
+        "bytes": 504,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "b651dbad370c7d1b689419a49ce442c2596fe443fd84d60e666f648c958c6bfd",
+        "bytes": 561,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "d26cb01811696a8f02f825e2ffaab94110f088bad333f9372ce79d72293f1a8e",
+        "bytes": 248,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/revision_prompt.md",
+        "sha256": "7db11b01ebecc88a2ac98cea68e5cfbcd25ba4cd8ce82890700ad0243703a4ea",
+        "bytes": 15565,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/command.json",
+        "sha256": "1318a1567a762eba5701cd20bea6032e54a6b773fc93c6f9aaeb88c44fd47d3b",
+        "bytes": 673,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_stdout.jsonl",
+        "sha256": "f16f303e8c12e7c018024a81de6e6eb55e7de0e65a6242ddea7dce946ac254ec",
+        "bytes": 6954,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_stderr.log",
+        "sha256": "72480d907f1fe806fe8cb812113e6e8f6376a92966a2c02deb8502715887ab31",
+        "bytes": 233,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_events.jsonl",
+        "sha256": "c473eed3b08816858c9195f5ed3d34f1a04eb9ef3609302006845d95a2006262",
+        "bytes": 6976,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_last_message.txt",
+        "sha256": "6be7bd7954022fcead26ebdaf6c51eea6d3f4da58c43d438b630901e6d886e6a",
+        "bytes": 6391,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_trace.json",
+        "sha256": "9208a7fa9ff1ce76cbaba878f25248f220b7cb8e75f6d0cd685c9f2f3001655a",
+        "bytes": 505,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/stdout.txt",
+        "sha256": "6be7bd7954022fcead26ebdaf6c51eea6d3f4da58c43d438b630901e6d886e6a",
+        "bytes": 6391,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/stderr.txt",
+        "sha256": "40124b5e57205fcaed12d116162e53b14f9cd1c5bca314f301de8f71c0906005",
+        "bytes": 248,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/raw_response.txt",
+        "sha256": "6be7bd7954022fcead26ebdaf6c51eea6d3f4da58c43d438b630901e6d886e6a",
+        "bytes": 6391,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/parsed_cells.json",
+        "sha256": "d3eb0d68eee42b24c2e0ee2dc071d574219e1d4dd38bdfaab1d43c44872debb4",
+        "bytes": 7288,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/normalized_cells.json",
+        "sha256": "dab8777bc3ea35dced4e243dd700d9c1a653dd1f2b18fe8c134fa72da015f0d9",
+        "bytes": 6930,
+        "createdAt": "2026-07-07T22:13:01Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/validation.json",
+        "sha256": "96b2b0df629e7e085ef00ee64f2e2ef9de655e9800c8b14cfbaaa05d64283281",
+        "bytes": 137,
+        "createdAt": "2026-07-07T22:13:01Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-07T22:13:01Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "2dc200623f12ad46d29ac21f98a729ed39909f63372512a138a9d096a18efbc5"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State explicitly that the 80% interval uses approximately a normal 80% half-width, 1.28 times recent monthly-change sigma, to make the confidence mapping self-contained."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider naming whether the 13-month sample is first-print or current-vintage Table 3a history; this is not fatal because the resolver itself is clearly first-print June 2026."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional reviewer suggestions to state the normal 80% interval mapping explicitly and to identify the 13-month history as current-vintage Table 3a context; no required fixes were raised.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional reviewer suggestions to state the normal 80% interval mapping explicitly and to identify the 13-month history as current-vintage Table 3a context; no required fixes were raised.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publication-ready with no blocking issues; resolver, prior, update logic, interval, tails, and JSON fields are coherent with the target contract."
+    }
+  }
+]

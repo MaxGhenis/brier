@@ -1,0 +1,417 @@
+[
+  {
+    "slug": "bls-import-price-index-all-imports-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US import prices MoM, Jun 2026",
+    "question": "BLS U.S. Import Price Index for all imports, all commodities, seasonally unadjusted monthly percent change for June 2026, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 1.1,
+    "ciLow": 0,
+    "ciHigh": 2.2,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-17",
+    "resolutionSource": "U.S. Bureau of Labor Statistics U.S. Import and Export Price Indexes",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/ximpim.t01.htm",
+    "resolutionRule": "Resolve to the July 17, 2026 first-published BLS U.S. Import Price Indexes Table 1 value for All commodities, monthly percent change from May 2026 to June 2026, in percent rounded to one decimal as published. Use the first-print June 2026 BLS Table 1 snapshot, archive, or captured first-print artifact rather than a later mutable ximpim.t01.htm page; ignore later revisions. If Table 1 and the release summary disagree, use the first-print Table 1 All commodities monthly percent change.",
+    "dataPointId": "bls.import_price_index.all_imports_mom.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 all imports MoM first/current release table",
+        "value": 1.9
+      },
+      {
+        "label": "2026-04 all imports MoM revised in May release",
+        "value": 2
+      },
+      {
+        "label": "2026-03 all imports MoM revised in May release",
+        "value": 0.9
+      },
+      {
+        "label": "2026-02 all imports MoM",
+        "value": 1
+      },
+      {
+        "label": "2026-01 all imports MoM",
+        "value": 0.5
+      }
+    ],
+    "drivers": [
+      "fuel-import surge likely cools but remains supportive",
+      "nonfuel import prices running firm",
+      "recent all-imports momentum well above 2025 base rate",
+      "June forecast resolves before later revisions"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/news.release/ximpim.nr0.htm",
+      "https://www.bls.gov/news.release/ximpim.t01.htm",
+      "https://www.bls.gov/schedule/news_release/ximpim.htm"
+    ],
+    "runAt": "2026-07-07T22:07:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 BLS all-import import-price MoM"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the BLS Import/Export Price Indexes first print for June 2026, Table 1 All commodities monthly percent change, which is the all-imports end-use aggregate. The release is not seasonally adjusted in this table, and the target uses the first-published one-decimal percent change, not later revised values."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Opened BLS schedule page for U.S. Import and Export Price Indexes release dates.",
+        "result": "BLS schedule lists Reference Month June 2026, Release Date Jul. 17, 2026, Release Time 08:30 AM; it also lists May 2026 released Jun. 16, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS release text and Table A component detail for recent all-import, fuel, and nonfuel import prices.",
+        "result": "Table A all imports monthly values were -0.5 in May 2025, -0.1 in June 2025, 0.3 in July 2025, -0.1 in August 2025, -0.1 in September 2025, 0.1 in December 2025, 0.5 in January 2026, 1.0 in February 2026, 0.9 in March 2026, 2.0 in April 2026, and 1.9 in May 2026; fuel imports were 10.2 in March, 18.6 in April, and 12.5 in May, while nonfuel imports were 0.2 in March, 0.6 in April, and 0.8 in May."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class and base rate are the available BLS Table A all-import monthly percent changes from May 2025 through May 2026, excluding unavailable October and November 2025 entries. Before inside-view adjustments, the simple historical/persistence model prior is the 11-observation mean of about 0.54 percent; no AR, ETS, or regression model was used because the usable first-print sample is short and disrupted by missing 2025 data."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened current BLS U.S. Import and Export Price Indexes summary for May 2026.",
+        "result": "BLS reported U.S. import prices increased 1.9 percent in May 2026 after a 2.0 percent rise in April and a 0.9 percent increase in March; over the year May 2025 to May 2026, import prices rose 6.7 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.table",
+        "call": "Opened BLS Table 1, U.S. import price indexes and percent changes for End Use categories of goods.",
+        "result": "Table 1 All commodities shows relative importance 100.000, April 2026 index 147.7, May 2026 index 150.5, annual change 6.7, and monthly changes 1.0 for Jan-Feb 2026, 0.9 for Feb-Mar 2026, 2.0 for Mar-Apr 2026, 1.9 for Apr-May 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "clock.lookup",
+        "call": "Fetched current UTC time for run timestamp after local date command was unavailable in the sandbox.",
+        "result": "UTC time fetched for this run was Jul. 7, 2026 at 22:07:42, formatted as 2026-07-07T22:07:42Z."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses the 11 available BLS Table A all-import MoM values [-0.5, -0.1, 0.3, -0.1, -0.1, 0.1, 0.5, 1.0, 0.9, 2.0, 1.9], whose mean is 0.54 and sample sigma = 0.83 for this change series; update components are +0.40 for recent momentum above the base rate, +0.25 for firm nonfuel import prices, and -0.10 for likely partial cooling after extreme fuel gains, giving 0.54 + 0.40 + 0.25 - 0.10 = 1.09, rounded to 1.1. The 80% half-width is roughly 1.28*sigma = 1.28*0.83 = 1.06, so 1.1 +/- 1.06 gives about 0.0 to 2.2 after one-decimal target rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is another large fuel-import increase or broader tariff/pass-through pressure that would land above the interval, especially if fuels again add double-digit monthly growth. Downside risk is a June reversal in petroleum or natural gas import prices, or a sudden weakening in nonfuel goods prices, which would land outside the interval below 0.0."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.1,
+        "ciLow": 0,
+        "ciHigh": 2.2
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/prompt.md",
+        "sha256": "36243e184d2aaa97c3a5e5a54165d664418f8762c4be906cca6b88689c638d2f",
+        "bytes": 7901,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_command.json",
+        "sha256": "6231e6af3f9deeac79cbf382c792cdc7aa43ea4d72d331cdfd648b4de9c26417",
+        "bytes": 691,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "93f316f835daa159b17beee4341b09dc3b683066185e888bdd9af4a8c9df3cb3",
+        "bytes": 14424,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_stderr.log",
+        "sha256": "991c47fb1faacc27d145fd872c30bee538c8e50fde690ae73a30c9dbf21966de",
+        "bytes": 233,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_events.jsonl",
+        "sha256": "f0ee3e9345bf89bd1c2f9a8630b1447f08dca00f129eb7f85d1d924532044493",
+        "bytes": 14389,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_last_message.txt",
+        "sha256": "81693a755a61782769cc26222c14d0cac173549e7cf0a166f62cd257d3281475",
+        "bytes": 5524,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_trace.json",
+        "sha256": "87fcf9420c2c8867a92862070298d7e4641add7835027ceffbf674bc15d92855",
+        "bytes": 508,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stdout.txt",
+        "sha256": "81693a755a61782769cc26222c14d0cac173549e7cf0a166f62cd257d3281475",
+        "bytes": 5524,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stderr.txt",
+        "sha256": "5c3e1ad6a2658604d7cf807aefdd66ffde8887d4e1dc727f7145623f1ad72cb7",
+        "bytes": 248,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_prompt.md",
+        "sha256": "486ca982dbfac6d65a87b5495edeabc675281a24742164f43a8d23aad38d81b7",
+        "bytes": 7742,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_command.json",
+        "sha256": "be22e1d04d8da20d00dd2de475407c4d7c7a1162c15b24f31a77caa1376ae17a",
+        "bytes": 687,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "72bd48c74cb02d0fdbe5784f9dff3e1ec2d4cb6deeac8ee78bd7314c6a82d164",
+        "bytes": 4016,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "adb6a5bf0338d1c9e14a5bc2ef5bc307c4616ce361fec6c59214a01de93b6eb2",
+        "bytes": 233,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "01ed65bfc53666db90941f502799e9d2780475c0d3c8ce9e2b4b2ed249684332",
+        "bytes": 4018,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "25228622cef848b52986ddd90f21345419c172024ecbd6642f48f3b2112b0e1e",
+        "bytes": 1857,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "5dfe90f0d6760c623e1996eb948d9091139e9c49d4fae1961267225ea9ab07e5",
+        "bytes": 508,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "25228622cef848b52986ddd90f21345419c172024ecbd6642f48f3b2112b0e1e",
+        "bytes": 1857,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "993788576fe3a53f651f695118fdeabb53c1741bd2aae9726bf80aa5949948c2",
+        "bytes": 248,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/revision_prompt.md",
+        "sha256": "262ef55cd10b1d70e38f08afd57174ebc3a476849e3c64782cb39f298e0c9002",
+        "bytes": 16218,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/command.json",
+        "sha256": "23d5cae3e155c42dfaa5b001e268b5e54acce5489e1f5bcfc15d0aa86b94cca0",
+        "bytes": 685,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "a786492b194f787bf3b96c2f6c177c88aa63e03a073887a3b31545fc6c4a3f91",
+        "bytes": 6640,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_stderr.log",
+        "sha256": "cfa7be298ffbc3c0a32477e5936f8f0ada76b866074b2af11350ff5b96218fcc",
+        "bytes": 233,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_events.jsonl",
+        "sha256": "75a8bdd9fca74fe18cb81f170c043665054fd297397e9277a4b17e4eb0abfd89",
+        "bytes": 6662,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_last_message.txt",
+        "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+        "bytes": 6075,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_trace.json",
+        "sha256": "93bb975abff804fe465215a592a2f22e9888bc9e77ab4a3c533ef5ca5c3736da",
+        "bytes": 505,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/stdout.txt",
+        "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+        "bytes": 6075,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/stderr.txt",
+        "sha256": "a8c1136ca9efb5ec369fec07c2ebedff694e766a62064ca4ba95d92858d8d45c",
+        "bytes": 248,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/raw_response.txt",
+        "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+        "bytes": 6075,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/parsed_cells.json",
+        "sha256": "500a7d8d30e52d78eea8524cf1da0127aef3163036b8d09317684d7bf67ba689",
+        "bytes": 6971,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/normalized_cells.json",
+        "sha256": "d1348be52e1ab9bd9b31499e629b3d317dad9a9a2fc9d67cde45aba3b5f35f5f",
+        "bytes": 6614,
+        "createdAt": "2026-07-07T22:06:52Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/validation.json",
+        "sha256": "fcaabe83285f2b70a78bef7401a0089c4cf1b4e7e569909b940269cd7eed3c61",
+        "bytes": 149,
+        "createdAt": "2026-07-07T22:06:52Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-07T22:06:52Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "e5c43077f89a71529b51bc77c257e3a9e6173dfc5bb5cb5138473bbf8d10f347"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The resolver rule correctly names BLS Table 1 and first print, but the current-release URL is mutable and may later show a different reference month.",
+          "actionRequested": "Add that resolution must use the July 17, 2026 first-published June 2026 BLS Table 1 snapshot/archive or captured first-print artifact, not whatever ximpim.t01.htm shows after later releases."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "base_rate",
+          "summary": "The base-rate/persistence prior is present, but it appears after the current-evidence tool summaries rather than before inside-view updates.",
+          "actionRequested": "Move or restate the 0.54 percent historical/base-rate prior before the momentum, fuel, and nonfuel evidence adjustments."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The draft uses a simple persistence/base-rate prior and recent 3-month average, but does not explicitly say whether a formal time-series model was used or ruled out.",
+          "actionRequested": "Add one sentence identifying the model prior as a simple historical/persistence model, or explicitly state that no AR/ETS/regression model was used because the usable first-print sample is short and disrupted by missing 2025 data."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Label the interval as an 80% interval derived from the 11-observation sample sigma so it matches confidence 0.8."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that revised March/April values are acceptable as current historical context, while June itself resolves only to the first print."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable after minor clarifications; the main gaps are resolver-source mutability and making the model-prior/base-rate ordering explicit."
+    }
+  }
+]

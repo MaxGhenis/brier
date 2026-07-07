@@ -1,0 +1,27 @@
+{
+  "summary": "Draft is publishable after minor clarifications; the main gaps are resolver-source mutability and making the model-prior/base-rate ordering explicit.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The resolver rule correctly names BLS Table 1 and first print, but the current-release URL is mutable and may later show a different reference month.",
+      "actionRequested": "Add that resolution must use the July 17, 2026 first-published June 2026 BLS Table 1 snapshot/archive or captured first-print artifact, not whatever ximpim.t01.htm shows after later releases."
+    },
+    {
+      "rubricItem": "base_rate",
+      "severity": "warning",
+      "summary": "The base-rate/persistence prior is present, but it appears after the current-evidence tool summaries rather than before inside-view updates.",
+      "actionRequested": "Move or restate the 0.54 percent historical/base-rate prior before the momentum, fuel, and nonfuel evidence adjustments."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft uses a simple persistence/base-rate prior and recent 3-month average, but does not explicitly say whether a formal time-series model was used or ruled out.",
+      "actionRequested": "Add one sentence identifying the model prior as a simple historical/persistence model, or explicitly state that no AR/ETS/regression model was used because the usable first-print sample is short and disrupted by missing 2025 data."
+    }
+  ],
+  "optionalSuggestions": [
+    "Label the interval as an 80% interval derived from the 11-observation sample sigma so it matches confidence 0.8.",
+    "Clarify that revised March/April values are acceptable as current historical context, while June itself resolves only to the first print."
+  ]
+}

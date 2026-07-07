@@ -1,0 +1,327 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-07T22:20:19Z",
+  "series": "cms.medicaid_pi.beneficiaries_disenrolled_total.california",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "cms-medicaid-pi-beneficiaries-disenrolled-total-california-june-2026",
+    "country": "US",
+    "period": "2026-06",
+    "series": "cms.medicaid_pi.beneficiaries_disenrolled_total.california",
+    "targetUnit": "count"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-07T22:20:19Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "4f627f675034b65d6c8a8e07511978776f4670d0a95603c7a4a320ebcd4fc928"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The resolver/source and first-print rule are clear, but the reasoning says the 2026-09-25 resolution date comes from the corresponding monthly slot based on prior releases rather than an official CMS June 2026 calendar, schedule, release placeholder, or explicit catalog-ledger contract.",
+        "actionRequested": "Either cite/quote an official CMS June 2026 release placeholder or schedule supporting 2026-09-25, or revise the reasoning to say 2026-09-25 is the canonical ledger resolution date and that CMS has not yet posted an official June 2026 release date; do not imply the date was independently verified from cadence alone."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State the 80% interval bounds explicitly in the compact step as 206,000 to 238,000 after rounding."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios would be stronger with concrete count/rate examples, such as renewals due above about 1.13 million at 21% or a disenrollment rate below about 19.5% at the expected cohort size."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critique by no longer presenting 2026-09-25 as independently verified from a CMS June 2026 placeholder; it is retained as the canonical ledger resolutionDate. Accepted the optional tail-scenario suggestion by adding concrete rate and cohort examples; no point or interval change was made.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critique by no longer presenting 2026-09-25 as independently verified from a CMS June 2026 placeholder; it is retained as the canonical ledger resolutionDate. Accepted the optional tail-scenario suggestion by adding concrete rate and cohort examples; no point or interval change was made.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critique by no longer presenting 2026-09-25 as independently verified from a CMS June 2026 placeholder; it is retained as the canonical ledger resolutionDate. Accepted the optional tail-scenario suggestion by adding concrete rate and cohort examples; no point or interval change was made.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready, but the resolution-date support needs to stop presenting an inferred release slot as verified CMS timing unless an official June 2026 placeholder/calendar supports it."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/prompt.md",
+      "sha256": "aa76560801d66e7a1fc3482ad9abf214649dde8d5bbb95e652f80bbdd3714cc3",
+      "bytes": 8003,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_command.json",
+      "sha256": "922833c1eb6f276707e6db0d8308faf07ae2a911f96412a07184ad5461e5322f",
+      "bytes": 711,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "657add24b6eadaaf62473506b5d5c370aaa0167bf529178b6f9244af59c815e3",
+      "bytes": 21376,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_stderr.log",
+      "sha256": "84b2a50152e9dc9b769a2e9659fdb101c1d26a3f39db4995e044c8f81c8a272d",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_events.jsonl",
+      "sha256": "bc123f542cf38a8c53deb749ddc5bc9cef293c053f057d80981594e6650ab2ef",
+      "bytes": 21270,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_last_message.txt",
+      "sha256": "ac2ac2a40fda3845335a9112ff87bb0c92767a5f286c33f57fdd9fb58655099c",
+      "bytes": 6473,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_trace.json",
+      "sha256": "b81d5b69ca8fb604ac4f073ac18e4c9141f51d26824ca4b5ee358b4dc333ab72",
+      "bytes": 508,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_stdout.txt",
+      "sha256": "ac2ac2a40fda3845335a9112ff87bb0c92767a5f286c33f57fdd9fb58655099c",
+      "bytes": 6473,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_stderr.txt",
+      "sha256": "80ffe444a1460323d4a19992fbd5c5284cca942b0dd1a584444e04dc7dc0abc3",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_prompt.md",
+      "sha256": "d2ecb32e8d993fcde0621eecd734bc39ee1ba03cc9716b3f1744ae1ee0474b56",
+      "bytes": 8722,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_command.json",
+      "sha256": "f3a2c303b542e748f117e40a208f885bd32e682b082b0c2b3bb28cb3ea98befb",
+      "bytes": 707,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "a5b3545f4cd86b1a28ca6ab490c9a8a804eb6750a0afd87b9e66569de80fbfd4",
+      "bytes": 3267,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "1b2835ee3ad3fdd987524343416c956711c981520172ed707d2b967ff71bad80",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "8e858d2141dac9fcd5c96b495a7448162d0cad55710a95efaa95119c9839fccb",
+      "bytes": 3304,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "fe82b2417af36676774b11f93c290a675785e9644d5e94da2ed6197e43e30df9",
+      "bytes": 1239,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "a62cb8f6eb0701cf9666739904ce8605812fa7addb051ec38da144d2711b2859",
+      "bytes": 507,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "fe82b2417af36676774b11f93c290a675785e9644d5e94da2ed6197e43e30df9",
+      "bytes": 1239,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "ebc07811f8154cf3f9372a5bef155a69793b1b30fcd8a1284b2d3d13a4b1bf01",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/revision_prompt.md",
+      "sha256": "0fc1e910ddee2345ec97c8c95e2b54ce628930a80f33253389dc1da821fc84f3",
+      "bytes": 16651,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/command.json",
+      "sha256": "f9ed835c83d40680f05f15c957af255eba7653e88e349b77091f2f9946093ab3",
+      "bytes": 705,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_stdout.jsonl",
+      "sha256": "9b5ccdb6c964014187f4253f3c9ff10c2b37beafbdf1397ce3265f09c8292547",
+      "bytes": 7496,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_stderr.log",
+      "sha256": "ede8ef62d0bb8e40437d84646e8810ab566afa0078bb29d471ab290f410c29d0",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_events.jsonl",
+      "sha256": "5ba92a157935f95cf6c78e96db904dc2dfa69ed453f4c791c83541d4f566dce7",
+      "bytes": 7518,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_last_message.txt",
+      "sha256": "e81b35e901bcd0a481c98c68e71e2cc8b8307a190ff07cc7cb22732b5c1e92dd",
+      "bytes": 6953,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_trace.json",
+      "sha256": "515b39530e64d67a4234ddac3fe04e16bb2ad26df5df6bdc838a302d379b75be",
+      "bytes": 505,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/stdout.txt",
+      "sha256": "e81b35e901bcd0a481c98c68e71e2cc8b8307a190ff07cc7cb22732b5c1e92dd",
+      "bytes": 6953,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/stderr.txt",
+      "sha256": "4dc5867de39f06567bdef0452424b0194a58d3e4935f6e90f18f10f018892419",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/raw_response.txt",
+      "sha256": "e81b35e901bcd0a481c98c68e71e2cc8b8307a190ff07cc7cb22732b5c1e92dd",
+      "bytes": 6953,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/parsed_cells.json",
+      "sha256": "64072b8537ad13b4c3abd3a4ccedac6f72bde32b0f681a4594c93db5115f3506",
+      "bytes": 7776,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/normalized_cells.json",
+      "sha256": "57070f19e4b823c6c3160bc72abc13d6f0d810285e68535bc2e790a2d28208ff",
+      "bytes": 7448,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/validation.json",
+      "sha256": "cf4d19bc31ff37c90d6b7d28bdba1b0347799f49f888a3dc6cc0b5537911b4dc",
+      "bytes": 169,
+      "createdAt": "2026-07-07T22:20:19Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/manifest.json",
+      "sha256": "2b7dc887548f5dedd21df14eb9918a4f5824a843c79d060fe2ba45a55a78f55a",
+      "bytes": 16629,
+      "createdAt": "2026-07-07T22:20:19Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "cms-medicaid-pi-beneficiaries-disenrolled-total-california-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

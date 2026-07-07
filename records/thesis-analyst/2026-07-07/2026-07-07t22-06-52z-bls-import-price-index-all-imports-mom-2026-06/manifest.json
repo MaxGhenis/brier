@@ -1,0 +1,353 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-07T22:06:52Z",
+  "series": "bls.import_price_index.all_imports_mom",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bls-import-price-index-all-imports-mom-june-2026",
+    "country": "US",
+    "period": "2026-06",
+    "series": "bls.import_price_index.all_imports_mom",
+    "targetUnit": "percent_growth"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-07T22:06:52Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "e5c43077f89a71529b51bc77c257e3a9e6173dfc5bb5cb5138473bbf8d10f347"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolver rule correctly names BLS Table 1 and first print, but the current-release URL is mutable and may later show a different reference month.",
+        "actionRequested": "Add that resolution must use the July 17, 2026 first-published June 2026 BLS Table 1 snapshot/archive or captured first-print artifact, not whatever ximpim.t01.htm shows after later releases."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The base-rate/persistence prior is present, but it appears after the current-evidence tool summaries rather than before inside-view updates.",
+        "actionRequested": "Move or restate the 0.54 percent historical/base-rate prior before the momentum, fuel, and nonfuel evidence adjustments."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a simple persistence/base-rate prior and recent 3-month average, but does not explicitly say whether a formal time-series model was used or ruled out.",
+        "actionRequested": "Add one sentence identifying the model prior as a simple historical/persistence model, or explicitly state that no AR/ETS/regression model was used because the usable first-print sample is short and disrupted by missing 2025 data."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Label the interval as an 80% interval derived from the 11-observation sample sigma so it matches confidence 0.8."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that revised March/April values are acceptable as current historical context, while June itself resolves only to the first print."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after minor clarifications; the main gaps are resolver-source mutability and making the model-prior/base-rate ordering explicit."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/prompt.md",
+      "sha256": "36243e184d2aaa97c3a5e5a54165d664418f8762c4be906cca6b88689c638d2f",
+      "bytes": 7901,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_command.json",
+      "sha256": "6231e6af3f9deeac79cbf382c792cdc7aa43ea4d72d331cdfd648b4de9c26417",
+      "bytes": 691,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "93f316f835daa159b17beee4341b09dc3b683066185e888bdd9af4a8c9df3cb3",
+      "bytes": 14424,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_stderr.log",
+      "sha256": "991c47fb1faacc27d145fd872c30bee538c8e50fde690ae73a30c9dbf21966de",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_events.jsonl",
+      "sha256": "f0ee3e9345bf89bd1c2f9a8630b1447f08dca00f129eb7f85d1d924532044493",
+      "bytes": 14389,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_last_message.txt",
+      "sha256": "81693a755a61782769cc26222c14d0cac173549e7cf0a166f62cd257d3281475",
+      "bytes": 5524,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_trace.json",
+      "sha256": "87fcf9420c2c8867a92862070298d7e4641add7835027ceffbf674bc15d92855",
+      "bytes": 508,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stdout.txt",
+      "sha256": "81693a755a61782769cc26222c14d0cac173549e7cf0a166f62cd257d3281475",
+      "bytes": 5524,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stderr.txt",
+      "sha256": "5c3e1ad6a2658604d7cf807aefdd66ffde8887d4e1dc727f7145623f1ad72cb7",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_prompt.md",
+      "sha256": "486ca982dbfac6d65a87b5495edeabc675281a24742164f43a8d23aad38d81b7",
+      "bytes": 7742,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_command.json",
+      "sha256": "be22e1d04d8da20d00dd2de475407c4d7c7a1162c15b24f31a77caa1376ae17a",
+      "bytes": 687,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "72bd48c74cb02d0fdbe5784f9dff3e1ec2d4cb6deeac8ee78bd7314c6a82d164",
+      "bytes": 4016,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "adb6a5bf0338d1c9e14a5bc2ef5bc307c4616ce361fec6c59214a01de93b6eb2",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "01ed65bfc53666db90941f502799e9d2780475c0d3c8ce9e2b4b2ed249684332",
+      "bytes": 4018,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "25228622cef848b52986ddd90f21345419c172024ecbd6642f48f3b2112b0e1e",
+      "bytes": 1857,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "5dfe90f0d6760c623e1996eb948d9091139e9c49d4fae1961267225ea9ab07e5",
+      "bytes": 508,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "25228622cef848b52986ddd90f21345419c172024ecbd6642f48f3b2112b0e1e",
+      "bytes": 1857,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "993788576fe3a53f651f695118fdeabb53c1741bd2aae9726bf80aa5949948c2",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/revision_prompt.md",
+      "sha256": "262ef55cd10b1d70e38f08afd57174ebc3a476849e3c64782cb39f298e0c9002",
+      "bytes": 16218,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/command.json",
+      "sha256": "23d5cae3e155c42dfaa5b001e268b5e54acce5489e1f5bcfc15d0aa86b94cca0",
+      "bytes": 685,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_stdout.jsonl",
+      "sha256": "a786492b194f787bf3b96c2f6c177c88aa63e03a073887a3b31545fc6c4a3f91",
+      "bytes": 6640,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_stderr.log",
+      "sha256": "cfa7be298ffbc3c0a32477e5936f8f0ada76b866074b2af11350ff5b96218fcc",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_events.jsonl",
+      "sha256": "75a8bdd9fca74fe18cb81f170c043665054fd297397e9277a4b17e4eb0abfd89",
+      "bytes": 6662,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_last_message.txt",
+      "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+      "bytes": 6075,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_trace.json",
+      "sha256": "93bb975abff804fe465215a592a2f22e9888bc9e77ab4a3c533ef5ca5c3736da",
+      "bytes": 505,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/stdout.txt",
+      "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+      "bytes": 6075,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/stderr.txt",
+      "sha256": "a8c1136ca9efb5ec369fec07c2ebedff694e766a62064ca4ba95d92858d8d45c",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/raw_response.txt",
+      "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+      "bytes": 6075,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/parsed_cells.json",
+      "sha256": "500a7d8d30e52d78eea8524cf1da0127aef3163036b8d09317684d7bf67ba689",
+      "bytes": 6971,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/normalized_cells.json",
+      "sha256": "d1348be52e1ab9bd9b31499e629b3d317dad9a9a2fc9d67cde45aba3b5f35f5f",
+      "bytes": 6614,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/validation.json",
+      "sha256": "fcaabe83285f2b70a78bef7401a0089c4cf1b4e7e569909b940269cd7eed3c61",
+      "bytes": 149,
+      "createdAt": "2026-07-07T22:06:52Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/manifest.json",
+      "sha256": "9b54706731db31db1a252a4eb9718875053ea4ce1335386dc061c5acb566b77c",
+      "bytes": 17360,
+      "createdAt": "2026-07-07T22:06:52Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bls-import-price-index-all-imports-mom-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

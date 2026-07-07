@@ -1,0 +1,365 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-07T22:14:30Z",
+  "series": "census.marts.adv44x72.monthly_change",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "census-marts-adv44x72-monthly-change-june-2026",
+    "country": "US",
+    "period": "2026-06",
+    "series": "census.marts.adv44x72.monthly_change",
+    "targetUnit": "percent_growth"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-07T22:14:30Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "9c471a00a456ceb8e11bfabb38dc0982d3a239e075ba5a51aca849338bd27467"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The +0.25 momentum/breadth adjustment cites ex-gas/ex-auto breadth and gasoline/vehicle category effects, but the cited evidence summarized in the draft only supports total May/April prints and total levels.",
+        "actionRequested": "Either add the specific Census table/category evidence supporting ex-gas, ex-auto, gasoline, and motor-vehicle claims, or reduce/rephrase the adjustment as a judgmental persistence/momentum update from the total-series prints only."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is based on realized volatility from only three monthly observations, including one 2025 value computed from current-vintage Table 1 levels, which is a weak volatility estimate for this noisy series.",
+        "actionRequested": "Use a longer same-series monthly-change sample where available, or explicitly label the 3-point sigma as a fallback heuristic and explain why the resulting +/-1.3 percentage point band is appropriate."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact step is mostly present, but the historical sample is too loosely described as the same advance variant even though the 2025 observation appears computed from Table 1 levels rather than taken as a first-print Table 2 advance value.",
+        "actionRequested": "Clarify whether the historical sample uses first-print advance values or current-vintage Census levels, and avoid calling it the same first-print variant unless verified."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider naming the release time in the resolver sentence: July 16, 2026 at 8:30 AM ET."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If possible, cite or preserve a stable release artifact instead of relying only on the rolling marts_current.pdf URL."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios are adequate, but could be made slightly more target-specific by quantifying what category moves would push the total below -1.0 or above 1.6."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after tightening support for the update and interval, but the resolver/target fields are coherent with the ledger contract."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/prompt.md",
+      "sha256": "c402291e68a3730fda8f18946a2a0ed8cbed042278fdbde96018f4a33c568a69",
+      "bytes": 8026,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_command.json",
+      "sha256": "75691b42a6336811f32847842ed69230a2a088fc48e649158f80f4079eeddaa3",
+      "bytes": 689,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "cdf07f1113fec88954ee2031efb4467aa77bc10d0e48cc348af16610b1e041ac",
+      "bytes": 20338,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_stderr.log",
+      "sha256": "52e7578a0d4a961e06759508999116eb2aeccaae6a32168ca4e9842cb28e261f",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_events.jsonl",
+      "sha256": "111504ee6ab2cd516653cd53286ef1d1263f298d12b030dee35b5cf086e02020",
+      "bytes": 20218,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_last_message.txt",
+      "sha256": "08479a994947da9f7c61d5fafc8590bc142103190de763bb7885cd42997f4546",
+      "bytes": 5344,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_trace.json",
+      "sha256": "5c3e858185226a1a3600d4624f88589f31b62ab8f5734bc9ed135971ee00ea7f",
+      "bytes": 507,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_stdout.txt",
+      "sha256": "08479a994947da9f7c61d5fafc8590bc142103190de763bb7885cd42997f4546",
+      "bytes": 5344,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_stderr.txt",
+      "sha256": "e14423647f534f7f4021bb82c8de80f854e97cb645c006fa1a260165184fde7e",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_prompt.md",
+      "sha256": "5184cbc1744c2edd23e0b9026446610ac9680ceb90e3766f2d51f145d0275e1b",
+      "bytes": 7558,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_command.json",
+      "sha256": "1d1cf7feb1e61271cd30517600008c26a26a819f62c4dddfa7f25cfd39b488c3",
+      "bytes": 685,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "55ddd68bbc7c6c3f681c7056227295740ce83a4e569b7d9fbf700799b7ca3a65",
+      "bytes": 2470,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "b5586e67b9801a846f87ad963793113ca80f40a0776f8bc8406fed5ae7b09c90",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "fccb49ad1466740b58cb7547d07f61dc3ee4b55e14db023923b0f53e4d4e2408",
+      "bytes": 2492,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "35add11df958ce7deb8e74c10f3cb5cf2869271a3b7da93c9d7704a40fa34aa5",
+      "bytes": 2090,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "61de0dedbc73aa4e95b8cc333d18818c6274222775ef64c473aeb0ccf2521437",
+      "bytes": 505,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "35add11df958ce7deb8e74c10f3cb5cf2869271a3b7da93c9d7704a40fa34aa5",
+      "bytes": 2090,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "e7d33d5e5bae1779a73fef5593d862867c96bc4d3a24a2252cd9c4df853389f2",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/revision_prompt.md",
+      "sha256": "834a94f95e43dc3c52d11a8ec419660497d2f9b79b29296ad98b960c92dd5ce4",
+      "bytes": 16396,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/command.json",
+      "sha256": "ee0df0ccf77fe769e0cfacea75aad25f1181182919f5eb5745f5c2166f091d51",
+      "bytes": 683,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_stdout.jsonl",
+      "sha256": "f5075a71f175b3cf01a29066103823f179569b6142d56d82205eab020850fdaf",
+      "bytes": 6673,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_stderr.log",
+      "sha256": "ee5965b32c3d19d82e5bb5053c57fd73c7e261a805a4f92f22e43241e7909380",
+      "bytes": 233,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_events.jsonl",
+      "sha256": "3d6e73cb3ad495288a7b2b34b9026e5cfbc7ab7804777d72eec6eed420e265c5",
+      "bytes": 6695,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_last_message.txt",
+      "sha256": "82fe6983541f1ce7cf457d58248e8930de9fa7d19a57ed0b1b3af96ad59b5e57",
+      "bytes": 6138,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_trace.json",
+      "sha256": "de341212e15451f997cf103f82f4a7366ca7ff48c4efc039949c3a0d4f3aa7fd",
+      "bytes": 505,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/stdout.txt",
+      "sha256": "82fe6983541f1ce7cf457d58248e8930de9fa7d19a57ed0b1b3af96ad59b5e57",
+      "bytes": 6138,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/stderr.txt",
+      "sha256": "564c2bab5863d7be41e95c89183a6622e449f2a2ba8b3eb7275421ae9f790dce",
+      "bytes": 248,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/raw_response.txt",
+      "sha256": "82fe6983541f1ce7cf457d58248e8930de9fa7d19a57ed0b1b3af96ad59b5e57",
+      "bytes": 6138,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/parsed_cells.json",
+      "sha256": "526713b704fef75b9170ebe3917ba36b2679f4d594cf114e1089489a1b6ba3bf",
+      "bytes": 6913,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/normalized_cells.json",
+      "sha256": "5baed6b8008dbe8936a6b38343309a24f2922792068978d21aa91eb97ac8f5f2",
+      "bytes": 6605,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/validation.json",
+      "sha256": "640f883c49107cb6680bc221ce4b5946adab5a6271dae1a458fb27cf6fd9db5e",
+      "bytes": 147,
+      "createdAt": "2026-07-07T22:14:30Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/manifest.json",
+      "sha256": "628f1f9a57a2cb0fb00341cb307c43cd211a06a9691dcaf6b0ee1d59925da509",
+      "bytes": 18457,
+      "createdAt": "2026-07-07T22:14:30Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "census-marts-adv44x72-monthly-change-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}
