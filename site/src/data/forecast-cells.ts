@@ -1,4 +1,5 @@
 import { BENEFIT_PROGRAM_EXAMPLES } from "./forecast-examples/benefits";
+import { AUTO_2026_07_07_WAVE } from "./forecast-examples/auto-2026-07-07";
 import { BENEFITS_DELIVERY_EXAMPLES } from "./forecast-examples/benefits-delivery";
 import { JUNE_2026_WAVE } from "./forecast-examples/june-2026-wave";
 import { JULY_2026_WAVE } from "./forecast-examples/july-2026-wave";
@@ -5140,6 +5141,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   },
 
   ...LAUNCH_CADENCE_EXAMPLES,
+  ...AUTO_2026_07_07_WAVE,
   ...AGENT_RUN_EXAMPLES,
   ...UK_EXAMPLES,
   ...CANADA_AUSTRALIA_EXAMPLES,
