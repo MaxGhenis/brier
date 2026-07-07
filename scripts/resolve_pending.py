@@ -166,16 +166,18 @@ def push_ledger(repo: str, branch: str, path: str, content: str, sha: str, added
         "sha": sha,
         "branch": branch,
     }
-    subprocess.run(
+    completed = subprocess.run(
         ["gh", "api", "-X", "PUT", f"repos/{repo}/contents/{path}", "--input", "-"],
-        input=json.dumps(body), capture_output=True, text=True, check=True,
+        input=json.dumps(body), capture_output=True, text=True,
     )
+    if completed.returncode != 0:
+        raise RuntimeError(f"ledger push failed: {completed.stderr.strip()[:500]}")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--ledger-repo", default="PolicyEngine/arch-data")
+    parser.add_argument("--ledger-repo", default="PolicyEngine/ledger")
     parser.add_argument("--ledger-branch", default="codex/thesis-ledger-facts")
     parser.add_argument("--ledger-path", default="ledger/official_observations.jsonl")
     args = parser.parse_args()
