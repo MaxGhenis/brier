@@ -1,0 +1,132 @@
+[
+ {
+  "slug": "medicaid-enrollment-april-2027-work-req-deadline-delayed",
+  "country": "US",
+  "type": "data",
+  "title": "Medicaid enrollment, Apr. 2027 | deadline delayed",
+  "question": "CMS monthly Medicaid and CHIP Applications, Eligibility, and Enrollment Data: national Total Medicaid and CHIP Enrollment for April 2027, preliminary first print, conditional on a federal statutory or regulatory delay of the 2025 reconciliation law's Medicaid community-engagement compliance deadline being announced on or before 2027-03-31 and pushing the effective date beyond April 2027.",
+  "unit": "millions",
+  "pointEstimate": 72.9,
+  "ciLow": 69.9,
+  "ciHigh": 75.9,
+  "confidence": 0.8,
+  "resolutionDate": "2027-07-31",
+  "resolutionSource": "CMS Medicaid and CHIP monthly enrollment data",
+  "resolutionSourceUrl": "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360?conditions%5B0%5D%5Boperator%5D=%3D&conditions%5B0%5D%5Bproperty%5D=reporting_period&conditions%5B0%5D%5Bvalue%5D=202704&conditions%5B1%5D%5Boperator%5D=%3D&conditions%5B1%5D%5Bproperty%5D=preliminary_or_updated&conditions%5B1%5D%5Bvalue%5D=P",
+  "resolutionRule": "Resolve to the first official CMS preliminary April 2027 national Total Medicaid and CHIP Enrollment count in the Monthly Medicaid and CHIP Application, Eligibility Determination, and Enrollment Reports and Data / data.Medicaid.gov dataset. Use reporting_period 202704 and preliminary_or_updated = P, not an updated vintage or later revision. Convert whole persons to millions by dividing by 1,000,000 and round the resolved value to two decimals for display. If CMS publishes state rows before a national row, sum official state Total Medicaid and CHIP Enrollment counts for reporting_period 202704 and preliminary_or_updated = P. The conditional event is true only if Congress, CMS, HHS, or another binding federal statutory or regulatory authority announces by 2027-03-31 that the Public Law 119-21 Medicaid community-engagement compliance effective date is delayed beyond April 2027; otherwise the cell is unresolved. Ledger note: no future-dated official CMS release placeholder for 2027-07-31 was found in the run evidence, so this date is kept as the canonical ledger contract while the substantive resolver remains first official print.",
+  "dataPointId": "cms.medicaid_chip.total_enrollment.2027_04.preliminary.deadline_delayed.first_print",
+  "historicalContext": [
+   {
+    "label": "November 2025 preliminary total Medicaid and CHIP enrollment, millions",
+    "value": 78.62
+   },
+   {
+    "label": "December 2025 preliminary total Medicaid and CHIP enrollment, millions",
+    "value": 78.468
+   },
+   {
+    "label": "January 2026 preliminary total Medicaid and CHIP enrollment, millions",
+    "value": 78.312
+   },
+   {
+    "label": "February 2026 preliminary total Medicaid and CHIP enrollment, millions",
+    "value": 78.184
+   },
+   {
+    "label": "March 2026 CMS highlight total Medicaid and CHIP enrollment, millions",
+    "value": 74.294361
+   }
+  ],
+  "drivers": [
+   "latest CMS highlight level anchors the forecast but is treated as a possible publication or definition break",
+   "conditional delay removes the April 2027 work-requirement disenrollment pulse",
+   "post-unwinding renewal churn and income eligibility changes still pull enrollment down",
+   "child continuous eligibility and late processing support the level",
+   "state methodology or reporting changes dominate interval risk"
+  ],
+  "sourceContext": [
+   "https://www.medicaid.gov/medicaid/program-information/medicaid-and-chip-enrollment-data/report-highlights",
+   "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/monthly-medicaid-chip-application-eligibility-determination-and-enrollment-reports-data",
+   "https://www.medicaid.gov/medicaid/national-medicaid-chip-program-information/medicaid-chip-enrollment-data/methodology-about-medicaid-chip-enrollment-report",
+   "https://www.medicaid.gov/resources-for-states/working-families-tax-cut-legislation/community-engagement",
+   "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360"
+  ],
+  "runAt": "2026-07-07T16:03:21Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast April 2027 CMS Medicaid and CHIP enrollment under delayed work requirement"
+   },
+   {
+    "kind": "text",
+    "text": "The resolver is the preliminary April 2027 first-print national Total Medicaid and CHIP Enrollment field in CMS monthly Medicaid and CHIP enrollment data, converted from persons to millions. The catalog series name says Medicaid total enrollment, but the ledger contract and CMS source resolve to Total Medicaid and CHIP Enrollment; I keep that target identity explicit."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened Medicaid.gov March 2026 Medicaid and CHIP Enrollment Data Highlights for the current official level and series definition.",
+    "result": "Fetched March 2026 national Total Medicaid and CHIP Enrollment of 74,294,361 people, with Medicaid enrollment of 67,080,865 and CHIP enrollment of 7,213,496; converted total is 74.294361 million."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read the same CMS highlights page for child-enrollment context, coverage definition, and update timestamp.",
+    "result": "Fetched March 2026 child Medicaid plus CHIP enrollment of 35,571,626, equal to 47.9% of total Medicaid and CHIP enrollment; map data were last updated June 26, 2026, and Total Medicaid and CHIP Enrollment is a point-in-time unduplicated comprehensive-benefit count."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the Medicaid.gov monthly enrollment reports page for release vehicle and current first-print availability evidence.",
+    "result": "Fetched release list showing Preliminary March 2026 Applications, Eligibility, and Enrollment Data last updated June 26, 2026; Updated February 2026 and Updated January 2026 entries also showed Last Updated June 26, 2026; the page states data.Medicaid.gov is updated monthly."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened CMS methodology page for preliminary versus updated enrollment data.",
+    "result": "Fetched methodology stating states report 2 data types: preliminary data approximately 1 week after reporting-period close and updated data 1 month after close; updated data include retroactive enrollment and applications processed after month end, so only same-type data should be compared."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened the CMS community-engagement page for the conditional policy mechanism.",
+    "result": "Fetched official policy context: Section 71119 of Public Law 119-21 requires states, beginning January 1, 2027, to condition Medicaid eligibility for applicable individuals on community engagement unless a state implements sooner; the page lists an Interim Final Rule posted 06/01/2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "repo.lookup",
+    "call": "Inspected a published public Thesis run artifact derived from official CMS data for recent preliminary-reference-class history, without using catalog point estimates as evidence.",
+    "result": "Fetched official-source-derived preliminary national totals: November 2025 = 78,620,000, December 2025 = 78,468,000, January 2026 = 78,312,000, and February 2026 = 78,184,000 people."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate/reference class: the closest reference class is the CMS monthly national Total Medicaid and CHIP Enrollment series. The November 2025 through February 2026 preliminary sequence is smooth at 78.620, 78.468, 78.312, and 78.184 million. The March 2026 CMS highlight value of 74.294361 million is the latest official level but creates a 3.889639 million one-month break, so I treat it as the current anchor while not using that break as ordinary monthly volatility."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, one-off, and policy-mechanism split: level starts at 74.294361 million. Momentum is modestly negative after unwinding and normal renewal churn. The conditional delay removes the direct January-April 2027 community-engagement compliance shock, so I do not subtract a large work-requirement disenrollment pulse. Remaining downside comes from routine redeterminations, income churn, other law-driven eligibility changes, and state reporting cleanups; support comes from child continuous eligibility, retroactive or late processing, and ordinary population inflow."
+   },
+   {
+    "kind": "text",
+    "text": "Prior/update/interval: prior model is latest-official-level persistence with delayed-policy baseline drift, using comparable preliminary fetched history of 78.620, 78.468, 78.312, and 78.184 million for ordinary month-to-month dispersion and the March 2026 official highlight level of 74.294361 million as the current anchor. Comparable successive changes are -0.152, -0.156, and -0.128 million; sample sigma = 0.015 million, so the mechanical 80% half-width is 1.28*sigma = 0.02 million. I widen far beyond that to 3.00 million because the horizon is 13 months, the conditional target depends on a major 2027 policy regime, and the March 2026 official highlight introduces a possible reporting or population-definition discontinuity that ordinary three-change volatility does not capture. Point update is 74.294361 - 1.15 for renewal/income/reporting attrition + 0.25 for the conditional absence of an April 2027 work-requirement disenrollment pulse - 0.49 for non-work-requirement eligibility and reporting risks under the 2025 law = 72.904361."
+   },
+   {
+    "kind": "math",
+    "text": "Point calculation: 74.294361 - 1.15 + 0.25 - 0.49 = 72.904361 million, rounded to 72.90. Interval calculation: comparable-history sigma = 0.015 from fetched successive changes of -0.152, -0.156, and -0.128; 1.28*sigma = 0.02; judgmental horizon, policy, and reporting-discontinuity widening to 3.00 gives 72.90 - 3.00 = 69.90 and 72.90 + 3.00 = 75.90."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration and scenarios: downside risk outside the interval would require April 2027 preliminary enrollment below 69.9 million, likely from a broad state reporting break, severe renewal losses, or other eligibility restrictions operating even though community engagement is delayed. Upside risk outside the interval would require enrollment above 75.9 million, likely from March 2026 proving to be a transient publication break, major state resubmissions, or unexpectedly strong retention. The central case is a lower but not collapsed enrollment level because the work-requirement compliance shock is switched off by the condition."
+   },
+   {
+    "kind": "text",
+    "text": "Review disposition: accepted the resolver critique by flagging the 2027-07-31 official-placeholder gap as a ledger discrepancy while retaining the canonical date and first-print rule; accepted the prior and interval critiques by separating the March 2026 break from comparable monthly volatility and making the 3.00 million half-width explicitly judgmental; accepted the optional clarification on the federal delay authority and on Medicaid plus CHIP target naming."
+   },
+   {
+    "kind": "forecast",
+    "point": 72.9,
+    "ciLow": 69.9,
+    "ciHigh": 75.9
+   }
+  ]
+ }
+]

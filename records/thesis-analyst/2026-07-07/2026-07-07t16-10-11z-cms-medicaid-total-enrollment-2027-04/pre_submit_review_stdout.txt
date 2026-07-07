@@ -1,0 +1,28 @@
+{
+  "summary": "The draft is mostly publication-ready, but it should tighten the resolver contract and make the drift/interval derivation less hand-wavy.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft notes a series-name discrepancy between cms.medicaid.total_enrollment and a Medicaid-plus-CHIP resolver, but the publication contract needs one unambiguous target.",
+      "actionRequested": "State explicitly that the ledger target resolves to CMS national Total Medicaid and CHIP Enrollment despite the series slug, or flag this as a ledger discrepancy without implying the forecaster independently changed the target."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The ordinary-drift adjustment of -3.7 million is plausible but not mechanically tied to the cited historical sample.",
+      "actionRequested": "Add the implied monthly drift rate, explain how it is damped from the Oct 2025-Mar 2026 trend, and say whether this is a simple time-series prior rather than a formal fitted model."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval starts from realized monthly volatility but then relies mainly on judgmental components whose magnitudes are only loosely justified.",
+      "actionRequested": "Tie the +/-1.5 million drift error, +/-2.0 million implementation error, and +/-0.8 million first-print risk to concrete historical or policy uncertainty arguments, or label them explicitly as judgmental stress components."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify whether the 80% interval is intended to be symmetric despite asymmetric implementation timing risk.",
+    "Move the ledger discrepancy note out of the resolutionRule if the catalog expects resolver text to stay clean and machine-readable.",
+    "Mention that the conditional could fail, but that the numeric forecast is only evaluated if the condition is satisfied."
+  ]
+}

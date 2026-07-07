@@ -1,0 +1,365 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-07T16:10:11Z",
+  "series": "cms.medicaid.total_enrollment",
+  "period": "2027-04",
+  "conditional": "The 2025 reconciliation law's Medicaid community-engagement (work requirement) compliance deadline takes effect on its statutory schedule, with no federal statutory or regulatory delay announced by 2027-03-31.",
+  "targetContext": {
+    "series": "cms.medicaid.total_enrollment",
+    "period": "2027-04",
+    "catalogSlug": "medicaid-enrollment-april-2027-work-req-deadline-holds",
+    "valueScale": 0.001,
+    "targetUnit": "millions"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-07T16:10:11Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "8a914f4e72b8cf88dd885f1511ea06a66d245e82a2a843d54fccbeb5e48503b6"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The draft notes a series-name discrepancy between cms.medicaid.total_enrollment and a Medicaid-plus-CHIP resolver, but the publication contract needs one unambiguous target.",
+        "actionRequested": "State explicitly that the ledger target resolves to CMS national Total Medicaid and CHIP Enrollment despite the series slug, or flag this as a ledger discrepancy without implying the forecaster independently changed the target."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The ordinary-drift adjustment of -3.7 million is plausible but not mechanically tied to the cited historical sample.",
+        "actionRequested": "Add the implied monthly drift rate, explain how it is damped from the Oct 2025-Mar 2026 trend, and say whether this is a simple time-series prior rather than a formal fitted model."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval starts from realized monthly volatility but then relies mainly on judgmental components whose magnitudes are only loosely justified.",
+        "actionRequested": "Tie the +/-1.5 million drift error, +/-2.0 million implementation error, and +/-0.8 million first-print risk to concrete historical or policy uncertainty arguments, or label them explicitly as judgmental stress components."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the 80% interval is intended to be symmetric despite asymmetric implementation timing risk."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Move the ledger discrepancy note out of the resolutionRule if the catalog expects resolver text to stay clean and machine-readable."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that the conditional could fail, but that the numeric forecast is only evaluated if the condition is satisfied."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the CMS Total Medicaid and CHIP target explicit despite the ledger slug, accepted the model-prior critique by stating the implied -0.285 million monthly damped drift and that this is a simple time-series prior, and accepted the interval critique by labeling the uncertainty components as judgmental stress components tied to drift persistence, implementation speed, and first-print reporting risk.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the CMS Total Medicaid and CHIP target explicit despite the ledger slug, accepted the model-prior critique by stating the implied -0.285 million monthly damped drift and that this is a simple time-series prior, and accepted the interval critique by labeling the uncertainty components as judgmental stress components tied to drift persistence, implementation speed, and first-print reporting risk.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the CMS Total Medicaid and CHIP target explicit despite the ledger slug, accepted the model-prior critique by stating the implied -0.285 million monthly damped drift and that this is a simple time-series prior, and accepted the interval critique by labeling the uncertainty components as judgmental stress components tied to drift persistence, implementation speed, and first-print reporting risk.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the CMS Total Medicaid and CHIP target explicit despite the ledger slug, accepted the model-prior critique by stating the implied -0.285 million monthly damped drift and that this is a simple time-series prior, and accepted the interval critique by labeling the uncertainty components as judgmental stress components tied to drift persistence, implementation speed, and first-print reporting risk.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the CMS Total Medicaid and CHIP target explicit despite the ledger slug, accepted the model-prior critique by stating the implied -0.285 million monthly damped drift and that this is a simple time-series prior, and accepted the interval critique by labeling the uncertainty components as judgmental stress components tied to drift persistence, implementation speed, and first-print reporting risk.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the CMS Total Medicaid and CHIP target explicit despite the ledger slug, accepted the model-prior critique by stating the implied -0.285 million monthly damped drift and that this is a simple time-series prior, and accepted the interval critique by labeling the uncertainty components as judgmental stress components tied to drift persistence, implementation speed, and first-print reporting risk.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is mostly publication-ready, but it should tighten the resolver contract and make the drift/interval derivation less hand-wavy."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/prompt.md",
+      "sha256": "75052abad7afa75432b1f0322d957f7011bab9616eba657170a655ab716b157b",
+      "bytes": 8175,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_command.json",
+      "sha256": "1626eb734025516094d90e0ac76e9e42491aa2d96aa97847a646dd652676f037",
+      "bytes": 843,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_codex_stdout.jsonl",
+      "sha256": "9a98c1a73139384bd4c48116c6f67efb41d83fd5258caf7d613db92c877afc7b",
+      "bytes": 4096275,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_codex_events.jsonl",
+      "sha256": "86157b9a9d3457e44a7be04ad3933d35e3fd4d50ea2320ca1619cdd1ebe302d5",
+      "bytes": 4097031,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_codex_last_message.txt",
+      "sha256": "17f2a566f1d719cd712ca3327779d8c7874252b18cf5419f2ff968c276474cdb",
+      "bytes": 11322,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_codex_trace.json",
+      "sha256": "225b42ed609bf406260f9eb5b5d184ad2aba34fe737b479508add4fc50ebb710",
+      "bytes": 509,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_stdout.txt",
+      "sha256": "17f2a566f1d719cd712ca3327779d8c7874252b18cf5419f2ff968c276474cdb",
+      "bytes": 11322,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_prompt.md",
+      "sha256": "4fcaeb23a7ef455ca4db331151ca9c4ea91f195573d30f56abbb989eaf78d7bd",
+      "bytes": 13736,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_command.json",
+      "sha256": "3459a35b6838149be3a1e4d60e08f38c1bdc3f13df4c2afb9e19590e74a97edf",
+      "bytes": 839,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "73009b654528066ec5881ca5efff4cc9714b4b9723faee73b51cc0e0084499c4",
+      "bytes": 2434,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_codex_events.jsonl",
+      "sha256": "918aff871c41463e405c915589279797e71cf44b43068d0b6488c3fdd6e9e25e",
+      "bytes": 2456,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_codex_last_message.txt",
+      "sha256": "747f85af6b39b101d31eb0b238819134a40f7a543dc60ad8c24607d080fd3a4a",
+      "bytes": 2028,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_codex_trace.json",
+      "sha256": "2e15c99ad362bfeee42efc369c20ced08fcf7ce99e5b05004104aec90e8b86ba",
+      "bytes": 504,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_stdout.txt",
+      "sha256": "747f85af6b39b101d31eb0b238819134a40f7a543dc60ad8c24607d080fd3a4a",
+      "bytes": 2028,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/revision_prompt.md",
+      "sha256": "8bb37d663f3ee68574a70cf7736666ac3ea4a6bea4868d43b201cc4c8bad0ccd",
+      "bytes": 22461,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/command.json",
+      "sha256": "3c4a059106381bc18ec6fa9239d55645ca553ba5f2afa11181036944ab156225",
+      "bytes": 837,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/codex_stdout.jsonl",
+      "sha256": "0008f4c0b6c5f04f335c33e18cb4eb9f5076d14a17181e997cddb6e81823a97b",
+      "bytes": 12665,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/codex_events.jsonl",
+      "sha256": "16e80f8a506a55a4f2df5d5a25558b4c4e0414d6125f41c0f6a6e2e3aca1e97d",
+      "bytes": 12687,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/codex_last_message.txt",
+      "sha256": "3676bc788a524454281ed3ba67cc9fe4645564e1721cfb2ef17bffa754c5356d",
+      "bytes": 12066,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/codex_trace.json",
+      "sha256": "ee2e34bc3f7e54b4a4496cd6593e3599c96083a64526439a2573d29f67f9988f",
+      "bytes": 503,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/stdout.txt",
+      "sha256": "3676bc788a524454281ed3ba67cc9fe4645564e1721cfb2ef17bffa754c5356d",
+      "bytes": 12066,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/raw_response.txt",
+      "sha256": "3676bc788a524454281ed3ba67cc9fe4645564e1721cfb2ef17bffa754c5356d",
+      "bytes": 12066,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/parsed_cells.json",
+      "sha256": "5783e27a38400ead3544908b57ef4ff920eaf9d12e36364d84cf11a876e833a5",
+      "bytes": 13098,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/normalized_cells.json",
+      "sha256": "41b5858ca697e3f503f7df50f5f57e2a5aa21ea80d7ddbe3eee6e69d09bcda6e",
+      "bytes": 13099,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/validation.json",
+      "sha256": "6b80ab37f80e6f7f0881c1f8d03281fc21c6434ec5534c72c8e0aae97ff828f4",
+      "bytes": 155,
+      "createdAt": "2026-07-07T16:10:11Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t16-10-11z-cms-medicaid-total-enrollment-2027-04/manifest.json",
+      "sha256": "51dc4cec0f24cef2531f97994ab59dd8db4982fd4914c5651be284a17ef305bd",
+      "bytes": 18931,
+      "createdAt": "2026-07-07T16:10:11Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "medicaid-enrollment-april-2027-work-req-deadline-holds",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

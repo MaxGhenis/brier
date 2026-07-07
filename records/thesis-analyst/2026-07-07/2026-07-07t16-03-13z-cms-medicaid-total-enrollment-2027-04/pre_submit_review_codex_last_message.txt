@@ -1,0 +1,27 @@
+{
+  "summary": "Draft is mostly well structured, but publication should wait until the resolver date/source contract and the apparent March 2026 series break are reconciled.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft sets resolutionDate to 2027-07-31 while also saying no future CMS placeholder or calendar was found, which conflicts with the no-cadence-inference requirement.",
+      "actionRequested": "Cite an official CMS release placeholder/calendar/policy basis for 2027-07-31, or explicitly state the ledger discrepancy while keeping the target tied to the canonical contract."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "blocking",
+      "summary": "The prior mixes Nov-Feb preliminary totals near 78.2-78.6 million with a March 2026 highlight value of 74.294 million, creating a 3.89 million one-month drop that may reflect a source/definition/vintage mismatch rather than realized volatility.",
+      "actionRequested": "Verify that all historical observations use the same population, geography, field, and preliminary-vs-updated vintage as the resolver, or revise the prior/interval explanation to exclude or separately handle the discontinuity."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval is mechanically driven by a four-change sample dominated by the questionable March break, so the 3.00 million half-width may not be a defensible volatility estimate.",
+      "actionRequested": "After resolving the same-series issue, restate the interval method using comparable historical changes or an explicit judgmental uncertainty basis."
+    }
+  ],
+  "optionalSuggestions": [
+    "Make the conditional event resolver explicit: who announces the statutory/regulatory delay and what official source confirms it.",
+    "Clarify whether the target series name cms.medicaid.total_enrollment intentionally resolves to Total Medicaid and CHIP Enrollment."
+  ]
+}

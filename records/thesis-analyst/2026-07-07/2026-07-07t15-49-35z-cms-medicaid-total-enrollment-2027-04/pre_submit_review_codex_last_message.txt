@@ -1,0 +1,27 @@
+{
+  "summary": "Draft is mostly publishable on method, but it has a potentially blocking target/resolver mismatch between Medicaid-only series naming and a Medicaid+CHIP resolver/dataPointId.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The target series is listed as cms.medicaid.total_enrollment, but the draft resolves to total Medicaid and CHIP enrollment and uses dataPointId cms.medicaid_chip.total_enrollment.2027_04.first_print.work_req_deadline_holds.",
+      "actionRequested": "Either align the resolver/dataPointId/title/question to Medicaid-only enrollment if that is the intended ledger target, or explicitly state in reasoning that the ledger target is being interpreted as the CMS Medicaid+CHIP national total and flag the series-name discrepancy."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval half-width is widened from a five-month rounded monthly-change sigma to +/-2.9 million, but the size is mostly judgmental and not tied to realized 13-month volatility or a clear scenario distribution.",
+      "actionRequested": "Add a concrete basis for the +/-2.9 million interval, such as historical 12-13 month Medicaid/CHIP changes, post-unwinding forecast uncertainty, or an explicit decomposition of drift, work-requirement implementation, and reporting-risk variance."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The -1.4 million early community-engagement effect is material but only qualitatively justified.",
+      "actionRequested": "Briefly ground the work-requirement adjustment in an eligible-population or state-implementation assumption, even if approximate, so the policy update is auditable."
+    }
+  ],
+  "optionalSuggestions": [
+    "State whether the March 2026 California reporting revision is included in the level but not extrapolated as trend.",
+    "Keep the first-print rule exactly as written; it is specific enough about source, vintage, exclusions, and rounding."
+  ]
+}

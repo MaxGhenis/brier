@@ -180,7 +180,7 @@ def build_fast_prompt(
     schema = {
         "slug": "kebab-case-unique-vs-catalog",
         "country": "US|UK|CA|AU|EA|JP",
-        "type": "data",
+        "type": "conditional" if conditional else "data",
         "title": "Short display title",
         "question": "Exact agency series, period, adjustment, first print",
         "unit": (
@@ -1839,6 +1839,13 @@ def main() -> int:
     normalized_path = out_dir / "normalized_cells.json"
     normalize_cells(parsed_path, normalized_path)
     normalized_cells = json.loads(normalized_path.read_text())
+    # A run with a conditional gate is a conditional cell regardless of what
+    # the model wrote — the type drives the site's badge and resolver
+    # semantics, and the fast-prompt template previously hardcoded "data".
+    if args.conditional:
+        for cell in normalized_cells:
+            cell["type"] = "conditional"
+        normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
         {
             "artifactType": "normalized_cell",
