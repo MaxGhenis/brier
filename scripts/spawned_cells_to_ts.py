@@ -134,6 +134,15 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     # a wave must not retro-reject them. Keep the regex byte-identical to
     # the test.
     run_at = str((cell.get("predictionRun") or {}).get("runAt") or "")
+    # A forecast of an already-published number is leakage, not a forecast:
+    # the resolution date must postdate the run. Caught live 2026-07-07 (a
+    # "2025 provisional infant mortality" cell whose release was 2026-05-26).
+    # Mirrors trace-depth.test.ts; same cutoff.
+    if run_at >= "2026-07-07" and cell["resolutionDate"] <= run_at[:10]:
+        errs.append(
+            f"resolutionDate {cell['resolutionDate']} is not after runAt "
+            f"{run_at[:10]} — target already published (leakage)"
+        )
     if run_at >= "2026-07-05":
         math_text = " ".join(
             s.get("text") or "" for s in steps if s.get("kind") == "math"

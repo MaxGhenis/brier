@@ -36,6 +36,11 @@ describe("agent-run trace depth", () => {
       // dispersion, not a hedged template. Byte-identical regex lives in
       // scripts/spawned_cells_to_ts.py; keep them in sync.
       const runAt = cell.predictionRun?.runAt ?? "";
+      // Leakage gate: the resolution must postdate the run (same cutoff and
+      // semantics as scripts/spawned_cells_to_ts.py).
+      if (runAt >= "2026-07-07") {
+        expect(cell.resolutionDate > runAt.slice(0, 10)).toBe(true);
+      }
       if (runAt >= "2026-07-05") {
         const mathText = steps
           .filter((s) => s.kind === "math")
