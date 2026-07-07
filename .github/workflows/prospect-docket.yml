@@ -12,8 +12,11 @@ on:
   workflow_dispatch:
     inputs:
       count:
-        description: "How many new series to propose"
-        default: "3"
+        description: "How many codex-proposed series (on top of mined gaps)"
+        default: "2"
+      mine_max:
+        description: "Cap on ledger-mined gap targets"
+        default: "4"
       focus:
         description: "Optional focus areas (e.g. 'UK, health, housing')"
         default: ""
@@ -44,6 +47,13 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: printenv OPENAI_API_KEY | codex login --with-api-key
 
+      - name: Mine ledger gaps
+        run: |
+          set -euo pipefail
+          python3 scripts/mine_ledger_gaps.py \
+            --max-targets "${{ github.event.inputs.mine_max || 4 }}" \
+            --out /tmp/mined-targets.json || true
+
       - name: Propose and validate candidates
         id: prospect
         run: |
@@ -52,14 +62,28 @@ jobs:
           if [ -n "${{ github.event.inputs.focus }}" ]; then
             FOCUS_FLAG="--focus \"${{ github.event.inputs.focus }}\""
           fi
-          eval python3 scripts/prospect_series.py \
-            --count "${{ github.event.inputs.count || 3 }}" $FOCUS_FLAG \
-            --out /tmp/prospect-targets.json
-          if [ -f /tmp/prospect-targets.json ]; then
-            COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/prospect-targets.json'))['targets']))")
-          else
-            COUNT=0
+          CODEX_COUNT="${{ github.event.inputs.count || 2 }}"
+          if [ "$CODEX_COUNT" != "0" ]; then
+            eval python3 scripts/prospect_series.py \
+              --count "$CODEX_COUNT" $FOCUS_FLAG \
+              --out /tmp/codex-targets.json || true
           fi
+          python3 - <<'PY'
+          import json, pathlib
+          targets, seen = [], set()
+          for path in ("/tmp/mined-targets.json", "/tmp/codex-targets.json"):
+              p = pathlib.Path(path)
+              if not p.exists():
+                  continue
+              for t in json.loads(p.read_text())["targets"]:
+                  if t["catalogSlug"] not in seen:
+                      seen.add(t["catalogSlug"])
+                      targets.append(t)
+          pathlib.Path("/tmp/prospect-targets.json").write_text(
+              json.dumps({"targets": targets}, indent=1) + "\n")
+          print(f"{len(targets)} combined targets")
+          PY
+          COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/prospect-targets.json'))['targets']))")
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
 
       - name: Run the analyst batch
