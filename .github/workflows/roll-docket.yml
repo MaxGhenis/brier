@@ -68,7 +68,7 @@ jobs:
           python3 scripts/run_thesis_batch.py \
             --targets-file /tmp/roll-targets.json \
             --timeout-seconds 540 \
-            --out "records/thesis-analyst/batches/$DAY/auto-roll.json" || true
+            --out "records/thesis-analyst/batches/$DAY/auto-roll-r${GITHUB_RUN_NUMBER}.json" || true
           # Failures are recorded in the batch manifest; partial success
           # publishes the passing subset below.
 
@@ -90,8 +90,8 @@ jobs:
           set -euo pipefail
           DAY=$(date -u +%F)
           if python3 scripts/register_wave.py \
-              --name "auto-$DAY" \
-              --batch "records/thesis-analyst/batches/$DAY/auto-roll.json" \
+              --name "auto-$DAY-r${GITHUB_RUN_NUMBER}" \
+              --batch "records/thesis-analyst/batches/$DAY/auto-roll-r${GITHUB_RUN_NUMBER}.json" \
               --allow-missing; then
             echo "published=1" >> "$GITHUB_OUTPUT"
           else

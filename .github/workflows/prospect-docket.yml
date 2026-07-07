@@ -94,7 +94,7 @@ jobs:
           python3 scripts/run_thesis_batch.py \
             --targets-file /tmp/prospect-targets.json \
             --timeout-seconds 540 \
-            --out "records/thesis-analyst/batches/$DAY/prospect.json" || true
+            --out "records/thesis-analyst/batches/$DAY/prospect-r${GITHUB_RUN_NUMBER}.json" || true
 
       - name: Commit run records (before any gate — records are immutable artifacts)
         if: steps.prospect.outputs.count != '0'
@@ -114,8 +114,8 @@ jobs:
           set -euo pipefail
           DAY=$(date -u +%F)
           if python3 scripts/register_wave.py \
-              --name "prospect-$DAY" \
-              --batch "records/thesis-analyst/batches/$DAY/prospect.json" \
+              --name "prospect-$DAY-r${GITHUB_RUN_NUMBER}" \
+              --batch "records/thesis-analyst/batches/$DAY/prospect-r${GITHUB_RUN_NUMBER}.json" \
               --allow-missing; then
             echo "published=1" >> "$GITHUB_OUTPUT"
           else

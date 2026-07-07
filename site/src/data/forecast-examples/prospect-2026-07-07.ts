@@ -5,6 +5,395 @@ import type { ForecastCell } from "../forecast-cells";
 
 export const PROSPECT_2026_07_07_WAVE: ForecastCell[] = [
   {
+    "slug": "bls-ppi-final-demand-monthly-change-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US PPI Final Demand Monthly Change, June 2026",
+    "question": "What will the first-print seasonally adjusted monthly percent change be for the BLS Producer Price Index for final demand in June 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.7,
+    "ciLow": 0.2,
+    "ciHigh": 1.2,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-15",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Producer Price Index news release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/ppi.nr0.htm",
+    "resolutionRule": "Resolve to the first-print seasonally adjusted month-over-month percent change for the Producer Price Index for final demand for June 2026 as reported in the BLS Producer Price Indexes news release released on July 15, 2026. Use the rounded one-decimal percent value in the release text or Table A; ignore later revisions.",
+    "historicalContext": [
+      {
+        "label": "2026-05 final demand m/m SA",
+        "value": 1.1
+      },
+      {
+        "label": "2026-04 final demand m/m SA",
+        "value": 1.1
+      },
+      {
+        "label": "2026-03 final demand m/m SA",
+        "value": 0.7
+      },
+      {
+        "label": "2026-02 final demand m/m SA",
+        "value": 0.5
+      },
+      {
+        "label": "2026-01 final demand m/m SA",
+        "value": 0.6
+      }
+    ],
+    "drivers": [
+      "May headline PPI was very high at 1.1 percent, matching April",
+      "May final demand goods rose 2.8 percent and final demand energy rose 10.7 percent",
+      "May services inflation slowed to 0.3 percent, limiting persistence from the goods shock",
+      "Reference-class mean for May 2025-May 2026 final demand monthly changes is about 0.51 percent",
+      "Gasoline and energy shocks are likely to persist partly into June but not repeat May's full impulse"
+    ],
+    "dataPointId": "bls.wp.WPSFD4.2026-06.first_print",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-07-07T22:09:46Z",
+      "agent": "thesis.analyst",
+      "model": "gpt-5.5",
+      "agentVersion": "2.2.0",
+      "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+      "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+      "sourceContext": [
+        "https://www.bls.gov/news.release/ppi.nr0.htm",
+        "https://www.bls.gov/schedule/2026/07_sched.htm",
+        "https://download.bls.gov/pub/time.series/wp/wp.item",
+        "https://download.bls.gov/pub/time.series/wp/wp.series"
+      ],
+      "activityLog": [
+        {
+          "artifactType": "prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/prompt.md",
+          "sha256": "4399a1bad08dcd1f133843bee2107e32450a6ecb7d5d755aa7b0018589adf494",
+          "bytes": 7895,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_command.json",
+          "sha256": "444384a983c93b23efb0df27e5b12d65d6daec98d852f42718a1a7a3483a1936",
+          "bytes": 688,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_stdout.jsonl",
+          "sha256": "e4c275553c03431ad87a913523afa5f17dc76841854932a35fd2ce16968549c7",
+          "bytes": 19720,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_stderr.log",
+          "sha256": "09b887fe05cf6bd3770b0e02135267eb4634648ffd4fce60f5eaba7d199801e9",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_events.jsonl",
+          "sha256": "0b862564d6eff0f9295a2739e9c8216ecf17e608a69218f2909adfa7198c4da4",
+          "bytes": 19615,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_last_message.txt",
+          "sha256": "bbc0ac5e4d724a5f743c322d9d9506e656f55da048fe3cdfc12af10ce68a523f",
+          "bytes": 5624,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_trace.json",
+          "sha256": "3f79bf928429e4fcc475b369c4fac3090129dfb0932d7937cb90a8f4b25cf3fe",
+          "bytes": 507,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "draft_forecast",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_stdout.txt",
+          "sha256": "bbc0ac5e4d724a5f743c322d9d9506e656f55da048fe3cdfc12af10ce68a523f",
+          "bytes": 5624,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_stderr.txt",
+          "sha256": "b3da55d15fa33a9a4517cb61018e2adaed8b93c760a635c1a40b035a09f58d0a",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "review_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_prompt.md",
+          "sha256": "d76e435bff63b80d73e64cdbd843da5e73a6ee50b9b280ec981006fc560d16c2",
+          "bytes": 7836,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_command.json",
+          "sha256": "50da8b4d619a4ee813d6f2f93fc3a2cbf85acf508ab8b21abe6a60ac1bef357c",
+          "bytes": 684,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_stdout.jsonl",
+          "sha256": "73ae664e8b2a5098fadeb2d80f711e3c37505251a2aa8682924189837bff95a9",
+          "bytes": 3050,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_stderr.log",
+          "sha256": "413febcd2c2cde660c70be64f13a5568c9e5376b3d77f50cf2c37c4ec63ce5de",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_events.jsonl",
+          "sha256": "3e973ccabc70573c1c119e8e725c49ae2a02ecb42f134393edbd41b3b1e1311b",
+          "bytes": 3047,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_last_message.txt",
+          "sha256": "e1856b83bf3d4c9d0449ef56433f8f20afb6cafdd5e10f2c67d1718aaa413967",
+          "bytes": 459,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_trace.json",
+          "sha256": "f3d098cad98308b2975636ef3ac892c7e68eaa75dc16c6ac71dbd191bd7570b0",
+          "bytes": 508,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "pre_submit_review",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_stdout.txt",
+          "sha256": "e1856b83bf3d4c9d0449ef56433f8f20afb6cafdd5e10f2c67d1718aaa413967",
+          "bytes": 459,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_stderr.txt",
+          "sha256": "981445e4e2061e651c605f2ab07bd930bdb40c11c6c56812e80eef474be7caba",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "revision_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/revision_prompt.md",
+          "sha256": "f6963f94fcdb3f2fbce65ba159a41d1249ea08c05c894727d3456e2fa7cec035",
+          "bytes": 14914,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/command.json",
+          "sha256": "6bdf8fea70bc4ecce61146a4122c2b2db7547ed0ecd034fb4864850a59dedc5a",
+          "bytes": 682,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/codex_stdout.jsonl",
+          "sha256": "60b059453a994ee5b70f5e3f650f488ad37a993da0add2db887a479259c3ba4b",
+          "bytes": 6564,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/codex_stderr.log",
+          "sha256": "d7cf0f61df640593c07dab3f460beb002d3830362c024e08d1420ae66340edb8",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/codex_events.jsonl",
+          "sha256": "b741eee91813adef1edb9c0435e72317290e274a6401feb27f3a27889098b864",
+          "bytes": 6586,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/codex_last_message.txt",
+          "sha256": "4b35ecc8454f5dfd861cbc7fec9c49776fa715e91d614ac8dcc11d4399ee19cd",
+          "bytes": 5988,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/codex_trace.json",
+          "sha256": "fa309bbe4912986b77e03c5b9599c190d4dd45239b9fa1bec999759cfb04567f",
+          "bytes": 504,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "stdout",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/stdout.txt",
+          "sha256": "4b35ecc8454f5dfd861cbc7fec9c49776fa715e91d614ac8dcc11d4399ee19cd",
+          "bytes": 5988,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/stderr.txt",
+          "sha256": "7de0c33f2c124f97b403051dfd4fd86eecf415aff343f046fb122915cc63a618",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "raw_response",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/raw_response.txt",
+          "sha256": "4b35ecc8454f5dfd861cbc7fec9c49776fa715e91d614ac8dcc11d4399ee19cd",
+          "bytes": 5988,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "parsed_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/parsed_cells.json",
+          "sha256": "4546d224809be0b9ebc6048eb2260bdb3156d42aa05577b58935c2d5f1136df5",
+          "bytes": 6932,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "normalized_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/normalized_cells.json",
+          "sha256": "bd053262a22d7cfdb0471647579e9fa24544b9f23f9a1f2ff9c28c8edb7401db",
+          "bytes": 6555,
+          "createdAt": "2026-07-07T22:09:38Z"
+        },
+        {
+          "artifactType": "validation_report",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/validation.json",
+          "sha256": "db00d874c5852cf411da7d6d0cad75d79afdf5322193083da399641fdeaf76bf",
+          "bytes": 146,
+          "createdAt": "2026-07-07T22:09:38Z"
+        }
+      ],
+      "preSubmitReview": {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "requestedAt": "2026-07-07T22:09:38Z",
+        "reviewer": {
+          "agent": "thesis.pre_submit_reviewer",
+          "model": "gpt-5.5",
+          "promptVersion": "pre-submit-review-v0.1",
+          "commandHash": "3c2ccfe72410b63d524a96860d9973ccac243cfc8a3fc2e1b2de12a101f458e0"
+        },
+        "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/draft_stdout.txt",
+        "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_stdout.txt",
+        "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-09-38z-bls-ppi-final-demand-monthly-change-2026-06/revision_prompt.md",
+        "findings": [
+          {
+            "findingId": "review.suggestion.1",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Consider moving the base-rate sentence before the current-release evidence in the narrative to more visibly satisfy the prior-before-update rubric."
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Consider naming the interval as an 80% interval in the compact math step to match confidence=0.8 exactly."
+          }
+        ],
+        "dispositions": [
+          {
+            "findingId": "review.suggestion.1",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the optional suggestions to make the base rate appear before current-release updates and to label the arithmetic bounds explicitly as an 80% interval; no required fixes were raised.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the optional suggestions to make the base rate appear before current-release updates and to label the arithmetic bounds explicitly as an 80% interval; no required fixes were raised.",
+            "forecastChanged": false
+          }
+        ],
+        "summary": "Draft is publication-ready with a clear BLS first-print resolver, explicit prior/update/interval math, concrete tails, and coherent JSON fields."
+      }
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 BLS PPI Final Demand"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the BLS Producer Price Index for final demand, seasonally adjusted, month-over-month percent change for June 2026, resolved on the first official print in the Producer Price Index news release. The variant is the headline final demand SA monthly percent change, not NSA 12-month change, not core, and not final demand goods or services."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate and reference class: the May 2025-May 2026 headline final-demand monthly changes average about 0.51 percent. I use that outside-view anchor before updating for the latest two prints at 1.1 percent and the component mix."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS release calendar lookup for July 2026 Producer Price Index release",
+        "result": "BLS calendar lists Producer Price Index for June 2026 at 08:30 AM Eastern on July 15, 2026; note line also states all calendar times are Eastern Time and last modified date is February 18, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS current PPI news release headline and recent monthly total final demand values",
+        "result": "BLS May 2026 release says final demand rose 1.1 percent in May, 1.1 percent in April, and 0.7 percent in March; the unadjusted 12-month change was 6.5 percent for May."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Table A reference class for total final demand monthly percent changes",
+        "result": "Fetched total final demand monthly changes: 2025 May 0.3, Jun 0.2, Jul 0.8, Aug -0.2, Sep 0.6, Oct 0.1, Nov 0.4, Dec 0.4, 2026 Jan 0.6, Feb 0.5, Mar 0.7, Apr 1.1, May 1.1."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Table A component context for May 2026 final demand",
+        "result": "Fetched May 2026 components: final demand goods 2.8 percent, final demand foods 0.6 percent, final demand energy 10.7 percent, final demand goods less foods and energy 0.8 percent, final demand services 0.3 percent, final demand less foods, energy, and trade services 0.8 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS item and series metadata check for target identity",
+        "result": "BLS item metadata includes group FD item 4 as Final demand; BLS series metadata file was current through 2026 M05, consistent with the latest May 2026 release."
+      },
+      {
+        "kind": "text",
+        "text": "Update from current-release evidence: I anchor below pure two-month persistence because much of May was an energy/gasoline one-off, but above the 12-month mean because goods, energy, and core-ex-trade momentum were all firm."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: model is a 13-month historical base-rate plus two-month persistence prior. Historical sample is BLS Table A May 2025-May 2026 total final demand values [0.3, 0.2, 0.8, -0.2, 0.6, 0.1, 0.4, 0.4, 0.6, 0.5, 0.7, 1.1, 1.1], mean = 0.51 and sample sigma = 0.37. Adjustment components: +0.20 for April-May persistence and broad goods/core firmness, -0.05 for expected partial energy/gasoline mean reversion, +0.04 for services/core carry-through, giving 0.70. 80% interval method: values themselves are the change-series dispersion, so 80% half-width is roughly 1.28*sigma = 1.28*0.37 = 0.47, rounded to 0.5; final implied bounds are 0.7 - 0.5 = 0.2 and 0.7 + 0.5 = 1.2."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is another large June energy or gasoline pass-through plus firm portfolio-management and transportation services, which would land above the interval if headline final demand prints above 1.2 percent. Downside risk is a sharp reversal in gasoline, crude, or trade-service margins, which would land below the interval if headline final demand prints below 0.2 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional suggestions to make the base rate appear before current-release updates and to label the arithmetic bounds explicitly as an 80% interval; no required fixes were raised."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.7,
+        "ciLow": 0.2,
+        "ciHigh": 1.2
+      }
+    ]
+  },
+  {
     "slug": "uk-manufacturing-output-index-may-2026",
     "country": "UK",
     "type": "data",
@@ -803,6 +1192,2017 @@ export const PROSPECT_2026_07_07_WAVE: ForecastCell[] = [
         "point": 104.7,
         "ciLow": 104.1,
         "ciHigh": 105.3
+      }
+    ]
+  },
+  {
+    "slug": "census-marts-adv44x72-monthly-change-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US advance retail sales monthly change, June 2026",
+    "question": "What will the U.S. Census Bureau first print for the seasonally adjusted advance monthly percent change in retail and food services sales, total NAICS 44X72, from May 2026 to June 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.3,
+    "ciLow": -1.0,
+    "ciHigh": 1.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-16",
+    "resolutionSource": "U.S. Census Bureau Advance Monthly Sales for Retail and Food Services release",
+    "resolutionSourceUrl": "https://www.census.gov/retail/marts/www/marts_current.pdf",
+    "resolutionRule": "Resolve to the first Census Bureau Advance Monthly Sales for Retail and Food Services PDF released for June 2026, scheduled for July 16, 2026 at 8:30 AM ET, Table 2, Retail & food services total, percent change for June 2026 Advance from May 2026, seasonally adjusted and not price-adjusted. Use the printed value rounded to 0.1 percentage point and ignore all later revisions or benchmark updates.",
+    "historicalContext": [
+      {
+        "label": "2026-05 advance from 2026-04",
+        "value": 0.9
+      },
+      {
+        "label": "2026-04 revised from 2026-03",
+        "value": 0.4
+      },
+      {
+        "label": "2025-05 current-vintage adjusted from 2025-04, computed from Table 1 levels",
+        "value": -1.1
+      }
+    ],
+    "drivers": [
+      "May advance print was strong at +0.9% after revised April +0.4%",
+      "Total retail and food services sales level was $763.7 billion in May 2026",
+      "Recent monthly changes show high noise with a small positive central tendency",
+      "Judgmental momentum from the total-series prints modestly offsets mean reversion risk",
+      "First-print advance estimate is based on an early subsample and is revision-prone"
+    ],
+    "dataPointId": "census.marts.adv44x72.monthly_change.2026-06.first_print",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-07-07T22:14:55Z",
+      "agent": "thesis.analyst",
+      "model": "gpt-5.5",
+      "agentVersion": "2.2.0",
+      "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+      "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+      "sourceContext": [
+        "https://www.census.gov/retail/release_schedule.html",
+        "https://www.census.gov/economic-indicators/calendar-listview.html",
+        "https://www.census.gov/retail/marts/www/marts_current.pdf",
+        "https://www.census.gov/retail/index.html",
+        "https://www.census.gov/econ/currentdata/?programCode=MARTS"
+      ],
+      "activityLog": [
+        {
+          "artifactType": "prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/prompt.md",
+          "sha256": "c402291e68a3730fda8f18946a2a0ed8cbed042278fdbde96018f4a33c568a69",
+          "bytes": 8026,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_command.json",
+          "sha256": "75691b42a6336811f32847842ed69230a2a088fc48e649158f80f4079eeddaa3",
+          "bytes": 689,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_stdout.jsonl",
+          "sha256": "cdf07f1113fec88954ee2031efb4467aa77bc10d0e48cc348af16610b1e041ac",
+          "bytes": 20338,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_stderr.log",
+          "sha256": "52e7578a0d4a961e06759508999116eb2aeccaae6a32168ca4e9842cb28e261f",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_events.jsonl",
+          "sha256": "111504ee6ab2cd516653cd53286ef1d1263f298d12b030dee35b5cf086e02020",
+          "bytes": 20218,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_last_message.txt",
+          "sha256": "08479a994947da9f7c61d5fafc8590bc142103190de763bb7885cd42997f4546",
+          "bytes": 5344,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_codex_trace.json",
+          "sha256": "5c3e858185226a1a3600d4624f88589f31b62ab8f5734bc9ed135971ee00ea7f",
+          "bytes": 507,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "draft_forecast",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_stdout.txt",
+          "sha256": "08479a994947da9f7c61d5fafc8590bc142103190de763bb7885cd42997f4546",
+          "bytes": 5344,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_stderr.txt",
+          "sha256": "e14423647f534f7f4021bb82c8de80f854e97cb645c006fa1a260165184fde7e",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "review_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_prompt.md",
+          "sha256": "5184cbc1744c2edd23e0b9026446610ac9680ceb90e3766f2d51f145d0275e1b",
+          "bytes": 7558,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_command.json",
+          "sha256": "1d1cf7feb1e61271cd30517600008c26a26a819f62c4dddfa7f25cfd39b488c3",
+          "bytes": 685,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_stdout.jsonl",
+          "sha256": "55ddd68bbc7c6c3f681c7056227295740ce83a4e569b7d9fbf700799b7ca3a65",
+          "bytes": 2470,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_stderr.log",
+          "sha256": "b5586e67b9801a846f87ad963793113ca80f40a0776f8bc8406fed5ae7b09c90",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_events.jsonl",
+          "sha256": "fccb49ad1466740b58cb7547d07f61dc3ee4b55e14db023923b0f53e4d4e2408",
+          "bytes": 2492,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_last_message.txt",
+          "sha256": "35add11df958ce7deb8e74c10f3cb5cf2869271a3b7da93c9d7704a40fa34aa5",
+          "bytes": 2090,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_codex_trace.json",
+          "sha256": "61de0dedbc73aa4e95b8cc333d18818c6274222775ef64c473aeb0ccf2521437",
+          "bytes": 505,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "pre_submit_review",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_stdout.txt",
+          "sha256": "35add11df958ce7deb8e74c10f3cb5cf2869271a3b7da93c9d7704a40fa34aa5",
+          "bytes": 2090,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_stderr.txt",
+          "sha256": "e7d33d5e5bae1779a73fef5593d862867c96bc4d3a24a2252cd9c4df853389f2",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "revision_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/revision_prompt.md",
+          "sha256": "834a94f95e43dc3c52d11a8ec419660497d2f9b79b29296ad98b960c92dd5ce4",
+          "bytes": 16396,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/command.json",
+          "sha256": "ee0df0ccf77fe769e0cfacea75aad25f1181182919f5eb5745f5c2166f091d51",
+          "bytes": 683,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_stdout.jsonl",
+          "sha256": "f5075a71f175b3cf01a29066103823f179569b6142d56d82205eab020850fdaf",
+          "bytes": 6673,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_stderr.log",
+          "sha256": "ee5965b32c3d19d82e5bb5053c57fd73c7e261a805a4f92f22e43241e7909380",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_events.jsonl",
+          "sha256": "3d6e73cb3ad495288a7b2b34b9026e5cfbc7ab7804777d72eec6eed420e265c5",
+          "bytes": 6695,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_last_message.txt",
+          "sha256": "82fe6983541f1ce7cf457d58248e8930de9fa7d19a57ed0b1b3af96ad59b5e57",
+          "bytes": 6138,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/codex_trace.json",
+          "sha256": "de341212e15451f997cf103f82f4a7366ca7ff48c4efc039949c3a0d4f3aa7fd",
+          "bytes": 505,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "stdout",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/stdout.txt",
+          "sha256": "82fe6983541f1ce7cf457d58248e8930de9fa7d19a57ed0b1b3af96ad59b5e57",
+          "bytes": 6138,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/stderr.txt",
+          "sha256": "564c2bab5863d7be41e95c89183a6622e449f2a2ba8b3eb7275421ae9f790dce",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "raw_response",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/raw_response.txt",
+          "sha256": "82fe6983541f1ce7cf457d58248e8930de9fa7d19a57ed0b1b3af96ad59b5e57",
+          "bytes": 6138,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "parsed_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/parsed_cells.json",
+          "sha256": "526713b704fef75b9170ebe3917ba36b2679f4d594cf114e1089489a1b6ba3bf",
+          "bytes": 6913,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "normalized_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/normalized_cells.json",
+          "sha256": "5baed6b8008dbe8936a6b38343309a24f2922792068978d21aa91eb97ac8f5f2",
+          "bytes": 6605,
+          "createdAt": "2026-07-07T22:14:30Z"
+        },
+        {
+          "artifactType": "validation_report",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/validation.json",
+          "sha256": "640f883c49107cb6680bc221ce4b5946adab5a6271dae1a458fb27cf6fd9db5e",
+          "bytes": 147,
+          "createdAt": "2026-07-07T22:14:30Z"
+        }
+      ],
+      "preSubmitReview": {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "requestedAt": "2026-07-07T22:14:30Z",
+        "reviewer": {
+          "agent": "thesis.pre_submit_reviewer",
+          "model": "gpt-5.5",
+          "promptVersion": "pre-submit-review-v0.1",
+          "commandHash": "9c471a00a456ceb8e11bfabb38dc0982d3a239e075ba5a51aca849338bd27467"
+        },
+        "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/draft_stdout.txt",
+        "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/pre_submit_review_stdout.txt",
+        "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-14-30z-census-marts-adv44x72-monthly-change-2026-06/revision_prompt.md",
+        "findings": [
+          {
+            "findingId": "review.finding.1",
+            "severity": "warning",
+            "rubricItem": "update",
+            "summary": "The +0.25 momentum/breadth adjustment cites ex-gas/ex-auto breadth and gasoline/vehicle category effects, but the cited evidence summarized in the draft only supports total May/April prints and total levels.",
+            "actionRequested": "Either add the specific Census table/category evidence supporting ex-gas, ex-auto, gasoline, and motor-vehicle claims, or reduce/rephrase the adjustment as a judgmental persistence/momentum update from the total-series prints only."
+          },
+          {
+            "findingId": "review.finding.2",
+            "severity": "warning",
+            "rubricItem": "interval",
+            "summary": "The 80% interval is based on realized volatility from only three monthly observations, including one 2025 value computed from current-vintage Table 1 levels, which is a weak volatility estimate for this noisy series.",
+            "actionRequested": "Use a longer same-series monthly-change sample where available, or explicitly label the 3-point sigma as a fallback heuristic and explain why the resulting +/-1.3 percentage point band is appropriate."
+          },
+          {
+            "findingId": "review.finding.3",
+            "severity": "warning",
+            "rubricItem": "prior_update_interval",
+            "summary": "The compact step is mostly present, but the historical sample is too loosely described as the same advance variant even though the 2025 observation appears computed from Table 1 levels rather than taken as a first-print Table 2 advance value.",
+            "actionRequested": "Clarify whether the historical sample uses first-print advance values or current-vintage Census levels, and avoid calling it the same first-print variant unless verified."
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Consider naming the release time in the resolver sentence: July 16, 2026 at 8:30 AM ET."
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "If possible, cite or preserve a stable release artifact instead of relying only on the rolling marts_current.pdf URL."
+          },
+          {
+            "findingId": "review.suggestion.3",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Tail scenarios are adequate, but could be made slightly more target-specific by quantifying what category moves would push the total below -1.0 or above 1.6."
+          }
+        ],
+        "dispositions": [
+          {
+            "findingId": "review.finding.1",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.finding.2",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.finding.3",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.3",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value.",
+            "forecastChanged": false
+          }
+        ],
+        "summary": "Draft is publishable after tightening support for the update and interval, but the resolver/target fields are coherent with the ledger contract."
+      }
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 advance retail sales monthly-change forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this target is Census MARTS/Advance Monthly Sales for Retail and Food Services, total retail and food services NAICS 44X72, seasonally adjusted and not adjusted for price changes. The first-print value is the Table 2 percent change for June 2026 Advance from May 2026, not the later MRTS preliminary revision."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census Monthly Retail Trade release schedule and Economic Indicator calendar for June 2026 Advance Monthly Retail Trade Report.",
+        "result": "Census lists the Advance Monthly Retail Trade Report data month June 2026 for release on July 16, 2026 at 8:30 am; the calendar separately lists Advance Monthly Sales for Retail and Food Services on July 16, 2026 at 8:30 AM for period June 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the May 2026 Census advance retail sales release PDF text and headline values.",
+        "result": "The May 2026 release says adjusted retail and food services sales were $763.7 billion, up 0.9 percent from April 2026 and up 6.9 percent from May 2025; March 2026 to April 2026 was revised from +0.5 percent to +0.4 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Census Table 1 and Table 2 for recent total retail and food services adjusted values.",
+        "result": "Table 1 adjusted total retail and food services levels were 763705 million for May 2026, 757036 million for April 2026, 754013 million for March 2026, 714568 million for May 2025, and 722442 million for April 2025; Table 2 prints May 2026 from April 2026 at +0.9 and April 2026 from March 2026 at +0.4."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: using recent Census total retail and food services monthly-change evidence available in the release, the fetched values are +0.9, +0.4, and the current-vintage Table 1 April-to-May 2025 adjusted-level change of roughly -1.1. That limited reference class centers near zero but has material month-to-month volatility."
+      },
+      {
+        "kind": "text",
+        "text": "Variant consistency: the target and the direct anchors are Census Advance Monthly Sales for Retail and Food Services total retail and food services, seasonally adjusted, not price-adjusted. The 2025 comparison is computed from current-vintage adjusted Table 1 levels, so it is used only as a fallback volatility/context point, not as a verified first-print advance Table 2 observation."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence/base-rate prior uses available recent monthly changes [0.9, 0.4, -1.1], mean = (0.9 + 0.4 - 1.1)/3 = 0.07. Current-release adjustment adds +0.20 as a judgmental momentum update from the total-series +0.9 May print after +0.4 April, with no separate category breadth adjustment, giving point about 0.27 rounded to 0.3. For the interval, this 3-point sample is a fallback heuristic because a longer first-print sample was not fetched; sample sigma = 1.04 from [0.9, 0.4, -1.1], 1.28*sigma = 1.33, so 0.3 +/- 1.3 gives about -1.0 to 1.6, a reasonable 80% band for a noisy advance nominal monthly-change print."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: unusually strong nominal spending across high-weight retail categories or a large seasonal-adjustment surprise would land above the interval. Downside risk: a broad June reversal after May's strong total print would land below the interval. A shock large enough to move the total monthly change beyond roughly +/-1.3 percentage points from the point forecast is the main outside the interval scenario."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique to remove unsupported ex-gas, ex-auto, gasoline, and motor-vehicle update claims; accepted the critique to label the 3-point sigma as a fallback heuristic; accepted the clarification that the 2025 value is current-vintage Table 1 context rather than a verified first-print Table 2 advance value."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.3,
+        "ciLow": -1.0,
+        "ciHigh": 1.6
+      }
+    ]
+  },
+  {
+    "slug": "bls-import-price-index-all-imports-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US import prices MoM, Jun 2026",
+    "question": "BLS U.S. Import Price Index for all imports, all commodities, seasonally unadjusted monthly percent change for June 2026, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 1.1,
+    "ciLow": 0,
+    "ciHigh": 2.2,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-17",
+    "resolutionSource": "U.S. Bureau of Labor Statistics U.S. Import and Export Price Indexes",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/ximpim.t01.htm",
+    "resolutionRule": "Resolve to the July 17, 2026 first-published BLS U.S. Import Price Indexes Table 1 value for All commodities, monthly percent change from May 2026 to June 2026, in percent rounded to one decimal as published. Use the first-print June 2026 BLS Table 1 snapshot, archive, or captured first-print artifact rather than a later mutable ximpim.t01.htm page; ignore later revisions. If Table 1 and the release summary disagree, use the first-print Table 1 All commodities monthly percent change.",
+    "historicalContext": [
+      {
+        "label": "2026-05 all imports MoM first/current release table",
+        "value": 1.9
+      },
+      {
+        "label": "2026-04 all imports MoM revised in May release",
+        "value": 2
+      },
+      {
+        "label": "2026-03 all imports MoM revised in May release",
+        "value": 0.9
+      },
+      {
+        "label": "2026-02 all imports MoM",
+        "value": 1
+      },
+      {
+        "label": "2026-01 all imports MoM",
+        "value": 0.5
+      }
+    ],
+    "drivers": [
+      "fuel-import surge likely cools but remains supportive",
+      "nonfuel import prices running firm",
+      "recent all-imports momentum well above 2025 base rate",
+      "June forecast resolves before later revisions"
+    ],
+    "dataPointId": "bls.import_price_index.all_imports_mom.2026-06.first_print",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-07-07T22:07:42Z",
+      "agent": "thesis.analyst",
+      "model": "gpt-5.5",
+      "agentVersion": "2.2.0",
+      "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+      "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+      "sourceContext": [
+        "https://www.bls.gov/news.release/ximpim.nr0.htm",
+        "https://www.bls.gov/news.release/ximpim.t01.htm",
+        "https://www.bls.gov/schedule/news_release/ximpim.htm"
+      ],
+      "activityLog": [
+        {
+          "artifactType": "prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/prompt.md",
+          "sha256": "36243e184d2aaa97c3a5e5a54165d664418f8762c4be906cca6b88689c638d2f",
+          "bytes": 7901,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_command.json",
+          "sha256": "6231e6af3f9deeac79cbf382c792cdc7aa43ea4d72d331cdfd648b4de9c26417",
+          "bytes": 691,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_stdout.jsonl",
+          "sha256": "93f316f835daa159b17beee4341b09dc3b683066185e888bdd9af4a8c9df3cb3",
+          "bytes": 14424,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_stderr.log",
+          "sha256": "991c47fb1faacc27d145fd872c30bee538c8e50fde690ae73a30c9dbf21966de",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_events.jsonl",
+          "sha256": "f0ee3e9345bf89bd1c2f9a8630b1447f08dca00f129eb7f85d1d924532044493",
+          "bytes": 14389,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_last_message.txt",
+          "sha256": "81693a755a61782769cc26222c14d0cac173549e7cf0a166f62cd257d3281475",
+          "bytes": 5524,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_codex_trace.json",
+          "sha256": "87fcf9420c2c8867a92862070298d7e4641add7835027ceffbf674bc15d92855",
+          "bytes": 508,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "draft_forecast",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stdout.txt",
+          "sha256": "81693a755a61782769cc26222c14d0cac173549e7cf0a166f62cd257d3281475",
+          "bytes": 5524,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stderr.txt",
+          "sha256": "5c3e1ad6a2658604d7cf807aefdd66ffde8887d4e1dc727f7145623f1ad72cb7",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "review_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_prompt.md",
+          "sha256": "486ca982dbfac6d65a87b5495edeabc675281a24742164f43a8d23aad38d81b7",
+          "bytes": 7742,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_command.json",
+          "sha256": "be22e1d04d8da20d00dd2de475407c4d7c7a1162c15b24f31a77caa1376ae17a",
+          "bytes": 687,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+          "sha256": "72bd48c74cb02d0fdbe5784f9dff3e1ec2d4cb6deeac8ee78bd7314c6a82d164",
+          "bytes": 4016,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_stderr.log",
+          "sha256": "adb6a5bf0338d1c9e14a5bc2ef5bc307c4616ce361fec6c59214a01de93b6eb2",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_events.jsonl",
+          "sha256": "01ed65bfc53666db90941f502799e9d2780475c0d3c8ce9e2b4b2ed249684332",
+          "bytes": 4018,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_last_message.txt",
+          "sha256": "25228622cef848b52986ddd90f21345419c172024ecbd6642f48f3b2112b0e1e",
+          "bytes": 1857,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_codex_trace.json",
+          "sha256": "5dfe90f0d6760c623e1996eb948d9091139e9c49d4fae1961267225ea9ab07e5",
+          "bytes": 508,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "pre_submit_review",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stdout.txt",
+          "sha256": "25228622cef848b52986ddd90f21345419c172024ecbd6642f48f3b2112b0e1e",
+          "bytes": 1857,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stderr.txt",
+          "sha256": "993788576fe3a53f651f695118fdeabb53c1741bd2aae9726bf80aa5949948c2",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "revision_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/revision_prompt.md",
+          "sha256": "262ef55cd10b1d70e38f08afd57174ebc3a476849e3c64782cb39f298e0c9002",
+          "bytes": 16218,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/command.json",
+          "sha256": "23d5cae3e155c42dfaa5b001e268b5e54acce5489e1f5bcfc15d0aa86b94cca0",
+          "bytes": 685,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_stdout.jsonl",
+          "sha256": "a786492b194f787bf3b96c2f6c177c88aa63e03a073887a3b31545fc6c4a3f91",
+          "bytes": 6640,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_stderr.log",
+          "sha256": "cfa7be298ffbc3c0a32477e5936f8f0ada76b866074b2af11350ff5b96218fcc",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_events.jsonl",
+          "sha256": "75a8bdd9fca74fe18cb81f170c043665054fd297397e9277a4b17e4eb0abfd89",
+          "bytes": 6662,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_last_message.txt",
+          "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+          "bytes": 6075,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/codex_trace.json",
+          "sha256": "93bb975abff804fe465215a592a2f22e9888bc9e77ab4a3c533ef5ca5c3736da",
+          "bytes": 505,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "stdout",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/stdout.txt",
+          "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+          "bytes": 6075,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/stderr.txt",
+          "sha256": "a8c1136ca9efb5ec369fec07c2ebedff694e766a62064ca4ba95d92858d8d45c",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "raw_response",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/raw_response.txt",
+          "sha256": "56dc6aceb4d90d777d23e67ba6ed432d279015dbe81400c17465a30e6fb1bbcd",
+          "bytes": 6075,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "parsed_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/parsed_cells.json",
+          "sha256": "500a7d8d30e52d78eea8524cf1da0127aef3163036b8d09317684d7bf67ba689",
+          "bytes": 6971,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "normalized_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/normalized_cells.json",
+          "sha256": "d1348be52e1ab9bd9b31499e629b3d317dad9a9a2fc9d67cde45aba3b5f35f5f",
+          "bytes": 6614,
+          "createdAt": "2026-07-07T22:06:52Z"
+        },
+        {
+          "artifactType": "validation_report",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/validation.json",
+          "sha256": "fcaabe83285f2b70a78bef7401a0089c4cf1b4e7e569909b940269cd7eed3c61",
+          "bytes": 149,
+          "createdAt": "2026-07-07T22:06:52Z"
+        }
+      ],
+      "preSubmitReview": {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "requestedAt": "2026-07-07T22:06:52Z",
+        "reviewer": {
+          "agent": "thesis.pre_submit_reviewer",
+          "model": "gpt-5.5",
+          "promptVersion": "pre-submit-review-v0.1",
+          "commandHash": "e5c43077f89a71529b51bc77c257e3a9e6173dfc5bb5cb5138473bbf8d10f347"
+        },
+        "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/draft_stdout.txt",
+        "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/pre_submit_review_stdout.txt",
+        "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-06-52z-bls-import-price-index-all-imports-mom-2026-06/revision_prompt.md",
+        "findings": [
+          {
+            "findingId": "review.finding.1",
+            "severity": "warning",
+            "rubricItem": "resolver",
+            "summary": "The resolver rule correctly names BLS Table 1 and first print, but the current-release URL is mutable and may later show a different reference month.",
+            "actionRequested": "Add that resolution must use the July 17, 2026 first-published June 2026 BLS Table 1 snapshot/archive or captured first-print artifact, not whatever ximpim.t01.htm shows after later releases."
+          },
+          {
+            "findingId": "review.finding.2",
+            "severity": "warning",
+            "rubricItem": "base_rate",
+            "summary": "The base-rate/persistence prior is present, but it appears after the current-evidence tool summaries rather than before inside-view updates.",
+            "actionRequested": "Move or restate the 0.54 percent historical/base-rate prior before the momentum, fuel, and nonfuel evidence adjustments."
+          },
+          {
+            "findingId": "review.finding.3",
+            "severity": "warning",
+            "rubricItem": "model_prior",
+            "summary": "The draft uses a simple persistence/base-rate prior and recent 3-month average, but does not explicitly say whether a formal time-series model was used or ruled out.",
+            "actionRequested": "Add one sentence identifying the model prior as a simple historical/persistence model, or explicitly state that no AR/ETS/regression model was used because the usable first-print sample is short and disrupted by missing 2025 data."
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Label the interval as an 80% interval derived from the 11-observation sample sigma so it matches confidence 0.8."
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Clarify that revised March/April values are acceptable as current historical context, while June itself resolves only to the first print."
+          }
+        ],
+        "dispositions": [
+          {
+            "findingId": "review.finding.1",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.finding.2",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.finding.3",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print.",
+            "forecastChanged": false
+          }
+        ],
+        "summary": "Draft is publishable after minor clarifications; the main gaps are resolver-source mutability and making the model-prior/base-rate ordering explicit."
+      }
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 BLS all-import import-price MoM"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the BLS Import/Export Price Indexes first print for June 2026, Table 1 All commodities monthly percent change, which is the all-imports end-use aggregate. The release is not seasonally adjusted in this table, and the target uses the first-published one-decimal percent change, not later revised values."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Opened BLS schedule page for U.S. Import and Export Price Indexes release dates.",
+        "result": "BLS schedule lists Reference Month June 2026, Release Date Jul. 17, 2026, Release Time 08:30 AM; it also lists May 2026 released Jun. 16, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS release text and Table A component detail for recent all-import, fuel, and nonfuel import prices.",
+        "result": "Table A all imports monthly values were -0.5 in May 2025, -0.1 in June 2025, 0.3 in July 2025, -0.1 in August 2025, -0.1 in September 2025, 0.1 in December 2025, 0.5 in January 2026, 1.0 in February 2026, 0.9 in March 2026, 2.0 in April 2026, and 1.9 in May 2026; fuel imports were 10.2 in March, 18.6 in April, and 12.5 in May, while nonfuel imports were 0.2 in March, 0.6 in April, and 0.8 in May."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class and base rate are the available BLS Table A all-import monthly percent changes from May 2025 through May 2026, excluding unavailable October and November 2025 entries. Before inside-view adjustments, the simple historical/persistence model prior is the 11-observation mean of about 0.54 percent; no AR, ETS, or regression model was used because the usable first-print sample is short and disrupted by missing 2025 data."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened current BLS U.S. Import and Export Price Indexes summary for May 2026.",
+        "result": "BLS reported U.S. import prices increased 1.9 percent in May 2026 after a 2.0 percent rise in April and a 0.9 percent increase in March; over the year May 2025 to May 2026, import prices rose 6.7 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.table",
+        "call": "Opened BLS Table 1, U.S. import price indexes and percent changes for End Use categories of goods.",
+        "result": "Table 1 All commodities shows relative importance 100.000, April 2026 index 147.7, May 2026 index 150.5, annual change 6.7, and monthly changes 1.0 for Jan-Feb 2026, 0.9 for Feb-Mar 2026, 2.0 for Mar-Apr 2026, 1.9 for Apr-May 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "clock.lookup",
+        "call": "Fetched current UTC time for run timestamp after local date command was unavailable in the sandbox.",
+        "result": "UTC time fetched for this run was Jul. 7, 2026 at 22:07:42, formatted as 2026-07-07T22:07:42Z."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses the 11 available BLS Table A all-import MoM values [-0.5, -0.1, 0.3, -0.1, -0.1, 0.1, 0.5, 1.0, 0.9, 2.0, 1.9], whose mean is 0.54 and sample sigma = 0.83 for this change series; update components are +0.40 for recent momentum above the base rate, +0.25 for firm nonfuel import prices, and -0.10 for likely partial cooling after extreme fuel gains, giving 0.54 + 0.40 + 0.25 - 0.10 = 1.09, rounded to 1.1. The 80% half-width is roughly 1.28*sigma = 1.28*0.83 = 1.06, so 1.1 +/- 1.06 gives about 0.0 to 2.2 after one-decimal target rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is another large fuel-import increase or broader tariff/pass-through pressure that would land above the interval, especially if fuels again add double-digit monthly growth. Downside risk is a June reversal in petroleum or natural gas import prices, or a sudden weakening in nonfuel goods prices, which would land outside the interval below 0.0."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver mutability clarification, restated the base-rate prior before inside-view adjustments, and identified the model prior as a simple historical/persistence model; revised March and April values remain only historical context, while June resolves only to the first print."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.1,
+        "ciLow": 0,
+        "ciHigh": 2.2
+      }
+    ]
+  },
+  {
+    "slug": "census-housing-starts-saar-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US housing starts SAAR, June 2026",
+    "question": "What will the U.S. Census Bureau and HUD first report for privately owned housing starts, seasonally adjusted annual rate, United States total, June 2026?",
+    "unit": "millions",
+    "pointEstimate": 1.237,
+    "ciLow": 1.092,
+    "ciHigh": 1.382,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-17",
+    "resolutionSource": "U.S. Census Bureau and HUD Monthly New Residential Construction release",
+    "resolutionSourceUrl": "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+    "resolutionRule": "Resolve to the first Census/HUD Monthly New Residential Construction print for June 2026, Table 3a, New Privately-Owned Housing Units Started, United States total, seasonally adjusted annual rate. Use the preliminary first-print value in thousands divided by 1,000 to convert to millions; ignore subsequent revisions or historical-table backfills.",
+    "historicalContext": [
+      {
+        "label": "May 2026 housing starts SAAR",
+        "value": 1.177
+      },
+      {
+        "label": "April 2026 housing starts SAAR",
+        "value": 1.392
+      },
+      {
+        "label": "March 2026 housing starts SAAR",
+        "value": 1.522
+      },
+      {
+        "label": "May 2026 building permits SAAR",
+        "value": 1.413
+      },
+      {
+        "label": "May 2025 housing starts SAAR",
+        "value": 1.289
+      }
+    ],
+    "drivers": [
+      "May 2026 total starts fell to 1.177 million SAAR, mainly from multifamily weakness",
+      "Single-family starts and permits were comparatively stable near 0.88 million SAAR",
+      "Multifamily starts are volatile and likely to partially mean-revert after May's drop",
+      "May permits at 1.413 million SAAR provide a higher near-term construction pipeline than May starts",
+      "High mortgage rates and weak builder sentiment cap the rebound"
+    ],
+    "dataPointId": "census.housing_starts.saar.2026-06.first_print",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-07-07T22:13:30Z",
+      "agent": "thesis.analyst",
+      "model": "gpt-5.5",
+      "agentVersion": "2.2.0",
+      "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+      "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+      "sourceContext": [
+        "https://www.census.gov/construction/nrc/current/index.html",
+        "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+        "https://www.census.gov/construction/nrc/data/series.html",
+        "https://www.census.gov/construction/soc/schedule.html",
+        "https://www.census.gov/economic-indicators/calendar-listview.html"
+      ],
+      "activityLog": [
+        {
+          "artifactType": "prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/prompt.md",
+          "sha256": "c079885f05df7db29d8d17bb5c08c185d1318a94fda15e9f0eab597098866ac6",
+          "bytes": 8000,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_command.json",
+          "sha256": "2505074bfc0795a68e0551e528827b21d938583842b4e44cb19e5f76793b7771",
+          "bytes": 679,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_stdout.jsonl",
+          "sha256": "ed0d214417cca735b9659942f06bc060b57929e0e6c90c64b96b90b26055eb50",
+          "bytes": 10784,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_stderr.log",
+          "sha256": "50fd9bcdf46202b5204349563d7d480b4aaddb30ad4fa8328374b7b227ee50cf",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_events.jsonl",
+          "sha256": "56205895225f70ab05b9b1e62b6cad421e5a173bf9a8305a9d7d2b48d9bbfc60",
+          "bytes": 10777,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_last_message.txt",
+          "sha256": "1533d010c28d1b384b91a8f5155985144dde72f6000ca281c2c42912b15924f3",
+          "bytes": 6068,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_codex_trace.json",
+          "sha256": "c1b8db4b0de2095be4446b5301f6cc44ad6b8f4e026a19bcc10aa82262b3bde0",
+          "bytes": 507,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "draft_forecast",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_stdout.txt",
+          "sha256": "1533d010c28d1b384b91a8f5155985144dde72f6000ca281c2c42912b15924f3",
+          "bytes": 6068,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_stderr.txt",
+          "sha256": "575e4c103df5da4c7fe781f3b0d893ab0ec2608acf7960b808e9f26215ac1fff",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "review_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_prompt.md",
+          "sha256": "ad458d0711010a72e35ad15857ac4fdad61709c617d7d9c65da6748949abeb93",
+          "bytes": 8256,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_command.json",
+          "sha256": "bc58ec33fd321ee80845c92dd2d8072ed6619bd5601c84413ba9bd31a5edb320",
+          "bytes": 675,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_stdout.jsonl",
+          "sha256": "d07745954cb608d86af6ecd0506eff6fb571373079a4cab89f308a60e8d3d428",
+          "bytes": 890,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_stderr.log",
+          "sha256": "3085a7119491cc8e4701da70ee70767fe1dc13ffdd43bad57be5bae68b5a9097",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_events.jsonl",
+          "sha256": "b9a52cc20bcf6568346644e31aac8a50a6515f24a7ae736a06e8925a556e9475",
+          "bytes": 912,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_last_message.txt",
+          "sha256": "b651dbad370c7d1b689419a49ce442c2596fe443fd84d60e666f648c958c6bfd",
+          "bytes": 561,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_codex_trace.json",
+          "sha256": "ec310640332c4dd70a9416ccf87cf372dee36e7e09592a71104e9756cecca9a9",
+          "bytes": 504,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "pre_submit_review",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_stdout.txt",
+          "sha256": "b651dbad370c7d1b689419a49ce442c2596fe443fd84d60e666f648c958c6bfd",
+          "bytes": 561,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_stderr.txt",
+          "sha256": "d26cb01811696a8f02f825e2ffaab94110f088bad333f9372ce79d72293f1a8e",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "revision_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/revision_prompt.md",
+          "sha256": "7db11b01ebecc88a2ac98cea68e5cfbcd25ba4cd8ce82890700ad0243703a4ea",
+          "bytes": 15565,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/command.json",
+          "sha256": "1318a1567a762eba5701cd20bea6032e54a6b773fc93c6f9aaeb88c44fd47d3b",
+          "bytes": 673,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_stdout.jsonl",
+          "sha256": "f16f303e8c12e7c018024a81de6e6eb55e7de0e65a6242ddea7dce946ac254ec",
+          "bytes": 6954,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_stderr.log",
+          "sha256": "72480d907f1fe806fe8cb812113e6e8f6376a92966a2c02deb8502715887ab31",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_events.jsonl",
+          "sha256": "c473eed3b08816858c9195f5ed3d34f1a04eb9ef3609302006845d95a2006262",
+          "bytes": 6976,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_last_message.txt",
+          "sha256": "6be7bd7954022fcead26ebdaf6c51eea6d3f4da58c43d438b630901e6d886e6a",
+          "bytes": 6391,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/codex_trace.json",
+          "sha256": "9208a7fa9ff1ce76cbaba878f25248f220b7cb8e75f6d0cd685c9f2f3001655a",
+          "bytes": 505,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "stdout",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/stdout.txt",
+          "sha256": "6be7bd7954022fcead26ebdaf6c51eea6d3f4da58c43d438b630901e6d886e6a",
+          "bytes": 6391,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/stderr.txt",
+          "sha256": "40124b5e57205fcaed12d116162e53b14f9cd1c5bca314f301de8f71c0906005",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "raw_response",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/raw_response.txt",
+          "sha256": "6be7bd7954022fcead26ebdaf6c51eea6d3f4da58c43d438b630901e6d886e6a",
+          "bytes": 6391,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "parsed_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/parsed_cells.json",
+          "sha256": "d3eb0d68eee42b24c2e0ee2dc071d574219e1d4dd38bdfaab1d43c44872debb4",
+          "bytes": 7288,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "normalized_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/normalized_cells.json",
+          "sha256": "dab8777bc3ea35dced4e243dd700d9c1a653dd1f2b18fe8c134fa72da015f0d9",
+          "bytes": 6930,
+          "createdAt": "2026-07-07T22:13:01Z"
+        },
+        {
+          "artifactType": "validation_report",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/validation.json",
+          "sha256": "96b2b0df629e7e085ef00ee64f2e2ef9de655e9800c8b14cfbaaa05d64283281",
+          "bytes": 137,
+          "createdAt": "2026-07-07T22:13:01Z"
+        }
+      ],
+      "preSubmitReview": {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "requestedAt": "2026-07-07T22:13:01Z",
+        "reviewer": {
+          "agent": "thesis.pre_submit_reviewer",
+          "model": "gpt-5.5",
+          "promptVersion": "pre-submit-review-v0.1",
+          "commandHash": "2dc200623f12ad46d29ac21f98a729ed39909f63372512a138a9d096a18efbc5"
+        },
+        "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/draft_stdout.txt",
+        "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/pre_submit_review_stdout.txt",
+        "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-13-01z-census-housing-starts-saar-2026-06/revision_prompt.md",
+        "findings": [
+          {
+            "findingId": "review.suggestion.1",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "State explicitly that the 80% interval uses approximately a normal 80% half-width, 1.28 times recent monthly-change sigma, to make the confidence mapping self-contained."
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Consider naming whether the 13-month sample is first-print or current-vintage Table 3a history; this is not fatal because the resolver itself is clearly first-print June 2026."
+          }
+        ],
+        "dispositions": [
+          {
+            "findingId": "review.suggestion.1",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the optional reviewer suggestions to state the normal 80% interval mapping explicitly and to identify the 13-month history as current-vintage Table 3a context; no required fixes were raised.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the optional reviewer suggestions to state the normal 80% interval mapping explicitly and to identify the 13-month history as current-vintage Table 3a context; no required fixes were raised.",
+            "forecastChanged": false
+          }
+        ],
+        "summary": "Draft is publication-ready with no blocking issues; resolver, prior, update logic, interval, tails, and JSON fields are coherent with the target contract."
+      }
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 U.S. housing starts SAAR forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecast targets the Census/HUD New Residential Construction first print for privately owned housing units started, United States total, seasonally adjusted annual rate, June 2026. The table variant is Table 3a, seasonally adjusted annual rate, not not-seasonally-adjusted starts and not permits or completions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open Census Economic Indicator Release Schedule and Survey of Construction release schedule for June 2026 New Residential Construction.",
+        "result": "The Census schedule lists New Residential Construction for June 2026 at 8:30 AM on July 17, 2026; the SOC schedule also lists June 2026 New Residential Construction on July 17, 2026 and New Residential Sales on July 24, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open the Census/HUD May 2026 New Residential Construction press release page.",
+        "result": "For May 2026, housing starts were 1,177,000 SAAR, down 15.4% from revised April 2026 at 1,392,000 and down 8.7% from May 2025 at 1,289,000; May building permits were 1,413,000 SAAR and single-family permits were 886,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open the Census/HUD current press release PDF, Table 3a, housing units started, seasonally adjusted annual rate.",
+        "result": "Recent current-vintage United States total starts in thousands SAAR were May 2025 1,289, June 2025 1,379, July 2025 1,432, August 2025 1,291, September 2025 1,319, October 2025 1,273, November 2025 1,319, December 2025 1,378, January 2026 1,385, February 2026 1,346, March 2026 1,522, April 2026 1,392, and May 2026 1,177."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read component detail from the May 2026 Census/HUD release for starts and permits.",
+        "result": "May 2026 single-family starts were 882,000 SAAR versus revised April 2026 at 899,000; May 2026 starts in buildings with 5 units or more were 284,000; May 2026 authorizations in buildings with 5 units or more were 474,000."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: over the latest official 13-month current-vintage starts sequence, the level has mostly run between 1.27 million and 1.43 million SAAR before the May 2026 drop to 1.177 million. A persistence base rate from the latest print would be 1.177 million, but the component mix suggests May was unusually weak in multifamily rather than a broad collapse."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanisms: single-family starts were only 17,000 below April and single-family permits were 886,000, so I keep that component near 0.88 million. Multifamily starts at 0.284 million were far below recent starts and below May 5-plus-unit permits at 0.474 million, so I add a partial rebound of about 0.060 million rather than a full snapback."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is May 2026 starts at 1.177 million SAAR using the official Table 3a reference class from May 2025 through May 2026; adjustments are +0.000 million for single-family level, +0.060 million for partial multifamily mean reversion, and +0.000 million for policy/timing effects, giving 1.177 + 0.060 = 1.237. Successive monthly changes in millions are +0.090, +0.053, -0.141, +0.028, -0.046, +0.046, +0.059, +0.007, -0.039, +0.176, -0.130, -0.215, so sigma = 0.113; using an approximately normal 80% half-width, 1.28*sigma = 0.145, giving 1.237 - 0.145 = 1.092 and 1.237 + 0.145 = 1.382."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a faster multifamily rebound toward the 0.40-0.48 million area implied by recent starts and permits, which would land above the interval if single-family also improves. Downside risk is that high mortgage rates and builder caution keep starts near May's depressed multifamily level, which would land below the interval if single-family starts also break below 0.85 million."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional reviewer suggestions to state the normal 80% interval mapping explicitly and to identify the 13-month history as current-vintage Table 3a context; no required fixes were raised."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.237,
+        "ciLow": 1.092,
+        "ciHigh": 1.382
+      }
+    ]
+  },
+  {
+    "slug": "cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "California Medicaid Procedural Disenrollments, June 2026",
+    "question": "What will CMS first report for California beneficiaries disenrolled from Medicaid/CHIP for procedural or administrative reasons in the June 2026 reporting month, in the original/preliminary state-row Eligibility Processing Data first print?",
+    "unit": "count",
+    "pointEstimate": 205000,
+    "ciLow": 170000,
+    "ciHigh": 240000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-25",
+    "resolutionSource": "CMS Medicaid and CHIP Eligibility Operations and Enrollment Snapshot Data",
+    "resolutionSourceUrl": "https://data.medicaid.gov/medicaid-chip-eligibility-enrollment-snapshot-data",
+    "resolutionRule": "Resolve to the California state row for the June 2026 reporting month in CMS Medicaid and CHIP Eligibility Operations and Enrollment Snapshot Data, Eligibility Processing Data, original/preliminary first print, for beneficiaries disenrolled for a procedural or administrative reason. Use the first posted CMS monthly snapshot/Data.Medicaid.gov value only; do not revise to later quarterly updated renewal outcomes or later corrections. Unit is persons, as an official integer count.",
+    "historicalContext": [
+      {
+        "label": "2026-03 first-print implied procedural disenrollments",
+        "value": 200177
+      },
+      {
+        "label": "2026-02 first-print implied procedural disenrollments",
+        "value": 200616
+      },
+      {
+        "label": "2026-01 first-print implied procedural disenrollments",
+        "value": 216307
+      },
+      {
+        "label": "2025-12 first-print implied procedural disenrollments",
+        "value": 208500
+      },
+      {
+        "label": "2025-06 first-print implied procedural disenrollments",
+        "value": 25446
+      }
+    ],
+    "drivers": [
+      "California procedural disenrollment rate has been 19-20 percent in the latest first-print state rows",
+      "California renewals due have stayed near one million per month in the latest four prints",
+      "National procedural disenrollment rate rose from 11 percent in June 2025 to 15 percent by February-March 2026",
+      "June 2025 California was an unusually low 3 percent procedural-disenrollment month and is downweighted versus the current regime",
+      "First-print target uses original/preliminary renewal outcomes, not updated quarterly outcomes"
+    ],
+    "dataPointId": "cms.medicaid_pi.beneficiaries_disenrolled_procedural.california.2026-06.first_print",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-07-07T22:17:12Z",
+      "agent": "thesis.analyst",
+      "model": "gpt-5.5",
+      "agentVersion": "2.2.0",
+      "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+      "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+      "sourceContext": [
+        "https://www.medicaid.gov/medicaid-and-chip-eligibility-operations-and-enrollment-snapshot",
+        "https://data.medicaid.gov/medicaid-chip-eligibility-enrollment-snapshot-data",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-mar2026.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-feb2026.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-jan2026.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-dec2025.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-june2025.pdf"
+      ],
+      "activityLog": [
+        {
+          "artifactType": "prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/prompt.md",
+          "sha256": "1c8d9ad5430b7ef1e2b546e3cff00515940db3bdaa4266a6be2d04d955f1d678",
+          "bytes": 8013,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_command.json",
+          "sha256": "8caaea3457da38255e63f2ae671b79e42a72d73d27c48f1050bf2569a05f8555",
+          "bytes": 716,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_codex_stdout.jsonl",
+          "sha256": "730939a269600784cddf5b733fe834a302c2a9d46a05a11e6f31d1517dc62103",
+          "bytes": 23343,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_codex_stderr.log",
+          "sha256": "bd85efd2ad237009082e3f794cf7c7ff3ee3cde695bc075d02da2a7d32a30546",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_codex_events.jsonl",
+          "sha256": "28bd95e21eb55c2d090108921d243c00325435f4a8ee8480152f3bc67876c902",
+          "bytes": 23205,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_codex_last_message.txt",
+          "sha256": "268c19ebd2a5101066732fda70fccc538587c9a377fda116656acd68d56c07e0",
+          "bytes": 7085,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_codex_trace.json",
+          "sha256": "f626f42815ff5fc1ecac57faaddaca9089b9f2669a1d31d751c0907d2a15b0a7",
+          "bytes": 508,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "draft_forecast",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_stdout.txt",
+          "sha256": "268c19ebd2a5101066732fda70fccc538587c9a377fda116656acd68d56c07e0",
+          "bytes": 7085,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_stderr.txt",
+          "sha256": "493fbf5f1ddc705f1fe24944f103ec2799003af76eeb8e52ef14afb5329f5470",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "review_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_prompt.md",
+          "sha256": "0fa45178af0490bc5677df5cfdab649c695e520ea4c10f1caf90cba7fe3636e1",
+          "bytes": 9344,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_command.json",
+          "sha256": "05ba9a5a971dbafdbc4ade2ffeb6d6af8f82c62b03716e7e321e53fa077a50c1",
+          "bytes": 712,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_codex_stdout.jsonl",
+          "sha256": "3a2e7b2814c97a62860d353b9f6afe90cf0d191b8a366b5e9b3a544e9d4dbf06",
+          "bytes": 1476,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_codex_stderr.log",
+          "sha256": "8317543613125b38f11ff9fdb2af864bd7ef0f1402f90d86518fb8429c15a13a",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_codex_events.jsonl",
+          "sha256": "2500a4780cb4c9ea7337b19325bb45f4f692b28ad88a6babf561ff94b3e9d6af",
+          "bytes": 1498,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_codex_last_message.txt",
+          "sha256": "5141f3d6cc4ffb607b17fcf78caa657b285ac7b5b41dd0213b9ba3e48b799ec8",
+          "bytes": 1130,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_codex_trace.json",
+          "sha256": "aa89df4c0f0f71014352ca0437831ffc1ddfc912331e54f5b6a93e678675c460",
+          "bytes": 505,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "pre_submit_review",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_stdout.txt",
+          "sha256": "5141f3d6cc4ffb607b17fcf78caa657b285ac7b5b41dd0213b9ba3e48b799ec8",
+          "bytes": 1130,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_stderr.txt",
+          "sha256": "3fc7e4264eff3ddbc210018041baf25ff3b4b8f545c7def46f13743827b09967",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "revision_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/revision_prompt.md",
+          "sha256": "e693a78498302b3d36dcdc809fcfdfb981e7045c14cc1a7b0107d84b627f577a",
+          "bytes": 17164,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/command.json",
+          "sha256": "081a5e45bfe240988ad0c3f7361f466ab684e2fb87becd34d94069dbabe1431b",
+          "bytes": 710,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/codex_stdout.jsonl",
+          "sha256": "a4fd6fddab7dfb591e0e3699c5601d024f118523f0da554177734a12b7bbad87",
+          "bytes": 8171,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/codex_stderr.log",
+          "sha256": "b023c0ab1149420d56b79eb520a7ec820e9f2004ac478192050a1393bb6f5ef3",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/codex_events.jsonl",
+          "sha256": "e2413081f0e35c8317426b713b3649d240392c1e4b18d41597b36561ed09a7fa",
+          "bytes": 8193,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/codex_last_message.txt",
+          "sha256": "46017385f4fe32b47e0c5bad58ff49780df26f68849da305c78c65c1084e6ead",
+          "bytes": 7612,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/codex_trace.json",
+          "sha256": "3e5da5dadce149596a8c37e7676d490ed9839b41b25b293ea432b42448451c42",
+          "bytes": 505,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "stdout",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/stdout.txt",
+          "sha256": "46017385f4fe32b47e0c5bad58ff49780df26f68849da305c78c65c1084e6ead",
+          "bytes": 7612,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/stderr.txt",
+          "sha256": "2b580534b59a58069b7ec9d910df8be69aa1c8d16e89007a22aa07f37caa15a9",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "raw_response",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/raw_response.txt",
+          "sha256": "46017385f4fe32b47e0c5bad58ff49780df26f68849da305c78c65c1084e6ead",
+          "bytes": 7612,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "parsed_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/parsed_cells.json",
+          "sha256": "a9c90b8cdc63d39d021546a8ae99d3d6456311ebb0893e147b0fbb0d2eda954d",
+          "bytes": 8489,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "normalized_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/normalized_cells.json",
+          "sha256": "6d50d4f00c64533887efad30df5666b6229acfb1311fb77a6f72cda91a4666dd",
+          "bytes": 8139,
+          "createdAt": "2026-07-07T22:17:04Z"
+        },
+        {
+          "artifactType": "validation_report",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/validation.json",
+          "sha256": "d8bb0a3bd4e1d38db2da1932725aeee9ebe27b8c1bf62d661c18490f197da09a",
+          "bytes": 174,
+          "createdAt": "2026-07-07T22:17:04Z"
+        }
+      ],
+      "preSubmitReview": {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "requestedAt": "2026-07-07T22:17:04Z",
+        "reviewer": {
+          "agent": "thesis.pre_submit_reviewer",
+          "model": "gpt-5.5",
+          "promptVersion": "pre-submit-review-v0.1",
+          "commandHash": "e852ad475defc464f9110bdc3a3cd5f0000295d6775cd8b2091901b7e5877929"
+        },
+        "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/draft_stdout.txt",
+        "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/pre_submit_review_stdout.txt",
+        "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-17-04z-cms-medicaid-pi-beneficiaries-disenrolled-procedural-california-2026-06/revision_prompt.md",
+        "findings": [
+          {
+            "findingId": "review.finding.1",
+            "severity": "warning",
+            "rubricItem": "resolver",
+            "summary": "Resolution source, first-print rule, unit, and state/month row are clear, but the June 2026 resolution date is not directly supported by an official June 2026 calendar, release placeholder, or policy-state rule in the reasoning.",
+            "actionRequested": "Add the specific official evidence for the 2026-09-25 resolution date, or explicitly state that this date is the ledger target date while the public release-date evidence is based on recent CMS posting cadence."
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Clarify that the historical counts are implied from rounded CMS table rates, not exact first-print dataset values, and that the widened interval is partly compensating for that proxy error."
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "The prior/update/interval step is strong; consider naming the four-month sample as Dec 2025-Mar 2026 in the compact math line for easier auditability."
+          }
+        ],
+        "dispositions": [
+          {
+            "findingId": "review.finding.1",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the reviewer warning on release-date support by retaining the canonical ledger resolutionDate of 2026-09-25 while stating that the public timing evidence available in the draft was the recent official CMS posting cadence, not a June 2026-specific placeholder. Accepted the suggestion to clarify that historical counts are implied from rounded CMS table rates and that interval widening compensates partly for that proxy error.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the reviewer warning on release-date support by retaining the canonical ledger resolutionDate of 2026-09-25 while stating that the public timing evidence available in the draft was the recent official CMS posting cadence, not a June 2026-specific placeholder. Accepted the suggestion to clarify that historical counts are implied from rounded CMS table rates and that interval widening compensates partly for that proxy error.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the reviewer warning on release-date support by retaining the canonical ledger resolutionDate of 2026-09-25 while stating that the public timing evidence available in the draft was the recent official CMS posting cadence, not a June 2026-specific placeholder. Accepted the suggestion to clarify that historical counts are implied from rounded CMS table rates and that interval widening compensates partly for that proxy error.",
+            "forecastChanged": false
+          }
+        ],
+        "summary": "Draft is mostly publishable, but the resolution-date support is weaker than the resolver/source support because it appears inferred from prior monthly cadence rather than verified for the June 2026 first print."
+      }
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "California June 2026 Medicaid procedural disenrollments"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the CMS Medicaid and CHIP Eligibility Operations and Enrollment Snapshot Data, Eligibility Processing Data, California state row, reporting month June 2026, original/preliminary first print, beneficiaries disenrolled for procedural or administrative reasons. It is not a national total, weighted average, updated quarterly outcome, or enrollment level."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official Medicaid.gov Snapshot index and Data.Medicaid.gov snapshot-data page for release identity and timing.",
+        "result": "Fetched Snapshot index values: March 2026 Snapshot released June 26 2026; February 2026 released May 29 2026; January 2026 released April 24 2026; December 2025 released March 27 2026; June 2025 released September 26 2025. Data page slug fetched: medicaid-chip-eligibility-enrollment-snapshot-data."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read March 2026 and February 2026 CMS Snapshot state tables for California renewal outcomes.",
+        "result": "Fetched California March 2026 due for renewal 1053563 and procedural/administrative disenrollment rate 19%, implying about 200177 persons; fetched California February 2026 due for renewal 1003079 and procedural/administrative disenrollment rate 20%, implying about 200616 persons."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read January 2026 and December 2025 CMS Snapshot state tables for California renewal outcomes.",
+        "result": "Fetched California January 2026 due for renewal 1138457 and procedural/administrative disenrollment rate 19%, implying about 216307 persons; fetched California December 2025 due for renewal 1097366 and procedural/administrative disenrollment rate 19%, implying about 208500 persons."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read prior-regime and same-month official CMS Snapshot rows for California and national context.",
+        "result": "Fetched California June 2025 due for renewal 848211 and procedural/administrative disenrollment rate 3%, implying about 25446 persons; fetched California September 2025 due 851451 at 15%, October 2025 due 864933 at 15%, and November 2025 due 835824 at 16%."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: I use the post-December-2025 California first-print regime as the main base rate because the latest four official state rows cluster around 200000-216000 implied procedural disenrollments, while June-November 2025 show a lower earlier regime. National procedural rates also moved up to 15% in February-March 2026, so the older June 2025 California 3% print is treated as a downside regime marker rather than the main prior."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the mean of the Dec 2025-Mar 2026 California first-print implied counts, 208500, 216307, 200616, and 200177, giving 206400. Adjustment components: -2000 for slight enrollment/renewal-volume attrition from March enrollment revision, +1000 for June-quarter reporting risk, and -400 for rounding/proxy uncertainty, yielding about 205000. Interval method uses the recent post-December flow values themselves: sample sigma = 7629, so 1.28*sigma = 9765. I widen to a 35000 half-width because these historical counts are implied from rounded CMS table rates rather than exact dataset values, and because California shifted regimes from 3% in June 2025 to 19-20% in early 2026; final implied bounds are 205000 - 35000 = 170000 and 205000 + 35000 = 240000."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a June renewal cohort above 1.15 million with the procedural rate still near 20%, which would land above the interval. Downside risk is California reverting toward the June 2025 low-procedural pattern or holding procedural terminations, which would land below the interval. Outside the interval on either side would mainly falsify the current-regime persistence assumption, not the target identity."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer warning on release-date support by retaining the canonical ledger resolutionDate of 2026-09-25 while stating that the public timing evidence available in the draft was the recent official CMS posting cadence, not a June 2026-specific placeholder. Accepted the suggestion to clarify that historical counts are implied from rounded CMS table rates and that interval widening compensates partly for that proxy error."
+      },
+      {
+        "kind": "forecast",
+        "point": 205000,
+        "ciLow": 170000,
+        "ciHigh": 240000
+      }
+    ]
+  },
+  {
+    "slug": "cms-medicaid-pi-beneficiaries-disenrolled-total-california-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "California Medicaid/CHIP disenrollments, June 2026",
+    "question": "What will CMS first report for California total beneficiaries disenrolled from Medicaid/CHIP in the June 2026 Eligibility Processing Data reporting month?",
+    "unit": "count",
+    "pointEstimate": 222000,
+    "ciLow": 206000,
+    "ciHigh": 238000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-25",
+    "resolutionSource": "CMS Medicaid and CHIP Eligibility Operations and Enrollment Snapshot / Data.Medicaid.gov Eligibility Processing Data",
+    "resolutionSourceUrl": "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+    "resolutionRule": "Resolve to the first official CMS preliminary/original print for the California state row in the Medicaid and CHIP Eligibility Processing Data for reporting period June 2026, field total beneficiaries/individuals disenrolled from Medicaid/CHIP coverage, in persons. Use the first posted value only; ignore later updated quarterly renewal-outcome revisions or corrections unless CMS replaces the first-print file before publication is complete on the release date.",
+    "historicalContext": [
+      {
+        "label": "2026-03 CA implied first-print disenrolled from due x rate",
+        "value": 221248
+      },
+      {
+        "label": "2026-02 CA implied first-print disenrolled from due x rate",
+        "value": 210647
+      },
+      {
+        "label": "2026-01 CA implied first-print disenrolled from due x rate",
+        "value": 239076
+      },
+      {
+        "label": "2025-12 CA implied first-print disenrolled from due x rate",
+        "value": 230447
+      },
+      {
+        "label": "2025-06 CA implied first-print disenrolled from due x rate",
+        "value": 42411
+      }
+    ],
+    "drivers": [
+      "California total renewals due stabilized near 1.0 million after January-March 2026",
+      "California first-print disenrollment rate held at 21 percent in December 2025 through March 2026",
+      "National disenrollment rate moved from 16 percent in June 2025 to 20 percent in March 2026",
+      "June 2025 California low-disenrollment regime looks stale versus the recent 2026 California prints",
+      "Quarterly updated-renewal data are excluded because the target is original first print"
+    ],
+    "dataPointId": "cms.medicaid_pi.beneficiaries_disenrolled_total.california.2026-06.first_print",
+    "predictionRun": {
+      "kind": "recorded-agent-run",
+      "runAt": "2026-07-07T22:21:39Z",
+      "agent": "thesis.analyst",
+      "model": "gpt-5.5",
+      "agentVersion": "2.2.0",
+      "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+      "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+      "sourceContext": [
+        "https://www.medicaid.gov/medicaid-and-chip-eligibility-operations-and-enrollment-snapshot",
+        "https://data.medicaid.gov/dataset/6165f45b-ca93-5bb5-9d06-db29c692a360",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-mar2026.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-feb2026.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-jan2026.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-dec2025.pdf",
+        "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-june2025.pdf"
+      ],
+      "activityLog": [
+        {
+          "artifactType": "prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/prompt.md",
+          "sha256": "aa76560801d66e7a1fc3482ad9abf214649dde8d5bbb95e652f80bbdd3714cc3",
+          "bytes": 8003,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_command.json",
+          "sha256": "922833c1eb6f276707e6db0d8308faf07ae2a911f96412a07184ad5461e5322f",
+          "bytes": 711,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_stdout.jsonl",
+          "sha256": "657add24b6eadaaf62473506b5d5c370aaa0167bf529178b6f9244af59c815e3",
+          "bytes": 21376,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_stderr.log",
+          "sha256": "84b2a50152e9dc9b769a2e9659fdb101c1d26a3f39db4995e044c8f81c8a272d",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_events.jsonl",
+          "sha256": "bc123f542cf38a8c53deb749ddc5bc9cef293c053f057d80981594e6650ab2ef",
+          "bytes": 21270,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_last_message.txt",
+          "sha256": "ac2ac2a40fda3845335a9112ff87bb0c92767a5f286c33f57fdd9fb58655099c",
+          "bytes": 6473,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_codex_trace.json",
+          "sha256": "b81d5b69ca8fb604ac4f073ac18e4c9141f51d26824ca4b5ee358b4dc333ab72",
+          "bytes": 508,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "draft_forecast",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_stdout.txt",
+          "sha256": "ac2ac2a40fda3845335a9112ff87bb0c92767a5f286c33f57fdd9fb58655099c",
+          "bytes": 6473,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_stderr.txt",
+          "sha256": "80ffe444a1460323d4a19992fbd5c5284cca942b0dd1a584444e04dc7dc0abc3",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "review_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_prompt.md",
+          "sha256": "d2ecb32e8d993fcde0621eecd734bc39ee1ba03cc9716b3f1744ae1ee0474b56",
+          "bytes": 8722,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_command.json",
+          "sha256": "f3a2c303b542e748f117e40a208f885bd32e682b082b0c2b3bb28cb3ea98befb",
+          "bytes": 707,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_stdout.jsonl",
+          "sha256": "a5b3545f4cd86b1a28ca6ab490c9a8a804eb6750a0afd87b9e66569de80fbfd4",
+          "bytes": 3267,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_stderr.log",
+          "sha256": "1b2835ee3ad3fdd987524343416c956711c981520172ed707d2b967ff71bad80",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_events.jsonl",
+          "sha256": "8e858d2141dac9fcd5c96b495a7448162d0cad55710a95efaa95119c9839fccb",
+          "bytes": 3304,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_last_message.txt",
+          "sha256": "fe82b2417af36676774b11f93c290a675785e9644d5e94da2ed6197e43e30df9",
+          "bytes": 1239,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_codex_trace.json",
+          "sha256": "a62cb8f6eb0701cf9666739904ce8605812fa7addb051ec38da144d2711b2859",
+          "bytes": 507,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "pre_submit_review",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_stdout.txt",
+          "sha256": "fe82b2417af36676774b11f93c290a675785e9644d5e94da2ed6197e43e30df9",
+          "bytes": 1239,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_stderr.txt",
+          "sha256": "ebc07811f8154cf3f9372a5bef155a69793b1b30fcd8a1284b2d3d13a4b1bf01",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "revision_prompt",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/revision_prompt.md",
+          "sha256": "0fc1e910ddee2345ec97c8c95e2b54ce628930a80f33253389dc1da821fc84f3",
+          "bytes": 16651,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "command",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/command.json",
+          "sha256": "f9ed835c83d40680f05f15c957af255eba7653e88e349b77091f2f9946093ab3",
+          "bytes": 705,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_stdout_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_stdout.jsonl",
+          "sha256": "9b5ccdb6c964014187f4253f3c9ff10c2b37beafbdf1397ce3265f09c8292547",
+          "bytes": 7496,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_stderr_log",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_stderr.log",
+          "sha256": "ede8ef62d0bb8e40437d84646e8810ab566afa0078bb29d471ab290f410c29d0",
+          "bytes": 233,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_events_jsonl",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_events.jsonl",
+          "sha256": "5ba92a157935f95cf6c78e96db904dc2dfa69ed453f4c791c83541d4f566dce7",
+          "bytes": 7518,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_last_message",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_last_message.txt",
+          "sha256": "e81b35e901bcd0a481c98c68e71e2cc8b8307a190ff07cc7cb22732b5c1e92dd",
+          "bytes": 6953,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "codex_trace",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/codex_trace.json",
+          "sha256": "515b39530e64d67a4234ddac3fe04e16bb2ad26df5df6bdc838a302d379b75be",
+          "bytes": 505,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "stdout",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/stdout.txt",
+          "sha256": "e81b35e901bcd0a481c98c68e71e2cc8b8307a190ff07cc7cb22732b5c1e92dd",
+          "bytes": 6953,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "stderr",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/stderr.txt",
+          "sha256": "4dc5867de39f06567bdef0452424b0194a58d3e4935f6e90f18f10f018892419",
+          "bytes": 248,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "raw_response",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/raw_response.txt",
+          "sha256": "e81b35e901bcd0a481c98c68e71e2cc8b8307a190ff07cc7cb22732b5c1e92dd",
+          "bytes": 6953,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "parsed_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/parsed_cells.json",
+          "sha256": "64072b8537ad13b4c3abd3a4ccedac6f72bde32b0f681a4594c93db5115f3506",
+          "bytes": 7776,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "normalized_cell",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/normalized_cells.json",
+          "sha256": "57070f19e4b823c6c3160bc72abc13d6f0d810285e68535bc2e790a2d28208ff",
+          "bytes": 7448,
+          "createdAt": "2026-07-07T22:20:19Z"
+        },
+        {
+          "artifactType": "validation_report",
+          "path": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/validation.json",
+          "sha256": "cf4d19bc31ff37c90d6b7d28bdba1b0347799f49f888a3dc6cc0b5537911b4dc",
+          "bytes": 169,
+          "createdAt": "2026-07-07T22:20:19Z"
+        }
+      ],
+      "preSubmitReview": {
+        "schemaVersion": "thesis_pre_submit_review_v1",
+        "status": "completed",
+        "requestedAt": "2026-07-07T22:20:19Z",
+        "reviewer": {
+          "agent": "thesis.pre_submit_reviewer",
+          "model": "gpt-5.5",
+          "promptVersion": "pre-submit-review-v0.1",
+          "commandHash": "4f627f675034b65d6c8a8e07511978776f4670d0a95603c7a4a320ebcd4fc928"
+        },
+        "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/draft_stdout.txt",
+        "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/pre_submit_review_stdout.txt",
+        "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t22-20-19z-cms-medicaid-pi-beneficiaries-disenrolled-total-california-2026-06/revision_prompt.md",
+        "findings": [
+          {
+            "findingId": "review.finding.1",
+            "severity": "blocking",
+            "rubricItem": "resolver",
+            "summary": "The resolver/source and first-print rule are clear, but the reasoning says the 2026-09-25 resolution date comes from the corresponding monthly slot based on prior releases rather than an official CMS June 2026 calendar, schedule, release placeholder, or explicit catalog-ledger contract.",
+            "actionRequested": "Either cite/quote an official CMS June 2026 release placeholder or schedule supporting 2026-09-25, or revise the reasoning to say 2026-09-25 is the canonical ledger resolution date and that CMS has not yet posted an official June 2026 release date; do not imply the date was independently verified from cadence alone."
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "State the 80% interval bounds explicitly in the compact step as 206,000 to 238,000 after rounding."
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "severity": "info",
+            "rubricItem": "optional_suggestion",
+            "summary": "Tail scenarios would be stronger with concrete count/rate examples, such as renewals due above about 1.13 million at 21% or a disenrollment rate below about 19.5% at the expected cohort size."
+          }
+        ],
+        "dispositions": [
+          {
+            "findingId": "review.finding.1",
+            "decision": "accepted",
+            "rationale": "Review disposition: accepted the blocking critique by no longer presenting 2026-09-25 as independently verified from a CMS June 2026 placeholder; it is retained as the canonical ledger resolutionDate. Accepted the optional tail-scenario suggestion by adding concrete rate and cohort examples; no point or interval change was made.",
+            "forecastChanged": true
+          },
+          {
+            "findingId": "review.suggestion.1",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the blocking critique by no longer presenting 2026-09-25 as independently verified from a CMS June 2026 placeholder; it is retained as the canonical ledger resolutionDate. Accepted the optional tail-scenario suggestion by adding concrete rate and cohort examples; no point or interval change was made.",
+            "forecastChanged": false
+          },
+          {
+            "findingId": "review.suggestion.2",
+            "decision": "not_applicable",
+            "rationale": "Review disposition: accepted the blocking critique by no longer presenting 2026-09-25 as independently verified from a CMS June 2026 placeholder; it is retained as the canonical ledger resolutionDate. Accepted the optional tail-scenario suggestion by adding concrete rate and cohort examples; no point or interval change was made.",
+            "forecastChanged": false
+          }
+        ],
+        "summary": "Draft is mostly publication-ready, but the resolution-date support needs to stop presenting an inferred release slot as verified CMS timing unless an official June 2026 placeholder/calendar supports it."
+      }
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "California June 2026 Medicaid/CHIP disenrollment forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the original first-print California state row, reporting month June 2026, Eligibility Processing Data, total beneficiaries disenrolled from Medicaid/CHIP coverage. The release variant is preliminary/original first print, not updated quarterly renewal outcomes."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked CMS monthly snapshot page and latest release list for official release timing and source identity.",
+        "result": "CMS page says the Snapshot captures Performance Indicator Data and Eligibility Processing Data; it lists March 2026 released June 26, 2026, February 2026 released May 29, 2026, January 2026 released April 24, 2026, and June 2025 released September 26, 2025. The canonical ledger resolutionDate used here is 2026-09-25; the draft evidence did not include an official CMS June 2026 placeholder independently verifying that date."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched latest California state renewal outcome rows from CMS March, February, and January 2026 snapshots.",
+        "result": "March 2026 CA: total due 1,053,563, total disenrolled 21%, procedural disenrolled 19%, implied total disenrolled 221,248. February 2026 CA: total due 1,003,079, total disenrolled 21%, procedural 20%, implied 210,647. January 2026 CA: total due 1,138,457, total disenrolled 21%, procedural 19%, implied 239,076."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched older California and national renewal reference points from CMS December 2025 and June 2025 snapshots.",
+        "result": "December 2025 CA: total due 1,097,366, total disenrolled 21%, implied 230,447. June 2025 CA: total due 848,211, total disenrolled 5%, implied 42,411. National June 2025: 5.3 million due and 16% disenrolled; national March 2026: 6,162,616 due and 20% disenrolled."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: the recent first-print California reference class is Dec 2025-Mar 2026, because the June 2025 California row appears to be a different operating regime with only 5% disenrolled. The recent base rate is about 21% disenrolled on roughly 1.0-1.14 million renewals due, implying a low-220k count."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses recent California first-print implied counts 230,447, 239,076, 210,647, and 221,248. Adjustment components: level holds total due near 1,057,000, momentum is flat because the CA disenrollment rate is 21% in four consecutive prints, one-off adjustment ignores the March enrollment reporting revision because it affected enrollment counts rather than renewal outcomes, and policy-mechanism adjustment keeps the 2026 higher-disenrollment regime. Point = 1,057,000 expected renewals due * 21.0% = 221,970, rounded to 222,000. Interval method uses sample dispersion of the recent flow values themselves: mean = 225,354.5 and sigma = 12,212; 80% half-width is roughly 1.28*sigma = 15,631, rounded to 16,000, so 222,000 +/- 16,000 gives 206,000 to 238,000."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is renewals due above about 1.13 million at a 21% disenrollment rate or a procedural-discontinuance jump, which would land above the interval. Downside risk is a disenrollment rate below about 19.5% at the expected cohort size or a return toward California's June 2025 mitigation pattern, which would land below the interval. Outside the interval would most likely reflect a discrete California operational or reporting-policy change rather than ordinary monthly noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking critique by no longer presenting 2026-09-25 as independently verified from a CMS June 2026 placeholder; it is retained as the canonical ledger resolutionDate. Accepted the optional tail-scenario suggestion by adding concrete rate and cohort examples; no point or interval change was made."
+      },
+      {
+        "kind": "forecast",
+        "point": 222000,
+        "ciLow": 206000,
+        "ciHigh": 238000
       }
     ]
   },
