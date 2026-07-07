@@ -1,0 +1,45 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.cps.telework_share
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-telework-rate-july-2026"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+8daba1517f15bb7f032cf6621b9e0513468ce76483d084226f3d8d9f9694979d
+
+# Draft forecast response
+{"slug":"us-telework-rate-july-2026","country":"US","type":"data","title":"US telework share, July 2026","question":"What will BLS CPS Table A-41 first report for July 2026 as the not seasonally adjusted percent of people at work, age 16 years and over, who teleworked or worked at home for pay?","unit":"percent","pointEstimate":21.8,"ciLow":17.8,"ciHigh":25.8,"confidence":0.8,"resolutionDate":"2026-08-07","resolutionSource":"U.S. Bureau of Labor Statistics, Employment Situation, CPS Table A-41","resolutionSourceUrl":"https://www.bls.gov/web/empsit/cpseea41.htm","resolutionRule":"Resolve to the first BLS Employment Situation release for July 2026, Table A-41, not seasonally adjusted, row 'Total, 16 years and over', column 'People who teleworked or worked at home for pay' under percent distribution. Use the one-decimal percentage printed at initial release; do not use later revisions or corrected same-day replacements unless BLS explicitly withdraws the initial table before publication.","dataPointId":"bls.cps.telework_share.2026-07.first_print","historicalContext":[{"label":"2026-06 BLS A-41 total telework share","value":21.7},{"label":"2024-08 reported total telework share","value":22.8},{"label":"2023-08 reported total telework share","value":19.5}],"drivers":["June 2026 level was 21.7 percent","Hybrid work share remains near post-pandemic plateau","July seasonality is possible because series is not seasonally adjusted","Weak labor-market conditions may reduce worker bargaining power for telework","White-collar occupational mix supports persistence"],"sourceContext":["https://www.bls.gov/schedule/news_release/empsit.htm","https://www.bls.gov/web/empsit/cpseea41.htm","https://www.bls.gov/web/empsit/cpseea43.htm","https://www.marketwatch.com/story/the-job-market-is-getting-tougher-for-workers-but-they-may-be-gaining-in-the-battle-over-remote-work-64fd9408"],"runAt":"2026-07-07T14:07:57Z","reasoning":[{"kind":"heading","text":"US CPS telework share for July 2026"},{"kind":"text","text":"The resolver is BLS CPS Table A-41, not seasonally adjusted, row Total, 16 years and over, percent distribution column for people who teleworked or worked at home for pay. This is the share of people at work, not the share of all employed people, and the table id is A-41."},{"kind":"tool","tool":"official.lookup","call":"Opened BLS Employment Situation release schedule for 2026 and checked the July 2026 reference-month row.","result":"BLS schedule lists July 2026 Employment Situation release date as Aug. 07, 2026 at 08:30 AM; June 2026 was Jul. 02, 2026 and August 2026 is Sep. 04, 2026."},{"kind":"tool","tool":"official.lookup","call":"Opened current BLS CPS Table A-41 for June 2026 and read the Total, 16 years and over row.","result":"BLS A-41 June 2026 reports total people at work 155,218 thousand, people who teleworked or worked at home for pay 33,701 thousand, teleworked some hours 17,161 thousand, teleworked all hours 16,540 thousand, and percent distribution 21.7 total, 11.1 some hours, 10.7 all hours, 78.3 did not telework."},{"kind":"tool","tool":"official.lookup","call":"Opened BLS CPS Table A-43 to cross-check the same June 2026 telework concept against hours data.","result":"BLS A-43 June 2026 reports total people at work 155,218 thousand, average telework/work-at-home hours for all people at work 5.8, average weekly hours worked 38.3, hours teleworked as 15.1 percent of hours worked, and 33,701 thousand teleworkers with average 26.7 telework hours."},{"kind":"tool","tool":"public.lookup","call":"Checked a public report quoting BLS telework-rate values from the August 2024 jobs report and prior-year comparison.","result":"MarketWatch reported BLS August 2024 telework share 22.8 percent, up from 19.5 percent in August 2023; within August 2024, some-time telework was 11.7 percent and all-time work from home was 11.1 percent."},{"kind":"text","text":"Reference class/base rate: post-2023 BLS CPS telework shares appear centered in the low-20s percent range. The latest official A-41 value, 21.7 percent in June 2026, is below the August 2024 public report of 22.8 percent but above the August 2023 19.5 percent level, so persistence near 22 percent is a stronger prior than a pandemic-style trend extrapolation."},{"kind":"text","text":"Level, momentum, and mechanism split: the level anchor is 21.7. Momentum is weakly flat to slightly positive because June is not unusually high relative to the 2024 reference. One-off effects are limited; July vacations and school schedules can move not-seasonally-adjusted work-at-home status, but the target is broad enough that occupational composition and hybrid policies dominate. Labor-market softening is a mild downside mechanism if employers enforce office attendance more aggressively."},{"kind":"math","text":"Prior/update/interval: persistence prior uses latest BLS A-41 June 2026 = 21.7, with sparse fetched reference-class values Aug 2023 = 19.5, Aug 2024 = 22.8, Jun 2026 = 21.7. Successive changes are +3.3 and -1.1 percentage points; sigma = 3.11 from the sample standard deviation of those changes. I add +0.1 point for mild July/hybrid persistence, giving 21.8. The 80% half-width is roughly 1.28*sigma = 1.28*3.11 = 3.98, rounded to 4.0, so the interval is 21.8 +/- 4.0 = 17.8 to 25.8."},{"kind":"text","text":"Counter-consideration and falsification: upside risk would be a July jump in remote-capable professional work or summer scheduling that pushes the A-41 share above 25.8. Downside risk would be broad return-to-office enforcement or a July shift toward onsite service work that pulls the print below 17.8. Values outside the interval would imply a larger not-seasonally-adjusted or composition shock than seen in the fetched post-2023 reference class."},{"kind":"forecast","point":21.8,"ciLow":17.8,"ciHigh":25.8}]}

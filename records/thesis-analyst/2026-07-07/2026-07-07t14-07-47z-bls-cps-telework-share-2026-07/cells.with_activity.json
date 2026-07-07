@@ -1,0 +1,396 @@
+[
+  {
+    "slug": "us-telework-rate-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US telework share, July 2026",
+    "question": "What will BLS CPS Table A-41 first report for July 2026 as the not seasonally adjusted percent of people at work, age 16 years and over, who teleworked or worked at home for pay?",
+    "unit": "percent",
+    "pointEstimate": 21.8,
+    "ciLow": 17.8,
+    "ciHigh": 25.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-07",
+    "resolutionSource": "U.S. Bureau of Labor Statistics, Employment Situation, CPS Table A-41",
+    "resolutionSourceUrl": "https://www.bls.gov/web/empsit/cpseea41.htm",
+    "resolutionRule": "Resolve to the first BLS Employment Situation release for July 2026, Table A-41, not seasonally adjusted, row 'Total, 16 years and over', column 'People who teleworked or worked at home for pay' under percent distribution. Use the one-decimal percentage printed at initial release; do not use later revisions or corrected same-day replacements unless BLS explicitly withdraws the initial table before publication.",
+    "dataPointId": "bls.cps.telework_share.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 BLS A-41 total telework share",
+        "value": 21.7
+      },
+      {
+        "label": "2024-08 reported total telework share",
+        "value": 22.8
+      },
+      {
+        "label": "2023-08 reported total telework share",
+        "value": 19.5
+      }
+    ],
+    "drivers": [
+      "June 2026 level was 21.7 percent",
+      "Hybrid work share remains near post-pandemic plateau",
+      "July seasonality is possible because series is not seasonally adjusted",
+      "Weak labor-market conditions may reduce worker bargaining power for telework",
+      "White-collar occupational mix supports persistence"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "https://www.bls.gov/web/empsit/cpseea41.htm",
+      "https://www.bls.gov/web/empsit/cpseea43.htm",
+      "https://www.marketwatch.com/story/the-job-market-is-getting-tougher-for-workers-but-they-may-be-gaining-in-the-battle-over-remote-work-64fd9408"
+    ],
+    "runAt": "2026-07-07T14:07:57Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US CPS telework share for July 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is BLS CPS Table A-41, not seasonally adjusted, row Total, 16 years and over, percent distribution column for people who teleworked or worked at home for pay. This is the share of people at work, not the share of all employed people, and the table id is A-41."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS Employment Situation release schedule for 2026 and checked the July 2026 reference-month row.",
+        "result": "BLS schedule lists July 2026 Employment Situation release date as Aug. 07, 2026 at 08:30 AM; June 2026 was Jul. 02, 2026 and August 2026 is Sep. 04, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened current BLS CPS Table A-41 for June 2026 and read the Total, 16 years and over row.",
+        "result": "BLS A-41 June 2026 reports total people at work 155,218 thousand, people who teleworked or worked at home for pay 33,701 thousand, teleworked some hours 17,161 thousand, teleworked all hours 16,540 thousand, and percent distribution 21.7 total, 11.1 some hours, 10.7 all hours, 78.3 did not telework."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS CPS Table A-43 to cross-check the same June 2026 telework concept against hours data.",
+        "result": "BLS A-43 June 2026 reports total people at work 155,218 thousand, average telework/work-at-home hours for all people at work 5.8, average weekly hours worked 38.3, hours teleworked as 15.1 percent of hours worked, and 33,701 thousand teleworkers with average 26.7 telework hours."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.lookup",
+        "call": "Checked a public report quoting BLS telework-rate values from the August 2024 jobs report and prior-year comparison.",
+        "result": "MarketWatch reported BLS August 2024 telework share 22.8 percent, up from 19.5 percent in August 2023; within August 2024, some-time telework was 11.7 percent and all-time work from home was 11.1 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: post-2023 BLS CPS telework shares appear centered in the low-20s percent range. The latest official A-41 value, 21.7 percent in June 2026, is below the August 2024 public report of 22.8 percent but above the August 2023 19.5 percent level, so persistence near 22 percent is a stronger prior than a pandemic-style trend extrapolation."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism split: the level anchor is 21.7. Momentum is weakly flat to slightly positive because June is not unusually high relative to the 2024 reference. One-off effects are limited; July vacations and school schedules can move not-seasonally-adjusted work-at-home status, but the target is broad enough that occupational composition and hybrid policies dominate. Labor-market softening is a mild downside mechanism if employers enforce office attendance more aggressively."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses latest BLS A-41 June 2026 = 21.7, with sparse fetched reference-class values Aug 2023 = 19.5, Aug 2024 = 22.8, Jun 2026 = 21.7. Successive changes are +3.3 and -1.1 percentage points; sigma = 3.11 from the sample standard deviation of those sparse proxy changes, not a full monthly volatility history. I add a judgmental +0.1 point for mild July/hybrid persistence, giving 21.8. The 80% half-width is roughly 1.28*sigma = 1.28*3.11 = 3.98, rounded to 4.0, so the interval is 21.8 +/- 4.0 = 17.8 to 25.8; this width is retained because the target is not seasonally adjusted and the fetched official/public reference points already span several post-2023 points."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk would be a July jump in remote-capable professional work or summer scheduling that pushes the A-41 share above 25.8. Downside risk would be broad return-to-office enforcement or a July shift toward onsite service work that pulls the print below 17.8. Values outside the interval would exceed the limited fetched reference-class variation, rather than a full official monthly volatility sample."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique that the volatility sample is sparse and not a full monthly A-41 history, so the interval step now labels sigma as a sparse proxy, describes the +0.1 adjustment as judgmental, and qualifies the outside-interval claim. I did not replace MarketWatch because no additional official archived monthly values were fetched in the draft evidence set."
+      },
+      {
+        "kind": "forecast",
+        "point": 21.8,
+        "ciLow": 17.8,
+        "ciHigh": 25.8
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/prompt.md",
+        "sha256": "8daba1517f15bb7f032cf6621b9e0513468ce76483d084226f3d8d9f9694979d",
+        "bytes": 7832,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_command.json",
+        "sha256": "d23310002b317c8f660032a4a55bd8a37cb09a47ac0b652fe6877849291ba9f0",
+        "bytes": 836,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "86501db795a4f6d3c625a639620c70bd8e331c86cad22b5d694289595ae7fbbf",
+        "bytes": 351257,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_codex_events.jsonl",
+        "sha256": "8a80b5bafabd45334ab8f264b0f53411f3aab1d180f98adbc2c21a94fcaaaf9f",
+        "bytes": 351492,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_codex_last_message.txt",
+        "sha256": "fc1a4e5a66ef1db99b29e7c6722934f59a408d7f8adc5bd696ba8f22582d3887",
+        "bytes": 5841,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_codex_trace.json",
+        "sha256": "dccb470cfa6233a38e4d4578676acc456b23818d400ffb5218b12d44d934069f",
+        "bytes": 508,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_stdout.txt",
+        "sha256": "fc1a4e5a66ef1db99b29e7c6722934f59a408d7f8adc5bd696ba8f22582d3887",
+        "bytes": 5841,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_prompt.md",
+        "sha256": "b26fd008d01ba65b2f3ebf789e3b326ff4038a5eda9f7d3dab439bd8bcfccaa7",
+        "bytes": 7990,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_command.json",
+        "sha256": "353b0e67a84400f660571fc21eba868058e8b9f327ff45cf28517ed43f0fda12",
+        "bytes": 832,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "13ffdbb776aadf8a44a5218b9c14d630a04fc286bf6396b30a692fad195b262f",
+        "bytes": 1826,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "c60c82ad96e924fe5d735696d37986aa96a9bc7c7d6a8db06e399b5c7b0ad376",
+        "bytes": 1848,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "adae35566d374e66808ba1ac71425915448b0c2757d8ec21030b9cd01766789b",
+        "bytes": 1465,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "1aca1ddba34227671bffd1a912ab4f92866f7a779144407695645448b842cde4",
+        "bytes": 504,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "adae35566d374e66808ba1ac71425915448b0c2757d8ec21030b9cd01766789b",
+        "bytes": 1465,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/revision_prompt.md",
+        "sha256": "d1982fcf435cd85fb47eae9bfbce49d4fd13fd042e674b590fb9adef1e70e70a",
+        "bytes": 16074,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/command.json",
+        "sha256": "83e58734f60d2a90bb71c55d84e00d2a381e612555571aa8f541717b3b748c8f",
+        "bytes": 830,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/codex_stdout.jsonl",
+        "sha256": "f8170eb6288f5eee64ad0301c166de147c5b7fdd9dda56ac9ef496c95a768dc0",
+        "bytes": 7017,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/codex_events.jsonl",
+        "sha256": "f3fbd55514bab44511b3d065b15b4e5bc60df0beb11103e5b578636ae233a25b",
+        "bytes": 7039,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/codex_last_message.txt",
+        "sha256": "3f81b3df6d5c8367b9e4a997d0cf2021f8c659da52ad79bd4331e8e7c715af59",
+        "bytes": 6470,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/codex_trace.json",
+        "sha256": "d67938fb230e113f14fb2eab54b6cf56dffeecbc9c6b6132faec645fa45c11d0",
+        "bytes": 503,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/stdout.txt",
+        "sha256": "3f81b3df6d5c8367b9e4a997d0cf2021f8c659da52ad79bd4331e8e7c715af59",
+        "bytes": 6470,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/raw_response.txt",
+        "sha256": "3f81b3df6d5c8367b9e4a997d0cf2021f8c659da52ad79bd4331e8e7c715af59",
+        "bytes": 6470,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/parsed_cells.json",
+        "sha256": "788722860791d1ce89f3263bf8128d19d973cac72febe8127ff63e15f571b61d",
+        "bytes": 7292,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/normalized_cells.json",
+        "sha256": "fe002a34725289b099983c1e6bed50e3d4ea47dd8c97e722ce307e261af5485a",
+        "bytes": 6965,
+        "createdAt": "2026-07-07T14:07:47Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/validation.json",
+        "sha256": "1323cd06b10feae6915b6600919356a1a804989f78b0da0eec5fca33c00b554d",
+        "bytes": 127,
+        "createdAt": "2026-07-07T14:07:47Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-07T14:07:47Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "744639c8ccdb9c07b83846834826489c6003edc8c0fa3b71ea2d2175b0fab473"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-07-47z-bls-cps-telework-share-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval half-width is derived from only two changes across sparse August 2023, August 2024, and June 2026 reference points, not realized month-to-month or July-relevant A-41 volatility.",
+          "actionRequested": "Either replace the volatility estimate with a small official A-41 monthly or same-month historical sample, or explicitly label the current sigma as a sparse proxy and justify why a 4.0 percentage-point 80% half-width is still appropriate."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "prior_update_interval",
+          "summary": "The compact prior/update/interval step names the inputs and math, but the historical sample is too sparse to support the phrase 'larger shock than seen' with much force.",
+          "actionRequested": "Qualify the final sentence to say values outside the interval would exceed the limited fetched reference-class variation, or add a broader official-history sample."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider removing or downweighting the MarketWatch citation in favor of official archived BLS A-41 values if available."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The +0.1 point July/hybrid persistence adjustment is small enough to keep, but naming it as judgmental rather than model-estimated would improve clarity."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the volatility sample is sparse and not a full monthly A-41 history, so the interval step now labels sigma as a sparse proxy, describes the +0.1 adjustment as judgmental, and qualifies the outside-interval claim. I did not replace MarketWatch because no additional official archived monthly values were fetched in the draft evidence set.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the volatility sample is sparse and not a full monthly A-41 history, so the interval step now labels sigma as a sparse proxy, describes the +0.1 adjustment as judgmental, and qualifies the outside-interval claim. I did not replace MarketWatch because no additional official archived monthly values were fetched in the draft evidence set.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the volatility sample is sparse and not a full monthly A-41 history, so the interval step now labels sigma as a sparse proxy, describes the +0.1 adjustment as judgmental, and qualifies the outside-interval claim. I did not replace MarketWatch because no additional official archived monthly values were fetched in the draft evidence set.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the volatility sample is sparse and not a full monthly A-41 history, so the interval step now labels sigma as a sparse proxy, describes the +0.1 adjustment as judgmental, and qualifies the outside-interval claim. I did not replace MarketWatch because no additional official archived monthly values were fetched in the draft evidence set.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Publishable with one main weakness: the interval is mechanically coherent but rests on a very sparse, mismatched volatility sample rather than realized A-41 monthly or July-specific variation."
+    }
+  }
+]

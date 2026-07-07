@@ -3,6 +3,7 @@ import { BENEFITS_DELIVERY_EXAMPLES } from "./forecast-examples/benefits-deliver
 import { JUNE_2026_WAVE } from "./forecast-examples/june-2026-wave";
 import { JULY_2026_WAVE } from "./forecast-examples/july-2026-wave";
 import { BELGIUM_JULY_2026_WAVE } from "./forecast-examples/belgium-july-2026";
+import { DELIVERY_INDICATORS_2026 } from "./forecast-examples/delivery-indicators-2026";
 import { AGENT_RUN_EXAMPLES } from "./forecast-examples/agent-runs";
 import { CANADA_AUSTRALIA_EXAMPLES } from "./forecast-examples/canada-australia";
 import { EURO_JAPAN_EXAMPLES } from "./forecast-examples/euro-japan";
@@ -5156,6 +5157,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   ...JUNE_2026_WAVE,
   ...JULY_2026_WAVE,
   ...BELGIUM_JULY_2026_WAVE,
+  ...DELIVERY_INDICATORS_2026,
 
   // ─── Conditional forecast cells ──────────────────────────────────────────
   {

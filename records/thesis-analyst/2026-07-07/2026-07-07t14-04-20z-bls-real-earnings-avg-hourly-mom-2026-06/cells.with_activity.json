@@ -1,0 +1,377 @@
+[
+  {
+    "slug": "us-real-avg-hourly-earnings-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Real Avg Hourly Earnings MoM, Jun 2026",
+    "question": "BLS Table A-1 real average hourly earnings for all employees on private nonfarm payrolls, seasonally adjusted, over-the-month percent change, June 2026 first print",
+    "unit": "percent",
+    "pointEstimate": 0.1,
+    "ciLow": -0.5,
+    "ciHigh": 0.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+    "resolutionRule": "Resolve to the first public BLS Real Earnings Table A-1 print for June 2026 real average hourly earnings for all employees on private nonfarm payrolls, seasonally adjusted, over-the-month percent change. Use the published one-decimal percent value for June 2026(p) as released on July 14, 2026; ignore later revisions or benchmark updates.",
+    "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-03",
+        "value": -0.6
+      },
+      {
+        "label": "2026-04",
+        "value": -0.5
+      },
+      {
+        "label": "2026-05",
+        "value": -0.1
+      },
+      {
+        "label": "2025-05",
+        "value": 0.4
+      }
+    ],
+    "drivers": [
+      "June nominal average hourly earnings already rose about 0.35 percent",
+      "June CPI-U deflator is the main remaining swing factor",
+      "Recent CPI prints were elevated by energy, especially May gasoline",
+      "Real earnings recent base rate is slightly negative but noisy"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/realer.htm",
+      "https://www.bls.gov/news.release/realer.t01.htm",
+      "https://www.bls.gov/news.release/empsit.t19.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm"
+    ],
+    "runAt": "2026-07-07T14:05:24Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 BLS Real Average Hourly Earnings MoM Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets BLS Real Earnings Table A-1, real average hourly earnings for all employees on private nonfarm payrolls, seasonally adjusted, over-the-month percent change for June 2026 first print. The variant is the BLS Real Earnings SA all-employees private nonfarm series deflated by CPI-U, not production-worker earnings, weekly earnings, NSA CPI, or a later revised vintage."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS Real Earnings release schedule for June 2026 reference month.",
+        "result": "BLS schedule lists June 2026 Real Earnings release date Jul. 14, 2026 and release time 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read current BLS Real Earnings Table A-1 for recent target-series history and the deflator definition.",
+        "result": "Table A-1 reports real average hourly earnings over-the-month percent changes of 0.4 for May 2025, -0.6 for Mar. 2026, -0.5 for Apr. 2026, and -0.1 for May 2026; it also shows CPI-U levels 330.293, 332.407, 333.979 and average hourly earnings $37.35, $37.41, $37.53 for Mar-May 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS Employment Situation Table B-3 for June nominal average hourly earnings input.",
+        "result": "Table B-3 reports Total private average hourly earnings of $37.41 in Apr. 2026, $37.51 in May 2026(p), and $37.64 in June 2026(p), making June nominal AHE growth about 0.3466 percent versus revised May."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS CPI May 2026 release for current CPI momentum before the June CPI print.",
+        "result": "BLS CPI summary reports May 2026 CPI-U all items +0.5 percent SA, April +0.6 percent, March +0.9 percent, core CPI +0.2 percent in May, food +0.2 percent, energy +3.9 percent, and gasoline +7.0 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the fetched recent official target history is weakly negative, with Mar-May 2026 real hourly earnings changes of -0.6, -0.5, and -0.1 percent after energy-driven CPI pressure; the four fetched target observations including May 2025 average -0.2 percent. Current-release information should move above that base rate because June nominal AHE is already known to be stronger than May and the CPI energy impulse is unlikely to repeat at May's 3.9 percent energy pace."
+      },
+      {
+        "kind": "text",
+        "text": "The June CPI-U print is still unresolved at run time and is the main swing factor for the July 14, 2026 Real Earnings release; the nominal wage input is already published, while CPI releases the same morning and determines the deflator in Table A-1."
+      },
+      {
+        "kind": "math",
+        "text": "Known nominal wage momentum is (37.64/37.51 - 1)*100 = 0.3466 percent. A June CPI-U all-items assumption near +0.25 percent gives real hourly earnings growth ((1.0034657/1.0025)-1)*100 = 0.0963 percent, which rounds to +0.1 percent in the BLS one-decimal release table."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the recent official Table A-1 target-value reference class [0.4, -0.6, -0.5, -0.1], mean = -0.2; update components are +0.3466 percent known nominal AHE, about -0.25 percent assumed June CPI-U, and no separate hours effect because the target is hourly earnings; interval method is realized dispersion of the fetched change-series values, sigma = 0.4546, so 1.28*sigma = 0.5819 percentage point. Centering the final at +0.1 gives mechanical 80 percent bounds near -0.48 to +0.68, rounded to -0.5 to +0.7."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a soft or negative June CPI print combined with unchanged nominal wage data, which would land above the interval if CPI fell sharply enough to put real hourly earnings above +0.7 percent. Downside risk is another energy-led CPI jump around May's magnitude or a BLS nominal earnings correction, which would land below the interval if real hourly earnings fell under -0.5 percent. An outside the interval result would mainly falsify the assumed June CPI moderation, not the already-published nominal wage anchor."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer suggestion to name the unresolved June CPI release timing because CPI is the main swing factor; retained the four-observation official target sample because it is transparent, fetched in the draft, and supports the stated interval math."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.1,
+        "ciLow": -0.5,
+        "ciHigh": 0.7
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/prompt.md",
+        "sha256": "47bfda89011723b8abfe5ad8428933a3abcd3c8e7ac9284fa282c7e16d426ee6",
+        "bytes": 7857,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_command.json",
+        "sha256": "6cc20279ca06ed4d9a5c639090020a232e1464c6d0f6968f9dc1dbdf923e44eb",
+        "bytes": 846,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "8d83b299291d1c7ce00050df19b2468789c6ef3767e22e7669e6bab174f8b401",
+        "bytes": 22714,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_codex_events.jsonl",
+        "sha256": "06af3de87ec753c1b896873aa6464e19fbd43c4121c13cc1bc4f340ebe7fefc6",
+        "bytes": 22858,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_codex_last_message.txt",
+        "sha256": "b3a104abc19f22a10495f2c14d114932f7d4972dcd809fb76eeda9b145b8deee",
+        "bytes": 5597,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_codex_trace.json",
+        "sha256": "abe0315038fb0a8aa45094ba76753155f0422e2ed2a6f17988fe95297c802ef9",
+        "bytes": 508,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_stdout.txt",
+        "sha256": "b3a104abc19f22a10495f2c14d114932f7d4972dcd809fb76eeda9b145b8deee",
+        "bytes": 5597,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_prompt.md",
+        "sha256": "c05c37a02defa0ae87886a92c54f88abdb6c60568defdc397aa15923857208aa",
+        "bytes": 7771,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_command.json",
+        "sha256": "1328e1605406ed5367b973adc6738a1aac61a3ca65c47c691cc0602e072c0c87",
+        "bytes": 842,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "4af07b28e51dad95d4d2a84444a3312ecd25e6b1fbf45233382bc3020ab6e72d",
+        "bytes": 1640,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "ac3b6d7d0641f74343e02682c6eb37a349e65eeb88f80b3c6d5320d3e10af120",
+        "bytes": 1650,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "2d31527f56c936cd7a863d3de7b0788a0141803d3950f9dc41d6dbb225f84ae0",
+        "bytes": 538,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "d5a79095c73df54c073ed7130106d7dccdeba3c14d5a02f2337cb72d65a36d66",
+        "bytes": 504,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "2d31527f56c936cd7a863d3de7b0788a0141803d3950f9dc41d6dbb225f84ae0",
+        "bytes": 538,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/revision_prompt.md",
+        "sha256": "847420ce05e1744683ee2ad0314ca9ecbcbc8ee15aa16e07bc22ba2e172d0418",
+        "bytes": 14928,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/command.json",
+        "sha256": "ca6598f8344f63eac6042b08a7a01050fdd4d7a672a67d76e962c236e6ffcad5",
+        "bytes": 840,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "536bcd9b891cd01b631cebc32e0a7f748df9192590be7429d9e7745b787f43e7",
+        "bytes": 6735,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/codex_events.jsonl",
+        "sha256": "4b74801d216724de024637194a4113a9678a93134b9b42ba5023e08cdff1fe86",
+        "bytes": 6757,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/codex_last_message.txt",
+        "sha256": "482b2b0947677d348724d0a3e9441ff6d2a642973e393a2d329ea821692087ea",
+        "bytes": 6176,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/codex_trace.json",
+        "sha256": "bfbc91a88d70917ab8ecc191f72b13c5ea3c3f9053ef5f0b52b90c2728d176a3",
+        "bytes": 503,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/stdout.txt",
+        "sha256": "482b2b0947677d348724d0a3e9441ff6d2a642973e393a2d329ea821692087ea",
+        "bytes": 6176,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/raw_response.txt",
+        "sha256": "482b2b0947677d348724d0a3e9441ff6d2a642973e393a2d329ea821692087ea",
+        "bytes": 6176,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/parsed_cells.json",
+        "sha256": "460c3ac264c9b5eeea0988c88f2587fbc8b7583c6c5405ad898935373bbe84bf",
+        "bytes": 7059,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/normalized_cells.json",
+        "sha256": "c36e150f678e39b8b4ce2c872de41c0c2c48ffe0c44e359f0ae5aaed213c7d02",
+        "bytes": 6707,
+        "createdAt": "2026-07-07T14:04:20Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/validation.json",
+        "sha256": "559826906274033e9e79c2116a1a508080de4407e8ccabcfdd69e61081a2a7c8",
+        "bytes": 142,
+        "createdAt": "2026-07-07T14:04:20Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-07T14:04:20Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "d1d9ec1c4dce7f39a37d3d9868f00d043dd277a4b9b8492ab93071d2f288e2b8"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-04-20z-bls-real-earnings-avg-hourly-mom-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Use a longer historical target sample for the base-rate and volatility estimate if available; the current four-observation sample is transparent but thin."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider naming the CPI June release timing explicitly as unresolved at run time, since CPI is the main swing factor and releases the same morning as Real Earnings."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestion to name the unresolved June CPI release timing because CPI is the main swing factor; retained the four-observation official target sample because it is transparent, fetched in the draft, and supports the stated interval math.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestion to name the unresolved June CPI release timing because CPI is the main swing factor; retained the four-observation official target sample because it is transparent, fetched in the draft, and supports the stated interval math.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable: resolver, first-print rule, prior/update math, interval construction, tails, and JSON fields are coherent with the target contract."
+    }
+  }
+]

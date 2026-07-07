@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-07T13:53:35Z",
+  "series": "cdc.nchs.infant_mortality_rate.provisional",
+  "period": "2025",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-infant-mortality-rate-2025-provisional",
+    "period": "2025",
+    "series": "cdc.nchs.infant_mortality_rate.provisional",
+    "targetUnit": "per_1000_live_births"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-07T13:53:35Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "c5cfd5e3b1fc463cdf53f8a2c0ff476a75b4e5c45a4f7026f2a3e649a4de96e3"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The run occurs on 2026-07-07 after the stated 2026-05-26 first print, and the reasoning explicitly says the official first-print value 5.36 overrides the pre-release prior.",
+        "actionRequested": "Do not publish this as a pre-resolution forecast; either mark it as a post-resolution audit/backfill or regenerate using only information available before 2026-05-26."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "Current evidence includes the resolved target value and then treats it as a driver of the forecast.",
+        "actionRequested": "Remove all use of the 2025 Q4 first-print value, its components, and post-release dashboard metadata if this is intended to be a genuine forecast."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "The 5.33-5.39 interval is an audit band around the known first print, not a forecast uncertainty interval.",
+        "actionRequested": "Recompute the interval from pre-release realized volatility or an explicit uncertainty model that does not condition on the observed 2025 Q4 first print."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "blocking",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step names a persistence prior but then replaces it with the resolved value.",
+        "actionRequested": "Rewrite the step so the prior, historical sample, adjustments, interval method, and implied bounds are all based only on information available before resolution."
+      },
+      {
+        "findingId": "review.finding.5",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "Historical context labels '2025 Q4 latest provisional annual-window rate' as context even though that is the target being forecast.",
+        "actionRequested": "Exclude the target observation from historicalContext for a pre-submit forecast, or relabel the record as post-resolution."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver text tied to the listed CDC/NCHS VSRR Socrata target, but add a filtered API query or archived artifact reference if first-print reproducibility matters."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "For a valid pre-release version, use 2023 Q1 through 2025 Q3 observations and known release-calendar timing only."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, update, interval, prior/update/interval, and historical-context critiques by excluding the 2025 Q4 target value and components, keeping the CDC/NCHS resolver unchanged, and recomputing the point and interval from pre-release history through 2025 Q3 only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, update, interval, prior/update/interval, and historical-context critiques by excluding the 2025 Q4 target value and components, keeping the CDC/NCHS resolver unchanged, and recomputing the point and interval from pre-release history through 2025 Q3 only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, update, interval, prior/update/interval, and historical-context critiques by excluding the 2025 Q4 target value and components, keeping the CDC/NCHS resolver unchanged, and recomputing the point and interval from pre-release history through 2025 Q3 only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, update, interval, prior/update/interval, and historical-context critiques by excluding the 2025 Q4 target value and components, keeping the CDC/NCHS resolver unchanged, and recomputing the point and interval from pre-release history through 2025 Q3 only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.5",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, update, interval, prior/update/interval, and historical-context critiques by excluding the 2025 Q4 target value and components, keeping the CDC/NCHS resolver unchanged, and recomputing the point and interval from pre-release history through 2025 Q3 only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage, update, interval, prior/update/interval, and historical-context critiques by excluding the 2025 Q4 target value and components, keeping the CDC/NCHS resolver unchanged, and recomputing the point and interval from pre-release history through 2025 Q3 only.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage, update, interval, prior/update/interval, and historical-context critiques by excluding the 2025 Q4 target value and components, keeping the CDC/NCHS resolver unchanged, and recomputing the point and interval from pre-release history through 2025 Q3 only.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is not publishable as a forecast because it uses the already-posted first-print outcome as the point estimate and interval anchor."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/prompt.md",
+      "sha256": "37dce4b87656b7f249ec82f0b90069e610c236c63165030d0f5b2eb113b65f3d",
+      "bytes": 7797,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_command.json",
+      "sha256": "f8e328ee0015803741af964c3b032d17071533a3e5854b6eb5ab688a19e8a5e0",
+      "bytes": 853,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_codex_stdout.jsonl",
+      "sha256": "68852c6f1d0058adfff097353ca8ee4d24f32c5812801c17d1dd5ca858c356cb",
+      "bytes": 18385,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_codex_events.jsonl",
+      "sha256": "9bda8c29a6dd141f02900cabf647aa1c3943e46cfde39dd16ce2a10dfe207609",
+      "bytes": 18385,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_codex_last_message.txt",
+      "sha256": "2e5aa66e711c560767f7f72fb180166ff8edae7a0527ef45b8fded88fbd55c49",
+      "bytes": 5014,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_codex_trace.json",
+      "sha256": "896e3127b94b0446144aa181ffc07f0de11f3fbf75c993dd9747ca8099c6222f",
+      "bytes": 508,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_stdout.txt",
+      "sha256": "2e5aa66e711c560767f7f72fb180166ff8edae7a0527ef45b8fded88fbd55c49",
+      "bytes": 5014,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_prompt.md",
+      "sha256": "7727afa51e76ba5a96a3872b7b0ae69164b012dddb04a3062420f54ea18ba7e4",
+      "bytes": 7232,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_command.json",
+      "sha256": "cacf30073ecc060c8ab26c8902efe84744ca2387c7b3f6c526345d983d201007",
+      "bytes": 849,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "105272beab28e4e96df8225712c1ad0f2eae18433969f6f0ea365b3b54e9ff2f",
+      "bytes": 2958,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_codex_events.jsonl",
+      "sha256": "0d5e459152cf448a80d2fe485fbb3843fafb5573c30930f65c4ab81eafcf6a0f",
+      "bytes": 2980,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_codex_last_message.txt",
+      "sha256": "12a2a7f575065a8e632fd6cdf3f4a3dc2c9343d30189909f14e8b5d510528615",
+      "bytes": 2511,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_codex_trace.json",
+      "sha256": "46e10e36170e84e869b8f8adf9d742ec5bca5469aebd23d374b72ec196c6846e",
+      "bytes": 504,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_stdout.txt",
+      "sha256": "12a2a7f575065a8e632fd6cdf3f4a3dc2c9343d30189909f14e8b5d510528615",
+      "bytes": 2511,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/revision_prompt.md",
+      "sha256": "d19d34192eba102b4edcca8d3e88e5e10c6f7cda7f80b5337e9e27d3ba9758ca",
+      "bytes": 16258,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/command.json",
+      "sha256": "dae5cf2a409a92ce1dc9a833da59c085becd59a821d97e63022d84956e503a17",
+      "bytes": 847,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/codex_stdout.jsonl",
+      "sha256": "29ad0193b3b10e0504484f917a60ec0864b5d84b7e978a25994b08889eb661f6",
+      "bytes": 5969,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/codex_events.jsonl",
+      "sha256": "7c8414033cc4d62fcc60f66241c79032edfdd6a184677bbc6e64cb36ec98848c",
+      "bytes": 5991,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/codex_last_message.txt",
+      "sha256": "b0a9d621679f4fb82e1677a2508ce3bfcefdf43b5a90e03c4c403003ed14624c",
+      "bytes": 5419,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/codex_trace.json",
+      "sha256": "c8958096361db7f9a81192f1b496fa056f3e0c8da71ceaa089666bb5d35014b3",
+      "bytes": 504,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/stdout.txt",
+      "sha256": "b0a9d621679f4fb82e1677a2508ce3bfcefdf43b5a90e03c4c403003ed14624c",
+      "bytes": 5419,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/raw_response.txt",
+      "sha256": "b0a9d621679f4fb82e1677a2508ce3bfcefdf43b5a90e03c4c403003ed14624c",
+      "bytes": 5419,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/parsed_cells.json",
+      "sha256": "fed0d63d17297ac69fd7968e0fe4c52a32ae5b54869d77ea2200710a37045f1d",
+      "bytes": 6261,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/normalized_cells.json",
+      "sha256": "56cd77f1a113ac1ada7668d5fe8df4c65f5d27195d788aca5cfb3efef8ed270f",
+      "bytes": 5926,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/validation.json",
+      "sha256": "d3b53675b633ad8542b35f3166c5aa1ddc3f0c120d291d245ca2e0b67f239196",
+      "bytes": 142,
+      "createdAt": "2026-07-07T13:53:35Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-53-35z-cdc-nchs-infant-mortality-rate-provisional-2025/manifest.json",
+      "sha256": "8404b2a6df87753eee91600d39eb0102c78b0db148e6ac004e590a29f891ff80",
+      "bytes": 18943,
+      "createdAt": "2026-07-07T13:53:35Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-infant-mortality-rate-2025-provisional",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

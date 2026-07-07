@@ -1,0 +1,399 @@
+[
+  {
+    "slug": "ssi-recipients-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "SSI recipients, July 2026",
+    "question": "Social Security Administration SSI Monthly Statistics Table 2 total number of recipients for July 2026, all federally administered payments, end of month, first print",
+    "unit": "millions",
+    "pointEstimate": 7.309,
+    "ciLow": 7.28,
+    "ciHigh": 7.338,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-31",
+    "resolutionSource": "Social Security Administration SSI Monthly Statistics",
+    "resolutionSourceUrl": "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-07/table02.html",
+    "resolutionRule": "Resolve to the first published July 2026 value in SSA SSI Monthly Statistics Table 2, row July 2026, column Total number of recipients for all federally administered payments. The resolving observation is the first July 2026 Table 2 print whenever SSA posts it; 2026-08-31 is the catalog latest expected resolution by-date based on SSA's month-level monthly publishing schedule, not a claimed exact release day. The SSA table publishes counts as whole recipients; convert to millions by dividing by 1,000,000 and round forecast display values to three decimals. Use the first official print only and ignore later revisions or adjusted checks after the first July 2026 table is posted.",
+    "dataPointId": "ssa.ssi.total_recipients.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 total SSI recipients, millions",
+        "value": 7.322937
+      },
+      {
+        "label": "2026-04 total SSI recipients, millions",
+        "value": 7.338132
+      },
+      {
+        "label": "2026-03 total SSI recipients, millions",
+        "value": 7.351825
+      },
+      {
+        "label": "2026-02 total SSI recipients, millions",
+        "value": 7.358913
+      },
+      {
+        "label": "2026-01 total SSI recipients, millions",
+        "value": 7.36951
+      },
+      {
+        "label": "2025-12 total SSI recipients, millions",
+        "value": 7.392201
+      }
+    ],
+    "drivers": [
+      "recent total SSI caseload has declined from 7.392 million in December 2025 to 7.323 million in May 2026",
+      "latest two-month average decline is about 0.0146 million recipients",
+      "state-supplementation-only recipients continue to edge down",
+      "no identified July 2026 policy mechanism creates a discrete caseload break",
+      "short-horizon uncertainty is dominated by monthly administrative churn and returned-check adjustment risk"
+    ],
+    "sourceContext": [
+      "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-05/table02.html",
+      "https://www.ssa.gov/policy/docs/statcomps/ssi_monthly/2026-05/table01.html",
+      "https://www.ssa.gov/policy/pub_schedule.html",
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/"
+    ],
+    "runAt": "2026-07-07T14:15:30Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "July 2026 SSI total recipients"
+      },
+      {
+        "kind": "text",
+        "text": "The exact resolver is SSA SSI Monthly Statistics Table 2, all federally administered payments, total number of recipients for July 2026 at end of month. This is the total SSI recipient count, not federal-payment-only recipients, not state recipients by geography, and not OASDI beneficiaries who also receive SSI."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA publishing schedule and current SSI publications to verify release timing and target source family.",
+        "result": "Fetched official timing evidence on July 7, 2026: SSA Publishing Schedule lists SSI Monthly Statistics with frequency Monthly; current SSI Monthly Statistics page is May 2026 and says released June 2026; current Monthly Statistical Snapshot is May 2026 and says released June 2026. The July 2026 SSI monthly first print is therefore tied to the SSA monthly publication expected by August 2026; 2026-08-31 is used as the catalog latest expected resolution by-date because the public schedule provides month-level, not day-level, timing."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA SSI Monthly Statistics May 2026 Table 2 for the latest total-recipient history.",
+        "result": "Fetched Table 2 total SSI recipients: May 2025 = 7,409,168; June 2025 = 7,412,558; July 2025 = 7,394,877; August 2025 = 7,405,735; September 2025 = 7,436,689; October 2025 = 7,393,406; November 2025 = 7,391,176; December 2025 = 7,392,201; January 2026 = 7,369,510; February 2026 = 7,358,913; March 2026 = 7,351,825; April 2026 = 7,338,132; May 2026 = 7,322,937."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA SSI Monthly Statistics May 2026 Table 1 for recipient composition and same-variant confirmation.",
+        "result": "Fetched same-publication Table 1 values for May 2026: total recipients = 7,322,937; federal payment only = 6,018,514; federal payment and state supplementation = 1,181,054; state supplementation only = 123,369; also receiving OASDI benefits = 2,528,904."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Monthly Statistical Snapshot May 2026 Table 3 as a cross-check against the SSI monthly table.",
+        "result": "Fetched snapshot cross-check: May 2026 all SSI recipients = 7,323 thousand; under 18 = 1,016 thousand; ages 18-64 = 3,805 thousand; 65 or older = 2,502 thousand; total payments = 5,736 million dollars; average monthly payment = 738.13 dollars."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the reference class is recent first-print SSA SSI Monthly Statistics total-recipient levels from May 2025 through May 2026. The last print is 7.322937 million, while the 2026 sequence has declined every month from 7.369510 million in January to 7.322937 million in May, so a pure persistence prior is too high unless current evidence points to a rebound."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy split: the level is a mature administrative caseload near 7.3 million, not a fast cyclical series. Momentum is downward: January-May 2026 fell by 0.046573 million, and March-May fell by 0.028888 million. I found no official public evidence in the checked SSA release context of a July 2026 policy mechanism that would abruptly expand or contract SSI eligibility; the main one-off risk is administrative timing and returned-check adjustment in the first two months after release."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: persistence prior is last-print persistence at 7.322937 million, but the reference class of fetched SSA total-recipient values supports a two-month trend update because the July target is two months after the May latest print. The two-month changes in the fetched sample are -0.014291, -0.006823, +0.041812, -0.012329, -0.045513, -0.001205, -0.021666, -0.033288, -0.017685, -0.020781, and -0.028888 million; their mean is -0.014605 million, so the point is 7.322937 - 0.014605 = 7.308332 million, rounded to 7.309. Interval method uses realized dispersion of those two-month changes; sigma = 0.022437 million, and an 80% interval is approximately +/-1.28 standard deviations, so 1.28*sigma = 0.028719 million, giving implied bounds 7.279613 to 7.337051, rounded to 7.280 and 7.338."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation: 7.322937 latest May 2026 total recipients + (-0.014605 two-month mean change) = 7.308332 million, rounded to 7.309 million. Interval calculation: sigma = 0.022437 million from fetched two-month changes; 1.28*sigma = 0.028719 million; 7.308332 - 0.028719 = 7.279613 and 7.308332 + 0.028719 = 7.337051, rounded to 7.280 and 7.338 million."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a rebound like September 2025, when the two-month change reached +0.041812 million, which would land above the interval if July prints above 7.338 million. Downside risk is continued attrition or returned-check adjustment like the October-November 2025 two-month declines, which would land below the interval if July prints below 7.280 million. An outside the interval result would most likely come from administrative cleanup, unusually large awards, or a state-supplementation processing shift visible in the first July table."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver-date critique by clarifying that 2026-08-31 is a catalog latest expected resolution by-date from SSA's month-level monthly schedule, while the observation resolves on the first July 2026 Table 2 print whenever posted. Accepted the optional interval wording and numeric tail-threshold clarifications; no forecast numbers changed."
+      },
+      {
+        "kind": "forecast",
+        "point": 7.309,
+        "ciLow": 7.28,
+        "ciHigh": 7.338
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/prompt.md",
+        "sha256": "e04220e51de5ccfc9843af58422e9edf331ba6467ff1e711ab05056918357a68",
+        "bytes": 7753,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_command.json",
+        "sha256": "2231c4977bdb5044113e059593c6e6743b30ca6d42bd33d1d885910580c2de95",
+        "bytes": 838,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "f6eed289fae5e33dea559abdaf5ccb75a12b32db4ec326fa2e9e55f85ece658f",
+        "bytes": 1139014,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_codex_events.jsonl",
+        "sha256": "255bc7743409bb50b0eddda47187c261ee79b6b1945221e77650bd9dd2c5a547",
+        "bytes": 1139435,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_codex_last_message.txt",
+        "sha256": "f2cee87a665e8bb24863fa18688b970dcdd63a07ebebfc19e922ec40f9cd3d86",
+        "bytes": 7458,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_codex_trace.json",
+        "sha256": "92cbc832a8589e0ef71a84126607f621efa579a19def7bf1318dfafb3ef3417c",
+        "bytes": 509,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_stdout.txt",
+        "sha256": "f2cee87a665e8bb24863fa18688b970dcdd63a07ebebfc19e922ec40f9cd3d86",
+        "bytes": 7458,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_prompt.md",
+        "sha256": "d899fadbb11563ef39b5bd2cf3ab80dea8ad727d3c4aedd8d8a12dd8a2632508",
+        "bytes": 9632,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_command.json",
+        "sha256": "2359e35aa00a55ba80c89d467d46913557b703cccdacaec7bc45d9ac495b21c0",
+        "bytes": 834,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "990437df8147a08daa2c8fdb2ef8d5d55a84d7c982d3313e56b477c0caa93861",
+        "bytes": 1300,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "cc14d33886aa6da2699c7e2ecc593576b9ee4349f66c35618c3897b98a16158c",
+        "bytes": 1322,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "5e76efbe09bc01bed2b33aa4d0cd0bf3f8dd26032de86c78959c2f9dc789328d",
+        "bytes": 941,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "69a6934ffb973417dab4c121c2a52c7c7589933c3337a41d4ba5de92440bd9a5",
+        "bytes": 504,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "5e76efbe09bc01bed2b33aa4d0cd0bf3f8dd26032de86c78959c2f9dc789328d",
+        "bytes": 941,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/revision_prompt.md",
+        "sha256": "810b7fac73672c0985dc347670b4a41c911439eaa9e62b27f75755e7aaf41433",
+        "bytes": 17088,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/command.json",
+        "sha256": "e5cc789ff146743dbee7f3630af794bcdf80cad47500a7d2f4265049c6497495",
+        "bytes": 832,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/codex_stdout.jsonl",
+        "sha256": "6efba2f195373533f55eaa11ef2491f4bfe67b4f2d5bbe03d50605510c616e78",
+        "bytes": 8757,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/codex_events.jsonl",
+        "sha256": "5643c623226235575b469a41f54eb9d726bb8cef833002dc3a8d7086a31fa0e5",
+        "bytes": 8779,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/codex_last_message.txt",
+        "sha256": "339b7d1a6760bd54befed7e5fc7d6205a3d80747360443f6d91f67cbaee29bdc",
+        "bytes": 8184,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/codex_trace.json",
+        "sha256": "c1d094a0e0021276bed66afb77918a1313fc429a0e77252080f19a343ee042bf",
+        "bytes": 503,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/stdout.txt",
+        "sha256": "339b7d1a6760bd54befed7e5fc7d6205a3d80747360443f6d91f67cbaee29bdc",
+        "bytes": 8184,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/raw_response.txt",
+        "sha256": "339b7d1a6760bd54befed7e5fc7d6205a3d80747360443f6d91f67cbaee29bdc",
+        "bytes": 8184,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/parsed_cells.json",
+        "sha256": "6ff66d5447237c4343bc82696762e36724d776624841292c75c661a24e312279",
+        "bytes": 9142,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/normalized_cells.json",
+        "sha256": "9e17a79fa3272923b41a38637e62e195a52a7ac42f4a41f1fd5ce9b4915fd5aa",
+        "bytes": 8759,
+        "createdAt": "2026-07-07T14:15:20Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/validation.json",
+        "sha256": "0cfb9ff8377614ef42be7993bcfada5c9da14b146998523abfc03b8e1a23a669",
+        "bytes": 125,
+        "createdAt": "2026-07-07T14:15:20Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-07T14:15:20Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "9e61f8e9b2f1c4e69402e8bd71c99d2e11e0dadac5463307b73010087c850aa7"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t14-15-20z-ssa-ssi-total-recipients-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The resolution date is justified as a month-end by-date from SSA's month-level publishing schedule, not as a verified exact release date.",
+          "actionRequested": "Clarify that 2026-08-31 is the catalog resolution by-date/latest expected resolution date based on SSA's monthly schedule, and that the actual resolving observation is the first July 2026 Table 2 print whenever posted."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State explicitly that the 80% interval corresponds to approximately +/-1.28 standard deviations from the historical two-month-change sample."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the tail paragraph, name approximate numeric tail thresholds after unit conversion, e.g. above 7.338 million or below 7.280 million."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver-date critique by clarifying that 2026-08-31 is a catalog latest expected resolution by-date from SSA's month-level monthly schedule, while the observation resolves on the first July 2026 Table 2 print whenever posted. Accepted the optional interval wording and numeric tail-threshold clarifications; no forecast numbers changed.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver-date critique by clarifying that 2026-08-31 is a catalog latest expected resolution by-date from SSA's month-level monthly schedule, while the observation resolves on the first July 2026 Table 2 print whenever posted. Accepted the optional interval wording and numeric tail-threshold clarifications; no forecast numbers changed.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver-date critique by clarifying that 2026-08-31 is a catalog latest expected resolution by-date from SSA's month-level monthly schedule, while the observation resolves on the first July 2026 Table 2 print whenever posted. Accepted the optional interval wording and numeric tail-threshold clarifications; no forecast numbers changed.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is largely publication-ready, with only minor resolver-date wording needing tightening."
+    }
+  }
+]

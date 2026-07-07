@@ -1,0 +1,390 @@
+[
+  {
+    "slug": "wic-participation-april-2026",
+    "country": "US",
+    "type": "data",
+    "title": "WIC participation, Apr 2026",
+    "question": "USDA Food and Nutrition Service WIC Participation and Costs national monthly data, April 2026 Total Participants, preliminary FY2026 first print, converted to millions of participants.",
+    "unit": "millions",
+    "pointEstimate": 6.724,
+    "ciLow": 6.648,
+    "ciHigh": 6.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-11",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "resolutionRule": "Resolve to the first USDA FNS WIC Participation and Costs monthly national-data print that includes April 2026, using the Total Participants column for April 2026 in the preliminary FY2026 national monthly table, even if the website index updates later. Convert the published whole-participant count to millions by dividing by 1,000,000 and round to three decimals. Ignore later revisions, annual-summary updates, FRED, and mirrors.",
+    "dataPointId": "fns.wic.total_participation.2026-04.first_print",
+    "historicalContext": [
+      {
+        "label": "Mar 2026 latest official total participants, millions",
+        "value": 6.701661
+      },
+      {
+        "label": "Feb 2026 official total participants, millions",
+        "value": 6.66458
+      },
+      {
+        "label": "Apr 2025 official total participants, millions",
+        "value": 6.877215
+      },
+      {
+        "label": "Apr 2024 official total participants, millions",
+        "value": 6.722042
+      },
+      {
+        "label": "Apr 2023 official total participants, millions",
+        "value": 6.612619
+      }
+    ],
+    "drivers": [
+      "March 2026 first print recovered modestly from February",
+      "April usually runs slightly above March in recent WIC monthly tables",
+      "FY2026 level remains below FY2025 same-month participation",
+      "Children participants are the largest component of total WIC participation",
+      "First-print administrative timing can move monthly totals by several tens of thousands"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/wic-program",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-6.pdf",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-7.pdf"
+    ],
+    "runAt": "2026-07-07T13:52:34Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast USDA FNS WIC total participation for April 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets USDA FNS WIC Participation and Costs national monthly data, preliminary FY2026, Total Participants for April 2026. This is the monthly national total-participants variant, not annual average participation, state-level category detail, or costs; all anchors below use the same Total Participants column."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the USDA FNS WIC Data Tables page to verify the official source family and linked resource structure.",
+        "result": "Fetched official WIC Data Tables page showing Monthly Data - National Level as FY 2022 through November 2025, Monthly Data - State Level FY 2026 preliminary, Latest Available Month resource links, and Page updated February 24, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened USDA FNS WIC Participation and Costs monthly PDF 37wic-monthly-6.pdf for the latest pre-target national monthly values.",
+        "result": "Fetched FY2026 preliminary Total Participants: Oct 2025 6,909,938; Nov 2025 6,771,734; Dec 2025 6,712,611; Jan 2026 6,696,300; Feb 2026 6,664,580; Mar 2026 6,701,661; the file states Data as of June 12, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read same-month and adjacent-month official history from the same FNS monthly table to form the seasonal reference class.",
+        "result": "Fetched Total Participants: Mar 2023 6,621,311 and Apr 2023 6,612,619; Mar 2024 6,680,974 and Apr 2024 6,722,042; Mar 2025 6,850,836 and Apr 2025 6,877,215."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked official monthly vintage timing using FNS WIC monthly PDFs and the WIC data-table source surface.",
+        "result": "Fetched prior monthly vintage evidence: 37wic-monthly-6.pdf is Data as of June 12, 2026 and includes Mar 2026 but not Apr 2026; 37wic-monthly-7.pdf is Data as of July 11, 2025 and includes Apr 2025, which is historical timing evidence but not direct verification of the April 2026 first-print date."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: recent March-to-April changes in the same official Total Participants column were -0.008692 million in 2023, +0.041068 million in 2024, and +0.026379 million in 2025, an average April seasonal increment of +0.019585 million. The latest level is lower than FY2025, so I use a level-adjusted seasonal prior rather than the raw April average of 6.737 million across 2023-2025."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: the level anchor is Mar 2026 at 6.701661 million. Momentum improved from Feb to Mar by +0.037081 million after declines from Oct through Feb, but Mar 2026 remained 0.149175 million below Mar 2025. Mechanically, children remain the largest component and rose from 3,808,769 in Feb 2026 to 3,824,372 in Mar 2026, while infant and women counts remain below 2025 levels."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: model is seasonal persistence using official Total Participants history. Historical sample mixes FY2026 Oct-Mar successive changes for near-term trend with 2023-2025 March-to-April changes for seasonality: -0.138204, -0.059123, -0.016311, -0.031720, +0.037081, -0.008692, +0.041068, +0.026379 million. Adjustment components: March 2026 level 6.701661 + average March-to-April seasonal increment 0.019585 = 6.721246; year-over-year ratio anchor is Apr 2025 6.877215 * (Mar 2026 6.701661 / Mar 2025 6.850836) = 6.727466. Averaging gives 6.724356, rounded to 6.724. Interval method uses realized successive-change dispersion: sigma = 0.059650 million, so 1.28*sigma = 0.076352 million; 6.724 +/- 0.076 gives final implied bounds 6.648 to 6.800 million."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk would be a stronger administrative catch-up or broader spring recertification rebound, putting the first print above 6.800 million. Downside risk would be continued FY2026 participation erosion, weak infant/women counts, or reporting delays that leave April near March or below, which would land below the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique that the 2026-07-11 resolver date was not directly verified by the cited 2026 evidence and noted that discrepancy while keeping the ledger target date unchanged; accepted the resolver-clarity and mixed-sample interval notes; rejected changing the point estimate or interval because the public numeric anchors and arithmetic remain coherent."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.724,
+        "ciLow": 6.648,
+        "ciHigh": 6.8
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/prompt.md",
+        "sha256": "ee2c29f11cba66be070cfcb7827cd2f85ec7227aa45e632cb81adb41f4551301",
+        "bytes": 7885,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_command.json",
+        "sha256": "86a73674eedef706421933d9ed8081c10830611c135be90fa4af4b03c22a4c9f",
+        "bytes": 841,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_codex_stdout.jsonl",
+        "sha256": "cc2b2a4f56e14f45db074af0d18a2b5f213cde9ae61b1071bd4a602ec0b34962",
+        "bytes": 2770119,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_codex_events.jsonl",
+        "sha256": "002f40e74c17bfd65d5d54a24d0f35c8f97bf8b8f0ecc154ebbde661c750d52f",
+        "bytes": 2770709,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_codex_last_message.txt",
+        "sha256": "0f9f8a8e1c4a5b6b19828bd390126e554d184c4c717584e2e601a0ba501f995f",
+        "bytes": 6137,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_codex_trace.json",
+        "sha256": "66e34d84f346abd45e978b928ebd420f3aa336ff89dd4ea7341b61ca3cecb547",
+        "bytes": 509,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_stdout.txt",
+        "sha256": "0f9f8a8e1c4a5b6b19828bd390126e554d184c4c717584e2e601a0ba501f995f",
+        "bytes": 6137,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_prompt.md",
+        "sha256": "e49b4f44b3c2fd782160eccaae0dfa0cb7ffb9372eae2780006b801adaca7943",
+        "bytes": 8318,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_command.json",
+        "sha256": "c862803b6d406cc29eea2dd66b5fdb042cba46d0405d93408d34fc101e9ab3e2",
+        "bytes": 837,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "b5b93295e36fd65c1dfd4c5afcb79888b7909e66782ed46a0bfc740dee264463",
+        "bytes": 1624,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_codex_events.jsonl",
+        "sha256": "5356e680f88e263cd327978858a57c14caff8aab1ffaa3d67b961b0ad7cb7d11",
+        "bytes": 1646,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_codex_last_message.txt",
+        "sha256": "0ee592c4de2135729a76f787c91909efb9e6c2893b2ae0b0e1151242b8712f27",
+        "bytes": 1266,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_codex_trace.json",
+        "sha256": "c81960d4d44862b1d39a08719deff9b2e9406a3fa054e0d078ac39ad977167ef",
+        "bytes": 503,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_stdout.txt",
+        "sha256": "0ee592c4de2135729a76f787c91909efb9e6c2893b2ae0b0e1151242b8712f27",
+        "bytes": 1266,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/revision_prompt.md",
+        "sha256": "2cb53c31b90ffdb23cab2202bdc152e6058a6275a62f258e0bbb2d9908b62cb9",
+        "bytes": 16224,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/command.json",
+        "sha256": "9c6b301192ad5f75c1938f23f9dbf2a08a9bb261b9325e062c115711b088e37b",
+        "bytes": 835,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/codex_stdout.jsonl",
+        "sha256": "6fd3e35af754cd19f95e57437871e635e35a98ecf1b5bc10eedc3579bd22e745",
+        "bytes": 2560642,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/codex_events.jsonl",
+        "sha256": "be486200cb6a6042d681abb2c79feaa8780f35e973275a0239fbefadc6392b18",
+        "bytes": 2560822,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/codex_last_message.txt",
+        "sha256": "0b3f3964ae854db76fbbf043c92701cb68f03b8e8409b577c1bf5f8161cac040",
+        "bytes": 6651,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/codex_trace.json",
+        "sha256": "3bfb48fdf0cb8847b79dbbb2da4db3970ba2c49328f31222dc930d23ab486198",
+        "bytes": 508,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/stdout.txt",
+        "sha256": "0b3f3964ae854db76fbbf043c92701cb68f03b8e8409b577c1bf5f8161cac040",
+        "bytes": 6651,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/raw_response.txt",
+        "sha256": "0b3f3964ae854db76fbbf043c92701cb68f03b8e8409b577c1bf5f8161cac040",
+        "bytes": 6651,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/parsed_cells.json",
+        "sha256": "b8e9038b5fe6abb678377c17c36b980c8414314e17cd698c8691e239361ef4fc",
+        "bytes": 7534,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/normalized_cells.json",
+        "sha256": "4275137686f7fdcb57b81ed87c795d0f6af5a62a52ff956877f929224b794662",
+        "bytes": 7182,
+        "createdAt": "2026-07-07T13:48:08Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/validation.json",
+        "sha256": "ecf822f0cc000f2289724321e8e1b112a367f264fb065008c13a4c7974df93e5",
+        "bytes": 129,
+        "createdAt": "2026-07-07T13:48:08Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-07T13:48:08Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "9659e0bce355681874635c2c36d83d68bce1fbe9b5942c2723b8c9be55f534d2"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t13-48-08z-fns-wic-total-participation-2026-04/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "Resolution date is asserted as 2026-07-11, but the evidence only cites 37wic-monthly-7.pdf dated July 11, 2025 for the April 2025 vintage and 37wic-monthly-6.pdf dated June 12, 2026 for March 2026. That does not verify the April 2026 first-print date, and July 11, 2026 is a Saturday.",
+          "actionRequested": "Verify 2026-07-11 from an official FNS release placeholder, calendar, file metadata, or actual official April 2026 first-print table if available; otherwise state the discrepancy while keeping the ledger target unchanged."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the first-print rule slightly more explicit by saying whether the first qualifying national monthly PDF/table is used even if the website index updates later."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The interval is coherent, but note that the sample includes both FY2026 adjacent-month changes and March-to-April seasonal changes, which mix trend and seasonality."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique that the 2026-07-11 resolver date was not directly verified by the cited 2026 evidence and noted that discrepancy while keeping the ledger target date unchanged; accepted the resolver-clarity and mixed-sample interval notes; rejected changing the point estimate or interval because the public numeric anchors and arithmetic remain coherent.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the 2026-07-11 resolver date was not directly verified by the cited 2026 evidence and noted that discrepancy while keeping the ledger target date unchanged; accepted the resolver-clarity and mixed-sample interval notes; rejected changing the point estimate or interval because the public numeric anchors and arithmetic remain coherent.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique that the 2026-07-11 resolver date was not directly verified by the cited 2026 evidence and noted that discrepancy while keeping the ledger target date unchanged; accepted the resolver-clarity and mixed-sample interval notes; rejected changing the point estimate or interval because the public numeric anchors and arithmetic remain coherent.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable in structure but needs a resolver-date fix or justification because the stated July 11, 2026 resolution date appears inferred from a 2025 vintage rather than verified for the 2026 April first print."
+    }
+  }
+]
