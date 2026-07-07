@@ -1,33 +1,34 @@
-name: Roll the docket
+name: Prospect new series
 
-# The compounding loop: compute next periods for every registry series,
-# run the reviewed analyst pipeline on them, publish the passing cells,
-# and stamp the pre-registration record. Idempotent — when there is
-# nothing to roll it exits quietly.
+# The widening loop: an agent proposes brand-new series from official
+# release calendars, hard validation filters the proposals, and survivors
+# run through the same reviewed analyst pipeline as everything else. New
+# series stay on probation — adopt_proven_series.py graduates them into
+# the roll registry only after their first cell resolves and scores.
 
 on:
   schedule:
-    - cron: "30 16 * * 1,5" # Mon + Fri 16:30 UTC (after Thursday resolutions)
+    - cron: "0 15 * * 3" # Wednesdays 15:00 UTC
   workflow_dispatch:
     inputs:
-      max_targets:
-        description: "Cap on targets this run"
-        default: "10"
-      cadence:
-        description: "weekly|monthly|quarterly (empty = all)"
+      count:
+        description: "How many new series to propose"
+        default: "3"
+      focus:
+        description: "Optional focus areas (e.g. 'UK, health, housing')"
         default: ""
 
 permissions:
   contents: write
   issues: write
-  actions: write # dispatches the recorder after publishing
+  actions: write
 
-concurrency: roll-docket
+concurrency: prospect-docket
 
 jobs:
-  roll:
+  prospect:
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
         with:
@@ -43,44 +44,43 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: printenv OPENAI_API_KEY | codex login --with-api-key
 
-      - name: Adopt proven series into the registry
-        run: python3 scripts/adopt_proven_series.py
-
-      - name: Compute targets
-        id: targets
+      - name: Propose and validate candidates
+        id: prospect
         run: |
           set -euo pipefail
-          CADENCE_FLAG=""
-          if [ -n "${{ github.event.inputs.cadence }}" ]; then
-            CADENCE_FLAG="--cadence ${{ github.event.inputs.cadence }}"
+          FOCUS_FLAG=""
+          if [ -n "${{ github.event.inputs.focus }}" ]; then
+            FOCUS_FLAG="--focus \"${{ github.event.inputs.focus }}\""
           fi
-          python3 scripts/roll_docket.py $CADENCE_FLAG \
-            --max-targets "${{ github.event.inputs.max_targets || 10 }}" \
-            --out /tmp/roll-targets.json
-          COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/roll-targets.json'))['targets']))")
+          eval python3 scripts/prospect_series.py \
+            --count "${{ github.event.inputs.count || 3 }}" $FOCUS_FLAG \
+            --out /tmp/prospect-targets.json
+          if [ -f /tmp/prospect-targets.json ]; then
+            COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/prospect-targets.json'))['targets']))")
+          else
+            COUNT=0
+          fi
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
 
       - name: Run the analyst batch
-        if: steps.targets.outputs.count != '0'
+        if: steps.prospect.outputs.count != '0'
         run: |
           set -euo pipefail
           DAY=$(date -u +%F)
           python3 scripts/run_thesis_batch.py \
-            --targets-file /tmp/roll-targets.json \
+            --targets-file /tmp/prospect-targets.json \
             --timeout-seconds 540 \
-            --out "records/thesis-analyst/batches/$DAY/auto-roll.json" || true
-          # Failures are recorded in the batch manifest; partial success
-          # publishes the passing subset below.
+            --out "records/thesis-analyst/batches/$DAY/prospect.json" || true
 
       - name: Publish passing cells
-        if: steps.targets.outputs.count != '0'
+        if: steps.prospect.outputs.count != '0'
         id: publish
         run: |
           set -euo pipefail
           DAY=$(date -u +%F)
           if python3 scripts/register_wave.py \
-              --name "auto-$DAY" \
-              --batch "records/thesis-analyst/batches/$DAY/auto-roll.json" \
+              --name "prospect-$DAY" \
+              --batch "records/thesis-analyst/batches/$DAY/prospect.json" \
               --allow-missing; then
             echo "published=1" >> "$GITHUB_OUTPUT"
           else
@@ -100,13 +100,13 @@ jobs:
           bun run test
 
       - name: Commit and push
-        if: steps.targets.outputs.count != '0'
+        if: steps.prospect.outputs.count != '0'
         run: |
           set -euo pipefail
-          git config user.name "thesis-roller"
+          git config user.name "thesis-prospector"
           git config user.email "recorder@thesisinstitute.org"
-          git add records/ site/src/data scripts 2>/dev/null || true
-          git commit -m "Auto-roll the docket $(date -u +%F)" || {
+          git add records/ site/src/data 2>/dev/null || true
+          git commit -m "Prospect new docket series $(date -u +%F)" || {
             echo "nothing to commit"; exit 0; }
           git pull --rebase origin main
           git push origin main
@@ -116,7 +116,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          sleep 240 # let the git deploy finish so the recorder sees new cells
+          sleep 240
           gh workflow run record-forecasts.yml --ref main
 
       - name: Alert on failure
@@ -125,9 +125,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          title="Docket roll failed $(date -u +%F)"
+          title="Prospecting failed $(date -u +%F)"
           existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
           if [ -z "$existing" ]; then
             gh issue create --title "$title" \
-              --body "The auto-roll loop failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+              --body "The prospect loop failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
           fi
