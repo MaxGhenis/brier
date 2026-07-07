@@ -1,0 +1,340 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-07T18:26:37Z",
+  "series": "ons.ios.total_services_cvmsa_index",
+  "period": "2026-05",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "uk-index-of-services-may-2026",
+    "country": "UK",
+    "period": "2026-05",
+    "series": "ons.ios.total_services_cvmsa_index",
+    "targetUnit": "index_points"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-07T18:26:37Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "636d75064c2304540b6ff541f0719ae1424ff532e6a2adfc4d0ba25b2ac3fb20"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact step uses an 'approximate current level anchor of 104.6' without naming the exact observed April 2026 index value or the source/table field used to obtain it.",
+        "actionRequested": "State the April 2026 first-print Total Services CVMSA index level, or explicitly say it is reconstructed from recent growth rates and identify the starting value/source used for that reconstruction."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval starts from realized recent monthly volatility, but the widening from 0.37 to 0.60 index points is qualitative and mixes ordinary May uncertainty with July benchmark/revision risk.",
+        "actionRequested": "Add one sentence quantifying or bounding the extra revision/benchmark allowance, or label it as a judgmental add-on beyond the recent-growth volatility estimate."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Replace vague driver wording like 'April services fallback' with 'April services fall' or 'April pullback'."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If available, name the exact IOS1 time-series/table row used for Total Services CVMSA to reduce resolver ambiguity."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the requested tightening on resolver clarity, replacing vague April pullback wording, stating that the 104.6 April level anchor is reconstructed from public ONS growth evidence and IOS1 scale rather than copied from the catalog, and labeling the extra interval width as a judgmental 0.23 index-point add-on for July first-print benchmark and revision risk.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the requested tightening on resolver clarity, replacing vague April pullback wording, stating that the 104.6 April level anchor is reconstructed from public ONS growth evidence and IOS1 scale rather than copied from the catalog, and labeling the extra interval width as a judgmental 0.23 index-point add-on for July first-print benchmark and revision risk.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the requested tightening on resolver clarity, replacing vague April pullback wording, stating that the 104.6 April level anchor is reconstructed from public ONS growth evidence and IOS1 scale rather than copied from the catalog, and labeling the extra interval width as a judgmental 0.23 index-point add-on for July first-print benchmark and revision risk.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the requested tightening on resolver clarity, replacing vague April pullback wording, stating that the 104.6 April level anchor is reconstructed from public ONS growth evidence and IOS1 scale rather than copied from the catalog, and labeling the extra interval width as a judgmental 0.23 index-point add-on for July first-print benchmark and revision risk.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with only minor tightening: resolver/date/source and forecast JSON are coherent, but the level anchor and interval widening need clearer provenance."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/prompt.md",
+      "sha256": "780ce7c728bf14f6fbf5013bc3116cb605c41a5312507d44fecde16cd00b8934",
+      "bytes": 7801,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_command.json",
+      "sha256": "acd174399b45ee82284bb65aee0974c9c5e336d9e5985ab5ea2c87b4e1b4eb36",
+      "bytes": 687,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_codex_stdout.jsonl",
+      "sha256": "d781c94171bfbb3e9b5f3a47783dd4925296923f864fb7c659104aafd34b5c07",
+      "bytes": 27110,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_codex_stderr.log",
+      "sha256": "25230198d70ce47bc3468eb95cd23427deb7ddaf5a9d7a6ea84e43259e82b20b",
+      "bytes": 233,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_codex_events.jsonl",
+      "sha256": "f2628df861b5f1d2d1397a634bf9d75295de17a8e50623aff9b9ca59fdf1b784",
+      "bytes": 26990,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_codex_last_message.txt",
+      "sha256": "2fc7f4e6ad7dec1eee277b2440aa65a2187a27c532a31c8b84312659e7cb1dfb",
+      "bytes": 7525,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_codex_trace.json",
+      "sha256": "273f06f107dc30494e1e58210f01947d51064115802409f042b0d678b32a8ba6",
+      "bytes": 508,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_stdout.txt",
+      "sha256": "2fc7f4e6ad7dec1eee277b2440aa65a2187a27c532a31c8b84312659e7cb1dfb",
+      "bytes": 7525,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/draft_stderr.txt",
+      "sha256": "c486bb7e7ee16142ae8e31cb82d67e83dcf107843c6333d131a03c1ba5d33c95",
+      "bytes": 248,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_prompt.md",
+      "sha256": "d7e46c49bec13bc9e67ad014997a2399f536f25cc102a70d1fcc98a4d0f114fb",
+      "bytes": 9718,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_command.json",
+      "sha256": "27ad069a9c20acbb17f9213989d8aaf4bba6cfc4c75bd927700ea4838a5de31b",
+      "bytes": 683,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "eff949356aec869d08dbacd9dc05708db6b1eec4062c43dbb4ef7141f60b1c40",
+      "bytes": 3337,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_codex_stderr.log",
+      "sha256": "851ae886d81abb3c69b5e7cd4a7f70ad1e53d82103f9520860362026f0fb230e",
+      "bytes": 233,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_codex_events.jsonl",
+      "sha256": "6f6c05de5aac3bf5351df7b577bf550b5b6da85f740d0bc04a2f8c77188f3f28",
+      "bytes": 3350,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_codex_last_message.txt",
+      "sha256": "ca1b252fd227a3a78cec5c18cf7ddf2fedf98b5552090f2c2ffdd288cffa00ad",
+      "bytes": 1354,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_codex_trace.json",
+      "sha256": "2fa8126791c980a3f09480564f11f8e0b4ff6674da3f90cf1d756a645b118263",
+      "bytes": 507,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_stdout.txt",
+      "sha256": "ca1b252fd227a3a78cec5c18cf7ddf2fedf98b5552090f2c2ffdd288cffa00ad",
+      "bytes": 1354,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/pre_submit_review_stderr.txt",
+      "sha256": "b056b3ba89ced1ea0e8aa64489460c4ab6c06e916010d943fc0d07d0c3ccf74d",
+      "bytes": 248,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/revision_prompt.md",
+      "sha256": "7d016425c2f3e2d30f45865b88eaadeb86f7bd76d60dd120a44a1fbdc1539f55",
+      "bytes": 17616,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/command.json",
+      "sha256": "bf0a3cf8f32edd1efaa151ba8d8e297096da5e55ed93712f50117928b1135ce7",
+      "bytes": 681,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/codex_stdout.jsonl",
+      "sha256": "32317c86aaf9f337708a9a97b069ec4733ae3e50da4117d7f19df52430485efc",
+      "bytes": 8973,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/codex_stderr.log",
+      "sha256": "fa16d4d8d046482306ddaf29fd0ba0e6493bbd0e3304e217269304ee19380de9",
+      "bytes": 233,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/codex_events.jsonl",
+      "sha256": "a3e96e9cc8be2a0e570c19479805744082dc80f121fb8e2c58492605865e4fc6",
+      "bytes": 8995,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/codex_last_message.txt",
+      "sha256": "b55c7bb09d923f63e99f10fbbdd125da96c408965c52e37c81fd53f5b1ae1e6b",
+      "bytes": 8386,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/codex_trace.json",
+      "sha256": "e3183d3013139545e55d9b07044c9e0f5a2cc3260ded5b17a0b88f81c898ade2",
+      "bytes": 505,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/stdout.txt",
+      "sha256": "b55c7bb09d923f63e99f10fbbdd125da96c408965c52e37c81fd53f5b1ae1e6b",
+      "bytes": 8386,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/stderr.txt",
+      "sha256": "252901283f02bf10effc8b29d79a375e2192c0c28b81baf6e9059a9784e001b3",
+      "bytes": 248,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/raw_response.txt",
+      "sha256": "b55c7bb09d923f63e99f10fbbdd125da96c408965c52e37c81fd53f5b1ae1e6b",
+      "bytes": 8386,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/parsed_cells.json",
+      "sha256": "9a6ae8e935b2f57b5d2d8c5fc6f5a37948f10af44894f5039e97095874b7ac54",
+      "bytes": 9378,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/normalized_cells.json",
+      "sha256": "38f06673d4d4e59cced4e852e8aba48a1394cae8a60a7beb4a5543371d87f15f",
+      "bytes": 8981,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/validation.json",
+      "sha256": "a3783d04139ef7d38ab25c5619346bf0e811e68dff43a19f1b0409d6f1c79ee8",
+      "bytes": 130,
+      "createdAt": "2026-07-07T18:26:37Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-07/2026-07-07t18-26-37z-ons-ios-total-services-cvmsa-index-2026-05/manifest.json",
+      "sha256": "a74beecae294c9aa4ffbe2b3741d3a5865a5e46ec6a84d7987d1359ba0ab94cb",
+      "bytes": 16577,
+      "createdAt": "2026-07-07T18:26:37Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "uk-index-of-services-may-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}
