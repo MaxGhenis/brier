@@ -72,6 +72,17 @@ jobs:
           # Failures are recorded in the batch manifest; partial success
           # publishes the passing subset below.
 
+      - name: Commit run records (before any gate — records are immutable artifacts)
+        if: steps.targets.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-roller"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/
+          git commit -m "Auto-roll run records $(date -u +%F) [skip ci]" || echo "no records"
+          git pull --rebase origin main
+          git push origin main
+
       - name: Publish passing cells
         if: steps.targets.outputs.count != '0'
         id: publish

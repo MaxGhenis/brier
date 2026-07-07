@@ -96,6 +96,17 @@ jobs:
             --timeout-seconds 540 \
             --out "records/thesis-analyst/batches/$DAY/prospect.json" || true
 
+      - name: Commit run records (before any gate — records are immutable artifacts)
+        if: steps.prospect.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-prospector"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/
+          git commit -m "Prospect run records $(date -u +%F) [skip ci]" || echo "no records"
+          git pull --rebase origin main
+          git push origin main
+
       - name: Publish passing cells
         if: steps.prospect.outputs.count != '0'
         id: publish

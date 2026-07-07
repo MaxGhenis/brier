@@ -30,6 +30,7 @@ import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
+DENYLIST = ROOT / "scripts" / "docket_denylist.json"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
 LEDGER_URL = (
     "https://github.com/PolicyEngine/ledger/raw/refs/heads/"
@@ -117,6 +118,10 @@ def main() -> int:
     parser.add_argument("--include-annual", action="store_true")
     args = parser.parse_args()
 
+    denied = {
+        (t["series"], t["period"])
+        for t in json.loads(DENYLIST.read_text())["targets"]
+    } if DENYLIST.exists() else set()
     rows = [json.loads(l) for l in fetch(LEDGER_URL).splitlines() if l.strip()]
     log = json.loads(fetch(LOG_URL))
     registry_series = {e["series"] for e in json.loads(REGISTRY.read_text())["series"]}
@@ -173,6 +178,8 @@ def main() -> int:
         next_ref = family.replace("{P}", token)
         if next_ref in all_refs:
             continue  # already forecast (any status)
+        if (series, batch_period(nxt)) in denied:
+            continue
         slug = slug_for(series, nxt)
         if slug in existing_slugs:
             continue
