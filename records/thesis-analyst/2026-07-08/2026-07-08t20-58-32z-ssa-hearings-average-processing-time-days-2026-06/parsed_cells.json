@@ -1,0 +1,132 @@
+[
+  {
+    "slug": "ssa-hearings-average-processing-time-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "SSA hearings average processing time, Jun 2026",
+    "question": "Social Security Administration Office of Hearings Operations Hearing Office Workload Data, FY 2026 cumulative through the June 2026 reporting period, national Average Processing Time in calendar days, first print",
+    "unit": "count",
+    "pointEstimate": 326,
+    "ciLow": 322,
+    "ciHigh": 330,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "SSA Office of Hearings Operations, Hearing Office Workload Data, FY2026",
+    "resolutionSourceUrl": "https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.html",
+    "resolutionRule": "Resolves to the national fiscal-year-to-date Average Processing Time in calendar days (the DSPN_AVGPT concept: average days from hearing request date to disposition date) as first published in SSA's Hearing Office Workload Data for the FY2026 reporting period ending in late June 2026; later revisions do not count. Match SSA's integer-day published rounding precision.",
+    "dataPointId": "ssa.hearings.average_processing_time_days.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "October 2025 FY2026 cumulative average processing time, days",
+        "value": 279
+      },
+      {
+        "label": "November 2025 FY2026 cumulative average processing time, days",
+        "value": 288
+      },
+      {
+        "label": "December 2025 FY2026 cumulative average processing time, days",
+        "value": 296
+      },
+      {
+        "label": "January 2026 FY2026 cumulative average processing time, days",
+        "value": 302
+      },
+      {
+        "label": "February 2026 FY2026 cumulative average processing time, days",
+        "value": 309
+      },
+      {
+        "label": "March 2026 FY2026 cumulative average processing time, days",
+        "value": 314
+      },
+      {
+        "label": "April 2026 FY2026 cumulative average processing time, days",
+        "value": 318
+      },
+      {
+        "label": "May 2026 FY2026 cumulative average processing time, days",
+        "value": 322
+      }
+    ],
+    "drivers": [
+      "FY2026 cumulative average processing time has risen every fetched month",
+      "Latest same-variant official point is May 2026 at 322 days",
+      "Recent increments slowed to +4 days in April and +4 days in May",
+      "Fiscal-year-to-date averaging mutes one-month case-mix shocks",
+      "Integer-day SSA reporting precision; catalog unit count represents calendar days"
+    ],
+    "sourceContext": [
+      "https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.html",
+      "https://www.ssa.gov/appeals/DataSets/05_Average_Processing_Time_Report.html",
+      "https://www.ssa.gov/appeals/DataSets/archive/archive_data_reports.html",
+      "https://www.ssa.gov/appeals/DataSets/data_dictionary.html",
+      "https://www.ssa.gov/policy/pub_schedule.html"
+    ],
+    "runAt": "2026-07-08T21:00:11Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "SSA OHO hearings average processing time, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets SSA Office of Hearings Operations Hearing Office Workload Data for FY2026 cumulative through June 2026, specifically DSPN_AVGPT average processing time in calendar days from hearing request date to disposition date. The variant is unadjusted administrative hearing-office workload data, not average wait time until hearing held and not a later archive revision."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the SSA OHO Hearing Office Workload Data current page to verify source family, period, and table variant.",
+        "result": "Fetched Hearing Office Workload Data FY 2026 for reporting purposes 09/27/2025 through 05/29/2026; the page states 4 key workload indicators and includes Average Processing Time, with current report period ending 05/29/2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the SSA Hearing Office Average Processing Time Ranking Report current page for same-concept cross-check.",
+        "result": "Fetched FY 2026 reporting purposes 09/27/2025 through 05/29/2026, Fiscal YTD Ending 05/29/2026, Workdays 165; the page says the ranking is by average number of days until final disposition of the hearing request."
+      },
+      {
+        "kind": "text",
+        "text": "SSA's public data dictionary defines DSPN_AVGPT as Disposition Average Processing Time, the average number of calendar days from Hearing Request Date to Disposition Date; it also identifies RPTG_PRD_ENDT as Reporting Period End Date and WRKDAYS as work days."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the SSA FY2026 archive index and current public pages to assemble the same-variant official reference class.",
+        "result": "Fetched same-variant FY2026 cumulative average processing time points: Oct 2025 279 days, Nov 2025 288, Dec 2025 296, Jan 2026 302, Feb 2026 309, Mar 2026 314, Apr 2026 318, May 2026 322."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the SSA Publishing Schedule and Hearings and Appeals archive index to verify release timing treatment for the ledger resolution date.",
+        "result": "Fetched SSA Publishing Schedule text saying anticipated release dates are based on current production plans and may be updated for production or data issues; fetched archive index showing FY2026 Hearing Office Workload Data archived through April 2026 while current pages show May 2026 through 05/29/2026 with national average processing time 322 days. No exact OHO June placeholder was listed, so I keep the canonical ledger resolutionDate 2026-07-31 as the target by-date."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the reference class is the same SSA OHO FY2026 fiscal-year-to-date average-processing-time series. The level rose from 279 days in October 2025 to 322 days in May 2026, a 43-day increase over 7 monthly updates, while the latest two increments were both +4 days."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy split: the level anchor is May's 322 days; momentum remains upward because cumulative FY-to-date dispositions are still clearing older requests; one-off risk is mainly hearing-office mix and transferred workloads; I found no official public source in this run indicating a June-only policy change that would mechanically break trend."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence-plus-damped-trend prior uses May 2026 at 322 days and the recent official sample of successive changes +9, +8, +6, +7, +5, +4, +4 days. The mean change is 6.14 days, but the latest 2 changes average 4.0 days, so the damped-trend component updates May by +4 days for a 326-day point. Interval method uses realized dispersion of successive changes; sigma = 1.95 days, so 1.28*sigma = 2.50 days. I widen to a 4-day half-width because a national disposition-weighted aggregate can move if June completions disproportionately clear older or newer cases, giving final implied bounds of 322 to 330 days after integer-day rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a June cleanup of older pending hearings or heavier disposition weight in slower offices, which would land above the interval if the first print is over 330 days. Downside risk is faster closure of newer cases or a mix shift toward quicker offices, which would land below the interval if the first print is under 322 days. Outside the interval would likely require an unusual case-mix shock rather than ordinary continuation of the May trend."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the leakage critique by removing the same-target prior Thesis record reference; accepted the optional clarification by labeling the +4-day update as the damped-trend component. The forecast now rests only on official SSA history and the stated persistence-plus-damped-trend method."
+      },
+      {
+        "kind": "forecast",
+        "point": 326,
+        "ciLow": 322,
+        "ciHigh": 330
+      }
+    ]
+  }
+]

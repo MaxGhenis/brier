@@ -1,0 +1,397 @@
+[
+  {
+    "slug": "ssa-hearings-average-processing-time-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "SSA hearings average processing time, Jun 2026",
+    "question": "Social Security Administration Office of Hearings Operations Hearing Office Workload Data, FY 2026 cumulative through the June 2026 reporting period, national disposition-weighted Average Processing Time in calendar days, first print",
+    "unit": "count",
+    "pointEstimate": 326,
+    "ciLow": 322,
+    "ciHigh": 330,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "SSA Office of Hearings Operations, Hearing Office Workload Data, FY2026",
+    "resolutionSourceUrl": "https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.html",
+    "resolutionRule": "Resolves to the national fiscal-year-to-date Average Processing Time in calendar days, the DSPN_AVGPT concept: average days from hearing request date to disposition date, as first published in SSA's Hearing Office Workload Data for the FY2026 reporting period ending in late June 2026. Match SSA integer-day rounding precision. Later revisions do not count.",
+    "dataPointId": "ssa.hearings.average_processing_time_days.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "October 2025 FY2026 cumulative average processing time, days",
+        "value": 279
+      },
+      {
+        "label": "November 2025 FY2026 cumulative average processing time, days",
+        "value": 288
+      },
+      {
+        "label": "December 2025 FY2026 cumulative average processing time, days",
+        "value": 296
+      },
+      {
+        "label": "January 2026 FY2026 cumulative average processing time, days",
+        "value": 302
+      },
+      {
+        "label": "February 2026 FY2026 cumulative average processing time, days",
+        "value": 309
+      },
+      {
+        "label": "March 2026 FY2026 cumulative average processing time, days",
+        "value": 314
+      },
+      {
+        "label": "April 2026 FY2026 cumulative average processing time, days",
+        "value": 318
+      },
+      {
+        "label": "May 2026 FY2026 cumulative average processing time, days",
+        "value": 322
+      }
+    ],
+    "drivers": [
+      "FY2026 cumulative average processing time has increased in every fetched month",
+      "Latest same-variant official point is May 2026 at 322 days",
+      "Recent monthly increments slowed to +4 days in April and +4 days in May",
+      "June adds one month to a fiscal-year-to-date denominator, muting one-month shocks",
+      "Catalog unit is count, but the substantive SSA metric is integer calendar days"
+    ],
+    "sourceContext": [
+      "https://www.ssa.gov/appeals/DataSets/02_HO_Workload_Data.html",
+      "https://www.ssa.gov/appeals/DataSets/05_Average_Processing_Time_Report.html",
+      "https://www.ssa.gov/appeals/DataSets/archive/archive_data_reports.html",
+      "https://www.ssa.gov/appeals/DataSets/data_dictionary.html",
+      "https://www.ssa.gov/policy/pub_schedule.html"
+    ],
+    "runAt": "2026-07-08T20:50:20Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "SSA OHO hearings average processing time, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the SSA Office of Hearings Operations Hearing Office Workload Data Average Processing Time field for the FY2026 cumulative report through June 2026. The variant is unadjusted administrative hearing-office workload data in calendar days, not average wait time until a hearing is held, not ALJ dispositions per day, and not a later archived revision. The catalog unit is count because the ledger unit taxonomy lacks a days unit."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA OHO Hearing Office Workload Data current page to verify the source family and current reporting period.",
+        "result": "Fetched current official page showing Hearing Office Workload Data FY 2026 for reporting purposes 09/27/2025 through 05/29/2026; the table has 4 workload indicators including Average Processing Time and the current report period ends 05/29/2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA OHO Hearing Office Average Processing Time Ranking Report current page for definition and current-period cross-check.",
+        "result": "Fetched current official ranking report for FY 2026, reporting purposes 09/27/2025 through 05/29/2026, Fiscal YTD Ending 05/29/2026, Workdays 165; the report defines the metric as average days until final disposition of the hearing request."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Hearings and Appeals Public Data Files data dictionary for exact field definition.",
+        "result": "Fetched data dictionary field DSPN_AVGPT as Disposition Average Processing Time, SMALLINT, average number of calendar days from Hearing Request Date to Disposition Date; fetched RPTG_PRD_ENDT as Reporting Period End Date and WRKDAYS as work days."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA archived FY2026 workload and average-processing-time reports to assemble the same-variant official reference class.",
+        "result": "Fetched same-variant FY2026 cumulative average processing time points: Oct 2025 279 days, Nov 2025 288, Dec 2025 296, Jan 2026 302, Feb 2026 309, Mar 2026 314, Apr 2026 318, May 2026 322."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Publishing Schedule and Hearings and Appeals archive index to check timing and the ledger by-date.",
+        "result": "Fetched SSA Publishing Schedule text stating anticipated release dates are based on current production plans and may be updated for production or data issues; fetched official Hearings and Appeals archive showing FY2026 monthly workload files through April 2026 while current pages show May 2026 through 05/29/2026. No exact OHO June placeholder was listed, so I keep the ledger resolutionDate 2026-07-31 as the target by-date rather than changing the target."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the relevant reference class is the same SSA OHO FY2026 cumulative average-processing-time series. The latest fetched level is 322 days, and the October-May sequence rose 43 days over 7 monthly updates, but the successive changes slowed from +9 and +8 early in the fiscal year to +4 and +4 in the latest 2 updates."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy split: the level anchor is May's 322 days; momentum remains upward because cumulative dispositions include older pending cases; one-off risk is mainly hearing-office mix and transfer effects; I found no official public source in this run indicating a June-only policy change that would mechanically break the trend."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence-plus-damped-trend prior uses May 2026 at 322 days and the recent official sample of successive changes +9, +8, +6, +7, +5, +4, +4 days. The mean change is 6.14 days, but the latest 2 changes average 4.0 days, so I update May by +4 days for a 326-day point. Interval method uses realized dispersion of successive changes; sigma = 2.04 days, so 1.28*sigma = 2.61 days. I widen to a 4-day half-width because the volatility sample has only 7 monthly changes and a disposition-weighted national aggregate can move if June completions disproportionately clear older or newer cases, giving final implied bounds of 322 to 330 days after integer-day rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a June cleanup of older pending hearings or heavier disposition weight in slow offices, which would land above the interval if the first print is over 330 days. Downside risk is faster closure of newer cases or a mix shift toward quicker offices, which would land below the interval if the first print is under 322 days. Outside the interval would most likely require a case-mix shock rather than ordinary continuation of the May trend."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer suggestions by removing the same-target prior-run agreement as evidentiary context and tightening the resolution rule around the ledger's DSPN_AVGPT first-print concept; rejected no critique items."
+      },
+      {
+        "kind": "forecast",
+        "point": 326,
+        "ciLow": 322,
+        "ciHigh": 330
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/prompt.md",
+        "sha256": "9ce34b01fcdecc434d5a872dd46cd4f28ffb5d17d9cfedb82b240270153328d2",
+        "bytes": 8420,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_command.json",
+        "sha256": "0322e717cd1170e07e173121aa0d64236e9eebff00087e37bc77fbdf7f2c36c6",
+        "bytes": 855,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "6e693ca672c3b1fcd637bc2093564f329b043ea4acf03a4b5536db8d65352d2b",
+        "bytes": 1154524,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_events.jsonl",
+        "sha256": "5fc978848dcfc2af0260f41420a6d5ef502f88c42451c090b7ebff3326315d4f",
+        "bytes": 1154601,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_last_message.txt",
+        "sha256": "d2bc91997c1e28836f808d3326eca64e555a16d23c80d8daaecb1ba8e7d5be33",
+        "bytes": 7887,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_trace.json",
+        "sha256": "cd41ab5e9fb69a22f88523c70379c8b0446eb3309d9ce32fb65fbb9ae125c947",
+        "bytes": 507,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_stdout.txt",
+        "sha256": "d2bc91997c1e28836f808d3326eca64e555a16d23c80d8daaecb1ba8e7d5be33",
+        "bytes": 7887,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_prompt.md",
+        "sha256": "6c9a0bf65fb7993987b4b5d2a81396ba97bc83f82375fc51074084e97a0e2a8f",
+        "bytes": 10728,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_command.json",
+        "sha256": "9a49d0986459a3f599e25c7c78233a9ee1d083815ddccf38a36960971cf39fb6",
+        "bytes": 851,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "3ef0e6759827ac4e4b98b626bc98edcb72b2e8fda952f78df6de7a6cd9c0a405",
+        "bytes": 933,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "2e698c31dad7b1c6e3fa6c47b11dca623e92f25e03b845b9817d65bfc3f55ca9",
+        "bytes": 955,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "c8c496261316683d9ce91b5a43fdc588660ec13467663cfb8f5f841158325cbf",
+        "bytes": 604,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "b5973defde22fefecd3510d88b133458c9e9aa074fb98cf58c287fe305a5dd3d",
+        "bytes": 504,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "c8c496261316683d9ce91b5a43fdc588660ec13467663cfb8f5f841158325cbf",
+        "bytes": 604,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/revision_prompt.md",
+        "sha256": "a9b92926977d3e8a4a9cf843cd38acdba39498658fc7fd56612f1e5cb166ded3",
+        "bytes": 17847,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/command.json",
+        "sha256": "3ecec9d672510958b9d2ffabb9f370f33c35b361cb27115a449806e99260bebc",
+        "bytes": 849,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/codex_stdout.jsonl",
+        "sha256": "9386a6eb0526ca577e52fd92f81f4f2235237a83b7347207894f81ca85fd5fc2",
+        "bytes": 8327,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/codex_events.jsonl",
+        "sha256": "0b37b520cc798e2df8b1f6943f8a57a9fe5cedf5634692b8da682a9073f52e13",
+        "bytes": 8349,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/codex_last_message.txt",
+        "sha256": "45dd2bdcb3d7404a85300dfb404165cbe8f8172995cdb8f53a649e08c1016d38",
+        "bytes": 7732,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/codex_trace.json",
+        "sha256": "bc63a91c15b19c4a3767dc19e2c27346cc8bb65e9aba08e14a881cbf92845841",
+        "bytes": 503,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/stdout.txt",
+        "sha256": "45dd2bdcb3d7404a85300dfb404165cbe8f8172995cdb8f53a649e08c1016d38",
+        "bytes": 7732,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/raw_response.txt",
+        "sha256": "45dd2bdcb3d7404a85300dfb404165cbe8f8172995cdb8f53a649e08c1016d38",
+        "bytes": 7732,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/parsed_cells.json",
+        "sha256": "667dc8363a4bc75ad2672c677fd3b28d774dc83a7ba1eb1f87372574c80a40fa",
+        "bytes": 8785,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/normalized_cells.json",
+        "sha256": "479a3b9907d29e90c4f24f1d9e12bedf1b8960c2157e4c0103e84b9c26562e7e",
+        "bytes": 8363,
+        "createdAt": "2026-07-08T20:50:13Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/validation.json",
+        "sha256": "a26961ff99622806e4a501e81543a29dd3b2a158d6728cf296e015ba39397ba5",
+        "bytes": 216,
+        "createdAt": "2026-07-08T20:50:13Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T20:50:13Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "6c5b105fb21b24fc9da51b3e7c80815553acbba6e4a128f10093b973f58c0bf8"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-50-13z-ssa-hearings-average-processing-time-days-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Remove or further downplay the sentence noting prior public Thesis runs had the same 326-day estimate, since same-target forecast agreement is not evidence and can read as catalog/trace circularity."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the resolver text, consider matching the ledger wording more exactly by emphasizing DSPN_AVGPT first print and leaving any office-row weighting fallback as an implementation note rather than part of the public resolution rule."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestions by removing the same-target prior-run agreement as evidentiary context and tightening the resolution rule around the ledger's DSPN_AVGPT first-print concept; rejected no critique items.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestions by removing the same-target prior-run agreement as evidentiary context and tightening the resolution rule around the ledger's DSPN_AVGPT first-print concept; rejected no critique items.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable with one cleanup around same-target prior-run wording to avoid any appearance of circularity."
+    }
+  }
+]
