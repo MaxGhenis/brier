@@ -135,7 +135,11 @@ export type PredictionRunActivityArtifactType =
   | "normalized_cell"
   | "validation_report"
   | "model_candidates"
-  | "manifest";
+  | "manifest"
+  // Derived-ensemble runs (scripts/median_rollout_ensemble.py) reference
+  // their inputs and exact output distribution as first-class artifacts.
+  | "constituent_manifest"
+  | "derived_distribution";
 
 export interface PredictionRunActivityArtifact {
   artifactType: PredictionRunActivityArtifactType;
