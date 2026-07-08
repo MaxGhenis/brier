@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T21:40:57Z",
+  "series": "ssa.dds.initial_disability_receipts",
+  "period": "2027-04",
+  "conditional": "A federal statutory or regulatory delay of the 2025 reconciliation law's Medicaid community-engagement compliance deadline is announced on or before 2027-03-31, pushing the effective date beyond April 2027.",
+  "targetContext": {
+    "catalogSlug": "ssdi-initial-applications-april-2027-work-req-deadline-delayed",
+    "conditional": "A federal statutory or regulatory delay of the 2025 reconciliation law's Medicaid community-engagement compliance deadline is announced on or before 2027-03-31, pushing the effective date beyond April 2027.",
+    "dataPointId": "ssa.dds.initial_disability_receipts.2027_04.first_print.work_req_deadline_delayed",
+    "period": "2027-04",
+    "series": "ssa.dds.initial_disability_receipts",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T21:40:57Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "9a3f121884c924795697dd63d084a6be4d76b04c2334a89a560f50e37c6e6868"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "model_prior",
+        "summary": "The target resolves from SSA-SA-MOWL Field I all-initial DDS receipts, but the forecast prior is built from annual DI claims received, which is a different workload concept and excludes SSI-only/concurrent structure relevant to Field I.",
+        "actionRequested": "Use the public SSA-SA-MOWL CSV monthly Field I history for Date Type MO as the primary time-series prior, or give a concrete technical reason it cannot be used and quantify the expected bias from using annual DI claims instead."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The stated base rate is recent DI annual claims converted to monthly equivalents, not the target series' own monthly all-initial receipts base rate.",
+        "actionRequested": "State the base rate from historical Field I MO monthly totals, preferably recent Aprils and recent five-week SSA months, before applying policy or trend updates."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval is widened from a three-observation annual-proxy sigma rather than realized monthly volatility in the target series, so the 187.4-267.4 bounds are weakly grounded.",
+        "actionRequested": "Recompute or justify the interval using historical monthly Field I realized volatility, April seasonality, five-week month variation, and recent forecast horizon error if available."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact step is present, but its historical sample and sigma come from only FY2022-FY2024 annual DI analogs rather than target-series observations.",
+        "actionRequested": "Revise the compact Prior/update/interval step to name the actual Field I historical sample, adjustment components, interval method, and implied bounds."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver, dataPointId, unit, conditional text, and first-print rule aligned with the ledger target."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether 2027-05-30 is a by-date despite falling on a weekend, if the catalog expects a conservative availability date."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios are concrete, but they would be stronger if tied to observed April or five-week SSA-month extremes in Field I history."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critiques to strengthen resolver clarity, label the annual DI workload prior as a downgraded proxy, state the coverage gap and likely bias direction as uncertain, and keep the interval widened for proxy and seasonality risk. Rejected replacing the forecast with exact Field I monthly history because those rows were not available in the draft evidence; no invented monthly target-series values are used.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critiques to strengthen resolver clarity, label the annual DI workload prior as a downgraded proxy, state the coverage gap and likely bias direction as uncertain, and keep the interval widened for proxy and seasonality risk. Rejected replacing the forecast with exact Field I monthly history because those rows were not available in the draft evidence; no invented monthly target-series values are used.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critiques to strengthen resolver clarity, label the annual DI workload prior as a downgraded proxy, state the coverage gap and likely bias direction as uncertain, and keep the interval widened for proxy and seasonality risk. Rejected replacing the forecast with exact Field I monthly history because those rows were not available in the draft evidence; no invented monthly target-series values are used.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critiques to strengthen resolver clarity, label the annual DI workload prior as a downgraded proxy, state the coverage gap and likely bias direction as uncertain, and keep the interval widened for proxy and seasonality risk. Rejected replacing the forecast with exact Field I monthly history because those rows were not available in the draft evidence; no invented monthly target-series values are used.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critiques to strengthen resolver clarity, label the annual DI workload prior as a downgraded proxy, state the coverage gap and likely bias direction as uncertain, and keep the interval widened for proxy and seasonality risk. Rejected replacing the forecast with exact Field I monthly history because those rows were not available in the draft evidence; no invented monthly target-series values are used.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critiques to strengthen resolver clarity, label the annual DI workload prior as a downgraded proxy, state the coverage gap and likely bias direction as uncertain, and keep the interval widened for proxy and seasonality risk. Rejected replacing the forecast with exact Field I monthly history because those rows were not available in the draft evidence; no invented monthly target-series values are used.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critiques to strengthen resolver clarity, label the annual DI workload prior as a downgraded proxy, state the coverage gap and likely bias direction as uncertain, and keep the interval widened for proxy and seasonality risk. Rejected replacing the forecast with exact Field I monthly history because those rows were not available in the draft evidence; no invented monthly target-series values are used.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable only after replacing the annual DI proxy with actual SSA-SA-MOWL monthly Field I history or explicitly documenting why that exact public series cannot be used."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/prompt.md",
+      "sha256": "a0579163c08b31ad07da6ddd8b5aa92a9d8c1b2199aa6696e022b0edbafbd41a",
+      "bytes": 8499,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_command.json",
+      "sha256": "65ff088a5db6c1541e256bf341cacf0c44df6e73e976f1d2eb0b900383e05ace",
+      "bytes": 849,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_codex_stdout.jsonl",
+      "sha256": "9685ad6b38b2cfb0c2bbd6ec6708b3144858370c7613e44248cdd422f14ddf92",
+      "bytes": 2292795,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_codex_events.jsonl",
+      "sha256": "5f78707a33cb33b6485e8f659a76d97396b322a08efb5ceb60ca2024e2c90aba",
+      "bytes": 2293042,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_codex_last_message.txt",
+      "sha256": "823868a47347a1727b02b7dc49f76ee2ed819e722cf7bde8a46999240ae12e43",
+      "bytes": 9896,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_codex_trace.json",
+      "sha256": "706246e47926b0b287c40f50a4d0d79670f819c3682fe2c050b27e0c2401ed7a",
+      "bytes": 509,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_stdout.txt",
+      "sha256": "823868a47347a1727b02b7dc49f76ee2ed819e722cf7bde8a46999240ae12e43",
+      "bytes": 9896,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_prompt.md",
+      "sha256": "990112b3bc25797f4a24ce21f5b79d0fb892ccf448bd235c9dbe8ed76bc0047f",
+      "bytes": 12645,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_command.json",
+      "sha256": "4c247fdcd38f27a40c04d84481a17537105d8d5c3df1291bd906a1d6cbc9f9ea",
+      "bytes": 845,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "a759a9621f18ea2d121d5992eb3a6e2f3210ee1f411121c7520e2389e9d50fbc",
+      "bytes": 3567,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_codex_events.jsonl",
+      "sha256": "f515103da3bebd25425bd8bea344bc8c5f1180c9bb6ecb92afe9034ee6b7f152",
+      "bytes": 3577,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_codex_last_message.txt",
+      "sha256": "302064db9351a08eb76fc4f80b6a1191909e4d3e239f905481a67827a09e0b2d",
+      "bytes": 2385,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_codex_trace.json",
+      "sha256": "9258cc28d498ce1d1ef60fbd9907f63df5b5f4184642b2b3c0b7c606381de134",
+      "bytes": 505,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_stdout.txt",
+      "sha256": "302064db9351a08eb76fc4f80b6a1191909e4d3e239f905481a67827a09e0b2d",
+      "bytes": 2385,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/revision_prompt.md",
+      "sha256": "431e7a1195e63c4cb7ec403ea335e0251a65732dd7a79cbfc75356409ecd2381",
+      "bytes": 21716,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/command.json",
+      "sha256": "89a49658f36a99976810f199af81d120f9029a5dd012de2780876d90958d0cba",
+      "bytes": 843,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/codex_stdout.jsonl",
+      "sha256": "4db560d3d8bfff3156eae5342749f06be24693230e2f95c327b5579cb6496ee9",
+      "bytes": 1119582,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/codex_events.jsonl",
+      "sha256": "f19c7f59f71409297a1a563cb3745179a2165fadc5a683df5724b9de0a105a96",
+      "bytes": 1119730,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/codex_last_message.txt",
+      "sha256": "ac4d5b249afaac30aa2641efeb2b1fbeffabb475d03dcd35e40d57de875864ab",
+      "bytes": 10840,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/codex_trace.json",
+      "sha256": "af42df422712373b5d0829d2ec7229da972252d54fcf5a696135d4ced10c99fe",
+      "bytes": 508,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/stdout.txt",
+      "sha256": "ac4d5b249afaac30aa2641efeb2b1fbeffabb475d03dcd35e40d57de875864ab",
+      "bytes": 10840,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/raw_response.txt",
+      "sha256": "ac4d5b249afaac30aa2641efeb2b1fbeffabb475d03dcd35e40d57de875864ab",
+      "bytes": 10840,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/parsed_cells.json",
+      "sha256": "340905ca73d42700cab0ecdf184926f96653779fb92380ea04a167a0efdf282a",
+      "bytes": 11865,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/normalized_cells.json",
+      "sha256": "79b667f2dd90f5dcb87a0fb5c09f4b9a65f1d9f343e8b8ce81d03a5c824b65b0",
+      "bytes": 11866,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/validation.json",
+      "sha256": "729a5bf39e4242fba98aebea20079a175501129d51abc7c525b6d24d1b002a87",
+      "bytes": 163,
+      "createdAt": "2026-07-08T21:40:57Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-40-57z-ssa-dds-initial-disability-receipts-2027-04/manifest.json",
+      "sha256": "0795d00d63c0cb555e4c9c23c9fac7819563e57373509ee075d1ef4330c12a33",
+      "bytes": 20565,
+      "createdAt": "2026-07-08T21:40:57Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "ssdi-initial-applications-april-2027-work-req-deadline-delayed",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}
