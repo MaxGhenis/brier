@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is publishable after minor tightening around the historical proxy method and interval uncertainty.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval is based only on six rounded-percentage proxy observations, so it may understate uncertainty from CMS rounded renewal shares and first-print component-count availability.",
+      "actionRequested": "State that the six-point sigma is based on due-count times rounded-percent proxies and add a small measurement/reporting uncertainty allowance or explain why none is needed."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The compact step names the prior and adjustment components, but the policy/reporting adjustment of -6,000 is not concretely tied to evidence.",
+      "actionRequested": "Either justify the -6,000 policy/reporting adjustment with a specific observed factor, or label it as a judgmental offset and explain why it is small."
+    }
+  ],
+  "optionalSuggestions": [
+    "Mention that the June 2026 release date is inferred from CMS monthly release cadence and prior June timing, not from a specific June 2026 release placeholder if none was found.",
+    "If actual CMS component counts are available in the public data table for recent months, prefer citing those over due-count times rounded-percent proxies."
+  ]
+}

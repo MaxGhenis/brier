@@ -1,0 +1,408 @@
+[
+  {
+    "slug": "cms-medicaid-pi-beneficiaries-renewed-total-california-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "California Medicaid Renewals, Jun 2026",
+    "question": "What will CMS first report as California's preliminary state-row total number of Medicaid/CHIP beneficiaries renewed in coverage for the June 2026 Eligibility Processing Data reporting month?",
+    "unit": "count",
+    "pointEstimate": 590000,
+    "ciLow": 530000,
+    "ciHigh": 650000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-25",
+    "resolutionSource": "CMS Medicaid and CHIP Eligibility Operations and Enrollment Snapshot Data",
+    "resolutionSourceUrl": "https://data.medicaid.gov/medicaid-chip-eligibility-enrollment-snapshot-data",
+    "resolutionRule": "Resolve to the first official CMS preliminary June 2026 California state-row value for total individuals renewed in Medicaid/CHIP coverage in the Eligibility Processing Data / Medicaid and CHIP Eligibility Operations and Enrollment Snapshot Data. Use the person count as published by CMS; ignore later updated quarterly vintages or subsequent revisions. If the public table exposes only component counts, sum ex parte renewals and form-based renewals for the California row. Round to whole beneficiaries.",
+    "dataPointId": "cms.medicaid_pi.beneficiaries_renewed_total.california.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-03 preliminary CA renewed proxy from 1,053,563 due * 57%",
+        "value": 600531
+      },
+      {
+        "label": "2026-02 preliminary CA renewed proxy from 1,003,079 due * 56%",
+        "value": 561724
+      },
+      {
+        "label": "2026-01 preliminary CA renewed proxy from 1,138,457 due * 51%",
+        "value": 580613
+      },
+      {
+        "label": "2025-12 preliminary CA renewed proxy from 1,097,366 due * 60%",
+        "value": 658420
+      },
+      {
+        "label": "2025-11 preliminary CA renewed proxy from 835,824 due * 64%",
+        "value": 534927
+      },
+      {
+        "label": "2025-10 preliminary CA renewed proxy from 864,933 due * 67%",
+        "value": 579505
+      }
+    ],
+    "drivers": [
+      "California renewal volume remains near 1.0 million due per month",
+      "California retention rate fell from late-2025 levels but stabilized near 56-57% in February-March 2026",
+      "June is a preliminary state-row Eligibility Processing Data target, not a national total or weighted average",
+      "CMS monthly snapshot timing points to late September first print for June data",
+      "Large pending share creates upside if processing clears before month end and downside if pending stays elevated"
+    ],
+    "sourceContext": [
+      "https://www.medicaid.gov/medicaid-and-chip-eligibility-operations-and-enrollment-snapshot",
+      "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-mar2026.pdf",
+      "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-feb2026.pdf",
+      "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-jan2026.pdf",
+      "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-dec2025.pdf",
+      "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-nov2025.pdf",
+      "https://www.medicaid.gov/resources-for-states/downloads/eligib-oper-and-enrol-snap-oct2025.pdf",
+      "https://data.medicaid.gov/medicaid-chip-eligibility-enrollment-snapshot-data"
+    ],
+    "runAt": "2026-07-08T00:00:00Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "California June 2026 Medicaid renewal count forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the California state row, reporting period 2026-06, preliminary first-print Eligibility Processing Data measure for total beneficiaries renewed in Medicaid/CHIP coverage. It is not the national total, not a weighted average, and not the later updated quarterly vintage."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened CMS Medicaid and CHIP Eligibility Operations and Enrollment Snapshot page for release timing and data-source description.",
+        "result": "CMS lists March 2026 released June 26, 2026; February 2026 released May 29, 2026; January 2026 released April 24, 2026; June 2025 released September 26, 2025; the page says CMS releases the Snapshot monthly and additional data quarterly in the last month of the quarter."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened March 2026 CMS snapshot PDF and read California renewal row.",
+        "result": "March 2026 California: total due for renewal 1,053,563; total renewed 57%; total disenrolled 21%; total pending 22%; renewed ex parte 43%; procedural disenrollment 19%; national total due 6,162,616."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened February 2026 and January 2026 CMS snapshot PDFs and read California renewal rows.",
+        "result": "February 2026 California: total due 1,003,079 and total renewed 56%. January 2026 California: total due 1,138,457 and total renewed 51%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened December, November, and October 2025 CMS snapshot PDFs and read California renewal rows.",
+        "result": "December 2025 California: total due 1,097,366 and total renewed 60%. November 2025 California: total due 835,824 and total renewed 64%. October 2025 California: total due 864,933 and total renewed 67%."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: recent California preliminary renewal-count proxies from the same CMS variant are 579,505, 534,927, 658,420, 580,613, 561,724, and 600,531 for October 2025 through March 2026, computed from official due counts times official rounded total-renewed percentages."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the six-month same-variant California proxy mean of 585,953 beneficiaries, with a small upward adjustment because March improved to about 600,531 and February-March were more stable than January. Level effect +4,000, momentum +6,000, and a judgmental policy/reporting offset -6,000 gives point 590,000; the offset is intentionally small because the observed evidence is mainly rounded-percent proxy history, not a concrete new California policy change. For this flow series, interval dispersion uses the six due-count-times-rounded-percent proxy values themselves: sigma = 41,800 beneficiaries; 80% base half-width = 1.28*41,800 = 53,500. I add a 6,500 beneficiary measurement/reporting allowance for rounded CMS percentages and possible first-print component-count availability, giving a rounded 60,000 half-width, so bounds are 590,000 - 60,000 = 530,000 and 590,000 + 60,000 = 650,000."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is California due volume returning above 1.1 million with retention near 60%, which would land above the interval; downside risk is a June cohort closer to 900,000 due or renewed share near January's 51%, which would land below the interval; outside the interval would most likely reflect a reporting-method change or a large shift in pending renewals."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique to identify the proxy-based sigma and add a small measurement/reporting allowance; accepted the critique to label the -6,000 policy/reporting adjustment as judgmental rather than evidence-driven; noted release timing is tied to the CMS monthly snapshot page and prior official release dates rather than a separately found June 2026 placeholder."
+      },
+      {
+        "kind": "forecast",
+        "point": 590000,
+        "ciLow": 530000,
+        "ciHigh": 650000
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/prompt.md",
+        "sha256": "75d06f8a04ce2069454e36b007d556eb971325ca62f3bd6f406510b7d8c47bf1",
+        "bytes": 7995,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_command.json",
+        "sha256": "0e59e67e7dab79162142e84bfb5d727fb35c3d46cb3d2343b00e5030651f36a4",
+        "bytes": 707,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "39cdaead549cc01d65cfdb848ba9498b29e9770eb6c957f7191d542257055360",
+        "bytes": 33143,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_codex_stderr.log",
+        "sha256": "e1ad75849b4ff52663f2b308b28c7410e43d77db7620dad726d0cc956f7ff480",
+        "bytes": 233,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_codex_events.jsonl",
+        "sha256": "c2581ffdde092ac9b3fe55df6bd44ac2846e72a009c6d581546352729dced8e0",
+        "bytes": 32996,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_codex_last_message.txt",
+        "sha256": "e68388f9656fa38cf933abf28a22e93cb619f7a090484330c281dff3c8a6e78b",
+        "bytes": 6372,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_codex_trace.json",
+        "sha256": "17eda2ade68efd0696dbefc572bada2b2c1bad63f4a5d1cb2a265bcfa497b470",
+        "bytes": 508,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_stdout.txt",
+        "sha256": "e68388f9656fa38cf933abf28a22e93cb619f7a090484330c281dff3c8a6e78b",
+        "bytes": 6372,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_stderr.txt",
+        "sha256": "8e4ca00fb3c9710e045c0d77738c1bfee250b5f02d0efb44a3a7c6aa9331009a",
+        "bytes": 248,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_prompt.md",
+        "sha256": "ace6c13e6c3f662305ab5d2462034f04b67a6e785a24e70dcecb062842eb4675",
+        "bytes": 8613,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_command.json",
+        "sha256": "5a9c7f9965ad7f12e8bcab46dccb91816e9d72259b02f7500d58042d9c6b4929",
+        "bytes": 703,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "2070696cd581323b1b0a136c96cd3213f674eddd48cb6fb9cb8c620b07d8c2e2",
+        "bytes": 1813,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "b6efab9de03bbd88342475d80516cc9da8755f412d7c281206df93ecaa15d1f7",
+        "bytes": 233,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "74f5f6934439053ba675fd63754ee8ed5ead45bbcb5661ea9deed17f0f6bc9d7",
+        "bytes": 1835,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "ca30eb2efb213941d22091b7cf193d40016ed6758fc4a40194711b67ce8e88e7",
+        "bytes": 1431,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "772db16f507c920d1f15050dffe7c086298d23be6f82d9bd0c33dd9d46fff091",
+        "bytes": 505,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "ca30eb2efb213941d22091b7cf193d40016ed6758fc4a40194711b67ce8e88e7",
+        "bytes": 1431,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "d803df61b02c98a1010e1bf342bff858f1d4fd48b0b686e34b98a2c6671d4084",
+        "bytes": 248,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/revision_prompt.md",
+        "sha256": "454ed58c7ef87f7c7f54576124493742560267a7612508d836dcaeeebc47f86d",
+        "bytes": 16734,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/command.json",
+        "sha256": "3ec46b4aeda81c26c04a6c617db6d4be9ab9af06c225419e6f70a6da0cf105e4",
+        "bytes": 701,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/codex_stdout.jsonl",
+        "sha256": "90911a6a58a3be9af78583ff7a21acbb19d3751e94847f05d065e0a275c5ca66",
+        "bytes": 7719,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/codex_stderr.log",
+        "sha256": "69dab6512b825f5f3930fdcf824a9395b756846f66abb634eeb4e64b502335fc",
+        "bytes": 233,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/codex_events.jsonl",
+        "sha256": "b8d84efa1e9f48869308173c06ad52150fef5c1490ef8310f6cfe194819ac119",
+        "bytes": 7741,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/codex_last_message.txt",
+        "sha256": "186a365d7748e2612ac05eaded3ed473884054d2a887f72475cf6f5b9205b1a3",
+        "bytes": 7152,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/codex_trace.json",
+        "sha256": "d0bd808ba2b7520f05d06e7143a32576da11e0bbffef52428f87f38e72ef5d40",
+        "bytes": 505,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/stdout.txt",
+        "sha256": "186a365d7748e2612ac05eaded3ed473884054d2a887f72475cf6f5b9205b1a3",
+        "bytes": 7152,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/stderr.txt",
+        "sha256": "7db9421f0ca639e5db6960585767bb1c7a203631b2b058462314518885afcfec",
+        "bytes": 248,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/raw_response.txt",
+        "sha256": "186a365d7748e2612ac05eaded3ed473884054d2a887f72475cf6f5b9205b1a3",
+        "bytes": 7152,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/parsed_cells.json",
+        "sha256": "ced1601d2c7281cfc4f54cd1f0ecddea292ed0a3b5a488d861247ee1d275fbd3",
+        "bytes": 8070,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/normalized_cells.json",
+        "sha256": "5b1ad86f7f4a4d7322d548994ee8a1d9f2d51311a4c0963c6444ca5d76b063c5",
+        "bytes": 7703,
+        "createdAt": "2026-07-08T16:48:03Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/validation.json",
+        "sha256": "d7954297fcc96edaff04fd365f036c4de6e1b5b13b4bceb8b3ddd0184690a7dc",
+        "bytes": 165,
+        "createdAt": "2026-07-08T16:48:03Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T16:48:03Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "36e02914917dcf924d2b4e94a81d5058d89ee118eecfa7467c1296f641661c47"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-48-03z-cms-medicaid-pi-beneficiaries-renewed-total-california-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval is based only on six rounded-percentage proxy observations, so it may understate uncertainty from CMS rounded renewal shares and first-print component-count availability.",
+          "actionRequested": "State that the six-point sigma is based on due-count times rounded-percent proxies and add a small measurement/reporting uncertainty allowance or explain why none is needed."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "prior_update_interval",
+          "summary": "The compact step names the prior and adjustment components, but the policy/reporting adjustment of -6,000 is not concretely tied to evidence.",
+          "actionRequested": "Either justify the -6,000 policy/reporting adjustment with a specific observed factor, or label it as a judgmental offset and explain why it is small."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Mention that the June 2026 release date is inferred from CMS monthly release cadence and prior June timing, not from a specific June 2026 release placeholder if none was found."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "If actual CMS component counts are available in the public data table for recent months, prefer citing those over due-count times rounded-percent proxies."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to identify the proxy-based sigma and add a small measurement/reporting allowance; accepted the critique to label the -6,000 policy/reporting adjustment as judgmental rather than evidence-driven; noted release timing is tied to the CMS monthly snapshot page and prior official release dates rather than a separately found June 2026 placeholder.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to identify the proxy-based sigma and add a small measurement/reporting allowance; accepted the critique to label the -6,000 policy/reporting adjustment as judgmental rather than evidence-driven; noted release timing is tied to the CMS monthly snapshot page and prior official release dates rather than a separately found June 2026 placeholder.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to identify the proxy-based sigma and add a small measurement/reporting allowance; accepted the critique to label the -6,000 policy/reporting adjustment as judgmental rather than evidence-driven; noted release timing is tied to the CMS monthly snapshot page and prior official release dates rather than a separately found June 2026 placeholder.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to identify the proxy-based sigma and add a small measurement/reporting allowance; accepted the critique to label the -6,000 policy/reporting adjustment as judgmental rather than evidence-driven; noted release timing is tied to the CMS monthly snapshot page and prior official release dates rather than a separately found June 2026 placeholder.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable after minor tightening around the historical proxy method and interval uncertainty."
+    }
+  }
+]

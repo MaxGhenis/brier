@@ -1,0 +1,365 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T16:43:27Z",
+  "series": "cms.medicaid_pi.beneficiaries_renewed_ex_parte.california",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-june-2026",
+    "country": "US",
+    "period": "2026-06",
+    "series": "cms.medicaid_pi.beneficiaries_renewed_ex_parte.california",
+    "targetUnit": "count"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T16:43:27Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "8dac227c5250d92dd5877f3365ff645cdeda1950e766fcc41169a427b95495e7"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The resolver text and first-print rule are specific, but the reasoning does not substantiate why the June 2026 preliminary first print resolves on 2026-09-25 rather than merely inferring it from the latest March/February release timing.",
+        "actionRequested": "Add the official release calendar, release placeholder, CMS schedule language, or explicit canonical-ledger basis that verifies 2026-09-25 as the resolution date for the June 2026 preliminary print."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The prior mixes one preliminary value with several updated-vintage rows even though the target is a preliminary first print; the draft acknowledges this but does not say whether same-vintage preliminary history was unavailable or why updated rows are preferable.",
+        "actionRequested": "Either rebuild the prior from preliminary first-print California rows where available, or explicitly state that preliminary historical rows were unavailable/not retained and justify the updated-row proxy."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval is based on month-to-month volatility from mixed preliminary/updated history, while first-print vintage noise is mentioned qualitatively but not separately quantified.",
+        "actionRequested": "State whether the 56,000 half-width intentionally covers both monthly movement and preliminary-vs-updated vintage error, or add a small explicit vintage-noise component to the interval method."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the exact CMS field used for the count if the schema exposes a stable column name."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add one short downside/upside example with approximate historical monthly renewal-batch magnitude if available."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the current point/interval/JSON fields unchanged unless the prior or interval method changes after the fixes."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by adding explicit September 25, 2026 schedule support, accepted the prior critique by clarifying why updated-vintage rows proxy unavailable adjacent preliminary rows, and accepted the interval critique by stating that the 56,000 half-width covers monthly movement plus vintage noise while keeping the draft point and interval unchanged.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by adding explicit September 25, 2026 schedule support, accepted the prior critique by clarifying why updated-vintage rows proxy unavailable adjacent preliminary rows, and accepted the interval critique by stating that the 56,000 half-width covers monthly movement plus vintage noise while keeping the draft point and interval unchanged.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by adding explicit September 25, 2026 schedule support, accepted the prior critique by clarifying why updated-vintage rows proxy unavailable adjacent preliminary rows, and accepted the interval critique by stating that the 56,000 half-width covers monthly movement plus vintage noise while keeping the draft point and interval unchanged.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by adding explicit September 25, 2026 schedule support, accepted the prior critique by clarifying why updated-vintage rows proxy unavailable adjacent preliminary rows, and accepted the interval critique by stating that the 56,000 half-width covers monthly movement plus vintage noise while keeping the draft point and interval unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by adding explicit September 25, 2026 schedule support, accepted the prior critique by clarifying why updated-vintage rows proxy unavailable adjacent preliminary rows, and accepted the interval critique by stating that the 56,000 half-width covers monthly movement plus vintage noise while keeping the draft point and interval unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by adding explicit September 25, 2026 schedule support, accepted the prior critique by clarifying why updated-vintage rows proxy unavailable adjacent preliminary rows, and accepted the interval critique by stating that the 56,000 half-width covers monthly movement plus vintage noise while keeping the draft point and interval unchanged.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The forecast is largely coherent, but publication should require explicit support for the September 25, 2026 first-print resolution date and clearer treatment of updated-vintage history versus the preliminary first-print target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/prompt.md",
+      "sha256": "9305e1362c5a2449209c3fab5db30ca3803218474213abe95565f198e97e355c",
+      "bytes": 8001,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_command.json",
+      "sha256": "63614636231dae6189910d9a353f0d02e2e0a506501223df6ac4e75103249cbb",
+      "bytes": 710,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "857de65f634350eb433819119532647d197eb9127653cd1c3a49cd77810c01de",
+      "bytes": 32261,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_codex_stderr.log",
+      "sha256": "301a14f6cfcccace379e145bf98eaed47b87bc820f1a83dca913b32aa321c0df",
+      "bytes": 233,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_codex_events.jsonl",
+      "sha256": "70485ee89eeeb49e80674e6a3335027f266c933a8d0fa173606660af570157fe",
+      "bytes": 32109,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_codex_last_message.txt",
+      "sha256": "3ea829d0eeea3c7e41dc49138eab93d62044cfde1414597aa4d5123a35fdf05d",
+      "bytes": 7583,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_codex_trace.json",
+      "sha256": "4832de09a05223832cc561913525a4e13102ebca48d818697c173acfc069b0cb",
+      "bytes": 507,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_stdout.txt",
+      "sha256": "3ea829d0eeea3c7e41dc49138eab93d62044cfde1414597aa4d5123a35fdf05d",
+      "bytes": 7583,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/draft_stderr.txt",
+      "sha256": "ae80b4eb8dd09c2474a4924e91e2ed71b69cec34e6bf831a6643a9d0b19b5e35",
+      "bytes": 248,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_prompt.md",
+      "sha256": "6b75431c2469dd7c553a3d79f6f4052cadecbe12590f891b153d0fa803a6db6c",
+      "bytes": 9830,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_command.json",
+      "sha256": "1ca613d9263b08a67801da9648dae1d0d5539ccf3275365ea9ee4e9115384e8a",
+      "bytes": 706,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "6a909637aed633aef36321d1a68b9018b26e497662f092ae91789a8b849e8865",
+      "bytes": 4703,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "7a519d3cd0f5d32545b4baae9a315aa1857d57854d6852366bc4d7787045c568",
+      "bytes": 233,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "b5f01679cf8ffaac3934e62632b6a5e2dcfa115942b3756135b62cfc093e7529",
+      "bytes": 4744,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "b60613644572f6252c5383730c6f58bb3fdb1a134c9a90b9288ef8e45fdd5f70",
+      "bytes": 2124,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "bff4d6d706bd9f96aed5db5c58228dbd9173f12e7e8aca97f7d0a8a9a4a5461b",
+      "bytes": 508,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "b60613644572f6252c5383730c6f58bb3fdb1a134c9a90b9288ef8e45fdd5f70",
+      "bytes": 2124,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "e8393a1cca454860fa1b1ed50aa11ea979c8f93364e71545e37f7dec0f6ca5b3",
+      "bytes": 248,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/revision_prompt.md",
+      "sha256": "cf96dd4c9e3e9de9b77df8ba96ee030579782bf7e8b6e78d8f66d421b4e9c79f",
+      "bytes": 18644,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/command.json",
+      "sha256": "48bef144fc04e8a1011f52bd9c2229a8bd5933ca3c896a427f6ab5e5cfcc28fb",
+      "bytes": 704,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/codex_stdout.jsonl",
+      "sha256": "b127caaf5ad38db9fd4ecf04da52156233be043326af67979a953b0f8ff5e92b",
+      "bytes": 9167,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/codex_stderr.log",
+      "sha256": "50d7b1475fabc68d822c7fbbcfe4ef7a9467ac21f022b79011b2a8d66ee2b2a0",
+      "bytes": 233,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/codex_events.jsonl",
+      "sha256": "ab38a864bbc8cce8beb38e41f6bedf927fce48f60f37029f20c25c1a78f7e27b",
+      "bytes": 9189,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/codex_last_message.txt",
+      "sha256": "3ee3856ef9faafea92665219afb4a4c9664c2f6a733a26b66c469f1a4e352088",
+      "bytes": 8594,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/codex_trace.json",
+      "sha256": "deb765273690248797d764bc4b8bf246f113da5b98f5c53637d059147cac4e82",
+      "bytes": 505,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/stdout.txt",
+      "sha256": "3ee3856ef9faafea92665219afb4a4c9664c2f6a733a26b66c469f1a4e352088",
+      "bytes": 8594,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/stderr.txt",
+      "sha256": "920c4b96e77f451b95454a5e5e2f74e26dde850cd0d32e9dd94bed62b729f5b3",
+      "bytes": 248,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/raw_response.txt",
+      "sha256": "3ee3856ef9faafea92665219afb4a4c9664c2f6a733a26b66c469f1a4e352088",
+      "bytes": 8594,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/parsed_cells.json",
+      "sha256": "4167cb43895ad02f96f3a3c8f2617f8d637f29dc606df6f7eda5d7cf1c0cd3e0",
+      "bytes": 9545,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/normalized_cells.json",
+      "sha256": "a134285490d9217fe2a6a0f7b5b7a757ef8914b2a94982579e8cbdeb9fb379ed",
+      "bytes": 9165,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/validation.json",
+      "sha256": "f0536cadbed50145850d0208af14310d5b1616b3b5b6a63c2cf49eeec856d5c8",
+      "bytes": 168,
+      "createdAt": "2026-07-08T16:43:27Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-43-27z-cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-2026-06/manifest.json",
+      "sha256": "792420d6920fb59495124c9c06eec113cc58bb935d9d8d5f301212c779d1f14f",
+      "bytes": 19607,
+      "createdAt": "2026-07-08T16:43:27Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "cms-medicaid-pi-beneficiaries-renewed-ex-parte-california-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

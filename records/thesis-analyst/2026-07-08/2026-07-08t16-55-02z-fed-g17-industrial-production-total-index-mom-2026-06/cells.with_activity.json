@@ -1,0 +1,373 @@
+[
+  {
+    "slug": "fed-g17-industrial-production-total-index-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US industrial production MoM, Jun 2026",
+    "question": "Federal Reserve G.17 Industrial Production: Total Index, seasonally adjusted, percent change from May 2026 to June 2026, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.2,
+    "ciLow": -0.5,
+    "ciHigh": 0.9,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-17",
+    "resolutionSource": "Federal Reserve G.17 Industrial Production and Capacity Utilization release",
+    "resolutionSourceUrl": "https://www.federalreserve.gov/releases/g17/20260717/",
+    "resolutionRule": "Resolve to the preliminary first-print June 2026 value for Total index, seasonally adjusted, Percent change, in the Federal Reserve G.17 Industrial Production and Capacity Utilization: Summary table first issued on July 17, 2026. Use the displayed one-decimal percent value; ignore later revisions and annual benchmark revisions.",
+    "dataPointId": "fed.g17.industrial_production.total_index_mom.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 current print",
+        "value": 0.1
+      },
+      {
+        "label": "2026-04 current print",
+        "value": 0.9
+      },
+      {
+        "label": "2026-03 current print",
+        "value": -0.3
+      },
+      {
+        "label": "2026-02 current print",
+        "value": 0.8
+      },
+      {
+        "label": "2026-01 current print",
+        "value": -0.4
+      }
+    ],
+    "drivers": [
+      "Recent total IP momentum is positive but choppy",
+      "Manufacturing was flat in May after April strength",
+      "Mining added materially in May and may mean-revert",
+      "Utilities are weather-sensitive and widen monthly dispersion",
+      "Capacity utilization remains below long-run average"
+    ],
+    "sourceContext": [
+      "https://www.federalreserve.gov/releases/g17/default.htm",
+      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+      "https://fred.stlouisfed.org/series/INDPRO"
+    ],
+    "runAt": "2026-07-08T16:55:28Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 total industrial production MoM"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the Federal Reserve G.17 Summary table, Total index, seasonally adjusted, Percent change, for June 2026. The resolution variant is the first preliminary monthly print, not later revised values; the expected archive page is the July 17, 2026 G.17 release."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Federal Reserve G.17 release dates page for the June 2026 reporting month release schedule.",
+        "result": "The G.17 monthly releases are issued at 9:15 a.m.; the 2026 schedule lists July 17, 2026 after June 15, 2026, so resolutionDate = 2026-07-17."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the Federal Reserve current G.17 Summary table for Total index, seasonally adjusted, 2017=100 and percent change.",
+        "result": "Total index levels and percent changes shown: Dec 2025 level 101.5 and change 0.5; Jan 2026 level 101.1 and change -0.4; Feb 2026 level 101.9 and change 0.8; Mar 2026 level 101.6 and change -0.3; Apr 2026 level 102.5 and change 0.9; May 2026 level 102.6 and change 0.1; May 2025 to May 2026 change 1.7."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the Federal Reserve current G.17 sector detail for the May 2026 release.",
+        "result": "May 2026 component percent changes: manufacturing 0.0, mining 1.3, utilities -0.4; capacity utilization total industry 76.2 versus long-run 1972-2025 average 79.4."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.lookup",
+        "call": "Used FRED as a public history mirror for exact INDPRO seasonally adjusted levels underlying the latest total-index changes.",
+        "result": "INDPRO exact levels: May 2026 102.6475, Apr 2026 102.5090, Mar 2026 101.6273, Feb 2026 101.9493, Jan 2026 101.1235; FRED lists the next release date as Jul 17, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: recent G.17 monthly total-index percent changes are centered near modest growth. The seven-observation volatility sample uses latest available current/revised G.17 values, not first-vintage-only history; that is a limitation for a strict first-print target but should still capture typical one-month total-index dispersion. The last seven values Nov 2025-May 2026 are -0.2, 0.5, -0.4, 0.8, -0.3, 0.9, and 0.1, giving a simple recent reference class mean about 0.2 percent, while the latest May reading of 0.1 percent and flat manufacturing argue against extrapolating April's 0.9 percent jump."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence/reference-class prior uses recent G.17 total-index percent changes Nov 2025-May 2026: -0.2, 0.5, -0.4, 0.8, -0.3, 0.9, 0.1; mean = 0.2 and sigma = 0.54 from the values themselves for this change series. Half-width = roughly 1.28*sigma = 1.28*0.54 = 0.69. I set point = 0.2, using +0.05 from positive April-May level momentum, -0.05 from flat May manufacturing and possible mining mean reversion, and 0.00 from utilities/weather uncertainty. Rounded first-print-style 80% bounds are 0.2 - 0.69 = -0.49 to 0.2 + 0.69 = 0.89, reported as -0.5 to 0.9."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a continued rebound in manufacturing or another mining gain like May's 1.3 percent, which would land above the interval if total IP prints above 0.9 percent. Downside risk is a reversal in mining plus weak durable manufacturing or adverse utilities output; that would land below the interval if total IP prints below -0.5 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the clarification that the short volatility sample uses current/revised values rather than first-vintage-only history; rejected adding a longer historical volatility check because no additional fetched longer-sample numbers were available in the draft evidence."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.2,
+        "ciLow": -0.5,
+        "ciHigh": 0.9
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/prompt.md",
+        "sha256": "a458fc3b6fd2af0289042d43215df0756f86223884a7131525ba25f319937723",
+        "bytes": 7915,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_command.json",
+        "sha256": "4755bc359c5a4413dc08809ba8925ec5494b8f52ab5cc4309d1abe499eefb07b",
+        "bytes": 698,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "f67ddf041ddb44a0ea3382c41d3a9803033143dba0fd93bc542ea206a7d8be88",
+        "bytes": 14639,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_codex_stderr.log",
+        "sha256": "28d12cc436415ac334dcc5f9dd8272ee0d00c2b8821e9e1f545c30b5c5489dbc",
+        "bytes": 233,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_codex_events.jsonl",
+        "sha256": "8ef4c7be610341ec443aaa44aff3a8c600d956966a3cca19a0102cb65c8d3989",
+        "bytes": 14601,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_codex_last_message.txt",
+        "sha256": "ab1a04d4a23ac101d48c4f273932cd47c99b1ed6c4e504a05192c6c417014fe5",
+        "bytes": 5201,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_codex_trace.json",
+        "sha256": "91f1611a9371c3f8dcdce0ffc62721b72e53301a8ee9ae8e20df942b37a48aa5",
+        "bytes": 508,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_stdout.txt",
+        "sha256": "ab1a04d4a23ac101d48c4f273932cd47c99b1ed6c4e504a05192c6c417014fe5",
+        "bytes": 5201,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_stderr.txt",
+        "sha256": "746867ef98ed4c95f208242017a59bc88db201f5799bcfd9ca08c0435cea79d3",
+        "bytes": 248,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_prompt.md",
+        "sha256": "42e0d585d651ee426ebb9df0235bc995590de2c3ce88d18632bfc43ccf26eef1",
+        "bytes": 7433,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_command.json",
+        "sha256": "402546f011513c52c8b34567e78f5690c60d240357af7f87084e320deef00bf6",
+        "bytes": 694,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "c26f0550a8c0dc0754a463e3f05639ad5abd7f5787248d204c0949a3fe594901",
+        "bytes": 1780,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "a5480072fa93c4a5375dcdfed8478c852a683cddc09dada0ccd02c9d6d6f1665",
+        "bytes": 233,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "1fcf531467f7fbc423cf2956c7a55306cfb302f74340904f54a30395923ae3a2",
+        "bytes": 1794,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "9fce41f2fe79f318186ab3b21f0e6e8bf0ad63346c821834854d36d1ef04ca0a",
+        "bytes": 497,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "69d95f56541ab927ae20ae4c2f44a65a5f573367472857b5b579f52dea8aff95",
+        "bytes": 501,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "9fce41f2fe79f318186ab3b21f0e6e8bf0ad63346c821834854d36d1ef04ca0a",
+        "bytes": 497,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "bf9c8eee39eac853c68dd089c872e3548fef051dd7e66c77c7a789d6f461eda9",
+        "bytes": 248,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/revision_prompt.md",
+        "sha256": "b9932d7eeea687454921f6e95a90b9c25fb1f3362d080e57b4fc40c1ba537049",
+        "bytes": 14549,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/command.json",
+        "sha256": "9813f02f961c5a0de1ab40211a26c7e5ec73891e3ae5c1c2ce136f6132777a2c",
+        "bytes": 692,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "971462ef760f47ed103ea9eb9a9c6dee91286dbcd9bbfba1b3d47e1f40f10a81",
+        "bytes": 6197,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/codex_stderr.log",
+        "sha256": "a44e6addfcc697055eb5e0e27e2632c3da9253ed2ec967b9dceafb147271a6f8",
+        "bytes": 233,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/codex_events.jsonl",
+        "sha256": "b3ca2d3cbf7acf6b67cb954974be1392549e9d52c020a867803ea715cf0dc7af",
+        "bytes": 6219,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/codex_last_message.txt",
+        "sha256": "ec712d5beef525f95605b83e8335a792ff0ee9d8e601f141f3ef08c6050f144e",
+        "bytes": 5646,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/codex_trace.json",
+        "sha256": "a053a38e841b195a89de43be5374385c8303aaf8c149fbd1f13c0fe2b9e0cc8b",
+        "bytes": 505,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/stdout.txt",
+        "sha256": "ec712d5beef525f95605b83e8335a792ff0ee9d8e601f141f3ef08c6050f144e",
+        "bytes": 5646,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/stderr.txt",
+        "sha256": "9e3016ad878c45fa746f1c1fe60f9fdb8e084b6d590279b2f70f07ba6807ec30",
+        "bytes": 248,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/raw_response.txt",
+        "sha256": "ec712d5beef525f95605b83e8335a792ff0ee9d8e601f141f3ef08c6050f144e",
+        "bytes": 5646,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/parsed_cells.json",
+        "sha256": "9a8249987b28e5ded86d9e38caaed0c83a99677ef247bf9c8edb870519abf096",
+        "bytes": 6495,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/normalized_cells.json",
+        "sha256": "f49a636d95ae8c9564edf14ddfca5546cb1275ab3d9d5eae6972f3e7ab149a27",
+        "bytes": 6157,
+        "createdAt": "2026-07-08T16:55:02Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/validation.json",
+        "sha256": "a1d3973df759fb574245741bb121f3b93db64695a868baaef3ab15930228bb01",
+        "bytes": 156,
+        "createdAt": "2026-07-08T16:55:02Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T16:55:02Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "a89ad844822630de848d9493c9c57b51bf9bb9e3abc1fca52a8768f8207391cc"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t16-55-02z-fed-g17-industrial-production-total-index-mom-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the seven-month volatility sample uses first-print or latest-revised/current values, since the target resolves to first print."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider adding a longer historical volatility check as a sensitivity note, because seven monthly observations is a thin interval basis."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the clarification that the short volatility sample uses current/revised values rather than first-vintage-only history; rejected adding a longer historical volatility check because no additional fetched longer-sample numbers were available in the draft evidence.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the clarification that the short volatility sample uses current/revised values rather than first-vintage-only history; rejected adding a longer historical volatility check because no additional fetched longer-sample numbers were available in the draft evidence.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable with no blocking issues; resolver, date, unit, first-print rule, prior/update/interval arithmetic, tails, and JSON fields are coherent."
+    }
+  }
+]
