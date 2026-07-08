@@ -109,6 +109,12 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
             h["value"] = int(h["value"])
     if len(cell["sourceContext"]) < 2:
         errs.append("needs >=2 source URLs")
+    # Mirror of trace-depth.test.ts: sourceContext entries are public URLs,
+    # never local repo paths (a sibling run's artifacts are context, not
+    # citable provenance).
+    for url in cell["sourceContext"]:
+        if not re.match(r"^https?://", str(url)):
+            errs.append(f"sourceContext entry is not an http(s) URL: {url}")
     private_hits = private_source_hits(cell)
     if private_hits:
         errs.append(
