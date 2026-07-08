@@ -1,0 +1,46 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.ppi.final_demand_monthly_change
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "bls-ppi-final-demand-monthly-change-june-2026"
+- targetUnit: "percent_growth"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+358c4c0657686805069022dccacfa07ce59d5431485c37925bd071cb2b0a7596
+
+# Draft forecast response
+{"slug":"bls-ppi-final-demand-monthly-change-june-2026","country":"US","type":"data","title":"US PPI Final Demand Monthly Change, June 2026","question":"What will the first-print seasonally adjusted monthly percent change be for the BLS Producer Price Index for final demand in June 2026?","unit":"percent_growth","pointEstimate":0.7,"ciLow":0.2,"ciHigh":1.2,"confidence":0.8,"resolutionDate":"2026-07-15","resolutionSource":"U.S. Bureau of Labor Statistics Producer Price Index news release","resolutionSourceUrl":"https://www.bls.gov/news.release/ppi.nr0.htm","resolutionRule":"Resolve to the first-print seasonally adjusted month-over-month percent change for the Producer Price Index for final demand for June 2026 as reported in the BLS Producer Price Indexes news release released on July 15, 2026. Use the rounded one-decimal percent value in the release text or Table A; ignore later revisions.","dataPointId":"bls.wp.WPSFD4.2026-06.first_print","historicalContext":[{"label":"2026-05 final demand m/m SA","value":1.1},{"label":"2026-04 final demand m/m SA","value":1.1},{"label":"2026-03 final demand m/m SA","value":0.7},{"label":"2026-02 final demand m/m SA","value":0.5},{"label":"2026-01 final demand m/m SA","value":0.6},{"label":"2025-12 final demand m/m SA","value":0.4}],"drivers":["April-May headline PPI persistence was very strong at 1.1 percent in both months","May final demand goods rose 2.8 percent and energy rose 10.7 percent","Services inflation slowed to 0.3 percent, limiting full carry-through","Reference-class mean for May 2025-May 2026 final demand monthly changes was 0.51 percent","Energy and gasoline shock likely persists partly into June but mean-reverts from May's jump"],"sourceContext":["https://www.bls.gov/schedule/news_release/ppi.htm","https://www.bls.gov/news.release/ppi.nr0.htm","https://download.bls.gov/pub/time.series/wp/wp.item","https://download.bls.gov/pub/time.series/wp/wp.series"],"runAt":"2026-07-08T02:56:23Z","thresholdLadder":{"thresholds":[-0.4,-0.2,0,0.2,0.4,0.5,0.7,0.8,1,1.2,1.4,1.6],"cumulativeProbabilities":[0.03,0.06,0.08,0.1,0.24,0.35,0.5,0.6,0.76,0.9,0.96,0.98]},"reasoning":[{"kind":"heading","text":"Forecast for June 2026 BLS PPI Final Demand"},{"kind":"text","text":"Framing and exact resolver: this targets the BLS Producer Price Index for final demand, seasonally adjusted, month-over-month percent change for June 2026, resolved on the first official print in the Producer Price Index news release. The variant is the headline final demand SA monthly percent change, not NSA 12-month change, not core, and not final demand goods or services."},{"kind":"tool","tool":"official.lookup","call":"BLS Producer Price Index release schedule lookup for the June 2026 reference month","result":"Fetched official schedule: reference month June 2026, release date Jul. 15, 2026, release time 08:30 AM; May 2026 was released Jun. 11, 2026 at 08:30 AM."},{"kind":"tool","tool":"official.lookup","call":"BLS current PPI news release headline and recent monthly total final demand values","result":"Fetched BLS May 2026 release: final demand rose 1.1 percent in May, 1.1 percent in April, and 0.7 percent in March; unadjusted 12-month final demand change was 6.5 percent."},{"kind":"tool","tool":"official.lookup","call":"BLS Table A reference class for total final demand monthly percent changes","result":"Fetched total final demand monthly changes: 2025 May 0.3, Jun 0.2, Jul 0.8, Aug -0.2, Sep 0.6, Oct 0.1, Nov 0.4, Dec 0.4, 2026 Jan 0.6, Feb 0.5, Mar 0.7, Apr 1.1, May 1.1."},{"kind":"tool","tool":"official.lookup","call":"BLS Table A component context for May 2026 final demand","result":"Fetched May 2026 components: final demand goods 2.8 percent, final demand foods 0.6 percent, final demand energy 10.7 percent, final demand goods less foods and energy 0.8 percent, final demand services 0.3 percent, final demand less foods, energy, and trade services 0.8 percent."},{"kind":"tool","tool":"official.lookup","call":"BLS item and series metadata check for target identity","result":"Fetched BLS metadata: WP item code 4 is Final demand; series WPSFD4 is the seasonally adjusted final-demand PPI series, with metadata current through 2026 M05."},{"kind":"text","text":"Base rate and reference class: the outside-view anchor is the May 2025-May 2026 BLS Table A sample of headline final-demand monthly changes, with mean 0.51 percent, before updating for the latest two 1.1 percent prints and component mix."},{"kind":"text","text":"Current-release update: the two-month headline run rate argues above the base rate, but May's goods shock was heavily energy and gasoline driven, so I do not carry the full April-May pace into June."},{"kind":"text","text":"Level, momentum, one-off, and policy-mechanism split: level is elevated because the 12-month final demand change reached 6.5 percent; momentum is strong in headline and core-ex-trade; the main one-off is May gasoline and energy; monetary-policy pressure is more likely to restrain future demand than the first June input-cost print."},{"kind":"math","text":"Ladder: P(X <= -0.4) = 0.03; P(X <= -0.2) = 0.06; P(X <= 0.0) = 0.08; P(X <= 0.2) = 0.10; P(X <= 0.4) = 0.24; P(X <= 0.5) = 0.35; P(X <= 0.7) = 0.50; P(X <= 0.8) = 0.60; P(X <= 1.0) = 0.76; P(X <= 1.2) = 0.90; P(X <= 1.4) = 0.96; P(X <= 1.6) = 0.98. Linear interpolation gives p10 = 0.2, p50 = 0.7, and p90 = 1.2, rounded to one decimal."},{"kind":"math","text":"Prior/update/interval: model is a 13-month historical base-rate plus two-month persistence prior. Historical sample is BLS Table A May 2025-May 2026 total final demand values [0.3, 0.2, 0.8, -0.2, 0.6, 0.1, 0.4, 0.4, 0.6, 0.5, 0.7, 1.1, 1.1], mean = 0.51 and sigma = 0.37. Adjustment components: +0.20 for April-May persistence and broad goods/core firmness, -0.05 for expected partial energy/gasoline mean reversion, +0.04 for services/core carry-through, giving 0.70. 80% interval method: values themselves are the change-series dispersion, so 80% half-width is roughly 1.28*sigma = 1.28*0.37 = 0.47; the ladder-implied half-width is about 0.5, effectively the same after one-decimal rounding, with final implied bounds 0.2 and 1.2."},{"kind":"text","text":"Counter-consideration: upside risk is another large June energy or gasoline pass-through plus firm portfolio-management and transportation services, which would land above the interval if headline final demand prints above 1.2 percent. Downside risk is a sharp reversal in gasoline, crude, or trade-service margins, which would land below the interval if headline final demand prints below 0.2 percent."},{"kind":"forecast","point":0.7,"ciLow":0.2,"ciHigh":1.2}]}

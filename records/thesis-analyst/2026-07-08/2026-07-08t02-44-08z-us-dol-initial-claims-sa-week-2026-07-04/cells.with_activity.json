@@ -1,0 +1,424 @@
+[
+  {
+    "slug": "initial-claims-week-2026-07-04",
+    "country": "US",
+    "type": "data",
+    "title": "US initial claims, week ending Jul 4 2026",
+    "question": "What will the U.S. Department of Labor report as the advance seasonally adjusted initial unemployment insurance claims for the week ending July 4, 2026, in the first print?",
+    "unit": "thousands",
+    "pointEstimate": 217,
+    "ciLow": 204,
+    "ciHigh": 231,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-09",
+    "resolutionSource": "U.S. Department of Labor Unemployment Insurance Weekly Claims news release",
+    "resolutionSourceUrl": "https://oui.doleta.gov/unemploy/claims_arch.asp",
+    "resolutionRule": "Resolve to the advance first-print seasonally adjusted Initial Claims figure for regular state programs, reported in thousands, for the week ending July 4, 2026 in the U.S. Department of Labor Unemployment Insurance Weekly Claims release published July 9, 2026. Use the first published print only; do not revise for later revisions.",
+    "dataPointId": "us.dol.initial_claims.sa.week_2026-07-04.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06-27 initial claims SA",
+        "value": 215
+      },
+      {
+        "label": "2026-06-20 initial claims SA",
+        "value": 216
+      },
+      {
+        "label": "2026-06-13 initial claims SA",
+        "value": 227
+      },
+      {
+        "label": "2026-06-06 initial claims SA",
+        "value": 230
+      },
+      {
+        "label": "2025-07-05 initial claims SA",
+        "value": 228
+      }
+    ],
+    "drivers": [
+      "Latest first-print level was low at 215k after a revised 216k prior week",
+      "Four-week average of 222k points modestly above the latest weekly print",
+      "Recent 2026 changes are volatile but centered near flat",
+      "Early-July seasonal adjustment risk is material around holiday weeks",
+      "No release-calendar exception applies before July 9, 2026"
+    ],
+    "sourceContext": [
+      "https://www.dol.gov/ui/data.pdf",
+      "https://oui.doleta.gov/unemploy/claims_arch.asp",
+      "https://oui.doleta.gov/unemploy/claims.asp"
+    ],
+    "runAt": "2026-07-08T02:44:47Z",
+    "thresholdLadder": {
+      "thresholds": [
+        198,
+        203,
+        208,
+        212,
+        215,
+        218,
+        221,
+        224,
+        228,
+        232,
+        236,
+        242
+      ],
+      "cumulativeProbabilities": [
+        0.04,
+        0.09,
+        0.18,
+        0.3,
+        0.42,
+        0.53,
+        0.64,
+        0.74,
+        0.84,
+        0.91,
+        0.96,
+        0.98
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DOL seasonally adjusted initial claims, week ending July 4, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the DOL Unemployment Insurance Weekly Claims advance seasonally adjusted Initial Claims figure for regular state programs, in thousands, for the week ending July 4, 2026, first print only. The variant is seasonally adjusted, not NSA, and all anchors below use the same SA initial-claims variant unless explicitly described as release-schedule context."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened current DOL UI Weekly Claims news release PDF at https://www.dol.gov/ui/data.pdf",
+        "result": "Fetched latest SA initial claims: week ending June 27, 2026 = 215 thousand; previous revised week ending June 20, 2026 = 216 thousand; change = -1 thousand; 4-week moving average = 222 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read DOL historical SA claims table in the same weekly claims PDF",
+        "result": "Fetched recent SA initial claims history: June 6, 2026 = 230 thousand; June 13, 2026 = 227 thousand; June 20, 2026 = 216 thousand; June 27, 2026 = 215 thousand; July 5, 2025 comparable early-July week = 228 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked DOL Office of Unemployment Insurance weekly claims archive publication schedule at https://oui.doleta.gov/unemploy/claims_arch.asp",
+        "result": "Fetched publication schedule: weekly UI Claims News Release is published each Thursday at 8:30 AM EST, with listed 2026 exception Wednesday November 25, 2026 at 8:30 AM EST; therefore Thursday July 9, 2026 is the verified release date for the July 4, 2026 week."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened DOL UI Weekly Claims Data page at https://oui.doleta.gov/unemploy/claims.asp to confirm the current official data surface",
+        "result": "Fetched page metadata: Unemployment Insurance Weekly Claims Data page updated July 7, 2026; page describes initial claims as measuring emerging unemployment and continued weeks claimed as the number of persons claiming unemployment benefits."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for a one-week-ahead SA initial-claims print, the most relevant reference class is the DOL weekly SA history in the current release table. Over the fetched 54 weekly values from June 21, 2025 through June 27, 2026, levels mostly sit around 200k-236k, with the latest four weeks 230k, 227k, 216k, and 215k and the latest 4-week average at 222k. The base rate is therefore a near-flat next print around the latest level to recent average, before holiday-week and noise adjustments."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: level anchors at 215k latest and 222k four-week average; momentum is slightly down over the last two weeks, from 227k to 216k to 215k; one-off risk is elevated because the target week includes the July 4 holiday and seasonal factors can be imperfect; policy mechanisms do not point to an abrupt claims regime change by this release."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior model starts from latest SA initial claims of 215k with the 4-week-average anchor at 222k and comparable 2025 early-July value of 228k; historical sample is the fetched DOL SA weekly table from June 21, 2025 through June 27, 2026. Adjustment components: +2k toward the recent average, -1k for short-term downward momentum, +1k for early-July seasonal-noise skew, giving a center near 217k. From successive weekly changes in the fetched table, sample sigma = 10.4 thousand, so 1.28*sigma = 13.3 thousand. A symmetric 80% interval around 217k would be about 204k to 230k; the ladder-implied 80% bounds are 204k to 231k, essentially the same width and not widened beyond the realized-dispersion reference."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= 198) = 0.04; P(X <= 203) = 0.09; P(X <= 208) = 0.18; P(X <= 212) = 0.30; P(X <= 215) = 0.42; P(X <= 218) = 0.53; P(X <= 221) = 0.64; P(X <= 224) = 0.74; P(X <= 228) = 0.84; P(X <= 232) = 0.91; P(X <= 236) = 0.96; P(X <= 242) = 0.98. Linear interpolation gives the 10th percentile between 203 and 208 at 203.6, rounded to 204; the median between 215 and 218 at 217.2, rounded to 217; and the 90th percentile between 228 and 232 at 231.4, rounded to 231."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a rebound in filings after holiday timing or state processing backlogs, especially if the latest 215k print understated the run rate; that would land above the interval if the print exceeds 231k. Downside risk is another unusually clean SA print with broad state declines or front-loaded holiday processing before the reference week, which would land below the interval if the print is under 204k. Outside the interval is most likely from seasonal-adjustment error around the July 4 week rather than from a true labor-market break."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the provenance critique by making the stable DOL claims archive the resolution URL while retaining the current-release PDF and claims data page in sourceContext; accepted the clarification that the 2025 comparison is the July 5, 2025 early-July week; rejected no substantive forecast recalibration because the critique did not change the fetched SA evidence or ladder arithmetic."
+      },
+      {
+        "kind": "forecast",
+        "point": 217,
+        "ciLow": 204,
+        "ciHigh": 231
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/prompt.md",
+        "sha256": "72f24d310cf044065f88b6654ae74f2cb4ee0ce1d2d26f0a4c902e038e215aa6",
+        "bytes": 9394,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_command.json",
+        "sha256": "73dea261d1128d4b415f80e3d1d48d11a0330c0855c4bd29a8a9d6094f5c1122",
+        "bytes": 846,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_codex_stdout.jsonl",
+        "sha256": "c9a73bc533e248579f34fd64366e1eb68b60e782b47617278fec05d9571fd0a9",
+        "bytes": 17163,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_codex_events.jsonl",
+        "sha256": "1c67f8c41287b4961d61c7c3fcec33e11a58b27fc109d69f6f43ddcc568f0160",
+        "bytes": 17212,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_codex_last_message.txt",
+        "sha256": "0008e4b1da3c04dc6caaf86105a690a643a5cd98ccaef71b7d20bee9cf757ea0",
+        "bytes": 6988,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_codex_trace.json",
+        "sha256": "4fbd14e7bb9e561c3a07bf2d2545c3e2dfa86abd6e370065a5418e9c1c484dda",
+        "bytes": 509,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_stdout.txt",
+        "sha256": "0008e4b1da3c04dc6caaf86105a690a643a5cd98ccaef71b7d20bee9cf757ea0",
+        "bytes": 6988,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_prompt.md",
+        "sha256": "ba41fd865ded33fe03f57debdd7ab2e6f1f913001d3794e21bd00083d31f46c8",
+        "bytes": 9177,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_command.json",
+        "sha256": "eb9b3c167fb0381693bc8e4134e252b725db5b2e020d53e29545b6b8a4b478a0",
+        "bytes": 842,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "3cff3f1e3121c8ba80b518c4575c91014e75b873e6c0f688b59423f089373417",
+        "bytes": 1577,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_codex_events.jsonl",
+        "sha256": "26ed916837e34e62dddc20bd0368d005387a15562df7ac9e7ee5989ce8f7ad77",
+        "bytes": 1593,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_codex_last_message.txt",
+        "sha256": "29a01a1c2bb7a83fc2756111e74c913daf543848b204a511c169826bb2988898",
+        "bytes": 869,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_codex_trace.json",
+        "sha256": "0b6c76140a4ad2a44ca4384b1e8fa00bb7edc0d00ddad0587b6888ff387ccea3",
+        "bytes": 504,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_stdout.txt",
+        "sha256": "29a01a1c2bb7a83fc2756111e74c913daf543848b204a511c169826bb2988898",
+        "bytes": 869,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/revision_prompt.md",
+        "sha256": "65e240c9fde93f10700e2867e53cae3ca8a2c106783dd311066ebef4392b4a5f",
+        "bytes": 18187,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/command.json",
+        "sha256": "949746fb5cc1b020032ca97e9e6ce7ce50ff1097bc52c41eeaedabf62ed91bb1",
+        "bytes": 840,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/codex_stdout.jsonl",
+        "sha256": "8e8b2ffcc63df9cf726950a4e2459e80a9cb2c044141fcd7c65b4e58d66da21e",
+        "bytes": 7978,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/codex_events.jsonl",
+        "sha256": "90c1ca674a471a02f7be852ce173163982378cfaffd9edd167da1454b3f369d6",
+        "bytes": 8000,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/codex_last_message.txt",
+        "sha256": "b1171ab856e9fce39f3399e3196ad81fddef9775099369bc7a689efe8f93823f",
+        "bytes": 7406,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/codex_trace.json",
+        "sha256": "4a2900f2967a0c627e6efa9f47905ad1b26aff9ae5a405753c840302f05c53d8",
+        "bytes": 504,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/stdout.txt",
+        "sha256": "b1171ab856e9fce39f3399e3196ad81fddef9775099369bc7a689efe8f93823f",
+        "bytes": 7406,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/raw_response.txt",
+        "sha256": "b1171ab856e9fce39f3399e3196ad81fddef9775099369bc7a689efe8f93823f",
+        "bytes": 7406,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/parsed_cells.json",
+        "sha256": "b2e440a845bd5127d269ed96d7d1ef032cb10b2d2159358fc0f4da9a10525bda",
+        "bytes": 8580,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/normalized_cells.json",
+        "sha256": "9eea5ef0b2c2380072ec652d1b402ef0e77a58231e076cefa9528bacfa8043c5",
+        "bytes": 8102,
+        "createdAt": "2026-07-08T02:44:08Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/validation.json",
+        "sha256": "cf5ad09c9dbb383ebf06b09010b8e0acb388428ea075366ad924aba2abac95e2",
+        "bytes": 131,
+        "createdAt": "2026-07-08T02:44:08Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T02:44:08Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "0de8666ebe198cbfee1e7bf9948175f499819a2c6a6778c654ca59f1f835a995"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-08z-us-dol-initial-claims-sa-week-2026-07-04/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The resolver is otherwise exact, but resolutionSourceUrl uses DOL's mutable latest-release PDF URL, which can change after July 9, 2026.",
+          "actionRequested": "Add the DOL claims archive page or a dated archived release URL in sourceContext/resolution evidence so the July 9, 2026 first print can be retrieved after data.pdf rolls forward."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the 2025 early-July comparison is the July 5, 2025 week from the historical table, distinct from the latest release's prior-year comparable value for June 27."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The tail scenarios are adequate, but naming one concrete state-processing or holiday-week mechanism on each side would make them slightly stronger."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the provenance critique by making the stable DOL claims archive the resolution URL while retaining the current-release PDF and claims data page in sourceContext; accepted the clarification that the 2025 comparison is the July 5, 2025 early-July week; rejected no substantive forecast recalibration because the critique did not change the fetched SA evidence or ladder arithmetic.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the provenance critique by making the stable DOL claims archive the resolution URL while retaining the current-release PDF and claims data page in sourceContext; accepted the clarification that the 2025 comparison is the July 5, 2025 early-July week; rejected no substantive forecast recalibration because the critique did not change the fetched SA evidence or ladder arithmetic.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the provenance critique by making the stable DOL claims archive the resolution URL while retaining the current-release PDF and claims data page in sourceContext; accepted the clarification that the 2025 comparison is the July 5, 2025 early-July week; rejected no substantive forecast recalibration because the critique did not change the fetched SA evidence or ladder arithmetic.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable with only minor provenance tightening around the mutable DOL PDF URL."
+    }
+  }
+]

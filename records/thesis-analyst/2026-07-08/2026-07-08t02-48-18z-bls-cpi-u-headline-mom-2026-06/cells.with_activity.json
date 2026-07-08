@@ -1,0 +1,205 @@
+[
+  {
+    "slug": "us-cpi-u-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI-U MoM, Jun 2026",
+    "question": "BLS CPI-U U.S. city average, all items, seasonally adjusted month-over-month percent change for June 2026, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.2,
+    "ciLow": -0.13,
+    "ciHigh": 0.53,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics, Consumer Price Index",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first-published seasonally adjusted month-over-month percent change in the all-items CPI-U for June 2026 stated in the BLS Consumer Price Index news release scheduled for July 14, 2026 at 08:30 AM. Use the BLS rounded headline percent change as first published; later seasonal-adjustment revisions or corrected historical tables do not change the resolved value.",
+    "dataPointId": "bls.cpi.u.headline_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 CPI-U all items SA MoM percent",
+        "value": 0.5
+      },
+      {
+        "label": "April 2026 CPI-U all items SA MoM percent",
+        "value": 0.6
+      },
+      {
+        "label": "March 2026 CPI-U all items SA MoM percent",
+        "value": 0.9
+      },
+      {
+        "label": "February 2026 CPI-U all items SA MoM percent",
+        "value": 0.3
+      },
+      {
+        "label": "June 2026 EIA weekly regular gasoline average, dollars per gallon",
+        "value": 4.05
+      }
+    ],
+    "drivers": [
+      "June retail gasoline reversal subtracts from headline CPI",
+      "Core CPI momentum remained moderate at 0.2 percent in May",
+      "Shelter inflation still adds positive monthly pressure",
+      "Food inflation near 0.2 percent supports a positive floor",
+      "Energy volatility keeps two-sided first-print risk wide"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/cpi/latest-numbers.htm",
+      "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=EMM_EPMR_PTE_NUS_DPG&f=W"
+    ],
+    "runAt": "2026-07-08T02:48:25Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast June 2026 headline CPI-U monthly change"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the BLS CPI-U U.S. city average all-items index, seasonally adjusted, month-over-month percent change for June 2026, first print. I use the same SA headline variant for the resolver, anchors, and historical values; series code is CUSR0000SA0 for the all-items CPI-U SA index."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS schedule of releases for the Consumer Price Index, June 2026 reference month",
+        "result": "Fetched official release calendar numbers: May 2026 CPI was scheduled Jun. 10, 2026 at 08:30 AM; June 2026 CPI is scheduled Jul. 14, 2026 at 08:30 AM; July 2026 CPI is scheduled Aug. 12, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS May 2026 CPI news release Table A for recent same-variant headline, core, food, energy, and shelter changes",
+        "result": "Fetched official recent CPI-U SA numbers: all items were 0.3 in February 2026, 0.9 in March, 0.6 in April, and 0.5 in May; all items less food and energy was 0.2 in May; food was 0.2 in May; energy was 3.9 in May; shelter was 0.3 in May."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS latest numbers page cross-check for the latest CPI-U all-items and core readings",
+        "result": "Fetched latest BLS numbers: CPI-U US City Average All Items was SA +0.5% in May 2026 and NSA +4.2% since May 2025; CPI-U All Items Less Food and Energy was SA +0.2% in May 2026 and NSA +2.9% since May 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "EIA weekly U.S. regular all-formulations gasoline prices for May, June, and early July 2026",
+        "result": "Fetched EIA gasoline numbers: May weekly values were 4.452, 4.500, 4.490, and 4.475 dollars per gallon; June weekly values were 4.305, 4.146, 4.052, 3.914, and 3.831; July 6 was 3.777; June averaged about 4.050 versus May 4.479, a -9.6% change."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent same-variant BLS headline CPI-U monthly changes available in the current release are 0.3, 0.2, 0.3, 0.9, 0.6, and 0.5 from December 2025 through May 2026, averaging about 0.47. That base rate is elevated by the March-May energy shock, so I do not simply persist the latest 0.5."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism split: core momentum near 0.2 plus food near 0.2 and shelter near 0.3 point to a positive underlying June print. The one-off adjustment is energy: the EIA gasoline drop from a 4.479 May average to a 4.050 June average should reverse much of May's gasoline CPI strength, pulling headline materially below the recent all-items average."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the recent official BLS headline CPI-U SA MoM reference class, December 2025-May 2026 values [0.3, 0.2, 0.3, 0.9, 0.6, 0.5], mean 0.467. Update components: underlying core/food/shelter contribution keeps the point positive around +0.35 to +0.40, while the EIA gasoline decline of -9.6% subtracts roughly 0.15 to 0.25 percentage point from headline, giving 0.20. Interval method: realized dispersion of the fetched change values themselves gives sigma = 0.258, so 1.28*sigma = 0.330; 0.20 - 0.33 = -0.13 and 0.20 + 0.33 = 0.53."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is broader tariff or services pass-through plus a smaller-than-expected CPI gasoline drag, which would land above the interval near 0.6 or higher. Downside risk is a larger seasonally adjusted gasoline reversal or airfares/used vehicles weakness, which would land below the interval near -0.2 or lower. Outside the interval would likely require energy or tariff effects larger than the recent component evidence implies."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.2,
+        "ciLow": -0.13,
+        "ciHigh": 0.53
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/prompt.md",
+        "sha256": "c5d208e37593dc7bba84be5af82c285fea9665d9ae2f25ac44bccb04fcc1a41a",
+        "bytes": 7828,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/command.json",
+        "sha256": "3f5668765f4798b046b9fb774b86dee63f1ed8691eb2e3f3cdb9b8b8df75f801",
+        "bytes": 830,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "0e008e210d559f1a80c8f701e46495dfec62a4fe98bbeefe4982b25b139b427a",
+        "bytes": 2386297,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/codex_events.jsonl",
+        "sha256": "199950f1dc00d1de18cef9c8ce5d58f8ca10b86398144787e3720e624247090f",
+        "bytes": 2386647,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/codex_last_message.txt",
+        "sha256": "eaf7182b23cfedbf911acb23833157edadd23a104a9ccdb79b04a371f7648d81",
+        "bytes": 5744,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/codex_trace.json",
+        "sha256": "9f9e7dc69bcbaa6eb010f9c4443be9cf11848c657496cf57f670e0221eed9eee",
+        "bytes": 509,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/stdout.txt",
+        "sha256": "eaf7182b23cfedbf911acb23833157edadd23a104a9ccdb79b04a371f7648d81",
+        "bytes": 5744,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/raw_response.txt",
+        "sha256": "eaf7182b23cfedbf911acb23833157edadd23a104a9ccdb79b04a371f7648d81",
+        "bytes": 5744,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/parsed_cells.json",
+        "sha256": "e8bd4a772b72f7b25509bcfa45b4b840bead731dfc4f0c3989073c25380ea560",
+        "bytes": 6600,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/normalized_cells.json",
+        "sha256": "147f4925c364aa280d32c8ebc167e06de087a4139febb03990dc1c902c991c84",
+        "bytes": 6259,
+        "createdAt": "2026-07-08T02:48:18Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/validation.json",
+        "sha256": "09f8a05007e925c4b490bc3a09383b72906f78dafc4809c5225399d1224617dc",
+        "bytes": 123,
+        "createdAt": "2026-07-08T02:48:18Z"
+      }
+    ]
+  }
+]

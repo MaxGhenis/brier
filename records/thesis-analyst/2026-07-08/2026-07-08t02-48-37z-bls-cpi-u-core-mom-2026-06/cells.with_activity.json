@@ -1,0 +1,211 @@
+[
+  {
+    "slug": "us-core-cpi-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US core CPI MoM, June 2026",
+    "question": "What will BLS first publish for the seasonally adjusted month-over-month percent change in CPI-U all items less food and energy, series CUSR0000SA0L1E, for June 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.28,
+    "ciLow": 0.18,
+    "ciHigh": 0.38,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index Summary",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.t01.htm",
+    "resolutionRule": "Resolve to the first-published BLS Consumer Price Index Summary for June 2026, Table 1/Table A row 'All items less food and energy', CPI-U U.S. city average, seasonally adjusted percent change from the preceding month. Use the initially released June 2026 value rounded as published; ignore later seasonal-adjustment revisions or database updates.",
+    "dataPointId": "bls.cpi.u.core_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "Jan 2026 core CPI-U MoM SA first print",
+        "value": 0.3
+      },
+      {
+        "label": "Feb 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      },
+      {
+        "label": "Mar 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      },
+      {
+        "label": "Apr 2026 core CPI-U MoM SA first print",
+        "value": 0.4
+      },
+      {
+        "label": "May 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      }
+    ],
+    "drivers": [
+      "Recent rounded core CPI prints center near 0.2 to 0.3 percent",
+      "April 2026 showed a 0.4 percent upside print remains plausible",
+      "Shelter remains positive but not sharply accelerating",
+      "Core excludes direct energy but may receive modest transport and goods pass-through",
+      "Vehicle and insurance categories can offset service firmness"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/news.release/cpi.t01.htm",
+      "https://data.bls.gov/timeseries/CUSR0000SA0L1E"
+    ],
+    "runAt": "2026-07-08T02:49:19Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast: June 2026 BLS core CPI-U month-over-month first print"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first official BLS print for CPI-U all items less food and energy, seasonally adjusted, for June 2026; all anchors here use the same SA core CPI-U variant, series CUSR0000SA0L1E/Table 1 rather than NSA, headline CPI, or later revised vintages."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official BLS CPI release calendar for the June 2026 reference month.",
+        "result": "BLS schedule lists the June 2026 CPI release for Jul. 14, 2026 at 08:30 AM; adjacent CPI releases include May 2026 on Jun. 10, 2026 and July 2026 on Aug. 12, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the latest BLS CPI Summary and Table 1/Table A core CPI row before the June release.",
+        "result": "BLS reported CPI-U all items less food and energy +0.2 percent in May 2026, +0.4 percent in Apr. 2026, +0.2 percent in Mar. 2026, +0.2 percent in Feb. 2026, and about +0.3 percent in Jan. 2026; the 12-month core rate was 2.9 percent in May 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS May 2026 component details relevant to core CPI momentum.",
+        "result": "BLS reported shelter +0.3 percent, owners' equivalent rent +0.3 percent, rent +0.4 percent, airline fares +2.7 percent, medical care +0.3 percent, motor vehicle insurance -1.7 percent, household furnishings -0.6 percent, and new vehicles -0.3 percent in May 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked the official BLS time-series identity for the SA core CPI-U index used to compute the same monthly-change variant.",
+        "result": "BLS series CUSR0000SA0L1E is CPI-U all items less food and energy, seasonally adjusted; recent mirrored index levels showed May 2026 336.121, Apr. 2026 335.423, Mar. 2026 334.165, Feb. 2026 333.512, and Jan. 2026 332.793."
+      },
+      {
+        "kind": "tool",
+        "tool": "run_clock",
+        "call": "Recorded the actual UTC runtime with date -u +%Y-%m-%dT%H:%M:%SZ.",
+        "result": "Runtime command returned 2026-07-08T02:49:19Z."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the Jan-May 2026 rounded first-print sequence is 0.3, 0.2, 0.2, 0.4, 0.2 percent, with mean 0.26 and median 0.2, so the outside-view center is a high-0.2 monthly core print that would usually publish near 0.3 after one-decimal rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Update from prior public Thesis fast runs: the June 17 and June 21 runs both centered on 0.3 with 0.1 to 0.5 intervals; this run keeps the same central view but tightens the interval mechanically around the recent realized dispersion instead of using a broader round band."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior from the Jan-May 2026 official rounded core CPI-U MoM sample is mean = (0.3+0.2+0.2+0.4+0.2)/5 = 0.26; adjustment components are +0.02 for energy/transport pass-through and core-services persistence, partly offset by soft vehicles, insurance, and furnishings, giving point = 0.28. Interval method uses realized dispersion of the change series values themselves: sigma = sqrt((((0.3-0.26)^2+(0.2-0.26)^2+(0.2-0.26)^2+(0.4-0.26)^2+(0.2-0.26)^2)/5)) = 0.08, so 80% half-width is roughly 1.28*sigma = 1.28*0.08 = 0.1024; 0.28 +/- 0.1024 gives 0.1776 to 0.3824, rounded to 0.18 to 0.38."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a stronger pass-through month in airfares, delivery-sensitive goods, medical care, or shelter that would land above the interval; downside risk is another month of vehicle, insurance, and household-goods softness that would land below the interval. Outside the interval would require either an April-like broad firming above roughly 0.38 or an unusually soft core print below roughly 0.18."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.28,
+        "ciLow": 0.18,
+        "ciHigh": 0.38
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/prompt.md",
+        "sha256": "602f5f7effb6771168a7ff9bd1ea14b33ef89197b83ed3e33a7b9b5f22e7b480",
+        "bytes": 7827,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/command.json",
+        "sha256": "6e5452fe0eeef157df97d8d2712a699b3ffc6db5c492cc467d49fbea2fcb516e",
+        "bytes": 826,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "2b1081f406a3578f8bb1f22cd42b8607a3ad9c971eb5412e40092d88ff262eb0",
+        "bytes": 54404,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/codex_events.jsonl",
+        "sha256": "3b73446912ff2e9f931ccbbb98dc3a5af09735d8751d0d4b927958d55d3fb63a",
+        "bytes": 54674,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/codex_last_message.txt",
+        "sha256": "711ff0e0f7ecaf3bfe27cb7105f306525cc254e6913d9578ad370b635ab12184",
+        "bytes": 5689,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/codex_trace.json",
+        "sha256": "55f6d229d294c9b649defc82df90bc1f05f095fafd7b322c069b2234eab36aed",
+        "bytes": 508,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/stdout.txt",
+        "sha256": "711ff0e0f7ecaf3bfe27cb7105f306525cc254e6913d9578ad370b635ab12184",
+        "bytes": 5689,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/raw_response.txt",
+        "sha256": "711ff0e0f7ecaf3bfe27cb7105f306525cc254e6913d9578ad370b635ab12184",
+        "bytes": 5689,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/parsed_cells.json",
+        "sha256": "19cc4e65295c8819debd1705a4852d2cc2efb74dd31a631dec9cccb94f6a2579",
+        "bytes": 6599,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/normalized_cells.json",
+        "sha256": "ee38757b3bb7c0bcac8e41caad615d0efa420145951eed7b3502b15627255542",
+        "bytes": 6236,
+        "createdAt": "2026-07-08T02:48:37Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/validation.json",
+        "sha256": "e4b03fdab3192e336366f9a83335aeee435025fc3196457831cb7f1599d0c67c",
+        "bytes": 126,
+        "createdAt": "2026-07-08T02:48:37Z"
+      }
+    ]
+  }
+]

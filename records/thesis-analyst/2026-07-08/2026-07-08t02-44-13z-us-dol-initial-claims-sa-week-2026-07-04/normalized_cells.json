@@ -1,0 +1,110 @@
+[
+ {
+  "slug": "initial-claims-week-2026-07-04",
+  "country": "US",
+  "type": "data",
+  "title": "US initial claims, week ending Jul. 4 2026",
+  "question": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims: advance seasonally adjusted initial claims for the week ending July 4, 2026, first print",
+  "unit": "thousands",
+  "pointEstimate": 218,
+  "ciLow": 204,
+  "ciHigh": 232,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-09",
+  "resolutionSource": "U.S. Department of Labor Employment and Training Administration UI Weekly Claims News Release",
+  "resolutionSourceUrl": "https://www.dol.gov/newsroom/releases/eta/eta20260709",
+  "resolutionRule": "Resolve to the advance seasonally adjusted initial claims figure for the week ending July 4, 2026, in the first U.S. Department of Labor UI Weekly Claims news release published on July 9, 2026. Convert the published count to thousands and ignore later revisions to that week or the prior week.",
+  "dataPointId": "us.dol.initial_claims.sa.week_2026-07-04",
+  "historicalContext": [
+   {
+    "label": "week ending 2026-06-27 SA initial claims, advance official release",
+    "value": 215
+   },
+   {
+    "label": "week ending 2026-06-20 SA initial claims, revised official release",
+    "value": 216
+   },
+   {
+    "label": "week ending 2026-06-13 SA initial claims, revised official release",
+    "value": 227
+   },
+   {
+    "label": "week ending 2026-06-06 SA initial claims, revised official release",
+    "value": 230
+   },
+   {
+    "label": "week ending 2025-07-05 SA initial claims, official table",
+    "value": 228
+   }
+  ],
+  "drivers": [
+   "Latest first-print SA initial claims were 215 thousand, below the 222 thousand four-week average",
+   "Recent June momentum eased from 230 thousand to 215 thousand over three weeks",
+   "Continuing claims near 1.814 million suggest slower hiring but not a layoff break",
+   "July 4 holiday timing can add seasonal-adjustment noise around the first print",
+   "Prior recorded Thesis target context confirmed the canonical slug and resolver, but its point estimate was not used as evidence"
+  ],
+  "sourceContext": [
+   "https://oui.doleta.gov/unemploy/claims_arch.asp",
+   "https://www.dol.gov/ui/data.pdf",
+   "https://www.dol.gov/newsroom/releases/eta/eta20260702"
+  ],
+  "runAt": "2026-07-08T02:44:18Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast US initial claims for week ending July 4, 2026"
+   },
+   {
+    "kind": "text",
+    "text": "Framing and exact resolver: this is the Department of Labor ETA Unemployment Insurance Weekly Claims advance seasonally adjusted initial claims series, in thousands, for the week ending July 4, 2026. The target is the first print only; later revisions are ignored. The variant is seasonally adjusted initial claims, not NSA claims, continuing claims, or four-week average."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "DOL OUI weekly claims archive page for publication schedule",
+    "result": "Fetched official schedule text: UI Weekly Claims News Release is published each Thursday at 8:30 AM EST, with only listed 2026 exception Wednesday November 25, 2026; therefore the week ending July 4, 2026 first print is scheduled Thursday July 9, 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "DOL July 2, 2026 UI Weekly Claims News Release headline seasonally adjusted data",
+    "result": "Fetched latest official SA initial claims: week ending June 27, 2026 advance figure 215,000; previous week revised to 216,000; 4-week moving average 222,000; week ending June 20 insured unemployment 1,814,000."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "DOL July 2, 2026 regular state programs table",
+    "result": "Fetched table values: Initial Claims (SA) June 27 215,000, June 20 216,000, June 13 227,000, prior year comparable 231,000; Initial Claims (NSA) June 27 213,550 and June 20 208,005."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "DOL seasonally adjusted US weekly UI claims history table",
+    "result": "Fetched reference history in thousands: June 6 2026 230, June 13 2026 227, June 20 2026 216, June 27 2026 215, and July 5 2025 228."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate/reference class: the 2026 weekly SA initial-claims reference class from January 3 through June 27 runs mostly in a 190 to 230 thousand range, with the latest four-week average at 222 thousand. Persistence from 215 is the main base rate, but the gap to the four-week average and holiday-week noise argue against forecasting another sharp decline."
+   },
+   {
+    "kind": "text",
+    "text": "Level, momentum, and mechanism split: level is low relative to the June four-week average; momentum is downward over June 6 to June 27; continuing claims at 1.814 million point to slower hiring rather than mass layoffs; the July 4 week can distort seasonal factors, so I add only a small rebound from the latest print."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: persistence prior from the latest official SA print is 215 thousand, historical sample is weekly SA initial-claims values from Jan. 3 to Jun. 27 2026, adjustment components are +2 thousand mean reversion toward the 222 thousand four-week average and +1 thousand holiday/seasonal-noise allowance, giving point 218. For interval, compute successive weekly changes from the fetched 2026 history; sigma = 10.66 thousand, so 1.28*sigma = 13.64 thousand. Rounded to whole thousands, 218 - 14 = 204 and 218 + 14 = 232."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration and falsification: upside risk is a holiday-week seasonal-adjustment miss or state-level layoff bulge that would land above the interval, over 232 thousand. Downside risk is continued low layoff activity plus favorable seasonal adjustment that would land below the interval, under 204 thousand. The central case is a modest rebound, not a break in the labor market."
+   },
+   {
+    "kind": "forecast",
+    "point": 218,
+    "ciLow": 204,
+    "ciHigh": 232
+   }
+  ]
+ }
+]

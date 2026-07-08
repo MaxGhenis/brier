@@ -1,0 +1,216 @@
+[
+  {
+    "slug": "us-core-cpi-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "Core CPI m/m, June 2026",
+    "question": "BLS CPI-U all items less food and energy, seasonally adjusted month-over-month percent change for June 2026, first print in the Consumer Price Index release.",
+    "unit": "percent_growth",
+    "pointEstimate": 0.24,
+    "ciLow": 0.13,
+    "ciHigh": 0.35,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics, Consumer Price Index",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolves to the first-published seasonally adjusted month-over-month percent change in CPI-U less food and energy (core) for June 2026 stated in the BLS Consumer Price Index news release scheduled for July 14, 2026. Later seasonal-adjustment revisions do not change the resolved value.",
+    "dataPointId": "bls.cpi.u.core_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "Nov 2025 core CPI m/m, SA, BLS Table A",
+        "value": 0.2
+      },
+      {
+        "label": "Dec 2025 core CPI m/m, SA, BLS Table A",
+        "value": 0.3
+      },
+      {
+        "label": "Jan 2026 core CPI m/m, SA, BLS Table A",
+        "value": 0.2
+      },
+      {
+        "label": "Feb 2026 core CPI m/m, SA, BLS Table A",
+        "value": 0.2
+      },
+      {
+        "label": "Mar 2026 core CPI m/m, SA, BLS Table A",
+        "value": 0.4
+      },
+      {
+        "label": "Apr 2026 core CPI m/m, SA, BLS Table A",
+        "value": 0.2
+      }
+    ],
+    "drivers": [
+      "Recent rounded BLS core CPI prints cluster around 0.2 to 0.3 percent with one 0.4 percent month.",
+      "Cleveland Fed nowcast points to 0.23 percent core CPI m/m for June 2026.",
+      "Shelter rose 0.3 percent in May and remains a steady positive core-services contribution.",
+      "Core goods were soft in May, limiting the pass-through impulse from energy and tariffs.",
+      "Airfares, medical care, communication, and vehicle insurance are volatile enough to move the rounded print by a tenth."
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/archives/cpi_06102026.htm",
+      "https://www.bls.gov/news.release/cpi.t01.htm",
+      "https://fred.stlouisfed.org/series/CPILFESL",
+      "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting"
+    ],
+    "runAt": "2026-07-08T02:49:02Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US June 2026 core CPI first-print forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first BLS Consumer Price Index news-release print for CPI-U all items less food and energy, seasonally adjusted month-over-month percent change for June 2026. The relevant release-table variant is CPI-U less food and energy, seasonally adjusted, Table A / series CUSR0000SA0L1E; revisions after the first print are ignored."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS Schedule of Releases for the Consumer Price Index for the June 2026 reference month.",
+        "result": "BLS schedule lists Reference Month June 2026, Release Date Jul. 14, 2026, Release Time 08:30 AM; it also lists May 2026 released Jun. 10, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched recent BLS CPI release Table A for all items less food and energy, seasonally adjusted month-over-month percent changes.",
+        "result": "BLS Table A shows core CPI m/m values: Nov 2025 0.2, Dec 2025 0.3, Jan 2026 0.2, Feb 2026 0.2, Mar 2026 0.4, Apr 2026 0.2, May 2026 0.2 percent; May core 12-month change was 2.9 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched BLS May 2026 release component context for core CPI.",
+        "result": "May 2026 details: all items less food and energy rose 0.2; shelter rose 0.3; owners' equivalent rent rose 0.3; rent rose 0.4; lodging away from home rose 0.4; airline fares rose 2.7; motor vehicle insurance declined 1.7 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.lookup",
+        "call": "Checked FRED CPILFESL as a public mirror of the BLS seasonally adjusted core CPI index level, not as the final resolver.",
+        "result": "FRED CPILFESL showed May 2026 336.121, Apr 2026 335.423, Mar 2026 334.165, Feb 2026 333.512, Jan 2026 332.793, updated Jun 10, 2026, next release Jul 14, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.nowcast.lookup",
+        "call": "Checked Cleveland Fed Inflation Nowcasting for the June 2026 CPI nowcast.",
+        "result": "Cleveland Fed page updated 07/07 showed June 2026 month-over-month nowcasts: CPI -0.06, Core CPI 0.23, PCE 0.10, Core PCE 0.28 percent; June year-over-year Core CPI nowcast was 2.85 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class base rate: recent official first-print core CPI m/m values are centered near 0.25 percent, while the latest BLS print and the Cleveland Fed June nowcast both sit closer to 0.2 than 0.3. That argues for a point just below the simple recent average, not a break to a new high or a zero-like print."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanisms: the 12-month core rate at 2.9 percent is still above the Fed target, shelter is persistent at roughly 0.3 percent monthly, and services volatility can lift core. Offsetting that, May core goods were soft and the June nowcast does not show a tariff or services shock large enough to push the central forecast to 0.4."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses the recent BLS rounded reference class Nov 2025-May 2026 values 0.2, 0.3, 0.2, 0.2, 0.4, 0.2, 0.2, whose mean is 0.243; update toward Cleveland Fed June core CPI nowcast 0.23 is -0.01 and a small shelter/services persistence adjustment is +0.01, giving 0.24. For this change/flow series, sigma = 0.079 from those realized monthly values; half-width = 1.28*sigma = 0.101, rounded to 0.11 for first-print and component volatility, so 0.24 - 0.11 = 0.13 and 0.24 + 0.11 = 0.35."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk would come from renewed airfare, medical-care, shelter, or tariff-sensitive goods strength and would land above the interval if June core prints around 0.4 or higher. Downside risk would come from another drop in vehicle insurance, household furnishings, new vehicles, or airfares and would land below the interval if the rounded release is 0.1 or lower. An outside the interval result requires a broad services/goods surprise rather than ordinary month-to-month noise."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.24,
+        "ciLow": 0.13,
+        "ciHigh": 0.35
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/prompt.md",
+        "sha256": "602f5f7effb6771168a7ff9bd1ea14b33ef89197b83ed3e33a7b9b5f22e7b480",
+        "bytes": 7827,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/command.json",
+        "sha256": "32edbe02adf9f9e06e6403590c84d04a12f548457c2548501b41f93f69f5ae71",
+        "bytes": 826,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "645591ec833c7798a1d28b6b2e83724afadb2638b79ed7a48e66f084d6a7d4e4",
+        "bytes": 1596659,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/codex_events.jsonl",
+        "sha256": "1787a21da63bda90e678ef3b689ff388de1c86943fb270f474d5cd740cdd3449",
+        "bytes": 1596782,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/codex_last_message.txt",
+        "sha256": "83b3a41d5d8d2d5d351d138e0f28d37edcc2375b71920e74416b09fb0008bde0",
+        "bytes": 6128,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/codex_trace.json",
+        "sha256": "51e9ffa2b7951862118a4bfa48bfc3c429f581310c21271d94088163d2f6ddee",
+        "bytes": 509,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/stdout.txt",
+        "sha256": "83b3a41d5d8d2d5d351d138e0f28d37edcc2375b71920e74416b09fb0008bde0",
+        "bytes": 6128,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/raw_response.txt",
+        "sha256": "83b3a41d5d8d2d5d351d138e0f28d37edcc2375b71920e74416b09fb0008bde0",
+        "bytes": 6128,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/parsed_cells.json",
+        "sha256": "2fb1082deafcc784a971322bd19f78aa5f67428398627dc395b7a05c3df2af01",
+        "bytes": 7079,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/normalized_cells.json",
+        "sha256": "164368948f3bf61bc330f54fee93ee72313f35743f3b6ff15ca4dbaedf434a0d",
+        "bytes": 6699,
+        "createdAt": "2026-07-08T02:48:54Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/validation.json",
+        "sha256": "e4b03fdab3192e336366f9a83335aeee435025fc3196457831cb7f1599d0c67c",
+        "bytes": 126,
+        "createdAt": "2026-07-08T02:48:54Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,115 @@
+[
+  {
+    "slug": "us-core-cpi-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US core CPI MoM, June 2026",
+    "question": "What will BLS first publish for the seasonally adjusted month-over-month percent change in CPI-U all items less food and energy, series CUSR0000SA0L1E, for June 2026?",
+    "unit": "percent_growth",
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index Summary",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.t01.htm",
+    "resolutionRule": "Resolve to the first-published BLS Consumer Price Index Summary for June 2026, Table 1/Table A row 'All items less food and energy', CPI-U U.S. city average, seasonally adjusted percent change from the preceding month. Use the initially released June 2026 value rounded as published; ignore later seasonal-adjustment revisions or database updates.",
+    "dataPointId": "bls.cpi.u.core_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "Jan 2026 core CPI-U MoM SA first print",
+        "value": 0.3
+      },
+      {
+        "label": "Feb 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      },
+      {
+        "label": "Mar 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      },
+      {
+        "label": "Apr 2026 core CPI-U MoM SA first print",
+        "value": 0.4
+      },
+      {
+        "label": "May 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      }
+    ],
+    "pointEstimate": 0.28,
+    "ciLow": 0.18,
+    "ciHigh": 0.38,
+    "confidence": 0.8,
+    "drivers": [
+      "Recent rounded core CPI prints center near 0.2 to 0.3 percent",
+      "April 2026 showed a 0.4 percent upside print remains plausible",
+      "Shelter remains positive but not sharply accelerating",
+      "Core excludes direct energy but may receive modest transport and goods pass-through",
+      "Vehicle and insurance categories can offset service firmness"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/archives/cpi_06102026.htm",
+      "https://www.bls.gov/news.release/cpi.t01.htm",
+      "https://fred.stlouisfed.org/series/CPILFESL",
+      "https://www.clevelandfed.org/indicators-and-data/inflation-nowcasting",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://data.bls.gov/timeseries/CUSR0000SA0L1E"
+    ],
+    "runAt": "2026-07-08T03:03:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-08T02:49:02Z, 2026-07-08T02:49:19Z, 2026-07-08T02:51:08Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-08T02:49:02Z\", \"2026-07-08T02:49:19Z\", \"2026-07-08T02:51:08Z\"]})",
+        "result": "{rollout_points: [0.24, 0.28, 0.28], rollout_widths: [0.22, 0.2, 0.2], q10: 0.18, q50: 0.28, q90: 0.38}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 0.18, q50 = 0.28, q90 = 0.38. Constituent points [0.24, 0.28, 0.28] with 80% widths [0.22, 0.2, 0.2]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.28,
+        "ciLow": 0.18,
+        "ciHigh": 0.38
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-54z-bls-cpi-u-core-mom-2026-06/manifest.json",
+        "sha256": "9019b47c9ce13a24f25e0ba9e1f9c806e8e561757c8e0dd5aea79174520bd2ac",
+        "bytes": 5597,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-37z-bls-cpi-u-core-mom-2026-06/manifest.json",
+        "sha256": "83812c74b5de010c7feba01779855f4e30ced7a1039397144bde7d5b515c2db9",
+        "bytes": 5593,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-50-22z-bls-cpi-u-core-mom-2026-06/manifest.json",
+        "sha256": "71b50a9c6724efcb536100467ae6f220000f2cb57e60144cf9dc091236959743",
+        "bytes": 5597,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-08/us-core-cpi-mom-june-2026-median3-2026-07-08t03-03-42z/distribution.json",
+        "sha256": "c7f6f1539187bba615fe12a34cd8c6943489da5a96f2e57af5ab3228a8645dc4",
+        "bytes": 11742,
+        "createdAt": "2026-07-08T03:03:42Z"
+      }
+    ]
+  }
+]

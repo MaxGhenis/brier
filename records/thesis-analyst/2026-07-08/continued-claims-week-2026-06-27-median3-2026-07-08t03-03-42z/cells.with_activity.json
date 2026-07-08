@@ -1,0 +1,114 @@
+[
+  {
+    "slug": "continued-claims-week-2026-06-27",
+    "country": "US",
+    "type": "data",
+    "title": "US continued claims, Jun 27 2026",
+    "question": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims: seasonally adjusted insured unemployment, also called continued claims, for the week ending June 27, 2026, first print",
+    "unit": "millions",
+    "resolutionDate": "2026-07-09",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration UI Weekly Claims News Release",
+    "resolutionSourceUrl": "https://www.dol.gov/ui/data.pdf",
+    "resolutionRule": "Resolve to the advance first-print regular-state-program seasonally adjusted insured unemployment number for the week ending June 27, 2026 in the DOL ETA Unemployment Insurance Weekly Claims release scheduled for July 9, 2026. Use the seasonally adjusted insured unemployment / continued claims variant, convert persons or thousands to millions as needed, and ignore later revisions or historical restatements.",
+    "dataPointId": "dol.eta.continued_claims.sa.week_2026-06-27.first_print",
+    "historicalContext": [
+      {
+        "label": "week ending 2026-06-20 SA insured unemployment, millions",
+        "value": 1.814
+      },
+      {
+        "label": "week ending 2026-06-13 SA insured unemployment, millions",
+        "value": 1.812
+      },
+      {
+        "label": "week ending 2026-06-06 SA insured unemployment, millions",
+        "value": 1.8
+      },
+      {
+        "label": "week ending 2026-05-30 SA insured unemployment, millions",
+        "value": 1.786
+      },
+      {
+        "label": "week ending 2026-05-23 SA insured unemployment, millions",
+        "value": 1.771
+      }
+    ],
+    "pointEstimate": 1.82,
+    "ciLow": 1.793,
+    "ciHigh": 1.843,
+    "confidence": 0.8,
+    "drivers": [
+      "latest official SA insured unemployment was 1.814 million for week ending June 20",
+      "recent same-series levels rose from 1.771 million on May 23 to 1.814 million on June 20",
+      "latest weekly SA continued-claims increase slowed to 0.002 million",
+      "SA initial claims for week ending June 27 were 215 thousand, down 1 thousand on the week",
+      "four-week average SA continued claims rose to 1.803 million, indicating upward momentum"
+    ],
+    "sourceContext": [
+      "https://oui.doleta.gov/unemploy/claims_arch.asp",
+      "https://www.dol.gov/ui/data.pdf",
+      "https://fred.stlouisfed.org/series/CCSA",
+      "https://www.dol.gov/newsroom/releases/eta/eta20260702",
+      "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "https://oui.doleta.gov/unemploy/claims.asp"
+    ],
+    "runAt": "2026-07-08T03:03:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-08T02:45:44Z, 2026-07-08T02:45:58Z, 2026-07-08T02:46:42Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-08T02:45:44Z\", \"2026-07-08T02:45:58Z\", \"2026-07-08T02:46:42Z\"]})",
+        "result": "{rollout_points: [1.82, 1.82, 1.817], rollout_widths: [0.054, 0.02, 0.054], q10: 1.793, q50: 1.82, q90: 1.843}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 1.793, q50 = 1.82, q90 = 1.843. Constituent points [1.82, 1.82, 1.817] with 80% widths [0.054, 0.02, 0.054]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.82,
+        "ciLow": 1.793,
+        "ciHigh": 1.843
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-22z-dol-eta-continued-claims-sa-week-2026-06-27/manifest.json",
+        "sha256": "8c2f807d25967a1a9a184228b26136de966dbc5c8804803a54465dab4458a8f9",
+        "bytes": 5955,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-46z-dol-eta-continued-claims-sa-week-2026-06-27/manifest.json",
+        "sha256": "67af953ca01f7befdfe515fbcfbd38d41fa388f66362ad5153c56a34d7a57d9f",
+        "bytes": 5955,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/manifest.json",
+        "sha256": "9e94dd12f8a88a6c7fb5a7011db16ea4fa63c62a47905416f93a909a603c698a",
+        "bytes": 5955,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-08/continued-claims-week-2026-06-27-median3-2026-07-08t03-03-42z/distribution.json",
+        "sha256": "8cc865a1e3d5a798f418f03b46fb41a11b2eebe5c1c6cdac5eda05fbbdd198a8",
+        "bytes": 12566,
+        "createdAt": "2026-07-08T03:03:42Z"
+      }
+    ]
+  }
+]

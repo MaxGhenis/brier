@@ -1,0 +1,313 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T02:56:16Z",
+  "series": "bls.ppi.final_demand_monthly_change",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bls-ppi-final-demand-monthly-change-june-2026",
+    "period": "2026-06",
+    "series": "bls.ppi.final_demand_monthly_change",
+    "targetUnit": "percent_growth"
+  },
+  "promptMode": "ladder",
+  "agent": {
+    "agent": "thesis.analyst.ladder",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T02:56:16Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "fb8d43a182fd029b6f91e24c6bb6fc8d48d5901540dd532d499edd1d42b08143"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider naming the official schedule URL directly in the resolver evidence, since ppi.nr0.htm is mutable after later releases."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The historical sample is short at 13 months; noting why longer pre-2025 volatility was not used would make the interval rationale stronger."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional suggestion to make clear that the release date evidence came from the official BLS PPI schedule page, and accepted the suggestion to explain why the 13-month historical sample was used; no reviewer required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional suggestion to make clear that the release date evidence came from the official BLS PPI schedule page, and accepted the suggestion to explain why the 13-month historical sample was used; no reviewer required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publication-ready with no blocking issues; it clearly defines the BLS first-print resolver, uses an outside-view prior, explains updates, derives an 80% interval, and keeps point/interval/JSON fields coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/prompt.md",
+      "sha256": "358c4c0657686805069022dccacfa07ce59d5431485c37925bd071cb2b0a7596",
+      "bytes": 9417,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_command.json",
+      "sha256": "95331e55ec6cb291d2c8d9cd564db93465a22fe2eed7e78194134994e97dc9b2",
+      "bytes": 849,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "21d504edcb86a10f6d1ff74d98e736aa10013f133f7d6b2a62b6c0d4bd6ad0c0",
+      "bytes": 1238426,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_events.jsonl",
+      "sha256": "e2de95b0c47dc7fea55ab78b4d70b1f67f56d8b83ac4f7daf04a55d226359117",
+      "bytes": 1238531,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_last_message.txt",
+      "sha256": "a64c4d8190661330a0b2086343642c3550c75287b3e2724adcd236f65a5a1808",
+      "bytes": 6673,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_codex_trace.json",
+      "sha256": "839afe556a993c67600a069b4a3e08cd2fd901e7e421ebab307116e99c7803e4",
+      "bytes": 508,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_stdout.txt",
+      "sha256": "a64c4d8190661330a0b2086343642c3550c75287b3e2724adcd236f65a5a1808",
+      "bytes": 6673,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_prompt.md",
+      "sha256": "ea132d4602511834a52f909232f163e831b7e6b440879f4799a610f4d5783a9e",
+      "bytes": 8885,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_command.json",
+      "sha256": "ae17d4c8e364855d75951aca6fad76e1bda9e240bcdfc4bb8cc9e036c3d0616b",
+      "bytes": 845,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "f1b4ee0965e97ce9f54786c5e5c38a82d99724963350a5aec254074a43cfe500",
+      "bytes": 876,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "727a1623624fbcd88af020931fa52e78b31a3ae6cca2a4570c9a07b4f5161c8e",
+      "bytes": 898,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "fc45d2c4a73b307cd77650c2f77f9627e61e8970170e73923f61fa4298b9273a",
+      "bytes": 547,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "f1b7d8302ff3fad85a8db13d932bdee5c2197ba9c7f246b48e753a9333e1ca3e",
+      "bytes": 504,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "fc45d2c4a73b307cd77650c2f77f9627e61e8970170e73923f61fa4298b9273a",
+      "bytes": 547,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/revision_prompt.md",
+      "sha256": "7e495b034e0b3568cd253d79ef6edbdc388e9161ca87ccae636df6279e1d0e77",
+      "bytes": 17573,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/command.json",
+      "sha256": "bb4309b8eb58a734e0fc3314e950530b49a4cad6da74855fe74684c24e4851ce",
+      "bytes": 843,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/codex_stdout.jsonl",
+      "sha256": "d4930874e9bd9e06e45e6fbb744551ee9241d789471f1ba478e91df9b5b9a2c6",
+      "bytes": 8199,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/codex_events.jsonl",
+      "sha256": "ec638f48a36e1feff3f4400103dd7a1161eb38421f3282cca30e9f13462e04d6",
+      "bytes": 8249,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/codex_last_message.txt",
+      "sha256": "1e80cfe03e54d7523c85d95432d48017e56ed5a78430ad31d5e3aafc1f430de1",
+      "bytes": 7191,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/codex_trace.json",
+      "sha256": "c5c6fa98391f16280c8de22d263dc2a243e9d232fe27ce9c76bb42b2d2f252fc",
+      "bytes": 505,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/stdout.txt",
+      "sha256": "1e80cfe03e54d7523c85d95432d48017e56ed5a78430ad31d5e3aafc1f430de1",
+      "bytes": 7191,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/raw_response.txt",
+      "sha256": "1e80cfe03e54d7523c85d95432d48017e56ed5a78430ad31d5e3aafc1f430de1",
+      "bytes": 7191,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/parsed_cells.json",
+      "sha256": "dee6805f35828335e64e682e70eaea0df95af032690716054690b91124f74ec7",
+      "bytes": 8494,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/normalized_cells.json",
+      "sha256": "fe9dd323a833b1ce27d24a8293052833dd16066252046c97a54483d260b99088",
+      "bytes": 7963,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/validation.json",
+      "sha256": "db00d874c5852cf411da7d6d0cad75d79afdf5322193083da399641fdeaf76bf",
+      "bytes": 146,
+      "createdAt": "2026-07-08T02:56:16Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-56-16z-bls-ppi-final-demand-monthly-change-2026-06/manifest.json",
+      "sha256": "b09cc4a64bdf42d045859d70d90e25c61b0d32c8c0669912a7f758fb670dca27",
+      "bytes": 14332,
+      "createdAt": "2026-07-08T02:56:16Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bls-ppi-final-demand-monthly-change-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

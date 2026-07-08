@@ -1,0 +1,118 @@
+[
+  {
+    "slug": "us-cpi-u-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI-U MoM June 2026",
+    "question": "BLS Consumer Price Index for All Urban Consumers, U.S. city average, all items, seasonally adjusted month-over-month percent change for June 2026, first print",
+    "unit": "percent_growth",
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics, Consumer Price Index Summary",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first-published seasonally adjusted month-over-month percent change in the all-items CPI-U for June 2026 in the BLS Consumer Price Index Summary released on July 14, 2026 at 8:30 a.m. ET. Use the headline table value rounded to one decimal percent as first published; ignore later seasonal-adjustment revisions.",
+    "dataPointId": "bls.cpi.u.headline_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 CPI-U all items SA MoM percent",
+        "value": 0.5
+      },
+      {
+        "label": "Apr 2026 CPI-U all items SA MoM percent",
+        "value": 0.6
+      },
+      {
+        "label": "Mar 2026 CPI-U all items SA MoM percent",
+        "value": 0.9
+      },
+      {
+        "label": "Feb 2026 CPI-U all items SA MoM percent",
+        "value": 0.3
+      },
+      {
+        "label": "Jun 29 2026 EIA regular gasoline dollars per gallon",
+        "value": 3.831
+      },
+      {
+        "label": "Jul 6 2026 EIA regular gasoline dollars per gallon",
+        "value": 3.777
+      }
+    ],
+    "pointEstimate": 0.2,
+    "ciLow": -0.1,
+    "ciHigh": 0.53,
+    "confidence": 0.8,
+    "drivers": [
+      "Recent headline CPI was energy-boosted in March through May",
+      "EIA gasoline prices fell through June, reversing part of the May energy boost",
+      "Core CPI remained moderate at 0.2 percent in May",
+      "Shelter inflation remained positive but not explosive",
+      "Food inflation was low-positive in May"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm",
+      "https://www.bls.gov/cpi/latest-numbers.htm",
+      "https://www.eia.gov/petroleum/gasdiesel/",
+      "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=EMM_EPMR_PTE_NUS_DPG&f=W"
+    ],
+    "runAt": "2026-07-08T03:03:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-08T02:46:59Z, 2026-07-08T02:47:33Z, 2026-07-08T02:48:25Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-08T02:46:59Z\", \"2026-07-08T02:47:33Z\", \"2026-07-08T02:48:25Z\"]})",
+        "result": "{rollout_points: [0.2, 0.4, 0.2], rollout_widths: [0.6, 0.7, 0.66], q10: -0.1, q50: 0.2, q90: 0.53}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = -0.1, q50 = 0.2, q90 = 0.53. Constituent points [0.2, 0.4, 0.2] with 80% widths [0.6, 0.7, 0.66]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.2,
+        "ciLow": -0.1,
+        "ciHigh": 0.53
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-46-49z-bls-cpi-u-headline-mom-2026-06/manifest.json",
+        "sha256": "2be89d2ecfc72b52104077c7fd053e46d42785b63d87a0f1de03f82948690517",
+        "bytes": 5659,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-06z-bls-cpi-u-headline-mom-2026-06/manifest.json",
+        "sha256": "b0cb597c7dfbe971e67c00aace8a20c407db9ea898c93df920d9ff522123efc9",
+        "bytes": 5659,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-48-18z-bls-cpi-u-headline-mom-2026-06/manifest.json",
+        "sha256": "d17ae011e301a04f2a4768a2426e907a1d853653be811d201c06aef64f02c04d",
+        "bytes": 5659,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-08/us-cpi-u-mom-june-2026-median3-2026-07-08t03-03-42z/distribution.json",
+        "sha256": "d5073314fab32d88075fcb6f044447eced4625c2ad769943b0a9c08727c288f0",
+        "bytes": 11972,
+        "createdAt": "2026-07-08T03:03:42Z"
+      }
+    ]
+  }
+]

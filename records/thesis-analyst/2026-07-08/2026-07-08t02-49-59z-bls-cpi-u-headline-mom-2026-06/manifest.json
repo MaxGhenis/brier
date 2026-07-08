@@ -1,0 +1,312 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T02:49:59Z",
+  "series": "bls.cpi.u.headline_mom",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-cpi-u-mom-june-2026",
+    "period": "2026-06",
+    "series": "bls.cpi.u.headline_mom"
+  },
+  "promptMode": "ladder",
+  "agent": {
+    "agent": "thesis.analyst.ladder",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T02:49:59Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "66c49c25e5717313bb9271bd11262bf7ac7b29f1b43d0c54b48f412d921d9ef0"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that the persistence/base-rate prior is the chosen simple time-series prior, or add one sentence ruling out a richer model because the release is near-term and dominated by energy component timing."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that the volatility estimate uses only six recent monthly prints, so the interval is intentionally tied to recent realized volatility rather than a long-run CPI distribution."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarifications by naming the simple persistence/base-rate time-series prior, ruling out a richer model for this near-term energy-timing forecast, and stating that the volatility estimate is intentionally based on six recent monthly prints rather than a long-run CPI distribution; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarifications by naming the simple persistence/base-rate time-series prior, ruling out a richer model for this near-term energy-timing forecast, and stating that the volatility estimate is intentionally based on six recent monthly prints rather than a long-run CPI distribution; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable with a clear BLS first-print resolver, coherent point/interval fields, and no evident leakage or unit ambiguity."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/prompt.md",
+      "sha256": "666e7ff738236974f9288a162f9241fe975f0a846b37530f80d64ba0abb2b6b6",
+      "bytes": 9350,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_command.json",
+      "sha256": "f35eee3fc2fa1b53c30d6b558b52b8db1e794a882a6effbeb0b93f3d7348cca5",
+      "bytes": 836,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "19e55b43b64825fd907cbafbb26192fd78b55cb62c6b5f4fc28f00e460dbc985",
+      "bytes": 1250061,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_codex_events.jsonl",
+      "sha256": "0f18e420d34ae2bc90b2484858113b0bcea60f4c6ce2bd11b44517b701e0ccde",
+      "bytes": 1250469,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_codex_last_message.txt",
+      "sha256": "70eac5e80addb17a20753be0c1565a77c8aa1127f5801f286eb7521232e1499e",
+      "bytes": 5983,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_codex_trace.json",
+      "sha256": "2435e7b36fe1b1ce3b10aa0d4871ac9cd9732efedad35484e6b663da4cf42d19",
+      "bytes": 509,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_stdout.txt",
+      "sha256": "70eac5e80addb17a20753be0c1565a77c8aa1127f5801f286eb7521232e1499e",
+      "bytes": 5983,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_prompt.md",
+      "sha256": "2b7330d7c183a7591681bd2eb884071309b4f8e2baa5271df892cd38e4a47043",
+      "bytes": 8128,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_command.json",
+      "sha256": "022a4b7d5dd2b6672863e84e860f487b8ab338f1a4afeffd9da240d149c20937",
+      "bytes": 832,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "3e9e6abd9b07c9718e8d4f1fa99c99a3e9f750a90b8a8906122c7c28ac63f00e",
+      "bytes": 1919,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "b22b44650885344add51f658f7c7e627bb2e6cdb31fcf80219435539ff1901c5",
+      "bytes": 1933,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "dfa1fe7bc2af654cfa1c44f7f8f2ce6d21f2a27af05a0a4be298570db0c2d5eb",
+      "bytes": 604,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "06d8782775271fe04608428d33b0a1f19f43778dadbc85c4a8786f0ac0dc92bb",
+      "bytes": 504,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "dfa1fe7bc2af654cfa1c44f7f8f2ce6d21f2a27af05a0a4be298570db0c2d5eb",
+      "bytes": 604,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/revision_prompt.md",
+      "sha256": "09dc80ec73c98b501432e59cdb31b455882fdf1969c4b88baa9cc5dc12b00ce0",
+      "bytes": 16873,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/command.json",
+      "sha256": "7cd5cc11cce9f9ed5ab18a304a8d1ed41e7e0ea983c3233824252eb8c28a1b86",
+      "bytes": 830,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/codex_stdout.jsonl",
+      "sha256": "37351fbb11d274accc3b58f49c7c9f70291905f1a007d1e37d825416706bef2d",
+      "bytes": 7526,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/codex_events.jsonl",
+      "sha256": "bd3655e3c59648b5b86d4aa473cc84740b49a12c3160ecb02dc15b6211a79087",
+      "bytes": 7576,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/codex_last_message.txt",
+      "sha256": "38e68bb6e7c7ef1b33b51d4732f2782d9b8647981e61ff30178a0fa4a4e91697",
+      "bytes": 6554,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/codex_trace.json",
+      "sha256": "3381157b530241f60827b3f2e7b43517cc22492015f5f2327f31edb29174fa2a",
+      "bytes": 505,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/stdout.txt",
+      "sha256": "38e68bb6e7c7ef1b33b51d4732f2782d9b8647981e61ff30178a0fa4a4e91697",
+      "bytes": 6554,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/raw_response.txt",
+      "sha256": "38e68bb6e7c7ef1b33b51d4732f2782d9b8647981e61ff30178a0fa4a4e91697",
+      "bytes": 6554,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/parsed_cells.json",
+      "sha256": "709dc9adc1b520bc3008b0afc03da51c04cada8e991109b97e749b284e420e29",
+      "bytes": 7724,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/normalized_cells.json",
+      "sha256": "fa0aaf7a8f7635b68f3a7cd912dbd0e3762726e6f9e8bfa91fad80d08b20f762",
+      "bytes": 7248,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/validation.json",
+      "sha256": "09f8a05007e925c4b490bc3a09383b72906f78dafc4809c5225399d1224617dc",
+      "bytes": 123,
+      "createdAt": "2026-07-08T02:49:59Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-49-59z-bls-cpi-u-headline-mom-2026-06/manifest.json",
+      "sha256": "fa2392e185e007b09ac92cd52c6a8c08607f6ce33a55574460a70debe39694c4",
+      "bytes": 13998,
+      "createdAt": "2026-07-08T02:49:59Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-cpi-u-mom-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

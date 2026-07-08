@@ -1,0 +1,111 @@
+[
+  {
+    "slug": "bls-ppi-final-demand-monthly-change-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US PPI Final Demand Monthly Change, June 2026",
+    "question": "What will BLS first report as the seasonally adjusted monthly percent change in the Producer Price Index for final demand for June 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.6,
+    "ciLow": 0.1,
+    "ciHigh": 1.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-15",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Producer Price Index news release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/ppi.t01.htm",
+    "resolutionRule": "Resolve to the first published BLS Producer Price Indexes release for June 2026, specifically Table 1 or the release summary value for the seasonally adjusted month-over-month percent change in the Producer Price Index for final demand, series WPSFD4. Use the rounded one-decimal percent value first released on July 15, 2026; ignore later revisions, archived backfills, or corrected historical values unless BLS corrects the first-release June 2026 table before the initial public release is complete.",
+    "dataPointId": "bls.wp.WPSFD4.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 final demand m/m SA",
+        "value": 1.1
+      },
+      {
+        "label": "2026-04 final demand m/m SA",
+        "value": 1.1
+      },
+      {
+        "label": "2026-03 final demand m/m SA",
+        "value": 0.7
+      },
+      {
+        "label": "2026-02 final demand m/m SA",
+        "value": 0.5
+      },
+      {
+        "label": "2026-01 final demand m/m SA",
+        "value": 0.6
+      }
+    ],
+    "drivers": [
+      "May headline PPI final demand remained very high at 1.1 percent after April's 1.1 percent",
+      "Final demand energy rose 10.7 percent in May and gasoline rose 23.4 percent, so some energy impulse can persist but is unlikely to repeat fully",
+      "May final demand services rose 0.3 percent, a softer services anchor than the goods shock",
+      "The 13-month reference class mean from May 2025 through May 2026 was 0.51 percent",
+      "The target is the seasonally adjusted final-demand variant, series WPSFD4, not NSA PPI or a core/special aggregate"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/ppi.htm",
+      "https://www.bls.gov/news.release/ppi.nr0.htm",
+      "https://www.bls.gov/news.release/ppi.t01.htm",
+      "https://www.bls.gov/news.release/ppi.t02.htm"
+    ],
+    "runAt": "2026-07-08T02:51:24Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US PPI final demand monthly change, June 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecast is for BLS Producer Price Index final demand, seasonally adjusted, monthly percent change for June 2026, series WPSFD4. The resolution is the first printed one-decimal BLS value, not later revised PPI history."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS PPI release calendar lookup for the June 2026 reference month",
+        "result": "BLS schedule shows Reference Month June 2026, Release Date Jul. 15, 2026, Release Time 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS current Producer Price Index release summary for latest final demand readings",
+        "result": "BLS May 2026 release reported final demand +1.1 percent in May, +1.1 percent in April, and +0.7 percent in March, seasonally adjusted."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Table A reference class for total final demand monthly percent changes",
+        "result": "Fetched May 2025-May 2026 total final demand SA monthly changes: 0.3, 0.2, 0.8, -0.2, 0.6, 0.1, 0.4, 0.4, 0.6, 0.5, 0.7, 1.1, 1.1 percent; mean = 0.5077 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS final demand component details from the May 2026 release and Table 2",
+        "result": "May 2026 final demand goods rose 2.8 percent, final demand energy rose 10.7 percent, gasoline rose 23.4 percent, final demand services rose 0.3 percent, and final demand less foods, energy, and trade services rose 0.8 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the outside view is the 13-month BLS Table A distribution for the same seasonally adjusted final-demand series, centered near +0.51 percent with a recent shock tail. A simple persistence-only forecast from the last two prints would be +1.1 percent, but the component mix argues against repeating the full May energy impulse."
+      },
+      {
+        "kind": "text",
+        "text": "Mechanism split: the level of pipeline inflation is high, momentum is elevated after two +1.1 percent months, the one-off May gasoline jump should mean-revert partly, and the policy/rate environment does not mechanically cap producer prices before the June survey month. I therefore put the point above the 13-month mean but below the April-May pace."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence-plus-reference-class prior uses the BLS May 2025-May 2026 WPSFD4 same-variant sample. Base mean = 0.5077; persistence signal from Apr-May = 1.1; one-off energy/gasoline mean-reversion adjustment = -0.3 to -0.5 versus persistence; services/core floor adjustment = +0.1 versus the base rate. Final point = 0.6. For this change/flow series, sigma is the sample stdev of the values themselves: sigma = 0.373 from [0.3, 0.2, 0.8, -0.2, 0.6, 0.1, 0.4, 0.4, 0.6, 0.5, 0.7, 1.1, 1.1]. 80 percent half-width = 1.28*sigma = 1.28*0.373 = 0.477, so 0.6 +/- 0.477 gives [0.1226, 1.0774], rounded to [0.1, 1.1]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a renewed petroleum, freight, or trade-services spike that keeps final demand near or above the April-May pace and would land above the interval if the first print exceeds 1.1 percent. Downside risk is a fast reversal in gasoline or margins that would land outside the interval below 0.1 percent. The central case is partial persistence of the shock, not a full repeat."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.6,
+        "ciLow": 0.1,
+        "ciHigh": 1.1
+      }
+    ]
+  }
+]

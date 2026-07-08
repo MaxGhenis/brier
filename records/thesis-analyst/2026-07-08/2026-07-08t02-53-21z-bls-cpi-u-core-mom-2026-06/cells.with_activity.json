@@ -1,0 +1,444 @@
+[
+  {
+    "slug": "us-core-cpi-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US core CPI June 2026 MoM",
+    "question": "BLS CPI-U all items less food and energy, June 2026, seasonally adjusted month-over-month percent change, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.3,
+    "ciLow": 0.1,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Consumer Price Index news release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/archives/cpi_07142026.htm",
+    "resolutionRule": "Resolve to the first BLS-published seasonally adjusted percent change from the preceding month for CPI-U all items less food and energy for June 2026, as shown in the Consumer Price Index Summary scheduled for July 14, 2026 at 08:30 ET, using the July 14, 2026 BLS release or its BLS archive once posted. Use the first print rounded to BLS's reported one decimal place; ignore later seasonal-adjustment revisions or corrections.",
+    "dataPointId": "bls.cpi.u.core_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "Dec 2025 core CPI-U MoM SA first print",
+        "value": 0.2
+      },
+      {
+        "label": "Jan 2026 core CPI-U MoM SA first print",
+        "value": 0.3
+      },
+      {
+        "label": "Feb 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      },
+      {
+        "label": "Mar 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      },
+      {
+        "label": "Apr 2026 core CPI-U MoM SA first print",
+        "value": 0.4
+      },
+      {
+        "label": "May 2026 core CPI-U MoM SA first print",
+        "value": 0.2
+      }
+    ],
+    "drivers": [
+      "Recent BLS core CPI-U prints are clustered around 0.2 to 0.3 percent",
+      "May core goods softness offsets part of the services pressure",
+      "Shelter and medical care services keep underlying services inflation sticky",
+      "Energy is excluded directly, with only indirect fuel-sensitive channels adding modest upside risk",
+      "One-decimal first-print rounding makes 0.2, 0.3, and 0.4 the main probability mass"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/news.release/archives/cpi_06102026.htm",
+      "https://fred.stlouisfed.org/series/CPILFESL"
+    ],
+    "runAt": "2026-07-08T02:53:30Z",
+    "thresholdLadder": {
+      "thresholds": [
+        -0.1,
+        0,
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.6,
+        0.7
+      ],
+      "cumulativeProbabilities": [
+        0.03,
+        0.07,
+        0.12,
+        0.2,
+        0.32,
+        0.43,
+        0.56,
+        0.68,
+        0.78,
+        0.85,
+        0.91,
+        0.97,
+        0.99
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 BLS core CPI-U month-over-month first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the first official BLS CPI Summary release for the June 2026 reference month, using CPI-U all items less food and energy, seasonally adjusted percent change from the preceding month. This is the core CPI-U variant, not headline CPI-U, not NSA CPI, and not a later revised database value."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS Consumer Price Index release schedule for the June 2026 reference month.",
+        "result": "Fetched official BLS schedule: reference month June 2026, release date July 14, 2026, release time 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the BLS May 2026 CPI Summary and Table A for recent core CPI-U monthly changes.",
+        "result": "Fetched BLS Table A numbers for all items less food and energy: Dec. 2025 = 0.2, Jan. 2026 = 0.3, Feb. 2026 = 0.2, Mar. 2026 = 0.2, Apr. 2026 = 0.4, May 2026 = 0.2, and May 2026 12-month core change = 2.9."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent official BLS first-print reference class is the six monthly core CPI-U changes from Dec. 2025 through May 2026: 0.2, 0.3, 0.2, 0.2, 0.4, and 0.2. The mean is 0.25 and the median is 0.2, so the base rate puts most mass on a first print that rounds to 0.2 or 0.3, with 0.4 plausible but not modal."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS May 2026 CPI Summary component details relevant to core CPI momentum.",
+        "result": "Fetched May 2026 component numbers: all items rose 0.5, energy rose 3.9, gasoline rose 7.0, all items less food and energy rose 0.2, shelter rose 0.3, services less energy services rose 0.3, commodities less food and energy commodities fell 0.1, medical care services rose 0.5, airline fares rose 2.7, and motor vehicle insurance fell 1.7."
+      },
+      {
+        "kind": "tool",
+        "tool": "repo.lookup",
+        "call": "Checked local public Thesis artifact quoting the FRED CPILFESL mirror of the BLS seasonally adjusted core CPI-U index.",
+        "result": "Fetched public artifact values from FRED mirror CPILFESL: Jan. 2026 = 332.793, Feb. 2026 = 333.512, Mar. 2026 = 334.165, Apr. 2026 = 335.423, May 2026 = 336.121; computed MoM changes were Feb. 2026 = 0.216, Mar. 2026 = 0.196, Apr. 2026 = 0.376, and May 2026 = 0.208."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism split: the level is still firm at 2.9 percent year over year, but May momentum was only 0.2 after April's 0.4. Shelter at 0.3 and medical care services at 0.5 argue against a very soft core print; core commodities at -0.1, new vehicles at -0.3, and motor vehicle insurance at -1.7 argue against extrapolating April's 0.4. Energy is excluded directly, but gasoline and airfares can pass through indirectly at the margin."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= -0.1) = 0.03, P(X <= 0) = 0.07, P(X <= 0.1) = 0.12, P(X <= 0.15) = 0.20, P(X <= 0.2) = 0.32, P(X <= 0.25) = 0.43, P(X <= 0.3) = 0.56, P(X <= 0.35) = 0.68, P(X <= 0.4) = 0.78, P(X <= 0.45) = 0.85, P(X <= 0.5) = 0.91, P(X <= 0.6) = 0.97, P(X <= 0.7) = 0.99. Linear interpolation gives p10 at 0.06, p50 at 0.277, and p90 at 0.492; rounding to BLS one-decimal print precision gives ciLow 0.1, pointEstimate 0.3, and ciHigh 0.5."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: use a persistence prior from the six-observation BLS first-print core CPI-U reference class for Dec. 2025-May 2026, centered at mean 0.25. Adjustment components are +0.03 for sticky shelter/services and indirect fuel-sensitive pass-through, -0.01 for core goods and vehicle-related softness, and +0.01 for rounding asymmetry around a 0.28 unrounded center, giving a rounded 0.3 point. For a change/flow series, sigma is computed from the values themselves: sigma = sqrt(((0.2-0.25)^2 + (0.3-0.25)^2 + (0.2-0.25)^2 + (0.2-0.25)^2 + (0.4-0.25)^2 + (0.2-0.25)^2) / 6) = 0.076, so 1.28*sigma = 0.097. The ladder-implied unrounded 80% half-width is roughly (0.492 - 0.06) / 2 = 0.216, wider than and overriding the short-sample 1.28*sigma width because the target is still one unreleased monthly first print with tariff, indirect fuel-channel, and services-price tail risk not fully represented in the short six-month sample."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk outside the interval would require a broad services re-acceleration, tariff-sensitive core goods rebound, and indirect fuel or airfare pass-through pushing the first print above 0.5. Downside risk outside the interval would be renewed goods deflation plus a sharper shelter/OER slowdown and another motor-vehicle-insurance decline pushing the print below 0.1. Those scenarios are possible but below 20 percent combined in the ladder."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the request to place the base rate before the inside-view driver/update discussion and clarified that resolution should use the July 14, 2026 CPI Summary or its BLS archive once posted; also tightened indirect energy-channel wording and labeled the six-observation sample."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.3,
+        "ciLow": 0.1,
+        "ciHigh": 0.5
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/prompt.md",
+        "sha256": "f7b0aa803779982f6ed9bd2ba08c65715c2dc8929a37e14273ed2c35d81966da",
+        "bytes": 9349,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_command.json",
+        "sha256": "35e17fbedf431416836af0bf312cd9be372e780dbe1b13bf44852c388ec3a31a",
+        "bytes": 832,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "45d5d85bc1f5cdb32a739621fda8837b8d94c4ad500061a1b6856e799f62ef28",
+        "bytes": 2847837,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_codex_events.jsonl",
+        "sha256": "439a5975fc511ca93f572a98b7d31449b739f428d03b474174de1cfbc059ae40",
+        "bytes": 2848091,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_codex_last_message.txt",
+        "sha256": "179205f4e2f405d1b10ebe1c49298531f5f14d46439ad270e1c48f9108a8263a",
+        "bytes": 6932,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_codex_trace.json",
+        "sha256": "d16820cb4e437bafe7d9ef566816ce97191801475d1a0afe2a3306ead0cf0430",
+        "bytes": 508,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_stdout.txt",
+        "sha256": "179205f4e2f405d1b10ebe1c49298531f5f14d46439ad270e1c48f9108a8263a",
+        "bytes": 6932,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_prompt.md",
+        "sha256": "581ceab6312ef8acd92817a35d6d818aea4c3ff6a1d572f1ddb505cc3450abab",
+        "bytes": 9076,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_command.json",
+        "sha256": "d57bdbcd7d3ced4bd91ff0a733dc2f0293140933c08c34a89fe22996480d5bb6",
+        "bytes": 828,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "5d7850e07a0d366ff4beb4eeac2390f2cbe1394bb236957c698333344dc107ca",
+        "bytes": 1674,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "67bf60cebd1cd8c18c554eb99a7348f62db09bba05e166b5fa95c1f8ca920c46",
+        "bytes": 1696,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "9d23c2e4549e151f2ca33a3235f85bbb08a6207f4e805a6e45f3b6531ad9c97c",
+        "bytes": 1293,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "76040319c4e6b5957b51ade5b42bca1ea348bd01746b1922c7e83d67c9664e3d",
+        "bytes": 504,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "9d23c2e4549e151f2ca33a3235f85bbb08a6207f4e805a6e45f3b6531ad9c97c",
+        "bytes": 1293,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/revision_prompt.md",
+        "sha256": "affb98f06f229ccc62847b98e79309f0302abfe48dbff9e436773d5ce8c7a6c0",
+        "bytes": 18510,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/command.json",
+        "sha256": "fb8fb969c037f98593916d243ee4e8c1d1462a3a0556a302e219227d1f3f7e6a",
+        "bytes": 826,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "80deea54259ab48dd211ad9f9714d611977686bb5033613869ceb9c35d1e06b7",
+        "bytes": 7977,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/codex_events.jsonl",
+        "sha256": "894fb2be001059b905a304901174fa4e428c3835c5219d4d508d61fccbbc99d4",
+        "bytes": 7999,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/codex_last_message.txt",
+        "sha256": "ecc7f6f9efaabb683209f2264ce35aa13933dc3e63b29d79f93119b1b11f7611",
+        "bytes": 7397,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/codex_trace.json",
+        "sha256": "2cc2cf2dd4f790ab12a9b9a9a07935a835ff7833e458afd8df36628f9997869a",
+        "bytes": 504,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/stdout.txt",
+        "sha256": "ecc7f6f9efaabb683209f2264ce35aa13933dc3e63b29d79f93119b1b11f7611",
+        "bytes": 7397,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/raw_response.txt",
+        "sha256": "ecc7f6f9efaabb683209f2264ce35aa13933dc3e63b29d79f93119b1b11f7611",
+        "bytes": 7397,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/parsed_cells.json",
+        "sha256": "165e50c441bb8c2dea6d4bb8737b93df5bbc9158d61a6f674af2d0b7e32d8401",
+        "bytes": 8630,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/normalized_cells.json",
+        "sha256": "cbbaf0e82d65af41c5f730a9749c3417f0e41541b873cae2fd476aa75cb7b3c2",
+        "bytes": 8127,
+        "createdAt": "2026-07-08T02:53:21Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/validation.json",
+        "sha256": "e4b03fdab3192e336366f9a83335aeee435025fc3196457831cb7f1599d0c67c",
+        "bytes": 126,
+        "createdAt": "2026-07-08T02:53:21Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T02:53:21Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "565de73d63900fa2141c4798a503c60058a4a2ca3690007262e944e825f76a69"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-21z-bls-cpi-u-core-mom-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "base_rate",
+          "summary": "The base-rate paragraph is present, but it appears after several current-evidence/tool-result items and after driver bullets.",
+          "actionRequested": "Move or duplicate the Dec 2025-May 2026 persistence prior before the inside-view driver/update discussion."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The resolver uses the live BLS CPI news-release URL, which will later roll forward and may not itself preserve the June 2026 first print.",
+          "actionRequested": "Keep the official BLS release as resolver, but state that the first-print evidence should be taken from the July 14, 2026 CPI Summary or its BLS archive once posted."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the compact Prior/update/interval step, explicitly label the historical sample as six observations and note that the wider ladder overrides the short-sample sigma."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Tighten the energy-pass-through language since energy is excluded from core CPI and only indirect channels matter."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the request to place the base rate before the inside-view driver/update discussion and clarified that resolution should use the July 14, 2026 CPI Summary or its BLS archive once posted; also tightened indirect energy-channel wording and labeled the six-observation sample.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the request to place the base rate before the inside-view driver/update discussion and clarified that resolution should use the July 14, 2026 CPI Summary or its BLS archive once posted; also tightened indirect energy-channel wording and labeled the six-observation sample.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the request to place the base rate before the inside-view driver/update discussion and clarified that resolution should use the July 14, 2026 CPI Summary or its BLS archive once posted; also tightened indirect energy-channel wording and labeled the six-observation sample.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the request to place the base rate before the inside-view driver/update discussion and clarified that resolution should use the July 14, 2026 CPI Summary or its BLS archive once posted; also tightened indirect energy-channel wording and labeled the six-observation sample.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable after minor ordering/source-precision cleanup; no blocking leakage, resolver, unit, or coherence problem is apparent."
+    }
+  }
+]

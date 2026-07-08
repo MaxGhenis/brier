@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "initial-claims-week-2026-07-04",
+    "country": "US",
+    "type": "data",
+    "title": "US initial claims, week ending Jul. 4 2026",
+    "question": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims: advance seasonally adjusted initial claims for the week ending July 4, 2026, first print",
+    "unit": "thousands",
+    "resolutionDate": "2026-07-09",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration UI Weekly Claims News Release",
+    "resolutionSourceUrl": "https://www.dol.gov/newsroom/releases/eta/eta20260709",
+    "resolutionRule": "Resolve to the advance seasonally adjusted initial claims figure for the week ending July 4, 2026, in the first U.S. Department of Labor UI Weekly Claims news release published on July 9, 2026. Convert the published count to thousands and ignore later revisions to that week or the prior week.",
+    "dataPointId": "us.dol.initial_claims.sa.week_2026-07-04",
+    "historicalContext": [
+      {
+        "label": "week ending 2026-06-27 SA initial claims, advance official release",
+        "value": 215
+      },
+      {
+        "label": "week ending 2026-06-20 SA initial claims, revised official release",
+        "value": 216
+      },
+      {
+        "label": "week ending 2026-06-13 SA initial claims, revised official release",
+        "value": 227
+      },
+      {
+        "label": "week ending 2026-06-06 SA initial claims, revised official release",
+        "value": 230
+      },
+      {
+        "label": "week ending 2025-07-05 SA initial claims, official table",
+        "value": 228
+      }
+    ],
+    "pointEstimate": 218.0,
+    "ciLow": 203.0,
+    "ciHigh": 232.0,
+    "confidence": 0.8,
+    "drivers": [
+      "Latest first-print SA initial claims were 215 thousand, below the 222 thousand four-week average",
+      "Recent June momentum eased from 230 thousand to 215 thousand over three weeks",
+      "Continuing claims near 1.814 million suggest slower hiring but not a layoff break",
+      "July 4 holiday timing can add seasonal-adjustment noise around the first print",
+      "Prior recorded Thesis target context confirmed the canonical slug and resolver, but its point estimate was not used as evidence"
+    ],
+    "sourceContext": [
+      "https://oui.doleta.gov/unemploy/claims_arch.asp",
+      "https://www.dol.gov/ui/data.pdf",
+      "https://www.dol.gov/newsroom/releases/eta/eta20260702",
+      "https://www.bls.gov/news.release/empsit.nr0.htm",
+      "https://www.dol.gov/newsroom/releases/eta"
+    ],
+    "runAt": "2026-07-08T03:03:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-08T02:44:18Z, 2026-07-08T02:44:20Z, 2026-07-08T02:44:44Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-08T02:44:18Z\", \"2026-07-08T02:44:20Z\", \"2026-07-08T02:44:44Z\"]})",
+        "result": "{rollout_points: [218, 219, 216], rollout_widths: [28, 32, 26], q10: 203.0, q50: 218.0, q90: 232.0}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 203.0, q50 = 218.0, q90 = 232.0. Constituent points [218, 219, 216] with 80% widths [28, 32, 26]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 218.0,
+        "ciLow": 203.0,
+        "ciHigh": 232.0
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-13z-us-dol-initial-claims-sa-week-2026-07-04/manifest.json",
+        "sha256": "f10b9b8e1ef4bd3d2184aecdf57b83dfffa4a6eadd026f6aecc9520dda67bbd8",
+        "bytes": 5901,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-12z-us-dol-initial-claims-sa-week-2026-07-04/manifest.json",
+        "sha256": "9ad4af509a11794dd21f650ff5e84240f248eab382347f6ce82f6b09c303de39",
+        "bytes": 5901,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/manifest.json",
+        "sha256": "80214f1040e6a1a6ec3e7c32d0105dd8137993131c550e953d6c14c6e8da5dd2",
+        "bytes": 5897,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-08/initial-claims-week-2026-07-04-median3-2026-07-08t03-03-42z/distribution.json",
+        "sha256": "94c13e37639cd3c730e1ad653b88d8cc1c96a49ee5a9c4ba72390779fe4a513a",
+        "bytes": 11639,
+        "createdAt": "2026-07-08T03:03:42Z"
+      }
+    ]
+  }
+]

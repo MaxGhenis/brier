@@ -1,0 +1,115 @@
+[
+  {
+    "slug": "census-housing-starts-saar-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US housing starts SAAR, June 2026",
+    "question": "What will the U.S. Census Bureau and HUD first report for total privately-owned housing units started, United States, seasonally adjusted annual rate, in June 2026?",
+    "unit": "millions",
+    "resolutionDate": "2026-07-17",
+    "resolutionSource": "U.S. Census Bureau and HUD Monthly New Residential Construction release",
+    "resolutionSourceUrl": "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+    "resolutionRule": "Resolve to the first Census/HUD Monthly New Residential Construction print for June 2026, Table 3a, New Privately-Owned Housing Units Started, United States total, seasonally adjusted annual rate. Use the preliminary first-print value in thousands divided by 1,000 to convert to millions; ignore subsequent revisions or historical-table backfills.",
+    "dataPointId": "census.housing_starts.saar.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 total housing starts SAAR",
+        "value": 1.177
+      },
+      {
+        "label": "April 2026 total housing starts SAAR",
+        "value": 1.392
+      },
+      {
+        "label": "March 2026 total housing starts SAAR",
+        "value": 1.522
+      },
+      {
+        "label": "May 2026 building permits SAAR",
+        "value": 1.413
+      },
+      {
+        "label": "May 2026 single-family starts SAAR",
+        "value": 0.882
+      },
+      {
+        "label": "May 2026 5+ unit starts SAAR",
+        "value": 0.284
+      }
+    ],
+    "pointEstimate": 1.237,
+    "ciLow": 1.096,
+    "ciHigh": 1.38,
+    "confidence": 0.8,
+    "drivers": [
+      "May total starts fell sharply to 1.177 million SAAR, leaving room for partial mean reversion",
+      "Single-family starts were steadier at 0.882 million while single-family permits were 0.886 million",
+      "May 5+ unit starts dropped to 0.284 million, a volatile component likely to rebound somewhat",
+      "Total permits at 1.413 million point to a higher near-term pipeline than May starts",
+      "The prior 12-month change dispersion is wide, so the 80% interval remains broad"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/economic-indicators/calendar-listview.html",
+      "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+      "https://www.census.gov/construction/nrc/current/index.html"
+    ],
+    "runAt": "2026-07-08T03:03:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-08T02:53:21Z, 2026-07-08T02:53:35Z, 2026-07-08T02:57:35Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-08T02:53:21Z\", \"2026-07-08T02:53:35Z\", \"2026-07-08T02:57:35Z\"]})",
+        "result": "{rollout_points: [1.3, 1.237, 1.237], rollout_widths: [0.34, 0.282, 0.282], q10: 1.096, q50: 1.237, q90: 1.38}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 1.096, q50 = 1.237, q90 = 1.38. Constituent points [1.3, 1.237, 1.237] with 80% widths [0.34, 0.282, 0.282]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.237,
+        "ciLow": 1.096,
+        "ciHigh": 1.38
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-52-41z-census-housing-starts-saar-2026-06/manifest.json",
+        "sha256": "f06b9e5cf7510fa459d1384306f47b9ac6f830e79d5556af327d26b08f1ef395",
+        "bytes": 5785,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-53-04z-census-housing-starts-saar-2026-06/manifest.json",
+        "sha256": "92d09b43cb5f1a214291ff7c281b09eb6cd109b7b5e08bd8d5e21baf5b79b6fb",
+        "bytes": 5781,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-57-28z-census-housing-starts-saar-2026-06/manifest.json",
+        "sha256": "aa7a5427b48851055010068a16a60a8c6904e96ce01ea9652e1280a4b7b9529d",
+        "bytes": 5785,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-08/census-housing-starts-saar-june-2026-median3-2026-07-08t03-03-42z/distribution.json",
+        "sha256": "fb2b0ae2e98a80e6dbb41c23a2f2058f72bca305693d83682180f4f148f0dbc5",
+        "bytes": 12040,
+        "createdAt": "2026-07-08T03:03:42Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,326 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T02:58:59Z",
+  "series": "census.housing_starts.saar",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "census-housing-starts-saar-june-2026",
+    "period": "2026-06",
+    "series": "census.housing_starts.saar",
+    "targetUnit": "millions"
+  },
+  "promptMode": "ladder",
+  "agent": {
+    "agent": "thesis.analyst.ladder",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T02:58:59Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "12fa19c56d3fbcab8388fec61fd9f9f724fc75d7ce2d467f836244b26547b51e"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The reasoning cites an earlier same-target public Thesis run that produced the exact same point and interval, creating catalog/prior-run circularity risk even though it is labeled strategy context.",
+        "actionRequested": "Remove the same-target prior-run reference or clearly separate it from the forecast derivation, and make the point/interval stand solely on official data, the stated persistence prior, adjustments, and volatility method."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "For resolver robustness, note that the linked current PDF is mutable and that resolution should use the first June 2026 release print available on July 17, 2026."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The +0.050 million multifamily rebound adjustment would be stronger if tied to a specific recent 5+ starts reference range or average."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by removing the earlier same-target Thesis run as an input; the forecast now rests on official Census/HUD anchors, the release calendar, the persistence prior, explicit adjustment components, the threshold ladder, and the stated realized-dispersion interval method. Also accepted resolver clarity on the mutable current PDF and tied the multifamily rebound adjustment to the weak May 0.284 million 5+ unit print versus the March-April 2026 context.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by removing the earlier same-target Thesis run as an input; the forecast now rests on official Census/HUD anchors, the release calendar, the persistence prior, explicit adjustment components, the threshold ladder, and the stated realized-dispersion interval method. Also accepted resolver clarity on the mutable current PDF and tied the multifamily rebound adjustment to the weak May 0.284 million 5+ unit print versus the March-April 2026 context.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by removing the earlier same-target Thesis run as an input; the forecast now rests on official Census/HUD anchors, the release calendar, the persistence prior, explicit adjustment components, the threshold ladder, and the stated realized-dispersion interval method. Also accepted resolver clarity on the mutable current PDF and tied the multifamily rebound adjustment to the weak May 0.284 million 5+ unit print versus the March-April 2026 context.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready on resolver, uncertainty, and unit coherence, but it relies too directly on an earlier same-target Thesis forecast with identical point and interval values."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/prompt.md",
+      "sha256": "40fb067105884b3bb1eff3e9739fc33c713723a85fd2b070ebb704a9b5096f35",
+      "bytes": 9522,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_command.json",
+      "sha256": "1a816696a1c613e2316fc0f5c0f4cf93204d7f5bb3aaf411e7573c711ce4b342",
+      "bytes": 840,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "776b3b0bb7ea9b5c8022d2c6ccd2166b5eb9646837103454906ba063faf83e01",
+      "bytes": 41542,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_codex_events.jsonl",
+      "sha256": "46e186925eb8378a6983bf8d2f71e7e703f858d505d3e521f91a6b89962f92cd",
+      "bytes": 41718,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_codex_last_message.txt",
+      "sha256": "aa6bda7e804cc3445b4d67ebbf72541ef975ca8351c05547259d9185ba48a5c5",
+      "bytes": 6830,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_codex_trace.json",
+      "sha256": "29a26a4e0bba78486c71fae21de2d255b311844871f67ee31cd8c42955cc7f25",
+      "bytes": 508,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_stdout.txt",
+      "sha256": "aa6bda7e804cc3445b4d67ebbf72541ef975ca8351c05547259d9185ba48a5c5",
+      "bytes": 6830,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_prompt.md",
+      "sha256": "18290133b7f788d29ce355d72939bd479c3515e645cdc9462fc61790b3f292cb",
+      "bytes": 9018,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_command.json",
+      "sha256": "e2d10f7f42b6470e56811d925dcea644580126d4d0ed112ca098247eae65098d",
+      "bytes": 836,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "7ae9216b3c4223b5f486556013c1a8cb7494fab18202d40aa13f04ed7055c930",
+      "bytes": 2113,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "193626d8bd9989a4911ff0db05746718207787ec2e54c73aec499e304023523d",
+      "bytes": 2134,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "7a9100c585de4f9ffa90d57813fc8b06eda47f52be5dbb8530b14a6a2fadb941",
+      "bytes": 1045,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "ba99d27e542cd53b471a46a7ca0f873e51eba5c1752880cc24bec11ae318f2a4",
+      "bytes": 504,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "7a9100c585de4f9ffa90d57813fc8b06eda47f52be5dbb8530b14a6a2fadb941",
+      "bytes": 1045,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/revision_prompt.md",
+      "sha256": "7a654cd0c81402d9c18dab396dae2466e1bce1c7445d8d637c8d679a7e8d0061",
+      "bytes": 18333,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/command.json",
+      "sha256": "8edee6572f32cf75702a820813c9d9610af7994dbe415c5201021c09ca7f3fdf",
+      "bytes": 834,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/codex_stdout.jsonl",
+      "sha256": "d20dde03291a9e1790c8aa95d6504e1679b93ca2a2bf287e83cd236be9358a9d",
+      "bytes": 7866,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/codex_events.jsonl",
+      "sha256": "0fdd2660ea1bf2c9325efb748a7b76292b886126a59228f270b11f6dd75c2114",
+      "bytes": 7888,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/codex_last_message.txt",
+      "sha256": "03a10eccd1ba1663bba7909a3276e945ce75f1fd5bab12cb598dfc561a6100e6",
+      "bytes": 7297,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/codex_trace.json",
+      "sha256": "68731249d8be92358f1c541abb8655103991d4e95910ea82353f4184ded7aa2b",
+      "bytes": 503,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/stdout.txt",
+      "sha256": "03a10eccd1ba1663bba7909a3276e945ce75f1fd5bab12cb598dfc561a6100e6",
+      "bytes": 7297,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/raw_response.txt",
+      "sha256": "03a10eccd1ba1663bba7909a3276e945ce75f1fd5bab12cb598dfc561a6100e6",
+      "bytes": 7297,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/parsed_cells.json",
+      "sha256": "7cf62b8fffd0f3e10715812c9ad2621eb62ea21138bc068f64c71df2e95dee45",
+      "bytes": 8489,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/normalized_cells.json",
+      "sha256": "6eaa9f62b79657199a1d16934692d1481c69da8f39bf5c0be79f76a544098d1b",
+      "bytes": 8003,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/validation.json",
+      "sha256": "96b2b0df629e7e085ef00ee64f2e2ef9de655e9800c8b14cfbaaa05d64283281",
+      "bytes": 137,
+      "createdAt": "2026-07-08T02:58:59Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-58-59z-census-housing-starts-saar-2026-06/manifest.json",
+      "sha256": "a5918371140aa5b77dd17531c143b175f67d096b711df3878a5ba9823a29732e",
+      "bytes": 15676,
+      "createdAt": "2026-07-08T02:58:59Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "census-housing-starts-saar-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

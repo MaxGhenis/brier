@@ -1,0 +1,121 @@
+[
+  {
+    "slug": "bls-ppi-final-demand-monthly-change-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US PPI Final Demand Monthly Change, June 2026",
+    "question": "What will the first-print seasonally adjusted monthly percent change be for the BLS Producer Price Index for final demand in June 2026?",
+    "unit": "percent_growth",
+    "resolutionDate": "2026-07-15",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Producer Price Index news release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/ppi.nr0.htm",
+    "resolutionRule": "Resolve to the first-print seasonally adjusted month-over-month percent change for the Producer Price Index for final demand for June 2026 as reported in the BLS Producer Price Indexes news release released on July 15, 2026. Use the rounded one-decimal percent value in the release text or Table A; ignore later revisions.",
+    "dataPointId": "bls.ppi.final_demand_monthly_change.2026_06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 final demand m/m SA",
+        "value": 1.1
+      },
+      {
+        "label": "2026-04 final demand m/m SA",
+        "value": 1.1
+      },
+      {
+        "label": "2026-03 final demand m/m SA",
+        "value": 0.7
+      },
+      {
+        "label": "2026-02 final demand m/m SA",
+        "value": 0.5
+      },
+      {
+        "label": "2026-01 final demand m/m SA",
+        "value": 0.6
+      },
+      {
+        "label": "2025-12 final demand m/m SA",
+        "value": 0.4
+      },
+      {
+        "label": "2025-11 final demand m/m SA",
+        "value": 0.4
+      }
+    ],
+    "pointEstimate": 0.7,
+    "ciLow": 0.2,
+    "ciHigh": 1.2,
+    "confidence": 0.8,
+    "drivers": [
+      "May headline PPI was high at 1.1 percent, matching April",
+      "May final demand goods rose 2.8 percent and final demand energy rose 10.7 percent",
+      "May final demand services rose 0.3 percent after 0.7 percent in April",
+      "Reference-class mean for May 2025-May 2026 final demand monthly changes is about 0.51 percent",
+      "Energy/gasoline pressure is likely to persist partly into June but not repeat the full May impulse"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/ppi.htm",
+      "https://www.bls.gov/news.release/ppi.nr0.htm",
+      "https://www.bls.gov/news.release/ppi.t01.htm",
+      "https://download.bls.gov/pub/time.series/wp/wp.series",
+      "https://www.bls.gov/news.release/ppi.t02.htm"
+    ],
+    "runAt": "2026-07-08T03:03:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-08T02:51:00Z, 2026-07-08T02:51:24Z, 2026-07-08T02:52:43Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-08T02:51:00Z\", \"2026-07-08T02:51:24Z\", \"2026-07-08T02:52:43Z\"]})",
+        "result": "{rollout_points: [0.7, 0.6, 0.7], rollout_widths: [1.0, 1.0, 1.0], q10: 0.2, q50: 0.7, q90: 1.2}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 0.2, q50 = 0.7, q90 = 1.2. Constituent points [0.7, 0.6, 0.7] with 80% widths [1.0, 1.0, 1.0]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.7,
+        "ciLow": 0.2,
+        "ciHigh": 1.2
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-50-52z-bls-ppi-final-demand-monthly-change-2026-06/manifest.json",
+        "sha256": "4dfba051fc82ea44992a0130e6b0a13bcffa073518321cf0e5525af7f41a70c7",
+        "bytes": 5958,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-50-57z-bls-ppi-final-demand-monthly-change-2026-06/manifest.json",
+        "sha256": "8a387686ab17344c9493f3e3f21a26244c1c999542a615da0b29adc61901c526",
+        "bytes": 5962,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-52-35z-bls-ppi-final-demand-monthly-change-2026-06/manifest.json",
+        "sha256": "bace930e951ae74fa4e3d0bc9583437e5e094a449dabc39fb916a17b7a851c21",
+        "bytes": 5958,
+        "createdAt": "2026-07-08T03:03:42Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-08/bls-ppi-final-demand-monthly-change-june-2026-median3-2026-07-08t03-03-42z/distribution.json",
+        "sha256": "9e2539234f79ee0fb5f29c4e3d69f9c1763fea1cb1cc9fbd69654366fac4dde0",
+        "bytes": 11355,
+        "createdAt": "2026-07-08T03:03:42Z"
+      }
+    ]
+  }
+]

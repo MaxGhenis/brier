@@ -1,0 +1,111 @@
+[
+  {
+    "slug": "us-cpi-u-mom-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI-U MoM, Jun 2026",
+    "question": "BLS CPI-U U.S. city average, all items, seasonally adjusted month-over-month percent change for June 2026, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.2,
+    "ciLow": -0.13,
+    "ciHigh": 0.53,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-14",
+    "resolutionSource": "U.S. Bureau of Labor Statistics, Consumer Price Index",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cpi.nr0.htm",
+    "resolutionRule": "Resolve to the first-published seasonally adjusted month-over-month percent change in the all-items CPI-U for June 2026 stated in the BLS Consumer Price Index news release scheduled for July 14, 2026 at 08:30 AM. Use the BLS rounded headline percent change as first published; later seasonal-adjustment revisions or corrected historical tables do not change the resolved value.",
+    "dataPointId": "bls.cpi.u.headline_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 CPI-U all items SA MoM percent",
+        "value": 0.5
+      },
+      {
+        "label": "April 2026 CPI-U all items SA MoM percent",
+        "value": 0.6
+      },
+      {
+        "label": "March 2026 CPI-U all items SA MoM percent",
+        "value": 0.9
+      },
+      {
+        "label": "February 2026 CPI-U all items SA MoM percent",
+        "value": 0.3
+      },
+      {
+        "label": "June 2026 EIA weekly regular gasoline average, dollars per gallon",
+        "value": 4.05
+      }
+    ],
+    "drivers": [
+      "June retail gasoline reversal subtracts from headline CPI",
+      "Core CPI momentum remained moderate at 0.2 percent in May",
+      "Shelter inflation still adds positive monthly pressure",
+      "Food inflation near 0.2 percent supports a positive floor",
+      "Energy volatility keeps two-sided first-print risk wide"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/cpi/latest-numbers.htm",
+      "https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=EMM_EPMR_PTE_NUS_DPG&f=W"
+    ],
+    "runAt": "2026-07-08T02:48:25Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast June 2026 headline CPI-U monthly change"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the BLS CPI-U U.S. city average all-items index, seasonally adjusted, month-over-month percent change for June 2026, first print. I use the same SA headline variant for the resolver, anchors, and historical values; series code is CUSR0000SA0 for the all-items CPI-U SA index."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS schedule of releases for the Consumer Price Index, June 2026 reference month",
+        "result": "Fetched official release calendar numbers: May 2026 CPI was scheduled Jun. 10, 2026 at 08:30 AM; June 2026 CPI is scheduled Jul. 14, 2026 at 08:30 AM; July 2026 CPI is scheduled Aug. 12, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS May 2026 CPI news release Table A for recent same-variant headline, core, food, energy, and shelter changes",
+        "result": "Fetched official recent CPI-U SA numbers: all items were 0.3 in February 2026, 0.9 in March, 0.6 in April, and 0.5 in May; all items less food and energy was 0.2 in May; food was 0.2 in May; energy was 3.9 in May; shelter was 0.3 in May."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS latest numbers page cross-check for the latest CPI-U all-items and core readings",
+        "result": "Fetched latest BLS numbers: CPI-U US City Average All Items was SA +0.5% in May 2026 and NSA +4.2% since May 2025; CPI-U All Items Less Food and Energy was SA +0.2% in May 2026 and NSA +2.9% since May 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "EIA weekly U.S. regular all-formulations gasoline prices for May, June, and early July 2026",
+        "result": "Fetched EIA gasoline numbers: May weekly values were 4.452, 4.500, 4.490, and 4.475 dollars per gallon; June weekly values were 4.305, 4.146, 4.052, 3.914, and 3.831; July 6 was 3.777; June averaged about 4.050 versus May 4.479, a -9.6% change."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent same-variant BLS headline CPI-U monthly changes available in the current release are 0.3, 0.2, 0.3, 0.9, 0.6, and 0.5 from December 2025 through May 2026, averaging about 0.47. That base rate is elevated by the March-May energy shock, so I do not simply persist the latest 0.5."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism split: core momentum near 0.2 plus food near 0.2 and shelter near 0.3 point to a positive underlying June print. The one-off adjustment is energy: the EIA gasoline drop from a 4.479 May average to a 4.050 June average should reverse much of May's gasoline CPI strength, pulling headline materially below the recent all-items average."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the recent official BLS headline CPI-U SA MoM reference class, December 2025-May 2026 values [0.3, 0.2, 0.3, 0.9, 0.6, 0.5], mean 0.467. Update components: underlying core/food/shelter contribution keeps the point positive around +0.35 to +0.40, while the EIA gasoline decline of -9.6% subtracts roughly 0.15 to 0.25 percentage point from headline, giving 0.20. Interval method: realized dispersion of the fetched change values themselves gives sigma = 0.258, so 1.28*sigma = 0.330; 0.20 - 0.33 = -0.13 and 0.20 + 0.33 = 0.53."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk is broader tariff or services pass-through plus a smaller-than-expected CPI gasoline drag, which would land above the interval near 0.6 or higher. Downside risk is a larger seasonally adjusted gasoline reversal or airfares/used vehicles weakness, which would land below the interval near -0.2 or lower. Outside the interval would likely require energy or tariff effects larger than the recent component evidence implies."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.2,
+        "ciLow": -0.13,
+        "ciHigh": 0.53
+      }
+    ]
+  }
+]

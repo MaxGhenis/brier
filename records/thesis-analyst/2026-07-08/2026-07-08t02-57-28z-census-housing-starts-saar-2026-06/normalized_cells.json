@@ -1,0 +1,110 @@
+[
+ {
+  "slug": "census-housing-starts-saar-june-2026",
+  "country": "US",
+  "type": "data",
+  "title": "US housing starts SAAR, June 2026",
+  "question": "What will the U.S. Census Bureau and HUD first report for total privately-owned housing units started, United States, seasonally adjusted annual rate, in June 2026?",
+  "unit": "millions",
+  "pointEstimate": 1.237,
+  "ciLow": 1.096,
+  "ciHigh": 1.378,
+  "confidence": 0.8,
+  "resolutionDate": "2026-07-17",
+  "resolutionSource": "U.S. Census Bureau and HUD Monthly New Residential Construction release",
+  "resolutionSourceUrl": "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+  "resolutionRule": "Resolve to the first Census/HUD Monthly New Residential Construction print for June 2026, Table 3a, New Privately-Owned Housing Units Started, United States total, seasonally adjusted annual rate. Use the preliminary first-print value in thousands divided by 1,000 to convert to millions; ignore subsequent revisions or historical-table backfills.",
+  "dataPointId": "census.housing_starts.saar.2026-06.first_print",
+  "historicalContext": [
+   {
+    "label": "May 2026 total housing starts SAAR",
+    "value": 1.177
+   },
+   {
+    "label": "April 2026 total housing starts SAAR",
+    "value": 1.392
+   },
+   {
+    "label": "March 2026 total housing starts SAAR",
+    "value": 1.522
+   },
+   {
+    "label": "May 2026 building permits SAAR",
+    "value": 1.413
+   },
+   {
+    "label": "May 2026 single-family starts SAAR",
+    "value": 0.882
+   },
+   {
+    "label": "May 2026 5+ unit starts SAAR",
+    "value": 0.284
+   }
+  ],
+  "drivers": [
+   "May total starts fell sharply to 1.177 million SAAR, leaving room for partial mean reversion",
+   "Single-family starts were steadier at 0.882 million while single-family permits were 0.886 million",
+   "May 5+ unit starts dropped to 0.284 million, a volatile component likely to rebound somewhat",
+   "Total permits at 1.413 million point to a higher near-term pipeline than May starts",
+   "The prior 12-month change dispersion is wide, so the 80% interval remains broad"
+  ],
+  "sourceContext": [
+   "https://www.census.gov/construction/nrc/current/index.html",
+   "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+   "https://www.census.gov/economic-indicators/calendar-listview.html"
+  ],
+  "runAt": "2026-07-08T02:57:35Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "US housing starts SAAR, June 2026 first print"
+   },
+   {
+    "kind": "text",
+    "text": "Framing and exact resolver: this forecast is for Census/HUD Table 3a, New Privately-Owned Housing Units Started, United States total, seasonally adjusted annual rate, June 2026 first print, converted from thousands to millions. The release variant, anchors, and history are all SAAR Table 3a values from the current Census/HUD release, not NSA values, smoothed trend charts, or later historical backfills."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Open Census/HUD May 2026 New Residential Construction current release page and PDF for the latest official starts and permits anchors.",
+    "result": "Fetched latest official values: May 2026 total housing starts 1,177,000 SAAR, April 2026 revised total starts 1,392,000, May 2025 total starts 1,289,000, May 2026 total permits 1,413,000, and April 2026 revised permits 1,423,000."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read Census/HUD PDF Table 3a for recent total housing starts and component detail.",
+    "result": "Fetched Table 3a values: March 2026 total starts 1,522,000 SAAR, April 2026 total starts 1,392,000, May 2026 total starts 1,177,000, May 2026 single-family starts 882,000, and May 2026 5+ unit starts 284,000."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Read Census economic indicators calendar and the current release note for the June 2026 New Residential Construction release date.",
+    "result": "Fetched official schedule: New Residential Construction for June 2026 is listed for July 17, 2026 at 8:30 AM; the May 2026 release also states the next release is July 17, 2026."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Compute recent reference-class month-to-month dispersion from official Table 3a total starts history used in this run.",
+    "result": "Fetched/computed reference values in millions: 2025-05 1.289, 2025-06 1.379, 2025-07 1.432, 2025-08 1.291, 2025-09 1.319, 2025-10 1.273, 2025-11 1.319, 2025-12 1.378, 2026-01 1.385, 2026-02 1.346, 2026-03 1.522, 2026-04 1.392, 2026-05 1.177; successive-change sigma = 0.110 million."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate/reference class: for a one-month-ahead total starts forecast, persistence plus partial mean reversion is the right starting point because the Census/HUD explanatory notes say month-to-month seasonally adjusted construction statistics are irregular and it can take 6 months to establish an underlying trend for total starts."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: persistence prior is May 2026 total starts at 1.177 million; historical sample is the 12 successive monthly changes from May 2025 through May 2026 in Table 3a, with sigma = 0.110 million and 80% half-width = 1.28*sigma = 1.28*0.110 = 0.141 million. Adjustment components: +0.020 million for stable single-family starts/permits near 0.88 million, +0.050 million for partial rebound in volatile 5+ starts from 0.284 million, and -0.010 million for soft overall momentum after the May drop. Point = 1.177 + 0.020 + 0.050 - 0.010 = 1.237 million; interval = 1.237 +/- 0.141 = [1.096, 1.378]."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-considerations: upside risk is a quick multifamily rebound toward the 0.40-0.48 million 5+ unit range seen earlier in 2026, which would land above the interval if single-family also holds firm. Downside risk is that May's fall reflected a broader financing or demand pullback rather than noise, which would land below the interval if total starts stay near or under 1.10 million."
+   },
+   {
+    "kind": "forecast",
+    "point": 1.237,
+    "ciLow": 1.096,
+    "ciHigh": 1.378
+   }
+  ]
+ }
+]

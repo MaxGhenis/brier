@@ -1,0 +1,200 @@
+[
+  {
+    "slug": "initial-claims-week-2026-07-04",
+    "country": "US",
+    "type": "data",
+    "title": "US initial claims, week ending Jul. 4 2026",
+    "question": "U.S. Department of Labor Employment and Training Administration advance seasonally adjusted initial claims for the week ending July 4, 2026, first print, in thousands",
+    "unit": "thousands",
+    "pointEstimate": 216,
+    "ciLow": 203,
+    "ciHigh": 229,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-09",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration UI Weekly Claims News Release",
+    "resolutionSourceUrl": "https://www.dol.gov/ui/data.pdf",
+    "resolutionRule": "Resolve to the advance seasonally adjusted initial claims figure for the week ending July 4, 2026, in the first U.S. Department of Labor UI Weekly Claims news release published on July 9, 2026. Convert the published count to thousands and ignore later revisions to that week or the prior week.",
+    "dataPointId": "us.dol.initial_claims.sa.week_2026-07-04",
+    "historicalContext": [
+      {
+        "label": "latest_sa_initial_claims_week_ending_2026-06-27",
+        "value": 215
+      },
+      {
+        "label": "prior_revised_sa_initial_claims_week_ending_2026-06-20",
+        "value": 216
+      },
+      {
+        "label": "sa_initial_claims_week_ending_2026-06-13",
+        "value": 227
+      },
+      {
+        "label": "latest_4wk_average_week_ending_2026-06-27",
+        "value": 222
+      }
+    ],
+    "drivers": [
+      "latest SA level at 215 thousand",
+      "4-week average still higher at 222 thousand",
+      "recent three-week decline from 227 to 216 to 215 thousand",
+      "holiday-week seasonal adjustment noise around Independence Day"
+    ],
+    "sourceContext": [
+      "https://oui.doleta.gov/unemploy/claims_arch.asp",
+      "https://www.dol.gov/newsroom/releases/eta/eta20260702",
+      "https://www.dol.gov/newsroom/releases/eta",
+      "https://www.dol.gov/ui/data.pdf"
+    ],
+    "runAt": "2026-07-08T02:44:44Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for US initial claims, week ending July 4 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the DOL ETA advance seasonally adjusted initial claims series for the week ending July 4, 2026, reported in thousands on the first UI Weekly Claims release. The variant is seasonally adjusted initial claims, not NSA claims, continuing claims, or the 4-week average."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the DOL OUI weekly claims archive publication schedule for the release date rule.",
+        "result": "The DOL OUI archive says the UI Weekly Claims News Release is published Thursday morning at 8:30 AM EST, with listed 2026 exception Wednesday November 25, 2026; July 9, 2026 is therefore the official Thursday release date for week ending July 4, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the July 2, 2026 DOL ETA UI Weekly Claims News Release headline SA values.",
+        "result": "For week ending June 27, 2026, advance seasonally adjusted initial claims were 215,000, down 1,000 from the previous week's revised 216,000; the 4-week moving average was 222,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the same July 2 DOL release table for recent SA history and year-ago context.",
+        "result": "The DOL table shows Initial Claims (SA) 215,000 for June 27, 216,000 for June 20, 227,000 for June 13, and prior-year comparable 231,000; the 4-week moving average is 222,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the DOL newsroom release list for nearby official release snippets.",
+        "result": "Recent first prints from official DOL release snippets: June 27 was 215,000; June 20 was 215,000 before revision to 216,000; June 13 was 226,000 before revision to 227,000; June 6 was 229,000."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class base rate: recent DOL seasonally adjusted weekly claims sit in the low-200-thousand range, with the latest four revised or advance levels 230, 227, 216, and 215 thousand. That favors persistence around 215 to 222 rather than a break above 230 unless the holiday week produces a seasonal-adjustment miss."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: level is low but not unusually low relative to spring 2026; momentum is mildly downward after the June peak, while the 4-week average at 222 is above the latest print. The week includes Independence Day, so seasonal factors and employer shutdown timing add noise, but the target is SA and should remove most regular holiday seasonality."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses the latest official SA first/revised level of 215 thousand and a recent-reference-class center between latest 215 and 4-week average 222; adjustment components are +1 thousand for mean reversion toward the 4-week average, +0 for labor-market momentum after offsetting the three-week decline, and +0 for holiday effects after seasonal adjustment, giving point 216. For interval width, I used the DOL table's 53 successive weekly SA changes from June 2025 through June 2026; sigma = 10.42 thousand, so 1.28*sigma = 13.34 thousand, rounded to a 13-thousand half-width. Thus 216 - 13 = 203 and 216 + 13 = 229."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a holiday-week seasonal adjustment miss or a fresh layoff wave lifting claims above 229 thousand; downside risk is continued normalization after the June bump or fewer auto-related layoffs, which would land below 203 thousand. Outside the interval would most likely require a one-week seasonal-factor surprise rather than a gradual labor-market signal."
+      },
+      {
+        "kind": "forecast",
+        "point": 216,
+        "ciLow": 203,
+        "ciHigh": 229
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/prompt.md",
+        "sha256": "cb8254c70a6db76f01fca3b2e5c3dae37be64f4e5cb72fc068271444d9c829ed",
+        "bytes": 7872,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/command.json",
+        "sha256": "d7386537adde0fa2adda52bd8eec4727102282d87be755505fba6ba108c5d274",
+        "bytes": 840,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/codex_stdout.jsonl",
+        "sha256": "ed3b9b2fc2ad8c7e6770382e80fb8d98648e1e8bc5b86e8d03371f7881e9f5fe",
+        "bytes": 17977,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/codex_events.jsonl",
+        "sha256": "b6517e976d1a55dba08f3b6a86f888180e8e7acf6aec2b4b3b2aee2f43b3615b",
+        "bytes": 18090,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/codex_last_message.txt",
+        "sha256": "bd538524ca3d7dc65846b3fdb127ed3cb77627aab1a09e3df6fd80aa191842ca",
+        "bytes": 5403,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/codex_trace.json",
+        "sha256": "9eed1c98cfb636f9963d44fbce3e6638d9d92452ea15176c497af67d5f809d4d",
+        "bytes": 509,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/stdout.txt",
+        "sha256": "bd538524ca3d7dc65846b3fdb127ed3cb77627aab1a09e3df6fd80aa191842ca",
+        "bytes": 5403,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/raw_response.txt",
+        "sha256": "bd538524ca3d7dc65846b3fdb127ed3cb77627aab1a09e3df6fd80aa191842ca",
+        "bytes": 5403,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/parsed_cells.json",
+        "sha256": "ce16f454d25183cb0ceb4c1cee6ce91c23b01d10da376da103804e390d4867de",
+        "bytes": 6218,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/normalized_cells.json",
+        "sha256": "1531591e60d3559263d69622ac415a06773542efb44593acc88b91c93a4ed2b1",
+        "bytes": 5894,
+        "createdAt": "2026-07-08T02:44:10Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-44-10z-us-dol-initial-claims-sa-week-2026-07-04/validation.json",
+        "sha256": "cf5ad09c9dbb383ebf06b09010b8e0acb388428ea075366ad924aba2abac95e2",
+        "bytes": 131,
+        "createdAt": "2026-07-08T02:44:10Z"
+      }
+    ]
+  }
+]

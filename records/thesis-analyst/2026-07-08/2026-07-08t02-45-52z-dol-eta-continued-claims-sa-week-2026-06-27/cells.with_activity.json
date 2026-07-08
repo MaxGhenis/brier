@@ -1,0 +1,200 @@
+[
+  {
+    "slug": "continued-claims-week-2026-06-27",
+    "country": "US",
+    "type": "data",
+    "title": "US continued claims, week ending Jun 27 2026",
+    "question": "What will the U.S. Department of Labor report as the first print of seasonally adjusted insured unemployment, also called continued claims, for the week ending June 27, 2026?",
+    "unit": "millions",
+    "pointEstimate": 1.817,
+    "ciLow": 1.789,
+    "ciHigh": 1.843,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-09",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.dol.gov/ui/data.pdf",
+    "resolutionRule": "Resolve to the first-print U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims seasonally adjusted Insured Unemployment value for week ending June 27, 2026, as published in the July 9, 2026 weekly claims release. Convert the reported thousands value to millions and round to the nearest 0.001 million. Do not use later revisions.",
+    "dataPointId": "dol.eta.continued_claims.sa.week_2026-06-27.first_print",
+    "historicalContext": [
+      {
+        "label": "latest official SA insured unemployment, week ending 2026-06-20",
+        "value": 1.814
+      },
+      {
+        "label": "prior official SA insured unemployment, week ending 2026-06-13",
+        "value": 1.812
+      },
+      {
+        "label": "official SA insured unemployment, week ending 2026-06-06",
+        "value": 1.8
+      },
+      {
+        "label": "latest official 4-week average, week ending 2026-06-20",
+        "value": 1.803
+      },
+      {
+        "label": "comparable 2025 week, week ending 2025-06-28",
+        "value": 1.952
+      }
+    ],
+    "drivers": [
+      "latest continued claims level was 1.814 million",
+      "recent four-week SA continued-claims average rose to 1.803 million",
+      "June 27 initial claims were 215000, down 1000 from the revised prior week",
+      "recent continued-claims momentum is positive but slowing",
+      "comparable late-June 2025 continued claims edged down by 2000"
+    ],
+    "sourceContext": [
+      "https://oui.doleta.gov/unemploy/claims_arch.asp",
+      "https://www.dol.gov/ui/data.pdf",
+      "https://oui.doleta.gov/unemploy/claims.asp"
+    ],
+    "runAt": "2026-07-08T02:46:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DOL seasonally adjusted continued claims, week ending June 27 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the DOL ETA weekly claims release variant labeled seasonally adjusted Insured Unemployment, not unadjusted continued weeks claimed in all programs. The target week is week ending June 27, 2026, first print, converted from thousands to millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the DOL ETA weekly claims archive and publication schedule page for release timing.",
+        "result": "The official archive page says the UI Weekly Claims News Release is published each week on Thursday morning at 8:30 AM EST, lists only Wednesday November 25, 2026 as a 2026 non-Thursday exception, and was updated July 7, 2026; therefore the Thursday release for this target is July 9, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the July 2, 2026 DOL UI Weekly Claims News Release PDF for the latest same-variant continued-claims data.",
+        "result": "The release reports advance seasonally adjusted insured unemployment of 1,814,000 for week ending June 20, 2026, up 2,000 from the revised June 13 level of 1,812,000; the prior week was revised down from 1,821,000 to 1,812,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the DOL table 'Unemployment Insurance Data for Regular State Programs' in the July 2, 2026 release.",
+        "result": "The table shows Insured Unemployment (SA) of 1,814,000 for June 20, 1,812,000 for June 13, 1,800,000 for June 6, and a 4-week moving average of 1,803,000 for June 20."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the DOL historical table 'Seasonally Adjusted US Weekly UI Claims (in thousands)' for the recent reference class and initial-claims context.",
+        "result": "The historical table shows SA insured unemployment values of 1,786,000 on May 30, 1,800,000 on June 6, 1,812,000 on June 13, and 1,814,000 on June 20; it also shows June 27 initial claims of 215,000, down 1,000 from June 20."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate and reference class: for one-week-ahead level forecasts in this DOL series, the strongest base rate is persistence from the latest first-print/revised official level, with recent successive weekly changes used to size uncertainty. The last four observed same-variant SA continued-claims changes were +15,000, +14,000, +12,000, and +2,000, so momentum is positive but decelerating."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 1.814 million from the latest DOL SA insured unemployment print; historical sample = 52 weekly same-variant changes from June 28, 2025 through June 20, 2026 in the DOL table; adjustment components = +0.004 million for recent positive continued-claims momentum, -0.001 million for softer same-week initial claims and the slowing +2,000 latest move, giving point 1.814 + 0.004 - 0.001 = 1.817 million; interval method = one-week change dispersion, sigma = 0.02099 million, half-width = 1.28*sigma = 1.28*0.02099 = 0.0269 million, rounded to about 0.027 million; final implied bounds are 1.817 - 0.028 = 1.789 and 1.817 + 0.026 = 1.843 million."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is that late-June continuing unemployment reflects delayed separations or benefit-duration persistence not visible in initial claims, which would land above the interval if SA insured unemployment jumps by more than about 29,000 to above 1.843 million. Downside risk is a sharper reversal in continuing claims after the latest initial-claims easing, which would land below the interval if the level falls under 1.789 million. An outside the interval result would most likely come from a state-level reporting swing or seasonal-adjustment miss in the holiday-adjacent summer weeks."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.817,
+        "ciLow": 1.789,
+        "ciHigh": 1.843
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/prompt.md",
+        "sha256": "4682ede629248732ec2801e92a4d91e88e0384cd7444abc47736f06963f1a89c",
+        "bytes": 7876,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/command.json",
+        "sha256": "63b53ae692f96bbeb47565b5f7918d4533bbb0b4d42499504d4765e7515f4f18",
+        "bytes": 843,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/codex_stdout.jsonl",
+        "sha256": "647298abcf4b1fb84da9b6822c6fbda59bfa0762ed404d02508815dd3099c05d",
+        "bytes": 1134876,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/codex_events.jsonl",
+        "sha256": "94f5cc5d59bb46516bad4cee9248bce8fe38c4423f97a790f52c17eef3de05ac",
+        "bytes": 1135043,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/codex_last_message.txt",
+        "sha256": "4cfdbbc29bc2f0d63e080d7fd11ec51f2b717a6f568a9cf3c8a4aa665a083884",
+        "bytes": 5796,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/codex_trace.json",
+        "sha256": "01ccc3eba3fccf720bb05369ba8a83c45b615bb829e8591866163dd88e2eb5c7",
+        "bytes": 509,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/stdout.txt",
+        "sha256": "4cfdbbc29bc2f0d63e080d7fd11ec51f2b717a6f568a9cf3c8a4aa665a083884",
+        "bytes": 5796,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/raw_response.txt",
+        "sha256": "4cfdbbc29bc2f0d63e080d7fd11ec51f2b717a6f568a9cf3c8a4aa665a083884",
+        "bytes": 5796,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/parsed_cells.json",
+        "sha256": "713625855e0678f5142b08b9b1637d15948355efba8d58a249a5fcc3a224ab3d",
+        "bytes": 6611,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/normalized_cells.json",
+        "sha256": "c8bef487d2383751e1ea031fcbddeb8067c97ef72a6043ce0bb61123a29932d7",
+        "bytes": 6287,
+        "createdAt": "2026-07-08T02:45:52Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-45-52z-dol-eta-continued-claims-sa-week-2026-06-27/validation.json",
+        "sha256": "28568c7daf3682c58d8f9c1430e4cf259993951a2ccc130f11acfd177b7c0e76",
+        "bytes": 133,
+        "createdAt": "2026-07-08T02:45:52Z"
+      }
+    ]
+  }
+]

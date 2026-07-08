@@ -1,0 +1,405 @@
+[
+  {
+    "slug": "continued-claims-week-2026-06-27",
+    "country": "US",
+    "type": "data",
+    "title": "US continued claims, Jun 27 2026",
+    "question": "What will the U.S. Department of Labor Employment and Training Administration first print show for seasonally adjusted insured unemployment, also called continued claims, for regular state programs for the week ending June 27, 2026?",
+    "unit": "millions",
+    "pointEstimate": 1.817,
+    "ciLow": 1.79,
+    "ciHigh": 1.85,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-09",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims release",
+    "resolutionSourceUrl": "https://www.dol.gov/newsroom/releases/eta/eta20260709",
+    "resolutionRule": "Resolve to the advance first-print seasonally adjusted insured unemployment number for regular state programs for the week ending June 27, 2026 in the DOL ETA Unemployment Insurance Weekly Claims release scheduled for July 9, 2026. Convert persons or thousands to millions, round to 0.001 million, and ignore later revisions or historical restatements. The URL is the expected DOL release URL from the agency date pattern; if that exact URL changes, use the DOL ETA claims archive or latest-release page to locate the July 9, 2026 release for the same table and variant.",
+    "dataPointId": "dol.eta.continued_claims.sa.week_2026-06-27.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06-20 SA insured unemployment",
+        "value": 1.814
+      },
+      {
+        "label": "2026-06-13 SA insured unemployment",
+        "value": 1.812
+      },
+      {
+        "label": "2026-06-06 SA insured unemployment",
+        "value": 1.8
+      },
+      {
+        "label": "2026-05-30 SA insured unemployment",
+        "value": 1.786
+      }
+    ],
+    "drivers": [
+      "Latest official SA continued claims were 1.814 million, up 0.002 million on the week",
+      "Recent SA continued-claims momentum is mildly upward: 1.786 million on May 30 to 1.814 million on June 20",
+      "Initial claims for June 27 were 215,000, down 1,000, arguing against a sharp further jump",
+      "Unadjusted insured unemployment rose 34,778 in the June 20 week, broadly in line with seasonal-factor expectations",
+      "Target is the DOL ETA regular state programs seasonally adjusted insured unemployment variant, not all-program unadjusted continued weeks claimed"
+    ],
+    "sourceContext": [
+      "https://www.dol.gov/newsroom/releases/eta/eta20260702",
+      "https://oui.doleta.gov/unemploy/claims_arch.asp",
+      "https://www.dol.gov/newsroom/releases/eta"
+    ],
+    "runAt": "2026-07-08T02:47:27Z",
+    "thresholdLadder": {
+      "thresholds": [
+        1.78,
+        1.79,
+        1.8,
+        1.81,
+        1.815,
+        1.82,
+        1.83,
+        1.84,
+        1.85,
+        1.86,
+        1.875
+      ],
+      "cumulativeProbabilities": [
+        0.06,
+        0.1,
+        0.2,
+        0.36,
+        0.46,
+        0.56,
+        0.72,
+        0.84,
+        0.9,
+        0.95,
+        0.98
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for DOL ETA continued claims, week ending June 27, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the DOL ETA regular state programs seasonally adjusted insured unemployment series, also called continued claims, for the week ending June 27, 2026. The resolution is the advance first print in the weekly claims release, in millions of persons, ignoring later revisions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened DOL ETA claims archive publication schedule at https://oui.doleta.gov/unemploy/claims_arch.asp",
+        "result": "The official schedule says the UI Weekly Claims News Release is published each week on Thursday at 8:30 AM EST, with 1 listed 2026 exception: Wednesday, November 25, 2026 at 8:30 AM EST; therefore Thursday, July 9, 2026 is the verified release date for the June 27 continued-claims first print."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the July 2, 2026 DOL ETA Unemployment Insurance Weekly Claims release at https://www.dol.gov/newsroom/releases/eta/eta20260702",
+        "result": "Fetched latest same-variant figures: advance SA insured unemployment for week ending June 20 was 1,814,000; week ending June 13 was revised to 1,812,000; the 4-week moving average was 1,803,000; the SA insured unemployment rate was 1.2 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the July 2, 2026 DOL release table for regular state programs and unadjusted state-program insured unemployment",
+        "result": "Fetched table values: Insured Unemployment (SA) was 1,814,000 for June 20, 1,812,000 for June 13, and 1,800,000 for June 6; Insured Unemployment (NSA) was 1,755,714 for June 20, up 34,778 from 1,720,936."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the DOL release table of Seasonally Adjusted US Weekly UI Claims, using the insured unemployment column in thousands",
+        "result": "Fetched reference-class history from June 21, 2025 through June 20, 2026: 53 weekly SA insured unemployment observations; recent values included 1,786,000 on May 30, 1,800,000 on June 6, 1,812,000 on June 13, and 1,814,000 on June 20."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for a one-week-ahead continued-claims level forecast, the best outside-view anchor is persistence from the latest first-print/revised DOL SA insured unemployment level plus the empirical distribution of recent weekly changes in the same DOL variant. The latest level is 1.814 million, and the last three weekly changes were +0.014, +0.012, and +0.002 million."
+      },
+      {
+        "kind": "text",
+        "text": "Variant control: every anchor above is the regular state programs Seasonally Adjusted Insured Unemployment series from the DOL weekly claims release, not NSA insured unemployment and not continued weeks claimed in all programs."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 1.814 million from the latest DOL same-variant print; historical sample = 52 successive weekly changes from the June 21, 2025 to June 20, 2026 DOL table; adjustment components = +0.004 million for recent upward continued-claims momentum, -0.001 million because initial claims for June 27 were only 215,000 and down 1,000, +0.000 million for policy mechanism because no UI rule change is needed for the first print; point before ladder = 1.817 million. From the fetched history, sigma = 0.020987 million for successive SA insured-unemployment changes, so 1.28*sigma = 0.026863 million. The ladder-implied 80% half-width is about 0.030 million, 1.12x the 1.28*sigma half-width, modestly wider because holiday/seasonal adjustment around late June can move continued claims even when initial claims are flat."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= 1.780) = 0.06; P(X <= 1.790) = 0.10; P(X <= 1.800) = 0.20; P(X <= 1.810) = 0.36; P(X <= 1.815) = 0.46; P(X <= 1.820) = 0.56; P(X <= 1.830) = 0.72; P(X <= 1.840) = 0.84; P(X <= 1.850) = 0.90; P(X <= 1.860) = 0.95; P(X <= 1.875) = 0.98. Linear interpolation gives p10 = 1.790, p50 = 1.817, and p90 = 1.850 million after rounding to 0.001 million."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk would be a repeat of broad unadjusted insured-unemployment increases like the +34,778 NSA move in the latest release, which could lift the SA print toward or above 1.850 million. Downside risk would be a reversal in benefit duration after initial claims held at 215,000, which could pull the SA level below 1.790 million. A sudden state reporting distortion or seasonal-factor miss would land outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the suggestion to clarify that the July 9 DOL URL is the expected exact release URL and that the DOL archive/latest-release page is the fallback if the URL pattern changes; accepted the comparable-week source concern by removing the uncited 2025 comparable value from historicalContext."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.817,
+        "ciLow": 1.79,
+        "ciHigh": 1.85
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/prompt.md",
+        "sha256": "012af121f7ac9b86d8de31d7a541bfbb5002500f9cd3d35c2b53763035542469",
+        "bytes": 9398,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_command.json",
+        "sha256": "1651da907aa27b04b546b99b0f6dbdbbe3d974da5ef550844e3d18df29584ef9",
+        "bytes": 849,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_codex_stdout.jsonl",
+        "sha256": "3f43ea9c16eaa415db7b841476d230be6cca319b4fcf0c94161ca11522f437a2",
+        "bytes": 24484,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_codex_events.jsonl",
+        "sha256": "e49e6e4005d752c3c5e983de4f1218e25da1f8ea0fe3091f3979d6ed62cb97a1",
+        "bytes": 24536,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_codex_last_message.txt",
+        "sha256": "5802376ae8c6c042693dd55426e4e91d8d525af798457633b884df88e3f1fec9",
+        "bytes": 7002,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_codex_trace.json",
+        "sha256": "a2577116a73fb89bb28cac6dd3098740435b251e7a8446cc01a8ae30e6861ca0",
+        "bytes": 507,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_stdout.txt",
+        "sha256": "5802376ae8c6c042693dd55426e4e91d8d525af798457633b884df88e3f1fec9",
+        "bytes": 7002,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_prompt.md",
+        "sha256": "0afd3e0f6ecefb31e0ddb6c8453ac343cbf26a6d02c64d80e36ea8e1e24bfc06",
+        "bytes": 9195,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_command.json",
+        "sha256": "030dea5c8e5d187d78e388e67f7e72590c4e433ca34bb99b486502046a0c835f",
+        "bytes": 845,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "a18126f8dbb75e1c7fff513564e52e41657c47991afaf4038c7d726f76f48082",
+        "bytes": 1254,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_codex_events.jsonl",
+        "sha256": "51820e6d62bf0cba40849ed9850f17c175b471c909b51e45193fb2f6f40ad313",
+        "bytes": 1270,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_codex_last_message.txt",
+        "sha256": "03fb8a8cd6979f04c50c3c0fa0fbcb8974e1f59a66d9d251ae687882e6033997",
+        "bytes": 539,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_codex_trace.json",
+        "sha256": "8e60737dac72a70b86b1cab2017a453d8b713a72f3102c07684ceba824762b4a",
+        "bytes": 504,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_stdout.txt",
+        "sha256": "03fb8a8cd6979f04c50c3c0fa0fbcb8974e1f59a66d9d251ae687882e6033997",
+        "bytes": 539,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/revision_prompt.md",
+        "sha256": "256e61b2512f335b49b82518eb84580af0d3021dc5d4c3ef3b95f5c6b7842c01",
+        "bytes": 17875,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/command.json",
+        "sha256": "3fb2d54cd13f5fb297b98c7811d887bc1ac66f76a0525091b3dff35efc90ede7",
+        "bytes": 843,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/codex_stdout.jsonl",
+        "sha256": "4fd6d750da0eb15394eb5bb9956a57cf854459504954c7c18c274c6a68ccd238",
+        "bytes": 8053,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/codex_events.jsonl",
+        "sha256": "12b2e419a176b8767807ec63893e78a59d69f864e504ec55d2751e5c550c4b42",
+        "bytes": 8075,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/codex_last_message.txt",
+        "sha256": "da19da4fa1a2399ff7230257f81ade7da0f23656834b46883c223e906fb4fd6f",
+        "bytes": 7487,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/codex_trace.json",
+        "sha256": "1677dcca44dfd4c544ee252bc08742182db01124872087df7ea11ee1c7d72e54",
+        "bytes": 504,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/stdout.txt",
+        "sha256": "da19da4fa1a2399ff7230257f81ade7da0f23656834b46883c223e906fb4fd6f",
+        "bytes": 7487,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/raw_response.txt",
+        "sha256": "da19da4fa1a2399ff7230257f81ade7da0f23656834b46883c223e906fb4fd6f",
+        "bytes": 7487,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/parsed_cells.json",
+        "sha256": "31c88830b6ad9da092ef82dfd0041d31cc32bda7f2fd07aad7685c4d743897af",
+        "bytes": 8609,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/normalized_cells.json",
+        "sha256": "229834c105e23c5cb6491f0f79a690c56def519752363129a50156070fae52b8",
+        "bytes": 8153,
+        "createdAt": "2026-07-08T02:47:21Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/validation.json",
+        "sha256": "28568c7daf3682c58d8f9c1430e4cf259993951a2ccc130f11acfd177b7c0e76",
+        "bytes": 133,
+        "createdAt": "2026-07-08T02:47:21Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T02:47:21Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "366c96c1911d196add1336ae839084c68a17a3e966d97c6c3624a4f5afa97392"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t02-47-21z-dol-eta-continued-claims-sa-week-2026-06-27/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that the July 9 DOL URL is the expected release URL and that the DOL archive/latest-release page is the fallback if the URL pattern changes."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "If keeping the 2025 comparable value, cite the exact comparable-week source because it differs slightly from the prior-year value shown in the July 2 table."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the suggestion to clarify that the July 9 DOL URL is the expected exact release URL and that the DOL archive/latest-release page is the fallback if the URL pattern changes; accepted the comparable-week source concern by removing the uncited 2025 comparable value from historicalContext.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the suggestion to clarify that the July 9 DOL URL is the expected exact release URL and that the DOL archive/latest-release page is the fallback if the URL pattern changes; accepted the comparable-week source concern by removing the uncited 2025 comparable value from historicalContext.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publication-ready on the main rubric: resolver, prior, update, volatility-based interval, tails, units, and JSON fields are coherent."
+    }
+  }
+]
