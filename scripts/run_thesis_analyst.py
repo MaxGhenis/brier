@@ -131,6 +131,17 @@ def build_run_prompt(
             meta,
             target_context,
         ), meta
+    if mode == "ladder":
+        # The ladder lane is a distinct agent on the scoreboard: same base
+        # prompt and tool policy, different elicitation protocol.
+        ladder_meta = {**meta, "agent": f"{meta['agent']}.ladder"}
+        return build_ladder_prompt(
+            series,
+            period,
+            conditional,
+            meta,
+            target_context,
+        ), ladder_meta
     raise ValueError(f"Unsupported prompt mode {mode!r}")
 
 
@@ -331,6 +342,149 @@ def build_fast_prompt(
         f"prompt {meta['promptHash'][:12]}, "
         f"tools {meta['toolPolicyHash'][:12]}, promptMode fast)\n"
     )
+
+
+def build_ladder_prompt(
+    series: str,
+    period: str,
+    conditional: str | None,
+    meta: dict[str, Any],
+    target_context: dict[str, Any] | None = None,
+) -> str:
+    """Fast prompt plus threshold-ladder elicitation.
+
+    The distribution is elicited as a ladder of binary exceedance questions
+    (the protocol forecasting-tuned models are trained on — Turtel et al.
+    2025, arXiv:2505.17989) and the published point/interval are DERIVED
+    from the ladder, instead of stating an interval directly. Everything
+    else — research discipline, sigma disclosure, risk steps — is the same
+    contract as fast mode.
+    """
+    base = build_fast_prompt(series, period, conditional, meta, target_context)
+    ladder_schema = {
+        "thresholds": ["strictly increasing numeric rungs"],
+        "cumulativeProbabilities": ["non-decreasing, within [0.01, 0.99]"],
+    }
+    return base + (
+        "\n# Threshold-ladder elicitation (promptMode ladder)\n"
+        "This run elicits the distribution as binary exceedance questions "
+        "BEFORE stating any point estimate, then derives the published "
+        "numbers from the ladder.\n"
+        "- After research, choose 11-15 strictly increasing thresholds t in "
+        "the target's print units spanning your genuine uncertainty: the "
+        "first rung's cumulative probability must be <= 0.10 and the last "
+        ">= 0.90.\n"
+        "- For each rung independently answer the binary question 'What is "
+        "the probability the first print is <= t?', as if pricing a binary "
+        "market. Probabilities must be non-decreasing across rungs and "
+        "within [0.01, 0.99].\n"
+        "- Add one math reasoning step that begins 'Ladder:' and lists "
+        "every rung literally as 'P(X <= t) = p' pairs.\n"
+        "- Derive the published numbers FROM the ladder by linear "
+        "interpolation between rungs: pointEstimate at cumulative 0.50, "
+        "ciLow at 0.10, ciHigh at 0.90, each rounded to the print "
+        "precision. The cell fields and the final forecast step must equal "
+        "these derived values exactly.\n"
+        "- Keep every fast-mode requirement above (sigma arithmetic, base "
+        "rate, upside/downside/outside-the-interval risks). In the "
+        "Prior/update/interval step, also state how the ladder-implied 80% "
+        "width compares to the 1.28*sigma width.\n"
+        "- Add this top-level field to the cell JSON, with your actual "
+        "rungs as two equal-length numeric arrays:\n"
+        f"{json.dumps({'thresholdLadder': ladder_schema}, indent=2)}\n"
+    )
+
+
+def ladder_interpolate(
+    thresholds: list[float], probs: list[float], q: float
+) -> float | None:
+    """Linear interpolation of the quantile at cumulative probability q."""
+    if not thresholds or probs[0] > q or probs[-1] < q:
+        return None
+    for index in range(1, len(probs)):
+        if probs[index] >= q:
+            p0, p1 = probs[index - 1], probs[index]
+            t0, t1 = thresholds[index - 1], thresholds[index]
+            if p1 == p0:
+                return t1
+            return t0 + (t1 - t0) * (q - p0) / (p1 - p0)
+    return thresholds[-1]
+
+
+def decimal_places(value: Any) -> int:
+    text = repr(float(value))
+    if "e" in text or "E" in text:
+        return 6
+    if "." not in text:
+        return 0
+    return min(len(text.split(".")[1].rstrip("0")), 6)
+
+
+def ladder_validation_errors(cell: dict[str, Any]) -> list[str]:
+    ladder = cell.get("thresholdLadder")
+    if not isinstance(ladder, dict):
+        return ["ladder run must include a thresholdLadder object"]
+    thresholds = ladder.get("thresholds")
+    probs = ladder.get("cumulativeProbabilities")
+    if not isinstance(thresholds, list) or not isinstance(probs, list):
+        return [
+            "thresholdLadder must contain thresholds and "
+            "cumulativeProbabilities arrays"
+        ]
+    errors: list[str] = []
+    if len(thresholds) != len(probs):
+        return ["thresholdLadder arrays must have equal length"]
+    if not (9 <= len(thresholds) <= 21):
+        errors.append(
+            f"thresholdLadder has {len(thresholds)} rungs; want 11-15"
+        )
+    try:
+        thresholds = [float(value) for value in thresholds]
+        probs = [float(value) for value in probs]
+    except (TypeError, ValueError):
+        return ["thresholdLadder arrays must be numeric"]
+    if any(b <= a for a, b in zip(thresholds, thresholds[1:])):
+        errors.append("thresholds must be strictly increasing")
+    if any(b < a for a, b in zip(probs, probs[1:])):
+        errors.append("cumulativeProbabilities must be non-decreasing")
+    if probs and (probs[0] < 0.005 or probs[-1] > 0.995):
+        errors.append("cumulative probabilities must stay within [0.01, 0.99]")
+    if probs and probs[0] > 0.12:
+        errors.append(
+            f"first rung cumulative probability {probs[0]} must be <= 0.10"
+        )
+    if probs and probs[-1] < 0.88:
+        errors.append(
+            f"last rung cumulative probability {probs[-1]} must be >= 0.90"
+        )
+    if errors:
+        return errors
+    # The published numbers must be the ladder's own quantiles (to print
+    # precision) — the ladder is the forecast, not decoration around one.
+    point = cell.get("pointEstimate")
+    ci_low = cell.get("ciLow")
+    ci_high = cell.get("ciHigh")
+    if not all(isinstance(v, (int, float)) for v in (point, ci_low, ci_high)):
+        return ["cell is missing numeric pointEstimate/ciLow/ciHigh"]
+    step = 10 ** -max(
+        decimal_places(point), decimal_places(ci_low), decimal_places(ci_high)
+    )
+    tolerance = max(0.075 * (float(ci_high) - float(ci_low)), 0.51 * step)
+    for label, stated, q in (
+        ("ciLow", float(ci_low), 0.10),
+        ("pointEstimate", float(point), 0.50),
+        ("ciHigh", float(ci_high), 0.90),
+    ):
+        derived = ladder_interpolate(thresholds, probs, q)
+        if derived is None:
+            errors.append(f"ladder does not span cumulative {q} for {label}")
+        elif abs(derived - stated) > tolerance:
+            errors.append(
+                f"{label} {stated} deviates from ladder-derived "
+                f"q{int(q * 100)} {round(derived, 6)} beyond tolerance "
+                f"{round(tolerance, 6)}"
+            )
+    return errors
 
 
 def fast_domain_notes(series: str) -> list[str]:
@@ -1289,6 +1443,7 @@ def validate_cells(
     cells: list[dict],
     allow_existing_slug: bool = False,
     target_context: dict[str, Any] | None = None,
+    prompt_mode: str = "full",
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -1306,6 +1461,8 @@ def validate_cells(
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
         errors.extend(target_context_validation_errors(cell, target_context))
+        if prompt_mode == "ladder":
+            errors.extend(ladder_validation_errors(cell))
         if errors:
             ok = False
         else:
@@ -1517,7 +1674,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--period", required=True)
     parser.add_argument("--conditional")
     parser.add_argument("--target-context-json")
-    parser.add_argument("--prompt-mode", choices=["full", "fast"], default="full")
+    parser.add_argument(
+        "--prompt-mode", choices=["full", "fast", "ladder"], default="full"
+    )
     parser.add_argument("--out-dir")
     parser.add_argument("--command")
     parser.add_argument("--codex-model")
@@ -1860,6 +2019,7 @@ def main() -> int:
         normalized_cells,
         args.allow_existing_slug,
         target_context,
+        args.prompt_mode,
     )
     validation_ref = write_artifact(
         out_dir,

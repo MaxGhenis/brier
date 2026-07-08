@@ -299,7 +299,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--targets-file")
     parser.add_argument("--max-targets", type=int)
     parser.add_argument("--skip", type=int, default=0)
-    parser.add_argument("--prompt-mode", choices=["full", "fast"], default="fast")
+    parser.add_argument(
+        "--prompt-mode", choices=["full", "fast", "ladder"], default="fast"
+    )
     parser.add_argument("--timeout-seconds", type=int, default=300)
     parser.add_argument("--max-failures", type=int, default=999)
     parser.add_argument("--command")

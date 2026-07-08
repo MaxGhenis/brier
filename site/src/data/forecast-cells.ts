@@ -17,6 +17,7 @@ import { OCCUPATION_WAGE_EXAMPLES } from "./forecast-examples/occupation-wages";
 import { SNAP_FY2026_PAYMENT_ERROR_RATE_EXAMPLES } from "./forecast-examples/snap-per-fy2026";
 import { TAX_CREDIT_EXAMPLES } from "./forecast-examples/tax";
 import { RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS } from "./thesis-analyst-live-comparisons";
+import { STRATEGY_COMPARISON_RUN_AUGMENTS } from "./thesis-strategy-comparisons";
 import { buildTimeSeriesPriorComparisonRun } from "./time-series-priors";
 import { UK_EXAMPLES } from "./forecast-examples/uk";
 import { US_DEFENSE_EXAMPLES } from "./forecast-examples/us-defense";
@@ -7407,6 +7408,7 @@ export const FORECAST_CELLS: ForecastCell[] = FORECAST_CELL_DEFINITIONS.map(
       ...(timeSeriesPrior ? [timeSeriesPrior] : []),
       ...(FORECAST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
       ...(RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
+      ...(STRATEGY_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
     ];
 
     return {
