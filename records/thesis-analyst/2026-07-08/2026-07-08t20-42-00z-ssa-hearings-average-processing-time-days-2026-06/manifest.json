@@ -1,0 +1,326 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T20:42:00Z",
+  "series": "ssa.hearings.average_processing_time_days",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ssa-hearings-average-processing-time-june-2026",
+    "period": "2026-06",
+    "series": "ssa.hearings.average_processing_time_days"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T20:42:00Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "3f027624d28371c3027412cdcba79b4c2a2e372007b1afd77d187cecd9f46668"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether catalog unit is intentionally `count` despite the substantive measure being calendar days, to avoid unit ambiguity for readers."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the exact July release timing evidence more explicitly if available, while keeping the ledger resolutionDate of 2026-07-31."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider stating the persistence prior as `322 days before adjustment` in the compact prior/update/interval sentence for easier audit."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarifications on the ledger unit and persistence prior wording; kept the resolutionDate tied to the canonical ledger contract because no concrete ledger error was identified in the public release-timing evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarifications on the ledger unit and persistence prior wording; kept the resolutionDate tied to the canonical ledger contract because no concrete ledger error was identified in the public release-timing evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarifications on the ledger unit and persistence prior wording; kept the resolutionDate tied to the canonical ledger contract because no concrete ledger error was identified in the public release-timing evidence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publication-ready on target definition, prior/update structure, interval rationale, and JSON coherence, with only minor clarity improvements suggested."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/prompt.md",
+      "sha256": "4127f0c9a9e19dd73e81e8bb7991715c41bd8e22f8ce41e007a2c7935ecd3a6f",
+      "bytes": 7767,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_command.json",
+      "sha256": "faccf2a4add10a3c56bfc729dfa3ca9c758eb721fb5b61b7310d635dc1ddf76f",
+      "bytes": 855,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "334f8e202afeca319b7bf7bf29271f64a7570194af69bef796d07bd6ac252c0e",
+      "bytes": 1215652,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_events.jsonl",
+      "sha256": "0ef7f1c1368677a2b4def5c4f93af200b01cbde6388766bd01873dc1a496d181",
+      "bytes": 1215884,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_last_message.txt",
+      "sha256": "8b640fc4d29b197036ca4571d5128e91c1f7bd7e3a5d55ebfd407e6458d4b998",
+      "bytes": 7558,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_codex_trace.json",
+      "sha256": "8788b8557b7ec174b4a1ac4df420809045024ed154234f6aad226dc137f45d84",
+      "bytes": 509,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_stdout.txt",
+      "sha256": "8b640fc4d29b197036ca4571d5128e91c1f7bd7e3a5d55ebfd407e6458d4b998",
+      "bytes": 7558,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_prompt.md",
+      "sha256": "0e98bd22eba251302688d9d7c0ea025939f0beee7c78a64969886fe6cd018570",
+      "bytes": 9746,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_command.json",
+      "sha256": "d9e24ca651e93171011a70e3ed8f1b09acf1be73a262a18ef1524b1a220f26df",
+      "bytes": 851,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "678f3685049cb00844d6f313c13217c54b398a4f247ec4848ff01623ca2b01dc",
+      "bytes": 1001,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "31b7f959d397fc60eb805ac82ff8a8381234af8098fe7a5d8ae0dd08285b481f",
+      "bytes": 1023,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "39619bf9ead65cbbcb3d393b991d60b0ae8b3b3ca74e4333b5c64f7b48c1282c",
+      "bytes": 662,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "5b3bfed4ac9de3d8ed3e5c5f647535e5708b63e25acb451e26baf1fbfb5a1beb",
+      "bytes": 504,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "39619bf9ead65cbbcb3d393b991d60b0ae8b3b3ca74e4333b5c64f7b48c1282c",
+      "bytes": 662,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/revision_prompt.md",
+      "sha256": "17fadd6900018c28ef83fe154cffb1516975644843255f7f755a5de4c88fc9d7",
+      "bytes": 16923,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/command.json",
+      "sha256": "e00bd0692505edb1a97439b043c6af614fd116615547bb8bf27cf64b249caa01",
+      "bytes": 849,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/codex_stdout.jsonl",
+      "sha256": "f5d945491e1d109a790be6654e92ea6569363bbf6d96ceac5882233b89f6848d",
+      "bytes": 8464,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/codex_events.jsonl",
+      "sha256": "379a15f2b49f0cf46c944e25a46cf875df5b148718428bc705f9c862a0544318",
+      "bytes": 8486,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/codex_last_message.txt",
+      "sha256": "37afe97af186086c89be1de85c82b699bb0cc65012a637666fa2e8a935d7c204",
+      "bytes": 7869,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/codex_trace.json",
+      "sha256": "157b1b2c1a9f3916585461231ca31d943aec71d69890c8ad9edbae4fc9e28a28",
+      "bytes": 503,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/stdout.txt",
+      "sha256": "37afe97af186086c89be1de85c82b699bb0cc65012a637666fa2e8a935d7c204",
+      "bytes": 7869,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/raw_response.txt",
+      "sha256": "37afe97af186086c89be1de85c82b699bb0cc65012a637666fa2e8a935d7c204",
+      "bytes": 7869,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/parsed_cells.json",
+      "sha256": "bd95f044747ab3817307c155836969c8d81743ba84b7a3b2f09f2255337ea451",
+      "bytes": 8922,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/normalized_cells.json",
+      "sha256": "6da6d4cf229b2d5806b1dbdfb7777719046658e218cc227879310a51282f2f10",
+      "bytes": 8500,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/validation.json",
+      "sha256": "a26961ff99622806e4a501e81543a29dd3b2a158d6728cf296e015ba39397ba5",
+      "bytes": 216,
+      "createdAt": "2026-07-08T20:42:00Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-42-00z-ssa-hearings-average-processing-time-days-2026-06/manifest.json",
+      "sha256": "d9ba698d316788b4bbe2b80dbb3e6efa1e7ca20eaba57769e97340100dd72c54",
+      "bytes": 15212,
+      "createdAt": "2026-07-08T20:42:00Z"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "ssa-hearings-average-processing-time-june-2026",
+        "ok": false,
+        "errors": [
+          "tool step without numeric result: official.lookup"
+        ]
+      }
+    ]
+  }
+}

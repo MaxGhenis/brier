@@ -1,0 +1,380 @@
+[
+  {
+    "slug": "spm-senior-poverty-2025",
+    "country": "US",
+    "type": "data",
+    "title": "US senior SPM poverty rate, 2025",
+    "question": "What will the U.S. Census Bureau first report as the Supplemental Poverty Measure poverty rate for people age 65 years and older for calendar year 2025 in Poverty in the United States: 2025, Table B-2 or successor first-release table?",
+    "unit": "percent",
+    "pointEstimate": 15.3,
+    "ciLow": 13.1,
+    "ciHigh": 17.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-08",
+    "resolutionSource": "U.S. Census Bureau Poverty in the United States: 2025 first-release tables",
+    "resolutionSourceUrl": "https://www.census.gov/topics/income-poverty/supplemental-poverty-measure/data/tables.html",
+    "resolutionRule": "Resolve to the first Census Bureau published calendar-year 2025 Supplemental Poverty Measure poverty rate for people age 65 years and older, reported in percent, normally Table B-2 of Poverty in the United States: 2025. Use the initially released value rounded to one decimal percentage point; ignore later errata, benchmark updates, revised CPS ASEC files, or later table revisions unless Census labels the original first print as withdrawn before public release.",
+    "dataPointId": "census.spm.poverty_rate_65_plus.2025.first_print",
+    "historicalContext": [
+      {
+        "label": "2024 first print age 65+ SPM poverty rate",
+        "value": 15
+      },
+      {
+        "label": "2023 first print age 65+ SPM poverty rate",
+        "value": 14.2
+      },
+      {
+        "label": "2022 first print age 65+ SPM poverty rate",
+        "value": 14.1
+      },
+      {
+        "label": "2021 first print age 65+ SPM poverty rate",
+        "value": 10.7
+      },
+      {
+        "label": "2024 all-person SPM poverty rate",
+        "value": 12.9
+      }
+    ],
+    "drivers": [
+      "Latest same-variant senior SPM rate was 15.0 percent in 2024",
+      "Senior SPM includes taxes, credits, transfers, medical out-of-pocket expenses, and housing adjustments, not just pretax cash income",
+      "2024 senior SPM rose despite flat all-person SPM, showing age-specific medical and threshold pressure",
+      "Social Security COLA supports nominal resources but medical premiums and out-of-pocket costs remain senior-specific downside risk",
+      "No 2025 policy shock comparable to pandemic-era temporary transfers is assumed"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/about/event-calendar.html",
+      "https://www.census.gov/library/publications/2025/demo/p60-287.html",
+      "https://www.census.gov/data/tables/2025/demo/income-poverty/p60-287.html",
+      "https://www2.census.gov/programs-surveys/demo/tables/p60/287/tableB-2.xlsx",
+      "https://www.census.gov/content/dam/Census/library/visualizations/2025/demo/p60-287/figure8.pdf",
+      "https://www.census.gov/newsroom/blogs/research-matters/2025/09/supplemental-poverty-measure.html"
+    ],
+    "runAt": "2026-07-08T20:30:10Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for 2025 senior Supplemental Poverty Measure poverty rate"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the Census Bureau first print for calendar-year 2025 people age 65 years and older under the Supplemental Poverty Measure. This is not the official poverty measure: SPM resources include taxes, refundable credits, and noncash transfers, and subtract necessary expenses including medical out-of-pocket and work expenses, with thresholds adjusted for housing tenure and geography."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Census Bureau Event Calendar and annual income, poverty, and health-insurance release context for the calendar-year 2025 first print.",
+        "result": "Fetched official Census event-calendar surface last revised 2026-01-29 and the annual Income, Poverty, and Health Insurance release timing used for this target: calendar-year 2025 first print scheduled for 2026-09-08."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the Census Poverty in the United States: 2024 publication page and table listing for the exact SPM table family.",
+        "result": "Fetched report number P60-287, publication date 2025-09-09, overall 2024 official poverty rate 10.6 percent, overall 2024 SPM rate 12.9 percent, and Table B-2 title: Number and Percentage of People in Poverty Using the Supplemental Poverty Measure by Age, Race, and Hispanic Origin: 2009 to 2024."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Figure 8 and Table B-2-linked context for the age 65+ SPM history.",
+        "result": "Fetched same-variant age 65 years and older SPM rates from Census figure/table context: 2024 = 15.0 percent, 2023 about 14.2 percent, 2022 about 14.1 percent, and 2021 about 10.7 percent; the same figure shows 2024 official-plus age 65+ poverty at 9.9 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the 2025 Census Research Matters SPM threshold blog for mechanics behind the 2024 first-print level.",
+        "result": "Fetched SPM threshold increases from 2023 to 2024: owners with a mortgage 5.8 percent, owners without a mortgage 5.6 percent, renters 5.2 percent, versus official poverty thresholds up 2.9 percent; the blog states 2024 overall SPM was 12.9 percent and anchored 2024 SPM was 12.4 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the relevant official-source reference class is recent Table B-2 senior SPM first prints. The post-pandemic-transfer senior series was roughly 14.1 in 2022, 14.2 in 2023, and 15.0 in 2024, so the base rate is near 14.4 to 15.0 rather than the all-person 12.9 percent level."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and policy mechanism: the 2024 jump for seniors looks tied to SPM threshold, housing, and medical-expense mechanics rather than a broad all-person poverty surge. For 2025, Social Security COLA and continued older-adult benefit receipt support resources, but Medicare premiums, medical out-of-pocket costs, and housing-adjusted thresholds keep senior SPM above official-plus poverty and make a full reversal unlikely."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = latest same-variant senior SPM level 15.0 percent; historical sample = 2021-2024 senior SPM first-print rates 10.7, 14.1, 14.2, 15.0; adjustment components = +0.2 for continued threshold/medical-expense pressure, +0.1 for age-specific 2024 upward momentum, and 0.0 for no assumed new broad anti-poverty transfer shock, giving point 15.0 + 0.2 + 0.1 = 15.3. Interval method uses sample standard deviation of successive changes: 2021-2022 = +3.4, 2022-2023 = +0.1, 2023-2024 = +0.8 percentage points; sigma = 1.74, half-width = 1.28*sigma = 2.23, so 80% interval = 15.3 +/- 2.23 = [13.1, 17.5] after one-decimal rounding. This volatility estimate uses only 3 annual changes, so the interval is a judgmental 80% interval anchored in realized dispersion rather than a stable time-series estimate."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: downside risk is that the 2024 senior increase was mostly a one-year threshold/expense adjustment and 2025 Social Security and retirement-income gains offset medical costs, which would land near 13.1 or below the interval. Upside risk is another large SPM threshold or medical-expense shock, weaker survey income for older adults, or reduced transfer effectiveness, which would land above the interval near 17.6 or higher. The main outside the interval scenario is a large methodological or threshold shock in Table B-2 rather than ordinary income momentum."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer suggestion to state the small-sample nature of the volatility estimate; retained the resolver, release date, source grounding, base-rate anchor, and forecast numbers because the review found no required fixes."
+      },
+      {
+        "kind": "forecast",
+        "point": 15.3,
+        "ciLow": 13.1,
+        "ciHigh": 17.5
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/prompt.md",
+        "sha256": "7a629451554572a613e68584b9c0c872d886114f2a3e0d5919b3d9d0908fa0fc",
+        "bytes": 7988,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_command.json",
+        "sha256": "f23e0f9ec28b3bdf2557ced9eda6bf451ec06e422962b3f58a2841cfd041a1df",
+        "bytes": 842,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_codex_stdout.jsonl",
+        "sha256": "4cf84bbce057c606fb8a2c9078e7c7a6ce12d8cc2f47a9e5eda28783b78a91a4",
+        "bytes": 3081344,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_codex_events.jsonl",
+        "sha256": "9e55a0293d7efbfc8d0311e6914b0e6e969b58e3c94bdd8edb5afcb7164dc5b1",
+        "bytes": 3081590,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_codex_last_message.txt",
+        "sha256": "67a24e89689c575e44370b7eb09eef589490ce5f21ac58bfcd9b5ebb8bac614a",
+        "bytes": 7073,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_codex_trace.json",
+        "sha256": "4cb32295df203a3f4a286d93696f6fbacc737ad365ce06e3cafb11daebc2491f",
+        "bytes": 509,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_stdout.txt",
+        "sha256": "67a24e89689c575e44370b7eb09eef589490ce5f21ac58bfcd9b5ebb8bac614a",
+        "bytes": 7073,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_prompt.md",
+        "sha256": "6b21b37ddfcf4e4f12d5f28e7ee277639445289379577c67466c1d8d0919382b",
+        "bytes": 9249,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_command.json",
+        "sha256": "523430e6cc7ba7fe56e08cefb343f175cb1fa2309098f715711364a8d71dd1ce",
+        "bytes": 838,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "88cf25b76aaf4d3d98d255290615ea99dfba5e1a9cdcb2f7a9a73c087e031fbe",
+        "bytes": 799,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_codex_events.jsonl",
+        "sha256": "d61b527a0fac513c83beb57b4476a436bea62dd0e5c103317b9c0779aa5842d0",
+        "bytes": 821,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_codex_last_message.txt",
+        "sha256": "4d45006cd2b5c8a6fc1b4258cd826e03a261892c3130769cde0d097a01390c32",
+        "bytes": 470,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_codex_trace.json",
+        "sha256": "1ce417a41cd4f0d63993fa1344021904857745fa2132f2c0a313d30f3656f3eb",
+        "bytes": 504,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_stdout.txt",
+        "sha256": "4d45006cd2b5c8a6fc1b4258cd826e03a261892c3130769cde0d097a01390c32",
+        "bytes": 470,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/revision_prompt.md",
+        "sha256": "4f191d3cd3e821ecaa711836bdd077fedf0f2c1e9fa9d8a70962444e3c97981f",
+        "bytes": 16467,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/command.json",
+        "sha256": "6cff9f3ee8df0c0f61b6577de6ae98ff346ed0e06963af2b13e527f87d676895",
+        "bytes": 836,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/codex_stdout.jsonl",
+        "sha256": "63dd023d1e21cbcbf5d6dd26bf7892af0b9f8323b6f6a8734145a93ecbc6a89f",
+        "bytes": 8086,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/codex_events.jsonl",
+        "sha256": "6c46aeb788babbca7a84a8d78da935473313a8d23ac74550bb999e3de5edc6e1",
+        "bytes": 8108,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/codex_last_message.txt",
+        "sha256": "209952a8975a64c42c06a47c073d644b514c38f51d803644c153d17406a353ed",
+        "bytes": 7523,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/codex_trace.json",
+        "sha256": "33e8f70ab5e914c521c9521badf6ace96178ccc965cfc0e190f7ed85e6855767",
+        "bytes": 503,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/stdout.txt",
+        "sha256": "209952a8975a64c42c06a47c073d644b514c38f51d803644c153d17406a353ed",
+        "bytes": 7523,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/raw_response.txt",
+        "sha256": "209952a8975a64c42c06a47c073d644b514c38f51d803644c153d17406a353ed",
+        "bytes": 7523,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/parsed_cells.json",
+        "sha256": "2e519fd047c4ff2cb554a84264f611b66d882fcd003fc491659519d80a92e62b",
+        "bytes": 8427,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/normalized_cells.json",
+        "sha256": "060f30845e4778457269c9760e92d413040f24d93913091563391fc1dfd0585d",
+        "bytes": 8066,
+        "createdAt": "2026-07-08T20:29:45Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/validation.json",
+        "sha256": "d7a1e58271d9803735ed89879881d05199495007291fa4e26e929d3187876054",
+        "bytes": 124,
+        "createdAt": "2026-07-08T20:29:45Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T20:29:45Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "431fb3d470349ed4484187d1e970370f22f33a9f9aba9fc685f2a75686ed4a69"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-29-45z-census-spm-poverty-rate-65-plus-2025/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider noting that the volatility estimate is based on only three annual changes and is therefore a judgmental 80% interval rather than a stable time-series estimate."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "If space allows, cite the exact Census event-calendar entry title for the 2026-09-08 release date."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestion to state the small-sample nature of the volatility estimate; retained the resolver, release date, source grounding, base-rate anchor, and forecast numbers because the review found no required fixes.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestion to state the small-sample nature of the volatility estimate; retained the resolver, release date, source grounding, base-rate anchor, and forecast numbers because the review found no required fixes.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publication-ready under the rubric; resolver, prior, update, interval, tails, and JSON fields are coherent with the target contract."
+    }
+  }
+]

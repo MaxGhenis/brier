@@ -1,0 +1,46 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.cps.epop_persons_with_disability
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-disability-employment-population-ratio-july-2026"
+- targetUnit: "percent"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+dd6a2b3686ec975817bc3d6ee6d71294e250241185a276c5e78c8f4b1865dc88
+
+# Draft forecast response
+{"slug":"us-disability-employment-population-ratio-july-2026","country":"US","type":"data","title":"Disability employment-population ratio, July 2026","question":"What will BLS first report for the not seasonally adjusted employment-population ratio for people with a disability, 16 years and over, in July 2026?","unit":"percent","pointEstimate":21.6,"ciLow":20.9,"ciHigh":22.3,"confidence":0.8,"resolutionDate":"2026-08-07","resolutionSource":"U.S. Bureau of Labor Statistics Employment Situation, Table A-6","resolutionSourceUrl":"https://www.bls.gov/news.release/empsit.t06.htm","resolutionRule":"Resolves to the first BLS Employment Situation Table A-6 print for July 2026, employment-population ratio for people with a disability, total 16 years and over, not seasonally adjusted, in percent, rounded to one decimal. Later revisions or historical database updates do not change resolution.","dataPointId":"bls.cps.LNU02374597.2026-07.first_print","historicalContext":[{"label":"Feb 2026","value":22.4},{"label":"Mar 2026","value":22.2},{"label":"Apr 2026","value":21.8},{"label":"May 2026","value":21.7},{"label":"Jun 2026","value":21.8}],"drivers":["Recent disability EPOP drift lower in early 2026","July non-seasonally-adjusted month effect usually slightly negative from June","Soft June labor market and lower overall participation","High month-to-month CPS sampling noise for disability subgroup"],"sourceContext":["https://www.bls.gov/schedule/news_release/empsit.htm","https://www.bls.gov/news.release/empsit.t06.htm","https://www.bls.gov/news.release/empsit.nr0.htm","https://fred.stlouisfed.org/data/LNU02374597"],"runAt":"2026-07-08T20:27:06Z","reasoning":[{"kind":"heading","text":"July 2026 disability employment-population ratio"},{"kind":"text","text":"Framing and exact resolver: this forecast targets BLS CPS series LNU02374597, Employment-Population Ratio - With a Disability, 16 Years and over, not seasonally adjusted, as printed in Employment Situation Table A-6 for July 2026."},{"kind":"tool","tool":"official.lookup","call":"BLS release schedule lookup for Employment Situation July 2026 reference month","result":"BLS schedule lists July 2026 Employment Situation release date as Aug. 07, 2026 at 08:30 AM."},{"kind":"tool","tool":"official.lookup","call":"BLS Employment Situation Table A-6 June 2026 latest official table","result":"Table A-6 shows total people with a disability employment-population ratio of 22.7 in June 2025 and 21.8 in June 2026; employed people with a disability were 8,081 thousand in June 2025 and 8,054 thousand in June 2026."},{"kind":"tool","tool":"history.lookup","call":"FRED mirror of BLS LNU02374597 recent monthly observations","result":"LNU02374597 values fetched: Feb 2026 22.4, Mar 2026 22.2, Apr 2026 21.8, May 2026 21.7, Jun 2026 21.8; units percent, not seasonally adjusted."},{"kind":"tool","tool":"official.lookup","call":"BLS June 2026 Employment Situation labor-market context","result":"June 2026 nonfarm payrolls were +57,000, unemployment rate was 4.2 percent, labor force participation decreased 0.3 percentage point to 61.5 percent, and overall employment-population ratio edged down 0.2 percentage point to 59.0 percent."},{"kind":"text","text":"Reference class and base rate: for this not seasonally adjusted level series, persistence from the latest print is the base rate. The July target uses the same variant as the anchors: total people with a disability, age 16 years and over, not seasonally adjusted, percent."},{"kind":"math","text":"Prior/update/interval: persistence prior is Jun 2026 at 21.8. Historical sample is monthly LNU02374597 values from Jan 2024 through Jun 2026, excluding the missing Oct 2025 observation; successive-change dispersion gives sigma = 0.528 percentage point, so 1.28*sigma = 0.676. Adjustment components are -0.1 point for recent 2026 downward level drift, -0.1 point for typical Jun-to-Jul NSA softness, and 0.0 point for mixed labor-market context, implying 21.8 - 0.2 = 21.6. The 80% interval is 21.6 +/- 0.7, rounded to [20.9, 22.3]."},{"kind":"text","text":"Momentum: the series moved 22.6, 22.4, 22.2, 21.8, 21.7, 21.8 from Jan through Jun 2026, so the latest uptick is small relative to the earlier slide and does not fully erase the weaker level."},{"kind":"text","text":"Counter-consideration: upside risk is a rebound in disability labor-force attachment or CPS sampling that would land above the interval, roughly 22.4 or higher; downside risk is another broad participation drop or subgroup sampling swing that would land below the interval, roughly 20.8 or lower."},{"kind":"forecast","point":21.6,"ciLow":20.9,"ciHigh":22.3}]}

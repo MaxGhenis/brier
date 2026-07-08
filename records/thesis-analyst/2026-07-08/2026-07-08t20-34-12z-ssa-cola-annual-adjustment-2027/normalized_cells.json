@@ -1,0 +1,115 @@
+[
+ {
+  "slug": "social-security-cola-2027",
+  "country": "US",
+  "type": "data",
+  "title": "Social Security COLA 2027",
+  "question": "Social Security Administration annual cost-of-living adjustment for Social Security benefits payable in 2027, first official print, percent rounded to the nearest tenth.",
+  "unit": "percent",
+  "pointEstimate": 3.8,
+  "ciLow": 0.7,
+  "ciHigh": 6.9,
+  "confidence": 0.8,
+  "resolutionDate": "2026-10-14",
+  "resolutionSource": "Social Security Administration latest Cost-of-Living Adjustment page",
+  "resolutionSourceUrl": "https://www.ssa.gov/oact/cola/latestCOLA.html",
+  "resolutionRule": "Resolve to SSA's first official published COLA for Social Security benefits beginning with December 2026 benefits payable in January 2027. Use the percent adjustment rounded to the nearest tenth of one percent under the SSA CPI-W formula comparing the average CPI-W for July, August, and September 2026 with the average CPI-W for July, August, and September 2025. Ignore later revisions or corrections unless the official resolver policy explicitly treats the first print as invalid.",
+  "dataPointId": "ssa.cola.annual_adjustment.2027.first_print",
+  "historicalContext": [
+   {
+    "label": "latest official COLA, benefits payable 2026",
+    "value": 2.8
+   },
+   {
+    "label": "official COLA, benefits payable 2025",
+    "value": 2.5
+   },
+   {
+    "label": "official COLA, benefits payable 2024",
+    "value": 3.2
+   },
+   {
+    "label": "official COLA, benefits payable 2023",
+    "value": 8.7
+   },
+   {
+    "label": "official COLA, benefits payable 2022",
+    "value": 5.9
+   }
+  ],
+  "drivers": [
+   "May 2026 CPI-W already 3.645 percent above the 2025 Q3 CPI-W base average",
+   "Energy inflation lifted near-term CPI but may partly reverse before Q3",
+   "Core CPI is lower than headline, limiting persistence",
+   "SSA formula rounds the Q3 CPI-W increase to the nearest tenth",
+   "September 2026 CPI release fixes the last resolving input on October 14, 2026"
+  ],
+  "sourceContext": [
+   "https://www.ssa.gov/oact/cola/latestCOLA.html",
+   "https://www.ssa.gov/oact/cola/colaseries.html",
+   "https://www.bls.gov/schedule/2026/10_sched.htm",
+   "https://www.bls.gov/news.release/cpi.nr0.htm"
+  ],
+  "runAt": "2026-07-08T20:34:22Z",
+  "reasoning": [
+   {
+    "kind": "heading",
+    "text": "Forecast for 2027 Social Security COLA"
+   },
+   {
+    "kind": "text",
+    "text": "Framing and exact resolver: this forecasts SSA's first official annual COLA for Social Security benefits payable in January 2027, not CPI-U, CPI-E, SSI dollars, taxable maximum, or average benefit dollars. The resolving CPI variant is CPI-W, U.S. city average, all items, series code CWUR0000SA0."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened SSA latest Cost-of-Living Adjustment page to verify formula, latest print, rounding precision, and the 2025 Q3 CPI-W base for the next COLA calculation.",
+    "result": "Fetched latest COLA = 2.8 percent; SSA states the Q3 2025 CPI-W average = 317.265, Q3 2024 base average = 308.729, July 2025 CPI-W = 316.349, August 2025 = 317.306, September 2025 = 318.139, and the published calculation was (317.265 - 308.729) / 308.729 x 100 = 2.8 percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened SSA COLA history page for the recent official reference class of annual COLA outcomes.",
+    "result": "Fetched recent official COLAs: 2016 = 0.3, 2017 = 2.0, 2018 = 2.8, 2019 = 1.6, 2020 = 1.3, 2021 = 5.9, 2022 = 8.7, 2023 = 3.2, 2024 = 2.5, 2025 = 2.8 percent."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened BLS October 2026 release calendar to verify the release date for the September 2026 CPI input that completes Q3 2026 CPI-W.",
+    "result": "Fetched official schedule: Consumer Price Index for September 2026 is scheduled on October 14, 2026 at 08:30 AM Eastern; this is the first scheduled release containing the September 2026 CPI-W needed for SSA's 2027 COLA calculation."
+   },
+   {
+    "kind": "tool",
+    "tool": "official.lookup",
+    "call": "Opened BLS May 2026 CPI Summary for latest CPI-W and inflation momentum before the Q3 measurement window.",
+    "result": "Fetched May 2026 CPI-W = 328.829, CPI-W 12-month change = 4.4 percent, CPI-W not-seasonally-adjusted monthly change = 0.7 percent, CPI-U 12-month change = 4.2 percent, core CPI-U 12-month change = 2.9 percent, and energy 12-month change = 23.5 percent."
+   },
+   {
+    "kind": "text",
+    "text": "Base rate/reference class: the recent SSA COLA sample averages 3.11 percent over 2016-2025, but it is fat-tailed because pandemic and energy shocks produced 5.9 and 8.7 percent outcomes. A plain outside-view prior is around 3.1 percent, with a wide realized-dispersion interval."
+   },
+   {
+    "kind": "math",
+    "text": "Current-input math: using SSA's Q3 2025 CPI-W base average 317.265 and BLS May 2026 CPI-W 328.829 gives (328.829 - 317.265) / 317.265 x 100 = 3.645 percent. I round the point above that to 3.8 percent because Q3 still includes July-September, core inflation is positive, and energy strength may not fully persist."
+   },
+   {
+    "kind": "math",
+    "text": "Prior/update/interval: model is a 2016-2025 SSA COLA reference-class prior with a May-2026 CPI-W nowcast update; historical sample = [0.3, 2.0, 2.8, 1.6, 1.3, 5.9, 8.7, 3.2, 2.5, 2.8], mean = 3.11, sigma = 2.46 from the values themselves, half-width = 1.28*sigma = 3.14. Adjustment components are level +0.54 from the May CPI-W implied 3.645 percent versus the 3.11 base rate, momentum +0.25 for positive core inflation, one-off energy -0.10 for reversal risk, and policy-mechanism 0.00 because the SSA formula is automatic, giving a 3.8 point. Interval arithmetic: 3.8 - 3.14 = 0.66 and 3.8 + 3.14 = 6.94, rounded to 0.7 to 6.9 percent; this is an approximate normal-reference interval from realized COLA dispersion, not a calibrated backtest."
+   },
+   {
+    "kind": "text",
+    "text": "Counter-consideration: upside risk is another gasoline or tariff-driven Q3 price jump that would land above the interval near or above 7.0 percent. Downside risk is a sharp energy reversal plus soft core readings in July-September that would land below the interval near zero, though the COLA is mechanically floored at 0.0 percent if the rounded CPI-W increase is zero or negative. Outside the interval would also occur if a government shutdown or formal correction changes the first SSA publication timing or label, but the value should still be mechanically determined from CPI-W."
+   },
+   {
+    "kind": "text",
+    "text": "Review disposition: accepted the optional reviewer clarifications on approximate interval calibration, strict first-print correction handling, and the mechanical 0.0 percent lower-tail floor; no required fixes were raised."
+   },
+   {
+    "kind": "forecast",
+    "point": 3.8,
+    "ciLow": 0.7,
+    "ciHigh": 6.9
+   }
+  ]
+ }
+]

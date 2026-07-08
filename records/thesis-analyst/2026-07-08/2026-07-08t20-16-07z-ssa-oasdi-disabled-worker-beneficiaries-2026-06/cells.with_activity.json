@@ -1,0 +1,411 @@
+[
+  {
+    "slug": "ssdi-disabled-worker-beneficiaries-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "SSDI disabled workers, June 2026",
+    "question": "SSA Monthly Statistical Snapshot Table 2 disabled workers beneficiaries, June 2026, not seasonally adjusted, first print, in thousands",
+    "unit": "thousands",
+    "pointEstimate": 7010,
+    "ciLow": 7002,
+    "ciHigh": 7017,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "Official SSA Monthly Statistical Snapshot Table 2 release",
+    "resolutionSourceUrl": "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-06.html",
+    "resolutionRule": "Resolve to the first published SSA Monthly Statistical Snapshot for June 2026, Table 2 Social Security benefits, Disability Insurance, Disabled workers, Beneficiaries Number (thousands). Use the whole-thousands value exactly as first printed and ignore later revisions or corrections unless SSA replaces the first-print page before archival capture. The 2026-06 URL is the expected stable resolver page until SSA publishes the first print.",
+    "dataPointId": "ssa.oasdi.disabled_worker_beneficiaries.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 disabled workers, Table 2, thousands",
+        "value": 7029
+      },
+      {
+        "label": "April 2026 disabled workers, Table 2, thousands",
+        "value": 7050
+      },
+      {
+        "label": "March 2026 disabled workers, Table 2, thousands",
+        "value": 7070
+      },
+      {
+        "label": "February 2026 disabled workers, Table 2, thousands",
+        "value": 7081
+      },
+      {
+        "label": "January 2026 disabled workers, Table 2, thousands",
+        "value": 7099
+      },
+      {
+        "label": "December 2025 disabled workers, Table 2, thousands",
+        "value": 7126
+      }
+    ],
+    "drivers": [
+      "Persistent SSDI disabled-worker roll decline",
+      "Recent monthly losses near 19 thousand",
+      "No identified one-month policy shock before June 2026 first print",
+      "Whole-thousands SSA Table 2 rounding"
+    ],
+    "sourceContext": [
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/",
+      "https://www.ssa.gov/policy/pub_schedule.html",
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-05.html",
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-04.html",
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-03.html",
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-02.html",
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-01.html",
+      "https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2025-12.html"
+    ],
+    "runAt": "2026-07-08T20:16:27Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "SSDI disabled-worker beneficiaries, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is SSA Monthly Statistical Snapshot Table 2, Social Security benefits, Disability Insurance, Disabled workers, Beneficiaries Number, in thousands, for June 2026. The resolution page should follow SSA's monthly archive pattern at /policy/docs/quickfacts/stat_snapshot/2026-06.html, with the value rounded to whole thousands as printed; this is the not seasonally adjusted published SSA snapshot stock."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Monthly Statistical Snapshot current page and Table 2 for latest official value.",
+        "result": "Fetched May 2026 Monthly Statistical Snapshot released June 2026; Table 2 shows Disabled workers beneficiaries 7,029 thousand, Disability Insurance total 8,059 thousand, and disabled-worker monthly benefits 11,491 million dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA publishing schedule for release timing.",
+        "result": "Fetched SSA Publishing Schedule text: Monthly Statistical Snapshot frequency is Monthly; current snapshot page says May 2026 was released in June 2026, so the June 2026 first print is scheduled for the July 2026 monthly update, with ledger resolutionDate 2026-07-31."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA archive pages for April and March 2026 snapshots, Table 2 disabled workers.",
+        "result": "Fetched April 2026 disabled workers 7,050 thousand and March 2026 disabled workers 7,070 thousand from Table 2; same variant, not seasonally adjusted SSA first-print monthly snapshot values."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA archive pages for February 2026, January 2026, and December 2025 snapshots, Table 2 disabled workers.",
+        "result": "Fetched February 2026 disabled workers 7,081 thousand, January 2026 disabled workers 7,099 thousand, and December 2025 disabled workers 7,126 thousand from Table 2."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent official-source reference class is successive changes in the same Table 2 disabled-worker stock from December 2025 through May 2026. The monthly changes are -27, -18, -11, -20, and -21 thousand, showing a steady decline rather than a flat level."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: level is 7,029 thousand in May; momentum is about -19 thousand per month; no public first-print evidence points to a June-only administrative shock; policy and demographic mechanisms still favor gradual exits, conversions, deaths, and lower inflow keeping the roll drifting down."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: May-level persistence plus recent mean monthly change prior on the Dec 2025-May 2026 official sample gives mean change = (-27 - 18 - 11 - 20 - 21) / 5 = -19.4 thousand, so point = 7,029 - 19.4 = 7,009.6, rounded to 7,010. For the 80% interval, sample sigma from successive changes = 5.77 thousand, so half-width = 1.28*sigma = 1.28*5.77 = 7.39 thousand; 7,009.6 +/- 7.39 gives 7,002.2 to 7,017.0, rounded to 7,002-7,017. The five-change local-volatility window is intentional for this one-month-ahead first-print forecast because the roll is smooth and recent administrative trend is the main near-term risk signal."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk would be a temporary slowdown in terminations or more retroactive awards, which would land above the interval if June prints above 7,017 thousand. Downside risk would be a processing cleanup or unusually heavy exits, which would land below the interval if the first print is below 7,002 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver warning by naming SSA Monthly Statistical Snapshot Table 2 and adding the May 2026 snapshot URL; accepted the interval warning by explicitly justifying the five-month same-series local-volatility window for a one-month-ahead forecast; accepted the note that the June 2026 page is a resolver placeholder until first print publication."
+      },
+      {
+        "kind": "forecast",
+        "point": 7010,
+        "ciLow": 7002,
+        "ciHigh": 7017
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/prompt.md",
+        "sha256": "9750ee06594328620b9e331ddef0d9286fa0d2d8a34e1514d756f26d345f98cf",
+        "bytes": 7789,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_command.json",
+        "sha256": "d1c5767f56345a2bd0586c6b614a3f0b7b685e66b098b7573e79f27885605bed",
+        "bytes": 853,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "f50ac8cf089168947d192264a0e7915350d56103d6bff2318401e55b7decd969",
+        "bytes": 1287099,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_codex_events.jsonl",
+        "sha256": "f1717f6a1306089211a63959bf6205d81092f6abf3a8351663b3064f80deae6a",
+        "bytes": 1287414,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_codex_last_message.txt",
+        "sha256": "de68b8875c0ed39291af7e02270c2bb2bff15fa6121d3305e10f237e353035a6",
+        "bytes": 5634,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_codex_trace.json",
+        "sha256": "c51616d1232d66c76c06f340a2eeaf632a797f61e800b058d4468961449e9d5e",
+        "bytes": 509,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_stdout.txt",
+        "sha256": "de68b8875c0ed39291af7e02270c2bb2bff15fa6121d3305e10f237e353035a6",
+        "bytes": 5634,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_prompt.md",
+        "sha256": "2c9b35979891098121561a108ce2c688275588a5f0cb9098464e21c49f31be81",
+        "bytes": 7844,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_command.json",
+        "sha256": "03178a3041e63e4ae66bd2d7d631c50aaf41096414cffd5491fd32302425c8ef",
+        "bytes": 849,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "79fb513468f46568c91b6c9a264d628a37130145ba02bf8a014b50cc276e9912",
+        "bytes": 2819,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "c8774e3443469cb26c157b8f37fa98aaa1f21f664f2df95a34414493550eda6c",
+        "bytes": 2833,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "0b3c015b16c0b3b4a0b1797ab379f1917e21fd55bd4141ff0e9273cdceb721ca",
+        "bytes": 1357,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "9047ea0e3f470b8c117bb92d2c677839b7409b7f26d8a88522bf329183b6607c",
+        "bytes": 504,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "0b3c015b16c0b3b4a0b1797ab379f1917e21fd55bd4141ff0e9273cdceb721ca",
+        "bytes": 1357,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/revision_prompt.md",
+        "sha256": "d46b47345eff7cbfcb924c3a8f1cfb094720b22dd25c28463ee8a8496b2188dc",
+        "bytes": 15716,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/command.json",
+        "sha256": "e2255435085e27890eef435c7a474b8bc27ffabbd9c9fb3b7b7c88c0a2319c26",
+        "bytes": 847,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/codex_stdout.jsonl",
+        "sha256": "d0216fb96f7046bb34f81c9735d06f3256e4f84771d614f5db73a94458b46a20",
+        "bytes": 7081,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/codex_events.jsonl",
+        "sha256": "5c416e221d393705e31795ec5cde5ccbe1303c636e216dbe6abfc4b2f9466f13",
+        "bytes": 7103,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/codex_last_message.txt",
+        "sha256": "971a72fda58e641a49fd07d9c22b7246526cddeded0a726c4286921fa32bf387",
+        "bytes": 6510,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/codex_trace.json",
+        "sha256": "b4a726f254d20663e14e852474cb8346ccf16850f1cddd04ef9f87a8346b22bf",
+        "bytes": 503,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/stdout.txt",
+        "sha256": "971a72fda58e641a49fd07d9c22b7246526cddeded0a726c4286921fa32bf387",
+        "bytes": 6510,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/raw_response.txt",
+        "sha256": "971a72fda58e641a49fd07d9c22b7246526cddeded0a726c4286921fa32bf387",
+        "bytes": 6510,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/parsed_cells.json",
+        "sha256": "a14e8abd23a4f61658b57d068df1e49ca2ed3d0acabe6701c8f248ac13d8200c",
+        "bytes": 7455,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/normalized_cells.json",
+        "sha256": "8248af536a775f1d1abcf8d9dda039741990b4e2a836c173a7f4122479578106",
+        "bytes": 7077,
+        "createdAt": "2026-07-08T20:16:07Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/validation.json",
+        "sha256": "6794012f6c9b2c39e744238d02235bbf04f83480e51a20c627124f272f0d2396",
+        "bytes": 145,
+        "createdAt": "2026-07-08T20:16:07Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T20:16:07Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "ebd391226dfdd7be84fd8ccdc95bc13c096c85b043f585e374b9da754e4622bc"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-16-07z-ssa-oasdi-disabled-worker-beneficiaries-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The draft uses May 2026 as the latest official value but does not include the May 2026 snapshot URL in sourceContext, and resolutionSource is generic despite the resolver depending on SSA Monthly Statistical Snapshot Table 2.",
+          "actionRequested": "Add the May 2026 snapshot URL to sourceContext and make resolutionSource name SSA Monthly Statistical Snapshot Table 2 explicitly."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is based on only five recent month-to-month changes, which may understate uncertainty if treated as the full realized volatility sample.",
+          "actionRequested": "Either justify the five-month local-volatility window as intentional for a one-month-ahead forecast, or add a longer same-series historical change/residual sample and explain whether it changes the half-width."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Mention that the June 2026 page URL is a resolver placeholder until SSA publishes the first print."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the compact prior/update/interval sentence, label the prior as May-level persistence plus recent mean monthly change to make the baseline clearer."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver warning by naming SSA Monthly Statistical Snapshot Table 2 and adding the May 2026 snapshot URL; accepted the interval warning by explicitly justifying the five-month same-series local-volatility window for a one-month-ahead forecast; accepted the note that the June 2026 page is a resolver placeholder until first print publication.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver warning by naming SSA Monthly Statistical Snapshot Table 2 and adding the May 2026 snapshot URL; accepted the interval warning by explicitly justifying the five-month same-series local-volatility window for a one-month-ahead forecast; accepted the note that the June 2026 page is a resolver placeholder until first print publication.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver warning by naming SSA Monthly Statistical Snapshot Table 2 and adding the May 2026 snapshot URL; accepted the interval warning by explicitly justifying the five-month same-series local-volatility window for a one-month-ahead forecast; accepted the note that the June 2026 page is a resolver placeholder until first print publication.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver warning by naming SSA Monthly Statistical Snapshot Table 2 and adding the May 2026 snapshot URL; accepted the interval warning by explicitly justifying the five-month same-series local-volatility window for a one-month-ahead forecast; accepted the note that the June 2026 page is a resolver placeholder until first print publication.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Publishable with minor warnings: resolver and forecast arithmetic are coherent, but the evidence links and interval justification should be tightened before publication."
+    }
+  }
+]

@@ -1,0 +1,325 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T20:34:12Z",
+  "series": "ssa.cola.annual_adjustment",
+  "period": "2027",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "social-security-cola-2027",
+    "period": "2027",
+    "series": "ssa.cola.annual_adjustment",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T20:34:12Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "950d4abe8ca21562bc23701e92bf019cfeffb420f2db4f22dd0416d9d15fb982"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the 80% interval is an approximate normal-reference interval from the 2016-2025 realized COLA standard deviation, not a calibrated backtest."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tighten the correction rule to preserve first-print wording: resolve to SSA's first official COLA print, ignoring later corrections unless the resolver policy explicitly treats the first print as invalid."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider stating that the lower tail is mechanically floored at 0.0% if the rounded CPI-W increase is zero or negative."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional reviewer clarifications on approximate interval calibration, strict first-print correction handling, and the mechanical 0.0 percent lower-tail floor; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional reviewer clarifications on approximate interval calibration, strict first-print correction handling, and the mechanical 0.0 percent lower-tail floor; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional reviewer clarifications on approximate interval calibration, strict first-print correction handling, and the mechanical 0.0 percent lower-tail floor; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable with only minor clarity improvements; resolver, evidence, prior/update math, interval, and JSON fields are broadly coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/prompt.md",
+      "sha256": "003291399accc0018f11f5ef790546d3a30a22766608749441557d87ff0ad7ab",
+      "bytes": 7752,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_command.json",
+      "sha256": "370db0a4479c7bba1687bd47e6c172ec8f262325a82599217f7d36866b25effd",
+      "bytes": 837,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_codex_stdout.jsonl",
+      "sha256": "54eb8f56e3468c76bf1d21494eb0245389691fb42c42a140dfdb72fabced91e5",
+      "bytes": 1400756,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_codex_events.jsonl",
+      "sha256": "1b1f311b002393ee71494e216cc7a148c9d9685653f358a504b86fde760d7d6e",
+      "bytes": 1400939,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_codex_last_message.txt",
+      "sha256": "2f1467acd1f8c1c0f0f0cf94524979a9b534108d7af5c56eb1df2b2a57a74c30",
+      "bytes": 5958,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_codex_trace.json",
+      "sha256": "12cb306a8e5585bf9a326cbbc2bc4213c7598c239e1fc06c0f8b557a88b14e41",
+      "bytes": 509,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_stdout.txt",
+      "sha256": "2f1467acd1f8c1c0f0f0cf94524979a9b534108d7af5c56eb1df2b2a57a74c30",
+      "bytes": 5958,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_prompt.md",
+      "sha256": "9ec8ac34832cee91535450ff187af74ad4ea7a1e66f6b012108e50cb2e220e1d",
+      "bytes": 8131,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_command.json",
+      "sha256": "7e7b546cfc0374b7202b212d4bfc49d6e19d5209ea6eb4c2e79d8dee583fd867",
+      "bytes": 833,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "5a0349752207e2ce64fc0b2e1c932e54740285357c184b645ab4ef4f20b5a22f",
+      "bytes": 1842,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_codex_events.jsonl",
+      "sha256": "8b611c905c3aa6e09512928300ba4a7a57f4b79eb678831048da5e05a9a95288",
+      "bytes": 1852,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_codex_last_message.txt",
+      "sha256": "9f7baa5bdb73e2a8fff32f4bb33c73ee2040326bf5e0482bc8bd25ca39885d1c",
+      "bytes": 722,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_codex_trace.json",
+      "sha256": "02ddc62399a9c4f76289ee1e2cec4780df94d792f82bf846189d505836759fc1",
+      "bytes": 504,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_stdout.txt",
+      "sha256": "9f7baa5bdb73e2a8fff32f4bb33c73ee2040326bf5e0482bc8bd25ca39885d1c",
+      "bytes": 722,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/revision_prompt.md",
+      "sha256": "1b91176f585a9ca8187206a712f5cd1290eae28e4c12cf4043d0e7c04ae9ddad",
+      "bytes": 15368,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/command.json",
+      "sha256": "ae43dc55050329a167a2bf7861d4208e48cce93eb41c3f7db0bbb1f762af1fd5",
+      "bytes": 831,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/codex_stdout.jsonl",
+      "sha256": "c3bb698361df772ac37bd367b2bcfa3d940d353b63175789e3dc28aeff6c2542",
+      "bytes": 6997,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/codex_events.jsonl",
+      "sha256": "111b54ee9f19a7baedc1028bb008425a66dbbe27d54f2fd0f4aad552edb7df41",
+      "bytes": 7019,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/codex_last_message.txt",
+      "sha256": "7b55400d0101ca1dda7a60c720951be2e3e11ff058e387a040b53dc51261aa08",
+      "bytes": 6438,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/codex_trace.json",
+      "sha256": "e668f1df70ed63869b0923c90a42cf68c58249a2f5317dc38184ea93feb79391",
+      "bytes": 503,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/stdout.txt",
+      "sha256": "7b55400d0101ca1dda7a60c720951be2e3e11ff058e387a040b53dc51261aa08",
+      "bytes": 6438,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/raw_response.txt",
+      "sha256": "7b55400d0101ca1dda7a60c720951be2e3e11ff058e387a040b53dc51261aa08",
+      "bytes": 6438,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/parsed_cells.json",
+      "sha256": "edddfc321ea2021f8cd2b52084c8978138f227d296dda5426993cca260e10d37",
+      "bytes": 7328,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/normalized_cells.json",
+      "sha256": "98f8a26418b25d57bbe58345c3cd3b63bc51421a8af77a70f540b3f4f64673cc",
+      "bytes": 6973,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/validation.json",
+      "sha256": "fe59fb646989a732330e2ab8e7315a8fe4a51835e072e57b668223e42e714943",
+      "bytes": 126,
+      "createdAt": "2026-07-08T20:34:12Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-34-12z-ssa-cola-annual-adjustment-2027/manifest.json",
+      "sha256": "a246a85daaf6ae433a16f9b64b3a6d4d43d08455116e140c0edbe654de42ddef",
+      "bytes": 14420,
+      "createdAt": "2026-07-08T20:34:12Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "social-security-cola-2027",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,339 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T20:26:34Z",
+  "series": "bls.cps.epop_persons_with_disability",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-disability-employment-population-ratio-july-2026",
+    "period": "2026-07",
+    "series": "bls.cps.epop_persons_with_disability",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T20:26:34Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "e639f3a9652f1ad471e4bd1593e558ef510915733ce1ecc11b41019ba45a3bc3"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolver uses the rolling BLS Table A-6 URL, which will later point to newer Employment Situation releases even though the rule says first print.",
+        "actionRequested": "Add an archived/first-print provenance note or state that resolution should capture the Aug. 7, 2026 first-print Table A-6 artifact when released, while retaining the ledger target."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The persistence prior is present but appears after current-evidence tool notes and drivers, weakening the required prior-before-update structure.",
+        "actionRequested": "Reorder the reasoning so the June 2026 persistence prior of 21.8 is stated before the drift, July seasonality, and labor-market context updates."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Briefly cite the historical Jun-to-Jul NSA effect used for the -0.1 adjustment, since the current text names it but does not quantify the sample."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that FRED is used only as a history mirror, not as the final resolution source."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification for the rolling Table A-6 URL and first-print artifact capture, moved the persistence base rate before update evidence, and stated that FRED is only a history mirror. Rejected adding new quantified Jun-to-Jul history because the final submission is limited to evidence already in the draft.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification for the rolling Table A-6 URL and first-print artifact capture, moved the persistence base rate before update evidence, and stated that FRED is only a history mirror. Rejected adding new quantified Jun-to-Jul history because the final submission is limited to evidence already in the draft.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification for the rolling Table A-6 URL and first-print artifact capture, moved the persistence base rate before update evidence, and stated that FRED is only a history mirror. Rejected adding new quantified Jun-to-Jul history because the final submission is limited to evidence already in the draft.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification for the rolling Table A-6 URL and first-print artifact capture, moved the persistence base rate before update evidence, and stated that FRED is only a history mirror. Rejected adding new quantified Jun-to-Jul history because the final submission is limited to evidence already in the draft.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; resolver, unit, first-print rule, prior/update math, interval, tails, and JSON fields are broadly coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/prompt.md",
+      "sha256": "dd6a2b3686ec975817bc3d6ee6d71294e250241185a276c5e78c8f4b1865dc88",
+      "bytes": 7895,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_command.json",
+      "sha256": "5cff4305971d4751d6a49c0f4fbb28baee7749d610e6a84f0b679952812fb521",
+      "bytes": 850,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "b7841e65e265cdf249d6b69cc74c2684cb953bbcddfa1cf36b9429dd0dc7da64",
+      "bytes": 29830,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_codex_events.jsonl",
+      "sha256": "8a927af5b6e65062517b3fe6092502fb2b51251778d1328e172b6c56a831e45c",
+      "bytes": 29950,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_codex_last_message.txt",
+      "sha256": "fc055bfbf4ba3e60a9aecc66b69597ed7171811cca769f8ec279b972e17b6dc4",
+      "bytes": 4660,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_codex_trace.json",
+      "sha256": "9a50e3da79835d4ea9366ef0678d654ee0aa07450327a2c6c3e1f15189d9be7c",
+      "bytes": 509,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_stdout.txt",
+      "sha256": "fc055bfbf4ba3e60a9aecc66b69597ed7171811cca769f8ec279b972e17b6dc4",
+      "bytes": 4660,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_prompt.md",
+      "sha256": "b6d32cb9af84f586e6cf6ba009e77ff5d50278f6d0b65c74523878644597c45a",
+      "bytes": 6872,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_command.json",
+      "sha256": "7999fcf8f5e24cdd7c022f9722f2c7c35de09790d2d41790e37cbec771dee9ae",
+      "bytes": 846,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "ca2b9593bddf7f07c5a98c33749cb2eae0d1bef26b3e96068dc27223abd7d9b6",
+      "bytes": 1974,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "2f525d0297422b8de0b95dd009a49adad6a1eef4cb06c7909d8913f65068afb1",
+      "bytes": 1990,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "a6887a12d14ce4412bf880c17145e59421b8223be71afab835162fcf535e72e4",
+      "bytes": 1229,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "9f90ef59836ad3d511f2e28199b32d754c921825f4112384d84903e0c2f3c46c",
+      "bytes": 504,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "a6887a12d14ce4412bf880c17145e59421b8223be71afab835162fcf535e72e4",
+      "bytes": 1229,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/revision_prompt.md",
+      "sha256": "5dd1b33f7ae407f6f077d535c0b7a240f1991a38ae48d279f67665300c4938e7",
+      "bytes": 14720,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/command.json",
+      "sha256": "4c2623e293977b32cffde71236c116aa4cc4618e80464d41e37c0a0f74dc0e54",
+      "bytes": 844,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/codex_stdout.jsonl",
+      "sha256": "bea0b9684abb3af43eeb52e432ed03169f6fd0e556488ff2d663416261a6eb4e",
+      "bytes": 5893,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/codex_events.jsonl",
+      "sha256": "51900c59189ff3bba632bab44d1b8c5c54124ff5cce4d94d1401b722e76577bb",
+      "bytes": 5915,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/codex_last_message.txt",
+      "sha256": "fc04fdf21d49cefcaac53ff020504e5a8d47a953fed2fad6a8cc447a4559b492",
+      "bytes": 5336,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/codex_trace.json",
+      "sha256": "103bc565abb03a53a05a5c21daff3a84b2c5d5abc09e21e1fbfd3d3954900bb1",
+      "bytes": 503,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/stdout.txt",
+      "sha256": "fc04fdf21d49cefcaac53ff020504e5a8d47a953fed2fad6a8cc447a4559b492",
+      "bytes": 5336,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/raw_response.txt",
+      "sha256": "fc04fdf21d49cefcaac53ff020504e5a8d47a953fed2fad6a8cc447a4559b492",
+      "bytes": 5336,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/parsed_cells.json",
+      "sha256": "21f67ba2c6627f27073abf931abb793bd0a71de900c302b99bdc9e48db89a60a",
+      "bytes": 6219,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/normalized_cells.json",
+      "sha256": "55cefda338d422a71eec67a9fe969a3bef811b62ac5d6b30838bf388d0fa0772",
+      "bytes": 5867,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/validation.json",
+      "sha256": "7745ab7583c65169c0c540bbe7aeabf753f67c68ae62169323e525f8b07959b3",
+      "bytes": 152,
+      "createdAt": "2026-07-08T20:26:34Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-26-34z-bls-cps-epop-persons-with-disability-2026-07/manifest.json",
+      "sha256": "967f68e42ac7b86004ab5a0b9035ebe344a3ebbc80285b994dedc66612e03159",
+      "bytes": 16382,
+      "createdAt": "2026-07-08T20:26:34Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-disability-employment-population-ratio-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

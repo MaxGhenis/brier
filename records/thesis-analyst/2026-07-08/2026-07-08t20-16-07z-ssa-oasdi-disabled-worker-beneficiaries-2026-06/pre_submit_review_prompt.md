@@ -1,0 +1,46 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: ssa.oasdi.disabled_worker_beneficiaries
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "ssdi-disabled-worker-beneficiaries-june-2026"
+- targetUnit: "thousands"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+9750ee06594328620b9e331ddef0d9286fa0d2d8a34e1514d756f26d345f98cf
+
+# Draft forecast response
+{"slug":"ssdi-disabled-worker-beneficiaries-june-2026","country":"US","type":"data","title":"SSDI disabled workers, June 2026","question":"SSA Monthly Statistical Snapshot Table 2 disabled workers beneficiaries, June 2026, not seasonally adjusted, first print, in thousands","unit":"thousands","pointEstimate":7010,"ciLow":7002,"ciHigh":7017,"confidence":0.8,"resolutionDate":"2026-07-31","resolutionSource":"Official agency release","resolutionSourceUrl":"https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-06.html","resolutionRule":"Resolve to the first published SSA Monthly Statistical Snapshot for June 2026, Table 2 Social Security benefits, Disability Insurance, Disabled workers, Beneficiaries Number (thousands). Use the whole-thousands value exactly as first printed and ignore later revisions or corrections unless SSA replaces the first-print page before archival capture.","dataPointId":"ssa.oasdi.disabled_worker_beneficiaries.2026-06.first_print","historicalContext":[{"label":"May 2026 disabled workers, Table 2, thousands","value":7029},{"label":"April 2026 disabled workers, Table 2, thousands","value":7050},{"label":"March 2026 disabled workers, Table 2, thousands","value":7070},{"label":"February 2026 disabled workers, Table 2, thousands","value":7081},{"label":"January 2026 disabled workers, Table 2, thousands","value":7099},{"label":"December 2025 disabled workers, Table 2, thousands","value":7126}],"drivers":["Persistent SSDI disabled-worker roll decline","Recent monthly losses near 19 thousand","No identified one-month policy shock before June 2026 first print","Whole-thousands SSA Table 2 rounding"],"sourceContext":["https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/","https://www.ssa.gov/policy/pub_schedule.html","https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-04.html","https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-03.html","https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-02.html","https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2026-01.html","https://www.ssa.gov/policy/docs/quickfacts/stat_snapshot/2025-12.html"],"runAt":"2026-07-08T20:16:27Z","reasoning":[{"kind":"heading","text":"SSDI disabled-worker beneficiaries, June 2026 first print"},{"kind":"text","text":"Framing and exact resolver: the target is SSA Monthly Statistical Snapshot Table 2, Social Security benefits, Disability Insurance, Disabled workers, Beneficiaries Number, in thousands, for June 2026. The resolution page should follow SSA's monthly archive pattern at /policy/docs/quickfacts/stat_snapshot/2026-06.html, with the value rounded to whole thousands as printed."},{"kind":"tool","tool":"official.lookup","call":"Opened SSA Monthly Statistical Snapshot current page and Table 2 for latest official value.","result":"Fetched May 2026 Monthly Statistical Snapshot released June 2026; Table 2 shows Disabled workers beneficiaries 7,029 thousand, Disability Insurance total 8,059 thousand, and disabled-worker monthly benefits 11,491 million dollars."},{"kind":"tool","tool":"official.lookup","call":"Opened SSA publishing schedule for release timing.","result":"Fetched SSA Publishing Schedule text: Monthly Statistical Snapshot frequency is Monthly; current snapshot page says May 2026 was released in June 2026, so the June 2026 first print is scheduled for the July 2026 monthly update, with ledger resolutionDate 2026-07-31."},{"kind":"tool","tool":"official.lookup","call":"Opened SSA archive pages for April and March 2026 snapshots, Table 2 disabled workers.","result":"Fetched April 2026 disabled workers 7,050 thousand and March 2026 disabled workers 7,070 thousand from Table 2; same variant, not seasonally adjusted SSA first-print monthly snapshot values."},{"kind":"tool","tool":"official.lookup","call":"Opened SSA archive pages for February 2026, January 2026, and December 2025 snapshots, Table 2 disabled workers.","result":"Fetched February 2026 disabled workers 7,081 thousand, January 2026 disabled workers 7,099 thousand, and December 2025 disabled workers 7,126 thousand from Table 2."},{"kind":"text","text":"Base rate/reference class: the recent official-source reference class is successive changes in the same Table 2 disabled-worker stock from December 2025 through May 2026. The monthly changes are -27, -18, -11, -20, and -21 thousand, showing a steady decline rather than a flat level."},{"kind":"text","text":"Level, momentum, one-off, and policy mechanisms: level is 7,029 thousand in May; momentum is about -19 thousand per month; no public first-print evidence points to a June-only administrative shock; policy and demographic mechanisms still favor gradual exits, conversions, deaths, and lower inflow keeping the roll drifting down."},{"kind":"math","text":"Prior/update/interval: persistence plus recent-mean-change prior on the Dec 2025-May 2026 official sample gives mean change = (-27 - 18 - 11 - 20 - 21) / 5 = -19.4 thousand, so point = 7,029 - 19.4 = 7,009.6, rounded to 7,010. For the 80% interval, sample sigma from successive changes = 5.77 thousand, so half-width = 1.28*sigma = 1.28*5.77 = 7.39 thousand; 7,009.6 +/- 7.39 gives 7,002.2 to 7,017.0, rounded to 7,002-7,017."},{"kind":"text","text":"Counter-considerations: upside risk would be a temporary slowdown in terminations or more retroactive awards, which would land above the interval if June prints above 7,017 thousand. Downside risk would be a processing cleanup or unusually heavy exits, which would land below the interval if the first print is below 7,002 thousand."},{"kind":"forecast","point":7010,"ciLow":7002,"ciHigh":7017}]}

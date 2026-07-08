@@ -1,0 +1,313 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T20:23:42Z",
+  "series": "bls.cps.lfpr_55_plus",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-lfpr-55-plus-july-2026",
+    "period": "2026-07",
+    "series": "bls.cps.lfpr_55_plus",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T20:23:42Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "1f966316201a822a01b6a300e7664782750ff96cb6671ffbf04c0d229fb95e51"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the 0.058 percentage-point volatility estimate is based only on the four Feb-Jun 2026 changes or whether a longer historical sample was considered and intentionally rejected."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval rationale would be stronger if it named realized volatility from a longer recent window, since four monthly changes is a very small sample."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional critique to clarify that sigma = 0.058 came only from the four fetched Feb-Jun 2026 changes and that a longer realized-volatility window would be stronger; no required fixes were identified, and the resolver, point, and interval remain unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional critique to clarify that sigma = 0.058 came only from the four fetched Feb-Jun 2026 changes and that a longer realized-volatility window would be stronger; no required fixes were identified, and the resolver, point, and interval remain unchanged.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready with no blocking issues; it states the official first-print resolver, uses a persistence prior, and keeps the point/interval coherent with the target contract."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/prompt.md",
+      "sha256": "046907e474e3b4efb852e74e6122831b4d00f5b4888193c6233b02721eaceb19",
+      "bytes": 7853,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_command.json",
+      "sha256": "9bb8b42f38459f047ed55d8c4924ba9f8bc7b40a4a65b17e4e8a766fff761326",
+      "bytes": 834,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "a78c3f83ca1ecfe7de9d4005a67d40cab6c3e5a3c4f6fe7f8babb72cd43b2dfb",
+      "bytes": 43207,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_codex_events.jsonl",
+      "sha256": "a9659f6a221fa255d02e02cc71746c3d5f74c56cdb26156b6601bc43c9736d11",
+      "bytes": 43351,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_codex_last_message.txt",
+      "sha256": "fb00ab01c1a6f999654399e765ce084cdb1a171dead7482c041e92ce7752ea51",
+      "bytes": 4753,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_codex_trace.json",
+      "sha256": "f0333629a2f50a3eabe14b5882667cfcdb041b741cdb82610124c24cd96f7711",
+      "bytes": 508,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_stdout.txt",
+      "sha256": "fb00ab01c1a6f999654399e765ce084cdb1a171dead7482c041e92ce7752ea51",
+      "bytes": 4753,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_prompt.md",
+      "sha256": "fdf0e5ca22d201ae0aa942ed7ad3f1d8956fd8f9351efe570876bc720da045a2",
+      "bytes": 6923,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_command.json",
+      "sha256": "0320ee69a2961975f8162e5ea21143d831e00836d906cd0b59200862f6928344",
+      "bytes": 830,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "0117c00d6b338968b1fdaa40291b9a3527fe74cf52cef1eafea3eb013a5dea9e",
+      "bytes": 957,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "dd1fe53092efa5d08ff9929996f824e0eb473980ee6797b74f5e420bf067c627",
+      "bytes": 979,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "c86140d5491b488696127b149815d2fb6638bc487e9f6f1a4f695f847b02c7cf",
+      "bytes": 621,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "51e0a453fdace481af333876979ae73dfb900fc81790f07aed1d1a02a49f3c84",
+      "bytes": 504,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "c86140d5491b488696127b149815d2fb6638bc487e9f6f1a4f695f847b02c7cf",
+      "bytes": 621,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/revision_prompt.md",
+      "sha256": "63ba3f31f5df78bcab10b706bc9a27226bba468ead156dba010b344eee38d376",
+      "bytes": 14163,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/command.json",
+      "sha256": "fa241694f33b2cb73afa8e56864db4f3fb1b6e0dd080ad57e60f487409db822c",
+      "bytes": 828,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/codex_stdout.jsonl",
+      "sha256": "3627c390967ee75cee121ae117790130cf3a8dd3bc5b7d8ac5f698ecf9639992",
+      "bytes": 5802,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/codex_events.jsonl",
+      "sha256": "545b694e044b3409772f803aa32134b0b4fec183bf69e1c7acb04b2aaecd05c2",
+      "bytes": 5824,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/codex_last_message.txt",
+      "sha256": "3bb27112b0ca79ae6116ab0d045c826332b85450b69a655ca83dbb158f37ac99",
+      "bytes": 5255,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/codex_trace.json",
+      "sha256": "f6e1526a916a63180786b54c296878cf13f7e1bc6ce74b3e5dfad531cc1f55ec",
+      "bytes": 503,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/stdout.txt",
+      "sha256": "3bb27112b0ca79ae6116ab0d045c826332b85450b69a655ca83dbb158f37ac99",
+      "bytes": 5255,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/raw_response.txt",
+      "sha256": "3bb27112b0ca79ae6116ab0d045c826332b85450b69a655ca83dbb158f37ac99",
+      "bytes": 5255,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/parsed_cells.json",
+      "sha256": "0933c7e8b69ce594ea514d3dc70dbca055dd06baccc000080006e43152307034",
+      "bytes": 6097,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/normalized_cells.json",
+      "sha256": "0f1550d862e41f4a3b61a37ab4a7faff480fb06d4bdc281a1a79aba0afd58e38",
+      "bytes": 5762,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/validation.json",
+      "sha256": "1a4b9db55b855b4935e49e31d83b982eba1fcc72e2f95707fa1b135d9d451489",
+      "bytes": 126,
+      "createdAt": "2026-07-08T20:23:42Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-23-42z-bls-cps-lfpr-55-plus-2026-07/manifest.json",
+      "sha256": "cce1adc094b3e7d3b2d74207ba4a63f08cd2afc9f8d5d67e05ee4bbaf4bcddca",
+      "bytes": 13807,
+      "createdAt": "2026-07-08T20:23:42Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-lfpr-55-plus-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}

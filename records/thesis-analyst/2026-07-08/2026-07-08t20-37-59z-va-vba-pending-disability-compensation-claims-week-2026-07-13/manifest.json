@@ -1,0 +1,340 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-08T20:37:59Z",
+  "series": "va.vba.pending_disability_compensation_claims",
+  "period": "week_2026-07-13",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "va-pending-disability-claims-2026-07-13",
+    "period": "week_2026-07-13",
+    "series": "va.vba.pending_disability_compensation_claims",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-08T20:37:59Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "36bacb8669eef5a0413e007ef32e0f2a9e3e78f7ef11a5f78e4b7efc153f36c8"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval cites sigma = 4.6 thousand and a 'broader recent-release volatility allowance' but does not identify the realized-volatility sample or explain why that sigma is appropriate given the listed recent weekly changes are much smaller.",
+        "actionRequested": "State the historical window or realized weekly-change sample used to derive sigma = 4.6 thousand, or relabel it as an explicit judgmental uncertainty allowance and justify the size."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step mostly satisfies the rubric, but the interval component depends on an unspecified broader volatility allowance.",
+        "actionRequested": "Revise the compact step to name the exact interval sample/window or uncertainty assumption used for the 5.9 thousand half-width."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the target is strictly disability compensation claims or the VA rating-bundle compensation-and-pension claims inventory, while keeping the ledger slug and resolver unchanged."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that resolutionDate is the report date, not necessarily the first public posting timestamp, if the catalog treats those separately."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by labeling sigma = 4.6 thousand as an explicit judgmental one-week uncertainty allowance rather than implying it was computed only from the three recent small weekly changes; also clarified that the target is the VA rating-bundle compensation-and-pension claims inventory and that resolutionDate is the report date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by labeling sigma = 4.6 thousand as an explicit judgmental one-week uncertainty allowance rather than implying it was computed only from the three recent small weekly changes; also clarified that the target is the VA rating-bundle compensation-and-pension claims inventory and that resolutionDate is the report date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by labeling sigma = 4.6 thousand as an explicit judgmental one-week uncertainty allowance rather than implying it was computed only from the three recent small weekly changes; also clarified that the target is the VA rating-bundle compensation-and-pension claims inventory and that resolutionDate is the report date.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by labeling sigma = 4.6 thousand as an explicit judgmental one-week uncertainty allowance rather than implying it was computed only from the three recent small weekly changes; also clarified that the target is the VA rating-bundle compensation-and-pension claims inventory and that resolutionDate is the report date.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with one warning: the interval method is directionally clear but should make the volatility sample behind sigma = 4.6 explicit."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/prompt.md",
+      "sha256": "5d037be0a8792387a582dffd9c3e0647e3443677029ff60ae130407e41c916dc",
+      "bytes": 7798,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_command.json",
+      "sha256": "ab16aa7d6fa6070b1e6ba09508e0c97643dcdd7c1f403f2e29e010c15eace22e",
+      "bytes": 867,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_codex_stdout.jsonl",
+      "sha256": "ace3a8e0709056b4455baba13d9d15208d595c238ddfb1fad68feffc72944f98",
+      "bytes": 27807,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_codex_events.jsonl",
+      "sha256": "60ef5325b7dd1fb6a97d33216e829b00d618aaa0324194b67512ced1761e79c2",
+      "bytes": 27894,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_codex_last_message.txt",
+      "sha256": "78940e4b83817b48d9938f07d65f2f77f59ede3594bec7653332f411111d3212",
+      "bytes": 5449,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_codex_trace.json",
+      "sha256": "5de2dfa12d63989fc59e93c4d45423dc8e43cf033d8b02c488026cc09d9a635b",
+      "bytes": 509,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_stdout.txt",
+      "sha256": "78940e4b83817b48d9938f07d65f2f77f59ede3594bec7653332f411111d3212",
+      "bytes": 5449,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_prompt.md",
+      "sha256": "c6565c00806b2b4b10f0f4fd2818d2885d216a339f49054c227813f472c8c55d",
+      "bytes": 7668,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_command.json",
+      "sha256": "b59d8c8a4b867072947a6300648ba6da02e23947cffed389d314c19cc3c4a924",
+      "bytes": 863,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "efade8f5fbc3c2893c7b7b742c8a1aa5147459e2b0fa1ceef47f57dcfe6bfbf5",
+      "bytes": 1780,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_codex_events.jsonl",
+      "sha256": "3ceb89702c2c4f1a23c8fabb54ad424e5000a6cbfb0162a11af3b0ea31387782",
+      "bytes": 1802,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_codex_last_message.txt",
+      "sha256": "38b8354cc25fe26691bff19a0d69e72dea4edf0305d27798f9fd404c0dc8dd16",
+      "bytes": 1419,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_codex_trace.json",
+      "sha256": "c3d0765d7bd1a5f6b5a8a57e5df1edf5e3959c28b462ccf00bef1b4e604a6a36",
+      "bytes": 504,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_stdout.txt",
+      "sha256": "38b8354cc25fe26691bff19a0d69e72dea4edf0305d27798f9fd404c0dc8dd16",
+      "bytes": 1419,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/revision_prompt.md",
+      "sha256": "8f8b1ed66c7aa15dba3f188d6045931a888f41f05c66c1b1e19d7fa9c75d069f",
+      "bytes": 15602,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/command.json",
+      "sha256": "1666d21a64e5bf4126a7a87a1a3d5b5c81a971648494643eeb76d252ed6003c3",
+      "bytes": 861,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/codex_stdout.jsonl",
+      "sha256": "68f61100fd61785b5b7dab21f4fc7bf8407f7a4ed2ff3377feffbd31362e35c8",
+      "bytes": 6634,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/codex_events.jsonl",
+      "sha256": "f2371d22530914729d5c735c0cc9faf75757298d26183036689f3a92c682f65c",
+      "bytes": 6656,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/codex_last_message.txt",
+      "sha256": "5efebc65fd875cf345cd48bfcf6e1302694f4bf125d9dd3f4a4b7260eb21e4c4",
+      "bytes": 6103,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/codex_trace.json",
+      "sha256": "0bb90d3c11fbde0a1f41ec135f3d068852650a25f423c83babab4c89828317e4",
+      "bytes": 503,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/stdout.txt",
+      "sha256": "5efebc65fd875cf345cd48bfcf6e1302694f4bf125d9dd3f4a4b7260eb21e4c4",
+      "bytes": 6103,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/raw_response.txt",
+      "sha256": "5efebc65fd875cf345cd48bfcf6e1302694f4bf125d9dd3f4a4b7260eb21e4c4",
+      "bytes": 6103,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/parsed_cells.json",
+      "sha256": "277013f6944b9ea92b5b642c0bc3c29fc43f999321424ad0bbd020b05fc4af25",
+      "bytes": 6884,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/normalized_cells.json",
+      "sha256": "8099ed94a2411d171ab223a79506563e9aa15e946f4919f7e8b572c22be9af78",
+      "bytes": 6574,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/validation.json",
+      "sha256": "f0ee92d2a6a731c1c0754239eb62e59a11f8c19f55599e898892297bed163aa5",
+      "bytes": 140,
+      "createdAt": "2026-07-08T20:37:59Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-08/2026-07-08t20-37-59z-va-vba-pending-disability-compensation-claims-week-2026-07-13/manifest.json",
+      "sha256": "84bf62b9aa40127881f443e27957b5e6beba2834cab2ce321f27cea6622c87d4",
+      "bytes": 17288,
+      "createdAt": "2026-07-08T20:37:59Z"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "va-pending-disability-claims-2026-07-13",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  }
+}
