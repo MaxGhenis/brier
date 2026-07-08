@@ -530,8 +530,9 @@ def review_test_cell(
         {
             "kind": "text",
             "text": (
-                "Base-rate prior is the recent center near 5.1 before the "
-                "small current-release adjustment."
+                "Base rate prior from the reference class of the last 3 "
+                "prints is the recent center near 5.1 before the small "
+                "current-release adjustment."
             ),
         },
         {
