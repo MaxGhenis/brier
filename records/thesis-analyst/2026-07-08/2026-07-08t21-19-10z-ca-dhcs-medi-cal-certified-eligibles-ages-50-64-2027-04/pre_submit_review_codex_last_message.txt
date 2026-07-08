@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is publishable after tightening the interval justification; resolver, units, condition, and forecast fields are mostly coherent.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval jumps from observed one-month sigma of 0.8 thousand to forecast sigma of 90 thousand with only a qualitative explanation.",
+      "actionRequested": "Add a concrete basis for the 90 thousand forecast sigma, such as historical 13-month forecast errors, post-unwinding annual changes, or an explicit scenario-weighted uncertainty calculation."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The compact step names a persistence prior and adjustment components, but it also references a no-delay prior run, which could read like catalog/comparison anchoring.",
+      "actionRequested": "Clarify that the final point is derived from March 2026 persistence plus drift and delay adjustments, and that the no-delay run is only contextual, not an input copied from the catalog forecast."
+    }
+  ],
+  "optionalSuggestions": [
+    "State whether the 80% interval bounds are rounded after converting persons to thousands.",
+    "Make the downside tail more concrete by giving an approximate monthly attrition path that would reach below 2548 thousand."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "summary": "The draft has a clear target and resolver framing, but it relies on annual DI workload proxies instead of the actual SSA monthly Field I history and gives an insufficiently supported policy adjustment and interval.",
+  "requiredFixes": [
+    {
+      "rubricItem": "model_prior",
+      "severity": "blocking",
+      "summary": "The prior is built from FY annual DI claims equivalents rather than the target monthly SSA State Agency Monthly Workload Field I series, even though the resolver CSV is cited.",
+      "actionRequested": "Use or explicitly tabulate the actual SSA-SA-MOWL Field I monthly history for comparable Aprils and/or five-week SSA months; if the CSV truly cannot be parsed, state that as a limitation and downgrade the model prior rather than treating annual DI totals as the main prior."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "The interval is based on only three annual-derived five-week analogs and then widened judgmentally, not on realized monthly target-series volatility.",
+      "actionRequested": "Derive the half-width from realized variation in the monthly Field I target series, such as comparable April errors, five-week-month dispersion, or a simple time-series residual distribution; otherwise explicitly label the interval as judgmental and justify the 30k width."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The +12k Medicaid community-engagement adjustment is material but not supported by cited evidence on eligibility-channeling, affected population, or historical policy analogs.",
+      "actionRequested": "Add a compact evidentiary bridge for the policy adjustment, or reduce/reframe it as a judgmental scenario-weighted adjustment with stated uncertainty."
+    },
+    {
+      "rubricItem": "tails",
+      "severity": "warning",
+      "summary": "A federal delay is listed as a downside risk, but the forecast is conditional on no federal statutory or regulatory delay announced by 2027-03-31.",
+      "actionRequested": "Remove delay as an outcome tail under the conditional forecast and replace it with conditional-consistent downside scenarios, such as weak take-up, administrative friction, or filings shifted outside April 2027."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The resolution date is justified as 2027-05-30 from the within-30-days rule, but that may be a deadline rather than the actual first-print date.",
+      "actionRequested": "Clarify that 2027-05-30 is the resolution deadline/expected availability date under the SSA update rule, and keep the first replacement file adding 2027-04 as the operative first-print rule."
+    }
+  ],
+  "optionalSuggestions": [
+    "Show the implied prior and final bounds in one short final paragraph so the JSON point and interval are easy to audit.",
+    "Distinguish DI annual claims from DDS Field I all-initial receipts wherever both are discussed, since they are not necessarily the same measurement surface."
+  ]
+}

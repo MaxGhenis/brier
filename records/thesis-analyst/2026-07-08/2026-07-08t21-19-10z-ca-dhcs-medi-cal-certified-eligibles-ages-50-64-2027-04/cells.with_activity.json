@@ -1,0 +1,413 @@
+[
+  {
+    "slug": "ca-medicaid-enrollment-50-64-april-2027-work-req-deadline-delayed",
+    "country": "US",
+    "type": "conditional",
+    "title": "CA Medi-Cal ages 50-64, Apr. 2027 | deadline delayed",
+    "question": "California DHCS/CHHS Medi-Cal Certified Eligibles Recent Trends: statewide certified eligibles ages 50-64 for April 2027, first official monthly print, conditional on a federal statutory or regulatory delay of the 2025 reconciliation law's Medicaid community-engagement compliance deadline being announced on or before 2027-03-31 and pushing the effective date beyond April 2027.",
+    "unit": "thousands",
+    "pointEstimate": 2663,
+    "ciLow": 2548,
+    "ciHigh": 2778,
+    "confidence": 0.8,
+    "resolutionDate": "2027-07-30",
+    "resolutionSource": "California Department of Health Care Services Medi-Cal certified eligibles monthly data",
+    "resolutionSourceUrl": "https://data.chhs.ca.gov/dataset/medi-cal-certified-eligibles-recent-trends",
+    "resolutionRule": "Resolve to the first DHCS/CHHS-published April 2027 statewide Medi-Cal certified eligibles count for age group 50-64 in the Medi-Cal Certified Eligibles Recent Trends monthly data, using the first posted dataset vintage even if DHCS/CHHS later revises April 2027. Convert persons to thousands by dividing by 1,000 and report using the agency's published precision. Do not use later revisions, county subtotals, FRED mirrors, CMS national enrollment, managed-care-only enrollment, or a different age band. The numeric forecast is evaluated only if the stated federal community-engagement deadline-delay condition is satisfied.",
+    "dataPointId": "ca.dhcs.medi_cal_certified_eligibles.ages_50_64.2027_04.first_print.work_req_deadline_delayed",
+    "conditionalOn": "A federal statutory or regulatory delay of the 2025 reconciliation law's Medicaid community-engagement compliance deadline is announced on or before 2027-03-31, pushing the effective date beyond April 2027.",
+    "historicalContext": [
+      {
+        "label": "March 2026 ages 50-64 certified eligibles, thousands",
+        "value": 2748.4
+      },
+      {
+        "label": "February 2026 ages 50-64 certified eligibles, thousands",
+        "value": 2759.9
+      },
+      {
+        "label": "January 2026 ages 50-64 certified eligibles, thousands",
+        "value": 2771.6
+      },
+      {
+        "label": "December 2025 ages 50-64 certified eligibles, thousands",
+        "value": 2784.6
+      },
+      {
+        "label": "November 2025 ages 50-64 certified eligibles, thousands",
+        "value": 2796.8
+      },
+      {
+        "label": "October 2025 ages 50-64 certified eligibles, thousands",
+        "value": 2810.3
+      }
+    ],
+    "drivers": [
+      "recent 50-64 Medi-Cal certified-eligible trend is still drifting down",
+      "delay condition removes April 2027 community-engagement disenrollment pressure",
+      "California renewal operations and post-unwinding churn remain the main downside channel",
+      "ages 50-64 include many beneficiaries with exemptions or disability-linked eligibility",
+      "first-print CHHS/DHCS monthly vintage may later be revised"
+    ],
+    "sourceContext": [
+      "https://data.chhs.ca.gov/dataset/medi-cal-certified-eligibles-recent-trends",
+      "https://www.dhcs.ca.gov/dataandstats/statistics/Pages/Medi-Cal-Eligibility-Statistics.aspx",
+      "https://www.medicaid.gov/resources-for-states/working-families-tax-cut-legislation/community-engagement",
+      "records/thesis-analyst/2026-07-08/2026-07-08t21-14-48z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/normalized_cells.json"
+    ],
+    "runAt": "2026-07-08T21:19:20Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for California Medi-Cal certified eligibles ages 50-64 in April 2027 if the federal deadline is delayed"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the DHCS/CHHS statewide Medi-Cal certified eligibles age-band series for ages 50-64, first April 2027 monthly print, converted from persons to thousands. The target is conditional: a federal statutory or regulatory delay must be announced on or before 2027-03-31 and must push the community-engagement effective date beyond April 2027. I use the ledger slug and unit as given; the substantive resolver is the exact DHCS age-band series."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the DHCS/CHHS Medi-Cal Certified Eligibles Recent Trends page and the published prior Thesis official-source record for the exact statewide age-band variant and latest values.",
+        "result": "Fetched same-variant ages 50-64 certified eligibles: March 2026 = 2748.4 thousand, February 2026 = 2759.9 thousand, January 2026 = 2771.6 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked earlier observations from the same DHCS/CHHS statewide certified eligibles age-band series for the recent reference class.",
+        "result": "Fetched same-variant ages 50-64 certified eligibles: December 2025 = 2784.6 thousand, November 2025 = 2796.8 thousand, October 2025 = 2810.3 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked official DHCS/CHHS monthly publication timing metadata preserved in the published run record and the DHCS eligibility statistics page for the April-reference release date.",
+        "result": "Fetched release timing examples: April 2025 data were posted 2025-07-25, January 2026 data were posted 2026-04-24, February 2026 data were posted 2026-05-29, and March 2026 data were posted 2026-06-26; the official monthly cadence supports resolving April 2027 on 2027-07-30."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked CMS's official community-engagement page for the policy mechanism being conditioned away in this forecast.",
+        "result": "Fetched CMS policy timing: Section 71119 of Public Law 119-21 requires states beginning 2027-01-01 to condition Medicaid eligibility for applicable individuals on community engagement unless implemented sooner; CMS listed an interim final rule posted 2026-06-01."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent official-source reference class is the same DHCS statewide ages 50-64 certified eligibles series from October 2025 through March 2026. It fell from 2810.3 thousand to 2748.4 thousand over five monthly moves, a 61.9 thousand drop, or about -12.4 thousand per month before any 2027 community-engagement effect."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: a prior no-delay run is only contextual policy contrast, not an input copied from a catalog forecast. The final point here is derived from the March 2026 persistence prior, an ordinary-drift adjustment, and the delayed-deadline avoided-churn adjustment."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy effects: latest level is 2748.4 thousand. A mechanical continuation of the recent -12.4 thousand monthly drift for 13 months would subtract about 161 thousand, but I damp that to -105 thousand because post-unwinding attrition should slow. Under the delay condition, I add no April 2027 community-engagement disenrollment loss and include a small +20 thousand relative adjustment for avoided pre-implementation procedural churn, notices, and beneficiary confusion."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is March 2026 level 2748.4 thousand; historical sample is October 2025-March 2026 same DHCS age-band series with successive monthly changes of -13.5, -12.2, -13.0, -11.7, and -11.5 thousand, so raw monthly sigma = 0.8 thousand. Adjustment components are ordinary drift -105 thousand and delayed-deadline avoided churn +20 thousand, giving point = 2748.4 - 105 + 20 = 2663.4 thousand, rounded to 2663. The one-month sigma only measures short-run smoothness and is too narrow for a 13-month conditional policy forecast; I use forecast sigma = 90 thousand based on scenario uncertainty around the 13-month net change: stabilization near -50 thousand, baseline near -85 thousand, continuation near -160 thousand, and renewed churn near -200 thousand. The 80% half-width is about 1.28*sigma = 1.28*90 = 115 thousand, yielding 2663 +/- 115 = [2548, 2778], with bounds rounded after converting persons to thousands."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is that California's post-unwinding enrollment stabilizes faster than expected, adult coverage expansions remain sticky, and no work-requirement preparation chills renewals, which would land above the interval. Downside risk is renewed redetermination attrition, state budget or administrative tightening, or spillover confusion despite the delay; about -15.4 thousand per month from March 2026 through April 2027 would push the count below 2548 thousand. Outside the interval would require either a near-flat 2026-2027 age-band path above 2778 thousand or a renewed attrition episode pushing the count below 2548 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the interval critique by adding a concrete scenario-based basis for forecast sigma = 90 thousand and accepted the prior-update critique by clarifying that the no-delay run is contextual only; also added rounding and downside-path details."
+      },
+      {
+        "kind": "forecast",
+        "point": 2663,
+        "ciLow": 2548,
+        "ciHigh": 2778
+      }
+    ],
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/prompt.md",
+        "sha256": "32806ad23d25e20efd6bef5d3d37a8b8b4cde7e841263e7d024819c504bf6736",
+        "bytes": 8415,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_command.json",
+        "sha256": "a57a906686d8e482594ab39084e5089148888969c801ce891eb2eddb43284079",
+        "bytes": 861,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_codex_stdout.jsonl",
+        "sha256": "d0bccfbaeb29e7e0a1752fd66b0a98b6c91b865d9ea4ad17d55b5d1965e2cc50",
+        "bytes": 1309985,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_codex_events.jsonl",
+        "sha256": "65f54be86aac9d92e6def3befa72b3af944126c1506383116cbbf12c8db2529d",
+        "bytes": 1310179,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_codex_last_message.txt",
+        "sha256": "761de737a495e81f39ae8304ad6d8a622d8a145a74dc7c9c90dcddfc6da2ba57",
+        "bytes": 8222,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_codex_trace.json",
+        "sha256": "5e4dddf5c23140bf2505b0ef1d94e0446f0a44b9f6502e88fed03223a08f65ff",
+        "bytes": 508,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_stdout.txt",
+        "sha256": "761de737a495e81f39ae8304ad6d8a622d8a145a74dc7c9c90dcddfc6da2ba57",
+        "bytes": 8222,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_prompt.md",
+        "sha256": "5d87ce7eaa62958784194210efe97646e71f8ba2c8bd134c55f5a8cfdc9c63f4",
+        "bytes": 10887,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_command.json",
+        "sha256": "628bc9bebcedff1d3f6feb1b7b2bdd33f6d7b8f6aa482499564a7b81601b22dc",
+        "bytes": 857,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "ebf444d419794b4a6b9147e30aac08e1e2f08c742fda99193566b1a59d4e65c4",
+        "bytes": 1759,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_codex_events.jsonl",
+        "sha256": "587e80c987724cdc062e16791288285f64f0b75c804d87c93f0c81b615e1b60f",
+        "bytes": 1781,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_codex_last_message.txt",
+        "sha256": "dbe6f53bb6cc66f6c6102d3631b0d571056460471989787c8e55e9f81632b6bd",
+        "bytes": 1378,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_codex_trace.json",
+        "sha256": "d54c01f4e6e88cf3c71e65fd638aaa3ab4608b33ed582a3de15764f5e05df17b",
+        "bytes": 504,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_stdout.txt",
+        "sha256": "dbe6f53bb6cc66f6c6102d3631b0d571056460471989787c8e55e9f81632b6bd",
+        "bytes": 1378,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/revision_prompt.md",
+        "sha256": "5b8fb716a7c66d2e03426adb02a1102f21998c38be74d113dc0a8eddb8200630",
+        "bytes": 18951,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/command.json",
+        "sha256": "ffe0adfc06365b03db9ed469167a5f791a4befd127f5134c6b00679056d4c8bc",
+        "bytes": 855,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/codex_stdout.jsonl",
+        "sha256": "0bb743f6688f50b99d520d09cdc80ccb7a5eda2a56dbdf391a5b7b6b5c821cd0",
+        "bytes": 9388,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/codex_events.jsonl",
+        "sha256": "cfa79e31d594c99611fc463c7775395ada82f74602a1517fc483b471c014b19a",
+        "bytes": 9410,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/codex_last_message.txt",
+        "sha256": "665cb31cdbd80750baca2a971f6565e03eb42954ae8cd57b970c34bacfd815d4",
+        "bytes": 8810,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/codex_trace.json",
+        "sha256": "35345107630fd4c55f3f23fe7aba132d4131f40f976c2c09df83c0783e288110",
+        "bytes": 504,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/stdout.txt",
+        "sha256": "665cb31cdbd80750baca2a971f6565e03eb42954ae8cd57b970c34bacfd815d4",
+        "bytes": 8810,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/raw_response.txt",
+        "sha256": "665cb31cdbd80750baca2a971f6565e03eb42954ae8cd57b970c34bacfd815d4",
+        "bytes": 8810,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/parsed_cells.json",
+        "sha256": "ce206a19c78db9c52d36479dae8c0632ecca7b080abc5085c45a88d4c8938c9b",
+        "bytes": 9774,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/normalized_cells.json",
+        "sha256": "c26fbf847b79a7714529f15b9561e7aadaf95f2bf55b4db4e09a1a2a2603fdbd",
+        "bytes": 9775,
+        "createdAt": "2026-07-08T21:19:10Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/validation.json",
+        "sha256": "c49023c8a292d0e8d7aab9b005203f09f5f57e78ebb58de52f0077fa0b40b10d",
+        "bytes": 166,
+        "createdAt": "2026-07-08T21:19:10Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-08T21:19:10Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "51a58f447397e6dfbe0f594fa458b9ce35dbf10cb0276b2a7e9b831c847c28d4"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-08/2026-07-08t21-19-10z-ca-dhcs-medi-cal-certified-eligibles-ages-50-64-2027-04/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval jumps from observed one-month sigma of 0.8 thousand to forecast sigma of 90 thousand with only a qualitative explanation.",
+          "actionRequested": "Add a concrete basis for the 90 thousand forecast sigma, such as historical 13-month forecast errors, post-unwinding annual changes, or an explicit scenario-weighted uncertainty calculation."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "prior_update_interval",
+          "summary": "The compact step names a persistence prior and adjustment components, but it also references a no-delay prior run, which could read like catalog/comparison anchoring.",
+          "actionRequested": "Clarify that the final point is derived from March 2026 persistence plus drift and delay adjustments, and that the no-delay run is only contextual, not an input copied from the catalog forecast."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State whether the 80% interval bounds are rounded after converting persons to thousands."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make the downside tail more concrete by giving an approximate monthly attrition path that would reach below 2548 thousand."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval critique by adding a concrete scenario-based basis for forecast sigma = 90 thousand and accepted the prior-update critique by clarifying that the no-delay run is contextual only; also added rounding and downside-path details.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval critique by adding a concrete scenario-based basis for forecast sigma = 90 thousand and accepted the prior-update critique by clarifying that the no-delay run is contextual only; also added rounding and downside-path details.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval critique by adding a concrete scenario-based basis for forecast sigma = 90 thousand and accepted the prior-update critique by clarifying that the no-delay run is contextual only; also added rounding and downside-path details.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval critique by adding a concrete scenario-based basis for forecast sigma = 90 thousand and accepted the prior-update critique by clarifying that the no-delay run is contextual only; also added rounding and downside-path details.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable after tightening the interval justification; resolver, units, condition, and forecast fields are mostly coherent."
+    }
+  }
+]
