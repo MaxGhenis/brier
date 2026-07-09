@@ -405,6 +405,70 @@ forecast payload, outcome payload, and versioned scoring rule. A repeated ID is
 accepted only when its payload digest is identical; a truncated-ID collision
 between different digests is a build failure.
 
+Python integrity tools use `scripts/canonical_json.py`, which mirrors the
+TypeScript serializer. In particular, keys are sorted by UTF-16 code units,
+not Python's Unicode-code-point order. This distinction matters for
+astral-plane keys. Custody records retain both the raw-byte SHA-256 (proof of
+the exact stored file) and, for JSON files, the canonical-JSON SHA-256
+(cross-language content identity).
+
+### Forecast-record chain and independent witness
+
+`records/CHAIN_GENESIS.json` is the explicit integrity cutover. It names the
+first `digest-<runId>.json` snapshot and enumerates every earlier
+`digest.json` by path and SHA-256. No unlisted file is accepted as implicitly
+"pre-chain." `records/CHAIN_HEAD.json` commits the current tail so simply
+deleting the newest snapshot also fails local verification.
+
+Every recorder invocation creates a never-overwritten
+`records/<YYYY-MM-DD>/digest-<runId>.json`. Its `chain.prevDigestPath` and
+`chain.prevDigestSha256` name the immediately preceding invocation, including
+across date boundaries. The compressed response bodies, build canary, current
+repository commit, and ledger-branch API response/commit are retained with the
+snapshot. `scripts/verify_record_chain.py` rejects missing blocks, missing
+predecessors, forks, orphans, hash changes, unenumerated legacy digests, and
+head drift.
+
+After the digest is final, the recorder asks FreeTSA for an RFC 3161 token over
+the digest bytes. It stores `digest-<runId>.tsr` and a sibling witness JSON. A
+TSA outage never suppresses the record, but it must produce an explicit
+`status: unavailable` marker and reason.
+
+A third party can verify an available token with the CA and signer certificates
+archived beside it:
+
+```bash
+sha256sum records/YYYY-MM-DD/digest-RUN.json
+openssl ts -reply -in records/YYYY-MM-DD/digest-RUN.tsr -text
+openssl ts -verify \
+  -data records/YYYY-MM-DD/digest-RUN.json \
+  -in records/YYYY-MM-DD/digest-RUN.tsr \
+  -CAfile records/YYYY-MM-DD/digest-RUN.tsa-ca.pem \
+  -untrusted records/YYYY-MM-DD/digest-RUN.tsa.crt
+```
+
+The first command's value must equal `digestSha256` in the witness JSON; the
+last command must report `Verification: OK`. Certificate retrieval is an
+external trust step, so the verifier should compare the archived certificate
+hashes with the witness JSON and inspect their fingerprints and validity period.
+
+### Per-run custody root
+
+Every new thesis.analyst run ends with `custody_root.json`, followed by one
+final write of `manifest.json`. The root commits the exact bytes and canonical
+JSON of every activity artifact, including prompt/review bundles, commands and
+outputs, normalized cells, `cells.with_activity.json`, and a distribution
+artifact when present. It also commits the canonical manifest before the
+`custodyRootSha256` reference is added.
+
+The manifest's self artifact has one canonical exclusion: remove all
+`artifactType: manifest` entries and `custodyRootSha256`, then hash the
+canonical JSON. The `manifestHashSemantics` and self entry `hashMode` state
+this rule. `scripts/verify_custody.py <run-dir>` recomputes the raw digests,
+canonical digests, manifest exclusion, and custody-root hash. Generated-cell
+conversion verifies custody before accepting runs at or after the enforcement
+date.
+
 Join model:
 
 - one `target` has many `target_versions`;

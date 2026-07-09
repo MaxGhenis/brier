@@ -29,6 +29,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import os
@@ -42,6 +43,8 @@ import tempfile
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any
+
+from canonical_json import canonical_bytes, canonical_sha256
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 AGENT_ROOT = ROOT / "agents" / "thesis-analyst"
@@ -92,6 +95,106 @@ def write_artifact(
         "bytes": len(data),
         "createdAt": created_at,
     }
+
+
+# manifest.json is necessarily self-referential.  Its `manifest` artifact
+# entry hashes canonical JSON after removing (1) every manifest artifact entry
+# and (2) custodyRootSha256.  custody_root.json instead hashes the complete
+# pre-root manifest, including that explicitly-excluded self entry.  These are
+# the only exclusions; verify_custody.py implements the same transformation.
+MANIFEST_HASH_MODE = (
+    "canonical-json-v1; exclude artifacts where artifactType=manifest and "
+    "exclude custodyRootSha256"
+)
+
+
+def manifest_self_hash_payload(manifest: dict[str, Any]) -> dict[str, Any]:
+    payload = copy.deepcopy(manifest)
+    payload.pop("custodyRootSha256", None)
+    payload["artifacts"] = [
+        artifact
+        for artifact in payload.get("artifacts", [])
+        if artifact.get("artifactType") != "manifest"
+    ]
+    return payload
+
+
+def _artifact_path(out_dir: pathlib.Path, ref: dict[str, Any]) -> pathlib.Path:
+    path = pathlib.Path(str(ref["path"]))
+    candidate = path if path.is_absolute() else ROOT / path
+    if candidate.exists():
+        return candidate
+    return out_dir / path.name
+
+
+def custody_artifact_entry(
+    out_dir: pathlib.Path, ref: dict[str, Any]
+) -> dict[str, Any]:
+    path = _artifact_path(out_dir, ref)
+    raw = path.read_bytes()
+    entry: dict[str, Any] = {
+        "artifactType": ref["artifactType"],
+        "path": path.name,
+        "bytes": len(raw),
+        "sha256": sha256_bytes(raw),
+    }
+    if path.suffix == ".json":
+        entry["canonicalJsonSha256"] = canonical_sha256(json.loads(raw))
+    return entry
+
+
+def build_custody_root(
+    out_dir: pathlib.Path,
+    refs: list[dict[str, Any]],
+    manifest_without_root: dict[str, Any],
+) -> dict[str, Any]:
+    entries = [
+        custody_artifact_entry(out_dir, ref)
+        for ref in refs
+        if ref.get("artifactType") != "manifest"
+    ]
+    return {
+        "schemaVersion": "thesis_custody_root_v1",
+        "hashAlgorithm": "sha256",
+        "canonicalJson": (
+            "UTF-16 code-unit key order; ECMAScript JSON number/string encoding"
+        ),
+        "artifacts": entries,
+        "manifestWithoutCustodyRoot": {
+            "path": "manifest.json",
+            "excludedField": "custodyRootSha256",
+            "canonicalJsonSha256": canonical_sha256(manifest_without_root),
+        },
+    }
+
+
+def finalize_manifest(
+    out_dir: pathlib.Path,
+    run_at: str,
+    manifest: dict[str, Any],
+    refs: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Write custody_root.json, then perform the one final manifest write."""
+
+    manifest["manifestHashSemantics"] = MANIFEST_HASH_MODE
+    self_payload = manifest_self_hash_payload(manifest)
+    self_bytes = canonical_bytes(self_payload)
+    manifest_ref = {
+        "artifactType": "manifest",
+        "path": repo_relative(out_dir / "manifest.json"),
+        "sha256": sha256_bytes(self_bytes),
+        "bytes": len(self_bytes),
+        "createdAt": run_at,
+        "hashMode": MANIFEST_HASH_MODE,
+    }
+    manifest["artifacts"] = [*refs, manifest_ref]
+
+    custody_root = build_custody_root(out_dir, refs, manifest)
+    custody_path = out_dir / "custody_root.json"
+    custody_path.write_text(json.dumps(custody_root, indent=2) + "\n")
+    manifest["custodyRootSha256"] = canonical_sha256(custody_root)
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    return manifest
 
 
 def load_prompt_builder():
@@ -318,10 +421,10 @@ def build_fast_prompt(
         "pasted attachments, personal notes, or non-public local files.\n"
         "- reasoning must contain at least 7 steps, at least 3 tool steps "
         "whose result strings include fetched numbers, one explicit base-rate "
-        "or reference-class step (literally say \"base rate\" or \"reference "
-        "class\"), one math step, one counter-consideration that states what "
-        "would land outside the 80% interval (literally use \"upside risk\", "
-        "\"downside risk\", or \"outside the interval\"), "
+        'or reference-class step (literally say "base rate" or "reference '
+        'class"), one math step, one counter-consideration that states what '
+        'would land outside the 80% interval (literally use "upside risk", '
+        '"downside risk", or "outside the interval"), '
         "one step beginning Prior/update/interval:, and a final forecast step "
         "whose numbers exactly match the cell.\n"
         "- Every tool step result must include at least one fetched numeric "
@@ -431,16 +534,13 @@ def ladder_validation_errors(cell: dict[str, Any]) -> list[str]:
     probs = ladder.get("cumulativeProbabilities")
     if not isinstance(thresholds, list) or not isinstance(probs, list):
         return [
-            "thresholdLadder must contain thresholds and "
-            "cumulativeProbabilities arrays"
+            "thresholdLadder must contain thresholds and cumulativeProbabilities arrays"
         ]
     errors: list[str] = []
     if len(thresholds) != len(probs):
         return ["thresholdLadder arrays must have equal length"]
     if not (9 <= len(thresholds) <= 21):
-        errors.append(
-            f"thresholdLadder has {len(thresholds)} rungs; want 11-15"
-        )
+        errors.append(f"thresholdLadder has {len(thresholds)} rungs; want 11-15")
     try:
         thresholds = [float(value) for value in thresholds]
         probs = [float(value) for value in probs]
@@ -453,13 +553,9 @@ def ladder_validation_errors(cell: dict[str, Any]) -> list[str]:
     if probs and (probs[0] < 0.005 or probs[-1] > 0.995):
         errors.append("cumulative probabilities must stay within [0.01, 0.99]")
     if probs and probs[0] > 0.12:
-        errors.append(
-            f"first rung cumulative probability {probs[0]} must be <= 0.10"
-        )
+        errors.append(f"first rung cumulative probability {probs[0]} must be <= 0.10")
     if probs and probs[-1] < 0.88:
-        errors.append(
-            f"last rung cumulative probability {probs[-1]} must be >= 0.90"
-        )
+        errors.append(f"last rung cumulative probability {probs[-1]} must be >= 0.90")
     if errors:
         return errors
     # The published numbers must be the ladder's own quantiles (to print
@@ -636,8 +732,7 @@ def run_agent_command(
         if isinstance(stderr, bytes):
             stderr = stderr.decode(errors="replace")
         stderr = (
-            f"{stderr}\nagent command timed out after "
-            f"{timeout_seconds} seconds\n"
+            f"{stderr}\nagent command timed out after {timeout_seconds} seconds\n"
         ).lstrip()
         return {
             "argv": argv,
@@ -1388,16 +1483,7 @@ def write_failure_manifest(
         "validation": None,
         "error": error,
     }
-    manifest_ref = write_artifact(
-        out_dir,
-        "manifest",
-        "manifest.json",
-        json.dumps(manifest, indent=2),
-        run_at,
-    )
-    manifest["artifacts"].append(manifest_ref)
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
-    return manifest
+    return finalize_manifest(out_dir, run_at, manifest, refs)
 
 
 def extract_json_payload(text: str) -> list[dict]:
@@ -1808,8 +1894,7 @@ def main() -> int:
         args.command or args.codex_model
     ):
         raise SystemExit(
-            "Pre-submit review requires --command or --codex-model for the "
-            "forecaster"
+            "Pre-submit review requires --command or --codex-model for the forecaster"
         )
 
     out_dir = (
@@ -2064,7 +2149,16 @@ def main() -> int:
         pre_submit_review,
     )
     cells_path = out_dir / "cells.with_activity.json"
-    cells_path.write_text(json.dumps(cells_with_activity, indent=2))
+    cells_path.write_text(json.dumps(cells_with_activity, indent=2) + "\n")
+    refs.append(
+        {
+            "artifactType": "cells_with_activity",
+            "path": repo_relative(cells_path),
+            "sha256": sha256_bytes(cells_path.read_bytes()),
+            "bytes": cells_path.stat().st_size,
+            "createdAt": run_at,
+        }
+    )
 
     manifest = {
         "schemaVersion": "thesis_analyst_run_manifest_v1",
@@ -2082,15 +2176,7 @@ def main() -> int:
         "artifacts": refs,
         "validation": validation,
     }
-    manifest_ref = write_artifact(
-        out_dir,
-        "manifest",
-        "manifest.json",
-        json.dumps(manifest, indent=2),
-        run_at,
-    )
-    manifest["artifacts"].append(manifest_ref)
-    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    manifest = finalize_manifest(out_dir, run_at, manifest, refs)
 
     if args.write_ts:
         write_ts_module(cells_path, pathlib.Path(args.write_ts), args.const_name)
