@@ -238,9 +238,18 @@ describe("forecast catalog", () => {
     );
     expect(exportPayload.counts.judgeTraceEvals).toBe(expectedRunCount);
     expect(exportPayload.counts.judgePairwiseEvals).toBeGreaterThan(0);
+    // Judges evaluate every scored run; the headline `scored` count is the
+    // chronology-verified subset of them.
     expect(exportPayload.counts.judgePostResolutionEvals).toBe(
-      exportPayload.counts.scored,
+      exportPayload.counts.scored +
+        exportPayload.counts.scoredUnverifiedChronology +
+        exportPayload.counts.scoredViolatedChronology,
     );
+    expect(
+      exportPayload.scores.filter(
+        (score) => score.chronology === "verified",
+      ).length,
+    ).toBe(exportPayload.counts.scored);
     expect(exportPayload.entries.some(isObservationRecordedLedgerEntry)).toBe(
       false,
     );
@@ -262,7 +271,11 @@ describe("forecast catalog", () => {
     expect(exportPayload.resolutionEvents[0].resolutionEventId).toMatch(
       /^resolution_event\./,
     );
-    expect(exportPayload.scores).toHaveLength(exportPayload.counts.scored);
+    expect(exportPayload.scores).toHaveLength(
+      exportPayload.counts.scored +
+        exportPayload.counts.scoredUnverifiedChronology +
+        exportPayload.counts.scoredViolatedChronology,
+    );
     expect(exportPayload.scores[0].observedValue).toEqual(expect.any(Number));
     expect(exportPayload.scores[0].interval80.width).toBeGreaterThan(0);
     expect(exportPayload.scores[0].normalizedCrps).toBeGreaterThanOrEqual(0);
@@ -2172,7 +2185,7 @@ describe("forecast catalog", () => {
       expect(score?.runId).toMatch(/^run\./);
       expect(score?.resolutionEventId).toMatch(/^resolution_event\./);
       expect(score?.scoreId).toMatch(/^score\.run\./);
-      expect(score?.scoringRule).toBe("numeric_cdf_crps_v1");
+      expect(score?.scoringRule).toBe("numeric_cdf_crps_v2_target_scale");
       expect(score?.observedValue).toBe(expected.value);
       expect(score?.unit).toBe(expected.unit);
       expect(score?.interval80.width).toBeGreaterThan(0);

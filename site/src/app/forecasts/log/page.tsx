@@ -81,7 +81,9 @@ export default async function ThesisLogPage() {
     (entry): entry is PredictionResolvedLogEntry =>
       isPredictionResolvedLogEntry(entry),
   );
-  const scores = scoreResolvedForecasts(forecasts, ledger);
+  const scores = scoreResolvedForecasts(forecasts, ledger).filter(
+    (score) => score.chronology === "verified",
+  );
   const resolutionQueue = buildResolutionQueue(forecasts, ledger);
   const visibleResolutionQueue = resolutionQueue.slice(0, 12);
   const scoreboard = buildScoreboard(recordedPredictions, scores, forecasts);

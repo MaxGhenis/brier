@@ -35,13 +35,28 @@ export default async function CalibrationPage() {
   const specs = buildPredictionSpecs(forecasts);
   const runs = buildRecordedPredictionRunRecords(forecasts, specs);
   const rewardExport = buildBrierRewardExport({ forecasts, specs, runs, ledger });
-  const scores = scoreResolvedForecasts(forecasts, ledger);
+  const allScores = scoreResolvedForecasts(forecasts, ledger);
+  // The headline track record is chronology-verified scores only: the run's
+  // recorded time provably precedes the observation. Everything else stays
+  // published below the fold, outside the official numbers.
+  const scores = allScores.filter((score) => score.chronology === "verified");
+  const provisionalCount = allScores.filter(
+    (score) => score.chronology === "unverified",
+  ).length;
+  const violatedCount = allScores.filter(
+    (score) => score.chronology === "violated",
+  ).length;
 
   const covered = scores.filter((score) => score.interval80Covered).length;
   const coverage = scores.length > 0 ? covered / scores.length : null;
   const meanNormalizedCrps =
     scores.length > 0
       ? scores.reduce((total, score) => total + score.normalizedCrps, 0) /
+        scores.length
+      : null;
+  const meanSharpness =
+    scores.length > 0
+      ? scores.reduce((total, score) => total + score.sharpness, 0) /
         scores.length
       : null;
 
@@ -96,13 +111,28 @@ export default async function CalibrationPage() {
           </a>
           .
         </p>
+        <p
+          className="mt-3 max-w-[640px] text-[0.85rem] leading-[1.6]"
+          style={{ color: "var(--theme-text-muted)" }}
+        >
+          Scoring methodology v2 (re-stated 2026-07-09): headline numbers
+          count only chronology-verified scores — the run&rsquo;s recorded
+          time provably precedes the observation — and CRPS is normalized by
+          each target&rsquo;s pre-registered historical dispersion rather
+          than the forecast&rsquo;s own interval width, so widening an
+          interval can no longer improve a score. Legacy runs without
+          verifiable timestamps stay published in{" "}
+          <a href="/log.json">log.json</a>, flagged, outside the headline.
+        </p>
 
         <section className="mt-10 grid grid-cols-4 gap-4 max-md:grid-cols-2">
           {[
             {
               label: "Scored forecasts",
               value: String(scores.length),
-              detail: `${rewardExport.counts.unresolvedRuns.toLocaleString()} runs awaiting resolution`,
+              detail: `chronology-verified; ${(
+                provisionalCount + violatedCount
+              ).toLocaleString()} legacy scores excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} runs awaiting resolution`,
             },
             {
               label: "80% interval coverage",
@@ -112,7 +142,9 @@ export default async function CalibrationPage() {
             {
               label: "Mean normalized CRPS",
               value: formatCrps(meanNormalizedCrps),
-              detail: "Lower is better; normalized by interval width",
+              detail: `Lower is better; scaled by each target's pre-registered historical dispersion, not the forecast's own width. Mean sharpness ${
+                meanSharpness === null ? "—" : meanSharpness.toFixed(2)
+              }× target scale.`,
             },
             {
               label: "Persistence baseline CRPS",

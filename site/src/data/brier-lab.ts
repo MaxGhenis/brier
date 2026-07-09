@@ -141,7 +141,11 @@ export function buildBrierRewardExport({
   ledger: PolicyEngineLedgerEntry[];
   generatedAt?: string;
 }): BrierRewardExport {
-  const scores = scoreResolvedForecasts(forecasts, ledger);
+  // Rewards and leaderboards draw only on chronology-verified scores; a
+  // run that cannot prove it predates the observation earns nothing.
+  const scores = scoreResolvedForecasts(forecasts, ledger).filter(
+    (score) => score.chronology === "verified",
+  );
   const judgeResults = buildForecastJudgeExport({ forecasts, scores });
   const traceJudgeByRunId = new Map(
     judgeResults.traceQuality.map((judge) => [judge.runId, judge]),
@@ -436,7 +440,9 @@ export function summarizeBrierCoverage({
 }) {
   const recorded = buildPredictionRecordedLogEntries(forecasts);
   const resolved = buildResolvedPredictionLogEntries(forecasts, ledger);
-  const scored = scoreResolvedForecasts(forecasts, ledger);
+  const scored = scoreResolvedForecasts(forecasts, ledger).filter(
+    (score) => score.chronology === "verified",
+  );
   return {
     recordedRuns: recorded.length,
     resolvedEvents: resolved.length,

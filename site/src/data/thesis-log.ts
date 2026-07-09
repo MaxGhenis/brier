@@ -23,6 +23,7 @@ import {
   buildSpecId,
   buildSpecVersionId,
   buildRecordedPredictionRunRecords,
+  SEEDED_RUN_RECORDED_AT,
   type PredictionRunRecord,
   type PredictionSpec,
 } from "./prediction-specs";
@@ -116,7 +117,12 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   packMode: PredictionPackSetMode | "primary";
   packCount: number;
   resolutionEventId: string;
-  scoringRule: "numeric_cdf_crps_v1";
+  scoringRule: "numeric_cdf_crps_v2_target_scale";
+  chronology: "verified" | "unverified" | "violated";
+  observedAt: string;
+  normalizationScale: number;
+  normalizationScaleSource: "target_dispersion" | "target_primary_width";
+  sharpness: number;
   ledgerFactRef: string;
   forecastSlug: string;
   dataPointId: string;
@@ -208,6 +214,8 @@ export interface ThesisLogExport {
     runs: number;
     resolutions: number;
     scored: number;
+    scoredUnverifiedChronology: number;
+    scoredViolatedChronology: number;
     resolutionLinks: number;
     resolutionEvents: number;
     pendingResolution: number;
@@ -825,7 +833,17 @@ export function buildThesisLogExport(
       specs: specs.length,
       runs: runs.length,
       resolutions: entries.filter(isPredictionResolvedLogEntry).length,
-      scored: scores.length,
+      // Headline scored count = chronology-verified only. Unverified
+      // (no trustworthy run time) and violated (run time at/after the
+      // observation) scores stay in `scores` for transparency but are
+      // outside the official track record.
+      scored: scores.filter((score) => score.chronology === "verified").length,
+      scoredUnverifiedChronology: scores.filter(
+        (score) => score.chronology === "unverified",
+      ).length,
+      scoredViolatedChronology: scores.filter(
+        (score) => score.chronology === "violated",
+      ).length,
       resolutionLinks: resolutionLinks.length,
       resolutionEvents: resolutionEvents.length,
       pendingResolution: resolutionQueue.length,
@@ -911,6 +929,56 @@ export function scoreResolvedForecast(
   return scoreResolvedForecastRun(forecast, primaryRun, ledger);
 }
 
+// A score enters the headline track record only when the run's recorded
+// time verifiably precedes the observation. Runs with no usable run time
+// (including the legacy seeded placeholder) are "unverified"; runs whose
+// recorded time is at or after the observation are "violated". Both stay
+// published for transparency but never count toward headline calibration.
+export type ScoreChronology = "verified" | "unverified" | "violated";
+
+export function classifyScoreChronology(
+  runAt: string | undefined,
+  observedAt: string | undefined,
+): ScoreChronology {
+  if (!runAt || runAt === SEEDED_RUN_RECORDED_AT) return "unverified";
+  const runTime = Date.parse(runAt);
+  const observedTime = observedAt ? Date.parse(observedAt) : Number.NaN;
+  if (!Number.isFinite(runTime) || !Number.isFinite(observedTime)) {
+    return "unverified";
+  }
+  return runTime < observedTime ? "verified" : "violated";
+}
+
+// The CRPS denominator is a per-target scale every run on the target
+// shares, derived from the primary run's fetched history — successive
+// changes for three or more points, else the primary interval's implied
+// sigma. A run cannot lower its own normalized score by widening, because
+// the denominator is fixed by the target, not the run.
+export function targetNormalizationScale(forecast: ForecastCell): {
+  scale: number;
+  source: "target_dispersion" | "target_primary_width";
+} {
+  const values = (forecast.historicalContext ?? [])
+    .map((point) => point.value)
+    .filter((value): value is number => typeof value === "number");
+  if (values.length >= 3) {
+    const diffs = values.slice(1).map((value, index) => value - values[index]);
+    const mean = diffs.reduce((total, diff) => total + diff, 0) / diffs.length;
+    const variance =
+      diffs.reduce((total, diff) => total + (diff - mean) ** 2, 0) /
+      Math.max(diffs.length - 1, 1);
+    const sigma = Math.sqrt(variance);
+    if (sigma > 0) return { scale: sigma, source: "target_dispersion" };
+  }
+  const primaryWidth = Math.abs(forecast.ciHigh - forecast.ciLow);
+  // 2 * 1.28155 converts an 80% interval width into an implied sigma.
+  const implied = primaryWidth / 2.5631;
+  return {
+    scale: implied > 0 ? implied : 1,
+    source: "target_primary_width",
+  };
+}
+
 export function scoreResolvedForecastRun(
   forecast: ForecastCell,
   run: ForecastRunEntry,
@@ -933,9 +1001,13 @@ export function scoreResolvedForecastRun(
     run.variantId,
   );
   const resolutionEventId = buildResolutionEventId(resolution);
-  const scoringRule = "numeric_cdf_crps_v1";
+  const scoringRule = "numeric_cdf_crps_v2_target_scale";
   const interval80Width = Math.abs(run.ciHigh - run.ciLow);
-  const normalizationDenominator = interval80Width > 0 ? interval80Width : 1;
+  const normalization = targetNormalizationScale(forecast);
+  const chronology = classifyScoreChronology(
+    run.predictionRun?.runAt,
+    observation.observedAt,
+  );
 
   return {
     scoreId: `score.${runId}.${resolutionEventId}.${scoringRule}`,
@@ -949,6 +1021,8 @@ export function scoreResolvedForecastRun(
     packCount: run.packSet?.packs.length ?? 0,
     resolutionEventId,
     scoringRule,
+    chronology,
+    observedAt: observation.observedAt,
     ledgerFactRef: observation.dataPointId,
     forecastSlug: forecast.slug,
     dataPointId: resolution.dataPointId,
@@ -963,8 +1037,11 @@ export function scoreResolvedForecastRun(
     },
     signedError,
     absoluteError: Math.abs(signedError),
-    normalizedCrps: distributionScore.crps / normalizationDenominator,
-    normalizedAbsoluteError: Math.abs(signedError) / normalizationDenominator,
+    normalizationScale: normalization.scale,
+    normalizationScaleSource: normalization.source,
+    normalizedCrps: distributionScore.crps / normalization.scale,
+    normalizedAbsoluteError: Math.abs(signedError) / normalization.scale,
+    sharpness: interval80Width / normalization.scale,
     interval80Covered:
       run.ciLow <= observation.value && observation.value <= run.ciHigh,
     ...distributionScore,
