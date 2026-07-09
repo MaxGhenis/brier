@@ -111,7 +111,7 @@ derives point + 80% CI from the data, and emits JSON with a full trace and
 which enforces the same trace-depth rubric CI does
 (`site/src/__tests__/trace-depth.test.ts`): >=7 steps, >=3 real tool steps,
 math derivation, base rate, disconfirming consideration. Resolved outcomes
-are recorded as observations in PolicyEngine/arch-data
+are recorded as observations in PolicyEngine/ledger (formerly arch-data)
 (`ledger/official_observations.jsonl`, branch `codex/thesis-ledger-facts`),
 which the site fetches at build time. Deploy by pushing `main`; run the
 recorder workflow (`gh workflow run record-forecasts.yml --ref main`) right

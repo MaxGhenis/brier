@@ -60,7 +60,7 @@ jobs:
           fi
 
           curl -sSf -m 90 \
-            "https://api.github.com/repos/PolicyEngine/arch-data/commits/codex/thesis-ledger-facts" \
+            "https://api.github.com/repos/PolicyEngine/ledger/commits/codex/thesis-ledger-facts" \
             -o "$SOURCE_DIR/ledger-commit.json"
           python3 -m json.tool "$SOURCE_DIR/ledger-commit.json" > /dev/null
           LEDGER_SHA=$(python3 -c \
