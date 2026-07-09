@@ -18,9 +18,7 @@ on:
         default: ""
 
 permissions:
-  contents: write
-  issues: write
-  actions: write # dispatches the recorder after publishing
+  contents: read
 
 concurrency:
   # One writer at a time across ALL docket loops (roll +
@@ -30,22 +28,28 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  roll:
+  generate:
     runs-on: ubuntu-latest
     timeout-minutes: 150
+    permissions:
+      contents: read
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    outputs:
+      count: ${{ steps.targets.outputs.count }}
+      batch: ${{ steps.targets.outputs.batch }}
     steps:
       - uses: actions/checkout@v5
         with:
           ref: main
+          persist-credentials: false
 
       - uses: oven-sh/setup-bun@v2
 
       - name: Install codex CLI
-        run: bun add -g @openai/codex
+        run: bun add -g @openai/codex@0.144.0
 
       - name: Authenticate codex
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: printenv OPENAI_API_KEY | codex login --with-api-key
 
       - name: Adopt proven series into the registry
@@ -53,50 +57,138 @@ jobs:
 
       - name: Compute targets
         id: targets
+        env:
+          CADENCE: ${{ github.event.inputs.cadence }}
+          MAX_TARGETS: ${{ github.event.inputs.max_targets || 10 }}
         run: |
           set -euo pipefail
-          CADENCE_FLAG=""
-          if [ -n "${{ github.event.inputs.cadence }}" ]; then
-            CADENCE_FLAG="--cadence ${{ github.event.inputs.cadence }}"
-          fi
-          python3 scripts/roll_docket.py $CADENCE_FLAG \
-            --max-targets "${{ github.event.inputs.max_targets || 10 }}" \
+          args=(
+            python3 scripts/roll_docket.py
+            --max-targets "$MAX_TARGETS"
             --out /tmp/roll-targets.json
+          )
+          if [ -n "$CADENCE" ]; then
+            args+=(--cadence "$CADENCE")
+          fi
+          "${args[@]}"
           COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/roll-targets.json'))['targets']))")
+          DAY=$(date -u +%F)
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "batch=records/thesis-analyst/batches/$DAY/auto-roll-r${GITHUB_RUN_NUMBER}.json" >> "$GITHUB_OUTPUT"
 
       - name: Run the analyst batch
         if: steps.targets.outputs.count != '0'
+        env:
+          BATCH_MANIFEST: ${{ steps.targets.outputs.batch }}
         run: |
           set -euo pipefail
-          DAY=$(date -u +%F)
           python3 scripts/run_thesis_batch.py \
             --targets-file /tmp/roll-targets.json \
             --timeout-seconds 540 \
-            --out "records/thesis-analyst/batches/$DAY/auto-roll-r${GITHUB_RUN_NUMBER}.json" || true
+            --out "$BATCH_MANIFEST" || true
           # Failures are recorded in the batch manifest; partial success
           # publishes the passing subset below.
 
-      - name: Commit run records (before any gate — records are immutable artifacts)
+      - name: Stage the unprivileged publication bundle
         if: steps.targets.outputs.count != '0'
+        env:
+          BATCH_MANIFEST: ${{ steps.targets.outputs.batch }}
+        run: |
+          python3 scripts/docket_publication.py stage \
+            --bundle-dir /tmp/docket-publication \
+            --batch "$BATCH_MANIFEST" \
+            --allow-path records \
+            --allow-path scripts/docket_series.json
+
+      - name: Upload generated records and batch manifest
+        if: steps.targets.outputs.count != '0'
+        uses: actions/upload-artifact@v7
+        with:
+          name: roll-docket-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/docket-publication/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    if: ${{ always() }}
+    needs: generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      issues: write
+      actions: write # dispatches the recorder after publishing
+    steps:
+      - name: Propagate generation failure
+        if: needs.generate.result != 'success'
+        run: |
+          echo "The unprivileged generation job failed" >&2
+          exit 1
+
+      - uses: actions/checkout@v5
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+
+      - name: Download generated records and batch manifest
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        uses: actions/download-artifact@v8
+        with:
+          name: roll-docket-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/docket-publication
+
+      - name: Validate and apply the publication bundle
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        env:
+          BATCH_MANIFEST: ${{ needs.generate.outputs.batch }}
+        run: |
+          python3 scripts/docket_publication.py validate \
+            --bundle-dir /tmp/docket-publication \
+            --batch "$BATCH_MANIFEST" \
+            --allow-path records \
+            --allow-path scripts/docket_series.json \
+            --apply
+
+      - name: Commit run records (before any gate — records are immutable artifacts)
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
         run: |
           set -euo pipefail
           git config user.name "thesis-roller"
           git config user.email "recorder@thesisinstitute.org"
           git add records/
+          python3 scripts/docket_publication.py scan-staged
           git commit -m "Auto-roll run records $(date -u +%F) [skip ci]" || echo "no records"
-          git pull --rebase origin main
-          git push origin main
+
+      - name: Rebase run records
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          git pull --rebase --autostash origin main
+
+      - name: Push run records
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
+          git -c credential.helper= -c credential.helper="$auth_helper" push origin main
 
       - name: Publish passing cells
-        if: steps.targets.outputs.count != '0'
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
         id: publish
+        env:
+          BATCH_MANIFEST: ${{ needs.generate.outputs.batch }}
         run: |
           set -euo pipefail
           DAY=$(date -u +%F)
           if python3 scripts/register_wave.py \
-              --name "auto-$DAY-$(shasum -a 256 "records/thesis-analyst/batches/$DAY/auto-roll-r${GITHUB_RUN_NUMBER}.json" | cut -c1-8)" \
-              --batch "records/thesis-analyst/batches/$DAY/auto-roll-r${GITHUB_RUN_NUMBER}.json" \
+              --name "auto-$DAY-$(shasum -a 256 "$BATCH_MANIFEST" | cut -c1-8)" \
+              --batch "$BATCH_MANIFEST" \
               --allow-missing; then
             echo "published=1" >> "$GITHUB_OUTPUT"
           else
@@ -115,25 +207,45 @@ jobs:
           bun install
           bun run test
 
-      - name: Commit and push
-        if: steps.targets.outputs.count != '0'
+      - name: Commit publication
+        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        id: commit
         run: |
           set -euo pipefail
           git config user.name "thesis-roller"
           git config user.email "recorder@thesisinstitute.org"
           git add records/ site/src/data scripts 2>/dev/null || true
+          python3 scripts/docket_publication.py scan-staged
           git commit -m "Auto-roll the docket $(date -u +%F)" || {
-            echo "nothing to commit"; exit 0; }
+            echo "nothing to commit"
+            echo "committed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          echo "committed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Rebase and retest publication
+        if: steps.commit.outputs.committed == '1'
+        run: |
+          set -euo pipefail
           git pull --rebase origin main
           if [ "${{ steps.publish.outputs.published }}" = "1" ]; then
             (cd site && bun run test)
           fi
-          git push origin main
+
+      - name: Push publication
+        if: steps.commit.outputs.committed == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
+          git -c credential.helper= -c credential.helper="$auth_helper" push origin main
 
       - name: Stamp the record
         if: steps.publish.outputs.published == '1'
         env:
           GH_TOKEN: ${{ github.token }}
+          MANUAL_DEPLOY_HOOK_URL: ${{ secrets.MANUAL_DEPLOY_HOOK_URL }}
         run: |
           SHA=$(git rev-parse HEAD)
           GOT=""
@@ -144,8 +256,8 @@ jobs:
             [ "$GOT" = "$SHA" ] && break
             # Halfway through, nudge a rebuild in case the push webhook was
             # missed or an ignore-step/[skip ci] canceled the deployment.
-            if [ "$i" = "12" ] && [ -n "${{ secrets.MANUAL_DEPLOY_HOOK_URL }}" ]; then
-              curl -sf -X POST "${{ secrets.MANUAL_DEPLOY_HOOK_URL }}" > /dev/null || true
+            if [ "$i" = "12" ] && [ -n "$MANUAL_DEPLOY_HOOK_URL" ]; then
+              curl -sf -X POST "$MANUAL_DEPLOY_HOOK_URL" > /dev/null || true
             fi
             sleep 30
           done
