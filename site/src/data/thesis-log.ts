@@ -37,6 +37,7 @@ import {
   requireLedgerTarget,
   type TargetRegisteredLedgerEntry,
 } from "./ledger-targets";
+import { sha256Hex } from "./canonical-json";
 
 export type PolicyEngineLedgerEntry =
   | TargetRegisteredLedgerEntry
@@ -606,6 +607,7 @@ export function buildPredictionRecordedLogEntries(
         forecast,
         run.predictionRun?.runAt,
         run.variantId,
+        run,
       );
 
       return [
@@ -732,20 +734,30 @@ export function buildPredictionResolutionEvents(
   forecasts: ForecastCell[],
   ledger: PolicyEngineLedgerEntry[],
 ): PredictionResolutionEvent[] {
-  return buildResolvedPredictionLogEntries(forecasts, ledger).map((entry) => ({
-    resolutionEventId: entry.resolutionEventId,
-    resolutionRef: entry.resolutionRef,
-    forecastSlug: entry.forecastSlug,
-    ledgerFactRef: entry.ledgerFactRef,
-    observationId: entry.observationId,
-    occurredAt: entry.recordedAt,
-    payloadHash: buildStaticPayloadHash({
+  return buildResolvedPredictionLogEntries(forecasts, ledger).map((entry) => {
+    const observation = getObservationForId(entry.observationId, ledger);
+    if (!observation) {
+      throw new Error(
+        `Missing observation payload for resolution event ${entry.resolutionEventId}`,
+      );
+    }
+    return {
       resolutionEventId: entry.resolutionEventId,
+      resolutionRef: entry.resolutionRef,
+      forecastSlug: entry.forecastSlug,
       ledgerFactRef: entry.ledgerFactRef,
       observationId: entry.observationId,
-    }),
-    status: "linked",
-  }));
+      occurredAt: entry.recordedAt,
+      payloadHash: sha256Hex({
+        resolutionEventId: entry.resolutionEventId,
+        ledgerFactRef: entry.ledgerFactRef,
+        observationId: entry.observationId,
+        observedValue: observation.value,
+        unit: observation.unit,
+      }),
+      status: "linked" as const,
+    };
+  });
 }
 
 export function buildPolicyEngineLedgerExport(
@@ -999,6 +1011,7 @@ export function scoreResolvedForecastRun(
     forecast,
     run.predictionRun?.runAt,
     run.variantId,
+    run,
   );
   const resolutionEventId = buildResolutionEventId(resolution);
   const scoringRule = "numeric_cdf_crps_v2_target_scale";
@@ -1010,7 +1023,21 @@ export function scoreResolvedForecastRun(
   );
 
   return {
-    scoreId: `score.${runId}.${resolutionEventId}.${scoringRule}`,
+    scoreId: buildScoreId({
+      runId,
+      resolutionEventId,
+      scoringRule,
+      forecastOutput: {
+        pointEstimate: run.pointEstimate,
+        interval80: { lower: run.ciLow, upper: run.ciHigh },
+        distribution: run.predictionDistribution,
+      },
+      outcome: {
+        observationId: observation.observationId,
+        observedValue: observation.value,
+        unit: observation.unit,
+      },
+    }),
     runId,
     runLabel: run.label,
     runAt: run.predictionRun?.runAt,
@@ -1091,12 +1118,13 @@ function buildResolutionEventId({
     .replace(/[^A-Za-z0-9]+/g, "-")}`;
 }
 
-function buildStaticPayloadHash(value: unknown) {
-  const serialized = JSON.stringify(value);
-  let hash = 2166136261;
-  for (let index = 0; index < serialized.length; index += 1) {
-    hash ^= serialized.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return `static-hash-v1:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+function buildScoreId(payload: {
+  runId: string;
+  resolutionEventId: string;
+  scoringRule: ResolvedForecastScore["scoringRule"];
+  forecastOutput: unknown;
+  outcome: unknown;
+}) {
+  const payloadDigest = sha256Hex(payload);
+  return `score.${payload.runId}.${payload.resolutionEventId}.${payload.scoringRule}.${payloadDigest.slice(0, 16)}`;
 }

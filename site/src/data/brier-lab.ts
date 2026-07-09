@@ -165,6 +165,7 @@ export function buildBrierRewardExport({
         forecast,
         run.predictionRun?.runAt,
         run.variantId,
+        run,
       );
       const score = scoreByRunId.get(runId);
       const runRecord = runByRunId.get(runId);

@@ -30,6 +30,7 @@ import {
   type ObservationRecordedLedgerEntry,
   type PolicyEngineLedgerEntry,
 } from "./thesis-log";
+import { sha256Hex } from "./canonical-json";
 
 export interface ThesisTargetArchitectureProjection {
   schemaVersion: "thesis_target_architecture_projection_v1";
@@ -505,7 +506,7 @@ export function buildTargetArchitectureProjection(
       versionLabel: version.version,
       evidenceRequirements: pack.detail?.inputs ?? [],
       validatorRules: pack.detail?.qualityChecks ?? [],
-      promptContentHash: stableHash({
+      promptContentHash: sha256Hex({
         packId: pack.packId,
         version: version.version,
         summary: pack.summary,
@@ -563,6 +564,31 @@ export function buildTargetArchitectureProjection(
     }),
   );
   const artifactRefs = buildArtifactRefs(runs);
+
+  assertProjectionIdCollisions({
+    targets,
+    targetVersions,
+    sourceSeries,
+    observations,
+    observationVintages,
+    targetObservationBindings,
+    baselineCandidates,
+    forecastStrategies,
+    strategyVersions,
+    packs,
+    packVersions,
+    forecastRuns,
+    runPackVersions,
+    runArtifactRefs,
+    toolCalls,
+    forecastDistributions,
+    reasoningEvents,
+    reviewRuns,
+    judgeRuns,
+    resolutionEvents,
+    scores,
+    artifactRefs,
+  });
 
   return {
     schemaVersion: "thesis_target_architecture_projection_v1",
@@ -1042,19 +1068,24 @@ function buildSourceSeriesProjections(
   const rows = new Map<string, SourceSeriesProjection>();
   for (const { forecast, spec } of contexts) {
     const sourceSeriesId = buildSourceSeriesId(forecast, spec);
-    rows.set(sourceSeriesId, {
+    setByIdOrThrow(
+      rows,
       sourceSeriesId,
-      adapterId: buildAdapterId(forecast, spec),
-      sourceFamily: buildSourceFamily(forecast, spec),
-      agencySeriesId: forecast.series?.seriesId,
-      measureKey: spec.resolution.targetFactRef ?? spec.predictionId,
-      country: spec.country,
-      agency: inferAgency(spec.resolution.source),
-      sourceUrl: spec.resolution.sourceUrl ?? spec.resolution.source,
-      unit: spec.unit,
-      updateCadence: forecast.series?.cadence,
-      defaultVintagePolicy: spec.resolution.policy ?? "unknown",
-    });
+      {
+        sourceSeriesId,
+        adapterId: buildAdapterId(forecast, spec),
+        sourceFamily: buildSourceFamily(forecast, spec),
+        agencySeriesId: forecast.series?.seriesId,
+        measureKey: spec.resolution.targetFactRef ?? spec.predictionId,
+        country: spec.country,
+        agency: inferAgency(spec.resolution.source),
+        sourceUrl: spec.resolution.sourceUrl ?? spec.resolution.source,
+        unit: spec.unit,
+        updateCadence: forecast.series?.cadence,
+        defaultVintagePolicy: spec.resolution.policy ?? "unknown",
+      },
+      "source_series",
+    );
   }
   return [...rows.values()].sort((left, right) =>
     left.sourceSeriesId.localeCompare(right.sourceSeriesId),
@@ -1107,18 +1138,23 @@ function buildObservationProjections({
     const sourceSeriesId = sourceSeriesIdByForecastSlug.get(forecast.slug);
     if (!sourceSeriesId) continue;
     if (observation) {
-      rows.set(observation.observationId, {
-        observationId: observation.observationId,
-        sourceSeriesId,
-        dataPointId: observation.dataPointId,
-        periodLabel: observation.periodLabel,
-        value: observation.value,
-        unit: observation.unit,
-        valueScale: 1,
-        sourceUrl: observation.sourceUrl ?? observation.source,
-        retrievedAt: observation.observedAt,
-        payloadHash: stableHash(observation),
-      });
+      setByIdOrThrow(
+        rows,
+        observation.observationId,
+        {
+          observationId: observation.observationId,
+          sourceSeriesId,
+          dataPointId: observation.dataPointId,
+          periodLabel: observation.periodLabel,
+          value: observation.value,
+          unit: observation.unit,
+          valueScale: 1,
+          sourceUrl: observation.sourceUrl ?? observation.source,
+          retrievedAt: observation.observedAt,
+          payloadHash: sha256Hex(observation),
+        },
+        "observations",
+      );
     }
     for (const [pointIndex, point] of forecast.historicalContext.entries()) {
       const observationId = buildHistoricalObservationId({
@@ -1127,22 +1163,27 @@ function buildObservationProjections({
         pointLabel: point.label,
         pointIndex,
       });
-      rows.set(observationId, {
+      setByIdOrThrow(
+        rows,
         observationId,
-        sourceSeriesId,
-        periodLabel: point.label,
-        value: point.value,
-        unit: spec.unit,
-        valueScale: 1,
-        sourceUrl: spec.resolution.sourceUrl ?? spec.resolution.source,
-        retrievedAt: spec.publishedAt,
-        payloadHash: stableHash({
-          kind: "forecast_historical_context",
-          forecastSlug: forecast.slug,
+        {
+          observationId,
           sourceSeriesId,
-          point,
-        }),
-      });
+          periodLabel: point.label,
+          value: point.value,
+          unit: spec.unit,
+          valueScale: 1,
+          sourceUrl: spec.resolution.sourceUrl ?? spec.resolution.source,
+          retrievedAt: spec.publishedAt,
+          payloadHash: sha256Hex({
+            kind: "forecast_historical_context",
+            forecastSlug: forecast.slug,
+            sourceSeriesId,
+            point,
+          }),
+        },
+        "observations",
+      );
     }
   }
   // The database enforces unique (source_series_id, period_label,
@@ -1189,7 +1230,7 @@ function buildObservationVintageProjections({
       vintageKind,
       publishedAt: observation.retrievedAt,
       retrievedAt: observation.retrievedAt,
-      normalizedPayloadHash: stableHash(observation),
+      normalizedPayloadHash: sha256Hex(observation),
     };
   });
 }
@@ -1222,11 +1263,11 @@ function buildStrategyVersions(
     strategyVersionId: buildStrategyVersionId(strategy.strategyId),
     strategyId: strategy.strategyId,
     versionLabel: VERSION_LABEL,
-    promptPolicyHash: stableHash({
+    promptPolicyHash: sha256Hex({
       strategyId: strategy.strategyId,
       description: strategy.description,
     }),
-    toolPolicyHash: stableHash({
+    toolPolicyHash: sha256Hex({
       strategyId: strategy.strategyId,
       requiredInputs: strategy.strategyKind,
     }),
@@ -1564,7 +1605,7 @@ function buildScoreProjections({
           absoluteError: score.absoluteError,
           // Binds the scored numbers to the score row; the ledger schema
           // requires it (score_hash not null).
-          scoreHash: stableHash({
+          scoreHash: sha256Hex({
             scoreId: score.scoreId,
             runId: score.runId,
             resolutionEventId: score.resolutionEventId,
@@ -1591,8 +1632,7 @@ function buildArtifactRefs(
     for (const artifact of run.activityLog ?? []) {
       const artifactRefId = buildArtifactRefId(artifact);
       const contentHash = buildArtifactContentHash(artifact);
-      if (artifactRefs.has(artifactRefId)) continue;
-      artifactRefs.set(artifactRefId, {
+      addArtifactRefOrThrow(artifactRefs, {
         artifactRefId,
         contentHash,
         mediaType: inferArtifactMediaType(artifact.artifactType),
@@ -1607,14 +1647,8 @@ function buildArtifactRefs(
     }
     const generatedBaselineArtifactRef =
       buildGeneratedBaselineArtifactRefIfNeeded(run);
-    if (
-      generatedBaselineArtifactRef &&
-      !artifactRefs.has(generatedBaselineArtifactRef.artifactRefId)
-    ) {
-      artifactRefs.set(
-        generatedBaselineArtifactRef.artifactRefId,
-        generatedBaselineArtifactRef,
-      );
+    if (generatedBaselineArtifactRef) {
+      addArtifactRefOrThrow(artifactRefs, generatedBaselineArtifactRef);
     }
   }
   return [...artifactRefs.values()].sort((left, right) =>
@@ -1670,7 +1704,7 @@ function buildGeneratedBaselineArtifactRefIfNeeded(
   };
   return {
     artifactRefId: `artifact.generated_baseline.${run.runId}`,
-    contentHash: stableHash(contentPayload),
+    contentHash: sha256Hex(contentPayload),
     mediaType: "application/json",
     storageUri: `generated://baseline-candidates/${run.runId}.json`,
     publicVisibility: "public",
@@ -1869,19 +1903,24 @@ function inferArtifactMediaType(artifactType: string) {
 function buildArtifactRefId(
   artifact: NonNullable<PredictionRunRecord["activityLog"]>[number],
 ) {
-  return `artifact.${shortHash(buildArtifactContentHash(artifact))}`;
+  return `artifact.${buildArtifactContentHash(artifact).slice(0, 16)}`;
 }
 
 function buildArtifactContentHash(
   artifact: NonNullable<PredictionRunRecord["activityLog"]>[number],
 ) {
   if (artifact.sha256 !== "generated") {
+    if (!/^[0-9a-f]{64}$/.test(artifact.sha256)) {
+      throw new Error(
+        `Invalid artifact SHA-256 for ${artifact.path}: ${artifact.sha256}`,
+      );
+    }
     return artifact.sha256;
   }
-  return `generated:${shortHash({
+  return sha256Hex({
     path: artifact.path,
     artifactType: artifact.artifactType,
-  })}`;
+  });
 }
 
 function slugify(value: string) {
@@ -1893,34 +1932,178 @@ function slugify(value: string) {
 }
 
 function shortHash(value: unknown) {
-  return stableHash(value).replace("static-hash-v1:", "");
+  return sha256Hex(value).slice(0, 16);
 }
 
-function stableHash(value: unknown) {
-  const serialized = stableStringify(value);
-  let hash = 2166136261;
-  for (let index = 0; index < serialized.length; index += 1) {
-    hash ^= serialized.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return `static-hash-v1:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+type ProjectionRows = Omit<
+  ThesisTargetArchitectureProjection,
+  "schemaVersion" | "generatedAt" | "source" | "counts"
+>;
+
+function assertProjectionIdCollisions(projection: ProjectionRows) {
+  assertNoIdCollisions("targets", projection.targets, (row) => row.targetId);
+  assertNoIdCollisions(
+    "target_versions",
+    projection.targetVersions,
+    (row) => row.targetVersionId,
+  );
+  assertNoIdCollisions(
+    "source_series",
+    projection.sourceSeries,
+    (row) => row.sourceSeriesId,
+  );
+  assertNoIdCollisions(
+    "observations",
+    projection.observations,
+    (row) => row.observationId,
+  );
+  assertNoIdCollisions(
+    "observation_vintages",
+    projection.observationVintages,
+    (row) => row.vintageId,
+  );
+  assertNoIdCollisions(
+    "target_observation_bindings",
+    projection.targetObservationBindings,
+    (row) => row.bindingId,
+  );
+  assertNoIdCollisions(
+    "baseline_candidates",
+    projection.baselineCandidates,
+    (row) => row.candidateId,
+  );
+  assertNoIdCollisions(
+    "forecast_strategies",
+    projection.forecastStrategies,
+    (row) => row.strategyId,
+  );
+  assertNoIdCollisions(
+    "strategy_versions",
+    projection.strategyVersions,
+    (row) => row.strategyVersionId,
+  );
+  assertNoIdCollisions("packs", projection.packs, (row) => row.packId);
+  assertNoIdCollisions(
+    "pack_versions",
+    projection.packVersions,
+    (row) => row.packVersionId,
+  );
+  assertNoIdCollisions(
+    "forecast_runs",
+    projection.forecastRuns,
+    (row) => row.runId,
+  );
+  assertNoIdCollisions(
+    "run_pack_versions",
+    projection.runPackVersions,
+    (row) => row.runPackVersionId,
+  );
+  assertNoIdCollisions(
+    "run_artifact_refs",
+    projection.runArtifactRefs,
+    (row) => row.runArtifactRefId,
+  );
+  assertNoIdCollisions(
+    "tool_calls",
+    projection.toolCalls,
+    (row) => row.toolCallId,
+  );
+  assertNoIdCollisions(
+    "forecast_distributions",
+    projection.forecastDistributions,
+    (row) => `${row.runId}:${row.pointIndex}`,
+  );
+  assertNoIdCollisions(
+    "reasoning_events",
+    projection.reasoningEvents,
+    (row) => row.reasoningEventId,
+  );
+  assertNoIdCollisions(
+    "review_runs",
+    projection.reviewRuns,
+    (row) => row.reviewRunId,
+  );
+  assertNoIdCollisions(
+    "judge_runs",
+    projection.judgeRuns,
+    (row) => row.judgeRunId,
+  );
+  assertNoIdCollisions(
+    "resolution_events",
+    projection.resolutionEvents,
+    (row) => row.resolutionEventId,
+  );
+  assertNoIdCollisions("scores", projection.scores, (row) => row.scoreId);
+  assertNoIdCollisions(
+    "artifact_refs",
+    projection.artifactRefs,
+    (row) => row.artifactRefId,
+  );
 }
 
-function stableStringify(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `[${value.map(stableStringify).join(",")}]`;
+function assertNoIdCollisions<T>(
+  namespace: string,
+  rows: T[],
+  getId: (row: T) => string,
+) {
+  const payloadDigestById = new Map<string, string>();
+  for (const row of rows) {
+    const id = getId(row);
+    const payloadDigest = sha256Hex(row);
+    const existingDigest = payloadDigestById.get(id);
+    if (existingDigest && existingDigest !== payloadDigest) {
+      throwIdCollision(namespace, id, existingDigest, payloadDigest);
+    }
+    payloadDigestById.set(id, payloadDigest);
   }
-  if (value && typeof value === "object") {
-    return `{${Object.entries(value)
-      .filter(([, entryValue]) => entryValue !== undefined)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(
-        ([key, entryValue]) =>
-          `${JSON.stringify(key)}:${stableStringify(entryValue)}`,
-      )
-      .join(",")}}`;
+}
+
+function setByIdOrThrow<T>(
+  rows: Map<string, T>,
+  id: string,
+  row: T,
+  namespace: string,
+) {
+  const existing = rows.get(id);
+  if (!existing) {
+    rows.set(id, row);
+    return;
   }
-  return JSON.stringify(value);
+  const existingDigest = sha256Hex(existing);
+  const payloadDigest = sha256Hex(row);
+  if (existingDigest !== payloadDigest) {
+    throwIdCollision(namespace, id, existingDigest, payloadDigest);
+  }
+}
+
+function addArtifactRefOrThrow(
+  artifactRefs: Map<string, ArtifactRefProjection>,
+  artifactRef: ArtifactRefProjection,
+) {
+  const existing = artifactRefs.get(artifactRef.artifactRefId);
+  if (!existing) {
+    artifactRefs.set(artifactRef.artifactRefId, artifactRef);
+    return;
+  }
+  if (existing.contentHash !== artifactRef.contentHash) {
+    throwIdCollision(
+      "artifact_refs",
+      artifactRef.artifactRefId,
+      existing.contentHash,
+      artifactRef.contentHash,
+    );
+  }
+}
+
+function throwIdCollision(
+  namespace: string,
+  id: string,
+  existingDigest: string,
+  payloadDigest: string,
+): never {
+  throw new Error(
+    `ID collision in ${namespace} for ${id}: payload digests ${existingDigest} and ${payloadDigest}`,
+  );
 }
 
 function expectUnique(

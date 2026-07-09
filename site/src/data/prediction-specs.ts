@@ -13,6 +13,7 @@ import type {
 import { getForecastRunEntries } from "./forecast-cells";
 import { requireLedgerTarget } from "./ledger-targets";
 import type { PredictionDistribution } from "./prediction-distribution";
+import { sha256Hex } from "./canonical-json";
 
 export type PredictionSpecSchemaVersion = "thesis_prediction_spec_v1";
 export type PredictionRunSchemaVersion = "thesis_prediction_run_v1";
@@ -212,7 +213,7 @@ export function buildPredictionSpec(forecast: ForecastCell): PredictionSpec {
     schemaVersion: "thesis_prediction_spec_v1",
     specId,
     specVersionId,
-    specHash: stableHash(hashMaterial),
+    specHash: sha256Hex(hashMaterial),
     publishedAt: `${SPEC_VERSION}T00:00:00+02:00`,
     predictionId: forecast.slug,
     title: forecast.title,
@@ -277,6 +278,7 @@ export function buildRecordedPredictionRunRecord(
     forecast,
     createdAt,
     run.variantId,
+    run,
   );
   const agentId = buildAgentId(run);
   const publicTrace = buildPublicTrace(
@@ -284,14 +286,14 @@ export function buildRecordedPredictionRunRecord(
     run.predictionRun?.preSubmitReview,
   );
   const toolCalls = extractToolCalls(run.reasoning, runId, spec);
-  const promptHash = stableHash({
+  const promptHash = sha256Hex({
     specVersionId: spec.specVersionId,
     question: spec.question,
     instructions: spec.agent.instructions,
     runVariantId: run.variantId,
   });
-  const toolPolicyHash = stableHash(spec.tools);
-  const inputBundleHash = stableHash({
+  const toolPolicyHash = sha256Hex(spec.tools);
+  const inputBundleHash = sha256Hex({
     specVersionId: spec.specVersionId,
     targetFactRef: spec.resolution.targetFactRef,
     historicalContext: forecast.historicalContext,
@@ -311,7 +313,7 @@ export function buildRecordedPredictionRunRecord(
     packSet: run.packSet,
     activityLog: run.predictionRun?.activityLog,
     preSubmitReview: run.predictionRun?.preSubmitReview,
-    idempotencyKey: stableHash({
+    idempotencyKey: sha256Hex({
       specVersionId: spec.specVersionId,
       agentId,
       createdAt,
@@ -349,7 +351,7 @@ export function buildRecordedPredictionRunRecord(
       publicTrace,
       publicTraceMetadata: {
         redactionStatus: "public_only",
-        traceHash: stableHash(publicTrace),
+        traceHash: sha256Hex(publicTrace),
         publiclyReproducibleEnough: true,
       },
       toolCalls,
@@ -417,10 +419,44 @@ export function buildRecordedPredictionRunId(
   forecast: ForecastCell,
   createdAt: string = forecast.predictionRun?.runAt ?? SEEDED_RUN_RECORDED_AT,
   variantId = "primary",
+  runEntry?: ForecastRunEntry,
 ) {
+  const run =
+    runEntry ??
+    getForecastRunEntries(forecast).find(
+      (candidate) =>
+        candidate.variantId === variantId &&
+        (candidate.predictionRun?.runAt ?? SEEDED_RUN_RECORDED_AT) ===
+          createdAt,
+    );
+  const outputDigest = sha256Hex(
+    buildForecastOutputDistributionSummary(
+      run ?? {
+        pointEstimate: forecast.pointEstimate,
+        ciLow: forecast.ciLow,
+        ciHigh: forecast.ciHigh,
+        predictionDistribution: forecast.predictionDistribution,
+      },
+    ),
+  );
   const variantSuffix =
     variantId === "primary" ? "" : `.${formatRunTimestamp(variantId)}`;
-  return `run.${forecast.slug}.${formatRunTimestamp(createdAt)}${variantSuffix}`;
+  return `run.${forecast.slug}.${formatRunTimestamp(createdAt)}${variantSuffix}.${outputDigest.slice(0, 16)}`;
+}
+
+function buildForecastOutputDistributionSummary(
+  run: Pick<ForecastRunEntry, "pointEstimate" | "ciLow" | "ciHigh"> & {
+    predictionDistribution?: PredictionDistribution;
+  },
+) {
+  return {
+    pointEstimate: run.pointEstimate,
+    interval80: {
+      lower: run.ciLow,
+      upper: run.ciHigh,
+    },
+    distribution: run.predictionDistribution,
+  };
 }
 
 function buildRequiredTools(forecast: ForecastCell) {
@@ -512,8 +548,8 @@ function extractToolCalls(
         call: step.call,
         result: step.result,
         allowedTool: spec.tools.allowed.includes(tool),
-        requestHash: stableHash({ tool, call: step.call }),
-        responseHash: stableHash({ tool, result: step.result }),
+        requestHash: sha256Hex({ tool, call: step.call }),
+        responseHash: sha256Hex({ tool, result: step.result }),
         provider: "recorded-public-trace",
         status: "succeeded",
         costUsd: null,
@@ -597,31 +633,4 @@ function buildAgentId(run: ForecastRunEntry) {
 
 function formatRunTimestamp(value: string) {
   return value.replace(/[^0-9A-Za-z]+/g, "-").replace(/^-|-$/g, "");
-}
-
-function stableHash(value: unknown) {
-  const serialized = stableStringify(value);
-  let hash = 2166136261;
-  for (let index = 0; index < serialized.length; index += 1) {
-    hash ^= serialized.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return `static-hash-v1:${(hash >>> 0).toString(16).padStart(8, "0")}`;
-}
-
-function stableStringify(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `[${value.map(stableStringify).join(",")}]`;
-  }
-  if (value && typeof value === "object") {
-    return `{${Object.entries(value)
-      .filter(([, entryValue]) => entryValue !== undefined)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(
-        ([key, entryValue]) =>
-          `${JSON.stringify(key)}:${stableStringify(entryValue)}`,
-      )
-      .join(",")}}`;
-  }
-  return JSON.stringify(value);
 }

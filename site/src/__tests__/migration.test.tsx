@@ -370,7 +370,7 @@ describe("Next.js migration", () => {
       expect(body.specs[0].specId).toMatch(/^spec\./);
       expect(body.specs[0].specVersionId).toMatch(/^spec\..+\.v20260609$/);
       expect(body.runs[0].schemaVersion).toBe("thesis_prediction_run_v1");
-      expect(body.runs[0].idempotencyKey).toMatch(/^static-hash-v1:/);
+      expect(body.runs[0].idempotencyKey).toMatch(/^[0-9a-f]{64}$/);
     });
 
     it("serves the clean target-architecture manifest JSON", async () => {
@@ -426,7 +426,9 @@ describe("Next.js migration", () => {
 
     it("serves target-architecture table and chunk JSON", async () => {
       const tableResponse = await getForecastTargetTableJson(
-        new Request("http://test.local/forecasts/targets/targets/manifest.json"),
+        new Request(
+          "http://test.local/forecasts/targets/targets/manifest.json",
+        ),
         {
           params: Promise.resolve({}),
         },

@@ -389,6 +389,22 @@ Core tables:
   outputs, judge outputs, and resolution proofs. Primary key `artifactRefId`;
   content hash; media type; storage URI; public visibility.
 
+### Canonical hashing and content identity
+
+Build-time projections serialize hash payloads as canonical JSON: object keys
+are sorted lexicographically by UTF-16 code units, arrays retain their order,
+numbers use JSON's stable ECMAScript representation, and non-finite numbers are
+rejected. SHA-256 is the only projection hash. Payload-hash columns retain the
+full 64-character lowercase digest; content-derived public IDs use at least the
+first 16 hexadecimal characters while preserving their existing namespace
+shape.
+
+Run IDs commit to the forecast point, interval, and distribution. Resolution
+payload hashes commit to the observed value and unit. Score IDs commit to the
+forecast payload, outcome payload, and versioned scoring rule. A repeated ID is
+accepted only when its payload digest is identical; a truncated-ID collision
+between different digests is a build failure.
+
 Join model:
 
 - one `target` has many `target_versions`;

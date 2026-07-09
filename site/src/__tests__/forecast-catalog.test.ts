@@ -37,6 +37,7 @@ import { buildBrierRewardExport } from "@/data/brier-lab";
 import { buildForecastJudgeExport } from "@/data/forecast-judges";
 import { buildStrategyLabReport } from "@/data/strategy-lab";
 import { buildTimeSeriesPriorAdjustmentReport } from "@/data/time-series-priors";
+import { sha256Hex } from "@/data/canonical-json";
 import {
   assertValidTargetArchitectureProjection,
   buildTargetArchitectureProjection,
@@ -50,6 +51,7 @@ import {
 import { findUncoveredLedgerObservationSeries } from "@/data/ledger-coverage";
 import {
   buildPolicyEngineLedgerExport,
+  buildPredictionResolutionEvents,
   buildResolvedPredictionLogEntries,
   buildResolutionQueue,
   buildThesisLog,
@@ -90,7 +92,10 @@ describe("forecast catalog", () => {
   it("does not publish private-source provenance", () => {
     const publicCatalogPayload = JSON.stringify({
       forecasts: FORECAST_CELLS,
-      thesisLog: buildThesisLogExport(resolvedForecastCells, policyEngineLedger),
+      thesisLog: buildThesisLogExport(
+        resolvedForecastCells,
+        policyEngineLedger,
+      ),
       targetArchitecture: buildTargetArchitectureProjection(
         resolvedForecastCells,
         policyEngineLedger,
@@ -334,10 +339,12 @@ describe("forecast catalog", () => {
     const scoredRow = exportPayload.rewardRows.find(
       (row) => row.reward.value !== null,
     );
-    const liveRun = exportPayload.rewardRows.find(
-      (row) =>
-        row.runId ===
+    // Run IDs now end in a forecast-output digest, so match on the stable
+    // slug/timestamp/variant prefix rather than the full ID.
+    const liveRun = exportPayload.rewardRows.find((row) =>
+      row.runId.startsWith(
         "run.uk-unemployment-rate-oct-dec-2026.2026-06-16T10-20-43Z.thesis-analyst-live-2026-06-16",
+      ),
     );
 
     expect(exportPayload.schemaVersion).toBe("brier_reward_export_v1");
@@ -836,7 +843,7 @@ describe("forecast catalog", () => {
       expect(spec.schemaVersion).toBe("thesis_prediction_spec_v1");
       expect(spec.specId).toBe(`spec.${spec.predictionId}`);
       expect(spec.specVersionId).toBe(`spec.${spec.predictionId}.v20260609`);
-      expect(spec.specHash).toMatch(/^static-hash-v1:/);
+      expect(spec.specHash).toMatch(/^[0-9a-f]{64}$/);
       expect(spec.publishedAt).toBe("2026-06-09T00:00:00+02:00");
       expect(spec.question).toBe(forecast?.question);
       expect(spec.resolution.factLedger).toBe("PolicyEngine Ledger");
@@ -890,13 +897,13 @@ describe("forecast catalog", () => {
       expect(run.specVersionId).toBe(`spec.${run.predictionId}.v20260609`);
       expect(run.agentId).toMatch(/^agent\./);
       expect(run.runLabel).toBe(runEntry?.label);
-      expect(run.idempotencyKey).toMatch(/^static-hash-v1:/);
+      expect(run.idempotencyKey).toMatch(/^[0-9a-f]{64}$/);
       expect(run.createdAt).toMatch(/^202[56]-/);
       expect(run.modelVersion).toBe(runEntry?.predictionRun?.model);
       expect(run.runner.model).toBe(runEntry?.predictionRun?.model);
-      expect(run.promptHash).toMatch(/^static-hash-v1:/);
-      expect(run.toolPolicyHash).toMatch(/^static-hash-v1:/);
-      expect(run.inputBundleHash).toMatch(/^static-hash-v1:/);
+      expect(run.promptHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(run.toolPolicyHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(run.inputBundleHash).toMatch(/^[0-9a-f]{64}$/);
       expect(run.status).toBe("published");
       expect(run.input.specId).toBe(run.specId);
       expect(run.input.specVersionId).toBe(run.specVersionId);
@@ -913,13 +920,13 @@ describe("forecast catalog", () => {
         "public_only",
       );
       expect(run.output.publicTraceMetadata.traceHash).toMatch(
-        /^static-hash-v1:/,
+        /^[0-9a-f]{64}$/,
       );
       for (const toolCall of run.output.toolCalls) {
         expect(toolCall.toolCallId).toMatch(/^run\..+\.tool\.[0-9]+$/);
         expect(toolCall.allowedTool).toBe(true);
-        expect(toolCall.requestHash).toMatch(/^static-hash-v1:/);
-        expect(toolCall.responseHash).toMatch(/^static-hash-v1:/);
+        expect(toolCall.requestHash).toMatch(/^[0-9a-f]{64}$/);
+        expect(toolCall.responseHash).toMatch(/^[0-9a-f]{64}$/);
       }
       expect(run.qualityGates.some((gate) => gate.status === "failed")).toBe(
         false,

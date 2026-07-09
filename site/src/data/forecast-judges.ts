@@ -803,6 +803,7 @@ function getRunId(forecast: ForecastCell, run: ForecastRunEntry) {
     forecast,
     run.predictionRun?.runAt,
     run.variantId,
+    run,
   );
 }
 
