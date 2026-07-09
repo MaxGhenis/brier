@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { ForecastBrowser } from "@/components/ForecastBrowser";
 import { FORECAST_CELLS } from "@/data/forecast-cells";
+import { buildForecastListing } from "@/data/forecast-listing";
 import {
   loadPolicyEngineLedger,
   withResolvedOutcomes,
@@ -75,7 +76,7 @@ export default async function ForecastsPage() {
             </Link>
           </div>
         </section>
-        <ForecastBrowser forecasts={forecasts} />
+        <ForecastBrowser forecasts={buildForecastListing(forecasts)} />
         <section
           className="mt-16 rounded-xl border bg-[var(--theme-bg-surface)] p-6"
           style={{ borderColor: "var(--theme-border)" }}

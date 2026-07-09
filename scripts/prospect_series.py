@@ -27,7 +27,8 @@ import pathlib
 import re
 import subprocess
 import sys
-import urllib.request
+
+from thesis_log_client import load_thesis_log
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
@@ -136,8 +137,7 @@ def main() -> int:
 
     registry = json.loads(REGISTRY.read_text())["series"]
     registry_series = sorted({entry["series"] for entry in registry})
-    with urllib.request.urlopen(LOG_URL, timeout=120) as response:
-        log = json.load(response)
+    log = load_thesis_log(LOG_URL)
     existing_slugs = {link["forecastSlug"] for link in log["resolutionLinks"]}
     sample_slugs = sorted(existing_slugs)
 

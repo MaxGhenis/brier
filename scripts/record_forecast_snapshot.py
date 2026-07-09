@@ -9,9 +9,11 @@ import hashlib
 import json
 import os
 import re
+import urllib.parse
 from pathlib import Path
 from typing import Any
 
+from thesis_log_client import load_thesis_log_from_directory
 from verify_record_chain import logical_path, verify_records
 
 SURFACES = {
@@ -95,6 +97,24 @@ def main() -> int:
         record["url"] = url
         surface_records[name] = record
 
+    log_chunk_records: dict[str, Any] = {}
+    log_manifest = json.loads((args.source_dir / "log.json").read_text())
+    if log_manifest.get("schemaVersion") == "thesis_log_v3":
+        for collection, collection_manifest in log_manifest["collections"].items():
+            for reference in collection_manifest["chunks"]:
+                relative = Path(reference["url"].lstrip("/"))
+                source = args.source_dir / relative
+                destination = body_dir / Path(f"{relative}.gz")
+                record = archive_body(source, destination)
+                record["archivePath"] = str(
+                    destination.resolve().relative_to(repo_root)
+                )
+                record["url"] = urllib.parse.urljoin(
+                    "https://app.thesisinstitute.org/log.json", reference["url"]
+                )
+                record["manifestSha256"] = reference["sha256"]
+                log_chunk_records[f"{collection}:{reference['index']}"] = record
+
     live_records: dict[str, Any] = {}
     live_source = args.source_dir / "live"
     if live_source.is_dir():
@@ -104,7 +124,7 @@ def main() -> int:
             record["archivePath"] = str(destination.resolve().relative_to(repo_root))
             live_records[source.stem] = record
 
-    log = json.loads((args.source_dir / "log.json").read_text())
+    log = load_thesis_log_from_directory(args.source_dir)
     entries = log.get("entries", [])
     recorded = [
         entry for entry in entries if entry.get("kind") == "prediction_recorded"
@@ -130,6 +150,7 @@ def main() -> int:
             "liveBuildCanary": build_payload,
         },
         "surfaces": surface_records,
+        "logChunks": log_chunk_records,
         "liveForecasts": live_records,
         "counts": {"recorded": len(recorded), "resolved": len(resolved)},
         "predictions": [

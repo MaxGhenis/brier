@@ -113,7 +113,9 @@ export default async function ThesisLogPage() {
           <p className="text-[1.02rem] leading-[1.65] text-[var(--theme-text-muted)]">
             Thesis Log records predictions, distributions, trace metadata,
             resolution events, and scores. Resolved predictions reference facts
-            in the PolicyEngine Ledger.
+            in the PolicyEngine Ledger. The machine-readable v3 surface is a
+            compact manifest whose hash-verified chunks preserve every full
+            entry, spec, run, and score.
           </p>
           <div className="mt-5 flex flex-wrap gap-4">
             <a

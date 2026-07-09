@@ -19,6 +19,36 @@ import {
 const FULL_DIGEST = /^[0-9a-f]{64}$/;
 
 describe("target architecture hashing", () => {
+  it("builds a synthetic catalog at three times today's target count", () => {
+    const template = FORECAST_CELLS[0];
+    const syntheticCatalog = Array.from(
+      { length: FORECAST_CELLS.length * 3 },
+      (_, index): ForecastCell => ({
+        ...template,
+        slug: `synthetic-scale-${index}`,
+        title: `Synthetic scale target ${index}`,
+        question: `Synthetic projection scaling target ${index}`,
+        dataPointId: undefined,
+        policyParameter: undefined,
+        conditionalOn: undefined,
+        series: undefined,
+        predictionRun: undefined,
+        comparisonRuns: undefined,
+        resolvedOutcome: undefined,
+        resolutionSourceUrl: `https://example.gov/synthetic/${index}`,
+        reasoning: [],
+      }),
+    );
+
+    const projection = buildTargetArchitectureProjection(syntheticCatalog);
+
+    expect(projection.counts.targets).toBe(FORECAST_CELLS.length * 3);
+    expect(projection.counts.forecastRuns).toBe(projection.counts.targets);
+    expect(projection.counts.forecastDistributionPoints).toBe(
+      projection.counts.forecastRuns * 201,
+    );
+  }, 60_000);
+
   it("builds the real catalog without collisions and guards its ID projection", () => {
     const projection = buildTargetArchitectureProjection(
       FORECAST_CELLS,

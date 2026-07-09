@@ -28,6 +28,8 @@ import re
 import sys
 import urllib.request
 
+from thesis_log_client import load_thesis_log
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
 DENYLIST = ROOT / "scripts" / "docket_denylist.json"
@@ -123,7 +125,7 @@ def main() -> int:
         for t in json.loads(DENYLIST.read_text())["targets"]
     } if DENYLIST.exists() else set()
     rows = [json.loads(l) for l in fetch(LEDGER_URL).splitlines() if l.strip()]
-    log = json.loads(fetch(LOG_URL))
+    log = load_thesis_log(LOG_URL)
     registry_series = {e["series"] for e in json.loads(REGISTRY.read_text())["series"]}
     existing_slugs = {l["forecastSlug"] for l in log["resolutionLinks"]}
     all_refs = {l.get("targetFactRef", "") for l in log["resolutionLinks"]}

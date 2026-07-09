@@ -61,6 +61,8 @@ normalize forecast cells, but the database surface is target-first.
 - Clean target records are generated in
   `site/src/data/thesis-target-architecture.ts`.
 - `/forecasts/targets.json` and `/targets.json` expose a small manifest.
+- `/log.json` exposes the `thesis_log_v3` manifest; the complete entries,
+  specs, runs, and scores are canonical-hashed chunks under `/log/{table}/`.
 - Per-table exports are available under `/forecasts/targets/{table}.json`.
 - Large tables are chunked under `/forecasts/targets/{table}/{chunk}.json`.
 - `site/src/data/thesis-target-architecture-sql.ts` generates the SQL backfill.

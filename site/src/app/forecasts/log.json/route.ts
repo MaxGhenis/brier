@@ -1,15 +1,8 @@
-import { FORECAST_CELLS } from "@/data/forecast-cells";
-import {
-  buildThesisLogExport,
-  loadPolicyEngineLedger,
-  withResolvedOutcomes,
-} from "@/data/thesis-log";
+import { buildThesisLogManifest } from "@/data/thesis-log";
+import { loadThesisLogData } from "@/data/thesis-log-runtime";
 
 export const dynamic = "force-static";
 
 export async function GET() {
-  const ledger = await loadPolicyEngineLedger();
-  return Response.json(
-    buildThesisLogExport(withResolvedOutcomes(FORECAST_CELLS, ledger), ledger),
-  );
+  return Response.json(buildThesisLogManifest(await loadThesisLogData()));
 }

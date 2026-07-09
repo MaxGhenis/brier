@@ -21,7 +21,8 @@ import json
 import pathlib
 import re
 import sys
-import urllib.request
+
+from thesis_log_client import load_thesis_log
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
@@ -32,8 +33,7 @@ MONTH_NAMES = [m.lower() for m in calendar.month_name]
 
 
 def scored_slugs() -> set[str]:
-    with urllib.request.urlopen(LOG_URL, timeout=120) as response:
-        log = json.load(response)
+    log = load_thesis_log(LOG_URL)
     return {score["forecastSlug"] for score in log["scores"]}
 
 

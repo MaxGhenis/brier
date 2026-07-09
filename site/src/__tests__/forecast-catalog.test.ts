@@ -55,6 +55,8 @@ import {
   buildResolvedPredictionLogEntries,
   buildResolutionQueue,
   buildThesisLog,
+  buildThesisLogChunk,
+  buildThesisLogData,
   buildThesisLogExport,
   getObservationForId,
   getObservationsForDataPoint,
@@ -204,6 +206,10 @@ describe("forecast catalog", () => {
   });
 
   it("exports a normalized Thesis Log payload with scores and a resolution queue", () => {
+    const logData = buildThesisLogData(
+      resolvedForecastCells,
+      policyEngineLedger,
+    );
     const exportPayload = buildThesisLogExport(
       resolvedForecastCells,
       policyEngineLedger,
@@ -216,7 +222,7 @@ describe("forecast catalog", () => {
       getForecastRunEntries,
     ).length;
 
-    expect(exportPayload.schemaVersion).toBe("thesis_log_v2");
+    expect(exportPayload.schemaVersion).toBe("thesis_log_v3");
     expect(exportPayload.source.name).toBe("Thesis Log");
     expect(exportPayload.source.url).toBe(
       "https://app.thesisinstitute.org/log",
@@ -239,7 +245,7 @@ describe("forecast catalog", () => {
     expect(exportPayload.counts.scored).toBeGreaterThan(0);
     expect(exportPayload.counts.pendingResolution).toBe(resolutionQueue.length);
     expect(exportPayload.counts.preSubmitReviews).toBe(
-      exportPayload.runs.filter((run) => run.preSubmitReview).length,
+      logData.runs.filter((run) => run.preSubmitReview).length,
     );
     expect(exportPayload.counts.judgeTraceEvals).toBe(expectedRunCount);
     expect(exportPayload.counts.judgePairwiseEvals).toBeGreaterThan(0);
@@ -251,19 +257,13 @@ describe("forecast catalog", () => {
         exportPayload.counts.scoredViolatedChronology,
     );
     expect(
-      exportPayload.scores.filter(
-        (score) => score.chronology === "verified",
-      ).length,
+      logData.scores.filter((score) => score.chronology === "verified").length,
     ).toBe(exportPayload.counts.scored);
-    expect(exportPayload.entries.some(isObservationRecordedLedgerEntry)).toBe(
-      false,
-    );
-    expect(exportPayload.entries.length).toBeGreaterThan(FORECAST_CELLS.length);
-    expect(exportPayload.specs).toHaveLength(exportPayload.counts.specs);
-    expect(exportPayload.runs).toHaveLength(exportPayload.counts.runs);
-    expect(exportPayload.runs[0].schemaVersion).toBe(
-      "thesis_prediction_run_v1",
-    );
+    expect(logData.entries.some(isObservationRecordedLedgerEntry)).toBe(false);
+    expect(logData.entries.length).toBeGreaterThan(FORECAST_CELLS.length);
+    expect(logData.specs).toHaveLength(exportPayload.counts.specs);
+    expect(logData.runs).toHaveLength(exportPayload.counts.runs);
+    expect(logData.runs[0].schemaVersion).toBe("thesis_prediction_run_v1");
     expect(exportPayload.resolutionLinks).toHaveLength(
       exportPayload.counts.resolutionLinks,
     );
@@ -276,18 +276,16 @@ describe("forecast catalog", () => {
     expect(exportPayload.resolutionEvents[0].resolutionEventId).toMatch(
       /^resolution_event\./,
     );
-    expect(exportPayload.scores).toHaveLength(
+    expect(logData.scores).toHaveLength(
       exportPayload.counts.scored +
         exportPayload.counts.scoredUnverifiedChronology +
         exportPayload.counts.scoredViolatedChronology,
     );
-    expect(exportPayload.scores[0].observedValue).toEqual(expect.any(Number));
-    expect(exportPayload.scores[0].interval80.width).toBeGreaterThan(0);
-    expect(exportPayload.scores[0].normalizedCrps).toBeGreaterThanOrEqual(0);
-    expect(
-      exportPayload.scores[0].normalizedAbsoluteError,
-    ).toBeGreaterThanOrEqual(0);
-    expect(exportPayload.scores[0].packMode).toBeTruthy();
+    expect(logData.scores[0].observedValue).toEqual(expect.any(Number));
+    expect(logData.scores[0].interval80.width).toBeGreaterThan(0);
+    expect(logData.scores[0].normalizedCrps).toBeGreaterThanOrEqual(0);
+    expect(logData.scores[0].normalizedAbsoluteError).toBeGreaterThanOrEqual(0);
+    expect(logData.scores[0].packMode).toBeTruthy();
     expect(exportPayload.judgeResults.schemaVersion).toBe(
       "thesis_forecast_judges_summary_v1",
     );
@@ -297,16 +295,29 @@ describe("forecast catalog", () => {
     );
     expect(
       exportPayload.judgeResults.calibration.counts.postResolutionReviews,
-    ).toBe(exportPayload.scores.length);
+    ).toBe(logData.scores.length);
     expect(exportPayload.judgeResults.fullExportJsonUrl).toBe(
       "https://app.thesisinstitute.org/forecasts/judges.json",
     );
     expect(exportPayload.counts.judgePostResolutionEvals).toBe(
-      exportPayload.scores.length,
+      logData.scores.length,
     );
     expect(exportPayload.resolutionQueue).toHaveLength(
       exportPayload.counts.pendingResolution,
     );
+
+    for (const collection of ["entries", "specs", "runs", "scores"] as const) {
+      const manifest = exportPayload.collections[collection];
+      const rows: unknown[] = [];
+      for (const reference of manifest.chunks) {
+        const chunk = buildThesisLogChunk(logData, collection, reference.index);
+        expect(reference.count).toBe(chunk.rows.length);
+        expect(reference.sha256).toBe(sha256Hex(chunk));
+        rows.push(...chunk.rows);
+      }
+      expect(rows).toEqual(logData[collection]);
+      expect(manifest.count).toBe(logData[collection].length);
+    }
 
     for (let index = 1; index < resolutionQueue.length; index += 1) {
       expect(

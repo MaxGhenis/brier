@@ -33,6 +33,8 @@ import subprocess
 import sys
 import urllib.request
 
+from thesis_log_client import load_thesis_log
+
 LOG_URL = "https://app.thesisinstitute.org/log.json"
 # ALFRED with a vintage date pins the ADVANCE print (what the resolver rules
 # name); plain FRED would silently hand back revised values on backfills.
@@ -40,11 +42,6 @@ FRED_CSV = (
     "https://alfred.stlouisfed.org/graph/alfredgraph.csv"
     "?id={series}&vintage_date={vintage}"
 )
-
-
-def fetch_json(url: str):
-    with urllib.request.urlopen(url, timeout=120) as response:
-        return json.load(response)
 
 
 def fred_advance_value(series_id: str, week: str, vintage: str) -> float | None:
@@ -182,7 +179,7 @@ def main() -> int:
     parser.add_argument("--ledger-path", default="ledger/official_observations.jsonl")
     args = parser.parse_args()
 
-    log = fetch_json(LOG_URL)
+    log = load_thesis_log(LOG_URL)
     todo = pending_claims_refs(log)
     if not todo:
         print("no pending claims cells")

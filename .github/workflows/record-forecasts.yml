@@ -33,7 +33,6 @@ jobs:
           SOURCE_DIR="/tmp/thesis-record-$RUN_ID"
           mkdir -p "$SOURCE_DIR/live"
           declare -A SURFACES=(
-            [log]="log.json"
             [ledger]="ledger.json"
             [targets]="targets.json"
             [reward]="brier/reward.json"
@@ -44,6 +43,9 @@ jobs:
               -o "$SOURCE_DIR/$f.json"
             python3 -m json.tool "$SOURCE_DIR/$f.json" > /dev/null
           done
+          python3 scripts/thesis_log_client.py \
+            --url "https://app.thesisinstitute.org/log.json" \
+            --output-dir "$SOURCE_DIR"
 
           ATTESTED_SHA=$(git rev-parse HEAD)
           BUILD_SHA=$(python3 -c \

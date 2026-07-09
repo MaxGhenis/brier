@@ -25,6 +25,7 @@ import ForecastLedgerPage from "../app/forecasts/ledger/page";
 import { GET as getForecastLedgerJson } from "../app/forecasts/ledger.json/route";
 import ForecastLogPage from "../app/forecasts/log/page";
 import { GET as getForecastLogJson } from "../app/forecasts/log.json/route";
+import { GET as getThesisLogChunkJson } from "../app/log/[collection]/[chunk].json/route";
 import ForecastsPage from "../app/forecasts/page";
 import { GET as getForecastTargetChunkJson } from "../app/forecasts/targets/[table]/[chunk].json/route";
 import { GET as getForecastTargetTableJson } from "../app/forecasts/targets/[table]/[chunk].json/route";
@@ -34,6 +35,7 @@ import ThesisPage from "../app/thesis/page";
 import { ForecastRuntime } from "../components/ForecastRuntime";
 import { FORECAST_CELLS, getForecastCell } from "../data/forecast-cells";
 import { buildTargetArchitectureProjection } from "../data/thesis-target-architecture";
+import { sha256Hex } from "../data/canonical-json";
 import { buildTargetArchitectureBackfillSql } from "../data/thesis-target-architecture-sql";
 import {
   loadPolicyEngineLedger,
@@ -338,7 +340,7 @@ describe("Next.js migration", () => {
       const response = await getForecastLogJson();
       const body = await response.json();
 
-      expect(body.schemaVersion).toBe("thesis_log_v2");
+      expect(body.schemaVersion).toBe("thesis_log_v3");
       expect(body.source.name).toBe("Thesis Log");
       expect(body.source.url).toBe("https://app.thesisinstitute.org/log");
       expect(body.source.factLedger.name).toBe("PolicyEngine Ledger");
@@ -348,29 +350,37 @@ describe("Next.js migration", () => {
       expect(body.counts.resolutionLinks).toBe(body.counts.specs);
       expect(body.counts.resolutionEvents).toBe(body.counts.resolutions);
       expect(body.counts.pendingResolution).toBeGreaterThan(0);
-      expect(body.entries[0].kind).toBe("prediction_recorded");
-      expect(
-        body.entries.some(
-          (entry: { kind: string }) => entry.kind === "observation_recorded",
-        ),
-      ).toBe(false);
+      expect(body.entries).toBeUndefined();
+      expect(body.specs).toBeUndefined();
+      expect(body.runs).toBeUndefined();
+      expect(body.scores).toBeUndefined();
       expect(body.resolutionQueue[0].forecastSlug).toBeTruthy();
       expect(body.resolutionLinks[0].resolutionRef).toMatch(/^resolution\./);
       expect(body.resolutionEvents[0].resolutionEventId).toMatch(
         /^resolution_event\./,
       );
-      // All scores ship (with chronology flags); the headline count is the
-      // verified subset.
-      expect(body.scores.length).toBe(
+      expect(body.collections.entries.count).toBe(
+        body.counts.predictions + body.counts.resolutions,
+      );
+      expect(body.collections.specs.count).toBe(body.counts.specs);
+      expect(body.collections.runs.count).toBe(body.counts.runs);
+      expect(body.collections.scores.count).toBe(
         body.counts.scored +
           body.counts.scoredUnverifiedChronology +
           body.counts.scoredViolatedChronology,
       );
-      expect(body.specs[0].schemaVersion).toBe("thesis_prediction_spec_v1");
-      expect(body.specs[0].specId).toMatch(/^spec\./);
-      expect(body.specs[0].specVersionId).toMatch(/^spec\..+\.v20260609$/);
-      expect(body.runs[0].schemaVersion).toBe("thesis_prediction_run_v1");
-      expect(body.runs[0].idempotencyKey).toMatch(/^[0-9a-f]{64}$/);
+
+      const reference = body.collections.runs.chunks[0];
+      const chunkResponse = await getThesisLogChunkJson(
+        new Request(`http://test.local${reference.url}`),
+        { params: Promise.resolve({}) },
+      );
+      const chunk = await chunkResponse.json();
+      expect(chunk.schemaVersion).toBe("thesis_log_chunk_v1");
+      expect(chunk.collection).toBe("runs");
+      expect(chunk.rows[0].schemaVersion).toBe("thesis_prediction_run_v1");
+      expect(chunk.rows[0].idempotencyKey).toMatch(/^[0-9a-f]{64}$/);
+      expect(sha256Hex(chunk)).toBe(reference.sha256);
     });
 
     it("serves the clean target-architecture manifest JSON", async () => {

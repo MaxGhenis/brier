@@ -11,10 +11,8 @@ import type {
   Unit,
 } from "./forecast-cells";
 import { getForecastRunEntries } from "./forecast-cells";
-import {
-  conditionStatusFor,
-  type ConditionStatus,
-} from "./conditions";
+import { conditionStatusFor, type ConditionStatus } from "./conditions";
+export type { ConditionStatus } from "./conditions";
 import {
   getDistributionTransformVersion,
   scoreNumericCdfDistribution,
@@ -206,8 +204,33 @@ export interface PolicyEngineLedgerExport {
   entries: PolicyEngineLedgerEntry[];
 }
 
+export const THESIS_LOG_CHUNK_SIZE = 100;
+
+export const THESIS_LOG_CHUNK_COLLECTIONS = [
+  "entries",
+  "specs",
+  "runs",
+  "scores",
+] as const;
+
+export type ThesisLogChunkCollection =
+  (typeof THESIS_LOG_CHUNK_COLLECTIONS)[number];
+
+export interface ThesisLogChunkReference {
+  index: number;
+  count: number;
+  url: string;
+  sha256: string;
+}
+
+export interface ThesisLogCollectionManifest {
+  count: number;
+  chunkCount: number;
+  chunks: ThesisLogChunkReference[];
+}
+
 export interface ThesisLogExport {
-  schemaVersion: "thesis_log_v2";
+  schemaVersion: "thesis_log_v3";
   source: {
     name: "Thesis Log";
     url: "https://app.thesisinstitute.org/log";
@@ -234,14 +257,31 @@ export interface ThesisLogExport {
     judgePairwiseEvals: number;
     judgePostResolutionEvals: number;
   };
+  collections: Record<ThesisLogChunkCollection, ThesisLogCollectionManifest>;
+  resolutionLinks: PredictionResolutionLink[];
+  resolutionEvents: PredictionResolutionEvent[];
+  judgeResults: ForecastJudgeLogSummary;
+  resolutionQueue: PredictionResolutionQueueEntry[];
+}
+
+export interface ThesisLogData extends Omit<
+  ThesisLogExport,
+  "schemaVersion" | "collections"
+> {
+  schemaVersion: "thesis_log_v3";
   entries: ThesisLogEntry[];
   specs: PredictionSpec[];
   runs: ThesisLogRunRecord[];
-  resolutionLinks: PredictionResolutionLink[];
-  resolutionEvents: PredictionResolutionEvent[];
   scores: ResolvedForecastScore[];
-  judgeResults: ForecastJudgeLogSummary;
-  resolutionQueue: PredictionResolutionQueueEntry[];
+}
+
+export interface ThesisLogChunkExport {
+  schemaVersion: "thesis_log_chunk_v1";
+  logSchemaVersion: "thesis_log_v3";
+  collection: ThesisLogChunkCollection;
+  chunkIndex: number;
+  count: number;
+  rows: ThesisLogData[ThesisLogChunkCollection];
 }
 
 export interface ForecastJudgeLogSummary {
@@ -796,10 +836,8 @@ export function buildPolicyEngineLedgerExport(
   };
 }
 
-// v2: the log embeds run records without their 201-point CDFs. The full
-// distributions are served (chunked) by the target-architecture projection
-// and shown on each cell page; inlining them here pushed log.json past
-// Vercel's 19 MB prerender cap once the docket crossed ~600 cells.
+// Run records omit their 201-point CDFs. The full distributions are served by
+// the target-architecture chunks and shown on each cell page.
 export type ThesisLogRunRecord = Omit<PredictionRunRecord, "output"> & {
   output: Omit<PredictionRunRecord["output"], "distribution"> & {
     distribution: {
@@ -830,10 +868,10 @@ function toLogRunRecord(run: PredictionRunRecord): ThesisLogRunRecord {
   };
 }
 
-export function buildThesisLogExport(
+export function buildThesisLogData(
   forecasts: ForecastCell[],
   ledger: PolicyEngineLedgerEntry[],
-): ThesisLogExport {
+): ThesisLogData {
   const entries = buildThesisLog(forecasts, ledger);
   const specs = buildPredictionSpecs(forecasts);
   const runs = buildRecordedPredictionRunRecords(forecasts, specs);
@@ -849,7 +887,7 @@ export function buildThesisLogExport(
   const resolutionQueue = buildResolutionQueue(forecasts, ledger);
 
   return {
-    schemaVersion: "thesis_log_v2",
+    schemaVersion: "thesis_log_v3",
     source: {
       name: "Thesis Log",
       url: "https://app.thesisinstitute.org/log",
@@ -892,6 +930,82 @@ export function buildThesisLogExport(
     scores,
     judgeResults: judgeSummary,
     resolutionQueue,
+  };
+}
+
+export function buildThesisLogExport(
+  forecasts: ForecastCell[],
+  ledger: PolicyEngineLedgerEntry[],
+): ThesisLogExport {
+  return buildThesisLogManifest(buildThesisLogData(forecasts, ledger));
+}
+
+export function buildThesisLogManifest(data: ThesisLogData): ThesisLogExport {
+  const {
+    entries: _entries,
+    specs: _specs,
+    runs: _runs,
+    scores: _scores,
+    ...slim
+  } = data;
+  return {
+    ...slim,
+    collections: Object.fromEntries(
+      THESIS_LOG_CHUNK_COLLECTIONS.map((collection) => [
+        collection,
+        buildThesisLogCollectionManifest(data, collection),
+      ]),
+    ) as ThesisLogExport["collections"],
+  };
+}
+
+export function buildThesisLogChunk(
+  data: ThesisLogData,
+  collection: ThesisLogChunkCollection,
+  chunkIndex: number,
+): ThesisLogChunkExport {
+  const rows = data[collection];
+  const start = chunkIndex * THESIS_LOG_CHUNK_SIZE;
+  const chunkRows = rows.slice(
+    start,
+    start + THESIS_LOG_CHUNK_SIZE,
+  ) as ThesisLogChunkExport["rows"];
+  return {
+    schemaVersion: "thesis_log_chunk_v1",
+    logSchemaVersion: "thesis_log_v3",
+    collection,
+    chunkIndex,
+    count: chunkRows.length,
+    rows: chunkRows,
+  };
+}
+
+export function isThesisLogChunkCollection(
+  value: string,
+): value is ThesisLogChunkCollection {
+  return THESIS_LOG_CHUNK_COLLECTIONS.includes(
+    value as ThesisLogChunkCollection,
+  );
+}
+
+function buildThesisLogCollectionManifest(
+  data: ThesisLogData,
+  collection: ThesisLogChunkCollection,
+): ThesisLogCollectionManifest {
+  const count = data[collection].length;
+  const chunkCount = Math.ceil(count / THESIS_LOG_CHUNK_SIZE);
+  return {
+    count,
+    chunkCount,
+    chunks: Array.from({ length: chunkCount }, (_, index) => {
+      const chunk = buildThesisLogChunk(data, collection, index);
+      return {
+        index,
+        count: chunk.count,
+        url: `/log/${collection}/${index}.json`,
+        sha256: sha256Hex(chunk),
+      };
+    }),
   };
 }
 

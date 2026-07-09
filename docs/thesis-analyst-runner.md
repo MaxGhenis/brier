@@ -165,7 +165,9 @@ Every run writes a directory under `records/thesis-analyst/YYYY-MM-DD/` with:
 response, parsed/normalized cells, materialized run distribution, and
 validation report. When that file is
 converted with `scripts/spawned_cells_to_ts.py`, the refs land in
-`predictionRun.activityLog`, then in Thesis Log run records and `/log.json`.
+`predictionRun.activityLog`, then in Thesis Log run records. As of
+`thesis_log_v3`, `/log.json` is a manifest and full run records are reachable
+through its canonical-hashed `/log/runs/{index}.json` chunks.
 
 `custody_root.json` is written after all activity artifacts. It contains both
 raw-byte and canonical-JSON SHA-256 commitments, including a commitment to the

@@ -28,7 +28,8 @@ import json
 import pathlib
 import re
 import sys
-import urllib.request
+
+from thesis_log_client import load_thesis_log
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
@@ -115,8 +116,7 @@ def not_too_far_ahead(period: str, cadence: str, today: dt.date) -> bool:
 
 
 def live_slugs() -> set[str]:
-    with urllib.request.urlopen(LOG_URL, timeout=120) as response:
-        log = json.load(response)
+    log = load_thesis_log(LOG_URL)
     return {link["forecastSlug"] for link in log["resolutionLinks"]}
 
 
