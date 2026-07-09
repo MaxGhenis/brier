@@ -24,6 +24,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: main
+          persist-credentials: false
 
       - name: Resolve pending cells against official prints
         id: resolve
@@ -56,8 +57,21 @@ jobs:
           git config user.email "recorder@thesisinstitute.org"
           git add records/resolutions/latest.json
           git commit -m "Resolution rebuild marker $(date -u +%F)"
+
+      - name: Rebase resolution marker
+        if: steps.resolve.outputs.appended == '1'
+        run: |
+          set -euo pipefail
           git pull --rebase origin main
-          git push origin main
+
+      - name: Push resolution marker
+        if: steps.resolve.outputs.appended == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
+          git -c credential.helper= -c credential.helper="$auth_helper" push origin main
 
       - name: Rebuild the site
         if: steps.resolve.outputs.appended == '1'
