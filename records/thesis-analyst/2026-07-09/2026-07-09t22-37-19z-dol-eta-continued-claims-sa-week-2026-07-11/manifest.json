@@ -1,0 +1,344 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-09T22:37:19Z",
+  "series": "dol.eta.continued_claims.sa",
+  "period": "week_2026-07-11",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "continued-claims-week-2026-07-11",
+    "period": "week_2026-07-11",
+    "series": "dol.eta.continued_claims.sa",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-09T22:37:19Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "9edf1c02d483f8f9f1376c4fd35fd7d8b4e19e1fdd13bd3c85f2f49bc7617752"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact step says the historical sample contains 53 weekly changes from June 28, 2025 through June 27, 2026, but that date range appears to contain 53 weekly observations and 52 week-to-week changes unless an additional prior observation was included.",
+        "actionRequested": "Clarify whether the interval sigma used 53 observations/52 changes or included one earlier week to produce 53 changes, and adjust the sample-count wording or sigma if needed."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State that FRED is used only as a history mirror, not as the resolution source, to avoid any ambiguity."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention the July 16 intermediate release as future evidence not used in this forecast, or omit it from the source summary to keep the resolver focus on July 23."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the sample-count clarification, so the interval step now says 53 observations and 52 successive changes; accepted the clarification that FRED is only a history mirror and not the resolution source; left the point, interval, resolver, and source set unchanged.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the sample-count clarification, so the interval step now says 53 observations and 52 successive changes; accepted the clarification that FRED is only a history mirror and not the resolution source; left the point, interval, resolver, and source set unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the sample-count clarification, so the interval step now says 53 observations and 52 successive changes; accepted the clarification that FRED is only a history mirror and not the resolution source; left the point, interval, resolver, and source set unchanged.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after one small methodological clarification; resolver, unit, first-print rule, resolution date, and point/interval coherence are otherwise sound."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/prompt.md",
+      "sha256": "00dd001b51084ff7a5479fdbfc736e604163a9ab22471ddad138fb8f98442c61",
+      "bytes": 8040,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_command.json",
+      "sha256": "bc16135380f1fceedcd9e29db6e29f5b6f8c6cb518861ad336a761dd89b29597",
+      "bytes": 688,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_codex_stdout.jsonl",
+      "sha256": "006c6d18f3c714b24473eea0c604b920a9c3ef4f55be6b6b37298c66ae85823a",
+      "bytes": 16506,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_codex_stderr.log",
+      "sha256": "9bed9c7b782db064e8ce6978d9c5f4fab2e2d6413da4081cd99d36797f70a3b2",
+      "bytes": 233,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_codex_events.jsonl",
+      "sha256": "ae527582f2522a40b6d8224b67f02c0f2f78e3b73b03b9f981e019a4a13c55c3",
+      "bytes": 16496,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_codex_last_message.txt",
+      "sha256": "5be838b50cdef9ab8c83f7a97710fee2dca218c104a7093542d1d4c530fee943",
+      "bytes": 5996,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_codex_trace.json",
+      "sha256": "afdfd2f067d6c6710f72002e8e3305b2fbb281ccde9a63aa9e7968f59488a1be",
+      "bytes": 507,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_stdout.txt",
+      "sha256": "5be838b50cdef9ab8c83f7a97710fee2dca218c104a7093542d1d4c530fee943",
+      "bytes": 5996,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/draft_stderr.txt",
+      "sha256": "37ee399899d41e45f32a55177b7420afc566c2a15930d5d7d29cfa55336d70d1",
+      "bytes": 248,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_prompt.md",
+      "sha256": "31c5852fadcabdb07023c5750cbecd4f7f81223bdca77c08c1aa3bacf5657a24",
+      "bytes": 8189,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_command.json",
+      "sha256": "1edf8882f130fbc6c78160a827903e011e58505802efdb0babb3a96c25b9c7fb",
+      "bytes": 684,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "70246c870da63a5f0a097a2381d77ef8d1716c999f697abb559532e91eb2669b",
+      "bytes": 2745,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_codex_stderr.log",
+      "sha256": "eca6454303121d3092b46b3744156b35978a87e2c96b33d0a2671f03e0a5af6b",
+      "bytes": 233,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_codex_events.jsonl",
+      "sha256": "cfcf4062a861fd4b149c0e0d683678a989b1c14626c6eae42e2235e3e5b37e7c",
+      "bytes": 2753,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_codex_last_message.txt",
+      "sha256": "a290dd9ce7c91eea326df6ff3cf43f342062577e99a147bbbc41fa3cb88625d3",
+      "bytes": 1015,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_codex_trace.json",
+      "sha256": "f5c4436718453d7e4f9f0786bacb8bcbaf645b29623cb4f7a557f016b9a8431e",
+      "bytes": 507,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_stdout.txt",
+      "sha256": "a290dd9ce7c91eea326df6ff3cf43f342062577e99a147bbbc41fa3cb88625d3",
+      "bytes": 1015,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/pre_submit_review_stderr.txt",
+      "sha256": "2a00b3e8a651cdbb41d8a7fef80e2cc8e697708443a5e1e1fa634a74258eb3de",
+      "bytes": 248,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/revision_prompt.md",
+      "sha256": "5bd5753a5c793f69a6efe10217aae600303cf88bcba869e941ff08d314335f00",
+      "bytes": 15987,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/command.json",
+      "sha256": "5f320c9204b7c7eb4cdd6c800f6fbd8b7ccab21c9e0749d9785637b5c4a531f2",
+      "bytes": 682,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/codex_stdout.jsonl",
+      "sha256": "f8c6163892b8a1721f9bc68bc283388bada173b1f9cc9fea77f403a61a2ae421",
+      "bytes": 6949,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/codex_stderr.log",
+      "sha256": "1bf7e0837d1a9a276a81d88f331def8b13e3cabee9176ce32dbd08bfacda1488",
+      "bytes": 233,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/codex_events.jsonl",
+      "sha256": "b3de5a461ca6ec8e193cd06a61b23efa3049781b246f1e18cbba58236fb0377f",
+      "bytes": 6971,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/codex_last_message.txt",
+      "sha256": "c181461560607ca4f3b4dd851aae85c3e2061ee7140fe09a96d389411ffd308a",
+      "bytes": 6390,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/codex_trace.json",
+      "sha256": "d0b8d9220fa6a421e36490e33ba40f1e3d7209d688d719ad779085af1de01034",
+      "bytes": 505,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/stdout.txt",
+      "sha256": "c181461560607ca4f3b4dd851aae85c3e2061ee7140fe09a96d389411ffd308a",
+      "bytes": 6390,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/stderr.txt",
+      "sha256": "c21bd1cf09f830ad15d8f9fc73b35e3cb3c934248713171985b1ff7b5975816d",
+      "bytes": 248,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/raw_response.txt",
+      "sha256": "c181461560607ca4f3b4dd851aae85c3e2061ee7140fe09a96d389411ffd308a",
+      "bytes": 6390,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/parsed_cells.json",
+      "sha256": "0017f02a885321779f070582df47b9356084b5ac0546495b0a12160bd930a4e1",
+      "bytes": 7273,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/normalized_cells.json",
+      "sha256": "b49d4755c6e65544a55e9a2fefa138ec1eb7d4dd0bdf94227d6633f885e84a34",
+      "bytes": 24397,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/distribution.json",
+      "sha256": "c7c031bbe1ca88177895b774771d60d38cb1034447d70945d65c26927afc3b06",
+      "bytes": 13750,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/validation.json",
+      "sha256": "44a1ccaf681a069eaf09a2c748d81708300fdc5d11d4ae2b6670e38a2f5d49af",
+      "bytes": 133,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/cells.with_activity.json",
+      "sha256": "e92318a6afbcaab524bfa718750c8d54e9a9bec22e4a109436374623728e8e85",
+      "bytes": 39404,
+      "createdAt": "2026-07-09T22:37:19Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-09/2026-07-09t22-37-19z-dol-eta-continued-claims-sa-week-2026-07-11/manifest.json",
+      "sha256": "a3386f0dfd4c0891dad640c8bb76d80f7c2beb199e0919b908fd9854dcfd1073",
+      "bytes": 13816,
+      "createdAt": "2026-07-09T22:37:19Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "continued-claims-week-2026-07-11",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "4430956d20921a9985502d0bbe6194550da0ed1362963ac7865133de3214ae76"
+}
