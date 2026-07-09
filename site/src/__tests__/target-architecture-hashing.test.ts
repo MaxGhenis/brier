@@ -192,7 +192,7 @@ describe("target architecture hashing", () => {
 
     expect(originalEvent.payloadHash).toMatch(FULL_DIGEST);
     expect(changedEvent.payloadHash).not.toBe(originalEvent.payloadHash);
-    expect(originalScore?.scoreId).toContain("numeric_cdf_crps_v1");
+    expect(originalScore?.scoreId).toContain("numeric_cdf_crps_v2_target_scale");
     expect(originalScore?.scoreId).toMatch(/\.[0-9a-f]{16}$/);
     expect(changedScore?.scoreId).not.toBe(originalScore?.scoreId);
     expect(scoreProjection.scores.length).toBeGreaterThan(0);
