@@ -12,6 +12,10 @@ import type {
 } from "./forecast-cells";
 import { getForecastRunEntries } from "./forecast-cells";
 import {
+  conditionStatusFor,
+  type ConditionStatus,
+} from "./conditions";
+import {
   getDistributionTransformVersion,
   scoreNumericCdfDistribution,
   type DistributionProvenance,
@@ -1011,7 +1015,16 @@ export function scoreResolvedForecastRun(
   forecast: ForecastCell,
   run: ForecastRunEntry,
   ledger: PolicyEngineLedgerEntry[],
+  conditionOverrides?: Map<string, ConditionStatus>,
 ): ResolvedForecastScore | undefined {
+  // A conditional branch is graded only when its registered condition
+  // actually occurred: both branches of a pair resolve against the same
+  // official print, and scoring the counterfactual branch would grade a
+  // hypothesis whose premise never happened (review finding F6).
+  if (forecast.type === "conditional") {
+    const gate = conditionStatusFor(forecast, conditionOverrides);
+    if (gate !== "satisfied") return undefined;
+  }
   const resolution = getResolutionForForecast(forecast, ledger);
   if (!resolution || !run.predictionDistribution) return undefined;
 

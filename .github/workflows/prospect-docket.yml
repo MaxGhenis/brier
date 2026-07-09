@@ -26,7 +26,12 @@ permissions:
   issues: write
   actions: write
 
-concurrency: prospect-docket
+concurrency:
+  # One writer at a time across ALL docket loops (roll +
+  # prospect): both mutate the shared import list and target
+  # registry, and interleaved publishes drop cells (F13).
+  group: docket-writers
+  cancel-in-progress: false
 
 jobs:
   prospect:
@@ -114,7 +119,7 @@ jobs:
           set -euo pipefail
           DAY=$(date -u +%F)
           if python3 scripts/register_wave.py \
-              --name "prospect-$DAY-r${GITHUB_RUN_NUMBER}" \
+              --name "prospect-$DAY-$(shasum -a 256 "records/thesis-analyst/batches/$DAY/prospect-r${GITHUB_RUN_NUMBER}.json" | cut -c1-8)" \
               --batch "records/thesis-analyst/batches/$DAY/prospect-r${GITHUB_RUN_NUMBER}.json" \
               --allow-missing; then
             echo "published=1" >> "$GITHUB_OUTPUT"
@@ -144,6 +149,9 @@ jobs:
           git commit -m "Prospect new docket series $(date -u +%F)" || {
             echo "nothing to commit"; exit 0; }
           git pull --rebase origin main
+          if [ "${{ steps.publish.outputs.published }}" = "1" ]; then
+            (cd site && bun run test)
+          fi
           git push origin main
 
       - name: Stamp the record
@@ -151,7 +159,24 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          sleep 240
+          SHA=$(git rev-parse HEAD)
+          GOT=""
+          for i in $(seq 1 24); do
+            GOT=$(curl -sf https://app.thesisinstitute.org/build.json \
+              | python3 -c 'import json,sys;print(json.load(sys.stdin).get("commit",""))' \
+              2>/dev/null || true)
+            [ "$GOT" = "$SHA" ] && break
+            # Halfway through, nudge a rebuild in case the push webhook was
+            # missed or an ignore-step/[skip ci] canceled the deployment.
+            if [ "$i" = "12" ] && [ -n "${{ secrets.MANUAL_DEPLOY_HOOK_URL }}" ]; then
+              curl -sf -X POST "${{ secrets.MANUAL_DEPLOY_HOOK_URL }}" > /dev/null || true
+            fi
+            sleep 30
+          done
+          if [ "$GOT" != "$SHA" ]; then
+            echo "production never reached $SHA (canary shows: $GOT)" >&2
+            exit 1
+          fi
           gh workflow run record-forecasts.yml --ref main
 
       - name: Alert on failure

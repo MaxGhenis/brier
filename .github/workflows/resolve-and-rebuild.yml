@@ -11,7 +11,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write # resolution marker commit makes HEAD deployable
   issues: write
 
 concurrency: resolve-pending
@@ -39,11 +39,45 @@ jobs:
             echo "appended=0" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Commit resolution marker (makes HEAD deployable)
+        if: steps.resolve.outputs.appended == '1'
+        run: |
+          set -euo pipefail
+          # Vercel honors [skip ci] even on deploy-hook builds, so a hook
+          # fired while HEAD is a recorder commit silently cancels and
+          # scores never surface (F13). A real, non-skip marker commit
+          # both records the resolution event and guarantees a
+          # deployable HEAD.
+          mkdir -p records/resolutions
+          printf '{"resolvedAt":"%s","workflowRun":"%s"}\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_RUN_ID}" \
+            > records/resolutions/latest.json
+          git config user.name "thesis-resolver"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/resolutions/latest.json
+          git commit -m "Resolution rebuild marker $(date -u +%F)"
+          git pull --rebase origin main
+          git push origin main
+
       - name: Rebuild the site
         if: steps.resolve.outputs.appended == '1'
         run: |
+          set -euo pipefail
           curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" > /dev/null
-          echo "deploy hook fired — scores surface when the build completes"
+          SHA=$(git rev-parse HEAD)
+          GOT=""
+          for i in $(seq 1 24); do
+            GOT=$(curl -sf https://app.thesisinstitute.org/build.json \
+              | python3 -c 'import json,sys;print(json.load(sys.stdin).get("commit",""))' \
+              2>/dev/null || true)
+            [ "$GOT" = "$SHA" ] && break
+            sleep 30
+          done
+          if [ "$GOT" != "$SHA" ]; then
+            echo "production never reached $SHA (canary shows: $GOT)" >&2
+            exit 1
+          fi
+          echo "scores live at $SHA"
 
       - name: Alert on failure
         if: failure()

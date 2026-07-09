@@ -2,10 +2,12 @@
 """Compute the next docket targets for every registry series.
 
 The registry (scripts/docket_series.json) lists every series with a
-rubric-passing published run. For each, the latest recorded period comes
-from records/thesis-analyst run directories (the repo is the source of
-truth for what has been attempted); the next period is one cadence step
-forward; the live catalog's slug set is the final duplicate guard.
+rubric-passing published run. For each, the docket cursor is the latest
+PUBLISHED period (recovered from the live catalog by inverting the slug
+template): failed or unpublished attempts keep the cursor in place and
+are retried on the next roll rather than silently skipped (F10). The
+records/ directories still provide attempt visibility, and the live
+catalog's slug set is the final duplicate guard.
 
 Usage:
     python3 scripts/roll_docket.py [--cadence weekly|monthly|quarterly]
@@ -118,6 +120,53 @@ def live_slugs() -> set[str]:
     return {link["forecastSlug"] for link in log["resolutionLinks"]}
 
 
+def template_regex(template: str, cadence: str) -> re.Pattern[str]:
+    """Invert a registry slug template into a period-extracting regex."""
+    escaped = re.escape(template)
+    if cadence == "weekly":
+        pattern = escaped.replace(
+            re.escape("{period}"), r"(?P<date>\d{4}-\d{2}-\d{2})"
+        )
+    elif cadence == "monthly":
+        pattern = escaped.replace(
+            re.escape("{month}"), r"(?P<month>[a-z]+)"
+        ).replace(re.escape("{year}"), r"(?P<year>\d{4})")
+    else:
+        pattern = escaped.replace(
+            re.escape("q{quarter}"), r"q(?P<quarter>\d)"
+        ).replace(re.escape("{year}"), r"(?P<year>\d{4})")
+    return re.compile(f"^{pattern}$")
+
+
+def latest_published_period(entry: dict, catalog_slugs: set[str]) -> str | None:
+    """Latest period with a PUBLISHED cell in the live catalog.
+
+    The docket cursor advances only past published work: a run that
+    failed validation, tests, or deployment keeps the cursor in place
+    and is retried on the next roll instead of silently vanishing from
+    the public record (review finding F10).
+    """
+    pattern = template_regex(entry["slug"], entry["cadence"])
+    periods: list[str] = []
+    for slug in catalog_slugs:
+        match = pattern.match(slug)
+        if not match:
+            continue
+        if entry["cadence"] == "weekly":
+            periods.append(f"week_{match.group('date')}")
+        elif entry["cadence"] == "monthly":
+            month_name = match.group("month")
+            if month_name not in MONTH_NAMES:
+                continue
+            month = MONTH_NAMES.index(month_name)
+            periods.append(f"{match.group('year')}-{month:02d}")
+        else:
+            periods.append(f"{match.group('year')}-Q{match.group('quarter')}")
+    if not periods:
+        return None
+    return max(periods)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cadence", choices=["weekly", "monthly", "quarterly"])
@@ -134,11 +183,17 @@ def main() -> int:
     for entry in registry:
         if args.cadence and entry["cadence"] != args.cadence:
             continue
-        latest = latest_recorded_period(entry["series"])
+        latest = latest_published_period(entry, existing)
         if latest is None:
-            print(f"  skip {entry['series']}: no recorded run to step from")
+            print(f"  skip {entry['series']}: no published cell to step from")
             continue
         nxt = step_period(latest, entry["cadence"])
+        attempted = latest_recorded_period(entry["series"])
+        if attempted is not None and attempted.lower() > latest.lower():
+            print(
+                f"  retry {entry['series']} {nxt}: an attempt for "
+                f"{attempted} was recorded but never published"
+            )
         if not not_too_far_ahead(nxt, entry["cadence"], today):
             continue
         slug = format_slug(entry["slug"], nxt, entry["cadence"])
