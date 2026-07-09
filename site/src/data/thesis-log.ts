@@ -42,6 +42,10 @@ import {
   type TargetRegisteredLedgerEntry,
 } from "./ledger-targets";
 import { sha256Hex } from "./canonical-json";
+import {
+  buildLedgerPersistenceBaseline,
+  TIME_SERIES_PRIOR_VARIANT_ID,
+} from "./time-series-priors";
 
 export type PolicyEngineLedgerEntry =
   | TargetRegisteredLedgerEntry
@@ -1241,11 +1245,31 @@ export function withResolvedOutcome(
   forecast: ForecastCell,
   ledger: PolicyEngineLedgerEntry[],
 ): ForecastCell {
-  return {
+  const resolvedForecast: ForecastCell = {
     ...forecast,
+    comparisonRuns: forecast.comparisonRuns?.filter(
+      (run) => run.variantId !== TIME_SERIES_PRIOR_VARIANT_ID,
+    ),
+    persistenceBaseline: undefined,
     resolvedOutcome:
       getResolvedOutcomeForForecast(forecast, ledger) ??
       forecast.resolvedOutcome,
+  };
+  const primaryRun = getForecastRunEntries(resolvedForecast)[0];
+  const primaryScore = primaryRun
+    ? scoreResolvedForecastRun(resolvedForecast, primaryRun, ledger)
+    : undefined;
+  if (!primaryScore || primaryScore.chronology !== "verified") {
+    return resolvedForecast;
+  }
+
+  const baseline = buildLedgerPersistenceBaseline(resolvedForecast, ledger);
+  return {
+    ...resolvedForecast,
+    persistenceBaseline: baseline.record,
+    comparisonRuns: baseline.comparisonRun
+      ? [...(resolvedForecast.comparisonRuns ?? []), baseline.comparisonRun]
+      : resolvedForecast.comparisonRuns,
   };
 }
 

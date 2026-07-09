@@ -7,10 +7,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "scripts" / "run_thesis_analyst.py"
 COMPARISON_GENERATOR = ROOT / "scripts" / "thesis_records_to_comparisons.py"
 sys.path.insert(0, str(ROOT / "scripts"))
+import median_rollout_ensemble as median_ensemble  # noqa: E402
 from run_thesis_analyst import (  # noqa: E402
     interval_distribution,
 )
@@ -20,6 +23,7 @@ from run_thesis_analyst import (  # noqa: E402
 from strategy_comparisons import (  # noqa: E402
     ladder_distribution as comparison_ladder_distribution,
 )
+from thesis_records_to_comparisons import comparison_run  # noqa: E402
 
 
 def test_interval_distribution_matches_typescript_fixture():
@@ -64,6 +68,83 @@ def test_runner_ladder_distribution_matches_strategy_builder():
     assert actual["support"] == expected["support"]
     assert actual["provenance"] == "agent_reported"
     assert actual["transformVersion"] == "agent_cdf_v1"
+
+
+def test_median3_requires_exactly_three_distinct_custody_runs(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(median_ensemble, "verify_run", lambda _run_dir: None)
+
+    def rollout(index: int, custody_root: str | None = None):
+        run_dir = tmp_path / f"run-{index}"
+        run_dir.mkdir()
+        manifest_path = run_dir / "manifest.json"
+        manifest_path.write_text(
+            json.dumps(
+                {
+                    "custodyRootSha256": custody_root or f"root-{index}",
+                }
+            )
+        )
+        return {
+            "manifestPath": str(manifest_path),
+            "cell": {"runAt": f"2026-07-08T00:00:0{index}Z"},
+        }
+
+    valid = [rollout(1), rollout(2), rollout(3)]
+    references = median_ensemble.validate_constituent_rollouts(valid)
+    assert len(references) == 3
+    assert len({ref["custodyRootSha256"] for ref in references}) == 3
+
+    with pytest.raises(ValueError, match="exactly 3 constituent"):
+        median_ensemble.validate_constituent_rollouts(valid[:2])
+    with pytest.raises(ValueError, match="exactly 3 constituent"):
+        median_ensemble.validate_constituent_rollouts(
+            [*valid, rollout(4)]
+        )
+
+    duplicate = [rollout(5, "duplicate"), rollout(6, "duplicate"), rollout(7)]
+    with pytest.raises(ValueError, match="3 distinct custody-verifiable"):
+        median_ensemble.validate_constituent_rollouts(duplicate)
+
+
+def test_comparison_run_preserves_median3_algorithm_metadata():
+    constituent_runs = [
+        {
+            "manifestPath": f"records/run-{index}/manifest.json",
+            "custodyRootSha256": f"root-{index}",
+            "runAt": f"2026-07-08T00:00:0{index}Z",
+        }
+        for index in range(1, 4)
+    ]
+    manifest = {
+        "promptMode": "median3",
+        "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+        "constituentRuns": constituent_runs,
+        "artifacts": [],
+        "agent": {
+            "agent": "thesis.analyst.median3",
+            "model": "fixture-model",
+        },
+    }
+    cell = {
+        "runAt": "2026-07-08T01:00:00Z",
+        "sourceContext": [],
+        "pointEstimate": 1,
+        "ciLow": 0,
+        "ciHigh": 2,
+        "confidence": 0.8,
+        "drivers": [],
+        "reasoning": [],
+    }
+
+    run = comparison_run(cell, manifest, "fixture", 1)
+
+    assert (
+        run["predictionRun"]["aggregationAlgorithmVersion"]
+        == "pointwise_median_cdf_v1"
+    )
+    assert run["predictionRun"]["constituentRuns"] == constituent_runs
 
 
 def test_print_prompt_contains_question_spec():

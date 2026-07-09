@@ -9,6 +9,7 @@ import {
 } from "./forecast-judges";
 import {
   buildRecordedPredictionRunId,
+  buildRecordedPredictionRunRecords,
   type PredictionRunRecord,
   type PredictionSpec,
 } from "./prediction-specs";
@@ -20,12 +21,14 @@ import {
   buildPredictionRecordedLogEntries,
   buildResolvedPredictionLogEntries,
   scoreResolvedForecasts,
+  withResolvedOutcomes,
 } from "./thesis-log";
 import { getForecastRunEntries } from "./forecast-cells";
 import {
   getDistributionTransformVersion,
   type DistributionProvenance,
 } from "./prediction-distribution";
+import { PERSISTENCE_BASELINE_AGENT } from "./time-series-priors";
 
 export type BrierEvalSplit = "train" | "validation" | "test" | "unresolved";
 
@@ -39,6 +42,7 @@ export interface BrierRewardRow {
   agent?: string;
   model?: string;
   runLabel: string;
+  runVariantId: string;
   runAt?: string;
   distributionProvenance: DistributionProvenance;
   transformVersion: string;
@@ -77,6 +81,8 @@ export interface BrierRewardRow {
     resolutionEventId?: string;
     ledgerFactRef?: string;
     custodyRootSha256?: string;
+    aggregationAlgorithmVersion?: string;
+    constituentRuns?: PredictionRunRecord["constituentRuns"];
     activityArtifactCount: number;
   };
 }
@@ -86,11 +92,33 @@ export interface BrierAgentLeaderboardRow {
   model?: string;
   scoredRuns: number;
   totalRuns: number;
-  meanReward: number | null;
-  meanNormalizedCrps: number | null;
-  meanAbsoluteError: number | null;
-  interval80Coverage: number | null;
+  unpairedMeanReward: number | null;
+  unpairedMeanNormalizedCrps: number | null;
+  unpairedMeanAbsoluteError: number | null;
+  unpairedInterval80Coverage: number | null;
+  pairedTargets: number;
+  meanPairedSkill: number | null;
+  pairedWinRate: number | null;
   activityArtifactCoverage: number;
+}
+
+export interface BrierBaselineCoverageRow {
+  predictionId: string;
+  primaryRunId: string;
+  status: "available" | "unavailable";
+  cutoff: string;
+  targetDataPointId?: string;
+  seriesId?: string;
+  observationRefs: NonNullable<
+    ForecastCell["persistenceBaseline"]
+  >["observationRefs"];
+  reason?: string;
+}
+
+export interface BrierPairedComparisonSummary {
+  pairedTargets: number;
+  meanAgentMinusBaselineNormalizedCrps: number | null;
+  agentWinRate: number | null;
 }
 
 export interface BrierRewardExport {
@@ -111,6 +139,10 @@ export interface BrierRewardExport {
     traceJudgedRuns: number;
     postResolutionJudgeRows: number;
     preSubmitReviewedRuns: number;
+    baselineTargets: number;
+    availableBaselines: number;
+    unavailableBaselines: number;
+    pairedTargets: number;
   };
   splits: Record<
     BrierEvalSplit,
@@ -131,6 +163,8 @@ export interface BrierRewardExport {
     calibrationRule: string;
   };
   leaderboard: BrierAgentLeaderboardRow[];
+  pairedComparison: BrierPairedComparisonSummary;
+  baselineCoverage: BrierBaselineCoverageRow[];
   rewardRows: BrierRewardRow[];
   judgeResults: ForecastJudgeExport;
 }
@@ -148,12 +182,24 @@ export function buildBrierRewardExport({
   ledger: PolicyEngineLedgerEntry[];
   generatedAt?: string;
 }): BrierRewardExport {
+  const preparedForecasts = withResolvedOutcomes(forecasts, ledger);
+  const suppliedRunsById = new Map(runs.map((run) => [run.runId, run]));
+  for (const run of buildRecordedPredictionRunRecords(
+    preparedForecasts,
+    specs,
+  )) {
+    suppliedRunsById.set(run.runId, run);
+  }
+  const preparedRuns = [...suppliedRunsById.values()];
   // Rewards and leaderboards draw only on chronology-verified scores; a
   // run that cannot prove it predates the observation earns nothing.
-  const scores = scoreResolvedForecasts(forecasts, ledger).filter(
+  const scores = scoreResolvedForecasts(preparedForecasts, ledger).filter(
     (score) => score.chronology === "verified",
   );
-  const judgeResults = buildForecastJudgeExport({ forecasts, scores });
+  const judgeResults = buildForecastJudgeExport({
+    forecasts: preparedForecasts,
+    scores,
+  });
   const traceJudgeByRunId = new Map(
     judgeResults.traceQuality.map((judge) => [judge.runId, judge]),
   );
@@ -164,8 +210,8 @@ export function buildBrierRewardExport({
   const specByPredictionId = new Map(
     specs.map((spec) => [spec.predictionId, spec]),
   );
-  const runByRunId = new Map(runs.map((run) => [run.runId, run]));
-  const rewardRows = forecasts.flatMap((forecast) => {
+  const runByRunId = new Map(preparedRuns.map((run) => [run.runId, run]));
+  const rewardRows = preparedForecasts.flatMap((forecast) => {
     const spec = specByPredictionId.get(forecast.slug);
     return getForecastRunEntries(forecast).map((run) => {
       const runId = buildRecordedPredictionRunId(
@@ -191,6 +237,28 @@ export function buildBrierRewardExport({
     });
   });
   const leaderboard = buildBrierAgentLeaderboard(rewardRows);
+  const pairedComparison = summarizePairedComparison(
+    rewardRows.filter((row) => row.runVariantId === "primary"),
+    rewardRows.filter((row) => row.agent === PERSISTENCE_BASELINE_AGENT),
+  );
+  const baselineCoverage = preparedForecasts.flatMap((forecast) => {
+    const baseline = forecast.persistenceBaseline;
+    if (!baseline) return [];
+    const primary = getForecastRunEntries(forecast)[0];
+    if (!primary) return [];
+    return [
+      {
+        predictionId: forecast.slug,
+        primaryRunId: buildRecordedPredictionRunId(
+          forecast,
+          primary.predictionRun?.runAt,
+          primary.variantId,
+          primary,
+        ),
+        ...baseline,
+      },
+    ];
+  });
 
   return {
     schemaVersion: "brier_reward_export_v1",
@@ -219,6 +287,14 @@ export function buildBrierRewardExport({
       preSubmitReviewedRuns: rewardRows.filter(
         (row) => row.preSubmitReview.reviewed,
       ).length,
+      baselineTargets: baselineCoverage.length,
+      availableBaselines: baselineCoverage.filter(
+        (row) => row.status === "available",
+      ).length,
+      unavailableBaselines: baselineCoverage.filter(
+        (row) => row.status === "unavailable",
+      ).length,
+      pairedTargets: pairedComparison.pairedTargets,
     },
     splits: buildSplitSummary(rewardRows),
     noLeakagePolicy: {
@@ -233,6 +309,8 @@ export function buildBrierRewardExport({
         "Judge scores can be used as process diagnostics only after checking whether they predict held-out normalized CRPS. They must not replace the proper-score reward.",
     },
     leaderboard,
+    pairedComparison,
+    baselineCoverage,
     rewardRows,
     judgeResults,
   };
@@ -279,6 +357,7 @@ function buildRewardRow({
     agent: run.predictionRun?.agent,
     model: run.predictionRun?.model,
     runLabel: run.label,
+    runVariantId: run.variantId,
     runAt: run.predictionRun?.runAt,
     distributionProvenance: run.predictionDistribution.provenance,
     transformVersion: getDistributionTransformVersion(
@@ -315,6 +394,9 @@ function buildRewardRow({
       resolutionEventId: score?.resolutionEventId,
       ledgerFactRef: score?.ledgerFactRef,
       custodyRootSha256: run.predictionRun?.custodyRootSha256,
+      aggregationAlgorithmVersion:
+        run.predictionRun?.aggregationAlgorithmVersion,
+      constituentRuns: run.predictionRun?.constituentRuns,
       activityArtifactCount: run.predictionRun?.activityLog?.length ?? 0,
     },
   };
@@ -338,7 +420,7 @@ function summarizePreSubmitReview(
   };
 }
 
-function buildBrierAgentLeaderboard(
+export function buildBrierAgentLeaderboard(
   rows: BrierRewardRow[],
 ): BrierAgentLeaderboardRow[] {
   const groups = new Map<string, BrierRewardRow[]>();
@@ -354,40 +436,104 @@ function buildBrierAgentLeaderboard(
       const artifactRows = group.filter(
         (row) => row.provenance.activityArtifactCount > 0,
       );
+      const paired =
+        agent === PERSISTENCE_BASELINE_AGENT
+          ? { pairedTargets: 0, meanPairedSkill: null, pairedWinRate: null }
+          : pairedSkillForRows(scoredRows, rows);
       return {
         agent,
         model: model || undefined,
         scoredRuns: scoredRows.length,
         totalRuns: group.length,
-        meanReward: mean(
+        unpairedMeanReward: mean(
           scoredRows.map((row) => row.reward.value).filter(isNumber),
         ),
-        meanNormalizedCrps: mean(
+        unpairedMeanNormalizedCrps: mean(
           scoredRows
             .map((row) => row.reward.components.normalizedCrps)
             .filter(isNumber),
         ),
-        meanAbsoluteError: mean(
+        unpairedMeanAbsoluteError: mean(
           scoredRows
             .map((row) => row.reward.components.absoluteError)
             .filter(isNumber),
         ),
-        interval80Coverage: mean(
+        unpairedInterval80Coverage: mean(
           scoredRows
             .map((row) => row.reward.components.interval80Covered)
             .filter((value): value is boolean => typeof value === "boolean")
             .map((covered) => (covered ? 1 : 0)),
         ),
+        ...paired,
         activityArtifactCoverage:
           group.length === 0 ? 0 : artifactRows.length / group.length,
       };
     })
     .sort((left, right) => {
-      const leftReward = left.meanReward ?? Number.NEGATIVE_INFINITY;
-      const rightReward = right.meanReward ?? Number.NEGATIVE_INFINITY;
+      const leftSkill = left.meanPairedSkill ?? Number.POSITIVE_INFINITY;
+      const rightSkill = right.meanPairedSkill ?? Number.POSITIVE_INFINITY;
+      if (leftSkill !== rightSkill) return leftSkill - rightSkill;
+      const leftReward = left.unpairedMeanReward ?? Number.NEGATIVE_INFINITY;
+      const rightReward = right.unpairedMeanReward ?? Number.NEGATIVE_INFINITY;
       if (leftReward !== rightReward) return rightReward - leftReward;
       return right.scoredRuns - left.scoredRuns;
     });
+}
+
+function pairedSkillForRows(
+  agentRows: BrierRewardRow[],
+  allRows: BrierRewardRow[],
+) {
+  const baselineRows = allRows.filter(
+    (row) =>
+      row.agent === PERSISTENCE_BASELINE_AGENT && row.reward.value !== null,
+  );
+  const baselineByTarget = new Map(
+    baselineRows.map((row) => [
+      row.predictionId,
+      row.reward.components.normalizedCrps,
+    ]),
+  );
+  const agentScoresByTarget = new Map<string, number[]>();
+  for (const row of agentRows) {
+    const score = row.reward.components.normalizedCrps;
+    if (score === null || !baselineByTarget.has(row.predictionId)) continue;
+    agentScoresByTarget.set(row.predictionId, [
+      ...(agentScoresByTarget.get(row.predictionId) ?? []),
+      score,
+    ]);
+  }
+  const deltas = [...agentScoresByTarget].flatMap(
+    ([predictionId, agentScores]) => {
+      const baselineScore = baselineByTarget.get(predictionId);
+      const agentScore = mean(agentScores);
+      return baselineScore === null ||
+        baselineScore === undefined ||
+        agentScore === null
+        ? []
+        : [agentScore - baselineScore];
+    },
+  );
+  return {
+    pairedTargets: deltas.length,
+    meanPairedSkill: mean(deltas),
+    pairedWinRate:
+      deltas.length === 0
+        ? null
+        : deltas.filter((delta) => delta < 0).length / deltas.length,
+  };
+}
+
+export function summarizePairedComparison(
+  agentRows: BrierRewardRow[],
+  baselineRows: BrierRewardRow[],
+): BrierPairedComparisonSummary {
+  const paired = pairedSkillForRows(agentRows, baselineRows);
+  return {
+    pairedTargets: paired.pairedTargets,
+    meanAgentMinusBaselineNormalizedCrps: paired.meanPairedSkill,
+    agentWinRate: paired.pairedWinRate,
+  };
 }
 
 function buildSplitSummary(

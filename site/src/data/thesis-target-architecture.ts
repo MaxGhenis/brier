@@ -1659,6 +1659,8 @@ function buildArtifactRefs(
           artifactType: artifact.artifactType,
           bytes: artifact.bytes,
           createdAt: artifact.createdAt,
+          observationRefs: artifact.observationRefs,
+          custodyRootSha256: artifact.custodyRootSha256,
         },
       });
     }
@@ -1689,6 +1691,8 @@ function buildArtifactRefsByRunId(
             artifactType: artifact.artifactType,
             bytes: artifact.bytes,
             createdAt: artifact.createdAt,
+            observationRefs: artifact.observationRefs,
+            custodyRootSha256: artifact.custodyRootSha256,
           },
         }),
       );
@@ -1911,6 +1915,7 @@ function inferAgency(source: string) {
 }
 
 function inferArtifactMediaType(artifactType: string) {
+  if (artifactType === "baseline_inputs") return "application/json";
   if (artifactType.endsWith("_jsonl")) return "application/jsonl";
   if (artifactType.endsWith("_log")) return "text/plain";
   if (artifactType.includes("json")) return "application/json";

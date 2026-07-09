@@ -166,6 +166,18 @@ def comparison_run(
     }
     if pre_submit_review:
         prediction_run["preSubmitReview"] = pre_submit_review
+    aggregation_version = (
+        manifest.get("aggregationAlgorithmVersion")
+        or agent.get("aggregationAlgorithmVersion")
+        or cell.get("aggregationAlgorithmVersion")
+    )
+    if aggregation_version:
+        prediction_run["aggregationAlgorithmVersion"] = aggregation_version
+    constituent_runs = manifest.get("constituentRuns") or cell.get(
+        "constituentRuns"
+    )
+    if constituent_runs:
+        prediction_run["constituentRuns"] = constituent_runs
 
     return {
         "variantId": (

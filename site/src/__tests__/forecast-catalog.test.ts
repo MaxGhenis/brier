@@ -459,8 +459,11 @@ describe("forecast catalog", () => {
   });
 
   it("projects current records into the clean target architecture", () => {
-    const specs = buildPredictionSpecs(FORECAST_CELLS);
-    const runs = buildRecordedPredictionRunRecords(FORECAST_CELLS, specs);
+    const specs = buildPredictionSpecs(resolvedForecastCells);
+    const runs = buildRecordedPredictionRunRecords(
+      resolvedForecastCells,
+      specs,
+    );
     const exportPayload = buildTargetArchitectureProjection(
       resolvedForecastCells,
       policyEngineLedger,
@@ -779,34 +782,21 @@ describe("forecast catalog", () => {
   });
 
   it("generates time-series prior comparisons for agent adjustment audits", () => {
-    const report = buildTimeSeriesPriorAdjustmentReport(FORECAST_CELLS);
-    const computerMath = report.rows.find(
-      (row) => row.forecastSlug === "cps-computer-math-employment-june-2026",
-    );
-    const fomc = report.rows.find(
-      (row) => row.forecastSlug === "fomc-rate-upper-june-2026",
+    const report = buildTimeSeriesPriorAdjustmentReport(resolvedForecastCells);
+    const available = resolvedForecastCells.filter(
+      (forecast) => forecast.persistenceBaseline?.status === "available",
     );
 
     expect(report.schemaVersion).toBe("time_series_prior_adjustment_report_v1");
-    expect(report.counts.forecastsWithPrior).toBeGreaterThan(200);
+    expect(report.counts.forecastsWithPrior).toBe(available.length);
     expect(
       report.counts.adjustedUp +
         report.counts.adjustedDown +
         report.counts.flat,
     ).toBe(report.counts.forecastsWithPrior);
-    expect(report.summary.medianAbsoluteShareOfPriorInterval).toBeGreaterThan(
-      0,
-    );
-    expect(report.largestPriorIntervalShareAdjustments.length).toBeGreaterThan(
-      0,
-    );
-    expect(computerMath?.priorModel).toBe("persistence.last_print");
-    expect(computerMath?.priorPointEstimate).toBe(6903);
-    expect(computerMath?.agentPointEstimate).toBe(6920);
-    expect(computerMath?.adjustment).toBe(17);
-    expect(computerMath?.direction).toBe("up");
-    expect(fomc?.latestHistoricalValue).toBe(3.75);
-    expect(fomc?.priorPointEstimate).toBe(3.75);
+    expect(
+      report.rows.every((row) => row.priorModel === "persistence.last_print"),
+    ).toBe(true);
   });
 
   it("exports a facts-only PolicyEngine Ledger payload", () => {
@@ -1646,7 +1636,6 @@ describe("forecast catalog", () => {
       expect(runs.map((run) => run.variantId)).toEqual([
         "primary",
         "may-2025-oews-carry-forward",
-        "time-series-prior",
       ]);
       expect(runs[0].packSet?.mode).toBe("none");
       expect(runs[1].predictionRun?.agent).toBe("BLS OEWS current table");
@@ -1715,7 +1704,6 @@ describe("forecast catalog", () => {
         "primary",
         "with-bls-employment-projections",
         "bls-published-2024-2034-projection",
-        "time-series-prior",
       ]);
       expect(runs.some((run) => run.packSet?.mode === "none")).toBe(true);
 
@@ -1783,13 +1771,12 @@ describe("forecast catalog", () => {
       expect(forecast.resolutionRule).toContain("not seasonally adjusted");
 
       const runs = getForecastRunEntries(forecast);
-      const expectedRunIds = ["primary", "time-series-prior"];
+      const expectedRunIds = ["primary"];
       expect(runs.map((run) => run.variantId)).toEqual(expectedRunIds);
       expect(runs[0].predictionRun?.agent).toBe(
         "brier-cps-occupation-fast-proxy",
       );
       expect(runs[0].packSet?.mode).toBe("none");
-      expect(runs[1].predictionRun?.model).toBe("persistence.last_print");
     }
   });
 

@@ -15,7 +15,7 @@ Usage:
         --batch records/thesis-analyst/batches/....json \
         --batch records/thesis-analyst/batches/....json \
         --batch records/thesis-analyst/batches/....json \
-        [--min-rollouts 3] [--out-list /tmp/median-manifests.txt] [--dry-run]
+        [--out-list /tmp/median-manifests.txt] [--dry-run]
 """
 
 from __future__ import annotations
@@ -28,9 +28,13 @@ import pathlib
 import sys
 from typing import Any
 
+from verify_custody import CustodyError, verify_run
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 POINT_COUNT = 201
+REQUIRED_ROLLOUTS = 3
+AGGREGATION_ALGORITHM_VERSION = "pointwise_median_cdf_v1"
 
 
 def utc_now() -> str:
@@ -173,9 +177,57 @@ def collect_rollouts(
     return groups
 
 
+def validate_constituent_rollouts(
+    rollouts: list[dict[str, Any]],
+) -> list[dict[str, str]]:
+    """Require exactly three distinct runs whose custody roots verify."""
+    if len(rollouts) != REQUIRED_ROLLOUTS:
+        raise ValueError(
+            "median3 requires exactly 3 constituent runs; "
+            f"received {len(rollouts)}"
+        )
+
+    references: list[dict[str, str]] = []
+    for rollout in rollouts:
+        manifest_path = repo_path(rollout["manifestPath"])
+        try:
+            verify_run(manifest_path.parent)
+        except CustodyError as exc:
+            raise ValueError(
+                f"constituent custody verification failed: {manifest_path}: {exc}"
+            ) from exc
+        manifest = json.loads(manifest_path.read_text())
+        custody_root = manifest.get("custodyRootSha256")
+        run_at = rollout["cell"].get("runAt")
+        if not custody_root or not run_at:
+            raise ValueError(
+                f"constituent lacks custody root or runAt: {manifest_path}"
+            )
+        references.append(
+            {
+                "manifestPath": (
+                    repo_relative(manifest_path)
+                    if manifest_path.is_relative_to(ROOT)
+                    else str(manifest_path)
+                ),
+                "custodyRootSha256": str(custody_root),
+                "runAt": str(run_at),
+            }
+        )
+
+    roots = {reference["custodyRootSha256"] for reference in references}
+    manifests = {reference["manifestPath"] for reference in references}
+    if len(roots) != REQUIRED_ROLLOUTS or len(manifests) != REQUIRED_ROLLOUTS:
+        raise ValueError(
+            "median3 requires exactly 3 distinct custody-verifiable run references"
+        )
+    return references
+
+
 def build_derived_run(
     slug: str, rollouts: list[dict[str, Any]], run_at: str
 ) -> tuple[dict[str, Any], pathlib.Path]:
+    constituent_runs = validate_constituent_rollouts(rollouts)
     rollouts = sorted(rollouts, key=lambda r: r["cell"].get("runAt", ""))
     cells = [rollout["cell"] for rollout in rollouts]
     target = rollouts[0]["target"]
@@ -305,20 +357,31 @@ def build_derived_run(
     cells_path = out_dir / "cells.with_activity.json"
     distribution_path = out_dir / "distribution.json"
 
-    def artifact_ref(artifact_type: str, path: str) -> dict[str, Any]:
+    def artifact_ref(
+        artifact_type: str,
+        path: str,
+        custody_root_sha256: str | None = None,
+    ) -> dict[str, Any]:
         data = repo_path(path).read_bytes()
-        return {
+        ref = {
             "artifactType": artifact_type,
             "path": path,
             "sha256": hashlib.sha256(data).hexdigest(),
             "bytes": len(data),
             "createdAt": run_at,
         }
+        if custody_root_sha256:
+            ref["custodyRootSha256"] = custody_root_sha256
+        return ref
 
     distribution_path.write_text(json.dumps(distribution, indent=1) + "\n")
     artifacts = [
-        artifact_ref("constituent_manifest", rollout["manifestPath"])
-        for rollout in rollouts
+        artifact_ref(
+            "constituent_manifest",
+            reference["manifestPath"],
+            reference["custodyRootSha256"],
+        )
+        for reference in constituent_runs
     ]
     artifacts.append(
         artifact_ref("derived_distribution", repo_relative(distribution_path))
@@ -331,22 +394,29 @@ def build_derived_run(
         "period": manifest_source.get("period"),
         "targetContext": target,
         "promptMode": "median3",
+        "aggregationAlgorithmVersion": AGGREGATION_ALGORITHM_VERSION,
         "agent": {
             "agent": "thesis.analyst.median3",
             "model": agent_meta.get("model"),
             "agentVersion": f"{agent_meta.get('agentVersion', '?')}+median3",
             "promptHash": agent_meta.get("promptHash"),
             "toolPolicyHash": agent_meta.get("toolPolicyHash"),
+            "aggregationAlgorithmVersion": AGGREGATION_ALGORITHM_VERSION,
         },
         "ok": True,
         "cellsPath": None,  # set after writing cells
-        "constituentManifests": [r["manifestPath"] for r in rollouts],
+        "constituentRuns": constituent_runs,
+        "constituentManifests": [
+            reference["manifestPath"] for reference in constituent_runs
+        ],
         "artifacts": artifacts,
     }
 
     cell_with_activity = {
         **derived_cell,
         "model": agent_meta.get("model"),
+        "aggregationAlgorithmVersion": AGGREGATION_ALGORITHM_VERSION,
+        "constituentRuns": constituent_runs,
         "activityLog": artifacts,
     }
     cells_path.write_text(json.dumps([cell_with_activity], indent=2) + "\n")
@@ -361,7 +431,6 @@ def main() -> int:
     parser.add_argument(
         "--batch", action="append", required=True, type=pathlib.Path
     )
-    parser.add_argument("--min-rollouts", type=int, default=3)
     parser.add_argument("--out-list")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
@@ -370,12 +439,11 @@ def main() -> int:
     run_at = utc_now()
     written = []
     for slug, rollouts in sorted(groups.items()):
-        if len(rollouts) < args.min_rollouts:
-            print(
-                f"  skip {slug}: {len(rollouts)} rollouts "
-                f"< {args.min_rollouts}"
-            )
-            continue
+        try:
+            validate_constituent_rollouts(rollouts)
+        except ValueError as exc:
+            print(f"  fail {slug}: {exc}", file=sys.stderr)
+            return 1
         if args.dry_run:
             points = [r["cell"]["pointEstimate"] for r in rollouts]
             print(f"  would derive {slug} from points {points}")

@@ -34,7 +34,12 @@ export default async function CalibrationPage() {
   const forecasts = withResolvedOutcomes(FORECAST_CELLS, ledger);
   const specs = buildPredictionSpecs(forecasts);
   const runs = buildRecordedPredictionRunRecords(forecasts, specs);
-  const rewardExport = buildBrierRewardExport({ forecasts, specs, runs, ledger });
+  const rewardExport = buildBrierRewardExport({
+    forecasts,
+    specs,
+    runs,
+    ledger,
+  });
   const allScores = scoreResolvedForecasts(forecasts, ledger);
   // The headline track record is chronology-verified scores only: the run's
   // recorded time provably precedes the observation. Everything else stays
@@ -61,13 +66,10 @@ export default async function CalibrationPage() {
       : null;
 
   const leaderboard = [...rewardExport.leaderboard].sort((left, right) => {
-    if (left.meanNormalizedCrps === null) return 1;
-    if (right.meanNormalizedCrps === null) return -1;
-    return left.meanNormalizedCrps - right.meanNormalizedCrps;
+    if (left.meanPairedSkill === null) return 1;
+    if (right.meanPairedSkill === null) return -1;
+    return left.meanPairedSkill - right.meanPairedSkill;
   });
-  const baseline = leaderboard.find((row) =>
-    row.agent.startsWith(BASELINE_AGENT_PREFIX),
-  );
 
   const cellBySlug = new Map(forecasts.map((cell) => [cell.slug, cell]));
   const recentScores = [...scores]
@@ -115,14 +117,14 @@ export default async function CalibrationPage() {
           className="mt-3 max-w-[640px] text-[0.85rem] leading-[1.6]"
           style={{ color: "var(--theme-text-muted)" }}
         >
-          Scoring methodology v2 (re-stated 2026-07-09): headline numbers
-          count only chronology-verified scores — the run&rsquo;s recorded
-          time provably precedes the observation — and CRPS is normalized by
-          each target&rsquo;s pre-registered historical dispersion rather
-          than the forecast&rsquo;s own interval width, so widening an
-          interval can no longer improve a score. Legacy runs without
-          verifiable timestamps stay published in{" "}
-          <a href="/log.json">log.json</a>, flagged, outside the headline.
+          Scoring methodology v2 (re-stated 2026-07-09): headline numbers count
+          only chronology-verified scores — the run&rsquo;s recorded time
+          provably precedes the observation — and CRPS is normalized by each
+          target&rsquo;s pre-registered historical dispersion rather than the
+          forecast&rsquo;s own interval width, so widening an interval can no
+          longer improve a score. Legacy runs without verifiable timestamps stay
+          published in <a href="/log.json">log.json</a>, flagged, outside the
+          headline.
         </p>
 
         <section className="mt-10 grid grid-cols-4 gap-4 max-md:grid-cols-2">
@@ -140,18 +142,22 @@ export default async function CalibrationPage() {
               detail: `${covered} of ${scores.length} observed inside the stated interval`,
             },
             {
-              label: "Mean normalized CRPS",
+              label: "Unpaired mean normalized CRPS",
               value: formatCrps(meanNormalizedCrps),
               detail: `Lower is better; scaled by each target's pre-registered historical dispersion, not the forecast's own width. Mean sharpness ${
                 meanSharpness === null ? "—" : meanSharpness.toFixed(2)
               }× target scale.`,
             },
             {
-              label: "Persistence baseline CRPS",
-              value: formatCrps(baseline?.meanNormalizedCrps ?? null),
-              detail: baseline
-                ? `${baseline.scoredRuns} scored baseline runs`
-                : "No baseline runs scored yet",
+              label: "Paired skill vs persistence",
+              value: formatCrps(
+                rewardExport.pairedComparison
+                  .meanAgentMinusBaselineNormalizedCrps,
+              ),
+              detail:
+                rewardExport.pairedComparison.pairedTargets > 0
+                  ? `Agent nCRPS minus baseline nCRPS on ${rewardExport.pairedComparison.pairedTargets} matched targets; ${formatCoverage(rewardExport.pairedComparison.agentWinRate)} agent win rate`
+                  : "No ledger-backed baseline pairs scored yet",
             },
           ].map((stat) => (
             <div
@@ -195,11 +201,12 @@ export default async function CalibrationPage() {
             className="mt-2 max-w-[640px] text-[0.88rem] leading-[1.6]"
             style={{ color: "var(--theme-text-muted)" }}
           >
-            Mean normalized CRPS per agent, lowest (best) first. The
+            Paired agent-minus-baseline normalized CRPS per target, lowest
+            (best) first. Unpaired means remain visible for context. The
             persistence baseline forecasts every target as its last official
-            print with a realized-volatility interval — an agent earns its
-            place by beating it. Rows with few scored runs are noisy; read
-            them accordingly.
+            print with a realized-volatility interval — an agent earns its place
+            by beating it. Rows with few scored runs are noisy; read them
+            accordingly.
           </p>
           <div
             className="mt-5 overflow-x-auto rounded-[14px] border"
@@ -216,7 +223,13 @@ export default async function CalibrationPage() {
                     Scored / total runs
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
-                    Mean normalized CRPS
+                    Mean paired skill
+                  </th>
+                  <th className="px-4 py-3 text-right font-normal">
+                    Paired win rate
+                  </th>
+                  <th className="px-4 py-3 text-right font-normal">
+                    Unpaired mean nCRPS
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
                     80% coverage
@@ -274,13 +287,25 @@ export default async function CalibrationPage() {
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"
                         style={{ color: "var(--theme-text)" }}
                       >
-                        {formatCrps(row.meanNormalizedCrps)}
+                        {formatCrps(row.meanPairedSkill)}
                       </td>
                       <td
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"
                         style={{ color: "var(--theme-text-muted)" }}
                       >
-                        {formatCoverage(row.interval80Coverage)}
+                        {formatCoverage(row.pairedWinRate)}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-right [font-family:var(--font-mono)]"
+                        style={{ color: "var(--theme-text)" }}
+                      >
+                        {formatCrps(row.unpairedMeanNormalizedCrps)}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-right [font-family:var(--font-mono)]"
+                        style={{ color: "var(--theme-text-muted)" }}
+                      >
+                        {formatCoverage(row.unpairedInterval80Coverage)}
                       </td>
                     </tr>
                   );
@@ -369,9 +394,7 @@ export default async function CalibrationPage() {
                   <th className="px-4 py-3 text-right font-normal">
                     Predicted
                   </th>
-                  <th className="px-4 py-3 text-right font-normal">
-                    Observed
-                  </th>
+                  <th className="px-4 py-3 text-right font-normal">Observed</th>
                   <th className="px-4 py-3 text-right font-normal">
                     In interval
                   </th>
