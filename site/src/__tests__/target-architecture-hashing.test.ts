@@ -10,6 +10,7 @@ import { THESIS_TARGET_LEDGER } from "@/data/ledger-targets";
 import { buildRecordedPredictionRunId } from "@/data/prediction-specs";
 import { buildTargetArchitectureProjection } from "@/data/thesis-target-architecture";
 import {
+  buildScoreId,
   buildPredictionResolutionEvents,
   scoreResolvedForecastRun,
   type ObservationRecordedLedgerEntry,
@@ -59,9 +60,17 @@ describe("target architecture hashing", () => {
           "targets": 653,
           "toolCalls": 2397,
         },
-        "identifierDigest": "2f0ca5aa86c7453e10110101ce449b3358cfb7ef5d8ed4f693d4292fc83503d3",
+        "identifierDigest": "203550b2f0c2ae0af5d2286f7b778b484d8ab9de2fa05b558de323951de42238",
       }
     `);
+    expect(
+      projection.forecastDistributions.every(
+        (point) =>
+          ["agent_reported", "interval_seeded"].includes(
+            point.distributionProvenance,
+          ) && point.transformVersion.endsWith("_v1"),
+      ),
+    ).toBe(true);
   });
 
   it("retains full payload digests while truncating public IDs to 16 hex", () => {
@@ -192,14 +201,40 @@ describe("target architecture hashing", () => {
 
     expect(originalEvent.payloadHash).toMatch(FULL_DIGEST);
     expect(changedEvent.payloadHash).not.toBe(originalEvent.payloadHash);
-    expect(originalScore?.scoreId).toContain("numeric_cdf_crps_v2_target_scale");
+    expect(originalScore?.scoreId).toContain(
+      "numeric_cdf_crps_v2_target_scale",
+    );
     expect(originalScore?.scoreId).toMatch(/\.[0-9a-f]{16}$/);
     expect(changedScore?.scoreId).not.toBe(originalScore?.scoreId);
     expect(scoreProjection.scores.length).toBeGreaterThan(0);
+    expect(
+      scoreProjection.scores.every(
+        (score) =>
+          ["agent_reported", "interval_seeded"].includes(
+            score.distributionProvenance,
+          ) && score.transformVersion.endsWith("_v1"),
+      ),
+    ).toBe(true);
     expect(
       scoreProjection.scores.every((score) =>
         FULL_DIGEST.test(score.scoreHash),
       ),
     ).toBe(true);
+  });
+
+  it("commits score IDs to the distribution transform version", () => {
+    const payload = {
+      runId: "run.test",
+      resolutionEventId: "resolution_event.test",
+      scoringRule: "numeric_cdf_crps_v2_target_scale" as const,
+      forecastOutput: { pointEstimate: 1 },
+      outcome: { observedValue: 1 },
+    };
+
+    expect(
+      buildScoreId({ ...payload, transformVersion: "interval_anchor_v1" }),
+    ).not.toBe(
+      buildScoreId({ ...payload, transformVersion: "interval_anchor_v2" }),
+    );
   });
 });

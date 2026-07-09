@@ -22,6 +22,10 @@ import {
   scoreResolvedForecasts,
 } from "./thesis-log";
 import { getForecastRunEntries } from "./forecast-cells";
+import {
+  getDistributionTransformVersion,
+  type DistributionProvenance,
+} from "./prediction-distribution";
 
 export type BrierEvalSplit = "train" | "validation" | "test" | "unresolved";
 
@@ -36,6 +40,8 @@ export interface BrierRewardRow {
   model?: string;
   runLabel: string;
   runAt?: string;
+  distributionProvenance: DistributionProvenance;
+  transformVersion: string;
   resolutionDate: string;
   horizonDaysAtRun?: number;
   reward: {
@@ -273,6 +279,10 @@ function buildRewardRow({
     model: run.predictionRun?.model,
     runLabel: run.label,
     runAt: run.predictionRun?.runAt,
+    distributionProvenance: run.predictionDistribution.provenance,
+    transformVersion: getDistributionTransformVersion(
+      run.predictionDistribution,
+    ),
     resolutionDate: forecast.resolutionDate,
     horizonDaysAtRun: getHorizonDaysAtRun(run.predictionRun?.runAt, forecast),
     reward: {

@@ -153,6 +153,7 @@ Every run writes a directory under `records/thesis-analyst/YYYY-MM-DD/` with:
   when pre-submit review is enabled
 - `parsed_cells.json`
 - `normalized_cells.json`
+- `distribution.json` (the materialized 201-point scored CDF)
 - `validation.json`
 - model-candidate JSON from `scripts/run_time_series_models.py` when a
   repeated numeric series preflight is run
@@ -160,7 +161,8 @@ Every run writes a directory under `records/thesis-analyst/YYYY-MM-DD/` with:
 - `manifest.json`
 
 `cells.with_activity.json` carries `activityLog` refs for the prompt, raw
-response, parsed/normalized cells, and validation report. When that file is
+response, parsed/normalized cells, materialized run distribution, and
+validation report. When that file is
 converted with `scripts/spawned_cells_to_ts.py`, the refs land in
 `predictionRun.activityLog`, then in Thesis Log run records and `/log.json`.
 

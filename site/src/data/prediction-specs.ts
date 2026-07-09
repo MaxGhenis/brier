@@ -12,7 +12,10 @@ import type {
 } from "./forecast-cells";
 import { getForecastRunEntries } from "./forecast-cells";
 import { requireLedgerTarget } from "./ledger-targets";
-import type { PredictionDistribution } from "./prediction-distribution";
+import {
+  validateNumericCdfDistribution,
+  type PredictionDistribution,
+} from "./prediction-distribution";
 import { sha256Hex } from "./canonical-json";
 
 export type PredictionSpecSchemaVersion = "thesis_prediction_spec_v1";
@@ -471,6 +474,9 @@ function evaluateRunQualityGates(
   run: ForecastRunEntry,
 ): PredictionRunQualityGate[] {
   const distribution = run.predictionDistribution;
+  const distributionErrors = distribution
+    ? validateNumericCdfDistribution(distribution)
+    : ["CDF is missing"];
 
   return [
     gate(
@@ -498,8 +504,8 @@ function evaluateRunQualityGates(
     ),
     gate(
       "distribution_monotone",
-      Boolean(distribution && isMonotoneDistribution(distribution)),
-      "CDF points must be sorted and monotone.",
+      distributionErrors.length === 0,
+      distributionErrors.join("; "),
     ),
     gate(
       "allowed_tools_declared",
@@ -604,18 +610,6 @@ function buildPublicTrace(
   });
 
   return [...reviewTrace, ...trace].slice(0, 10);
-}
-
-function isMonotoneDistribution(distribution: PredictionDistribution) {
-  return distribution.points.every((point, index, points) => {
-    if (index === 0) return point.probability === 0;
-    const previous = points[index - 1];
-    return (
-      point.value > previous.value &&
-      point.probability >= previous.probability &&
-      point.probability <= 1
-    );
-  });
 }
 
 function inferToolName(call: string) {

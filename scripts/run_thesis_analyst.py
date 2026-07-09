@@ -10,7 +10,8 @@ The runner is intentionally thin:
 3. Extract JSON, normalize the cell shape, and validate the spawned-cell
    contract.
 4. Write every activity artifact: prompt, command, stdout, stderr, raw
-   response, parsed cells, normalized cells, validation report, and manifest.
+   response, parsed cells, normalized cells, materialized distribution,
+   validation report, and manifest.
 
 Usage:
   python3 scripts/run_thesis_analyst.py \
@@ -31,6 +32,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import pathlib
 import re
@@ -47,6 +49,9 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 AGENT_ROOT = ROOT / "agents" / "thesis-analyst"
 SCRIPTS = ROOT / "scripts"
 DEFAULT_RECORD_ROOT = ROOT / "records" / "thesis-analyst"
+CDF_POINT_COUNT = 201
+INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1"
+AGENT_CDF_TRANSFORM_VERSION = "agent_cdf_v1"
 
 
 def utc_now() -> str:
@@ -92,6 +97,185 @@ def write_artifact(
         "bytes": len(data),
         "createdAt": created_at,
     }
+
+
+def round_distribution_number(value: float) -> float:
+    """Match JavaScript Number(value.toPrecision(12))."""
+    return float(format(value, ".12g"))
+
+
+def coalesce_cdf_knots(
+    raw_knots: list[tuple[float, float]],
+) -> list[tuple[float, float]]:
+    knots: list[tuple[float, float]] = []
+    for value, probability in sorted(raw_knots):
+        if knots and abs(knots[-1][0] - value) < 1e-12:
+            knots[-1] = (value, max(knots[-1][1], probability))
+        else:
+            knots.append((value, probability))
+    return knots
+
+
+def interpolate_cdf_probability(
+    value: float, raw_knots: list[tuple[float, float]]
+) -> float:
+    knots = coalesce_cdf_knots(raw_knots)
+    if value <= knots[0][0]:
+        return knots[0][1]
+    for index in range(1, len(knots)):
+        previous_value, previous_probability = knots[index - 1]
+        current_value, current_probability = knots[index]
+        if value <= current_value:
+            width = current_value - previous_value
+            if width <= 0:
+                return current_probability
+            ratio = (value - previous_value) / width
+            return previous_probability + ratio * (
+                current_probability - previous_probability
+            )
+    return knots[-1][1]
+
+
+def interval_distribution(cell: dict[str, Any]) -> dict[str, Any]:
+    """Port of site buildNumericCdfFromInterval (interval_anchor_v1)."""
+    point = float(cell["pointEstimate"])
+    ci_low = float(cell["ciLow"])
+    ci_high = float(cell["ciHigh"])
+    lower_spread = max(abs(point - ci_low), 1e-9)
+    upper_spread = max(abs(ci_high - point), 1e-9)
+    support_lower = ci_low - lower_spread * 1.5
+    support_upper = ci_high + upper_spread * 1.5
+
+    if not math.isfinite(support_lower) or not math.isfinite(support_upper):
+        support_lower = point - 1
+        support_upper = point + 1
+    if support_upper <= support_lower:
+        spread = max(abs(point), 1) * 0.1
+        support_lower = point - spread
+        support_upper = point + spread
+
+    knots = [
+        (support_lower, 0.0),
+        (ci_low, 0.1),
+        (point, 0.5),
+        (ci_high, 0.9),
+        (support_upper, 1.0),
+    ]
+    step = (support_upper - support_lower) / (CDF_POINT_COUNT - 1)
+    points = []
+    for index in range(CDF_POINT_COUNT):
+        value = (
+            support_upper
+            if index == CDF_POINT_COUNT - 1
+            else support_lower + step * index
+        )
+        points.append(
+            {
+                "value": round_distribution_number(value),
+                "probability": round_distribution_number(
+                    interpolate_cdf_probability(value, knots)
+                ),
+            }
+        )
+
+    return {
+        "format": "numeric_cdf_v1",
+        "pointCount": CDF_POINT_COUNT,
+        "support": {
+            "lower": round_distribution_number(support_lower),
+            "upper": round_distribution_number(support_upper),
+        },
+        "points": points,
+        "summary": {
+            "pointEstimate": cell["pointEstimate"],
+            "median": cell["pointEstimate"],
+            "interval80": {
+                "lower": cell["ciLow"],
+                "upper": cell["ciHigh"],
+            },
+        },
+        "provenance": "interval_seeded",
+        "transformVersion": INTERVAL_ANCHOR_TRANSFORM_VERSION,
+    }
+
+
+def ladder_distribution(cell: dict[str, Any]) -> dict[str, Any] | None:
+    """Port of strategy_comparisons.ladder_distribution at scale 1."""
+    ladder = cell.get("thresholdLadder")
+    if not isinstance(ladder, dict):
+        return None
+    try:
+        thresholds = [float(value) for value in ladder["thresholds"]]
+        probabilities = [float(value) for value in ladder["cumulativeProbabilities"]]
+    except (KeyError, TypeError, ValueError):
+        return None
+    if len(thresholds) != len(probabilities) or len(thresholds) < 3:
+        return None
+
+    point = float(cell["pointEstimate"])
+    ci_low = float(cell["ciLow"])
+    ci_high = float(cell["ciHigh"])
+    lower_spread = max(abs(point - ci_low), 1e-9)
+    upper_spread = max(abs(ci_high - point), 1e-9)
+    support_lower = min(ci_low - lower_spread * 1.5, thresholds[0])
+    support_upper = max(ci_high + upper_spread * 1.5, thresholds[-1])
+
+    knots: list[tuple[float, float]] = [(support_lower, 0.0)]
+    previous_probability = 0.0
+    for threshold, probability in zip(thresholds, probabilities):
+        probability = min(max(probability, previous_probability), 1.0)
+        if threshold <= knots[-1][0]:
+            continue
+        knots.append((threshold, probability))
+        previous_probability = probability
+    if support_upper > knots[-1][0]:
+        knots.append((support_upper, 1.0))
+    else:
+        knots[-1] = (knots[-1][0], 1.0)
+
+    step = (knots[-1][0] - knots[0][0]) / (CDF_POINT_COUNT - 1)
+    points = []
+    for index in range(CDF_POINT_COUNT):
+        value = (
+            knots[-1][0] if index == CDF_POINT_COUNT - 1 else knots[0][0] + step * index
+        )
+        points.append(
+            {
+                "value": round(value, 10),
+                "probability": round(interpolate_cdf_probability(value, knots), 10),
+            }
+        )
+
+    return {
+        "format": "numeric_cdf_v1",
+        "pointCount": CDF_POINT_COUNT,
+        "support": {
+            "lower": points[0]["value"],
+            "upper": points[-1]["value"],
+        },
+        "points": points,
+        "summary": {
+            "pointEstimate": cell["pointEstimate"],
+            "median": cell["pointEstimate"],
+            "interval80": {
+                "lower": cell["ciLow"],
+                "upper": cell["ciHigh"],
+            },
+        },
+        "provenance": "agent_reported",
+        "transformVersion": AGENT_CDF_TRANSFORM_VERSION,
+    }
+
+
+def materialize_run_distributions(
+    cells: list[dict[str, Any]],
+) -> dict[str, Any] | list[dict[str, Any]]:
+    distributions = []
+    for cell in cells:
+        distribution = ladder_distribution(cell) or interval_distribution(cell)
+        cell["predictionDistribution"] = distribution
+        distributions.append(distribution)
+    return distributions[0] if len(distributions) == 1 else distributions
 
 
 def load_prompt_builder():
@@ -2017,6 +2201,7 @@ def main() -> int:
         if agent_run_at and agent_run_at != run_at:
             cell["agentReportedRunAt"] = agent_run_at
         cell["runAt"] = run_at
+    materialized_distributions = materialize_run_distributions(normalized_cells)
     normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
         {
@@ -2026,6 +2211,15 @@ def main() -> int:
             "bytes": normalized_path.stat().st_size,
             "createdAt": run_at,
         }
+    )
+    refs.append(
+        write_artifact(
+            out_dir,
+            "run_distribution",
+            "distribution.json",
+            json.dumps(materialized_distributions, indent=2) + "\n",
+            run_at,
+        )
     )
 
     validation = validate_cells(

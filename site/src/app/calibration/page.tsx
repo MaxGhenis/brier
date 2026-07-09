@@ -376,6 +376,9 @@ export default async function CalibrationPage() {
                     In interval
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
+                    Elicitation
+                  </th>
+                  <th className="px-4 py-3 text-right font-normal">
                     Normalized CRPS
                   </th>
                 </tr>
@@ -422,6 +425,12 @@ export default async function CalibrationPage() {
                         }}
                       >
                         {score.interval80Covered ? "yes" : "no"}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-right [font-family:var(--font-mono)] text-[0.68rem] uppercase"
+                        style={{ color: "var(--theme-text-muted)" }}
+                      >
+                        {score.distributionProvenance.replace("_", " ")}
                       </td>
                       <td
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"

@@ -9,6 +9,10 @@ import type {
 } from "./forecast-cells";
 import { getForecastRunEntries } from "./forecast-cells";
 import {
+  getDistributionTransformVersion,
+  type DistributionProvenance,
+} from "./prediction-distribution";
+import {
   buildPredictionPackCatalog,
   buildPredictionPackVersionKey,
 } from "./prediction-packs";
@@ -282,6 +286,8 @@ export interface ForecastDistributionPointProjection {
   probability: number;
   unit: Unit;
   intervalMass: 0.8;
+  distributionProvenance: DistributionProvenance;
+  transformVersion: string;
   validationStatus: "passed";
 }
 
@@ -338,6 +344,8 @@ export interface ScoreProjection {
   runId: string;
   resolutionEventId: string;
   scoringRule: "numeric_cdf_crps_v2_target_scale";
+  distributionProvenance: DistributionProvenance;
+  transformVersion: string;
   crps: number;
   normalizedScore: number;
   normalizedCrps: number;
@@ -1420,6 +1428,9 @@ function buildDistributionPointProjections(
   run: PredictionRunRecord,
   unit: Unit,
 ): ForecastDistributionPointProjection[] {
+  const transformVersion = getDistributionTransformVersion(
+    run.output.distribution,
+  );
   return run.output.distribution.points.map((point, pointIndex) => ({
     runId: run.runId,
     pointIndex,
@@ -1427,6 +1438,8 @@ function buildDistributionPointProjections(
     probability: point.probability,
     unit,
     intervalMass: 0.8,
+    distributionProvenance: run.output.distribution.provenance,
+    transformVersion,
     validationStatus: "passed",
   }));
 }
@@ -1596,6 +1609,8 @@ function buildScoreProjections({
           runId: score.runId,
           resolutionEventId: score.resolutionEventId,
           scoringRule: score.scoringRule,
+          distributionProvenance: score.distributionProvenance,
+          transformVersion: score.transformVersion,
           crps: score.crps,
           normalizedScore: score.normalizedCrps,
           normalizedCrps: score.normalizedCrps,
@@ -1610,6 +1625,8 @@ function buildScoreProjections({
             runId: score.runId,
             resolutionEventId: score.resolutionEventId,
             scoringRule: score.scoringRule,
+            distributionProvenance: score.distributionProvenance,
+            transformVersion: score.transformVersion,
             crps: score.crps,
             normalizedCrps: score.normalizedCrps,
             probabilityIntegralTransform: score.probabilityIntegralTransform,

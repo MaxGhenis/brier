@@ -3,6 +3,11 @@ export interface NumericCdfPoint {
   probability: number;
 }
 
+export type DistributionProvenance = "agent_reported" | "interval_seeded";
+
+export const INTERVAL_ANCHOR_TRANSFORM_VERSION = "interval_anchor_v1";
+export const AGENT_CDF_TRANSFORM_VERSION = "agent_cdf_v1";
+
 export interface NumericCdfDistribution {
   format: "numeric_cdf_v1";
   pointCount: 201;
@@ -19,7 +24,13 @@ export interface NumericCdfDistribution {
       upper: number;
     };
   };
-  provenance: "agent_reported" | "interval_seeded";
+  provenance: DistributionProvenance;
+  /**
+   * Version of the immutable transform that produced the materialized CDF.
+   * Older checked-in agent CDFs predate this field, so consumers resolve the
+   * provenance-specific v1 default with getDistributionTransformVersion.
+   */
+  transformVersion?: string;
 }
 
 export type PredictionDistribution = NumericCdfDistribution;
@@ -91,7 +102,22 @@ export function buildNumericCdfFromInterval({
       },
     },
     provenance,
+    transformVersion:
+      provenance === "interval_seeded"
+        ? INTERVAL_ANCHOR_TRANSFORM_VERSION
+        : AGENT_CDF_TRANSFORM_VERSION,
   };
+}
+
+export function getDistributionTransformVersion(
+  distribution: Pick<NumericCdfDistribution, "provenance" | "transformVersion">,
+): string {
+  return (
+    distribution.transformVersion ??
+    (distribution.provenance === "agent_reported"
+      ? AGENT_CDF_TRANSFORM_VERSION
+      : INTERVAL_ANCHOR_TRANSFORM_VERSION)
+  );
 }
 
 function interpolateCdfProbability(
@@ -122,24 +148,42 @@ export function scoreNumericCdfDistribution(
   distribution: NumericCdfDistribution,
   observedValue: number,
 ): NumericCdfScore {
-  const points = distribution.points;
-  if (points.length < 2) {
-    return {
-      crps: 0,
-      probabilityIntegralTransform: observedValue <= points[0]?.value ? 1 : 0,
-    };
+  assertValidNumericCdfDistribution(distribution);
+  if (!Number.isFinite(observedValue)) {
+    throw new TypeError("Observed value must be finite");
   }
+
+  const points = distribution.points;
 
   let crps = 0;
   for (let index = 1; index < points.length; index += 1) {
     const previous = points[index - 1];
     const current = points[index];
-    const width = current.value - previous.value;
-    if (width <= 0) continue;
+    if (previous.value < observedValue && observedValue < current.value) {
+      const probabilityAtObservation = linearProbabilityAt(
+        observedValue,
+        previous,
+        current,
+      );
+      crps += integrateSquaredLinear(
+        observedValue - previous.value,
+        previous.probability,
+        probabilityAtObservation,
+      );
+      crps += integrateSquaredLinear(
+        current.value - observedValue,
+        probabilityAtObservation - 1,
+        current.probability - 1,
+      );
+      continue;
+    }
 
-    const previousError = cdfScoreError(previous, observedValue);
-    const currentError = cdfScoreError(current, observedValue);
-    crps += ((previousError ** 2 + currentError ** 2) / 2) * width;
+    const indicator = current.value <= observedValue ? 0 : 1;
+    crps += integrateSquaredLinear(
+      current.value - previous.value,
+      previous.probability - indicator,
+      current.probability - indicator,
+    );
   }
 
   const lower = points[0];
@@ -159,9 +203,83 @@ export function scoreNumericCdfDistribution(
   };
 }
 
-function cdfScoreError(point: NumericCdfPoint, observedValue: number): number {
-  const empiricalCdf = point.value >= observedValue ? 1 : 0;
-  return point.probability - empiricalCdf;
+/**
+ * Validate the piecewise-linear CDF contract used by scoring.
+ * Returns all failures so quality-gate callers can report useful detail.
+ */
+export function validateNumericCdfDistribution(
+  distribution: NumericCdfDistribution,
+): string[] {
+  const errors: string[] = [];
+  const points = distribution.points;
+  const tolerance = 1e-9;
+
+  if (points.length < 2) errors.push("CDF must contain at least 2 points");
+  if (distribution.pointCount !== points.length) {
+    errors.push("CDF pointCount must equal points.length");
+  }
+
+  for (const [index, point] of points.entries()) {
+    if (!Number.isFinite(point.value) || !Number.isFinite(point.probability)) {
+      errors.push(`CDF point ${index} must contain finite values`);
+      continue;
+    }
+    if (point.probability < -tolerance || point.probability > 1 + tolerance) {
+      errors.push(`CDF probability ${index} must be between 0 and 1`);
+    }
+    if (index > 0) {
+      const previous = points[index - 1];
+      if (point.value <= previous.value) {
+        errors.push("CDF point values must be strictly increasing");
+      }
+      if (point.probability < previous.probability) {
+        errors.push("CDF probabilities must be monotone non-decreasing");
+      }
+    }
+  }
+
+  if (points.length > 0) {
+    if (Math.abs(points[0].probability) > tolerance) {
+      errors.push("CDF first probability must equal 0 within 1e-9");
+    }
+    if (Math.abs(points[points.length - 1].probability - 1) > tolerance) {
+      errors.push("CDF final probability must equal 1 within 1e-9");
+    }
+  }
+
+  return [...new Set(errors)];
+}
+
+export function assertValidNumericCdfDistribution(
+  distribution: NumericCdfDistribution,
+): void {
+  const errors = validateNumericCdfDistribution(distribution);
+  if (errors.length > 0) {
+    throw new TypeError(`Malformed numeric CDF: ${errors.join("; ")}`);
+  }
+}
+
+function linearProbabilityAt(
+  value: number,
+  lower: NumericCdfPoint,
+  upper: NumericCdfPoint,
+): number {
+  const ratio = (value - lower.value) / (upper.value - lower.value);
+  return lower.probability + ratio * (upper.probability - lower.probability);
+}
+
+// If an error term is linear from e0 to e1 across width w, its squared
+// integral is w * (e0^2 + e0*e1 + e1^2) / 3.
+function integrateSquaredLinear(
+  width: number,
+  errorAtLower: number,
+  errorAtUpper: number,
+): number {
+  return (
+    (width *
+      (errorAtLower ** 2 + errorAtLower * errorAtUpper + errorAtUpper ** 2)) /
+    3
+  );
 }
 
 function coalesceCdfKnots(rawKnots: NumericCdfPoint[]): NumericCdfPoint[] {

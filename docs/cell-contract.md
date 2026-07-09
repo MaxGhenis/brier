@@ -33,7 +33,7 @@ later scoring and Brier training.
   "runAt": "real `date -u +%Y-%m-%dT%H:%M:%SZ` at generation",
   "activityLog": [
     {
-      "artifactType": "prompt|command|stdout|stderr|codex_stdout_jsonl|codex_stderr_log|codex_events_jsonl|codex_last_message|codex_trace|draft_forecast|review_prompt|pre_submit_review|review_disposition|revision_prompt|raw_response|parsed_cell|normalized_cell|validation_report|model_candidates|manifest",
+      "artifactType": "prompt|command|stdout|stderr|codex_stdout_jsonl|codex_stderr_log|codex_events_jsonl|codex_last_message|codex_trace|draft_forecast|review_prompt|pre_submit_review|review_disposition|revision_prompt|raw_response|parsed_cell|normalized_cell|run_distribution|validation_report|model_candidates|manifest",
       "path": "records/thesis-analyst/...",
       "sha256": "hex",
       "bytes": 0,
