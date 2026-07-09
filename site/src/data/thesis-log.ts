@@ -12,7 +12,9 @@ import type {
 } from "./forecast-cells";
 import { getForecastRunEntries } from "./forecast-cells";
 import {
+  getDistributionTransformVersion,
   scoreNumericCdfDistribution,
+  type DistributionProvenance,
   type NumericCdfScore,
   type PredictionDistribution,
 } from "./prediction-distribution";
@@ -51,8 +53,8 @@ export type LedgerSourceKind = "official_release";
 
 export type RecordedPredictionDistribution = Pick<
   PredictionDistribution,
-  "format" | "pointCount" | "summary"
->;
+  "format" | "pointCount" | "summary" | "provenance"
+> & { transformVersion: string };
 
 export interface ObservationRecordedLedgerEntry extends ResolvedOutcome {
   kind: "observation_recorded";
@@ -119,6 +121,8 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   packCount: number;
   resolutionEventId: string;
   scoringRule: "numeric_cdf_crps_v2_target_scale";
+  distributionProvenance: DistributionProvenance;
+  transformVersion: string;
   chronology: "verified" | "unverified" | "violated";
   observedAt: string;
   normalizationScale: number;
@@ -642,6 +646,10 @@ export function buildPredictionRecordedLogEntries(
             format: run.predictionDistribution.format,
             pointCount: run.predictionDistribution.pointCount,
             summary: run.predictionDistribution.summary,
+            provenance: run.predictionDistribution.provenance,
+            transformVersion: getDistributionTransformVersion(
+              run.predictionDistribution,
+            ),
           },
           agent: run.predictionRun?.agent,
           model: run.predictionRun?.model,
@@ -792,6 +800,8 @@ export type ThesisLogRunRecord = Omit<PredictionRunRecord, "output"> & {
       format: PredictionRunRecord["output"]["distribution"]["format"];
       pointCount: number;
       pointsUrl: string;
+      provenance: DistributionProvenance;
+      transformVersion: string;
     };
   };
 };
@@ -805,6 +815,10 @@ function toLogRunRecord(run: PredictionRunRecord): ThesisLogRunRecord {
         format: run.output.distribution.format,
         pointCount: run.output.distribution.pointCount,
         pointsUrl: "/forecasts/targets/forecastDistributions/manifest.json",
+        provenance: run.output.distribution.provenance,
+        transformVersion: getDistributionTransformVersion(
+          run.output.distribution,
+        ),
       },
     },
   };
@@ -1015,6 +1029,10 @@ export function scoreResolvedForecastRun(
   );
   const resolutionEventId = buildResolutionEventId(resolution);
   const scoringRule = "numeric_cdf_crps_v2_target_scale";
+  const distributionProvenance = run.predictionDistribution.provenance;
+  const transformVersion = getDistributionTransformVersion(
+    run.predictionDistribution,
+  );
   const interval80Width = Math.abs(run.ciHigh - run.ciLow);
   const normalization = targetNormalizationScale(forecast);
   const chronology = classifyScoreChronology(
@@ -1027,6 +1045,7 @@ export function scoreResolvedForecastRun(
       runId,
       resolutionEventId,
       scoringRule,
+      transformVersion,
       forecastOutput: {
         pointEstimate: run.pointEstimate,
         interval80: { lower: run.ciLow, upper: run.ciHigh },
@@ -1048,6 +1067,8 @@ export function scoreResolvedForecastRun(
     packCount: run.packSet?.packs.length ?? 0,
     resolutionEventId,
     scoringRule,
+    distributionProvenance,
+    transformVersion,
     chronology,
     observedAt: observation.observedAt,
     ledgerFactRef: observation.dataPointId,
@@ -1118,10 +1139,11 @@ function buildResolutionEventId({
     .replace(/[^A-Za-z0-9]+/g, "-")}`;
 }
 
-function buildScoreId(payload: {
+export function buildScoreId(payload: {
   runId: string;
   resolutionEventId: string;
   scoringRule: ResolvedForecastScore["scoringRule"];
+  transformVersion: string;
   forecastOutput: unknown;
   outcome: unknown;
 }) {

@@ -136,6 +136,7 @@ export type PredictionRunActivityArtifactType =
   | "raw_response"
   | "parsed_cell"
   | "normalized_cell"
+  | "run_distribution"
   | "validation_report"
   | "model_candidates"
   | "manifest"

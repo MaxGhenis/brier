@@ -50,7 +50,9 @@ def private_source_hits(cell: dict) -> list[str]:
 
 def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
     slugs = set()
-    for f in list(site_data.glob("forecast-examples/*.ts")) + [site_data / "forecast-cells.ts"]:
+    for f in list(site_data.glob("forecast-examples/*.ts")) + [
+        site_data / "forecast-cells.ts"
+    ]:
         if f.resolve() == out_ts.resolve():
             continue  # rerunning over our own previous output is not a collision
         slugs |= set(re.findall(r'slug:\s*"([^"]+)"', f.read_text()))
@@ -203,7 +205,10 @@ def agent_stamp() -> dict:
     """Version/hash metadata from the live agent definition."""
     import subprocess
 
-    builder = pathlib.Path(__file__).resolve().parents[1] / "agents/thesis-analyst/build_prompt.py"
+    builder = (
+        pathlib.Path(__file__).resolve().parents[1]
+        / "agents/thesis-analyst/build_prompt.py"
+    )
     meta = json.loads(
         subprocess.check_output([sys.executable, str(builder), "--metadata"])
     )
@@ -221,6 +226,8 @@ def to_forecast_cell(cell: dict) -> dict:
         out["dataPointId"] = cell["dataPointId"]
     if cell.get("conditionalOn"):
         out["conditionalOn"] = cell["conditionalOn"]
+    if cell.get("predictionDistribution"):
+        out["predictionDistribution"] = cell["predictionDistribution"]
     stamp = agent_stamp()
     out["predictionRun"] = {
         "kind": "recorded-agent-run",

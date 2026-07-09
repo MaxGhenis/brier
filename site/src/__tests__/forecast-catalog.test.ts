@@ -378,6 +378,10 @@ describe("forecast catalog", () => {
     );
     expect(scoredRow?.preSubmitReview.status).toBe("not_requested");
     expect(scoredRow?.preSubmitReview.reviewed).toBe(false);
+    expect(scoredRow?.distributionProvenance).toMatch(
+      /^(agent_reported|interval_seeded)$/,
+    );
+    expect(scoredRow?.transformVersion).toMatch(/_v1$/);
     expect(liveRun?.split).toBe("unresolved");
     expect(liveRun?.provenance.activityArtifactCount).toBe(8);
     expect(exportPayload.leaderboard.length).toBeGreaterThan(0);
@@ -2193,6 +2197,10 @@ describe("forecast catalog", () => {
       expect(score?.resolutionEventId).toMatch(/^resolution_event\./);
       expect(score?.scoreId).toMatch(/^score\.run\./);
       expect(score?.scoringRule).toBe("numeric_cdf_crps_v2_target_scale");
+      expect(score?.distributionProvenance).toMatch(
+        /^(agent_reported|interval_seeded)$/,
+      );
+      expect(score?.transformVersion).toMatch(/_v1$/);
       expect(score?.observedValue).toBe(expected.value);
       expect(score?.unit).toBe(expected.unit);
       expect(score?.interval80.width).toBeGreaterThan(0);

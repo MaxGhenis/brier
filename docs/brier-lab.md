@@ -30,6 +30,8 @@ Each row is one recorded forecast run:
 - reward value, currently `-normalizedCrps`
 - score components: CRPS, normalized CRPS, absolute error, 80% interval
   coverage
+- distribution provenance (`agent_reported` or `interval_seeded`) and the
+  immutable transform version used to materialize the scored CDF
 - provenance hashes and activity-artifact count
 
 Higher reward is better because normalized CRPS is negated. Unresolved rows

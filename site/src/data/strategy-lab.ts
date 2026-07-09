@@ -6,7 +6,9 @@ import {
 } from "./forecast-cells";
 import {
   buildNumericCdfFromInterval,
+  getDistributionTransformVersion,
   scoreNumericCdfDistribution,
+  type DistributionProvenance,
   type NumericCdfDistribution,
 } from "./prediction-distribution";
 
@@ -38,6 +40,8 @@ export interface StrategyScoreRow {
   runLabel?: string;
   agent?: string;
   model?: string;
+  distributionProvenance: DistributionProvenance;
+  transformVersion: string;
   pointEstimate: number;
   observedValue: number;
   interval80: {
@@ -60,6 +64,8 @@ export interface StrategySummaryRow {
   kind: ForecastStrategyKind;
   evidenceMode: ForecastStrategyEvidenceMode;
   description: string;
+  distributionProvenance: DistributionProvenance | "mixed";
+  transformVersions: string[];
   scoredRows: number;
   meanAbsoluteError: number | null;
   meanSignedError: number | null;
@@ -355,6 +361,8 @@ function scoreStrategyPrediction({
     runLabel: run?.label,
     agent: run?.predictionRun?.agent,
     model: run?.predictionRun?.model,
+    distributionProvenance: predictionDistribution.provenance,
+    transformVersion: getDistributionTransformVersion(predictionDistribution),
     pointEstimate,
     observedValue: member.actual,
     interval80: {
@@ -436,6 +444,9 @@ function summarizeStrategies(rows: StrategyScoreRow[]): StrategySummaryRow[] {
     const strategyRows = rows.filter(
       (row) => row.strategyId === strategy.strategyId,
     );
+    const provenanceValues = new Set(
+      strategyRows.map((row) => row.distributionProvenance),
+    );
     const pairedRows = strategyRows
       .map((row) => {
         const persistenceRow = persistenceByForecast.get(row.forecastSlug);
@@ -449,6 +460,13 @@ function summarizeStrategies(rows: StrategyScoreRow[]): StrategySummaryRow[] {
       kind: strategy.kind,
       evidenceMode: strategy.evidenceMode,
       description: strategy.description,
+      distributionProvenance:
+        provenanceValues.size === 1
+          ? (provenanceValues.values().next().value ?? "interval_seeded")
+          : "mixed",
+      transformVersions: [
+        ...new Set(strategyRows.map((row) => row.transformVersion)),
+      ].sort(),
       scoredRows: strategyRows.length,
       meanAbsoluteError: meanOrNull(
         strategyRows.map((row) => row.absoluteError),

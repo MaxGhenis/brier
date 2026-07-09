@@ -414,6 +414,9 @@ function StrategyRow({ row }: { row: StrategySummaryRow }) {
         <div className="mt-1 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
           {row.kind.replace("_", " ")}
         </div>
+        <div className="mt-1 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+          {row.distributionProvenance.replace("_", " ")}
+        </div>
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {row.scoredRows.toLocaleString()}

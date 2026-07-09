@@ -10,6 +10,60 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "scripts" / "run_thesis_analyst.py"
 COMPARISON_GENERATOR = ROOT / "scripts" / "thesis_records_to_comparisons.py"
+sys.path.insert(0, str(ROOT / "scripts"))
+from run_thesis_analyst import (  # noqa: E402
+    interval_distribution,
+)
+from run_thesis_analyst import (  # noqa: E402
+    ladder_distribution as runner_ladder_distribution,
+)
+from strategy_comparisons import (  # noqa: E402
+    ladder_distribution as comparison_ladder_distribution,
+)
+
+
+def test_interval_distribution_matches_typescript_fixture():
+    fixture = json.loads(
+        (
+            ROOT / "tests" / "fixtures" / "interval_anchor_v1_distribution.json"
+        ).read_text()
+    )
+    materialized = interval_distribution(fixture["inputs"])
+    actual_points = [
+        {
+            "value": f"{point['value']:.10f}",
+            "probability": f"{point['probability']:.10f}",
+        }
+        for point in materialized["points"]
+    ]
+
+    assert fixture["source"].endswith("::buildNumericCdfFromInterval")
+    assert materialized["pointCount"] == 201
+    assert materialized["provenance"] == "interval_seeded"
+    assert materialized["transformVersion"] == fixture["transformVersion"]
+    assert actual_points == fixture["points"]
+
+
+def test_runner_ladder_distribution_matches_strategy_builder():
+    cell = {
+        "pointEstimate": 5.0,
+        "ciLow": 4.0,
+        "ciHigh": 6.0,
+        "thresholdLadder": {
+            "thresholds": [3.0, 4.0, 5.0, 6.0, 7.0],
+            "cumulativeProbabilities": [0.02, 0.1, 0.5, 0.9, 0.98],
+        },
+    }
+
+    actual = runner_ladder_distribution(cell)
+    expected = comparison_ladder_distribution(cell, 1)
+
+    assert actual is not None
+    assert expected is not None
+    assert actual["points"] == expected["points"]
+    assert actual["support"] == expected["support"]
+    assert actual["provenance"] == "agent_reported"
+    assert actual["transformVersion"] == "agent_cdf_v1"
 
 
 def test_print_prompt_contains_question_spec():
@@ -111,6 +165,7 @@ def test_fast_prompt_includes_target_context():
 
 def test_mock_run_writes_activity_artifacts(tmp_path):
     out_dir = tmp_path / "run"
+    generated_ts = tmp_path / "generated.ts"
 
     result = subprocess.run(
         [
@@ -123,6 +178,10 @@ def test_mock_run_writes_activity_artifacts(tmp_path):
             "--mock-cell",
             "--out-dir",
             str(out_dir),
+            "--write-ts",
+            str(generated_ts),
+            "--const-name",
+            "GENERATED_TEST_CELLS",
         ],
         cwd=ROOT,
         capture_output=True,
@@ -146,6 +205,7 @@ def test_mock_run_writes_activity_artifacts(tmp_path):
         "raw_response",
         "parsed_cell",
         "normalized_cell",
+        "run_distribution",
         "validation_report",
         "manifest",
     }.issubset(artifact_types)
@@ -162,10 +222,24 @@ def test_mock_run_writes_activity_artifacts(tmp_path):
     assert len(cells) == 1
     cell = cells[0]
     assert cell["slug"] == "test-synthetic-rate-2030-01"
+    assert cell["predictionDistribution"] == json.loads(
+        (out_dir / "distribution.json").read_text()
+    )
+    assert cell["predictionDistribution"]["pointCount"] == 201
+    assert cell["predictionDistribution"]["provenance"] == "interval_seeded"
+    assert cell["predictionDistribution"]["transformVersion"] == "interval_anchor_v1"
     assert cell["activityLog"]
     activity_types = {artifact["artifactType"] for artifact in cell["activityLog"]}
-    assert {"prompt", "raw_response", "validation_report"}.issubset(activity_types)
+    assert {
+        "prompt",
+        "raw_response",
+        "run_distribution",
+        "validation_report",
+    }.issubset(activity_types)
     assert manifest["validation"]["cells"][0]["ok"] is True
+    generated_text = generated_ts.read_text()
+    assert '"predictionDistribution"' in generated_text
+    assert '"transformVersion": "interval_anchor_v1"' in generated_text
 
 
 def test_target_context_validation_rejects_drift(tmp_path):
