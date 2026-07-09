@@ -96,6 +96,10 @@ export interface PredictionRunRecord {
   idempotencyKey: string;
   createdAt: string;
   modelVersion?: string;
+  aggregationAlgorithmVersion?: string;
+  constituentRuns?: NonNullable<
+    ForecastRunEntry["predictionRun"]
+  >["constituentRuns"];
   promptHash: string;
   toolPolicyHash: string;
   inputBundleHash: string;
@@ -296,13 +300,15 @@ export function buildRecordedPredictionRunRecord(
     runVariantId: run.variantId,
   });
   const toolPolicyHash = sha256Hex(spec.tools);
-  const inputBundleHash = sha256Hex({
-    specVersionId: spec.specVersionId,
-    targetFactRef: spec.resolution.targetFactRef,
-    historicalContext: forecast.historicalContext,
-    policyParameter: forecast.policyParameter,
-    packSet: run.packSet,
-  });
+  const inputBundleHash =
+    run.predictionRun?.inputBundleHash ??
+    sha256Hex({
+      specVersionId: spec.specVersionId,
+      targetFactRef: spec.resolution.targetFactRef,
+      historicalContext: forecast.historicalContext,
+      policyParameter: forecast.policyParameter,
+      packSet: run.packSet,
+    });
 
   return {
     schemaVersion: "thesis_prediction_run_v1",
@@ -325,6 +331,8 @@ export function buildRecordedPredictionRunRecord(
     }),
     createdAt,
     modelVersion: run.predictionRun?.model,
+    aggregationAlgorithmVersion: run.predictionRun?.aggregationAlgorithmVersion,
+    constituentRuns: run.predictionRun?.constituentRuns,
     promptHash,
     toolPolicyHash,
     inputBundleHash,

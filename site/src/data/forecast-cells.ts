@@ -21,7 +21,6 @@ import { SNAP_FY2026_PAYMENT_ERROR_RATE_EXAMPLES } from "./forecast-examples/sna
 import { TAX_CREDIT_EXAMPLES } from "./forecast-examples/tax";
 import { RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS } from "./thesis-analyst-live-comparisons";
 import { STRATEGY_COMPARISON_RUN_AUGMENTS } from "./thesis-strategy-comparisons";
-import { buildTimeSeriesPriorComparisonRun } from "./time-series-priors";
 import { UK_EXAMPLES } from "./forecast-examples/uk";
 import { US_DEFENSE_EXAMPLES } from "./forecast-examples/us-defense";
 import { US_NEAR_TERM_EXAMPLES } from "./forecast-examples/us-near-term";
@@ -140,6 +139,7 @@ export type PredictionRunActivityArtifactType =
   | "cells_with_activity"
   | "validation_report"
   | "model_candidates"
+  | "baseline_inputs"
   | "manifest"
   // Derived-ensemble runs (scripts/median_rollout_ensemble.py) reference
   // their inputs and exact output distribution as first-class artifacts.
@@ -152,6 +152,17 @@ export interface PredictionRunActivityArtifact {
   sha256: string;
   bytes: number;
   createdAt: string;
+  observationRefs?: LedgerObservationReference[];
+  custodyRootSha256?: string;
+}
+
+export interface LedgerObservationReference {
+  observationId: string;
+  dataPointId: string;
+  periodLabel: string;
+  observedAt: string;
+  value: number;
+  unit: Unit;
 }
 
 export type PredictionPreSubmitReviewStatus =
@@ -222,6 +233,13 @@ export interface PredictionRunMetadata {
   toolPolicyHash?: string;
   custodyRootSha256?: string;
   promptMode?: string;
+  inputBundleHash?: string;
+  aggregationAlgorithmVersion?: string;
+  constituentRuns?: Array<{
+    manifestPath: string;
+    custodyRootSha256: string;
+    runAt: string;
+  }>;
   activityLog?: PredictionRunActivityArtifact[];
   preSubmitReview?: PredictionPreSubmitReviewWorkflow;
 }
@@ -283,9 +301,20 @@ export interface ForecastCell {
   series?: ForecastSeriesMetadata;
   predictionRun?: PredictionRunMetadata;
   comparisonRuns?: ForecastComparisonRun[];
+  persistenceBaseline?: PersistenceBaselineRecord;
   resolvedOutcome?: ResolvedOutcome;
   predictionDistribution?: PredictionDistribution;
   reasoning: ReasoningStep[];
+}
+
+export interface PersistenceBaselineRecord {
+  status: "available" | "unavailable";
+  variantId: "time-series-prior";
+  cutoff: string;
+  targetDataPointId?: string;
+  seriesId?: string;
+  observationRefs: LedgerObservationReference[];
+  reason?: string;
 }
 
 export interface ForecastRunEntry {
@@ -7415,10 +7444,8 @@ const FORECAST_COMPARISON_RUN_AUGMENTS: Record<
 
 export const FORECAST_CELLS: ForecastCell[] = FORECAST_CELL_DEFINITIONS.map(
   (forecast) => {
-    const timeSeriesPrior = buildTimeSeriesPriorComparisonRun(forecast);
     const comparisonRuns = [
       ...(forecast.comparisonRuns ?? []),
-      ...(timeSeriesPrior ? [timeSeriesPrior] : []),
       ...(FORECAST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
       ...(RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),
       ...(STRATEGY_COMPARISON_RUN_AUGMENTS[forecast.slug] ?? []),

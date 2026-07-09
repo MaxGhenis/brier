@@ -169,9 +169,11 @@ export default async function BrierLabPage() {
                   <th className="py-3 pr-5 font-medium">agent</th>
                   <th className="py-3 pr-5 font-medium">model</th>
                   <th className="py-3 pr-5 font-medium">runs</th>
-                  <th className="py-3 pr-5 font-medium">reward</th>
-                  <th className="py-3 pr-5 font-medium">nCRPS</th>
-                  <th className="py-3 pr-5 font-medium">coverage</th>
+                  <th className="py-3 pr-5 font-medium">paired skill</th>
+                  <th className="py-3 pr-5 font-medium">win rate</th>
+                  <th className="py-3 pr-5 font-medium">unpaired reward</th>
+                  <th className="py-3 pr-5 font-medium">unpaired nCRPS</th>
+                  <th className="py-3 pr-5 font-medium">unpaired coverage</th>
                   <th className="py-3 font-medium">activity</th>
                 </tr>
               </thead>
@@ -278,13 +280,19 @@ function LeaderboardRow({ row }: { row: BrierAgentLeaderboardRow }) {
         {row.scoredRuns.toLocaleString()} / {row.totalRuns.toLocaleString()}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
-        {formatMaybe(row.meanReward)}
+        {formatMaybe(row.meanPairedSkill)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
-        {formatMaybe(row.meanNormalizedCrps)}
+        {formatPercent(row.pairedWinRate)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
-        {formatPercent(row.interval80Coverage)}
+        {formatMaybe(row.unpairedMeanReward)}
+      </td>
+      <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
+        {formatMaybe(row.unpairedMeanNormalizedCrps)}
+      </td>
+      <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
+        {formatPercent(row.unpairedInterval80Coverage)}
       </td>
       <td className="py-4 align-top text-[var(--theme-text)]">
         {formatPercent(row.activityArtifactCoverage)}

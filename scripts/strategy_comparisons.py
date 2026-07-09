@@ -74,6 +74,7 @@ def write_strategy_ts(out_path: pathlib.Path, augments: dict) -> None:
     )
 
 POINT_COUNT = 201
+MEDIAN3_ALGORITHM_VERSION = "pointwise_median_cdf_v1"
 
 
 def batch_results(batch_paths: list[pathlib.Path]):
@@ -243,6 +244,29 @@ def median_augments(
         manifest = json.loads(repo_path(manifest_path).read_text())
         if not manifest.get("ok"):
             continue
+        constituent_runs = manifest.get("constituentRuns") or []
+        custody_roots = {
+            reference.get("custodyRootSha256")
+            for reference in constituent_runs
+            if reference.get("custodyRootSha256")
+        }
+        manifest_refs = {
+            reference.get("manifestPath")
+            for reference in constituent_runs
+            if reference.get("manifestPath")
+        }
+        algorithm_version = manifest.get("aggregationAlgorithmVersion")
+        if (
+            len(constituent_runs) != 3
+            or len(custody_roots) != 3
+            or len(manifest_refs) != 3
+            or algorithm_version != MEDIAN3_ALGORITHM_VERSION
+        ):
+            raise ValueError(
+                f"invalid median3 derivation {manifest_path}: expected "
+                "exactly 3 distinct custody-verifiable constituent run "
+                f"references and {MEDIAN3_ALGORITHM_VERSION}"
+            )
         target = manifest.get("targetContext") or {}
         slug = target.get("catalogSlug")
         cells = json.loads(repo_path(manifest["cellsPath"]).read_text())
@@ -256,9 +280,13 @@ def median_augments(
             cell, manifest, slug, target.get("valueScale", 1),
             target.get("targetUnit"),
         )
-        label = "Median of 3 rollouts"
+        label = f"Median of {len(constituent_runs)} rollouts"
         run["label"] = label
         run["predictionRun"]["runLabel"] = label
+        run["predictionRun"]["aggregationAlgorithmVersion"] = (
+            algorithm_version
+        )
+        run["predictionRun"]["constituentRuns"] = constituent_runs
         run["predictionRun"]["runDescription"] = (
             "Derived run: pointwise median of the constituent rollout CDFs "
             "(median prediction sampling, Turtel et al. 2025, "

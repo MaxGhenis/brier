@@ -38,6 +38,19 @@ Higher reward is better because normalized CRPS is negated. Unresolved rows
 have `reward.value = null` until the configured official resolver records an
 official fact.
 
+Persistence baselines are generated only for chronology-verified scored
+primary targets. Their point is the last same-series observation archived in
+the PolicyEngine Ledger at the primary run's `recordedAt` cutoff, and their
+80% interval uses the 80th percentile of absolute realized one-step changes
+in that ledger history. At least two pre-cutoff ledger observations are
+required. Targets without that history carry an explicit unavailable baseline
+record; forecast-supplied `historicalContext` is never a baseline input.
+
+The leaderboard reports unpaired means as descriptive statistics, but ranks
+agents by the target-paired difference `agent normalizedCrps - persistence
+normalizedCrps`. It also reports the share of paired targets where the agent's
+normalized CRPS is lower than persistence.
+
 ## LLM Judges
 
 The Thesis Log carries judge summary counts and a link to the full judge export.

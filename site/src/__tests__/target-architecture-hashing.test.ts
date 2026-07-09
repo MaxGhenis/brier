@@ -67,20 +67,20 @@ describe("target architecture hashing", () => {
     }).toMatchInlineSnapshot(`
       {
         "counts": {
-          "artifactRefs": 3164,
-          "baselineCandidates": 423,
-          "forecastDistributionPoints": 251451,
-          "forecastRuns": 1251,
+          "artifactRefs": 2885,
+          "baselineCandidates": 144,
+          "forecastDistributionPoints": 195372,
+          "forecastRuns": 972,
           "forecastStrategies": 9,
-          "judgeRuns": 1849,
+          "judgeRuns": 1291,
           "observationVintages": 1942,
           "observations": 1942,
           "packVersions": 14,
           "packs": 14,
-          "reasoningEvents": 6328,
+          "reasoningEvents": 5212,
           "resolutionEvents": 0,
           "reviewRuns": 82,
-          "runArtifactRefs": 3639,
+          "runArtifactRefs": 3360,
           "runPackVersions": 97,
           "scores": 0,
           "sourceSeries": 653,
@@ -88,9 +88,9 @@ describe("target architecture hashing", () => {
           "targetObservationBindings": 1306,
           "targetVersions": 653,
           "targets": 653,
-          "toolCalls": 2397,
+          "toolCalls": 2118,
         },
-        "identifierDigest": "203550b2f0c2ae0af5d2286f7b778b484d8ab9de2fa05b558de323951de42238",
+        "identifierDigest": "b22fd8917942fab186a0de52b169c4a6880c389ab8647d7f5a83f9e269ff7845",
       }
     `);
     expect(

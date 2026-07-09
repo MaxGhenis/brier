@@ -1,4 +1,4 @@
-import { roundToIncrement } from "./forecast-models";
+import { canonicalStringify, sha256Hex } from "./canonical-json";
 import {
   buildNumericCdfFromInterval,
   type PredictionDistribution,
@@ -7,11 +7,19 @@ import type {
   ForecastCell,
   ForecastComparisonRun,
   ForecastRunEntry,
-  HistoricalPoint,
+  LedgerObservationReference,
+  PersistenceBaselineRecord,
   Unit,
 } from "./forecast-cells";
+import type {
+  ObservationRecordedLedgerEntry,
+  PolicyEngineLedgerEntry,
+} from "./thesis-log";
 
 export const TIME_SERIES_PRIOR_VARIANT_ID = "time-series-prior";
+export const PERSISTENCE_BASELINE_AGENT = "brier.time_series_prior";
+export const PERSISTENCE_BASELINE_ALGORITHM_VERSION =
+  "ledger_last_print_realized_change_p80_v1";
 
 export interface TimeSeriesPriorAdjustmentRow {
   forecastSlug: string;
@@ -61,80 +69,134 @@ interface PriorInterval {
   pointEstimate: number;
   ciLow: number;
   ciHigh: number;
-  increment: number;
   historyPoints: number;
-  latest: HistoricalPoint;
-  intervalMethod: "historical_step_change" | "fallback_fraction";
+  latest: LedgerObservationReference;
+  observations: LedgerObservationReference[];
+  seriesId: string;
+  intervalMethod: "ledger_realized_step_change_p80";
 }
 
 export function buildTimeSeriesPriorComparisonRun(
   forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[],
 ): ForecastComparisonRun | null {
-  if (!forecast.predictionRun) return null;
-  if (!isBrierAgentRun(forecast.predictionRun.agent)) return null;
-  if (
-    forecast.comparisonRuns?.some(
-      (run) => run.variantId === TIME_SERIES_PRIOR_VARIANT_ID,
-    )
-  ) {
-    return null;
+  return buildLedgerPersistenceBaseline(forecast, ledger).comparisonRun;
+}
+
+export interface LedgerPersistenceBaselineResult {
+  record: PersistenceBaselineRecord;
+  comparisonRun: ForecastComparisonRun | null;
+}
+
+export function buildLedgerPersistenceBaseline(
+  forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[],
+): LedgerPersistenceBaselineResult {
+  const cutoff = forecast.predictionRun?.runAt;
+  const unavailable = (
+    reason: string,
+    observationRefs: LedgerObservationReference[] = [],
+    seriesId?: string,
+  ): LedgerPersistenceBaselineResult => ({
+    record: {
+      status: "unavailable",
+      variantId: TIME_SERIES_PRIOR_VARIANT_ID,
+      cutoff: cutoff ?? "",
+      targetDataPointId: forecast.dataPointId,
+      seriesId,
+      observationRefs,
+      reason,
+    },
+    comparisonRun: null,
+  });
+
+  if (!cutoff || !forecast.dataPointId) {
+    return unavailable("missing recordedAt cutoff or target dataPointId");
   }
 
-  const prior = buildLastPrintPriorInterval(forecast);
-  if (!prior) return null;
+  const prior = buildLastPrintPriorInterval(forecast, ledger, cutoff);
+  if (!prior) {
+    const candidates = ledgerHistoryAtCutoff(forecast, ledger, cutoff);
+    return unavailable(
+      candidates.length === 0
+        ? "ledger has no pre-cutoff observations for the target series"
+        : "ledger has fewer than two pre-cutoff observations, so realized volatility is unavailable",
+      candidates.map(toObservationReference),
+      candidates[0] ? ledgerSeriesId(candidates[0]) : undefined,
+    );
+  }
 
   const distribution = buildNumericCdfFromInterval({
     pointEstimate: prior.pointEstimate,
     ciLow: prior.ciLow,
     ciHigh: prior.ciHigh,
   });
+  const inputPayload = {
+    schemaVersion: "thesis_persistence_baseline_inputs_v1",
+    algorithmVersion: PERSISTENCE_BASELINE_ALGORITHM_VERSION,
+    targetDataPointId: forecast.dataPointId,
+    seriesId: prior.seriesId,
+    cutoff,
+    observations: prior.observations,
+  };
+  const inputDigest = sha256Hex(inputPayload);
+  const inputBytes = new TextEncoder().encode(
+    canonicalStringify(inputPayload),
+  ).byteLength;
+  const sourceContext = ledgerHistoryAtCutoff(forecast, ledger, cutoff)
+    .map((entry) => entry.sourceUrl)
+    .filter((url): url is string => Boolean(url));
 
-  return {
+  const comparisonRun: ForecastComparisonRun = {
     variantId: TIME_SERIES_PRIOR_VARIANT_ID,
-    label: "Time-series prior",
+    label: "Ledger persistence baseline",
     description:
-      "Last observed public print carried forward before the agent applies target-specific evidence.",
+      "Last official ledger print at the primary run cutoff, with an interval derived only from realized same-series ledger changes.",
     pointEstimate: prior.pointEstimate,
     ciLow: prior.ciLow,
     ciHigh: prior.ciHigh,
     confidence: forecast.confidence,
     drivers: [
       "Latest official historical value",
-      prior.intervalMethod === "historical_step_change"
-        ? "Historical one-step changes"
-        : "Fallback uncertainty floor",
+      "Ledger-archived realized one-step changes",
       "No target-specific agent judgment",
     ],
     predictionRun: {
       kind: "recorded-agent-run",
-      runAt: forecast.predictionRun.runAt,
-      agent: "brier.time_series_prior",
+      runAt: cutoff,
+      agent: PERSISTENCE_BASELINE_AGENT,
       model: "persistence.last_print",
-      sourceContext: forecast.predictionRun.sourceContext,
-      runLabel: "Time-series prior",
+      sourceContext: [...new Set(sourceContext)],
+      runLabel: "Ledger persistence baseline",
       runDescription:
-        "Deterministic last-print baseline generated from the same historical context available to the agent.",
+        "Deterministic last-print baseline generated exclusively from observations archived in the PolicyEngine Ledger before the primary run cutoff.",
+      inputBundleHash: inputDigest,
       activityLog: [
         {
-          artifactType: "model_candidates",
-          path: `generated://time-series-priors/${forecast.slug}.json`,
-          sha256: "generated",
-          bytes: 0,
-          createdAt: forecast.predictionRun.runAt,
+          artifactType: "baseline_inputs",
+          path: `ledger://persistence-baselines/${inputDigest}.json`,
+          sha256: inputDigest,
+          bytes: inputBytes,
+          createdAt: cutoff,
+          observationRefs: prior.observations,
         },
       ],
     },
     predictionDistribution: distribution,
     reasoning: buildPriorReasoning(forecast, prior),
   };
-}
 
-function isBrierAgentRun(agent: string) {
-  return (
-    agent.startsWith("thesis.analyst") ||
-    agent.startsWith("brier-") ||
-    agent.startsWith("scout-")
-  );
+  return {
+    record: {
+      status: "available",
+      variantId: TIME_SERIES_PRIOR_VARIANT_ID,
+      cutoff,
+      targetDataPointId: forecast.dataPointId,
+      seriesId: prior.seriesId,
+      observationRefs: prior.observations,
+    },
+    comparisonRun,
+  };
 }
 
 export function buildTimeSeriesPriorAdjustmentReport(
@@ -200,7 +262,9 @@ function buildPriorAdjustmentRow(
     (run) => run.variantId === TIME_SERIES_PRIOR_VARIANT_ID,
   );
   if (!prior) return null;
-  const latest = getLatestFinitePoint(getComparableHistoricalPoints(forecast));
+  const latest = prior.predictionRun.activityLog
+    ?.find((artifact) => artifact.artifactType === "baseline_inputs")
+    ?.observationRefs?.at(-1);
   if (!latest) return null;
 
   return buildPriorAdjustmentRowFromRun({ forecast, prior, latest });
@@ -213,7 +277,7 @@ function buildPriorAdjustmentRowFromRun({
 }: {
   forecast: ForecastCell;
   prior: ForecastComparisonRun | ForecastRunEntry;
-  latest: HistoricalPoint;
+  latest: LedgerObservationReference;
 }): TimeSeriesPriorAdjustmentRow {
   const adjustment = roundComparable(
     forecast.pointEstimate - prior.pointEstimate,
@@ -233,10 +297,11 @@ function buildPriorAdjustmentRowFromRun({
     unit: forecast.unit,
     priorLabel: prior.label,
     priorModel: prior.predictionRun?.model ?? "persistence.last_print",
-    historyPoints: forecast.historicalContext.filter((point) =>
-      Number.isFinite(point.value),
-    ).length,
-    latestHistoricalLabel: latest.label,
+    historyPoints:
+      prior.predictionRun?.activityLog?.find(
+        (artifact) => artifact.artifactType === "baseline_inputs",
+      )?.observationRefs?.length ?? 0,
+    latestHistoricalLabel: latest.periodLabel,
     latestHistoricalValue: latest.value,
     priorPointEstimate: prior.pointEstimate,
     priorCiLow: prior.ciLow,
@@ -255,36 +320,31 @@ function buildPriorAdjustmentRowFromRun({
 
 function buildLastPrintPriorInterval(
   forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[],
+  cutoff: string,
 ): PriorInterval | null {
-  const history = getComparableHistoricalPoints(forecast);
+  const history = ledgerHistoryAtCutoff(forecast, ledger, cutoff);
+  if (history.length < 2) return null;
   const latest = history.at(-1);
   if (!latest) return null;
 
-  const increment = inferIncrement(forecast, history);
-  const pointEstimate = roundToIncrement(latest.value, increment);
-  const diffs = buildStepChanges(history);
-  const fallbackHalfWidth = getFallbackHalfWidth({
-    pointEstimate,
-    unit: forecast.unit,
-    increment,
-  });
-  const halfWidth =
-    diffs.length > 0
-      ? Math.max(quantile(diffs.map((diff) => Math.abs(diff)), 0.8), increment)
-      : fallbackHalfWidth;
-  const intervalMethod =
-    diffs.length > 0 ? "historical_step_change" : "fallback_fraction";
-  const rawLow = pointEstimate - Math.max(halfWidth, fallbackHalfWidth);
-  const rawHigh = pointEstimate + Math.max(halfWidth, fallbackHalfWidth);
+  const observations = history.map(toObservationReference);
+  const pointEstimate = latest.value;
+  const diffs = buildStepChanges(observations);
+  const halfWidth = quantile(
+    diffs.map((diff) => Math.abs(diff)),
+    0.8,
+  );
 
   return {
     pointEstimate,
-    ciLow: roundToIncrement(rawLow, increment),
-    ciHigh: roundToIncrement(rawHigh, increment),
-    increment,
+    ciLow: roundComparable(pointEstimate - halfWidth),
+    ciHigh: roundComparable(pointEstimate + halfWidth),
     historyPoints: history.length,
-    latest,
-    intervalMethod,
+    latest: toObservationReference(latest),
+    observations,
+    seriesId: ledgerSeriesId(latest),
+    intervalMethod: "ledger_realized_step_change_p80",
   };
 }
 
@@ -303,7 +363,7 @@ function buildPriorReasoning(forecast: ForecastCell, prior: PriorInterval) {
       kind: "tool" as const,
       tool: "brier.timeseries.prior",
       call: `brier.timeseries.prior({ target: "${forecast.dataPointId ?? forecast.slug}", model: "persistence.last_print" })`,
-      result: `latest=${formattedLatest} (${prior.latest.label}); history_points=${prior.historyPoints}; interval_method=${prior.intervalMethod}`,
+      result: `latest=${formattedLatest} (${prior.latest.periodLabel}); history_points=${prior.historyPoints}; interval_method=${prior.intervalMethod}; ledger_refs=${prior.observations.map((observation) => observation.dataPointId).join(",")}`,
     },
     {
       kind: "math" as const,
@@ -322,22 +382,7 @@ function buildPriorReasoning(forecast: ForecastCell, prior: PriorInterval) {
   ];
 }
 
-function getComparableHistoricalPoints(forecast: ForecastCell) {
-  return forecast.historicalContext.filter(
-    (point) =>
-      Number.isFinite(point.value) && !isNonTargetContextLabel(point.label),
-  );
-}
-
-function getLatestFinitePoint(history: HistoricalPoint[]) {
-  return history.at(-1);
-}
-
-function isNonTargetContextLabel(label: string) {
-  return /\b(implied|probability|odds)\b|p\(/i.test(label);
-}
-
-function buildStepChanges(history: HistoricalPoint[]) {
+function buildStepChanges(history: LedgerObservationReference[]) {
   const diffs: number[] = [];
   for (let index = 1; index < history.length; index += 1) {
     diffs.push(history[index].value - history[index - 1].value);
@@ -345,77 +390,60 @@ function buildStepChanges(history: HistoricalPoint[]) {
   return diffs;
 }
 
-function getFallbackHalfWidth({
-  pointEstimate,
-  unit,
-  increment,
-}: {
-  pointEstimate: number;
-  unit: Unit;
-  increment: number;
-}) {
-  const rateByUnit: Record<Unit, number> = {
-    count: 0.05,
-    percent: 0.1,
-    gbp_billions: 0.08,
-    usd: 0.04,
-    usd_billions: 0.08,
-    usd_monthly: 0.05,
-    thousands: 0.05,
-    millions: 0.05,
-    per_1000_live_births: 0.05,
-    ratio: 0.05,
-    minutes: 0.05,
-    percent_growth: 0.5,
-    // Survey balances move in absolute points, not relative to the level
-    // (which sits near zero) — the increment floor below does the work.
-    index_points: 0.1,
-  };
-  return Math.max(Math.abs(pointEstimate) * rateByUnit[unit], increment);
-}
-
-function inferIncrement(forecast: ForecastCell, history: HistoricalPoint[]) {
-  const unit = forecast.unit;
-  if (unit === "percent" && isQuarterPointPercentSeries(forecast, history)) {
-    return 0.25;
-  }
-
-  const increments: Record<Unit, number> = {
-    count: 1,
-    percent: 0.1,
-    gbp_billions: 0.1,
-    usd: 100,
-    usd_billions: 0.1,
-    usd_monthly: 1,
-    thousands: 0.1,
-    millions: 0.01,
-    per_1000_live_births: 0.1,
-    ratio: 0.01,
-    minutes: 1,
-    percent_growth: 0.1,
-    index_points: 1,
-  };
-  return increments[unit];
-}
-
-function isQuarterPointPercentSeries(
+export function ledgerHistoryAtCutoff(
   forecast: ForecastCell,
-  history: HistoricalPoint[],
-) {
-  const values = [
-    forecast.pointEstimate,
-    forecast.ciLow,
-    forecast.ciHigh,
-    ...history.map((point) => point.value),
-  ].filter((value) => Number.isFinite(value));
-  if (values.length === 0 || Math.max(...values.map(Math.abs)) > 25) {
-    return false;
-  }
-  return values.every((value) => isNearInteger(value * 4));
+  ledger: PolicyEngineLedgerEntry[],
+  cutoff: string,
+): ObservationRecordedLedgerEntry[] {
+  if (!forecast.dataPointId) return [];
+  const targetSeriesId = ledgerSeriesId(forecast.dataPointId);
+  const cutoffTime = Date.parse(cutoff);
+  if (!Number.isFinite(cutoffTime)) return [];
+
+  const observations = ledger.filter(
+    (entry): entry is ObservationRecordedLedgerEntry =>
+      entry.kind === "observation_recorded" &&
+      entry.unit === forecast.unit &&
+      ledgerSeriesId(entry) === targetSeriesId &&
+      Date.parse(entry.observedAt) <= cutoffTime,
+  );
+  const byObservationId = new Map(
+    observations.map((observation) => [observation.observationId, observation]),
+  );
+  return [...byObservationId.values()].sort((left, right) => {
+    const timeDelta =
+      Date.parse(left.observedAt) - Date.parse(right.observedAt);
+    return timeDelta || left.observationId.localeCompare(right.observationId);
+  });
 }
 
-function isNearInteger(value: number) {
-  return Math.abs(value - Math.round(value)) < 1e-9;
+export function ledgerSeriesId(
+  observation: ObservationRecordedLedgerEntry | string,
+): string {
+  const dataPointId =
+    typeof observation === "string" ? observation : observation.dataPointId;
+  return dataPointId
+    .replace(
+      /\.(?:(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)_\d{4}|fy\d{4}|q[1-4]_?\d{4}|week(?:_ending)?_\d{4}(?:[-_]\d{2}){2}|\d{4}[-_]\d{2}(?:[-_]\d{2})?|\d{4})(?=\.|$)/i,
+      "",
+    )
+    .replace(
+      /\.(?:first_print|final_first_print|official_release|original_submission|advance|final)$/,
+      "",
+    );
+}
+
+function toObservationReference(
+  observation: ObservationRecordedLedgerEntry,
+): LedgerObservationReference {
+  return {
+    observationId: observation.observationId,
+    dataPointId: observation.dataPointId,
+    periodLabel: observation.periodLabel,
+    observedAt: observation.observedAt,
+    value: observation.value,
+    unit: observation.unit,
+  };
 }
 
 function classifyDirection(
@@ -472,8 +500,11 @@ function formatCompact(value: number, unit: Unit) {
 
 export function buildPriorDistributionForTest(
   forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[] = [],
 ): PredictionDistribution | null {
-  const prior = buildLastPrintPriorInterval(forecast);
+  const cutoff = forecast.predictionRun?.runAt;
+  if (!cutoff) return null;
+  const prior = buildLastPrintPriorInterval(forecast, ledger, cutoff);
   if (!prior) return null;
   return buildNumericCdfFromInterval({
     pointEstimate: prior.pointEstimate,
