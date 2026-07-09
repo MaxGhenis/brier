@@ -305,7 +305,9 @@ describe("Next.js migration", () => {
       const payrollLinks = screen.getAllByRole("link", {
         name: "Nonfarm payrolls, May 2026",
       });
-      expect(payrollLinks.length).toBeGreaterThanOrEqual(2);
+      // The May payrolls score is legacy (seeded run time), so it appears
+      // in resolutions but no longer in the chronology-verified scores table.
+      expect(payrollLinks.length).toBeGreaterThanOrEqual(1);
       for (const link of payrollLinks) {
         expect(link).toHaveAttribute("href", "/nonfarm-payrolls-may-2026");
       }
@@ -357,7 +359,13 @@ describe("Next.js migration", () => {
       expect(body.resolutionEvents[0].resolutionEventId).toMatch(
         /^resolution_event\./,
       );
-      expect(body.scores.length).toBe(body.counts.scored);
+      // All scores ship (with chronology flags); the headline count is the
+      // verified subset.
+      expect(body.scores.length).toBe(
+        body.counts.scored +
+          body.counts.scoredUnverifiedChronology +
+          body.counts.scoredViolatedChronology,
+      );
       expect(body.specs[0].schemaVersion).toBe("thesis_prediction_spec_v1");
       expect(body.specs[0].specId).toMatch(/^spec\./);
       expect(body.specs[0].specVersionId).toMatch(/^spec\..+\.v20260609$/);

@@ -336,7 +336,7 @@ export interface ScoreProjection {
   scoreId: string;
   runId: string;
   resolutionEventId: string;
-  scoringRule: "numeric_cdf_crps_v1";
+  scoringRule: "numeric_cdf_crps_v2_target_scale";
   crps: number;
   normalizedScore: number;
   normalizedCrps: number;

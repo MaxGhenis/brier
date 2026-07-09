@@ -147,7 +147,10 @@ export interface PredictionSpecExport {
 }
 
 const SPEC_VERSION = "2026-06-09";
-const SEEDED_RUN_RECORDED_AT = "2026-06-08T00:00:00+02:00";
+// Legacy placeholder stamped on early runs that never recorded a real run
+// time. Chronology gating treats any run carrying this value (or no run
+// time at all) as unverifiable — it can never enter the headline score.
+export const SEEDED_RUN_RECORDED_AT = "2026-06-08T00:00:00+02:00";
 
 const SYSTEM_TOOLS = [
   "distribution.validate",

@@ -43,7 +43,9 @@ export default async function StrategyLabPage() {
   const forecasts = withResolvedOutcomes(FORECAST_CELLS, ledger);
   const report = buildStrategyLabReport(forecasts);
   const priorReport = buildTimeSeriesPriorAdjustmentReport(forecasts);
-  const scores = scoreResolvedForecasts(forecasts, ledger);
+  const scores = scoreResolvedForecasts(forecasts, ledger).filter(
+    (score) => score.chronology === "verified",
+  );
   const judgeReport = buildForecastJudgeExport({ forecasts, scores });
   const family = report.families[0];
   const persistence = report.summaries.find(

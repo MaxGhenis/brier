@@ -2007,7 +2007,17 @@ def main() -> int:
     if args.conditional:
         for cell in normalized_cells:
             cell["type"] = "conditional"
-        normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
+    # The published runAt is the harness's own start time, never the
+    # agent's claim: chronology gating scores only runs whose recorded
+    # time provably precedes the observation, so the timestamp must come
+    # from the recorder, not the recorded. The agent's value is kept for
+    # transparency when it disagrees.
+    for cell in normalized_cells:
+        agent_run_at = cell.get("runAt")
+        if agent_run_at and agent_run_at != run_at:
+            cell["agentReportedRunAt"] = agent_run_at
+        cell["runAt"] = run_at
+    normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
         {
             "artifactType": "normalized_cell",
