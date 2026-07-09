@@ -6,25 +6,55 @@ Usage:
   python3 scripts/spawned_cells_to_ts.py OUT_TS CONST_NAME IN1.json [IN2.json ...]
 """
 
+import argparse
 import json
 import pathlib
 import re
 import sys
 from datetime import datetime, timezone
 
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+CUSTODY_ENFORCEMENT_DATE = "2026-07-10"
+
 ALLOWED_UNITS = {
-    "count", "percent", "gbp_billions", "usd", "usd_billions", "usd_monthly",
-    "thousands", "millions", "per_1000_live_births", "ratio", "minutes",
-    "percent_growth", "index_points",
+    "count",
+    "percent",
+    "gbp_billions",
+    "usd",
+    "usd_billions",
+    "usd_monthly",
+    "thousands",
+    "millions",
+    "per_1000_live_births",
+    "ratio",
+    "minutes",
+    "percent_growth",
+    "index_points",
 }
 ALLOWED_COUNTRIES = {"US", "UK", "CA", "AU", "EA", "JP", "BE"}
 ALLOWED_TYPES = {"data", "policy", "conditional"}
 SLUG_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 REQUIRED = [
-    "slug", "country", "type", "title", "question", "unit", "pointEstimate",
-    "ciLow", "ciHigh", "confidence", "resolutionDate", "resolutionSource",
-    "resolutionSourceUrl", "resolutionRule", "dataPointId",
-    "historicalContext", "drivers", "sourceContext", "runAt", "reasoning",
+    "slug",
+    "country",
+    "type",
+    "title",
+    "question",
+    "unit",
+    "pointEstimate",
+    "ciLow",
+    "ciHigh",
+    "confidence",
+    "resolutionDate",
+    "resolutionSource",
+    "resolutionSourceUrl",
+    "resolutionRule",
+    "dataPointId",
+    "historicalContext",
+    "drivers",
+    "sourceContext",
+    "runAt",
+    "reasoning",
 ]
 PRIVATE_SOURCE_RE = re.compile(
     r"(?i)(granola|\btranscripts?\b|meeting notes?|meeting with max|"
@@ -78,8 +108,10 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
         errs.append(f"type {cell['type']!r} not allowed")
     # Discrete-outcome cells (e.g. policy-rate decisions) may legitimately put
     # the modal point at an interval edge; the interval itself must be real.
-    if not (cell["ciLow"] <= cell["pointEstimate"] <= cell["ciHigh"]
-            and cell["ciLow"] < cell["ciHigh"]):
+    if not (
+        cell["ciLow"] <= cell["pointEstimate"] <= cell["ciHigh"]
+        and cell["ciLow"] < cell["ciHigh"]
+    ):
         errs.append("CI does not bracket point estimate")
     if cell["confidence"] != 0.8:
         errs.append("confidence must be 0.8")
@@ -120,8 +152,7 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     private_hits = private_source_hits(cell)
     if private_hits:
         errs.append(
-            "private-source provenance is not allowed in "
-            + ", ".join(private_hits)
+            "private-source provenance is not allowed in " + ", ".join(private_hits)
         )
 
     steps = cell["reasoning"]
@@ -164,8 +195,7 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     # cells that validated here but failed there have shipped-then-bounced.
     # Keep these three regexes byte-identical to the test.
     trace_text = " ".join(
-        s.get("text") or f"{s.get('call', '')} {s.get('result', '')}"
-        for s in steps
+        s.get("text") or f"{s.get('call', '')} {s.get('result', '')}" for s in steps
     ).lower()
     base_rate_re = (
         r"base rate|reference class|last \d+ (prints|releases|months|meetings|"
@@ -195,7 +225,9 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     if last.get("kind") != "forecast":
         errs.append("last step is not the forecast")
     elif (last.get("point"), last.get("ciLow"), last.get("ciHigh")) != (
-        cell["pointEstimate"], cell["ciLow"], cell["ciHigh"],
+        cell["pointEstimate"],
+        cell["ciLow"],
+        cell["ciHigh"],
     ):
         errs.append("forecast step numbers do not match cell numbers")
     return errs
@@ -216,12 +248,27 @@ def agent_stamp() -> dict:
 
 
 def to_forecast_cell(cell: dict) -> dict:
-    out = {k: cell[k] for k in (
-        "slug", "country", "type", "title", "question", "unit",
-        "pointEstimate", "ciLow", "ciHigh", "confidence", "resolutionDate",
-        "resolutionSource", "resolutionSourceUrl", "resolutionRule",
-        "historicalContext", "drivers",
-    )}
+    out = {
+        k: cell[k]
+        for k in (
+            "slug",
+            "country",
+            "type",
+            "title",
+            "question",
+            "unit",
+            "pointEstimate",
+            "ciLow",
+            "ciHigh",
+            "confidence",
+            "resolutionDate",
+            "resolutionSource",
+            "resolutionSourceUrl",
+            "resolutionRule",
+            "historicalContext",
+            "drivers",
+        )
+    }
     if cell.get("dataPointId"):
         out["dataPointId"] = cell["dataPointId"]
     if cell.get("conditionalOn"):
@@ -241,20 +288,69 @@ def to_forecast_cell(cell: dict) -> dict:
     }
     if cell.get("activityLog"):
         out["predictionRun"]["activityLog"] = cell["activityLog"]
+    if cell.get("custodyRootSha256"):
+        out["predictionRun"]["custodyRootSha256"] = cell["custodyRootSha256"]
     if cell.get("preSubmitReview"):
         out["predictionRun"]["preSubmitReview"] = cell["preSubmitReview"]
     out["reasoning"] = cell["reasoning"]
     return out
 
 
+def load_cells(path: pathlib.Path) -> list[dict]:
+    cells = json.loads(path.read_text())
+    if not isinstance(cells, list):
+        raise ValueError(f"cell input must be a JSON list: {path}")
+    manifest_path = path.parent / "manifest.json"
+    custody_path = path.parent / "custody_root.json"
+    if custody_path.exists():
+        from verify_custody import verify_run
+
+        verify_run(path.parent)
+        manifest = json.loads(manifest_path.read_text())
+        declared = pathlib.Path(manifest["cellsPath"])
+        if not declared.is_absolute():
+            declared = ROOT / declared
+        if declared.resolve() != path.resolve():
+            raise ValueError(
+                "manifest cellsPath does not name converter input: "
+                f"{declared} != {path}"
+            )
+        for cell in cells:
+            cell["custodyRootSha256"] = manifest["custodyRootSha256"]
+    elif any(
+        str(cell.get("runAt", ""))[:10] >= CUSTODY_ENFORCEMENT_DATE for cell in cells
+    ):
+        raise ValueError(
+            f"run on/after {CUSTODY_ENFORCEMENT_DATE} lacks custody_root.json: {path}"
+        )
+    return cells
+
+
+def repo_path(path: pathlib.Path) -> str:
+    try:
+        return str(path.resolve().relative_to(ROOT))
+    except ValueError:
+        return str(path)
+
+
 def main() -> int:
-    out_ts, const_name, *inputs = sys.argv[1:]
-    site_data = pathlib.Path(__file__).resolve().parents[1] / "site/src/data"
-    taken = existing_slugs(site_data, pathlib.Path(out_ts))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("out_ts")
+    parser.add_argument("const_name")
+    parser.add_argument("inputs", nargs="+")
+    parser.add_argument("--batch-manifest", action="append", default=[])
+    parser.add_argument("--replace-module")
+    args = parser.parse_args()
+    out_ts = args.out_ts
+    const_name = args.const_name
+    inputs = args.inputs
+    site_data = ROOT / "site/src/data"
+    collision_exclusion = pathlib.Path(args.replace_module or out_ts)
+    taken = existing_slugs(site_data, collision_exclusion)
     cells, failed = [], []
     seen = set()
     for path in inputs:
-        for cell in json.load(open(path)):
+        for cell in load_cells(pathlib.Path(path)):
             errs = validate(cell, taken | seen)
             if errs:
                 failed.append((cell.get("slug", "?"), errs))
@@ -267,11 +363,16 @@ def main() -> int:
         "  " + json.dumps(c, indent=2, ensure_ascii=False).replace("\n", "\n  ")
         for c in cells
     )
+    provenance = ""
+    if args.batch_manifest:
+        batch_paths = [repo_path(pathlib.Path(path)) for path in args.batch_manifest]
+        provenance = f"// Batch manifests: {json.dumps(batch_paths)}\n"
     header = (
         "// Generated by scripts/spawned_cells_to_ts.py from recorded\n"
         "// thesis.analyst agent runs. Every tool-step result was fetched from\n"
         "// the named source at predictionRun.runAt; regenerate, don't hand-edit.\n"
-        'import type { ForecastCell } from "../forecast-cells";\n\n'
+        + provenance
+        + 'import type { ForecastCell } from "../forecast-cells";\n\n'
         f"export const {const_name}: ForecastCell[] = [\n{body},\n];\n"
     )
     pathlib.Path(out_ts).write_text(header)

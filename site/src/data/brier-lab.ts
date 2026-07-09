@@ -76,6 +76,7 @@ export interface BrierRewardRow {
     scoreId?: string;
     resolutionEventId?: string;
     ledgerFactRef?: string;
+    custodyRootSha256?: string;
     activityArtifactCount: number;
   };
 }
@@ -313,6 +314,7 @@ function buildRewardRow({
       scoreId: score?.scoreId,
       resolutionEventId: score?.resolutionEventId,
       ledgerFactRef: score?.ledgerFactRef,
+      custodyRootSha256: run.predictionRun?.custodyRootSha256,
       activityArtifactCount: run.predictionRun?.activityLog?.length ?? 0,
     },
   };

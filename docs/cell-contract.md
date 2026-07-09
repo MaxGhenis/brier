@@ -33,7 +33,7 @@ later scoring and Brier training.
   "runAt": "real `date -u +%Y-%m-%dT%H:%M:%SZ` at generation",
   "activityLog": [
     {
-      "artifactType": "prompt|command|stdout|stderr|codex_stdout_jsonl|codex_stderr_log|codex_events_jsonl|codex_last_message|codex_trace|draft_forecast|review_prompt|pre_submit_review|review_disposition|revision_prompt|raw_response|parsed_cell|normalized_cell|run_distribution|validation_report|model_candidates|manifest",
+      "artifactType": "prompt|command|stdout|stderr|codex_stdout_jsonl|codex_stderr_log|codex_events_jsonl|codex_last_message|codex_trace|draft_forecast|review_prompt|pre_submit_review|review_disposition|revision_prompt|raw_response|parsed_cell|normalized_cell|run_distribution|cells_with_activity|validation_report|model_candidates|manifest",
       "path": "records/thesis-analyst/...",
       "sha256": "hex",
       "bytes": 0,
@@ -79,6 +79,10 @@ version from agent.yaml. The recorded model is the actual runtime model when
 the command names one with `-m`, `--model`, or `--model=...`; otherwise it
 falls back to the agent.yaml default. Bump the version when any agent file
 changes.
+
+New runs also stamp `predictionRun.custodyRootSha256`. The converter verifies
+the sibling `custody_root.json` before carrying that root into the catalog,
+Thesis Log, and Brier reward provenance.
 
 `sourceContext`, reasoning, drivers, tool calls, and activity summaries must
 not cite or rely on private meeting notes, call transcripts, email/chat

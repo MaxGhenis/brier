@@ -61,28 +61,42 @@ def main() -> int:
     run_files = sorted(set(winners.values()))
 
     subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "spawned_cells_to_ts.py"),
-         str(module), const, *run_files],
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "spawned_cells_to_ts.py"),
+            str(module),
+            const,
+            *run_files,
+            *sum((["--batch-manifest", path] for path in args.batch), start=[]),
+        ],
         check=True,
     )
     subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "generate_ledger_targets.py"),
-         *run_files],
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "generate_ledger_targets.py"),
+            *run_files,
+        ],
         check=True,
     )
 
     source = CELLS_TS.read_text()
-    import_line = (
-        f'import {{ {const} }} from "./forecast-examples/{args.name}";'
-    )
+    import_line = f'import {{ {const} }} from "./forecast-examples/{args.name}";'
     if import_line not in source:
-        anchor = re.search(r'^import \{ [A-Z0-9_]+ \} from "\./forecast-examples/[^"]+";$',
-                           source, re.MULTILINE)
+        anchor = re.search(
+            r'^import \{ [A-Z0-9_]+ \} from "\./forecast-examples/[^"]+";$',
+            source,
+            re.MULTILINE,
+        )
         assert anchor, "no forecast-examples import anchor found"
-        source = source.replace(anchor.group(0), anchor.group(0) + "\n" + import_line, 1)
+        source = source.replace(
+            anchor.group(0), anchor.group(0) + "\n" + import_line, 1
+        )
         spread = re.search(r"^  \.\.\.[A-Z0-9_]+,$", source, re.MULTILINE)
         assert spread, "no wave spread anchor found"
-        source = source.replace(spread.group(0), spread.group(0) + f"\n  ...{const},", 1)
+        source = source.replace(
+            spread.group(0), spread.group(0) + f"\n  ...{const},", 1
+        )
         CELLS_TS.write_text(source)
         print(f"registered {const} in forecast-cells.ts")
     print(f"published {len(winners)} cells -> {module.relative_to(ROOT)}")

@@ -137,6 +137,7 @@ export type PredictionRunActivityArtifactType =
   | "parsed_cell"
   | "normalized_cell"
   | "run_distribution"
+  | "cells_with_activity"
   | "validation_report"
   | "model_candidates"
   | "manifest"
@@ -219,6 +220,7 @@ export interface PredictionRunMetadata {
   agentVersion?: string;
   promptHash?: string;
   toolPolicyHash?: string;
+  custodyRootSha256?: string;
   promptMode?: string;
   activityLog?: PredictionRunActivityArtifact[];
   preSubmitReview?: PredictionPreSubmitReviewWorkflow;

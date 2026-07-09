@@ -1,9 +1,8 @@
 name: Record forecasts
 
-# Daily timestamped snapshot of every published forecast surface, committed to
-# git. Until the ledger database is live, the commit chain IS the proof that a
-# prediction existed before its resolution date — recordedAt claims inside the
-# app data are only as credible as this externally-timestamped record.
+# Per-invocation immutable snapshot of every published forecast surface.  Each
+# digest links the immediately preceding invocation and receives an independent
+# RFC 3161 witness when the public TSA is available.
 
 on:
   schedule:
@@ -14,6 +13,8 @@ permissions:
   contents: write
   issues: write
 
+concurrency: record-forecasts
+
 jobs:
   record:
     runs-on: ubuntu-latest
@@ -21,76 +22,135 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: main
+          fetch-depth: 0
 
-      - name: Snapshot published forecast surfaces
+      - name: Fetch and attest published forecast surfaces
+        id: snapshot
         run: |
           set -euo pipefail
-          DAY=$(date -u +%F)
-          DIR="records/$DAY"
-          mkdir -p "$DIR/live"
-          # The full published JSON regenerates deterministically from this
-          # repo, so the daily record stores their sha256 (binding what the
-          # PUBLIC site served to an external timestamp) plus a compact digest —
-          # not the multi-MB bodies.
-          # Surfaces must match what the deployed app serves; /specs.json was
-          # retired 2026-06-30 for /targets.json (target architecture), which
-          # broke this job for two days — see records/2026-06-30/GAP.md.
+          RUN_ID="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          RECORDED_AT=$(date -u +%FT%TZ)
+          SOURCE_DIR="/tmp/thesis-record-$RUN_ID"
+          mkdir -p "$SOURCE_DIR/live"
           declare -A SURFACES=(
             [log]="log.json"
             [ledger]="ledger.json"
             [targets]="targets.json"
             [reward]="brier/reward.json"
+            [build]="build.json"
           )
           for f in "${!SURFACES[@]}"; do
-            curl -sSf -m 60 "https://app.thesisinstitute.org/${SURFACES[$f]}" -o "/tmp/$f.json"
-            python3 -m json.tool "/tmp/$f.json" > /dev/null
+            curl -sSf -m 90 "https://app.thesisinstitute.org/${SURFACES[$f]}" \
+              -o "$SOURCE_DIR/$f.json"
+            python3 -m json.tool "$SOURCE_DIR/$f.json" > /dev/null
           done
-          python3 - "$DIR" <<'PY'
-          import hashlib, json, re, sys
-          from pathlib import Path
-          outdir = sys.argv[1]
-          digest = {}
-          # Chain this digest to the most recent prior day's, so the record
-          # is a verifiable hash chain, not independent snapshots — see
-          # scripts/verify_record_chain.py.
-          prior = sorted(
-              p for p in Path("records").iterdir()
-              if p.is_dir() and re.fullmatch(r"\d{4}-\d{2}-\d{2}", p.name)
-              and p.name < Path(outdir).name and (p / "digest.json").exists()
-          )
-          if prior:
-              prev = prior[-1] / "digest.json"
-              digest["chain"] = {
-                  "prevDay": prior[-1].name,
-                  "prevDigestSha256": hashlib.sha256(prev.read_bytes()).hexdigest(),
-              }
-          for name in ("log", "ledger", "targets", "reward"):
-              raw = open(f"/tmp/{name}.json", "rb").read()
-              digest[name] = {
-                  "sha256": hashlib.sha256(raw).hexdigest(),
-                  "bytes": len(raw),
-              }
-          log = json.load(open("/tmp/log.json"))
-          entries = log.get("entries", [])
-          recorded = [e for e in entries if e.get("kind") == "prediction_recorded"]
-          resolved = [e for e in entries if e.get("kind") == "prediction_resolved"]
-          digest["counts"] = {"recorded": len(recorded), "resolved": len(resolved)}
-          digest["predictions"] = [
-              {k: e.get(k) for k in ("forecastSlug", "pointEstimate", "interval80",
-                                      "resolutionDate", "recordedAt")}
-              for e in recorded
-          ]
-          digest["resolutions"] = resolved
-          json.dump(digest, open(f"{outdir}/digest.json", "w"), indent=1, sort_keys=True)
-          PY
+
+          ATTESTED_SHA=$(git rev-parse HEAD)
+          BUILD_SHA=$(python3 -c \
+            'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' \
+            "$SOURCE_DIR/build.json")
+          if ! [[ "$BUILD_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "build canary returned a non-commit value: $BUILD_SHA" >&2
+            exit 1
+          fi
+          git fetch --no-tags origin "$BUILD_SHA"
+          if ! git merge-base --is-ancestor "$BUILD_SHA" "$ATTESTED_SHA"; then
+            echo "refusing to record: deployed $BUILD_SHA is not an ancestor-or-equal of attested $ATTESTED_SHA" >&2
+            exit 1
+          fi
+
+          curl -sSf -m 90 \
+            "https://api.github.com/repos/PolicyEngine/arch-data/commits/codex/thesis-ledger-facts" \
+            -o "$SOURCE_DIR/ledger-commit.json"
+          python3 -m json.tool "$SOURCE_DIR/ledger-commit.json" > /dev/null
+          LEDGER_SHA=$(python3 -c \
+            'import json,sys; print(json.load(open(sys.argv[1]))["sha"])' \
+            "$SOURCE_DIR/ledger-commit.json")
+          if ! [[ "$LEDGER_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "ledger API returned a non-commit value: $LEDGER_SHA" >&2
+            exit 1
+          fi
+
           # Capture each live cell's streamed forecast event (full distribution).
           for slug in spm-child-poverty-2025 cpi-u-annual-2026 ctc-expansion-cost-ty2026 ctc-current-law-outlays-ty2026; do
             curl -sS -m 90 -N "https://api.thesisinstitute.org/forecasts/$slug/stream" \
               | awk '/^event: forecast$/{f=1;next} f&&/^data: /{print substr($0,7); exit}' \
-              > "$DIR/live/$slug.json" || true
-            [ -s "$DIR/live/$slug.json" ] || echo '{"error":"no forecast event captured"}' > "$DIR/live/$slug.json"
+              > "$SOURCE_DIR/live/$slug.json" || true
+            [ -s "$SOURCE_DIR/live/$slug.json" ] || \
+              echo '{"error":"no forecast event captured"}' > "$SOURCE_DIR/live/$slug.json"
+            python3 -m json.tool "$SOURCE_DIR/live/$slug.json" > /dev/null
           done
-          echo "{\"snapshotAt\": \"$(date -u +%FT%TZ)\"}" > "$DIR/meta.json"
+
+          DIGEST=$(python3 scripts/record_forecast_snapshot.py \
+            --records records \
+            --source-dir "$SOURCE_DIR" \
+            --run-id "$RUN_ID" \
+            --recorded-at "$RECORDED_AT" \
+            --repo-sha "$ATTESTED_SHA" \
+            --ledger-sha "$LEDGER_SHA")
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Obtain independent RFC 3161 witness
+        run: |
+          set -euo pipefail
+          DIGEST="${{ steps.snapshot.outputs.digest }}"
+          TOKEN="${DIGEST%.json}.tsr"
+          WITNESS="${DIGEST%.json}.witness.json"
+          TSA_CA="${DIGEST%.json}.tsa-ca.pem"
+          TSA_CERT="${DIGEST%.json}.tsa.crt"
+          QUERY=$(mktemp)
+          openssl ts -query -data "$DIGEST" -sha256 -cert -out "$QUERY"
+          if curl -sSf -m 45 \
+              -H "Content-Type: application/timestamp-query" \
+              --data-binary "@$QUERY" https://freetsa.org/tsr -o "$TOKEN" \
+              && curl -sSf -m 45 https://freetsa.org/files/cacert.pem -o "$TSA_CA" \
+              && curl -sSf -m 45 https://freetsa.org/files/tsa.crt -o "$TSA_CERT" \
+              && openssl ts -verify -queryfile "$QUERY" -in "$TOKEN" \
+                   -CAfile "$TSA_CA" -untrusted "$TSA_CERT"; then
+            STATUS=available
+            REASON=""
+          else
+            rm -f "$TOKEN" "$TSA_CA" "$TSA_CERT"
+            STATUS=unavailable
+            REASON="FreeTSA request, certificate fetch, or RFC 3161 verification failed"
+          fi
+          python3 - "$DIGEST" "$TOKEN" "$WITNESS" "$TSA_CA" "$TSA_CERT" "$STATUS" "$REASON" <<'PY'
+          import hashlib, json, pathlib, sys
+          digest = pathlib.Path(sys.argv[1])
+          token = pathlib.Path(sys.argv[2])
+          witness = pathlib.Path(sys.argv[3])
+          tsa_ca = pathlib.Path(sys.argv[4])
+          tsa_cert = pathlib.Path(sys.argv[5])
+          status = sys.argv[6]
+          reason = sys.argv[7]
+          payload = {
+              "schemaVersion": "thesis_rfc3161_witness_v1",
+              "status": status,
+              "digestSha256": hashlib.sha256(digest.read_bytes()).hexdigest(),
+              "tsa": "https://freetsa.org/tsr",
+          }
+          if status == "available":
+              payload["tokenPath"] = str(token)
+              payload["tokenSha256"] = hashlib.sha256(token.read_bytes()).hexdigest()
+              payload["caCertificatePath"] = str(tsa_ca)
+              payload["caCertificateSha256"] = hashlib.sha256(tsa_ca.read_bytes()).hexdigest()
+              payload["tsaCertificatePath"] = str(tsa_cert)
+              payload["tsaCertificateSha256"] = hashlib.sha256(tsa_cert.read_bytes()).hexdigest()
+          else:
+              payload["reason"] = reason
+          witness.write_text(json.dumps(payload, indent=2) + "\n")
+          pathlib.Path("records/CHAIN_HEAD.json").write_text(
+              json.dumps(
+                  {
+                      "schemaVersion": "thesis_record_chain_head_v1",
+                      "snapshotPath": str(digest),
+                      "snapshotSha256": payload["digestSha256"],
+                  },
+                  indent=2,
+              )
+              + "\n"
+          )
+          PY
 
       - name: Verify record chain
         run: python3 scripts/verify_record_chain.py records
@@ -104,9 +164,8 @@ jobs:
           git commit -m "Record forecast surfaces $(date -u +%F) [skip ci]" || echo "nothing new to commit"
           git push origin main
 
-      # The record chain is the integrity proof; a silent failure is a hole in
-      # it (2026-06-30/07-01 went unrecorded for two days before anyone
-      # noticed). File an issue so a broken run surfaces the same day.
+      # A silent failure is a missing recorder invocation. File an issue so a
+      # broken scheduled run surfaces the same day.
       - name: Alert on failure
         if: failure()
         env:
@@ -117,5 +176,5 @@ jobs:
           existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
           if [ -z "$existing" ]; then
             gh issue create --title "$title" \
-              --body "The daily forecast-surface recorder failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Every unrecorded day is a gap in the pre-registration chain — fix the same day if possible."
+              --body "The forecast-surface recorder failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. No immutable snapshot was added for this invocation; fix it promptly."
           fi

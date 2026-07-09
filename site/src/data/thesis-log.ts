@@ -96,6 +96,7 @@ export interface PredictionRecordedLogEntry {
   packSet?: PredictionPackSet;
   preSubmitReview?: PredictionPreSubmitReviewWorkflow;
   activityLog?: PredictionRunActivityArtifact[];
+  custodyRootSha256?: string;
 }
 
 export interface PredictionResolvedLogEntry {
@@ -658,6 +659,7 @@ export function buildPredictionRecordedLogEntries(
           packSet: run.packSet,
           preSubmitReview: run.predictionRun?.preSubmitReview,
           activityLog: run.predictionRun?.activityLog,
+          custodyRootSha256: run.predictionRun?.custodyRootSha256,
         },
       ];
     });

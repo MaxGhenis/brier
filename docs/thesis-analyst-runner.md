@@ -158,6 +158,7 @@ Every run writes a directory under `records/thesis-analyst/YYYY-MM-DD/` with:
 - model-candidate JSON from `scripts/run_time_series_models.py` when a
   repeated numeric series preflight is run
 - `cells.with_activity.json`
+- `custody_root.json`
 - `manifest.json`
 
 `cells.with_activity.json` carries `activityLog` refs for the prompt, raw
@@ -165,6 +166,13 @@ response, parsed/normalized cells, materialized run distribution, and
 validation report. When that file is
 converted with `scripts/spawned_cells_to_ts.py`, the refs land in
 `predictionRun.activityLog`, then in Thesis Log run records and `/log.json`.
+
+`custody_root.json` is written after all activity artifacts. It contains both
+raw-byte and canonical-JSON SHA-256 commitments, including a commitment to the
+manifest before its root reference. The runner then performs the only final
+manifest write, adding `custodyRootSha256`. Verify a run before promotion with
+`python3 scripts/verify_custody.py <run-dir>`; custody-era converter inputs are
+rejected if this verification fails.
 
 ## Convert to a generated catalog module
 
