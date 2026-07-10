@@ -95,6 +95,12 @@ export const MODEL_LANE_STATS: ModelLaneStat[] = [
   },
   {
     "model": "gpt-5.6-terra",
+    "lane": "ladder_v2",
+    "attempted": 6,
+    "passed": 6
+  },
+  {
+    "model": "gpt-5.6-terra",
     "lane": "median3",
     "attempted": 6,
     "passed": 6

@@ -1,0 +1,128 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US disposable personal income, June 2026",
+    "question": "BEA disposable personal income (DSPI / NIPA account A067RC), June 2026, seasonally adjusted annual rate in current dollars, first print",
+    "unit": "usd_billions",
+    "pointEstimate": 23770,
+    "ciLow": 23695,
+    "ciHigh": 23850,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "March 2026 DSPI, current released vintage",
+        "value": 23506.7
+      },
+      {
+        "label": "April 2026 DSPI, current released vintage",
+        "value": 23486.8
+      },
+      {
+        "label": "May 2026 DSPI, current released vintage",
+        "value": 23651.7
+      }
+    ],
+    "drivers": [
+      "May DPI rebound after April decline",
+      "Compensation growth",
+      "Farm-proprietor payment volatility",
+      "Personal-current-tax timing"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-april-2026",
+      "https://www.bea.gov/news/schedule",
+      "https://fred.stlouisfed.org/series/DSPI"
+    ],
+    "runAt": "2026-07-10T22:00:56Z",
+    "thresholdLadder": {
+      "thresholds": [
+        23650,
+        23675,
+        23695,
+        23720,
+        23745,
+        23770,
+        23795,
+        23820,
+        23850,
+        23875,
+        23900
+      ],
+      "cumulativeProbabilities": [
+        0.03,
+        0.06,
+        0.1,
+        0.2,
+        0.34,
+        0.5,
+        0.65,
+        0.77,
+        0.9,
+        0.95,
+        0.98
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 BEA disposable personal income first-print forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is current-dollar disposable personal income, BEA DSPI / NIPA account A067RC in Table 2.6: billions of dollars at a seasonally adjusted annual rate. This is the same nominal SAAR variant for every anchor; the retained ledger resolver uses the specified ALFRED DSPI first-print binding, while BEA is the underlying official producer."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA's official 2026 release schedule for the June Personal Income and Outlays release date.",
+        "result": "BEA schedules Personal Income and Outlays, June 2026 for July 30, 2026 at 8:30 a.m. EDT; the schedule also lists the May release on June 25, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the official BEA May 2026 Personal Income and Outlays release and the DSPI history mirror for the latest nominal level.",
+        "result": "BEA reported May DPI increased $164.9 billion, or 0.7 percent; the DSPI history series shows May 2026 at $23,651.7 billion SAAR. BEA also reported personal income increased $181.6 billion and PCE increased $156.1 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched official BEA April and March 2026 Personal Income and Outlays releases for the recent reference class.",
+        "result": "BEA reported April DPI decreased $19.9 billion (0.1 percent) and March DPI increased $142.5 billion (0.6 percent). Applying those released changes to the same current DSPI history gives April $23,486.8 billion and March $23,506.7 billion SAAR."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is the March-to-May nominal monthly DSPI changes of +$142.5 billion, -$19.9 billion, and +$164.9 billion. Their average is about +$95.8 billion and their realized range is $184.8 billion; this short, volatile reference class motivates scenario-based 10th\u201390th ladder width rather than treating a single recent gain as a stable trend."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: I use a persistence-plus-recent-change prior centered on the May level of $23,651.7 billion and the March-to-May monthly-change reference class, anchored by levels of $23,506.7, $23,486.8, and $23,651.7 billion. The roughly +$118 billion June update is a conservative extrapolation from that reference class, allowing ordinary compensation and nominal-income growth while discounting May's unusually large farm-income contribution; tax timing and transfer-income noise widen the scenario-based ladder interval."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= 23650) = 0.03; P(X <= 23675) = 0.06; P(X <= 23695) = 0.10; P(X <= 23720) = 0.20; P(X <= 23745) = 0.34; P(X <= 23770) = 0.50; P(X <= 23795) = 0.65; P(X <= 23820) = 0.77; P(X <= 23850) = 0.90; P(X <= 23875) = 0.95; P(X <= 23900) = 0.98. Linear interpolation gives 10th percentile at 23695, median at 23770, and 90th percentile at 23850."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is another large farm-proprietor payment or stronger-than-assumed compensation growth, which could lift DPI above $23,850 billion. Downside risk is payback after May's farm-income increase, weaker wages, or a larger tax increase; a material retrenchment would land below the interval. A policy or transfer-payment surprise is the principal outside the interval scenario."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the canonical ALFRED resolver wording, clarified the June update as a conservative March\u2013May extrapolation, and quantified the $184.8 billion realized monthly-change range as the scenario-width input; rejected no forecast-number changes because the ladder remains internally coherent."
+      },
+      {
+        "kind": "forecast",
+        "point": 23770,
+        "ciLow": 23695,
+        "ciHigh": 23850
+      }
+    ]
+  }
+]
