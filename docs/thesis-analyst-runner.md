@@ -192,6 +192,14 @@ manifest write, adding `custodyRootSha256`. Verify a run before promotion with
 `python3 scripts/verify_custody.py <run-dir>`; custody-era converter inputs are
 rejected if this verification fails.
 
+New roots use custody inventory v2. Successful analyst runs always preserve
+`command.json`, `stdout.txt`, and `stderr.txt`, including saved-response and
+mock modes. Codex stages always preserve all five Codex trace files, even when
+an individual stream is empty. The verifier rejects missing required files and
+any regular file in the run directory that is not referenced by the manifest.
+Roots without an inventory version remain verifiable only as
+`legacy-incomplete` records.
+
 ## Convert to a generated catalog module
 
 ```bash

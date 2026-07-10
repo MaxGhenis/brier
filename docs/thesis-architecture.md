@@ -456,10 +456,17 @@ without adding another URL to the fetch list.
 ### Forecast-record chain and independent witness
 
 `records/CHAIN_GENESIS.json` is the explicit integrity cutover. It names the
-first `digest-<runId>.json` snapshot and enumerates every earlier
-`digest.json` by path and SHA-256. No unlisted file is accepted as implicitly
-"pre-chain." `records/CHAIN_HEAD.json` commits the current tail so simply
-deleting the newest snapshot also fails local verification.
+first `digest-<runId>.json` snapshot and the canonical
+`records/GENESIS_RECORDS.json` enumeration. That enumeration fixes every file
+in the pre-chain Git tree by path, SHA-256, and size. A later chained bootstrap
+digest commits the enumeration, `CHAIN_GENESIS.json`, and the TSA trust-anchor
+bundle. The verifier independently code-pins the audited enumeration hash,
+cutoff commit, immutable trust-bundle hash, root SPKI, and signer SPKI. It also
+compares the enumeration to the cutoff Git tree when `.git` is available. No
+unlisted file is accepted as implicitly "pre-chain," and a second genesis
+cutover is invalid.
+`records/CHAIN_HEAD.json` commits the current tail so simply deleting the
+newest snapshot also fails local verification.
 
 Every recorder invocation creates a never-overwritten
 `records/<YYYY-MM-DD>/digest-<runId>.json`. Its `chain.prevDigestPath` and
@@ -475,8 +482,10 @@ the digest bytes. It stores `digest-<runId>.tsr` and a sibling witness JSON. A
 TSA outage never suppresses the record, but it must produce an explicit
 `status: unavailable` marker and reason.
 
-A third party can verify an available token with the CA and signer certificates
-archived beside it:
+A third party verifies an available token against the immutable, code-approved
+bundle `records/trust/tsa-anchors-v1.json` and its independently pinned CA,
+never against a CA supplied beside the token. The token sidecars remain
+archival evidence only:
 
 ```bash
 sha256sum records/YYYY-MM-DD/digest-RUN.json
@@ -484,14 +493,20 @@ openssl ts -reply -in records/YYYY-MM-DD/digest-RUN.tsr -text
 openssl ts -verify \
   -data records/YYYY-MM-DD/digest-RUN.json \
   -in records/YYYY-MM-DD/digest-RUN.tsr \
-  -CAfile records/YYYY-MM-DD/digest-RUN.tsa-ca.pem \
-  -untrusted records/YYYY-MM-DD/digest-RUN.tsa.crt
+  -CAfile records/trust/freetsa-root-2016.pem
 ```
 
 The first command's value must equal `digestSha256` in the witness JSON; the
-last command must report `Verification: OK`. Certificate retrieval is an
-external trust step, so the verifier should compare the archived certificate
-hashes with the witness JSON and inspect their fingerprints and validity period.
+last command must report `Verification: OK`. `scripts/verify_record_chain.py`
+also requires a SHA-256 message imprint, pins the TSA signer identity and
+policy OID, extracts signed `genTime`, rejects any time after now or
+impossibly before a creation claim, and validates the certificate chain at
+`genTime`. A future TSA bundle must first be approved in verifier code and then
+introduced by a snapshot witnessed under an already active bundle.
+`scripts/witnessed_timeline.py` publishes only run roots and registrations
+reached by an available pinned witness; an unavailable witness never becomes
+a claimed publication time. Root rows also expose custody inventory version,
+status, and verifier-side headline eligibility.
 
 ### Per-run custody root
 
@@ -509,6 +524,17 @@ this rule. `scripts/verify_custody.py <run-dir>` recomputes the raw digests,
 canonical digests, manifest exclusion, and custody-root hash. Generated-cell
 conversion verifies custody before accepting runs at or after the enforcement
 date.
+
+Custody inventory v2 declares `custodyInventoryVersion: 2` and a `runMode` in
+both the manifest and root. The verifier enforces the exact required filenames
+for that mode, one-to-one ordered manifest/root references, and the absence of
+unreferenced files. Pre-cutover roots still verify under their original rules
+but are labeled `legacy-incomplete` and are not complete-inventory evidence.
+For analyst runs, verifier-side `headlineEligible` additionally requires a
+successful validation-complete run; the site must also require external
+witness coverage. Resolver runs seal their exact archived source responses,
+and recorder v2 seals and self-verifies the exact surface, log-chunk, and live
+forecast body inventory.
 
 Join model:
 

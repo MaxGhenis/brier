@@ -297,6 +297,7 @@ MANIFEST_HASH_MODE = (
     "canonical-json-v1; exclude artifacts where artifactType=manifest and "
     "exclude custodyRootSha256"
 )
+CUSTODY_INVENTORY_VERSION = 2
 
 
 def manifest_self_hash_payload(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -346,6 +347,8 @@ def build_custody_root(
     ]
     return {
         "schemaVersion": "thesis_custody_root_v1",
+        "custodyInventoryVersion": CUSTODY_INVENTORY_VERSION,
+        "runMode": "analyst",
         "hashAlgorithm": "sha256",
         "canonicalJson": (
             "UTF-16 code-unit key order; ECMAScript JSON number/string encoding"
@@ -367,6 +370,8 @@ def finalize_manifest(
 ) -> dict[str, Any]:
     """Write custody_root.json, then perform the one final manifest write."""
 
+    manifest["custodyInventoryVersion"] = CUSTODY_INVENTORY_VERSION
+    manifest["runMode"] = "analyst"
     manifest["manifestHashSemantics"] = MANIFEST_HASH_MODE
     self_payload = manifest_self_hash_payload(manifest)
     self_bytes = canonical_bytes(self_payload)
@@ -912,6 +917,7 @@ def run_agent_command(
         )
         finished_at = utc_now()
         return {
+            "backend": "external_command",
             "argv": argv,
             "startedAt": started_at,
             "finishedAt": finished_at,
@@ -932,6 +938,7 @@ def run_agent_command(
             f"{stderr}\nagent command timed out after {timeout_seconds} seconds\n"
         ).lstrip()
         return {
+            "backend": "external_command",
             "argv": argv,
             "startedAt": started_at,
             "finishedAt": finished_at,
@@ -939,6 +946,18 @@ def run_agent_command(
             "timedOut": True,
             "stdout": stdout,
             "stderr": stderr,
+        }
+    except OSError as exc:
+        finished_at = utc_now()
+        return {
+            "backend": "external_command",
+            "argv": argv,
+            "startedAt": started_at,
+            "finishedAt": finished_at,
+            "returnCode": 127,
+            "timedOut": False,
+            "stdout": "",
+            "stderr": f"agent command could not start: {exc}\n",
         }
 
 
@@ -1218,6 +1237,7 @@ def run_codex_agent_command(
     except FileNotFoundError:
         finished_at = utc_now()
         return {
+            "backend": "codex",
             "argv": logged_cmd,
             "startedAt": started_at,
             "finishedAt": finished_at,
@@ -1225,10 +1245,21 @@ def run_codex_agent_command(
             "timedOut": False,
             "stdout": "",
             "stderr": "codex CLI not found",
+            "codexStdoutRaw": "",
+            "codexStderrRaw": "codex CLI not found",
+            "codexEventsJsonl": "",
+            "codexLastMessage": "",
+            "codexTrace": {
+                "provider": "openai",
+                "backend": "codex-exec",
+                "model": model,
+                "error": "codex CLI not found",
+            },
         }
     except Exception as exc:
         finished_at = utc_now()
         return {
+            "backend": "codex",
             "argv": logged_cmd,
             "startedAt": started_at,
             "finishedAt": finished_at,
@@ -1236,6 +1267,16 @@ def run_codex_agent_command(
             "timedOut": False,
             "stdout": "",
             "stderr": f"Error running codex CLI: {exc}",
+            "codexStdoutRaw": "",
+            "codexStderrRaw": f"Error running codex CLI: {exc}",
+            "codexEventsJsonl": "",
+            "codexLastMessage": "",
+            "codexTrace": {
+                "provider": "openai",
+                "backend": "codex-exec",
+                "model": model,
+                "error": str(exc),
+            },
         }
 
     finished_at = utc_now()
@@ -1256,6 +1297,7 @@ def run_codex_agent_command(
         effective_return_code = 0
 
     return {
+        "backend": "codex",
         "argv": logged_cmd,
         "startedAt": started_at,
         "finishedAt": finished_at,
@@ -1312,6 +1354,7 @@ def append_command_artifacts(
             f"{prefix}command.json",
             json.dumps(
                 {
+                    "backend": command_result["backend"],
                     "argv": command_result["argv"],
                     "returnCode": command_result["returnCode"],
                     "processReturnCode": command_result.get("processReturnCode"),
@@ -1348,7 +1391,7 @@ def append_command_artifacts(
                 created_at,
             )
         )
-    if command_result.get("codexEventsJsonl"):
+    if command_result.get("codexEventsJsonl") is not None:
         refs.append(
             write_artifact(
                 out_dir,
@@ -1358,7 +1401,7 @@ def append_command_artifacts(
                 created_at,
             )
         )
-    if command_result.get("codexLastMessage"):
+    if command_result.get("codexLastMessage") is not None:
         refs.append(
             write_artifact(
                 out_dir,
@@ -2279,10 +2322,17 @@ def main() -> int:
                 out_dir,
                 "command",
                 "command.json",
-                json.dumps({"responseFile": args.response_file}, indent=2),
+                json.dumps(
+                    {"backend": "response_file", "responseFile": args.response_file},
+                    indent=2,
+                ),
                 run_at,
             )
         )
+        refs.append(
+            write_artifact(out_dir, "stdout", "stdout.txt", raw_response, run_at)
+        )
+        refs.append(write_artifact(out_dir, "stderr", "stderr.txt", "\n", run_at))
     else:
         raw_response = json.dumps(
             [mock_cell(args.series, args.period, run_at)], indent=2
@@ -2292,10 +2342,14 @@ def main() -> int:
                 out_dir,
                 "command",
                 "command.json",
-                json.dumps({"mockCell": True}, indent=2),
+                json.dumps({"backend": "mock", "mockCell": True}, indent=2),
                 run_at,
             )
         )
+        refs.append(
+            write_artifact(out_dir, "stdout", "stdout.txt", raw_response, run_at)
+        )
+        refs.append(write_artifact(out_dir, "stderr", "stderr.txt", "\n", run_at))
 
     runtime_meta = stamp_runtime_invocation(meta, command_result)
 

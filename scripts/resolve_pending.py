@@ -24,6 +24,7 @@ Idempotent: refs already present in the ledger are skipped.
 from __future__ import annotations
 
 import argparse
+import copy
 import csv
 import datetime as dt
 import gzip
@@ -37,8 +38,9 @@ import sys
 import urllib.request
 from typing import Any
 
-from canonical_json import canonical_sha256
+from canonical_json import canonical_bytes, canonical_sha256
 from thesis_log_client import load_thesis_log
+from verify_custody import verify_run
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 LOG_URL = "https://app.thesisinstitute.org/log.json"
@@ -309,6 +311,77 @@ def resolution_run_dir(retrieved_at: str) -> pathlib.Path:
     )
 
 
+def finalize_resolution_manifest(
+    run_dir: pathlib.Path, manifest: dict[str, Any]
+) -> dict[str, Any]:
+    """Seal the exact resolver-response inventory and verify it immediately."""
+
+    created_at = str(manifest["retrievedAt"])
+    repository = ROOT.resolve()
+    refs: list[dict[str, Any]] = []
+    rooted: list[dict[str, Any]] = []
+    for fact in manifest["facts"]:
+        archive = fact["responseArchive"]
+        path = repository / archive["path"]
+        relative = path.resolve().relative_to(run_dir.resolve()).as_posix()
+        ref = {
+            "artifactType": "resolver_response",
+            "path": path.resolve().relative_to(repository).as_posix(),
+            "sha256": archive["gzipSha256"],
+            "bytes": archive["gzipBytes"],
+            "createdAt": created_at,
+        }
+        refs.append(ref)
+        rooted.append({**ref, "path": relative})
+    manifest.update(
+        {
+            "custodyInventoryVersion": 2,
+            "runMode": "resolver",
+            "ok": True,
+            "manifestHashSemantics": (
+                "canonical-json-v1; exclude artifacts where "
+                "artifactType=manifest and exclude custodyRootSha256"
+            ),
+            "artifacts": refs,
+        }
+    )
+    self_payload = copy.deepcopy(manifest)
+    self_payload.pop("custodyRootSha256", None)
+    self_bytes = canonical_bytes(self_payload)
+    manifest_ref = {
+        "artifactType": "manifest",
+        "path": (run_dir / "manifest.json")
+        .resolve()
+        .relative_to(repository)
+        .as_posix(),
+        "sha256": hashlib.sha256(self_bytes).hexdigest(),
+        "bytes": len(self_bytes),
+        "createdAt": created_at,
+        "hashMode": manifest["manifestHashSemantics"],
+    }
+    manifest["artifacts"] = [*refs, manifest_ref]
+    custody = {
+        "schemaVersion": "thesis_custody_root_v1",
+        "custodyInventoryVersion": 2,
+        "runMode": "resolver",
+        "hashAlgorithm": "sha256",
+        "canonicalJson": (
+            "UTF-16 code-unit key order; ECMAScript JSON number/string encoding"
+        ),
+        "artifacts": rooted,
+        "manifestWithoutCustodyRoot": {
+            "path": "manifest.json",
+            "excludedField": "custodyRootSha256",
+            "canonicalJsonSha256": canonical_sha256(manifest),
+        },
+    }
+    (run_dir / "custody_root.json").write_text(json.dumps(custody, indent=2) + "\n")
+    manifest["custodyRootSha256"] = canonical_sha256(custody)
+    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    verify_run(run_dir)
+    return manifest
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
@@ -388,29 +461,25 @@ def main() -> int:
         + "\n".join(json.dumps(row, separators=(",", ":")) for row in new_rows)
         + "\n"
     )
-    (run_dir / "manifest.json").write_text(
-        json.dumps(
-            {
-                "schemaVersion": "thesis_resolution_run_v1",
-                "retrievedAt": run_retrieved_at,
-                "ledgerRepo": args.ledger_repo,
-                "ledgerBranch": args.ledger_branch,
-                "ledgerRepoSha": ledger_repo_sha,
-                "facts": [
-                    {
-                        "dataPointId": row["source_record_id"],
-                        "sourceVintage": row["sourceVintage"],
-                        "retrievedAt": row["retrievedAt"],
-                        "targetContentHash": row.get("targetContentHash"),
-                        "responseArchive": row["responseArchive"],
-                    }
-                    for row in new_rows
-                ],
-            },
-            indent=2,
-            sort_keys=True,
-        )
-        + "\n"
+    finalize_resolution_manifest(
+        run_dir,
+        {
+            "schemaVersion": "thesis_resolution_run_v1",
+            "retrievedAt": run_retrieved_at,
+            "ledgerRepo": args.ledger_repo,
+            "ledgerBranch": args.ledger_branch,
+            "ledgerRepoSha": ledger_repo_sha,
+            "facts": [
+                {
+                    "dataPointId": row["source_record_id"],
+                    "sourceVintage": row["sourceVintage"],
+                    "retrievedAt": row["retrievedAt"],
+                    "targetContentHash": row.get("targetContentHash"),
+                    "responseArchive": row["responseArchive"],
+                }
+                for row in new_rows
+            ],
+        },
     )
     push_ledger(
         args.ledger_repo,
