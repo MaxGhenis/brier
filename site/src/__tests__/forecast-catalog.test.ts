@@ -1309,7 +1309,15 @@ describe("forecast catalog", () => {
       forecast.dataPointId ? [forecast.dataPointId] : [],
     );
 
-    expect(new Set(forecastDataPointIds).size).toBe(targetDataPointIds.size);
+    // Registration-first means every forecast's target must already be in
+    // the ledger. The reverse direction — a registered target with no
+    // forecast yet — is legal within the preregistration orphan grace and
+    // is asserted (with that grace) by the next test, so no count equality
+    // here: a wave that publishes only part of the day's docket must not
+    // fail the publish gate.
+    expect(new Set(forecastDataPointIds).size).toBeLessThanOrEqual(
+      targetDataPointIds.size,
+    );
     for (const dataPointId of forecastDataPointIds) {
       expect(targetDataPointIds.has(dataPointId)).toBe(true);
     }

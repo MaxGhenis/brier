@@ -148,49 +148,56 @@ describe("target architecture hashing", () => {
   }, 60_000);
 
   it("builds the real catalog without collisions and guards its ID projection", () => {
+    // Pinned grand totals would break the publish gate on every legitimate
+    // wave, so this asserts the invariants the snapshot stood for instead:
+    // globally unique identifiers, counts that describe the projection
+    // exactly, and a fully deterministic ID projection for identical input.
     const projection = buildTargetArchitectureProjection(
       FORECAST_CELLS,
       THESIS_TARGET_LEDGER,
     );
-    const identifierDigest = sha256Hex({
-      targetIds: projection.targets.map((row) => row.targetId),
-      sourceSeriesIds: projection.sourceSeries.map((row) => row.sourceSeriesId),
-      runIds: projection.forecastRuns.map((row) => row.runId),
-      artifactRefIds: projection.artifactRefs.map((row) => row.artifactRefId),
+    const identifierProjection = (candidate: typeof projection) => ({
+      targetIds: candidate.targets.map((row) => row.targetId),
+      sourceSeriesIds: candidate.sourceSeries.map((row) => row.sourceSeriesId),
+      runIds: candidate.forecastRuns.map((row) => row.runId),
+      artifactRefIds: candidate.artifactRefs.map((row) => row.artifactRefId),
     });
+    const identifiers = identifierProjection(projection);
+    for (const [family, ids] of Object.entries(identifiers)) {
+      expect(new Set(ids).size, `${family} must be collision-free`).toBe(
+        ids.length,
+      );
+      expect(ids.length, `${family} must be non-empty`).toBeGreaterThan(0);
+    }
 
-    expect({
-      counts: projection.counts,
-      identifierDigest,
-    }).toMatchInlineSnapshot(`
-      {
-        "counts": {
-          "artifactRefs": 2885,
-          "baselineCandidates": 144,
-          "forecastDistributionPoints": 195372,
-          "forecastRuns": 972,
-          "forecastStrategies": 9,
-          "judgeRuns": 1291,
-          "observationVintages": 1942,
-          "observations": 1942,
-          "packVersions": 14,
-          "packs": 14,
-          "reasoningEvents": 5212,
-          "resolutionEvents": 0,
-          "reviewRuns": 82,
-          "runArtifactRefs": 3360,
-          "runPackVersions": 97,
-          "scores": 0,
-          "sourceSeries": 653,
-          "strategyVersions": 9,
-          "targetObservationBindings": 1306,
-          "targetVersions": 653,
-          "targets": 653,
-          "toolCalls": 2118,
-        },
-        "identifierDigest": "b22fd8917942fab186a0de52b169c4a6880c389ab8647d7f5a83f9e269ff7845",
-      }
-    `);
+    const countedTables: Record<string, number | undefined> = {
+      targets: projection.targets.length,
+      sourceSeries: projection.sourceSeries.length,
+      forecastRuns: projection.forecastRuns.length,
+      artifactRefs: projection.artifactRefs.length,
+      observations: projection.observations.length,
+      observationVintages: projection.observationVintages.length,
+      forecastDistributionPoints: projection.forecastDistributions.length,
+    };
+    for (const [key, expected] of Object.entries(countedTables)) {
+      expect(
+        projection.counts[key as keyof typeof projection.counts],
+        `counts.${key} must describe the projection exactly`,
+      ).toBe(expected);
+    }
+    expect(projection.counts.targetVersions).toBe(projection.counts.targets);
+    expect(projection.counts.observationVintages).toBe(
+      projection.counts.observations,
+    );
+
+    const rebuilt = buildTargetArchitectureProjection(
+      FORECAST_CELLS,
+      THESIS_TARGET_LEDGER,
+    );
+    expect(sha256Hex(identifierProjection(rebuilt))).toBe(
+      sha256Hex(identifiers),
+    );
+
     expect(
       projection.forecastDistributions.every(
         (point) =>
