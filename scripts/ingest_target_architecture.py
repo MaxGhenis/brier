@@ -395,6 +395,11 @@ def semantic_equal(actual: Any, expected: Any, data_type: str) -> bool:
         parsed = dt.datetime.fromisoformat(str(expected).replace("Z", "+00:00"))
         if data_type == "timestamp without time zone":
             parsed = parsed.replace(tzinfo=None)
+        elif parsed.tzinfo is None:
+            # A few legacy manifest rows carry date-only or offset-less
+            # instants; the column stores them as UTC, and a naive-vs-aware
+            # comparison would report false drift.
+            parsed = parsed.replace(tzinfo=dt.timezone.utc)
         return actual == parsed
     if data_type == "ARRAY":
         return list(actual) == list(expected)
