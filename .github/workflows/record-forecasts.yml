@@ -40,6 +40,23 @@ jobs:
           SOURCE_DIR="/tmp/thesis-record-$RUN_ID"
           mkdir -p "$SOURCE_DIR/live"
 
+          # The publish job dispatches this workflow seconds after pushing,
+          # while Vercel is still building the new deployment. When an exact
+          # SHA is expected, wait (bounded, ~10 min) for the deploy canary to
+          # reach it rather than failing on the race; the exact-match check
+          # below still fails closed if it never arrives.
+          if [ -n "$EXPECTED_SHA" ]; then
+            for _ in $(seq 1 40); do
+              CANARY=$(curl -sf -m 30 https://app.thesisinstitute.org/build.json \
+                | python3 -c 'import json,sys; print(json.load(sys.stdin).get("commit",""))' \
+                2>/dev/null || true)
+              if [ "$CANARY" = "$EXPECTED_SHA" ]; then
+                break
+              fi
+              sleep 15
+            done
+          fi
+
           # Resolve mutable aliases before any other surface fetch. Every
           # captured body below comes from these immutable Vercel deployment
           # URLs, and both aliases are checked again after collection (X7/X8).
