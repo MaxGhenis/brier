@@ -43,7 +43,7 @@ def slugify_series(series: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", series.lower()).strip("-")
 
 
-def latest_recorded_period(series: str) -> str | None:
+def latest_recorded_period(series: str, cadence: str) -> str | None:
     """Latest period attempted for a series, from run directory names.
 
     Run dirs look like 2026-07-07t13-48-08z-{series-slug}-{period-slug};
@@ -66,33 +66,73 @@ def latest_recorded_period(series: str) -> str | None:
             # A shorter series name can match inside a longer one's dir
             # (eurostat.unemployment_rate vs ...unemployment_rate.belgium);
             # only accept strings that look like periods.
-            if re.fullmatch(r"\d{4}-\d{2}|\d{4}-q\d|week_\d{4}-\d{2}-\d{2}", period):
+            if period_key(period, cadence) is not None:
                 periods.append(period)
     if not periods:
         return None
-    return max(periods)
+    return max(periods, key=lambda period: period_key(period, cadence) or ())
 
 
-def step_period(period: str, cadence: str) -> str:
+def period_key(period: str, cadence: str) -> tuple[int, ...] | None:
+    """Return a semantic sort key, rejecting impossible captured periods."""
+    try:
+        if cadence == "weekly":
+            match = re.fullmatch(r"week_(\d{4}-\d{2}-\d{2})", period)
+            if not match:
+                return None
+            day = dt.date.fromisoformat(match.group(1))
+            return (day.toordinal(),)
+        if cadence == "monthly":
+            match = re.fullmatch(r"(\d{4})-(\d{2})", period)
+            if not match:
+                return None
+            year, month = int(match.group(1)), int(match.group(2))
+            if month < 1 or month > 12:
+                return None
+            return (year, month)
+        if cadence == "quarterly":
+            match = re.fullmatch(r"(\d{4})-[Qq]([1-4])", period)
+            if not match:
+                return None
+            return (int(match.group(1)), int(match.group(2)))
+    except ValueError:
+        return None
+    return None
+
+
+def warn_malformed_period(operation: str, period: str, cadence: str) -> None:
+    print(
+        f"  warning: skip malformed {cadence} period {period!r} during {operation}",
+        file=sys.stderr,
+    )
+
+
+def step_period(period: str, cadence: str) -> str | None:
+    key = period_key(period, cadence)
+    if key is None:
+        warn_malformed_period("step", period, cadence)
+        return None
     if cadence == "weekly":
-        day = dt.date.fromisoformat(period.removeprefix("week_"))
+        day = dt.date.fromordinal(key[0])
         return f"week_{day + dt.timedelta(days=7)}"
     if cadence == "monthly":
-        year, month = int(period[:4]), int(period[5:7])
+        year, month = key
         month += 1
         if month == 13:
             year, month = year + 1, 1
         return f"{year}-{month:02d}"
     if cadence == "quarterly":
-        m = re.fullmatch(r"(\d{4})-q(\d)", period.lower())
-        year, quarter = int(m.group(1)), int(m.group(2)) + 1
+        year, quarter = key[0], key[1] + 1
         if quarter == 5:
             year, quarter = year + 1, 1
         return f"{year}-Q{quarter}"
-    raise ValueError(cadence)
+    warn_malformed_period("step", period, cadence)
+    return None
 
 
 def format_slug(template: str, period: str, cadence: str) -> str:
+    if period_key(period, cadence) is None:
+        raise ValueError(f"malformed {cadence} period: {period}")
     if cadence == "weekly":
         return template.format(period=period.removeprefix("week_"))
     if cadence == "monthly":
@@ -104,18 +144,24 @@ def format_slug(template: str, period: str, cadence: str) -> str:
 
 def not_too_far_ahead(period: str, cadence: str, today: dt.date) -> bool:
     """Don't forecast periods that haven't meaningfully begun."""
+    key = period_key(period, cadence)
+    if key is None:
+        warn_malformed_period("horizon check", period, cadence)
+        return False
     if cadence == "weekly":
-        day = dt.date.fromisoformat(period.removeprefix("week_"))
+        day = dt.date.fromordinal(key[0])
         return day <= today + dt.timedelta(days=7)
     if cadence == "monthly":
-        year, month = int(period[:4]), int(period[5:7])
+        year, month = key
         return (year, month) <= (today.year, today.month)
-    m = re.fullmatch(r"(\d{4})-Q(\d)", period)
-    quarter = (today.month - 1) // 3 + 1
-    return (int(m.group(1)), int(m.group(2))) <= (today.year, quarter)
+    if cadence == "quarterly":
+        quarter = (today.month - 1) // 3 + 1
+        return key <= (today.year, quarter)
+    warn_malformed_period("horizon check", period, cadence)
+    return False
 
 
-def live_catalog() -> tuple[set[str], dict[str, dict]]:
+def live_catalog() -> tuple[set[str], dict[str, dict], set[str]]:
     """Published slugs and their latest recorded target contract."""
     log = load_thesis_log(LOG_URL)
     links = {
@@ -138,23 +184,85 @@ def live_catalog() -> tuple[set[str], dict[str, dict]]:
     for slug, link in links.items():
         if slug in forecasts and link.get("targetFactRef"):
             forecasts[slug]["dataPointId"] = link["targetFactRef"]
-    return set(links), forecasts
+    observed_slugs = {
+        entry["forecastSlug"]
+        for entry in log.get("entries", [])
+        if entry.get("kind") == "prediction_resolved" and entry.get("forecastSlug")
+    }
+    return set(links), forecasts, observed_slugs
 
 
 def template_regex(template: str, cadence: str) -> re.Pattern[str]:
     """Invert a registry slug template into a period-extracting regex."""
-    escaped = re.escape(template)
-    if cadence == "weekly":
-        pattern = escaped.replace(re.escape("{period}"), r"(?P<date>\d{4}-\d{2}-\d{2})")
-    elif cadence == "monthly":
-        pattern = escaped.replace(re.escape("{month}"), r"(?P<month>[a-z]+)").replace(
-            re.escape("{year}"), r"(?P<year>\d{4})"
-        )
-    else:
-        pattern = escaped.replace(re.escape("q{quarter}"), r"q(?P<quarter>\d)").replace(
-            re.escape("{year}"), r"(?P<year>\d{4})"
-        )
-    return re.compile(f"^{pattern}$")
+    token_specs = {
+        "weekly": {"period": ("date", r"\d{4}-\d{2}-\d{2}")},
+        "monthly": {
+            "month": ("month", r"[a-z]+"),
+            "year": ("year", r"\d{4}"),
+        },
+        "quarterly": {
+            "quarter": ("quarter", r"\d+"),
+            "year": ("year", r"\d{4}"),
+        },
+    }.get(cadence, {})
+    token_pattern = re.compile(r"\{([a-z]+)\}")
+    parts: list[str] = []
+    seen_groups: set[str] = set()
+    cursor = 0
+    for match in token_pattern.finditer(template):
+        parts.append(re.escape(template[cursor : match.start()]))
+        token = match.group(1)
+        spec = token_specs.get(token)
+        if spec is None:
+            parts.append(re.escape(match.group(0)))
+        else:
+            group, value_pattern = spec
+            if group in seen_groups:
+                parts.append(f"(?P={group})")
+            else:
+                parts.append(f"(?P<{group}>{value_pattern})")
+                seen_groups.add(group)
+        cursor = match.end()
+    parts.append(re.escape(template[cursor:]))
+    return re.compile(f"^{''.join(parts)}$")
+
+
+def captured_period(match: re.Match[str], cadence: str) -> str | None:
+    """Build and semantically validate a period captured from a slug."""
+    try:
+        if cadence == "weekly":
+            period = f"week_{match.group('date')}"
+        elif cadence == "monthly":
+            month_name = match.group("month")
+            if month_name not in MONTH_NAMES:
+                return None
+            month = MONTH_NAMES.index(month_name)
+            period = f"{match.group('year')}-{month:02d}"
+        elif cadence == "quarterly":
+            period = f"{match.group('year')}-Q{match.group('quarter')}"
+        else:
+            return None
+    except (IndexError, ValueError):
+        return None
+    return period if period_key(period, cadence) is not None else None
+
+
+def published_periods(entry: dict, catalog_slugs: set[str]) -> list[tuple[str, str]]:
+    pattern = template_regex(entry["slug"], entry["cadence"])
+    periods: list[tuple[str, str]] = []
+    for slug in catalog_slugs:
+        match = pattern.match(slug)
+        if not match:
+            continue
+        period = captured_period(match, entry["cadence"])
+        if period is None:
+            print(
+                f"  warning: skip slug with invalid captured period: {slug}",
+                file=sys.stderr,
+            )
+            continue
+        periods.append((period, slug))
+    return periods
 
 
 def latest_published_period(
@@ -167,25 +275,75 @@ def latest_published_period(
     and is retried on the next roll instead of silently vanishing from
     the public record (review finding F10).
     """
-    pattern = template_regex(entry["slug"], entry["cadence"])
-    periods: list[tuple[str, str]] = []
-    for slug in catalog_slugs:
-        match = pattern.match(slug)
-        if not match:
-            continue
-        if entry["cadence"] == "weekly":
-            periods.append((f"week_{match.group('date')}", slug))
-        elif entry["cadence"] == "monthly":
-            month_name = match.group("month")
-            if month_name not in MONTH_NAMES:
-                continue
-            month = MONTH_NAMES.index(month_name)
-            periods.append((f"{match.group('year')}-{month:02d}", slug))
-        else:
-            periods.append((f"{match.group('year')}-Q{match.group('quarter')}", slug))
+    periods = published_periods(entry, catalog_slugs)
     if not periods:
         return None
-    return max(periods)
+    return max(
+        periods,
+        key=lambda item: period_key(item[0], entry["cadence"]) or (),
+    )
+
+
+def next_roll_period(
+    entry: dict,
+    catalog_slugs: set[str],
+    observed_slugs: set[str],
+    today: dt.date,
+) -> tuple[str, str] | None:
+    """Choose the normal successor or recover the earliest eligible gap.
+
+    A syntactically valid far-future published slug must not freeze a series.
+    If its successor is beyond the horizon, scan forward from the last
+    ledger-observed period and select the earliest unpublished, eligible gap
+    before the maximum published period.
+    """
+    periods = published_periods(entry, catalog_slugs)
+    if not periods:
+        return None
+    cadence = entry["cadence"]
+    latest, latest_slug = max(
+        periods, key=lambda item: period_key(item[0], cadence) or ()
+    )
+    successor = step_period(latest, cadence)
+    if successor is None:
+        return None
+    if not_too_far_ahead(successor, cadence, today):
+        return successor, latest_slug
+
+    observed_periods = published_periods(entry, catalog_slugs & observed_slugs)
+    if not observed_periods:
+        return None
+    last_observed, _ = max(
+        observed_periods, key=lambda item: period_key(item[0], cadence) or ()
+    )
+    max_key = period_key(latest, cadence)
+    cursor = last_observed
+    while max_key is not None:
+        candidate = step_period(cursor, cadence)
+        if candidate is None:
+            return None
+        candidate_key = period_key(candidate, cadence)
+        if candidate_key is None or candidate_key >= max_key:
+            return None
+        if not not_too_far_ahead(candidate, cadence, today):
+            return None
+        slug = format_slug(entry["slug"], candidate, cadence)
+        if slug not in catalog_slugs:
+            earlier = [
+                item
+                for item in periods
+                if (period_key(item[0], cadence) or ()) < candidate_key
+            ]
+            previous_slug = max(
+                earlier, key=lambda item: period_key(item[0], cadence) or ()
+            )[1]
+            print(
+                f"  recover {entry['series']} gap {candidate}: "
+                f"max published period {latest} is beyond the horizon"
+            )
+            return candidate, previous_slug
+        cursor = candidate
+    return None
 
 
 def main() -> int:
@@ -197,27 +355,35 @@ def main() -> int:
     args = parser.parse_args()
 
     registry = json.loads(REGISTRY.read_text())["series"]
-    existing, published_forecasts = live_catalog()
+    existing, published_forecasts, observed_slugs = live_catalog()
     today = dt.date.today()
 
     candidates: list[tuple[int, str, dict]] = []
     for entry in registry:
         if args.cadence and entry["cadence"] != args.cadence:
             continue
-        latest_result = latest_published_period(entry, existing)
-        if latest_result is None:
+        next_result = next_roll_period(entry, existing, observed_slugs, today)
+        if next_result is None:
             print(f"  skip {entry['series']}: no published cell to step from")
             continue
-        latest, latest_slug = latest_result
-        nxt = step_period(latest, entry["cadence"])
-        attempted = latest_recorded_period(entry["series"])
-        if attempted is not None and attempted.lower() > latest.lower():
+        nxt, latest_slug = next_result
+        latest = latest_published_period(entry, existing)
+        previous_period = next(
+            period
+            for period, published_slug in published_periods(entry, existing)
+            if published_slug == latest_slug
+        )
+        attempted = latest_recorded_period(entry["series"], entry["cadence"])
+        if (
+            latest
+            and attempted is not None
+            and (period_key(attempted, entry["cadence"]) or ())
+            > (period_key(latest[0], entry["cadence"]) or ())
+        ):
             print(
                 f"  retry {entry['series']} {nxt}: an attempt for "
                 f"{attempted} was recorded but never published"
             )
-        if not not_too_far_ahead(nxt, entry["cadence"], today):
-            continue
         slug = format_slug(entry["slug"], nxt, entry["cadence"])
         if slug in existing:
             continue
@@ -243,7 +409,7 @@ def main() -> int:
                 )
                 if previous.get(key) not in (None, "")
             }
-            target["previousTarget"]["period"] = latest
+            target["previousTarget"]["period"] = previous_period
         priority = 0 if entry["cadence"] == "weekly" else 1
         candidates.append((priority, nxt, target))
 

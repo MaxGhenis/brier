@@ -27,7 +27,7 @@ Each row is one recorded forecast run:
 - agent/model/run label metadata
 - deterministic split
 - resolution date and run horizon
-- reward value, currently `-normalizedCrps`
+- reward value, currently `-normalizedCrps` when a ledger scale is available
 - score components: CRPS, normalized CRPS, absolute error, 80% interval
   coverage
 - distribution provenance (`agent_reported` or `interval_seeded`) and the
@@ -36,7 +36,18 @@ Each row is one recorded forecast run:
 
 Higher reward is better because normalized CRPS is negated. Unresolved rows
 have `reward.value = null` until the configured official resolver records an
-official fact.
+official fact; resolved rows also keep a null reward when no safe ledger scale
+is available.
+
+Normalization uses the sample dispersion of successive changes in same-series,
+same-unit PolicyEngine Ledger observations available when the target was
+registered. Legacy targets use the primary run seal as that cutoff. The scale is
+shared by every run on a `dataPointId`; forecast-authored `historicalContext` and
+forecast interval widths are never normalization inputs. With fewer than three
+pre-cutoff ledger observations (or zero usable dispersion), the raw CRPS and
+absolute error remain public, while normalized CRPS, normalized absolute error,
+sharpness, reward, leaderboard means, and paired skill are null or exclude the
+row.
 
 Persistence baselines are generated only for chronology-verified scored
 primary targets. Their point is the last same-series observation archived in

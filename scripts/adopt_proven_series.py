@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import calendar
+import datetime as dt
 import json
 import pathlib
 import re
@@ -30,6 +31,53 @@ RECORDS = ROOT / "records" / "thesis-analyst"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
 
 MONTH_NAMES = [m.lower() for m in calendar.month_name]
+
+
+def replace_whole_token(value: str, token: str, replacement: str) -> str | None:
+    """Replace slug tokens only at non-alphanumeric boundaries."""
+    pattern = re.compile(rf"(?<![a-z0-9]){re.escape(token)}(?![a-z0-9])")
+    if not pattern.search(value):
+        return None
+    return pattern.sub(lambda _: replacement, value)
+
+
+def replace_nearest_period_tokens(
+    value: str,
+    first: str,
+    first_replacement: str,
+    second: str,
+    second_replacement: str,
+) -> str | None:
+    """Replace the closest whole-token period pair, leaving literals intact."""
+    token_matches = []
+    for token in (first, second):
+        pattern = re.compile(rf"(?<![a-z0-9]){re.escape(token)}(?![a-z0-9])")
+        matches = list(pattern.finditer(value))
+        if not matches:
+            return None
+        token_matches.append(matches)
+    left, right = min(
+        (
+            (left_match, right_match)
+            for left_match in token_matches[0]
+            for right_match in token_matches[1]
+        ),
+        key=lambda pair: min(
+            abs(pair[0].end() - pair[1].start()),
+            abs(pair[1].end() - pair[0].start()),
+        ),
+    )
+    replacements = sorted(
+        [
+            (left.start(), left.end(), first_replacement),
+            (right.start(), right.end(), second_replacement),
+        ],
+        reverse=True,
+    )
+    output = value
+    for start, end, replacement in replacements:
+        output = output[:start] + replacement + output[end:]
+    return output
 
 
 def scored_slugs() -> set[str]:
@@ -56,27 +104,44 @@ def slug_template(slug: str, period: str, cadence: str) -> str | None:
     """Derive the registry slug template from a concrete slug + period."""
     if cadence == "weekly":
         date = period.removeprefix("week_")
-        return slug.replace(date, "{period}") if date in slug else None
+        try:
+            dt.date.fromisoformat(date)
+        except ValueError:
+            return None
+        return replace_whole_token(slug, date, "{period}")
     if cadence == "monthly":
-        year, month = period[:4], int(period[5:7])
+        match = re.fullmatch(r"(\d{4})-(\d{2})", period)
+        if not match:
+            return None
+        year, month = match.group(1), int(match.group(2))
+        if month < 1 or month > 12:
+            return None
         name = MONTH_NAMES[month]
-        if name in slug and year in slug:
-            return slug.replace(name, "{month}").replace(year, "{year}")
-        return None
-    m = re.fullmatch(r"(\d{4})-Q(\d)", period)
-    if m and f"q{m.group(2)}" in slug and m.group(1) in slug:
-        return slug.replace(f"q{m.group(2)}", "q{quarter}").replace(
-            m.group(1), "{year}"
+        return replace_nearest_period_tokens(slug, name, "{month}", year, "{year}")
+    m = re.fullmatch(r"(\d{4})-Q([1-4])", period)
+    if m:
+        return replace_nearest_period_tokens(
+            slug,
+            f"q{m.group(2)}",
+            "q{quarter}",
+            m.group(1),
+            "{year}",
         )
     return None
 
 
 def cadence_of(period: str) -> str | None:
-    if re.fullmatch(r"week_\d{4}-\d{2}-\d{2}", period):
+    weekly = re.fullmatch(r"week_(\d{4}-\d{2}-\d{2})", period)
+    if weekly:
+        try:
+            dt.date.fromisoformat(weekly.group(1))
+        except ValueError:
+            return None
         return "weekly"
-    if re.fullmatch(r"\d{4}-\d{2}", period):
+    monthly = re.fullmatch(r"\d{4}-(\d{2})", period)
+    if monthly and 1 <= int(monthly.group(1)) <= 12:
         return "monthly"
-    if re.fullmatch(r"\d{4}-Q\d", period):
+    if re.fullmatch(r"\d{4}-Q[1-4]", period):
         return "quarterly"
     return None
 

@@ -48,6 +48,7 @@ import {
 import { sha256Hex } from "./canonical-json";
 import {
   buildLedgerPersistenceBaseline,
+  ledgerHistoryAtCutoff,
   TIME_SERIES_PRIOR_VARIANT_ID,
 } from "./time-series-priors";
 
@@ -143,14 +144,16 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   packMode: PredictionPackSetMode | "primary";
   packCount: number;
   resolutionEventId: string;
-  scoringRule: "numeric_cdf_crps_v2_target_scale";
+  scoringRule: "numeric_cdf_crps_v3_ledger_scale";
   distributionProvenance: DistributionProvenance;
   transformVersion: string;
   chronology: "verified" | "unverified" | "violated";
   observedAt: string;
-  normalizationScale: number;
-  normalizationScaleSource: "target_dispersion" | "target_primary_width";
-  sharpness: number;
+  normalizationScale: number | null;
+  normalizationScaleSource: "ledger_dispersion" | "target_primary_width" | "unavailable";
+  normalizationScaleCutoff: string | null;
+  normalizationScaleObservationCount: number;
+  sharpness: number | null;
   ledgerFactRef: string;
   forecastSlug: string;
   dataPointId: string;
@@ -165,8 +168,8 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   };
   signedError: number;
   absoluteError: number;
-  normalizedCrps: number;
-  normalizedAbsoluteError: number;
+  normalizedCrps: number | null;
+  normalizedAbsoluteError: number | null;
   interval80Covered: boolean;
 }
 
@@ -1166,33 +1169,87 @@ export function classifyScoreChronology(
   return runTime < observedTime ? "verified" : "violated";
 }
 
-// The CRPS denominator is a per-target scale every run on the target
-// shares, derived from the primary run's fetched history — successive
-// changes for three or more points, else the primary interval's implied
-// sigma. A run cannot lower its own normalized score by widening, because
-// the denominator is fixed by the target, not the run.
-export function targetNormalizationScale(forecast: ForecastCell): {
-  scale: number;
-  source: "target_dispersion" | "target_primary_width";
-} {
-  const values = (forecast.historicalContext ?? [])
-    .map((point) => point.value)
-    .filter((value): value is number => typeof value === "number");
-  if (values.length >= 3) {
-    const diffs = values.slice(1).map((value, index) => value - values[index]);
-    const mean = diffs.reduce((total, diff) => total + diff, 0) / diffs.length;
-    const variance =
-      diffs.reduce((total, diff) => total + (diff - mean) ** 2, 0) /
-      Math.max(diffs.length - 1, 1);
-    const sigma = Math.sqrt(variance);
-    if (sigma > 0) return { scale: sigma, source: "target_dispersion" };
+export interface TargetNormalizationScale {
+  scale: number | null;
+  source: "ledger_dispersion" | "target_primary_width" | "unavailable";
+  cutoff: string | null;
+  observationCount: number;
+}
+
+// The denominator is frozen per dataPointId from observations that were in
+// the public ledger before target registration. Legacy registrations have no
+// timestamp, so their primary run seal is the cutoff. Forecast-authored
+// history and forecast intervals are deliberately never inputs (X2).
+export function targetNormalizationScale(
+  forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[],
+): TargetNormalizationScale {
+  if (!forecast.dataPointId) {
+    return frozenPrimaryWidthScale(forecast, null, 0);
   }
-  const primaryWidth = Math.abs(forecast.ciHigh - forecast.ciLow);
-  // 2 * 1.28155 converts an 80% interval width into an implied sigma.
-  const implied = primaryWidth / 2.5631;
+  const target = ledger.find(
+    (entry): entry is TargetRegisteredLedgerEntry =>
+      entry.kind === "target_registered" &&
+      entry.dataPointId === forecast.dataPointId,
+  );
+  const registeredAt = target?.registeredAt;
+  const primaryRunAt = getForecastRunEntries(forecast).find(
+    (run) => run.isPrimary,
+  )?.predictionRun?.runAt;
+  const cutoff =
+    registeredAt && Number.isFinite(Date.parse(registeredAt))
+      ? registeredAt
+      : primaryRunAt && Number.isFinite(Date.parse(primaryRunAt))
+        ? primaryRunAt
+        : null;
+  if (!cutoff) {
+    return frozenPrimaryWidthScale(forecast, null, 0);
+  }
+
+  const history = ledgerHistoryAtCutoff(forecast, ledger, cutoff);
+  if (history.length < 3) {
+    return frozenPrimaryWidthScale(forecast, cutoff, history.length);
+  }
+  const values = history.map((entry) => entry.value);
+  const diffs = values.slice(1).map((value, index) => value - values[index]);
+  const mean = diffs.reduce((total, diff) => total + diff, 0) / diffs.length;
+  const variance =
+    diffs.reduce((total, diff) => total + (diff - mean) ** 2, 0) /
+    (diffs.length - 1);
+  const scale = Math.sqrt(variance);
+  if (!Number.isFinite(scale) || scale <= 0) {
+    return frozenPrimaryWidthScale(forecast, cutoff, history.length);
+  }
   return {
-    scale: implied > 0 ? implied : 1,
+    scale,
+    source: "ledger_dispersion",
+    cutoff,
+    observationCount: history.length,
+  };
+}
+
+// The fact ledger is young: many series lack three pre-cutoff official
+// observations. Until they accumulate, the fallback scale is the
+// PRIMARY run's implied sigma, frozen for the target and shared by
+// every run and strategy on it — later runs cannot move it by widening
+// (X2's exploit was later-authored history), and within-target
+// comparisons (paired skill, strategy families) stay fair. The source
+// label lets consumers segment or discount cross-target aggregates.
+function frozenPrimaryWidthScale(
+  forecast: ForecastCell,
+  cutoff: string | null,
+  observationCount: number,
+): TargetNormalizationScale {
+  const primaryWidth = Math.abs(forecast.ciHigh - forecast.ciLow);
+  const implied = primaryWidth / 2.5631;
+  if (!Number.isFinite(implied) || implied <= 0) {
+    return { scale: null, source: "unavailable", cutoff, observationCount };
+  }
+  return {
+    scale: implied,
     source: "target_primary_width",
+    cutoff,
+    observationCount,
   };
 }
 
@@ -1228,13 +1285,13 @@ export function scoreResolvedForecastRun(
     run,
   );
   const resolutionEventId = buildResolutionEventId(resolution);
-  const scoringRule = "numeric_cdf_crps_v2_target_scale";
+  const scoringRule = "numeric_cdf_crps_v3_ledger_scale";
   const distributionProvenance = run.predictionDistribution.provenance;
   const transformVersion = getDistributionTransformVersion(
     run.predictionDistribution,
   );
   const interval80Width = Math.abs(run.ciHigh - run.ciLow);
-  const normalization = targetNormalizationScale(forecast);
+  const normalization = targetNormalizationScale(forecast, ledger);
   const chronology = classifyScoreChronology(
     run.predictionRun?.runAt,
     observation.observedAt,
@@ -1258,6 +1315,8 @@ export function scoreResolvedForecastRun(
       },
       normalizationScale: normalization.scale,
       normalizationScaleSource: normalization.source,
+      normalizationScaleCutoff: normalization.cutoff,
+      normalizationScaleObservationCount: normalization.observationCount,
       observedAt: observation.observedAt,
       chronology,
       chronologyPolicy: CHRONOLOGY_POLICY_VERSION,
@@ -1292,9 +1351,20 @@ export function scoreResolvedForecastRun(
     absoluteError: Math.abs(signedError),
     normalizationScale: normalization.scale,
     normalizationScaleSource: normalization.source,
-    normalizedCrps: distributionScore.crps / normalization.scale,
-    normalizedAbsoluteError: Math.abs(signedError) / normalization.scale,
-    sharpness: interval80Width / normalization.scale,
+    normalizationScaleCutoff: normalization.cutoff,
+    normalizationScaleObservationCount: normalization.observationCount,
+    normalizedCrps:
+      normalization.scale === null
+        ? null
+        : distributionScore.crps / normalization.scale,
+    normalizedAbsoluteError:
+      normalization.scale === null
+        ? null
+        : Math.abs(signedError) / normalization.scale,
+    sharpness:
+      normalization.scale === null
+        ? null
+        : interval80Width / normalization.scale,
     interval80Covered:
       run.ciLow <= observation.value && observation.value <= run.ciHigh,
     ...distributionScore,
@@ -1374,8 +1444,10 @@ export function buildScoreId(payload: {
   // A score's identity commits to its full meaning: the normalization
   // that produced the headline number, the observation instant, and the
   // chronology verdict + policy that admitted or excluded it (X3).
-  normalizationScale: number;
+  normalizationScale: number | null;
   normalizationScaleSource: string;
+  normalizationScaleCutoff: string | null;
+  normalizationScaleObservationCount: number;
   observedAt: string;
   chronology: string;
   chronologyPolicy: string;

@@ -343,12 +343,16 @@ export interface ScoreProjection {
   scoreId: string;
   runId: string;
   resolutionEventId: string;
-  scoringRule: "numeric_cdf_crps_v2_target_scale";
+  scoringRule: "numeric_cdf_crps_v3_ledger_scale";
   distributionProvenance: DistributionProvenance;
   transformVersion: string;
   crps: number;
-  normalizedScore: number;
-  normalizedCrps: number;
+  normalizationScale: number | null;
+  normalizationScaleSource: "ledger_dispersion" | "target_primary_width" | "unavailable";
+  normalizedScore: number | null;
+  normalizedCrps: number | null;
+  normalizedAbsoluteError: number | null;
+  sharpness: number | null;
   probabilityIntegralTransform: number;
   interval80Covered: boolean;
   signedError: number;
@@ -1612,8 +1616,12 @@ function buildScoreProjections({
           distributionProvenance: score.distributionProvenance,
           transformVersion: score.transformVersion,
           crps: score.crps,
+          normalizationScale: score.normalizationScale,
+          normalizationScaleSource: score.normalizationScaleSource,
           normalizedScore: score.normalizedCrps,
           normalizedCrps: score.normalizedCrps,
+          normalizedAbsoluteError: score.normalizedAbsoluteError,
+          sharpness: score.sharpness,
           probabilityIntegralTransform: score.probabilityIntegralTransform,
           interval80Covered: score.interval80Covered,
           signedError: score.signedError,
@@ -1628,7 +1636,11 @@ function buildScoreProjections({
             distributionProvenance: score.distributionProvenance,
             transformVersion: score.transformVersion,
             crps: score.crps,
+            normalizationScale: score.normalizationScale,
+            normalizationScaleSource: score.normalizationScaleSource,
             normalizedCrps: score.normalizedCrps,
+            normalizedAbsoluteError: score.normalizedAbsoluteError,
+            sharpness: score.sharpness,
             probabilityIntegralTransform: score.probabilityIntegralTransform,
             interval80Covered: score.interval80Covered,
             signedError: score.signedError,

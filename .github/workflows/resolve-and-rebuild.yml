@@ -40,8 +40,43 @@ jobs:
             echo "appended=0" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit resolution marker (makes HEAD deployable)
-        if: steps.resolve.outputs.appended == '1'
+      - name: Compare ledger branch with the last successful deployment
+        id: ledger
+        env:
+          GH_TOKEN: ${{ secrets.ARCH_DATA_TOKEN }}
+          APPENDED: ${{ steps.resolve.outputs.appended }}
+        run: |
+          set -euo pipefail
+          CURRENT=$(gh api \
+            repos/PolicyEngine/ledger/commits/codex/thesis-ledger-facts \
+            --jq .sha)
+          if ! [[ "$CURRENT" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "ledger API returned a non-commit value: $CURRENT" >&2
+            exit 1
+          fi
+          LAST=$(python3 - <<'PY'
+          import json, pathlib
+          marker = pathlib.Path("records/resolutions/latest.json")
+          if marker.exists():
+              try:
+                  print(json.loads(marker.read_text()).get("ledgerBranchSha", ""))
+              except (OSError, json.JSONDecodeError):
+                  print("")
+          PY
+          )
+          echo "current_sha=$CURRENT" >> "$GITHUB_OUTPUT"
+          echo "last_deployed_sha=$LAST" >> "$GITHUB_OUTPUT"
+          if [ "$APPENDED" = "1" ] || [ "$CURRENT" != "$LAST" ]; then
+            echo "needs_publish=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_publish=0" >> "$GITHUB_OUTPUT"
+          fi
+          echo "ledger current=$CURRENT last-successfully-deployed=${LAST:-none} appended=$APPENDED"
+
+      - name: Commit resolution rebuild request (makes HEAD deployable)
+        if: steps.ledger.outputs.needs_publish == '1'
+        env:
+          LEDGER_SHA: ${{ steps.ledger.outputs.current_sha }}
         run: |
           set -euo pipefail
           # Vercel honors [skip ci] even on deploy-hook builds, so a hook
@@ -50,23 +85,26 @@ jobs:
           # both records the resolution event and guarantees a
           # deployable HEAD.
           mkdir -p records/resolutions
-          printf '{"resolvedAt":"%s","workflowRun":"%s"}\n' \
-            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_RUN_ID}" \
-            > records/resolutions/latest.json
+          # latest.json is updated only after the deploy canary succeeds.
+          # Keeping the successful marker unchanged until then makes a rerun
+          # retry publication after any partial marker/deploy failure (X6).
+          printf '{"requestedAt":"%s","workflowRun":"%s","ledgerBranchSha":"%s"}\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_RUN_ID}" "$LEDGER_SHA" \
+            > records/resolutions/rebuild-request.json
           git config user.name "thesis-resolver"
           git config user.email "recorder@thesisinstitute.org"
-          git add records/resolutions/latest.json
-          git add records/resolutions/????-??-??/
+          git add records/resolutions/rebuild-request.json
+          git add records/resolutions/????-??-??/ 2>/dev/null || true
           git commit -m "Resolution rebuild marker $(date -u +%F)"
 
       - name: Rebase resolution marker
-        if: steps.resolve.outputs.appended == '1'
+        if: steps.ledger.outputs.needs_publish == '1'
         run: |
           set -euo pipefail
           git pull --rebase origin main
 
       - name: Push resolution marker
-        if: steps.resolve.outputs.appended == '1'
+        if: steps.ledger.outputs.needs_publish == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -75,7 +113,8 @@ jobs:
           git -c credential.helper= -c credential.helper="$auth_helper" push origin main
 
       - name: Rebuild the site
-        if: steps.resolve.outputs.appended == '1'
+        id: deploy
+        if: steps.ledger.outputs.needs_publish == '1'
         run: |
           set -euo pipefail
           curl -sf -X POST "${{ secrets.VERCEL_DEPLOY_HOOK_URL }}" > /dev/null
@@ -93,6 +132,26 @@ jobs:
             exit 1
           fi
           echo "scores live at $SHA"
+          echo "site_sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Record the successfully deployed ledger SHA
+        if: steps.ledger.outputs.needs_publish == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LEDGER_SHA: ${{ steps.ledger.outputs.current_sha }}
+          SITE_SHA: ${{ steps.deploy.outputs.site_sha }}
+        run: |
+          set -euo pipefail
+          git pull --rebase origin main
+          printf '{"deployedAt":"%s","workflowRun":"%s","ledgerBranchSha":"%s","siteCommitSha":"%s"}\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_RUN_ID}" \
+            "$LEDGER_SHA" "$SITE_SHA" > records/resolutions/latest.json
+          git config user.name "thesis-resolver"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/resolutions/latest.json
+          git commit -m "Record deployed resolution ledger $LEDGER_SHA [skip ci]"
+          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
+          git -c credential.helper= -c credential.helper="$auth_helper" push origin main
 
       - name: Alert on failure
         if: failure()

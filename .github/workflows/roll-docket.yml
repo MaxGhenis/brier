@@ -234,12 +234,14 @@ jobs:
 
       - name: Rebase and retest publication
         if: steps.commit.outputs.committed == '1'
+        timeout-minutes: 30
         run: |
           set -euo pipefail
           git pull --rebase origin main
-          if [ "${{ steps.publish.outputs.published }}" = "1" ]; then
-            (cd site && bun run test)
-          fi
+          cd site
+          bun install --frozen-lockfile
+          bun run test
+          bun run build
 
       - name: Push publication
         if: steps.commit.outputs.committed == '1'
@@ -274,7 +276,7 @@ jobs:
             echo "production never reached $SHA (canary shows: $GOT)" >&2
             exit 1
           fi
-          gh workflow run record-forecasts.yml --ref main
+          gh workflow run record-forecasts.yml --ref main -f expected_sha="$SHA"
 
       - name: Alert on failure
         if: failure()

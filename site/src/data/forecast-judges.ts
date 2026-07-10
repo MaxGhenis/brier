@@ -163,6 +163,24 @@ const JUDGE_GENERATED_AT = "2026-06-26T00:00:00Z";
 const JUDGE_PROMPT_VERSION = "forecast-trace-quality-v0.1";
 const JUDGE_MODEL = "configured-llm-judge";
 
+type NormalizedForecastScore = ResolvedForecastScore & {
+  normalizationScale: number;
+  normalizedCrps: number;
+  normalizedAbsoluteError: number;
+  sharpness: number;
+};
+
+function hasNormalizationScale(
+  score: ResolvedForecastScore,
+): score is NormalizedForecastScore {
+  return (
+    score.normalizationScale !== null &&
+    score.normalizedCrps !== null &&
+    score.normalizedAbsoluteError !== null &&
+    score.sharpness !== null
+  );
+}
+
 export const FORECAST_TRACE_JUDGE_RUBRIC: ForecastTraceJudgeRubricDimension[] =
   [
     {
@@ -358,7 +376,7 @@ export function buildForecastJudgeCalibrationReport({
   const scoresByRunId = new Map(scores.map((score) => [score.runId, score]));
   const scoredJudges = traceQuality.flatMap((judge) => {
     const score = scoresByRunId.get(judge.runId);
-    return score ? [{ judge, score }] : [];
+    return score && hasNormalizationScale(score) ? [{ judge, score }] : [];
   });
   const correlation = pearsonCorrelation(
     scoredJudges.map((row) => row.judge.overallScore),
@@ -669,13 +687,21 @@ function buildTraceJudgePrompt(
 function classifyResolutionFailureModes(
   score: ResolvedForecastScore,
 ): ForecastResolutionFailureMode[] {
-  if (score.interval80Covered && score.normalizedCrps <= 0.25) {
+  if (
+    score.interval80Covered &&
+    score.normalizedCrps !== null &&
+    score.normalizedCrps <= 0.25
+  ) {
     return ["well_calibrated"];
   }
 
   const modes: ForecastResolutionFailureMode[] = [];
   if (!score.interval80Covered) modes.push("interval_too_narrow");
-  if (score.normalizedAbsoluteError > 1.25) modes.push("surprising_release");
+  if (
+    score.normalizedAbsoluteError !== null &&
+    score.normalizedAbsoluteError > 1.25
+  )
+    modes.push("surprising_release");
   if (score.packSet?.packs.some((pack) => /projection/i.test(pack.label))) {
     modes.push("ignored_official_projection");
   }
@@ -690,11 +716,23 @@ function classifyResolutionFailureModes(
 }
 
 function getFailureSeverity(score: ResolvedForecastScore) {
-  if (score.interval80Covered && score.normalizedCrps <= 0.25) return "none";
-  if (score.normalizedCrps >= 1 || score.normalizedAbsoluteError >= 1) {
+  if (
+    score.interval80Covered &&
+    score.normalizedCrps !== null &&
+    score.normalizedCrps <= 0.25
+  )
+    return "none";
+  if (
+    (score.normalizedCrps !== null && score.normalizedCrps >= 1) ||
+    (score.normalizedAbsoluteError !== null &&
+      score.normalizedAbsoluteError >= 1)
+  ) {
     return "high";
   }
-  if (score.normalizedCrps >= 0.5 || !score.interval80Covered) {
+  if (
+    (score.normalizedCrps !== null && score.normalizedCrps >= 0.5) ||
+    !score.interval80Covered
+  ) {
     return "medium";
   }
   return "low";
@@ -707,7 +745,11 @@ function buildResolutionExplanation(
   if (mode === "well_calibrated") {
     return "Observed value landed inside the forecast interval with low normalized CRPS.";
   }
-  return `Observed value ${score.observedValue} versus point ${score.pointEstimate}; signed error ${round2(score.signedError)}, nCRPS ${round2(score.normalizedCrps)}. Primary review tag: ${mode.replace(/_/g, " ")}.`;
+  const normalized =
+    score.normalizedCrps === null
+      ? "nCRPS unavailable (fewer than three pre-cutoff ledger observations)"
+      : `nCRPS ${round2(score.normalizedCrps)}`;
+  return `Observed value ${score.observedValue} versus point ${score.pointEstimate}; signed error ${round2(score.signedError)}, ${normalized}. Primary review tag: ${mode.replace(/_/g, " ")}.`;
 }
 
 function buildScoreBands(
@@ -734,7 +776,11 @@ function buildScoreBands(
       judgedRuns: judges.length,
       scoredRuns: scores.length,
       meanJudgeScore: mean(judges.map((judge) => judge.overallScore)),
-      meanNormalizedCrps: mean(scores.map((score) => score.normalizedCrps)),
+      meanNormalizedCrps: mean(
+        scores
+          .map((score) => score.normalizedCrps)
+          .filter((value): value is number => value !== null),
+      ),
       meanAbsoluteError: mean(scores.map((score) => score.absoluteError)),
       interval80Coverage: mean(
         scores.map((score) => (score.interval80Covered ? 1 : 0)),
@@ -746,7 +792,7 @@ function buildScoreBands(
 function buildJudgeCalibrationDisagreements(
   scoredJudges: Array<{
     judge: ForecastTraceJudgeRecord;
-    score: ResolvedForecastScore;
+    score: NormalizedForecastScore;
   }>,
 ): ForecastJudgeCalibrationDisagreement[] {
   const highJudgeBadScore = scoredJudges

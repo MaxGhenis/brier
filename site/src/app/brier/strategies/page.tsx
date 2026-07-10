@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 export default async function StrategyLabPage() {
   const ledger = await loadPolicyEngineLedger();
   const forecasts = withResolvedOutcomes(FORECAST_CELLS, ledger);
-  const report = buildStrategyLabReport(forecasts);
+  const report = buildStrategyLabReport(forecasts, ledger);
   const priorReport = buildTimeSeriesPriorAdjustmentReport(forecasts);
   const scores = scoreResolvedForecasts(forecasts, ledger).filter(
     (score) => score.chronology === "verified",

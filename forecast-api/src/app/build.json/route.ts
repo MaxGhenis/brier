@@ -1,6 +1,6 @@
-// Deployment canary: which commit produced the running build. The recorder
-// checks this against the commit it intends to attest, so a skipped or
-// stale deployment can never be recorded as if it were live (finding F13).
+// Immutable deployment identity for recorder pinning. The recorder reads this
+// from the mutable API alias once, then captures every SSE stream from the
+// returned deployment URL and verifies the alias did not move mid-snapshot.
 export const dynamic = "force-static";
 
 export function GET() {
@@ -11,5 +11,6 @@ export function GET() {
     deploymentId: process.env.VERCEL_DEPLOYMENT_ID ?? null,
     branchUrl: process.env.VERCEL_BRANCH_URL ?? null,
     builtAt: new Date().toISOString(),
+    service: "thesis-forecast-api",
   });
 }

@@ -7,7 +7,12 @@ name: Record forecasts
 on:
   schedule:
     - cron: "17 14 * * *" # daily 14:17 UTC
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: "Exact production commit expected by the publishing loop"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -26,12 +31,71 @@ jobs:
 
       - name: Fetch and attest published forecast surfaces
         id: snapshot
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
         run: |
           set -euo pipefail
           RUN_ID="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           RECORDED_AT=$(date -u +%FT%TZ)
           SOURCE_DIR="/tmp/thesis-record-$RUN_ID"
           mkdir -p "$SOURCE_DIR/live"
+
+          # Resolve mutable aliases before any other surface fetch. Every
+          # captured body below comes from these immutable Vercel deployment
+          # URLs, and both aliases are checked again after collection (X7/X8).
+          SITE_ALIAS_BUILD=$(mktemp)
+          API_ALIAS_BUILD=$(mktemp)
+          curl -sSf -m 90 https://app.thesisinstitute.org/build.json \
+            -o "$SITE_ALIAS_BUILD"
+          python3 -m json.tool "$SITE_ALIAS_BUILD" > /dev/null
+          BUILD_SHA=$(python3 -c \
+            'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' \
+            "$SITE_ALIAS_BUILD")
+          SITE_DEPLOYMENT=$(python3 -c \
+            'import json,sys; print(json.load(open(sys.argv[1])).get("deploymentUrl") or "")' \
+            "$SITE_ALIAS_BUILD")
+          if ! [[ "$BUILD_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "build canary returned a non-commit value: $BUILD_SHA" >&2
+            exit 1
+          fi
+          if ! [[ "$SITE_DEPLOYMENT" =~ ^[A-Za-z0-9-]+\.vercel\.app$ ]]; then
+            echo "build canary did not return an immutable Vercel deployment URL" >&2
+            exit 1
+          fi
+
+          curl -sSf -m 90 https://api.thesisinstitute.org/build.json \
+            -o "$API_ALIAS_BUILD"
+          python3 -m json.tool "$API_ALIAS_BUILD" > /dev/null
+          API_DEPLOYMENT=$(python3 -c \
+            'import json,sys; print(json.load(open(sys.argv[1])).get("deploymentUrl") or "")' \
+            "$API_ALIAS_BUILD")
+          if ! [[ "$API_DEPLOYMENT" =~ ^[A-Za-z0-9-]+\.vercel\.app$ ]]; then
+            echo "API canary did not return an immutable Vercel deployment URL" >&2
+            exit 1
+          fi
+          SITE_BASE="https://$SITE_DEPLOYMENT"
+          API_BASE="https://$API_DEPLOYMENT"
+
+          CHECKOUT_SHA=$(git rev-parse HEAD)
+          git fetch --no-tags origin "$BUILD_SHA"
+          if [ -n "$EXPECTED_SHA" ]; then
+            if ! [[ "$EXPECTED_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
+              echo "expected_sha is not a full commit SHA: $EXPECTED_SHA" >&2
+              exit 1
+            fi
+            if [ "$BUILD_SHA" != "$EXPECTED_SHA" ]; then
+              echo "refusing to record: deployed $BUILD_SHA != expected $EXPECTED_SHA" >&2
+              exit 1
+            fi
+            ANCESTRY_DISTANCE=0
+          else
+            if ! git merge-base --is-ancestor "$BUILD_SHA" "$CHECKOUT_SHA"; then
+              echo "refusing scheduled record: deployed $BUILD_SHA is not an ancestor-or-equal of checkout $CHECKOUT_SHA" >&2
+              exit 1
+            fi
+            ANCESTRY_DISTANCE=$(git rev-list --count "$BUILD_SHA..$CHECKOUT_SHA")
+          fi
+
           declare -A SURFACES=(
             [ledger]="ledger.json"
             [targets]="targets.json"
@@ -39,27 +103,17 @@ jobs:
             [build]="build.json"
           )
           for f in "${!SURFACES[@]}"; do
-            curl -sSf -m 90 "https://app.thesisinstitute.org/${SURFACES[$f]}" \
+            curl -sSf -m 90 "$SITE_BASE/${SURFACES[$f]}" \
               -o "$SOURCE_DIR/$f.json"
             python3 -m json.tool "$SOURCE_DIR/$f.json" > /dev/null
           done
+          cmp "$SITE_ALIAS_BUILD" "$SOURCE_DIR/build.json"
+          curl -sSf -m 90 "$API_BASE/build.json" -o "$SOURCE_DIR/api-build.json"
+          python3 -m json.tool "$SOURCE_DIR/api-build.json" > /dev/null
+          cmp "$API_ALIAS_BUILD" "$SOURCE_DIR/api-build.json"
           python3 scripts/thesis_log_client.py \
-            --url "https://app.thesisinstitute.org/log.json" \
+            --url "$SITE_BASE/log.json" \
             --output-dir "$SOURCE_DIR"
-
-          ATTESTED_SHA=$(git rev-parse HEAD)
-          BUILD_SHA=$(python3 -c \
-            'import json,sys; print(json.load(open(sys.argv[1]))["commit"])' \
-            "$SOURCE_DIR/build.json")
-          if ! [[ "$BUILD_SHA" =~ ^[0-9a-fA-F]{40}$ ]]; then
-            echo "build canary returned a non-commit value: $BUILD_SHA" >&2
-            exit 1
-          fi
-          git fetch --no-tags origin "$BUILD_SHA"
-          if ! git merge-base --is-ancestor "$BUILD_SHA" "$ATTESTED_SHA"; then
-            echo "refusing to record: deployed $BUILD_SHA is not an ancestor-or-equal of attested $ATTESTED_SHA" >&2
-            exit 1
-          fi
 
           curl -sSf -m 90 \
             "https://api.github.com/repos/PolicyEngine/ledger/commits/codex/thesis-ledger-facts" \
@@ -75,7 +129,7 @@ jobs:
 
           # Capture each live cell's streamed forecast event (full distribution).
           for slug in spm-child-poverty-2025 cpi-u-annual-2026 ctc-expansion-cost-ty2026 ctc-current-law-outlays-ty2026; do
-            curl -sS -m 90 -N "https://api.thesisinstitute.org/forecasts/$slug/stream" \
+            curl -sS -m 90 -N "$API_BASE/forecasts/$slug/stream" \
               | awk '/^event: forecast$/{f=1;next} f&&/^data: /{print substr($0,7); exit}' \
               > "$SOURCE_DIR/live/$slug.json" || true
             [ -s "$SOURCE_DIR/live/$slug.json" ] || \
@@ -83,13 +137,35 @@ jobs:
             python3 -m json.tool "$SOURCE_DIR/live/$slug.json" > /dev/null
           done
 
-          DIGEST=$(python3 scripts/record_forecast_snapshot.py \
+          SITE_ALIAS_AFTER=$(mktemp)
+          API_ALIAS_AFTER=$(mktemp)
+          curl -sSf -m 90 https://app.thesisinstitute.org/build.json \
+            -o "$SITE_ALIAS_AFTER"
+          curl -sSf -m 90 https://api.thesisinstitute.org/build.json \
+            -o "$API_ALIAS_AFTER"
+          if ! cmp "$SITE_ALIAS_BUILD" "$SITE_ALIAS_AFTER"; then
+            echo "site alias changed deployments during snapshot collection" >&2
+            exit 1
+          fi
+          if ! cmp "$API_ALIAS_BUILD" "$API_ALIAS_AFTER"; then
+            echo "API alias changed deployments during snapshot collection" >&2
+            exit 1
+          fi
+
+          snapshot_args=(python3 scripts/record_forecast_snapshot.py \
             --records records \
             --source-dir "$SOURCE_DIR" \
             --run-id "$RUN_ID" \
             --recorded-at "$RECORDED_AT" \
-            --repo-sha "$ATTESTED_SHA" \
-            --ledger-sha "$LEDGER_SHA")
+            --repo-sha "$CHECKOUT_SHA" \
+            --ledger-sha "$LEDGER_SHA" \
+            --site-deployment-url "$SITE_BASE" \
+            --api-deployment-url "$API_BASE" \
+            --deployment-ancestry-distance "$ANCESTRY_DISTANCE")
+          if [ -n "$EXPECTED_SHA" ]; then
+            snapshot_args+=(--expected-sha "$EXPECTED_SHA")
+          fi
+          DIGEST=$("${snapshot_args[@]}")
           echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
 
       - name: Obtain independent RFC 3161 witness
