@@ -1851,21 +1851,22 @@ describe("forecast catalog", () => {
   });
 
   it("carries official source URLs into the resolution queue when available", () => {
+    // Property over the whole queue, never named cells: pending membership
+    // changes every time a resolution lands, and pinning specific slugs
+    // broke the suite the day those cells finally resolved.
     const queue = buildResolutionQueue(FORECAST_CELLS, policyEngineLedger);
-    const canadaCpi = queue.find(
-      (entry) => entry.forecastSlug === "canada-cpi-yoy-may-2026",
-    );
-    const governmentBenefits = queue.find(
-      (entry) =>
-        entry.forecastSlug === "us-government-social-benefits-may-2026",
-    );
-
-    expect(canadaCpi?.resolutionSourceUrl).toBe(
-      "https://www150.statcan.gc.ca/n1/daily-quotidien/260622/dq260622a-eng.htm",
-    );
-    expect(governmentBenefits?.resolutionSourceUrl).toBe(
-      "https://www.bea.gov/data/income-saving/personal-income",
-    );
+    const cellsBySlug = new Map(FORECAST_CELLS.map((cell) => [cell.slug, cell]));
+    expect(queue.length).toBeGreaterThan(0);
+    let carried = 0;
+    for (const entry of queue) {
+      const cell = cellsBySlug.get(entry.forecastSlug);
+      expect(cell).toBeDefined();
+      if (cell?.resolutionSourceUrl) {
+        expect(entry.resolutionSourceUrl).toBe(cell.resolutionSourceUrl);
+        carried += 1;
+      }
+    }
+    expect(carried).toBeGreaterThan(0);
   });
 
   it("infers actual resolution timestamps from ledger observations", () => {
