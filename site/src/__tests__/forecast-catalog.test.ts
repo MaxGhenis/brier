@@ -21,6 +21,7 @@ import {
   getForecastCountry,
   getForecastRuntimeKind,
   getResolutionResult,
+  type CountryCode,
   type ForecastCell,
 } from "@/data/forecast-cells";
 import {
@@ -1399,8 +1400,21 @@ describe("forecast catalog", () => {
   });
 
   it("classifies every prediction by country", () => {
+    // The single source of truth is the CountryCode union. `satisfies`
+    // makes this record compile-time exhaustive: a hardcoded regex here
+    // lagged the type when Belgium series were adopted and bounced a whole
+    // wave at the publish gate.
+    const allowed = Object.keys({
+      US: 1,
+      UK: 1,
+      CA: 1,
+      AU: 1,
+      EA: 1,
+      JP: 1,
+      BE: 1,
+    } satisfies Record<CountryCode, 1>);
     for (const forecast of FORECAST_CELLS) {
-      expect(getForecastCountry(forecast)).toMatch(/US|UK|CA|AU|EA|JP/);
+      expect(allowed).toContain(getForecastCountry(forecast));
     }
   });
 
