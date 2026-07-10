@@ -11,6 +11,11 @@ export interface TargetSourceBinding {
   table: string;
   transform: unknown;
   releasePolicy: "first_print" | "advance_vintage";
+  // Every host the series' first prints have actually appeared on,
+  // fixed at registration time; the resolution URL's host must be a
+  // member. Absent on single-host legacy bindings, which stay pinned
+  // to the sourceUrl host.
+  allowedHosts?: string[];
   expectedReleaseWindow: {
     start: string;
     end: string;
