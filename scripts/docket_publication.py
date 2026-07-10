@@ -205,7 +205,15 @@ def validate_target_registration(repo: pathlib.Path, target: dict[str, Any]) -> 
         raise PublicationError(
             f"target registration is outside records/targets: {relative}"
         )
-    snapshot = load_json(safe_join(repo, relative), "target registration")
+    # Registration snapshots are content-addressed and immutable. A
+    # RETRIED roll's snapshot was committed by the earlier attempt, so it
+    # is absent from this bundle's changed-file set — read it from the
+    # checkout in that case. The hash check below makes the source
+    # location irrelevant to integrity.
+    bundle_path = safe_join(repo, relative)
+    committed_path = safe_join(ROOT, relative)
+    source = bundle_path if bundle_path.is_file() else committed_path
+    snapshot = load_json(source, "target registration")
     if snapshot.get("schemaVersion") != "thesis_target_registration_v1":
         raise PublicationError("unsupported target registration schema")
     if canonical_sha256(snapshot) != content_hash or not relative.name.endswith(
