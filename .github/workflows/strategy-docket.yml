@@ -71,10 +71,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          REPO_SHA=$(gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha)
-          BLOB_SHA=$(gh api \
+          gh_retry() {
+            local attempt
+            for attempt in 1 2 3 4 5; do
+              if "$@"; then return 0; fi
+              echo "transient gh failure (attempt $attempt): $*" >&2
+              sleep 3
+            done
+            return 1
+          }
+          REPO_SHA=$(gh_retry gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha)
+          BLOB_SHA=$(gh_retry gh api \
             "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA" --jq .sha)
-          gh api -H "Accept: application/vnd.github.raw+json" \
+          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
             "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA" \
             > /tmp/official-observations.jsonl
           echo "blob_sha=$BLOB_SHA" >> "$GITHUB_OUTPUT"
@@ -210,12 +219,21 @@ jobs:
               print(f"{key}={evidence[key]}")
           PY
           source /tmp/selection-ledger-env
-          test "$(gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
-          gh api -H "Accept: application/vnd.github.raw+json" \
+          gh_retry() {
+            local attempt
+            for attempt in 1 2 3 4 5; do
+              if "$@"; then return 0; fi
+              echo "transient gh failure (attempt $attempt): $*" >&2
+              sleep 3
+            done
+            return 1
+          }
+          test "$(gh_retry gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
+          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
             "repos/$repository/contents/$path?ref=$repositoryCommit" \
             > /tmp/pinned-ledger.jsonl
-          latest_sha=$(gh api "repos/$repository/commits/$branch" --jq .sha)
-          gh api -H "Accept: application/vnd.github.raw+json" \
+          latest_sha=$(gh_retry gh api "repos/$repository/commits/$branch" --jq .sha)
+          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
             "repos/$repository/contents/$path?ref=$latest_sha" \
             > /tmp/latest-ledger.jsonl
 
@@ -427,12 +445,21 @@ jobs:
               print(f"{key}={evidence[key]}")
           PY
           source /tmp/selection-ledger-env
-          test "$(gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
-          gh api -H "Accept: application/vnd.github.raw+json" \
+          gh_retry() {
+            local attempt
+            for attempt in 1 2 3 4 5; do
+              if "$@"; then return 0; fi
+              echo "transient gh failure (attempt $attempt): $*" >&2
+              sleep 3
+            done
+            return 1
+          }
+          test "$(gh_retry gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
+          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
             "repos/$repository/contents/$path?ref=$repositoryCommit" \
             > /tmp/pinned-ledger.jsonl
-          latest_sha=$(gh api "repos/$repository/commits/$branch" --jq .sha)
-          gh api -H "Accept: application/vnd.github.raw+json" \
+          latest_sha=$(gh_retry gh api "repos/$repository/commits/$branch" --jq .sha)
+          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
             "repos/$repository/contents/$path?ref=$latest_sha" \
             > /tmp/latest-ledger.jsonl
 
@@ -542,15 +569,24 @@ jobs:
         run: |
           set -euo pipefail
           auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          gh_retry() {
+            local attempt
+            for attempt in 1 2 3 4 5; do
+              if "$@"; then return 0; fi
+              echo "transient gh failure (attempt $attempt): $*" >&2
+              sleep 3
+            done
+            return 1
+          }
           pushed=0
           for attempt in 1 2 3; do
             echo "strategy publication push attempt $attempt"
             test -z "$(git status --porcelain)"
             git pull --rebase origin main
             git merge-base --is-ancestor "$SOURCE_SHA" HEAD
-            gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha \
+            gh_retry gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha \
               > /tmp/latest-ledger-sha
-            gh api -H "Accept: application/vnd.github.raw+json" \
+            gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
               "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$(cat /tmp/latest-ledger-sha)" \
               > /tmp/latest-ledger.jsonl
             python3 scripts/strategy_targets.py ensure-open \

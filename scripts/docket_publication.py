@@ -705,6 +705,12 @@ def require_pre_cutover_registration(
         raise PublicationError(
             f"v2 registration does not strictly predate the v3 cutover: {relative}"
         )
+    # Every grandfathered target announces itself in the publish log for as
+    # long as the pre-v3 target set lives.
+    print(
+        f"grandfathered pre-v3 registration {relative} introduced at {commit}",
+        file=sys.stderr,
+    )
 
 
 REGISTRATION_BINDING_FIELDS = (

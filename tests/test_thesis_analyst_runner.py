@@ -1421,3 +1421,39 @@ def test_comparison_generator_does_not_rescale_matching_target_unit(tmp_path):
     assert '"pointEstimate": 225' in output
     assert '"ciLow": 208' in output
     assert '"pointEstimate": 0.225' not in output
+
+
+def test_pin_comparison_contract_pins_resolver_but_not_units() -> None:
+    from run_thesis_analyst import pin_comparison_contract
+
+    context = {
+        "comparisonTarget": True,
+        "catalogSlug": "australia-cpi-annual-rate-july-2026",
+        "country": "AU",
+        "resolutionDate": "2026-08-26",
+        "resolutionSource": "Australian Bureau of Statistics",
+        "resolutionSourceUrl": "https://www.abs.gov.au/statistics",
+        "resolutionRule": "First print of the all groups CPI annual rate.",
+        "targetUnit": "percent",
+    }
+    cell = {
+        "slug": "abs-cpi-all-groups-yoy-2026-07",
+        "country": "AU",
+        "unit": "index points",
+        "resolutionDate": "2026-08-27",
+        "resolutionSource": "ABS",
+        "resolutionSourceUrl": "https://www.abs.gov.au/other",
+        "resolutionRule": "First print, unless corrected the same day.",
+    }
+    pin_comparison_contract(cell, context)
+    assert cell["slug"] == context["catalogSlug"]
+    assert cell["resolutionDate"] == context["resolutionDate"]
+    assert cell["resolutionSource"] == context["resolutionSource"]
+    assert cell["resolutionSourceUrl"] == context["resolutionSourceUrl"]
+    assert cell["resolutionRule"] == context["resolutionRule"]
+    assert cell["unit"] == "index points"
+
+    unpinned = {"slug": "model-slug", "resolutionRule": "model words"}
+    pin_comparison_contract(unpinned, {**context, "comparisonTarget": False})
+    pin_comparison_contract(unpinned, None)
+    assert unpinned == {"slug": "model-slug", "resolutionRule": "model words"}

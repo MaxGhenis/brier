@@ -747,3 +747,18 @@ def test_grandfathered_v2_must_strictly_predate_the_cutover(
             require_git_binding=True,
             allow_pre_cutover_v2=True,
         )
+
+
+def test_tampered_pre_cutover_v2_content_hash_is_rejected() -> None:
+    target = dict(_real_pre_cutover_v2_target())
+    original = target["targetContentHash"]
+    target["targetContentHash"] = ("0" if original[0] != "0" else "1") + original[1:]
+
+    with pytest.raises(PublicationError, match="hash mismatch"):
+        docket_publication.validate_target_registration(
+            ROOT,
+            target,
+            run_started_at="2026-07-10T23:59:59Z",
+            require_git_binding=True,
+            allow_pre_cutover_v2=True,
+        )

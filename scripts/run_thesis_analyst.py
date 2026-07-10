@@ -1695,6 +1695,31 @@ def registration_binding(
     }
 
 
+def pin_comparison_contract(
+    cell: dict[str, Any],
+    target_context: dict[str, Any] | None,
+) -> None:
+    """Comparison cells are graded against the published target's resolution
+    contract, so the sealed cell carries that contract verbatim; the model's
+    own resolver wording stays in the parsed cells and trace. Units are
+    deliberately not pinned — a unit drift must fail validation rather than
+    relabel the forecast numbers."""
+
+    if not target_context or target_context.get("comparisonTarget") is not True:
+        return
+    for cell_key, context_key in (
+        ("slug", "catalogSlug"),
+        ("country", "country"),
+        ("resolutionDate", "resolutionDate"),
+        ("resolutionSource", "resolutionSource"),
+        ("resolutionSourceUrl", "resolutionSourceUrl"),
+        ("resolutionRule", "resolutionRule"),
+    ):
+        value = target_context.get(context_key)
+        if value not in (None, ""):
+            cell[cell_key] = value
+
+
 def write_failure_manifest(
     out_dir: pathlib.Path,
     run_at: str,
@@ -2411,6 +2436,7 @@ def main() -> int:
         cell["runStartedAt"] = run_at
         cell["runAt"] = sealed_at
         cell.update(binding)
+        pin_comparison_contract(cell, target_context)
     materialized_distributions = materialize_run_distributions(normalized_cells)
     normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
