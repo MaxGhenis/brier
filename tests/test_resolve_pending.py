@@ -407,6 +407,211 @@ def test_registration_contracts_resolves_duplicates_to_published_hash(
     assert contracts[dpid]["targetContentHash"] == published
 
 
+BLS_DOD_PAYLOAD = {
+    "status": "REQUEST_SUCCEEDED",
+    "responseTime": 88,
+    "message": [],
+    "Results": {
+        "series": [
+            {
+                "seriesID": "CES9091911001",
+                "data": [
+                    {
+                        "year": "2026",
+                        "period": "M05",
+                        "periodName": "May",
+                        "latest": "true",
+                        "value": "476.2",
+                        "footnotes": [{"code": "P", "text": "preliminary"}],
+                    },
+                    {
+                        "year": "2026",
+                        "period": "M04",
+                        "periodName": "April",
+                        "value": "476.6",
+                        "footnotes": [{}],
+                    },
+                    {
+                        "year": "2026",
+                        "period": "M02",
+                        "periodName": "February",
+                        "value": "478.2",
+                        "footnotes": [{}],
+                    },
+                    # Annual-average rows (M13) must never masquerade as
+                    # a month.
+                    {
+                        "year": "2025",
+                        "period": "M13",
+                        "periodName": "Annual",
+                        "value": "999.9",
+                        "footnotes": [{}],
+                    },
+                    {
+                        "year": "2025",
+                        "period": "M12",
+                        "periodName": "December",
+                        "value": "490.1",
+                        "footnotes": [{}],
+                    },
+                    {
+                        "year": "2025",
+                        "period": "M06",
+                        "periodName": "June",
+                        "value": "560.0",
+                        "footnotes": [{}],
+                    },
+                ],
+            }
+        ]
+    },
+}
+
+
+def test_bls_rows_parse_latest_and_preliminary_markers() -> None:
+    import json as json_module
+
+    raw = json_module.dumps(BLS_DOD_PAYLOAD).encode()
+    rows = resolve_pending.bls_rows_from_payload(raw, "CES9091911001")
+
+    assert rows["2026-05"] == {
+        "value": 476.2,
+        "latest": True,
+        "preliminary": True,
+    }
+    assert rows["2026-04"] == {
+        "value": 476.6,
+        "latest": False,
+        "preliminary": False,
+    }
+    assert "2025-13" not in rows and len(rows) == 5
+
+
+def test_bls_rows_fail_closed_on_errors_and_wrong_series() -> None:
+    import json as json_module
+
+    raw = json_module.dumps(BLS_DOD_PAYLOAD).encode()
+    assert resolve_pending.bls_rows_from_payload(raw, "CES3133640001") == {}
+    error = json_module.dumps(
+        {"status": "REQUEST_NOT_PROCESSED", "message": ["daily threshold"]}
+    ).encode()
+    assert resolve_pending.bls_rows_from_payload(error, "CES9091911001") == {}
+    assert resolve_pending.bls_rows_from_payload(b"not json", "X") == {}
+
+
+def test_bls_first_print_defers_absent_and_refuses_revised() -> None:
+    rows = {
+        "2026-05": {"value": 476.2, "latest": True, "preliminary": True},
+        "2026-04": {"value": 476.6, "latest": False, "preliminary": False},
+    }
+    # June absent: not yet published, defer without refusing.
+    assert resolve_pending.bls_first_print(rows, "2026-06") == (None, None)
+    # May is the latest preliminary print: capture.
+    value, refusal = resolve_pending.bls_first_print(rows, "2026-05")
+    assert value == 476.2 and refusal is None
+    # April is published but revised: refusing is the only honest option.
+    value, refusal = resolve_pending.bls_first_print(rows, "2026-04")
+    assert value is None and "first-print window" in refusal
+
+
+def test_bls_anchor_gate_tolerates_revisions_but_not_wrong_series() -> None:
+    anchors = {"2026-02": 478.2, "2026-04": 474.9}
+    # CES revised April's first print 474.9 -> 476.6 (+0.36%): tolerated.
+    revised = {
+        "2026-02": {"value": 478.2, "latest": False, "preliminary": False},
+        "2026-04": {"value": 476.6, "latest": False, "preliminary": False},
+    }
+    assert resolve_pending.bls_anchor_mismatches(revised, anchors) == []
+    # A different series' history is far outside publication tolerance.
+    wrong_series = {
+        "2026-02": {"value": 579.9, "latest": False, "preliminary": False},
+        "2026-04": {"value": 585.4, "latest": False, "preliminary": False},
+    }
+    problems = resolve_pending.bls_anchor_mismatches(wrong_series, anchors)
+    assert len(problems) == 2
+    # A missing anchor period is a mismatch, never silently skipped.
+    assert resolve_pending.bls_anchor_mismatches({}, anchors) != []
+
+
+def test_pending_adapter_refs_maps_bls_defense_cells() -> None:
+    log = {
+        "entries": [
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "dod",
+                "resolutionDate": "2026-07-02",
+                "unit": "thousands",
+                "interval80": {"lower": 452, "upper": 501},
+            },
+        ],
+        "resolutionLinks": [
+            {
+                "status": "pending",
+                "forecastSlug": "dod",
+                "targetFactRef": (
+                    "bls.ces.federal_department_of_defense_employment"
+                    ".june_2026.first_print"
+                ),
+            },
+        ],
+    }
+
+    todo = resolve_pending.pending_adapter_refs(log)
+
+    assert len(todo) == 1
+    ref, kind, spec, period_type, period, release_date, forecast = todo[0]
+    assert kind == "bls_api"
+    assert spec["series_id"] == "CES9091911001"
+    # The main loop's unit-mismatch gate compares these two operands.
+    assert spec["unit"] == forecast["unit"] == "thousands"
+    assert (period_type, period) == ("month", "2026-06")
+    assert release_date == "2026-07-02"
+
+
+def test_bls_json_archive_passes_custody_verification(tmp_path) -> None:
+    import json as json_module
+
+    original_root = resolve_pending.ROOT
+    resolve_pending.ROOT = tmp_path
+    try:
+        run_dir = tmp_path / "records" / "resolutions" / "run"
+        raw = json_module.dumps(BLS_DOD_PAYLOAD).encode()
+        archive = resolve_pending.archive_response(
+            run_dir,
+            series_id="CES9091911001",
+            vintage="2026-08-07",
+            raw=raw,
+            extension="json",
+        )
+        assert archive["path"].endswith(".json.gz")
+        manifest = resolve_pending.finalize_resolution_manifest(
+            run_dir,
+            {
+                "schemaVersion": "thesis_resolution_run_v1",
+                "retrievedAt": "2026-08-07T13:40:00Z",
+                "ledgerRepo": "PolicyEngine/ledger",
+                "ledgerBranch": "test",
+                "ledgerRepoSha": "0" * 40,
+                "facts": [
+                    {
+                        "dataPointId": (
+                            "bls.ces.federal_department_of_defense_employment"
+                            ".june_2026.first_print"
+                        ),
+                        "sourceVintage": "2026-08-07",
+                        "retrievedAt": "2026-08-07T13:40:00Z",
+                        "responseArchive": archive,
+                    }
+                ],
+            },
+        )
+        result = verify_run(run_dir)
+        assert result.inventory_status == "complete"
+        assert manifest["ok"] is True
+    finally:
+        resolve_pending.ROOT = original_root
+
+
 def test_assertion_version_changes_when_the_value_changes() -> None:
     row = {
         "source_record_id": "test.series.2030",

@@ -9,7 +9,10 @@ row is what resolves a cell: the next site build scores it.
 
 First adapters: DOL UI weekly claims (initial + continued, seasonally
 adjusted), read from FRED's ICSA/CCSA series — the advance vintage named by
-the cells' own resolver rules.
+the cells' own resolver rules. BLS CES detailed-industry cells (the defense
+batch) resolve straight from the BLS Public Data API v2 series their
+resolutionSourceUrls bind, under a temporal first-print gate and runtime
+anchor verification (see BLS_API_ADAPTERS).
 
 Usage:
     python3 scripts/resolve_pending.py [--dry-run]
@@ -284,6 +287,106 @@ A19_ROW_LABELS: dict[str, str] = {
 }
 A19_STEM = "bls.cps.employed_people_by_occupation"
 
+# BLS CES detailed-industry cells (defense batch: aerospace product and
+# parts, ship and boat building, federal Department of Defense) resolve
+# directly from the BLS Public Data API v2 series their resolutionSourceUrls
+# bind — two of the three have no FRED mirror. The API serves CURRENT
+# estimates only (no ALFRED-style vintage archive), so first-print
+# discipline is temporal: a period is captured only while it is still the
+# series' latest published month AND still carries BLS's preliminary "P"
+# footnote — the window between the Employment Situation release that first
+# prints it and the next one (~4 weeks; the daily resolver cron lands on
+# day one). A period found outside that window has been revised and is
+# refused rather than recorded as a first print.
+#
+# Detailed industries print one month behind headline CES: June 2026 was
+# not in the 2026-07-02 release the cells' resolutionDate names (verified
+# live 2026-07-10: May 2026 was the latest print), so the adapter defers
+# ("not yet published") until it lands — expected with the 2026-08-07
+# Employment Situation.
+#
+# Anchors are the cells' own recorded history, i.e. FIRST prints, while the
+# API returns current estimates, so anchor equality is tolerance-based:
+# CES monthly recalculations move detailed first prints by a few tenths of
+# a percent (observed while wiring this adapter: DoD April 2026 printed
+# 474.9, read 476.6 at the 2026-07-10 vintage, +0.36%), and annual
+# benchmarking can move levels by low single digits. 2% relative slack is
+# publication-appropriate and still orders of magnitude tighter than the
+# wrong-series/wrong-unit failures the gate exists to catch; if a later
+# benchmark pushes an anchor past it, the refusal forces manual review
+# rather than silently resolving from a redefined series.
+BLS_API_URL = (
+    "https://api.bls.gov/publicAPI/v2/timeseries/data/{series}"
+    "?startyear={start}&endyear={end}"
+)
+BLS_ANCHOR_TOLERANCE = 0.02
+BLS_API_ADAPTERS: dict[str, dict[str, Any]] = {
+    "bls.ces.aerospace_product_and_parts_employment": {
+        "series_id": "CES3133640001",
+        "unit": "thousands",
+        "label": "US aerospace product and parts employment (SA)",
+        "source_name": "bls_ces",
+        "source_table": (
+            "Current Employment Statistics, all employees, aerospace "
+            "product and parts manufacturing (SA)"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "CES3133640001",
+        "anchor_start_year": 2025,
+        "anchors": {
+            "2025-06": 566.8,
+            "2025-12": 577.6,
+            "2026-02": 579.9,
+            "2026-04": 585.4,
+        },
+    },
+    "bls.ces.ship_and_boat_building_employment": {
+        "series_id": "CES3133660001",
+        "unit": "thousands",
+        "label": "US ship and boat building employment (SA)",
+        "source_name": "bls_ces",
+        "source_table": (
+            "Current Employment Statistics, all employees, ship and boat "
+            "building (SA)"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "CES3133660001",
+        "anchor_start_year": 2024,
+        "anchors": {
+            "2024-06": 153.2,
+            "2025-06": 149.4,
+            "2025-12": 148.8,
+            "2026-04": 148.5,
+        },
+    },
+    "bls.ces.federal_department_of_defense_employment": {
+        "series_id": "CES9091911001",
+        "unit": "thousands",
+        "label": "US federal Department of Defense employment (SA)",
+        "source_name": "bls_ces",
+        "source_table": (
+            "Current Employment Statistics, all employees, federal "
+            "government, Department of Defense (SA)"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "CES9091911001",
+        "anchor_start_year": 2025,
+        "anchors": {
+            "2025-06": 560.0,
+            "2025-12": 490.1,
+            "2026-02": 478.2,
+            "2026-04": 474.9,
+        },
+    },
+}
+for _spec in BLS_API_ADAPTERS.values():
+    _spec["evidence_notes"] = (
+        "First print for {period} captured from {source_url} (BLS Public "
+        "Data API v2, current estimates only) inside the first-print "
+        "window: at capture the value was still the series' latest "
+        "published month and still carried BLS's preliminary footnote."
+    )
+
 MONTH_NUMBERS = {
     name: number
     for number, name in enumerate(
@@ -398,10 +501,11 @@ def generic_fact(
             "concept_relation": "source_label",
             "concept_authority": spec["concept_authority"],
             "concept_evidence_url": source_url,
-            "concept_evidence_notes": (
-                f"First print for {period} captured from {source_url} on the "
-                "official release date named by the cell's resolver."
-            ),
+            "concept_evidence_notes": spec.get(
+                "evidence_notes",
+                "First print for {period} captured from {source_url} on the "
+                "official release date named by the cell's resolver.",
+            ).format(period=period, source_url=source_url),
         },
         "aggregation": {"method": "level"},
         "filters": {},
@@ -433,6 +537,98 @@ def a19_values_from_html(html: str) -> dict[str, float]:
         if m:
             out[key] = float(m.group(2).replace(",", ""))
     return out
+
+
+def bls_rows_from_payload(raw: bytes, series_id: str) -> dict[str, dict[str, Any]]:
+    """Monthly rows keyed YYYY-MM with the latest/preliminary markers the
+    temporal first-print gate needs. Only a successful response for exactly
+    `series_id` yields rows; anything else fails closed to empty."""
+    try:
+        payload = json.loads(raw.decode())
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return {}
+    if payload.get("status") != "REQUEST_SUCCEEDED":
+        return {}
+    rows: dict[str, dict[str, Any]] = {}
+    for series in (payload.get("Results") or {}).get("series") or []:
+        if series.get("seriesID") != series_id:
+            continue
+        for row in series.get("data") or []:
+            match = re.fullmatch(r"M(0[1-9]|1[0-2])", str(row.get("period")))
+            if not match:
+                continue
+            try:
+                value = float(row["value"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            rows[f"{row.get('year')}-{match.group(1)}"] = {
+                "value": value,
+                "latest": str(row.get("latest", "")).lower() == "true",
+                "preliminary": any(
+                    footnote.get("code") == "P"
+                    for footnote in row.get("footnotes") or []
+                    if isinstance(footnote, dict)
+                ),
+            }
+    return rows
+
+
+def bls_series_rows(
+    series_id: str, start_year: int, end_year: int
+) -> tuple[dict[str, dict[str, Any]], bytes | None, str, str]:
+    """Every monthly value of `series_id` as the BLS API currently serves it,
+    fetched keylessly from the cell's own bound resolutionSourceUrl."""
+    url = BLS_API_URL.format(series=series_id, start=start_year, end=end_year)
+    retrieved_at = utc_now()
+    try:
+        with urllib.request.urlopen(url, timeout=120) as r:
+            raw = r.read()
+    except urllib.error.HTTPError:
+        return {}, None, url, retrieved_at
+    rows = bls_rows_from_payload(raw, series_id)
+    if not rows:
+        # An error payload (rate limit, unknown series) must not archive as
+        # if it were a print; surface it as a failed fetch instead.
+        return {}, None, url, retrieved_at
+    return rows, raw, url, retrieved_at
+
+
+def bls_anchor_mismatches(
+    rows: dict[str, dict[str, Any]], anchors: dict[str, float]
+) -> list[str]:
+    """Anchor periods whose fetched values cannot reproduce the cell's own
+    recorded history within BLS_ANCHOR_TOLERANCE (see the adapter note on
+    first prints vs current estimates)."""
+    problems = []
+    for anchor_period, expected in sorted(anchors.items()):
+        state = rows.get(anchor_period)
+        if state is None:
+            problems.append(f"{anchor_period}=missing (recorded {expected})")
+            continue
+        if abs(state["value"] - expected) > BLS_ANCHOR_TOLERANCE * abs(expected):
+            problems.append(
+                f"{anchor_period}={state['value']} (recorded first print "
+                f"{expected})"
+            )
+    return problems
+
+
+def bls_first_print(
+    rows: dict[str, dict[str, Any]], period: str
+) -> tuple[float | None, str | None]:
+    """(value, refusal): a value only while `period` is still the series'
+    latest preliminary print; a present-but-revised period is refused, an
+    absent one defers."""
+    state = rows.get(period)
+    if state is None:
+        return None, None
+    if not (state["latest"] and state["preliminary"]):
+        return None, (
+            f"{period} is published but no longer the latest preliminary "
+            "print; the first-print window was missed — resolve manually "
+            "from an archived vintage"
+        )
+    return state["value"], None
 
 
 def claims_fact(
@@ -566,6 +762,29 @@ def pending_adapter_refs(
                 }
                 out.append(
                     (ref, "a19", spec, parsed[0], parsed[1], release_date, forecast)
+                )
+            continue
+        bls_stem = next(
+            (
+                stem
+                for stem in BLS_API_ADAPTERS
+                if ref.startswith(stem + ".")
+            ),
+            None,
+        )
+        if bls_stem:
+            parsed = parse_ref_period(ref, bls_stem)
+            if parsed:
+                out.append(
+                    (
+                        ref,
+                        "bls_api",
+                        BLS_API_ADAPTERS[bls_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
                 )
             continue
         for stem, spec in ALFRED_ADAPTERS.items():
@@ -1191,9 +1410,13 @@ def main() -> int:
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
-    # Generic adapters: ALFRED vintage series and A-19 snapshot rows. FRED
-    # fetches are cached per (series, vintage); A-19 snapshots per month.
+    # Generic adapters: ALFRED vintage series, BLS API series, and A-19
+    # snapshot rows. FRED fetches are cached per (series, vintage); BLS
+    # fetches per (series, year range); A-19 snapshots per month.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
+    bls_cache: dict[
+        tuple[str, int, int], tuple[dict, bytes | None, str, str]
+    ] = {}
     a19_cache: dict[str, tuple[dict[str, float], bytes | None, str, str]] = {}
     for ref, kind, spec, period_type, period, source_vintage, forecast in (
         adapter_todo
@@ -1221,6 +1444,32 @@ def main() -> int:
             series_id = spec["fred"]
             source_file = "alfredgraph.csv"
             extension = "csv"
+        elif kind == "bls_api":
+            series_id = spec["series_id"]
+            bls_key = (series_id, spec["anchor_start_year"], int(period[:4]))
+            if bls_key not in bls_cache:
+                bls_cache[bls_key] = bls_series_rows(*bls_key)
+            rows, raw, source_url, retrieved_at = bls_cache[bls_key]
+            if raw is None:
+                print(f"  BLS API fetch failed: {ref}")
+                continue
+            mismatches = bls_anchor_mismatches(rows, spec["anchors"])
+            if mismatches:
+                print(
+                    f"  ANCHOR MISMATCH (refusing, wrong series?): {ref} "
+                    + "; ".join(mismatches)
+                )
+                continue
+            value, refusal = bls_first_print(rows, period)
+            if refusal:
+                print(f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — {refusal}")
+                continue
+            # The API has no vintage archive, so the capture day IS the
+            # source vintage; the latest+preliminary gate above bounds it
+            # inside the first-print window.
+            release_day = dt.date.fromisoformat(retrieved_at[:10])
+            source_file = "timeseries/data (BLS Public Data API v2)"
+            extension = "json"
         else:
             snapshot_url = A19_SNAPSHOT_URLS.get(period)
             if not snapshot_url:
