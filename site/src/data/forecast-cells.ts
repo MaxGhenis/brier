@@ -1,4 +1,5 @@
 import { BENEFIT_PROGRAM_EXAMPLES } from "./forecast-examples/benefits";
+import { AUTO_2026_07_10_AFC0DA82_WAVE } from "./forecast-examples/auto-2026-07-10-afc0da82";
 import { AGING_CONDITIONALS_2026_07_08_WAVE } from "./forecast-examples/aging-conditionals-2026-07-08";
 import { AGING_DISABILITY_2026_07_08_WAVE } from "./forecast-examples/aging-disability-2026-07-08";
 import { PROSPECT_2026_07_08_R4_WAVE } from "./forecast-examples/prospect-2026-07-08-r4";
@@ -5182,6 +5183,7 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   },
 
   ...LAUNCH_CADENCE_EXAMPLES,
+  ...AUTO_2026_07_10_AFC0DA82_WAVE,
   ...AGING_CONDITIONALS_2026_07_08_WAVE,
   ...AGING_DISABILITY_2026_07_08_WAVE,
   ...PROSPECT_2026_07_08_R4_WAVE,
