@@ -13,7 +13,7 @@ the cells' own resolver rules.
 
 Usage:
     python3 scripts/resolve_pending.py [--dry-run]
-        [--ledger-repo PolicyEngine/arch-data]
+        [--ledger-repo PolicyEngine/ledger]
         [--ledger-branch codex/thesis-ledger-facts]
         [--ledger-path ledger/official_observations.jsonl]
 

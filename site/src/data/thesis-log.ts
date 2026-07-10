@@ -231,7 +231,7 @@ export interface PolicyEngineLedgerExport {
   schemaVersion: "policyengine_ledger_v1";
   source: {
     name: "PolicyEngine Ledger";
-    url: "https://github.com/PolicyEngine/arch-data";
+    url: "https://github.com/PolicyEngine/ledger";
     jsonMirrorUrl: "https://app.thesisinstitute.org/ledger.json";
   };
   counts: {
@@ -275,7 +275,7 @@ export interface ThesisLogExport {
     jsonUrl: "https://app.thesisinstitute.org/log.json";
     factLedger: {
       name: "PolicyEngine Ledger";
-      url: "https://github.com/PolicyEngine/arch-data";
+      url: "https://github.com/PolicyEngine/ledger";
       jsonUrl: "https://app.thesisinstitute.org/ledger.json";
     };
   };
@@ -333,7 +333,7 @@ export interface ForecastJudgeLogSummary {
 
 export const POLICYENGINE_LEDGER_FACTS_URL =
   process.env.POLICYENGINE_LEDGER_FACTS_URL ??
-  "https://github.com/PolicyEngine/arch-data/raw/refs/heads/codex/thesis-ledger-facts/ledger/official_observations.jsonl";
+  "https://github.com/PolicyEngine/ledger/raw/refs/heads/codex/thesis-ledger-facts/ledger/official_observations.jsonl";
 
 interface PolicyEngineAggregateFactRow {
   value: number;
@@ -895,7 +895,7 @@ export function buildPolicyEngineLedgerExport(
     schemaVersion: "policyengine_ledger_v1",
     source: {
       name: "PolicyEngine Ledger",
-      url: "https://github.com/PolicyEngine/arch-data",
+      url: "https://github.com/PolicyEngine/ledger",
       jsonMirrorUrl: "https://app.thesisinstitute.org/ledger.json",
     },
     counts: {
@@ -965,7 +965,7 @@ export function buildThesisLogData(
       jsonUrl: "https://app.thesisinstitute.org/log.json",
       factLedger: {
         name: "PolicyEngine Ledger",
-        url: "https://github.com/PolicyEngine/arch-data",
+        url: "https://github.com/PolicyEngine/ledger",
         jsonUrl: "https://app.thesisinstitute.org/ledger.json",
       },
     },

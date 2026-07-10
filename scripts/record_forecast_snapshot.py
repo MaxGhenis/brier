@@ -34,7 +34,7 @@ SURFACES = {
     ),
     "ledgerCommitApi": (
         "ledger-commit.json",
-        "https://api.github.com/repos/PolicyEngine/arch-data/commits/"
+        "https://api.github.com/repos/PolicyEngine/ledger/commits/"
         "codex/thesis-ledger-facts",
     ),
 }
@@ -278,7 +278,7 @@ def main() -> int:
             "deploymentAncestryDistance": args.deployment_ancestry_distance,
             "siteDeploymentUrl": args.site_deployment_url,
             "forecastApiDeploymentUrl": args.api_deployment_url,
-            "ledgerRepository": "PolicyEngine/arch-data",
+            "ledgerRepository": "PolicyEngine/ledger",
             "ledgerBranch": "codex/thesis-ledger-facts",
             "ledgerBranchCommit": args.ledger_sha,
             "liveBuildCanary": build_payload,

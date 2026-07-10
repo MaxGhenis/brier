@@ -44,6 +44,7 @@ REVIEWED_STAGE_INVENTORY = {
 RESOLVER_RESPONSE_RE = re.compile(
     r"responses/(?:icsa|ccsa)-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}\.csv\.gz"
 )
+LEDGER_WITNESS_ARCHIVE_RE = re.compile(r"upstream/[a-z0-9][a-z0-9._-]*\.gz")
 RECORDER_REQUIRED_SURFACES = {
     "log": "log.json.gz",
     "ledger": "ledger.json.gz",
@@ -480,6 +481,111 @@ def _verify_resolver_v2(
         )
 
 
+def _verify_ledger_witness_v2(
+    run_dir: Path, manifest: dict[str, Any], entries: list[dict[str, Any]]
+) -> None:
+    if manifest.get("schemaVersion") != "thesis_ledger_witness_run_v1":
+        raise CustodyError("ledger witness custody mode has the wrong manifest schema")
+    upstream = manifest.get("upstream")
+    if not isinstance(upstream, list) or not upstream:
+        raise CustodyError("ledger witness inventory requires an upstream archive")
+    invalid_entries = [
+        f"{entry['artifactType']}:{entry['path']}"
+        for entry in entries
+        if entry["artifactType"] != "upstream_archive"
+        or not LEDGER_WITNESS_ARCHIVE_RE.fullmatch(str(entry["path"]))
+    ]
+    if invalid_entries:
+        raise CustodyError(
+            "ledger witness inventory contains non-upstream artifacts: "
+            + ", ".join(invalid_entries)
+        )
+    rooted_archives = {str(entry["path"]) for entry in entries}
+    jsonl_claim = manifest.get("jsonl")
+    if not isinstance(jsonl_claim, dict):
+        raise CustodyError("ledger witness manifest lacks a jsonl commitment")
+    manifest_archives: set[str] = set()
+    observations_witnessed = False
+    for record in upstream:
+        archive = record.get("archive") if isinstance(record, dict) else None
+        if not isinstance(archive, dict):
+            raise CustodyError("ledger witness record lacks an archive")
+        declared = str(archive.get("path", ""))
+        relative = _manifest_relative(run_dir, declared, legacy=False)
+        if not LEDGER_WITNESS_ARCHIVE_RE.fullmatch(relative):
+            raise CustodyError(
+                "invalid ledger witness archive path: "
+                f"declared={declared!r}, resolved={relative!r}"
+            )
+        if relative in manifest_archives:
+            raise CustodyError(f"duplicate ledger witness archive: {relative}")
+        if archive.get("contentEncoding") != "gzip":
+            raise CustodyError(
+                f"ledger witness archive is not declared gzip: {relative}"
+            )
+        path = _safe_artifact_path(run_dir, relative)
+        compressed = path.read_bytes()
+        if _sha256(compressed) != archive.get("gzipSha256") or len(
+            compressed
+        ) != archive.get("gzipBytes"):
+            raise CustodyError(
+                f"ledger witness compressed archive mismatch: {relative}"
+            )
+        try:
+            raw = gzip.decompress(compressed)
+        except (OSError, EOFError) as exc:
+            raise CustodyError(
+                f"invalid ledger witness gzip archive {relative}: {exc}"
+            ) from exc
+        if _sha256(raw) != archive.get("sha256") or len(raw) != archive.get("bytes"):
+            raise CustodyError(
+                f"ledger witness decompressed archive mismatch: {relative}"
+            )
+        if record.get("role") == "official_observations_jsonl":
+            observations_witnessed = True
+            lines = [line for line in raw.decode("utf-8").splitlines() if line.strip()]
+            if len(lines) != jsonl_claim.get("lineCount"):
+                raise CustodyError(
+                    "ledger witness jsonl line count mismatch: "
+                    f"expected {jsonl_claim.get('lineCount')}, got {len(lines)}"
+                )
+            if _sha256(raw) != jsonl_claim.get("sha256"):
+                raise CustodyError("ledger witness jsonl commitment hash mismatch")
+            seen_ids: set[str] = set()
+            for number, line in enumerate(lines, start=1):
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise CustodyError(
+                        f"ledger witness jsonl line {number} is invalid: {exc}"
+                    ) from exc
+                record_id = (
+                row.get("source_record_id") if isinstance(row, dict) else None
+            )
+                if not record_id:
+                    raise CustodyError(
+                        f"ledger witness jsonl line {number} lacks source_record_id"
+                    )
+                seen_ids.add(str(record_id))
+            if len(seen_ids) != jsonl_claim.get("sourceRecordIdCount"):
+                raise CustodyError(
+                    "ledger witness jsonl source_record_id count mismatch: "
+                    f"expected {jsonl_claim.get('sourceRecordIdCount')}, "
+                    f"got {len(seen_ids)}"
+                )
+        manifest_archives.add(relative)
+    if not observations_witnessed:
+        raise CustodyError(
+            "ledger witness run does not witness official_observations.jsonl"
+        )
+    if rooted_archives != manifest_archives:
+        raise CustodyError(
+            "ledger witness archive inventory mismatch: "
+            f"rooted={sorted(rooted_archives)}, "
+            f"manifest={sorted(manifest_archives)}"
+        )
+
+
 def verify_run(run_dir: Path) -> CustodyVerification:
     run_dir = run_dir.resolve()
     root_path = run_dir / "custody_root.json"
@@ -520,6 +626,7 @@ def verify_run(run_dir: Path) -> CustodyVerification:
             "analyst",
             "resolver",
             "derived_ensemble",
+            "ledger_witness",
         }:
             raise CustodyError(
                 "custody run mode mismatch: "
@@ -709,6 +816,8 @@ def verify_run(run_dir: Path) -> CustodyVerification:
             _verify_analyst_v2(run_dir, manifest, manifest_entries, normalized_entries)
         elif run_mode == "resolver":
             _verify_resolver_v2(run_dir, manifest, normalized_entries)
+        elif run_mode == "ledger_witness":
+            _verify_ledger_witness_v2(run_dir, manifest, normalized_entries)
         else:
             raise CustodyError(
                 "derived ensembles do not yet have a complete v2 custody inventory"

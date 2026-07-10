@@ -648,7 +648,7 @@ describe("Next.js migration", () => {
 
       expect(body.schemaVersion).toBe("policyengine_ledger_v1");
       expect(body.source.name).toBe("PolicyEngine Ledger");
-      expect(body.source.url).toBe("https://github.com/PolicyEngine/arch-data");
+      expect(body.source.url).toBe("https://github.com/PolicyEngine/ledger");
       expect(body.counts.facts).toBeGreaterThan(0);
       expect(body.counts.targets).toBeGreaterThan(0);
       expect(body.counts.observations).toBeGreaterThan(0);
