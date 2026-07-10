@@ -212,12 +212,12 @@ export default async function CalibrationPage() {
             className="mt-2 max-w-[640px] text-[0.88rem] leading-[1.6]"
             style={{ color: "var(--theme-text-muted)" }}
           >
-            Paired agent-minus-baseline normalized CRPS per target, lowest
-            (best) first. Unpaired means remain visible for context. The
-            persistence baseline forecasts every target as its last official
-            print with a realized-volatility interval — an agent earns its place
-            by beating it. Rows with few scored runs are noisy; read them
-            accordingly.
+            Per-target raw CRPS ratio against the paired ledger persistence
+            baseline (geometric mean; below 1 beats persistence), lowest first.
+            Unpaired means remain visible for context. The persistence baseline
+            forecasts every target as its last official print with a
+            realized-volatility interval — an agent earns its place by beating
+            it. Rows with few scored runs are noisy; read them accordingly.
           </p>
           <div
             className="mt-5 overflow-x-auto rounded-[14px] border"
