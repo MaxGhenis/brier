@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is publishable after clarifying that its historical prior/volatility sample appears to use current or revised same-series observations rather than true first-print vintages.",
+  "requiredFixes": [
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The reasoning calls the 52-week sample 'first-print movement,' but the cited DOL/FRED history likely includes revised prior-week values, while the target resolves to the first print.",
+      "actionRequested": "Either recompute the prior and interval from ALFRED advance-vintage/first-print CCSA history, or explicitly label the DOL/FRED history as a revised-history proxy and state why it is acceptable for this forecast."
+    }
+  ],
+  "optionalSuggestions": [
+    "Mention that 2026-07-23 is the expected first report containing continued claims for week ending 2026-07-11, not merely the next UI release.",
+    "If available, cite the ALFRED advance vintage source alongside the DOL release because the ledger binding uses the ALFRED CCSA advance-vintage adapter."
+  ]
+}
