@@ -287,6 +287,13 @@ jobs:
       - name: Verify record chain
         run: python3 scripts/verify_record_chain.py records
 
+      # The new snapshot's witness extends externally proven coverage, so the
+      # committed timeline must be regenerated in the same commit — otherwise
+      # tests/test_record_integrity.py fails on every clone until someone
+      # refreshes it by hand.
+      - name: Refresh witnessed timeline
+        run: python3 scripts/witnessed_timeline.py
+
       - name: Commit snapshot
         run: |
           set -euo pipefail
