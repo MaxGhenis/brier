@@ -81,6 +81,357 @@ def fred_advance_value(
     return None, raw, url, retrieved_at
 
 
+def fred_vintage_series(
+    series_id: str, vintage: str
+) -> tuple[dict[str, float], bytes | None, str, str]:
+    """Every dated value of `series_id` as printed on `vintage`."""
+    url = FRED_CSV.format(series=series_id, vintage=vintage)
+    retrieved_at = utc_now()
+    try:
+        with urllib.request.urlopen(url, timeout=120) as r:
+            raw = r.read()
+    except urllib.error.HTTPError:
+        return {}, None, url, retrieved_at
+    rows: dict[str, float] = {}
+    for row in csv.DictReader(io.StringIO(raw.decode())):
+        date = row.get("observation_date") or row.get("DATE")
+        value = row.get(f"{series_id}_{vintage.replace('-', '')}") or row.get(
+            series_id
+        )
+        if date and value not in (None, "", "."):
+            rows[date] = float(value)
+    return rows, raw, url, retrieved_at
+
+
+# Generic ALFRED adapters for monthly/quarterly first prints, one entry per
+# dataPointId series stem. Every mapping was verified against the cell's own
+# published history at each anchor's FIRST-PRINT vintage before being added
+# (2026-07-10; e.g. all six BEA April anchors matched to the 0.1 at the
+# 2026-06-05 vintage) — a candidate series that cannot reproduce the cell's
+# recorded history must never resolve it. Transforms:
+#   level         — the period's value as printed
+#   mom_diff      — period minus prior period, same vintage (payroll change
+#                   as BLS headlines it)
+#   pct_change_1d — percent change from prior period, one decimal (how BEA
+#                   headlines PCE price changes)
+ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
+    "bls.ces.total_nonfarm_payroll_change": {
+        "fred": "PAYEMS",
+        "transform": "mom_diff",
+        "unit": "thousands",
+        "label": "US nonfarm payroll change",
+        "source_name": "bls_ces",
+        "source_table": "Employment Situation, Table B-1 (total nonfarm)",
+        "concept_authority": "bls",
+    },
+    "bls.cps.unemployment_rate": {
+        "fred": "UNRATE",
+        "transform": "level",
+        "unit": "percent",
+        "label": "US unemployment rate",
+        "source_name": "bls_cps",
+        "source_table": "Employment Situation, Table A-1",
+        "concept_authority": "bls",
+    },
+    "bls.jolts.job_openings_total": {
+        "fred": "JTSJOL",
+        "transform": "level",
+        "unit": "thousands",
+        "label": "US job openings, total nonfarm",
+        "source_name": "bls_jolts",
+        "source_table": "JOLTS news release, Table 1",
+        "concept_authority": "bls",
+    },
+    "bls.jolts.job_openings": {
+        "fred": "JTSJOL",
+        "transform": "level",
+        "unit": "millions",
+        "scale": 0.001,
+        "round": 3,
+        "label": "US job openings, total nonfarm",
+        "source_name": "bls_jolts",
+        "source_table": "JOLTS news release, Table 1",
+        "concept_authority": "bls",
+    },
+    "bea.pce.core_mom": {
+        "fred": "PCEPILFE",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US core PCE price index, monthly change",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays",
+        "concept_authority": "bea",
+    },
+    "us.bea.core_pce.mom_sa": {
+        "fred": "PCEPILFE",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US core PCE price index, monthly change",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays",
+        "concept_authority": "bea",
+    },
+    "bea.pce_price_index.monthly_change": {
+        "fred": "PCEPI",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US PCE price index, monthly change",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays",
+        "concept_authority": "bea",
+    },
+    "bea.real_gdp.saar": {
+        "fred": "A191RL1Q225SBEA",
+        "transform": "level",
+        "unit": "percent_growth",
+        "label": "US real GDP, SAAR percent change",
+        "source_name": "bea",
+        "source_table": "Gross Domestic Product news release",
+        "concept_authority": "bea",
+    },
+    "bea.disposable_personal_income.level": {
+        "fred": "DSPI",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US disposable personal income, SAAR level",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays, Table 1",
+        "concept_authority": "bea",
+    },
+    "bea.government_social_benefits.level": {
+        "fred": "A063RC1",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US government social benefits to persons, SAAR level",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays, Table 1",
+        "concept_authority": "bea",
+    },
+    "bea.government_social_benefits.social_security": {
+        "fred": "W823RC1",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US social security benefits, SAAR level",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays, Table 1",
+        "concept_authority": "bea",
+    },
+    "bea.government_social_benefits.medicare": {
+        "fred": "W824RC1",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US Medicare benefits, SAAR level",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays, Table 1",
+        "concept_authority": "bea",
+    },
+    "bea.government_social_benefits.medicaid": {
+        "fred": "W729RC1",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US Medicaid benefits, SAAR level",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays, Table 1",
+        "concept_authority": "bea",
+    },
+    "bea.wages_and_salaries.level": {
+        "fred": "A576RC1",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US wages and salaries, SAAR level",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays, Table 1",
+        "concept_authority": "bea",
+    },
+    "bea.personal_current_taxes.level": {
+        "fred": "W055RC1",
+        "transform": "level",
+        "unit": "usd_billions",
+        "label": "US personal current taxes, SAAR level",
+        "source_name": "bea",
+        "source_table": "Personal Income and Outlays, Table 1",
+        "concept_authority": "bea",
+    },
+}
+
+# CPS Table A-19 detail rows have no FRED mirror, so they resolve from an
+# immutable Wayback Machine snapshot of the cells' OWN bound source page
+# (bls.gov blocks non-browser fetches; web.archive.org serves the exact
+# bytes and independently timestamps them). One snapshot per data month,
+# captured right after the Employment Situation release. The three rows
+# that DO have FRED mirrors (office/admin, production, transport) were
+# cross-checked against ALFRED at the release vintage and matched exactly.
+A19_SNAPSHOT_URLS: dict[str, str] = {
+    "2026-06": (
+        "https://web.archive.org/web/20260710110509/"
+        "https://www.bls.gov/web/empsit/cpseea19.htm"
+    ),
+}
+A19_ROW_LABELS: dict[str, str] = {
+    "business_financial_operations": "Business and financial operations occupations",
+    "computer_mathematical": "Computer and mathematical occupations",
+    "healthcare_support": "Healthcare support occupations",
+    "office_administrative_support": (
+        "Office and administrative support occupations"
+    ),
+    "production": "Production occupations",
+    "transportation_material_moving": (
+        "Transportation and material moving occupations"
+    ),
+}
+A19_STEM = "bls.cps.employed_people_by_occupation"
+
+MONTH_NUMBERS = {
+    name: number
+    for number, name in enumerate(
+        "january february march april may june july august september "
+        "october november december".split(),
+        start=1,
+    )
+}
+
+
+def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
+    """(period_type, YYYY-MM) parsed from a dataPointId's period tail."""
+    tail = ref[len(stem) + 1 :]
+    tail = re.sub(r"\.(first_print|advance|second|third)_?(estimate)?$", "", tail)
+    m = re.fullmatch(r"([a-z]+)_(\d{4})", tail)
+    if m and m.group(1) in MONTH_NUMBERS:
+        return "month", f"{m.group(2)}-{MONTH_NUMBERS[m.group(1)]:02d}"
+    m = re.fullmatch(r"(\d{4})-(\d{2})", tail)
+    if m:
+        return "month", f"{m.group(1)}-{m.group(2)}"
+    m = re.fullmatch(r"q([1-4])_(\d{4})", tail)
+    if m:
+        return "quarter", f"{m.group(2)}-{(int(m.group(1)) - 1) * 3 + 1:02d}"
+    m = re.fullmatch(r"(\d{4})_q([1-4])", tail)
+    if m:
+        return "quarter", f"{m.group(1)}-{(int(m.group(2)) - 1) * 3 + 1:02d}"
+    return None
+
+
+def prior_period_date(period_date: str, period_type: str) -> str:
+    year, month = int(period_date[:4]), int(period_date[5:7])
+    step = 3 if period_type == "quarter" else 1
+    month -= step
+    if month < 1:
+        month += 12
+        year -= 1
+    return f"{year}-{month:02d}"
+
+
+def apply_transform(
+    rows: dict[str, float], spec: dict[str, Any], period_type: str, period: str
+) -> float | None:
+    key = f"{period}-01"
+    prior_key = f"{prior_period_date(period, period_type)}-01"
+    if rows.get(key) is None:
+        return None
+    transform = spec["transform"]
+    if transform == "level":
+        value = rows[key]
+    elif transform == "mom_diff":
+        if rows.get(prior_key) is None:
+            return None
+        value = rows[key] - rows[prior_key]
+    elif transform == "pct_change_1d":
+        if rows.get(prior_key) is None:
+            return None
+        value = round((rows[key] / rows[prior_key] - 1) * 100, 1)
+    else:
+        raise ValueError(f"unknown transform {transform!r}")
+    value *= spec.get("scale", 1)
+    digits = spec.get("round")
+    if digits is not None:
+        value = round(value, digits)
+    return round(value, 4)
+
+
+def value_plausible(
+    value: float, forecast_entry: dict[str, Any] | None
+) -> bool:
+    """Bounded unit-scale gate: a fetched value wildly outside the cell's
+    own interval means a wrong series or transform (thousands-vs-millions
+    class), never a legitimate outcome. Bounded at 4 interval-widths so a
+    genuine surprise still resolves and grades."""
+    interval = (forecast_entry or {}).get("interval80") or {}
+    lower, upper = interval.get("lower"), interval.get("upper")
+    if lower is None or upper is None:
+        return True
+    width = max(upper - lower, abs(upper) * 0.05, 1e-9)
+    return (lower - 4 * width) <= value <= (upper + 4 * width)
+
+
+def generic_fact(
+    ref: str,
+    spec: dict[str, Any],
+    period_type: str,
+    period: str,
+    value: float,
+    release_day: dt.date,
+    source_url: str,
+    source_file: str,
+) -> dict:
+    return {
+        "source_record_id": ref,
+        "label": f"{spec['label']}, {period}",
+        "value": value,
+        "observed_at": release_day.isoformat(),
+        "period": {"type": period_type, "value": period},
+        "domain": spec.get("domain", "economy"),
+        "geography": {
+            "level": "country",
+            "id": "0100000US",
+            "vintage": "current",
+            "name": "United States",
+        },
+        "entity": spec.get("entity", {"name": "economy", "role": "aggregate"}),
+        "measure": {
+            "concept": ref.rsplit(".", 1)[0]
+            if ref.endswith("first_print")
+            else ref,
+            "unit": spec["unit"],
+            "source_concept": spec.get("fred", spec.get("source_concept", "")),
+            "concept_relation": "source_label",
+            "concept_authority": spec["concept_authority"],
+            "concept_evidence_url": source_url,
+            "concept_evidence_notes": (
+                f"First print for {period} captured from {source_url} on the "
+                "official release date named by the cell's resolver."
+            ),
+        },
+        "aggregation": {"method": "level"},
+        "filters": {},
+        "source": {
+            "source_name": spec["source_name"],
+            "source_table": spec["source_table"],
+            "source_file": source_file,
+            "url": source_url,
+            "vintage": "first_print",
+            "extracted_at": dt.date.today().isoformat(),
+            "extraction_method": (
+                "Automated first-print capture by scripts/resolve_pending.py "
+                "(anchor-verified adapter)"
+            ),
+        },
+        "source_row_keys": [period],
+        "source_cell_keys": [spec.get("fred", spec.get("source_concept", ""))],
+    }
+
+
+def a19_values_from_html(html: str) -> dict[str, float]:
+    """June-style A-19 parse: each row label followed by year-ago then
+    current-month totals; the CURRENT month (second number) is the print."""
+    text = re.sub(r"<[^>]+>", "|", html)
+    text = re.sub(r"[\s|]+", " ", text)
+    out: dict[str, float] = {}
+    for key, label in A19_ROW_LABELS.items():
+        m = re.search(re.escape(label) + r"\s+([0-9,]+)\s+([0-9,]+)", text)
+        if m:
+            out[key] = float(m.group(2).replace(",", ""))
+    return out
+
+
 def claims_fact(
     ref: str, week: str, raw: float, kind: str, release_day: dt.date
 ) -> dict:
@@ -173,6 +524,64 @@ def pending_claims_refs(log: dict) -> list[tuple[str, str, str, str]]:
         )
         if m:
             out.append((ref, m.group(1), "continued", release_date))
+    return out
+
+
+def pending_adapter_refs(
+    log: dict,
+) -> list[tuple[str, str, dict[str, Any], str, str, str, dict[str, Any]]]:
+    """(ref, kind, spec, period_type, period, release_date, forecast_entry)
+    for pending cells covered by the generic adapters."""
+    forecasts = {
+        entry["forecastSlug"]: entry
+        for entry in log.get("entries", [])
+        if entry.get("kind") == "prediction_recorded" and entry.get("forecastSlug")
+    }
+    out = []
+    for link in log["resolutionLinks"]:
+        if link.get("status") != "pending":
+            continue
+        ref = link.get("targetFactRef")
+        if not ref:
+            continue
+        forecast = forecasts.get(link.get("forecastSlug")) or {}
+        release_date = str(forecast.get("resolutionDate") or "")
+        if not release_date:
+            continue
+        if ref.startswith(A19_STEM + "."):
+            occupation = ref[len(A19_STEM) + 1 :].split(".")[0]
+            parsed = parse_ref_period(ref, f"{A19_STEM}.{occupation}")
+            if occupation in A19_ROW_LABELS and parsed:
+                spec = {
+                    "label": f"CPS employed, {A19_ROW_LABELS[occupation]}",
+                    "unit": "thousands",
+                    "source_name": "bls_cps",
+                    "source_table": "Employment Situation, Table A-19",
+                    "concept_authority": "bls",
+                    "source_concept": A19_ROW_LABELS[occupation],
+                    "a19_row": occupation,
+                }
+                out.append(
+                    (ref, "a19", spec, parsed[0], parsed[1], release_date, forecast)
+                )
+            continue
+        for stem, spec in ALFRED_ADAPTERS.items():
+            if not ref.startswith(stem + "."):
+                continue
+            parsed = parse_ref_period(ref, stem)
+            if parsed:
+                out.append(
+                    (
+                        ref,
+                        "alfred",
+                        spec,
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            break
     return out
 
 
@@ -392,8 +801,9 @@ def main() -> int:
 
     log = load_thesis_log(LOG_URL)
     todo = pending_claims_refs(log)
-    if not todo:
-        print("no pending claims cells")
+    adapter_todo = pending_adapter_refs(log)
+    if not todo and not adapter_todo:
+        print("no pending adapter-covered cells")
         return 0
 
     content, sha, ledger_repo_sha = ledger_state(
@@ -423,6 +833,76 @@ def main() -> int:
             print(f"  not yet published: {ref}")
             continue
         row = claims_fact(ref, week, value, kind, release_day)
+        fetched_rows.append(
+            (row, series_id, release_day.isoformat(), raw, retrieved_at)
+        )
+        print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
+
+    # Generic adapters: ALFRED vintage series and A-19 snapshot rows. FRED
+    # fetches are cached per (series, vintage); A-19 snapshots per month.
+    alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
+    a19_cache: dict[str, tuple[dict[str, float], bytes | None, str, str]] = {}
+    for ref, kind, spec, period_type, period, source_vintage, forecast in (
+        adapter_todo
+    ):
+        if ref in existing_ids:
+            print(f"  already recorded: {ref}")
+            continue
+        release_day = dt.date.fromisoformat(source_vintage)
+        if release_day > today:
+            print(f"  release {release_day} not reached: {ref}")
+            continue
+        unit = (forecast or {}).get("unit")
+        if unit and unit != spec["unit"]:
+            print(
+                f"  UNIT MISMATCH (refusing): {ref} cell={unit!r} "
+                f"adapter={spec['unit']!r}"
+            )
+            continue
+        if kind == "alfred":
+            cache_key = (spec["fred"], release_day.isoformat())
+            if cache_key not in alfred_cache:
+                alfred_cache[cache_key] = fred_vintage_series(*cache_key)
+            rows, raw, source_url, retrieved_at = alfred_cache[cache_key]
+            value = apply_transform(rows, spec, period_type, period)
+            series_id = spec["fred"]
+            source_file = "alfredgraph.csv"
+        else:
+            snapshot_url = A19_SNAPSHOT_URLS.get(period)
+            if not snapshot_url:
+                print(f"  no A-19 snapshot registered for {period}: {ref}")
+                continue
+            if period not in a19_cache:
+                retrieved_at = utc_now()
+                try:
+                    with urllib.request.urlopen(snapshot_url, timeout=120) as r:
+                        raw_html = r.read()
+                    a19_cache[period] = (
+                        a19_values_from_html(raw_html.decode()),
+                        raw_html,
+                        snapshot_url,
+                        retrieved_at,
+                    )
+                except urllib.error.HTTPError as exc:
+                    print(f"  A-19 snapshot fetch failed ({exc}): {ref}")
+                    a19_cache[period] = ({}, None, snapshot_url, retrieved_at)
+            values, raw, source_url, retrieved_at = a19_cache[period]
+            value = values.get(spec["a19_row"])
+            series_id = f"cpseea19-{spec['a19_row']}"
+            source_file = "cpseea19.htm (Wayback snapshot)"
+        if value is None or raw is None:
+            print(f"  not yet published: {ref}")
+            continue
+        if not value_plausible(value, forecast):
+            print(
+                f"  IMPLAUSIBLE VALUE (refusing, wrong series/transform?): "
+                f"{ref} -> {value}"
+            )
+            continue
+        row = generic_fact(
+            ref, spec, period_type, period, value, release_day,
+            source_url, source_file,
+        )
         fetched_rows.append(
             (row, series_id, release_day.isoformat(), raw, retrieved_at)
         )
