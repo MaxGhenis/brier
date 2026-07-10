@@ -24,10 +24,30 @@ import pathlib
 import re
 import subprocess
 import sys
+import tempfile
+
+from register_targets import materialize_registration_snapshots
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CELLS_TS = ROOT / "site" / "src" / "data" / "forecast-cells.ts"
 EXAMPLES = ROOT / "site" / "src" / "data" / "forecast-examples"
+
+
+def install_wave_candidate(candidate: pathlib.Path, module: pathlib.Path) -> None:
+    """Install a generated wave without ever rewriting a prior module."""
+
+    candidate_bytes = candidate.read_bytes()
+    if module.exists():
+        if module.is_symlink() or not module.is_file():
+            raise ValueError(f"wave destination is not a regular file: {module}")
+        if module.read_bytes() != candidate_bytes:
+            raise ValueError(
+                "refusing to overwrite non-identical generated wave: "
+                f"{module.relative_to(ROOT)}"
+            )
+        return
+    module.parent.mkdir(parents=True, exist_ok=True)
+    module.write_bytes(candidate_bytes)
 
 
 def main() -> int:
@@ -39,15 +59,23 @@ def main() -> int:
 
     winners: dict[str, str] = {}
     wanted: set[str] = set()
+    registration_paths: set[pathlib.Path] = set()
     for path in args.batch:
         batch = json.loads(pathlib.Path(path).read_text())
         for result in batch["results"]:
             slug = result["target"]["catalogSlug"]
             wanted.add(slug)
+            registration_path = result["target"].get("targetRegistrationPath")
+            if registration_path:
+                registration_paths.add(ROOT / registration_path)
             if result["ok"] and result.get("cellsPath"):
                 winners[slug] = result["cellsPath"]
 
     missing = sorted(wanted - set(winners))
+    # The untrusted artifact contains data only. Recreate/verify the
+    # preregistration blocks from canonical snapshots before finalizing them
+    # from validated cell JSON below. This also preserves failed-run retries.
+    materialize_registration_snapshots(sorted(registration_paths))
     if missing:
         print(f"no passing run for: {', '.join(missing)}", file=sys.stderr)
         if not args.allow_missing:
@@ -60,17 +88,22 @@ def main() -> int:
     module = EXAMPLES / f"{args.name}.ts"
     run_files = sorted(set(winners.values()))
 
-    subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "scripts" / "spawned_cells_to_ts.py"),
-            str(module),
-            const,
-            *run_files,
-            *sum((["--batch-manifest", path] for path in args.batch), start=[]),
-        ],
-        check=True,
-    )
+    with tempfile.TemporaryDirectory(prefix="thesis-wave-") as temp_dir:
+        candidate = pathlib.Path(temp_dir) / module.name
+        subprocess.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts" / "spawned_cells_to_ts.py"),
+                str(candidate),
+                const,
+                *run_files,
+                *sum((["--batch-manifest", path] for path in args.batch), start=[]),
+                "--replace-module",
+                str(module),
+            ],
+            check=True,
+        )
+        install_wave_candidate(candidate, module)
     subprocess.run(
         [
             sys.executable,

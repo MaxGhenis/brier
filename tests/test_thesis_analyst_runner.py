@@ -14,6 +14,7 @@ RUNNER = ROOT / "scripts" / "run_thesis_analyst.py"
 COMPARISON_GENERATOR = ROOT / "scripts" / "thesis_records_to_comparisons.py"
 sys.path.insert(0, str(ROOT / "scripts"))
 import median_rollout_ensemble as median_ensemble  # noqa: E402
+import run_thesis_analyst as analyst_runner  # noqa: E402
 from run_thesis_analyst import (  # noqa: E402
     interval_distribution,
 )
@@ -361,6 +362,59 @@ def test_target_context_validation_rejects_drift(tmp_path):
     errors = manifest["validation"]["cells"][0]["errors"]
     assert any("resolutionDate" in error for error in errors)
     assert manifest["ok"] is False
+
+
+def test_run_record_stamps_privileged_registration_binding(tmp_path):
+    out_dir = tmp_path / "registration-bound-run"
+    response_path = tmp_path / "response.json"
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["slug"] = "canonical-ledger-slug"
+    cell["unit"] = "percent"
+    cell["dataPointId"] = "test.ledger_series.2030_01.first_print"
+    response_path.write_text(json.dumps(cell))
+    binding = {
+        "registrationCommit": "a" * 40,
+        "targetContentHash": "b" * 64,
+        "targetRegistrationPath": f"records/targets/2030-01-10-{'b' * 64}.json",
+        "registeredAtUtc": "2030-01-10T12:00:00Z",
+    }
+    target_context = {
+        "catalogSlug": cell["slug"],
+        "targetUnit": cell["unit"],
+        "dataPointId": cell["dataPointId"],
+        **binding,
+    }
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--response-file",
+            str(response_path),
+            "--target-context-json",
+            json.dumps(target_context),
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    [recorded_cell] = json.loads((out_dir / "cells.with_activity.json").read_text())
+    assert json.loads(result.stdout)["ok"] is True
+    assert manifest["targetContext"] == target_context
+    assert manifest["runStartedAt"] == manifest["createdAt"]
+    assert recorded_cell["runStartedAt"] == manifest["runStartedAt"]
+    for field, value in binding.items():
+        assert manifest[field] == value
+        assert recorded_cell[field] == value
 
 
 def test_target_context_validation_rejects_identity_unit_and_source_host_drift(
@@ -794,6 +848,41 @@ def review_test_cell(
     }
 
 
+def test_collision_exclusion_ignores_only_the_exact_generated_wave(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    site_data = tmp_path / "site" / "src" / "data"
+    examples = site_data / "forecast-examples"
+    examples.mkdir(parents=True)
+    (site_data / "forecast-cells.ts").write_text("export {};\n")
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    own_wave = examples / "auto-2030-01-10-deadbeef.ts"
+    own_wave.write_text(f'export const wave = [{{ slug: "{cell["slug"]}" }}];\n')
+    monkeypatch.setattr(analyst_runner, "ROOT", tmp_path)
+
+    blocked = analyst_runner.validate_cells([cell])
+    assert any(
+        "slug collides" in error
+        for error in blocked["cells"][0]["errors"]
+    )
+
+    allowed = analyst_runner.validate_cells(
+        [cell], collision_exclusion=own_wave
+    )
+    assert allowed["ok"] is True
+
+    (examples / "competing-wave.ts").write_text(
+        f'export const wave = [{{ slug: "{cell["slug"]}" }}];\n'
+    )
+    still_blocked = analyst_runner.validate_cells(
+        [cell], collision_exclusion=own_wave
+    )
+    assert any(
+        "slug collides" in error
+        for error in still_blocked["cells"][0]["errors"]
+    )
+
+
 def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
     out_dir = tmp_path / "model-run"
     response_path = tmp_path / "response.json"
@@ -917,6 +1006,12 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
 
 def test_command_timeout_writes_failure_manifest(tmp_path):
     out_dir = tmp_path / "timeout-run"
+    binding = {
+        "registrationCommit": "c" * 40,
+        "targetContentHash": "d" * 64,
+        "targetRegistrationPath": f"records/targets/2030-01-10-{'d' * 64}.json",
+        "registeredAtUtc": "2030-01-10T12:00:00Z",
+    }
 
     result = subprocess.run(
         [
@@ -930,6 +1025,8 @@ def test_command_timeout_writes_failure_manifest(tmp_path):
             f"{sys.executable} -c 'import time; time.sleep(2)'",
             "--timeout-seconds",
             "1",
+            "--target-context-json",
+            json.dumps(binding),
             "--out-dir",
             str(out_dir),
         ],
@@ -949,6 +1046,10 @@ def test_command_timeout_writes_failure_manifest(tmp_path):
     assert manifest["ok"] is False
     assert manifest["error"]["phase"] == "parse"
     assert error["command"]["timedOut"] is True
+    assert manifest["targetContext"] == binding
+    assert manifest["runStartedAt"] == manifest["createdAt"]
+    for field, value in binding.items():
+        assert manifest[field] == value
 
 
 def test_comparison_generator_maps_and_scales_claims_record(tmp_path):

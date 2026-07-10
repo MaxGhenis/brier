@@ -3,13 +3,14 @@
 
 The input is a ``run_thesis_batch.py`` targets file.  This command derives a
 resolver binding from the docket registry/prospect record and the previous
-published target, writes an immutable canonical-JSON snapshot under
+published target, writes one immutable canonical-JSON snapshot per target under
 ``records/targets/``, appends preregistered runtime targets, and enriches the
 batch target context with the committed contract.
 
-The snapshot hash covers only the sorted contracts.  Operational timestamps
-and paths live outside the snapshot, so repeating the same registration is
-byte-for-byte and hash stable.
+The content hash covers the schema and contract, but deliberately excludes the
+snapshot's real ``registeredAtUtc``. The privileged workflow commits and pushes
+that byte-exact snapshot before forecasting, making Git history the timing
+witness while keeping the contract hash timestamp-independent.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ import datetime as dt
 import json
 import pathlib
 import re
+import subprocess
 import sys
 from typing import Any
 from urllib.parse import urlparse
@@ -29,7 +31,9 @@ from canonical_json import canonical_bytes, canonical_sha256
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 GENERATED_TARGETS = ROOT / "site" / "src" / "data" / "ledger-targets.generated.ts"
 
-REGISTRATION_SCHEMA = "thesis_target_registration_v1"
+REGISTRATION_SCHEMA = "thesis_target_registration_v2"
+LEGACY_REGISTRATION_SCHEMA = "thesis_target_registration_v1"
+REGISTRATION_SET_SCHEMA = "thesis_target_registration_set_v1"
 SOURCE_ADAPTERS = {"alfred-fred", "generic-url"}
 RELEASE_POLICIES = {"first_print", "advance_vintage"}
 SERIES_BINDINGS: dict[str, dict[str, Any]] = {
@@ -58,6 +62,64 @@ SERIES_BINDINGS: dict[str, dict[str, Any]] = {
 
 class RegistrationError(ValueError):
     """A target cannot be bound independently enough to forecast."""
+
+
+def utc_now() -> str:
+    return (
+        dt.datetime.now(dt.timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
+
+
+def parse_utc_instant(value: str) -> dt.datetime:
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", value):
+        raise RegistrationError(
+            f"registeredAtUtc must be a second-precision UTC instant: {value!r}"
+        )
+    try:
+        parsed = dt.datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise RegistrationError(f"invalid registeredAtUtc {value!r}") from exc
+    if parsed.utcoffset() != dt.timedelta(0):
+        raise RegistrationError(f"registeredAtUtc is not UTC: {value!r}")
+    return parsed
+
+
+def registration_hash_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
+    """Return the immutable contract projection committed by targetContentHash.
+
+    v2 deliberately excludes the operational registration instant. Git commit
+    ancestry and the pushed commit time witness that instant; the content hash
+    remains stable for a byte-identical target contract.
+    """
+
+    schema = snapshot.get("schemaVersion")
+    if schema not in {REGISTRATION_SCHEMA, LEGACY_REGISTRATION_SCHEMA}:
+        raise RegistrationError(f"unsupported target registration schema {schema!r}")
+    expected_keys = (
+        {"schemaVersion", "registeredAtUtc", "targets"}
+        if schema == REGISTRATION_SCHEMA
+        else {"schemaVersion", "targets"}
+    )
+    if set(snapshot) != expected_keys:
+        raise RegistrationError(
+            "registration snapshot has unexpected top-level fields: "
+            f"{sorted(set(snapshot) - expected_keys)}"
+        )
+    if schema == REGISTRATION_SCHEMA:
+        parse_utc_instant(str(snapshot.get("registeredAtUtc") or ""))
+    targets = snapshot.get("targets")
+    if not isinstance(targets, list) or not all(
+        isinstance(target, dict) for target in targets
+    ):
+        raise RegistrationError("registration snapshot targets must be an object list")
+    return {"schemaVersion": schema, "targets": targets}
+
+
+def registration_content_hash(snapshot: dict[str, Any]) -> str:
+    return canonical_sha256(registration_hash_payload(snapshot))
 
 
 def _iso_date(value: str) -> dt.date:
@@ -314,14 +376,22 @@ def build_contract(
 
 
 def build_snapshot(
-    targets: list[dict[str, Any]], registration_date: dt.date
+    targets: list[dict[str, Any]],
+    registration_date: dt.date,
+    registered_at_utc: str | None = None,
 ) -> dict[str, Any]:
     contracts = [build_contract(target, registration_date) for target in targets]
     contracts.sort(key=lambda row: (row["dataPointId"], row["catalogSlug"]))
     ids = [row["dataPointId"] for row in contracts]
     if len(ids) != len(set(ids)):
         raise RegistrationError("registration contains duplicate dataPointIds")
-    return {"schemaVersion": REGISTRATION_SCHEMA, "targets": contracts}
+    registered_at_utc = registered_at_utc or utc_now()
+    parse_utc_instant(registered_at_utc)
+    return {
+        "schemaVersion": REGISTRATION_SCHEMA,
+        "registeredAtUtc": registered_at_utc,
+        "targets": contracts,
+    }
 
 
 def ts_literal(entry: dict[str, Any]) -> str:
@@ -334,7 +404,7 @@ def ts_literal(entry: dict[str, Any]) -> str:
 
 
 def _entry_for(
-    contract: dict[str, Any], content_hash: str, registration_date: dt.date
+    contract: dict[str, Any], content_hash: str, registered_at_utc: str
 ) -> dict[str, Any]:
     binding = contract["sourceBinding"]
     source_url = binding["sourceUrl"]
@@ -363,7 +433,7 @@ def _entry_for(
         "sourceUrl": source_url,
         "note": f"Preregistered before forecasting for {contract['catalogSlug']}.",
         "registrationState": "preregistered",
-        "registeredAt": f"{registration_date.isoformat()}T00:00:00Z",
+        "registeredAt": registered_at_utc,
         "targetContentHash": content_hash,
         "series": contract["series"],
         "period": contract["period"],
@@ -373,107 +443,529 @@ def _entry_for(
     }
 
 
-def append_generated_targets(
-    contracts: list[dict[str, Any]], content_hash: str, registration_date: dt.date
-) -> None:
-    source = GENERATED_TARGETS.read_text()
-    blocks = []
-    for contract in contracts:
-        data_point_id = contract["dataPointId"]
-        id_pattern = rf'dataPointId:\s*\n?\s*"{re.escape(data_point_id)}"'
-        existing_block = next(
-            (
-                match.group(0)
-                for match in re.finditer(
-                    r"^  \{\n(?:(?!^  \},$)[\s\S])*?^  \},$",
-                    source,
-                    re.MULTILINE,
-                )
-                if re.search(id_pattern, match.group(0))
-            ),
-            None,
-        )
-        if existing_block:
-            hash_match = re.search(
-                r'targetContentHash:\s*"([0-9a-f]{64})"', existing_block
+def _generated_block(source: str, data_point_id: str) -> str | None:
+    id_pattern = rf'dataPointId:\s*\n?\s*"{re.escape(data_point_id)}"'
+    return next(
+        (
+            match.group(0)
+            for match in re.finditer(
+                r"^  \{\n(?:(?!^  \},$)[\s\S])*?^  \},$",
+                source,
+                re.MULTILINE,
             )
-            if hash_match and hash_match.group(1) == content_hash:
-                continue
-            raise RegistrationError(f"dataPointId already registered: {data_point_id}")
-        blocks.append(ts_literal(_entry_for(contract, content_hash, registration_date)))
-    if not blocks:
-        return
-    closer = "] satisfies" if "] satisfies" in source else "];"
-    index = source.rindex(closer)
-    GENERATED_TARGETS.write_text(
-        source[:index] + "\n".join(blocks) + "\n" + source[index:]
+            if re.search(id_pattern, match.group(0))
+        ),
+        None,
     )
 
 
+def _block_value(block: str, key: str) -> Any:
+    match = re.search(rf"^    {re.escape(key)}: (.*),$", block, re.MULTILINE)
+    if not match:
+        return None
+    try:
+        return json.loads(match.group(1))
+    except json.JSONDecodeError:
+        return None
+
+
+def _published_block_matches_registration(
+    block: str, registration: dict[str, Any]
+) -> bool:
+    contract = registration["contract"]
+    expected = {
+        "registrationState": "published",
+        "dataPointId": contract["dataPointId"],
+        "unit": contract["unit"],
+        "registeredAt": registration["registeredAtUtc"],
+        "targetContentHash": registration["targetContentHash"],
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+        "valueScale": contract["valueScale"],
+        "sourceBinding": contract["sourceBinding"],
+    }
+    return all(
+        canonical_bytes(_block_value(block, key)) == canonical_bytes(value)
+        for key, value in expected.items()
+    )
+
+
+def render_generated_targets(
+    registrations: list[dict[str, Any]], *, allow_published: bool = False
+) -> str:
+    """Validate existing preregistrations and render only genuinely new ones."""
+
+    source = GENERATED_TARGETS.read_text()
+    blocks = []
+    for registration in registrations:
+        contract = registration["contract"]
+        content_hash = registration["targetContentHash"]
+        registered_at_utc = registration["registeredAtUtc"]
+        data_point_id = contract["dataPointId"]
+        expected_block = ts_literal(
+            _entry_for(contract, content_hash, registered_at_utc)
+        )
+        existing_block = _generated_block(source, data_point_id)
+        if existing_block:
+            if existing_block == expected_block:
+                continue
+            if allow_published and _published_block_matches_registration(
+                existing_block, registration
+            ):
+                continue
+            raise RegistrationError(
+                "existing generated target is not the exact immutable "
+                f"preregistration for {data_point_id}"
+            )
+        if registration["existing"]:
+            raise RegistrationError(
+                f"existing snapshot has no generated preregistration: {data_point_id}"
+            )
+        blocks.append(expected_block)
+    if not blocks:
+        return source
+    closer = "] satisfies" if "] satisfies" in source else "];"
+    index = source.rindex(closer)
+    return source[:index] + "\n".join(blocks) + "\n" + source[index:]
+
+
+def _load_snapshot(path: pathlib.Path) -> dict[str, Any]:
+    try:
+        snapshot = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RegistrationError(f"invalid registration snapshot {path}: {exc}") from exc
+    if snapshot.get("schemaVersion") != REGISTRATION_SCHEMA:
+        raise RegistrationError(
+            f"retry snapshot must use {REGISTRATION_SCHEMA}: {path}"
+        )
+    registered_at_utc = snapshot.get("registeredAtUtc")
+    if not isinstance(registered_at_utc, str):
+        raise RegistrationError(f"snapshot lacks registeredAtUtc: {path}")
+    parse_utc_instant(registered_at_utc)
+    if path.read_bytes() != canonical_bytes(snapshot) + b"\n":
+        raise RegistrationError(f"registration snapshot is not canonical: {path}")
+    return snapshot
+
+
+def _plan_registration(
+    contract: dict[str, Any], registration_date: dt.date, registered_at_utc: str
+) -> dict[str, Any]:
+    snapshot = {
+        "schemaVersion": REGISTRATION_SCHEMA,
+        "registeredAtUtc": registered_at_utc,
+        "targets": [contract],
+    }
+    # Use the canonical JSON round-trip as the sole representation feeding both
+    # the snapshot bytes and generated TypeScript. This avoids retry drift from
+    # dict insertion order or JSON's normalization of integral floats.
+    snapshot = json.loads(canonical_bytes(snapshot))
+    contract = snapshot["targets"][0]
+    content_hash = registration_content_hash(snapshot)
+    targets_root = ROOT / "records" / "targets"
+    candidates = sorted(targets_root.glob(f"*-{content_hash}.json"))
+    if len(candidates) > 1:
+        raise RegistrationError(
+            f"multiple snapshots restate target content hash {content_hash}"
+        )
+    if candidates:
+        path = candidates[0]
+        existing_snapshot = _load_snapshot(path)
+        if (
+            registration_content_hash(existing_snapshot) != content_hash
+            or existing_snapshot["targets"] != [contract]
+        ):
+            raise RegistrationError(f"registration snapshot hash collision: {path}")
+        snapshot = existing_snapshot
+        contract = existing_snapshot["targets"][0]
+        existing = True
+    else:
+        path = targets_root / f"{registration_date.isoformat()}-{content_hash}.json"
+        if path.exists():
+            raise RegistrationError(f"registration snapshot collision: {path}")
+        existing = False
+    return {
+        "path": path,
+        "contract": contract,
+        "snapshot": snapshot,
+        "targetContentHash": content_hash,
+        "registeredAtUtc": snapshot["registeredAtUtc"],
+        "existing": existing,
+    }
+
+
+def _target_registration_fields(registration: dict[str, Any]) -> dict[str, Any]:
+    contract = registration["contract"]
+    return {
+        "country": contract["country"],
+        "dataPointId": contract["dataPointId"],
+        "targetUnit": contract["unit"],
+        "valueScale": contract["valueScale"],
+        "sourceBinding": contract["sourceBinding"],
+        "registrationState": "preregistered",
+        "registeredAt": registration["registeredAtUtc"],
+        "registeredAtUtc": registration["registeredAtUtc"],
+        "targetContentHash": registration["targetContentHash"],
+        "targetRegistrationPath": registration["path"].relative_to(ROOT).as_posix(),
+    }
+
+
 def register(
-    targets_path: pathlib.Path, registration_date: dt.date
-) -> tuple[pathlib.Path, str, dict[str, Any]]:
+    targets_path: pathlib.Path,
+    registration_date: dt.date,
+    registered_at_utc: str | None = None,
+) -> list[dict[str, Any]]:
     payload = json.loads(targets_path.read_text())
     targets = payload.get("targets") if isinstance(payload, dict) else None
     if not isinstance(targets, list) or not all(
         isinstance(row, dict) for row in targets
     ):
         raise RegistrationError("targets file must contain an object-list 'targets'")
-    snapshot = build_snapshot(targets, registration_date)
-    content_hash = canonical_sha256(snapshot)
-    relative = (
-        pathlib.Path("records")
-        / "targets"
-        / f"{registration_date.isoformat()}-{content_hash}.json"
-    )
-    snapshot_path = ROOT / relative
-    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
-    raw = canonical_bytes(snapshot) + b"\n"
-    if snapshot_path.exists() and snapshot_path.read_bytes() != raw:
-        raise RegistrationError(f"registration snapshot collision: {relative}")
-    snapshot_path.write_bytes(raw)
-    append_generated_targets(snapshot["targets"], content_hash, registration_date)
-
-    by_slug = {row["catalogSlug"]: row for row in snapshot["targets"]}
-    for target in targets:
-        contract = by_slug[target["catalogSlug"]]
-        target.update(
-            {
-                "dataPointId": contract["dataPointId"],
-                "targetUnit": contract["unit"],
-                "valueScale": contract["valueScale"],
-                "sourceBinding": contract["sourceBinding"],
-                "registrationState": "preregistered",
-                "registeredAt": f"{registration_date.isoformat()}T00:00:00Z",
-                "targetContentHash": content_hash,
-                "targetRegistrationPath": relative.as_posix(),
-            }
+    if not targets:
+        return []
+    registered_at_utc = registered_at_utc or utc_now()
+    registered_at = parse_utc_instant(registered_at_utc)
+    if registered_at.date() != registration_date:
+        raise RegistrationError(
+            "registration date must match registeredAtUtc date: "
+            f"{registration_date} != {registered_at.date()}"
         )
+    contracts = [build_contract(target, registration_date) for target in targets]
+    ids = [contract["dataPointId"] for contract in contracts]
+    slugs = [contract["catalogSlug"] for contract in contracts]
+    if len(ids) != len(set(ids)):
+        raise RegistrationError("registration contains duplicate dataPointIds")
+    if len(slugs) != len(set(slugs)):
+        raise RegistrationError("registration contains duplicate catalogSlugs")
+
+    registrations = [
+        _plan_registration(contract, registration_date, registered_at_utc)
+        for contract in contracts
+    ]
+    generated_source = render_generated_targets(registrations, allow_published=True)
+
+    for registration in registrations:
+        if not registration["existing"]:
+            path = registration["path"]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(canonical_bytes(registration["snapshot"]) + b"\n")
+    if generated_source != GENERATED_TARGETS.read_text():
+        GENERATED_TARGETS.write_text(generated_source)
+
+    by_slug = {
+        registration["contract"]["catalogSlug"]: registration
+        for registration in registrations
+    }
+    for target in targets:
+        target.update(_target_registration_fields(by_slug[target["catalogSlug"]]))
         target.pop("previousTarget", None)
     targets_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
-    return snapshot_path, content_hash, snapshot
+    return registrations
+
+
+def _git_output(*args: str) -> str:
+    try:
+        return subprocess.check_output(
+            ["git", *args], cwd=ROOT, text=True, stderr=subprocess.PIPE
+        ).strip()
+    except subprocess.CalledProcessError as exc:
+        detail = (exc.stderr or "").strip()
+        raise RegistrationError(
+            f"git {' '.join(args)} failed" + (f": {detail}" if detail else "")
+        ) from exc
+
+
+def bind_registration_commits(
+    targets_path: pathlib.Path, head: str = "HEAD"
+) -> dict[str, Any]:
+    """Bind each ephemeral target to the commit that first added its snapshot."""
+
+    source_commit = _git_output("rev-parse", f"{head}^{{commit}}")
+    payload = json.loads(targets_path.read_text())
+    targets = payload.get("targets") if isinstance(payload, dict) else None
+    if not isinstance(targets, list):
+        raise RegistrationError("targets file must contain an object-list 'targets'")
+    registrations = []
+    for target in targets:
+        relative = pathlib.PurePosixPath(
+            str(target.get("targetRegistrationPath") or "")
+        )
+        if (
+            relative.is_absolute()
+            or ".." in relative.parts
+            or pathlib.PurePosixPath("records/targets") not in relative.parents
+        ):
+            raise RegistrationError(f"unsafe targetRegistrationPath: {relative}")
+        path = ROOT.joinpath(*relative.parts)
+        snapshot = _load_snapshot(path)
+        content_hash = registration_content_hash(snapshot)
+        if (
+            content_hash != target.get("targetContentHash")
+            or not relative.name.endswith(f"-{content_hash}.json")
+        ):
+            raise RegistrationError(f"target content hash mismatch: {relative}")
+        contract = next(
+            (
+                row
+                for row in snapshot["targets"]
+                if row.get("catalogSlug") == target.get("catalogSlug")
+            ),
+            None,
+        )
+        if contract is None or len(snapshot["targets"]) != 1:
+            raise RegistrationError(
+                f"per-target snapshot does not bind {target.get('catalogSlug')}: "
+                f"{relative}"
+            )
+        expected = {
+            "series": target.get("series"),
+            "period": target.get("period"),
+            "catalogSlug": target.get("catalogSlug"),
+            "dataPointId": target.get("dataPointId"),
+            "country": target.get("country"),
+            "unit": target.get("targetUnit"),
+            "valueScale": target.get("valueScale"),
+            "sourceBinding": target.get("sourceBinding"),
+        }
+        for key, value in expected.items():
+            if canonical_bytes(contract.get(key)) != canonical_bytes(value):
+                raise RegistrationError(
+                    f"target registration contract mismatch for {key}: {relative}"
+                )
+        if target.get("registeredAtUtc") != snapshot["registeredAtUtc"]:
+            raise RegistrationError(f"registeredAtUtc mismatch: {relative}")
+        commits = _git_output(
+            "log",
+            source_commit,
+            "--diff-filter=A",
+            "--format=%H",
+            "--",
+            relative.as_posix(),
+        ).splitlines()
+        if len(commits) != 1:
+            raise RegistrationError(
+                f"expected one introducing commit for {relative}, found {len(commits)}"
+            )
+        registration_commit = commits[0]
+        subprocess.run(
+            ["git", "merge-base", "--is-ancestor", registration_commit, source_commit],
+            cwd=ROOT,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        committed = subprocess.check_output(
+            ["git", "show", f"{registration_commit}:{relative.as_posix()}"],
+            cwd=ROOT,
+        )
+        if committed != path.read_bytes():
+            raise RegistrationError(
+                "introducing commit does not contain current snapshot bytes: "
+                f"{relative}"
+            )
+        target["registrationCommit"] = registration_commit
+        registrations.append(
+            {
+                "path": path,
+                "contract": contract,
+                "snapshot": snapshot,
+                "targetContentHash": content_hash,
+                "registeredAtUtc": snapshot["registeredAtUtc"],
+                "existing": True,
+            }
+        )
+
+    # A retry is a verification pass, not a chance to recreate or repair the
+    # preregistration module. Missing or non-identical blocks fail closed.
+    if (
+        render_generated_targets(registrations, allow_published=True)
+        != GENERATED_TARGETS.read_text()
+    ):
+        raise RegistrationError("binding registration commits would rewrite targets")
+
+    targets_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    bindings = [
+        {
+            "catalogSlug": target.get("catalogSlug"),
+            "registrationCommit": target.get("registrationCommit"),
+            "targetContentHash": target.get("targetContentHash"),
+            "targetRegistrationPath": target.get("targetRegistrationPath"),
+        }
+        for target in targets
+    ]
+    bindings.sort(key=lambda row: str(row["catalogSlug"]))
+    return {
+        "schemaVersion": REGISTRATION_SET_SCHEMA,
+        "sourceCommit": source_commit,
+        "registrationSetHash": canonical_sha256({"targets": targets}),
+        "registrationCommits": sorted(
+            {str(row["registrationCommit"]) for row in bindings}
+        ),
+        "targetContentHashes": sorted(
+            {str(row["targetContentHash"]) for row in bindings}
+        ),
+        "targets": bindings,
+    }
+
+
+def registration_metadata(registrations: list[dict[str, Any]]) -> dict[str, Any]:
+    rows = [
+        {
+            "catalogSlug": registration["contract"]["catalogSlug"],
+            "registeredAtUtc": registration["registeredAtUtc"],
+            "targetContentHash": registration["targetContentHash"],
+            "targetRegistrationPath": registration["path"]
+            .relative_to(ROOT)
+            .as_posix(),
+            "existing": registration["existing"],
+        }
+        for registration in registrations
+    ]
+    rows.sort(key=lambda row: row["catalogSlug"])
+    return {
+        "schemaVersion": REGISTRATION_SET_SCHEMA,
+        "registrationSetHash": canonical_sha256(rows),
+        "targetContentHashes": sorted(
+            {str(row["targetContentHash"]) for row in rows}
+        ),
+        "targets": rows,
+    }
+
+
+def materialize_registration_snapshots(paths: list[pathlib.Path]) -> None:
+    """Regenerate preregistration TypeScript from canonical snapshot data.
+
+    This is called only by trusted publisher code after the data bundle has
+    passed validation. It lets publication consume JSON-only artifacts while
+    preserving the exact preregistered contract used by allowedHosts checks.
+    """
+
+    registrations = []
+    for path in sorted({path.resolve() for path in paths}):
+        try:
+            relative = path.relative_to(ROOT).as_posix()
+        except ValueError as exc:
+            raise RegistrationError(
+                f"snapshot is outside the repository: {path}"
+            ) from exc
+        if not re.fullmatch(
+            r"records/targets/\d{4}-\d{2}-\d{2}-[0-9a-f]{64}\.json",
+            relative,
+        ):
+            raise RegistrationError(f"invalid registration snapshot path: {relative}")
+        snapshot = _load_snapshot(path)
+        content_hash = registration_content_hash(snapshot)
+        if not relative.endswith(f"-{content_hash}.json"):
+            raise RegistrationError(f"registration snapshot hash mismatch: {relative}")
+        for contract in snapshot["targets"]:
+            registrations.append(
+                {
+                    "path": path,
+                    "contract": contract,
+                    "snapshot": snapshot,
+                    "targetContentHash": content_hash,
+                    "registeredAtUtc": snapshot["registeredAtUtc"],
+                    # Publisher materialization is allowed to create a missing
+                    # block, but never to replace a non-identical one.
+                    "existing": False,
+                }
+            )
+    rendered = render_generated_targets(registrations, allow_published=True)
+    if rendered != GENERATED_TARGETS.read_text():
+        GENERATED_TARGETS.write_text(rendered)
+
+
+def registration_for_cell(cell: dict[str, Any]) -> dict[str, Any]:
+    """Load the canonical registration metadata used to finalize one cell."""
+
+    relative = str(cell.get("targetRegistrationPath") or "")
+    if not re.fullmatch(
+        r"records/targets/\d{4}-\d{2}-\d{2}-[0-9a-f]{64}\.json", relative
+    ):
+        raise RegistrationError(
+            f"cell has no canonical targetRegistrationPath: {relative!r}"
+        )
+    path = ROOT.joinpath(*pathlib.PurePosixPath(relative).parts)
+    snapshot = _load_snapshot(path)
+    content_hash = registration_content_hash(snapshot)
+    if (
+        cell.get("targetContentHash") != content_hash
+        or not relative.endswith(f"-{content_hash}.json")
+    ):
+        raise RegistrationError(f"cell target registration hash mismatch: {relative}")
+    if len(snapshot["targets"]) != 1:
+        raise RegistrationError(
+            f"cell registration must contain exactly one target: {relative}"
+        )
+    contract = snapshot["targets"][0]
+    checks = {
+        "dataPointId": cell.get("dataPointId"),
+        "country": cell.get("country"),
+        "unit": cell.get("unit"),
+        "catalogSlug": cell.get("slug"),
+    }
+    for key, value in checks.items():
+        if canonical_bytes(contract.get(key)) != canonical_bytes(value):
+            raise RegistrationError(
+                f"cell does not match registration {key}: {relative}"
+            )
+    if cell.get("registeredAtUtc") != snapshot["registeredAtUtc"]:
+        raise RegistrationError(f"cell registeredAtUtc mismatch: {relative}")
+    return {
+        "unit": contract["unit"],
+        "registeredAt": snapshot["registeredAtUtc"],
+        "targetContentHash": content_hash,
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+        "valueScale": contract["valueScale"],
+        "sourceBinding": contract["sourceBinding"],
+    }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--targets-file", type=pathlib.Path, required=True)
     parser.add_argument("--date", default=dt.date.today().isoformat())
+    parser.add_argument("--registered-at-utc")
+    parser.add_argument("--bind-registration-commits", action="store_true")
+    parser.add_argument("--head", default="HEAD")
+    parser.add_argument("--metadata-out", type=pathlib.Path)
     args = parser.parse_args()
     try:
-        path, content_hash, snapshot = register(args.targets_file, _iso_date(args.date))
+        if args.bind_registration_commits:
+            metadata = bind_registration_commits(args.targets_file, args.head)
+            count = len(metadata["targets"])
+            message = (
+                f"bound {count} target(s) to registration commits at "
+                f"{metadata['sourceCommit']}"
+            )
+        else:
+            registrations = register(
+                args.targets_file,
+                _iso_date(args.date),
+                args.registered_at_utc,
+            )
+            metadata = registration_metadata(registrations)
+            count = len(registrations)
+            reused = sum(1 for row in registrations if row["existing"])
+            message = (
+                f"preregistered {count} target(s) ({reused} immutable restatement(s))"
+            )
+        if args.metadata_out:
+            args.metadata_out.parent.mkdir(parents=True, exist_ok=True)
+            args.metadata_out.write_text(json.dumps(metadata, indent=2) + "\n")
     except (
         OSError,
         KeyError,
         TypeError,
         json.JSONDecodeError,
         RegistrationError,
+        subprocess.CalledProcessError,
     ) as exc:
         print(f"target registration failed: {exc}", file=sys.stderr)
         return 1
-    print(
-        f"preregistered {len(snapshot['targets'])} target(s) -> "
-        f"{path.relative_to(ROOT)} ({content_hash})"
-    )
+    print(message)
     return 0
 
 

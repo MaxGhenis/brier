@@ -4,18 +4,53 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import hashlib
 import json
 import pathlib
 import re
 import shutil
+import stat
 import subprocess
 import sys
 from typing import Any
 
-from canonical_json import canonical_sha256
+from canonical_json import canonical_bytes
+from register_targets import (
+    REGISTRATION_SCHEMA,
+    RegistrationError,
+    parse_utc_instant,
+    registration_content_hash,
+)
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+
+BUNDLE_SCHEMA = "thesis_docket_publication_bundle_v2"
+ALLOWED_DATA_SUFFIXES = {".json", ".jsonl", ".log", ".md", ".txt"}
+CODE_SUFFIXES = {
+    ".cjs",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".py",
+    ".sh",
+    ".ts",
+    ".tsx",
+}
+BATCH_RE = re.compile(
+    r"^records/thesis-analyst/batches/(?P<day>\d{4}-\d{2}-\d{2})/"
+    r"[a-z0-9][a-z0-9._-]*\.json$"
+)
+RUN_MANIFEST_RE = re.compile(
+    r"^records/thesis-analyst/(?P<day>\d{4}-\d{2}-\d{2})/"
+    r"(?P<run>\d{4}-\d{2}-\d{2}t\d{2}-\d{2}-\d{2}z-[a-z0-9][a-z0-9-]*)/"
+    r"manifest\.json$"
+)
+TARGET_REGISTRATION_RE = re.compile(
+    r"^records/targets/\d{4}-\d{2}-\d{2}-[0-9a-f]{64}\.json$"
+)
+COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+MAX_REGISTRATION_COMMIT_LAG = dt.timedelta(minutes=15)
 
 SECRET_PATTERNS = {
     "GitHub token": re.compile(
@@ -40,19 +75,31 @@ def sha256(path: pathlib.Path) -> str:
     return digest.hexdigest()
 
 
+def canonical_equal(left: Any, right: Any) -> bool:
+    """Compare JSON values without Python's bool/number loose equality."""
+
+    return canonical_bytes(left) == canonical_bytes(right)
+
+
 def relative_repo_path(value: str) -> pathlib.PurePosixPath:
     path = pathlib.PurePosixPath(value)
-    if path.is_absolute() or ".." in path.parts or not path.parts:
+    if (
+        path.is_absolute()
+        or ".." in path.parts
+        or not path.parts
+        or "\\" in value
+        or "\x00" in value
+    ):
         raise PublicationError(f"unsafe repository path: {value!r}")
     return path
 
 
-def path_allowed(path: pathlib.PurePosixPath, allowed: list[str]) -> bool:
-    for value in allowed:
-        candidate = relative_repo_path(value)
-        if path == candidate or candidate in path.parents:
-            return True
-    return False
+def path_in_scope(
+    path: pathlib.PurePosixPath,
+    exact: set[pathlib.PurePosixPath],
+    prefixes: set[pathlib.PurePosixPath],
+) -> bool:
+    return path in exact or any(prefix in path.parents for prefix in prefixes)
 
 
 def safe_join(root: pathlib.Path, relative: pathlib.PurePosixPath) -> pathlib.Path:
@@ -70,7 +117,132 @@ def safe_join(root: pathlib.Path, relative: pathlib.PurePosixPath) -> pathlib.Pa
     return path
 
 
-def changed_paths(allowed: list[str]) -> list[pathlib.PurePosixPath]:
+def path_policy_error(
+    path: pathlib.PurePosixPath,
+    run_prefixes: set[pathlib.PurePosixPath] | None = None,
+) -> str | None:
+    lower_name = path.name.lower()
+    if ".github" in path.parts:
+        return "workflow/control paths are forbidden"
+    if lower_name in {"chain_genesis.json", "chain_head.json"}:
+        return "record-chain control files are forbidden"
+    if re.fullmatch(r"digest(?:-[a-z0-9._-]+)?\.json", lower_name):
+        return "record-chain digest files are forbidden"
+    if re.fullmatch(
+        r"(?:resolution|resolved)(?:[_-][a-z0-9._-]+)?"
+        r"\.(?:jsonl?|log|md|txt)",
+        lower_name,
+    ):
+        return "resolution markers are forbidden"
+    if path.suffix.lower() in CODE_SUFFIXES:
+        return "executable source code is forbidden"
+    if path.suffix.lower() not in ALLOWED_DATA_SUFFIXES:
+        return f"bundle file is not an allowed data type ({path.suffix or 'none'})"
+    if lower_name == "custody_root.json" and not any(
+        prefix in path.parents for prefix in (run_prefixes or set())
+    ):
+        return "custody roots are allowed only for this invocation's new runs"
+    return None
+
+
+def validate_batch_path(batch: str) -> pathlib.PurePosixPath:
+    relative = relative_repo_path(batch)
+    if not BATCH_RE.fullmatch(relative.as_posix()):
+        raise PublicationError(f"batch path is not invocation-scoped: {relative}")
+    return relative
+
+
+def batch_scope(
+    batch_relative: pathlib.PurePosixPath,
+    batch: dict[str, Any],
+) -> tuple[set[pathlib.PurePosixPath], set[pathlib.PurePosixPath]]:
+    if batch.get("schemaVersion") != "thesis_batch_manifest_v1":
+        raise PublicationError("unsupported batch manifest schema")
+    results = batch.get("results")
+    if not isinstance(results, list) or not all(
+        isinstance(result, dict) for result in results
+    ):
+        raise PublicationError("batch results must be an object list")
+    if type(batch.get("targets")) is not int or batch["targets"] != len(results):
+        raise PublicationError("batch target count does not match result inventory")
+
+    batch_match = BATCH_RE.fullmatch(batch_relative.as_posix())
+    assert batch_match is not None
+    batch_day = dt.date.fromisoformat(batch_match.group("day"))
+    allowed_run_days = {batch_day, batch_day + dt.timedelta(days=1)}
+    exact = {batch_relative}
+    prefixes: set[pathlib.PurePosixPath] = set()
+    for index, result in enumerate(results):
+        target = result.get("target")
+        if not isinstance(target, dict):
+            raise PublicationError(f"result {index} has no target context")
+        registration_value = target.get("targetRegistrationPath")
+        if not registration_value:
+            raise PublicationError(f"result {index} lacks targetRegistrationPath")
+        registration = relative_repo_path(str(registration_value))
+        if not TARGET_REGISTRATION_RE.fullmatch(registration.as_posix()):
+            raise PublicationError(
+                f"target registration is outside invocation scope: {registration}"
+            )
+        exact.add(registration)
+
+        manifest_value = result.get("manifestPath")
+        cells_value = result.get("cellsPath")
+        if not manifest_value:
+            if cells_value:
+                raise PublicationError(f"result {index} has cells without a manifest")
+            continue
+        manifest = relative_repo_path(str(manifest_value))
+        match = RUN_MANIFEST_RE.fullmatch(manifest.as_posix())
+        if not match or not match.group("run").startswith(f"{match.group('day')}t"):
+            raise PublicationError(
+                f"run manifest is outside invocation scope: {manifest}"
+            )
+        if dt.date.fromisoformat(match.group("day")) not in allowed_run_days:
+            raise PublicationError(
+                f"run manifest day is outside the batch invocation: {manifest}"
+            )
+        run_prefix = manifest.parent
+        prefixes.add(run_prefix)
+        if cells_value:
+            cells = relative_repo_path(str(cells_value))
+            if cells != run_prefix / "cells.with_activity.json":
+                raise PublicationError(
+                    f"cells payload is outside its exact run scope: {cells}"
+                )
+    return exact, prefixes
+
+
+def compare_trusted_targets(batch: dict[str, Any], trusted_path: str | None) -> None:
+    if not trusted_path:
+        return
+    trusted = load_json(pathlib.Path(trusted_path), "trusted target registration")
+    targets = trusted.get("targets") if isinstance(trusted, dict) else None
+    if not isinstance(targets, list) or not all(
+        isinstance(target, dict) for target in targets
+    ):
+        raise PublicationError("trusted targets must contain an object-list 'targets'")
+    results = batch.get("results") or []
+    if len(results) != len(targets):
+        raise PublicationError("batch result inventory differs from trusted targets")
+    trusted_by_slug = {target.get("catalogSlug"): target for target in targets}
+    if len(trusted_by_slug) != len(targets) or None in trusted_by_slug:
+        raise PublicationError("trusted targets contain duplicate or missing slugs")
+    seen = set()
+    for result in results:
+        target = result.get("target")
+        slug = target.get("catalogSlug") if isinstance(target, dict) else None
+        if slug in seen or not canonical_equal(trusted_by_slug.get(slug), target):
+            raise PublicationError(
+                f"batch target does not match privileged registration: {slug}"
+            )
+        seen.add(slug)
+
+
+def changed_paths(
+    exact: set[pathlib.PurePosixPath], prefixes: set[pathlib.PurePosixPath]
+) -> list[pathlib.PurePosixPath]:
+    pathspecs = sorted({str(path) for path in exact | prefixes})
     command = [
         "git",
         "ls-files",
@@ -78,12 +250,12 @@ def changed_paths(allowed: list[str]) -> list[pathlib.PurePosixPath]:
         "--others",
         "--exclude-standard",
         "--",
-        *allowed,
+        *pathspecs,
     ]
     output = subprocess.check_output(command, cwd=ROOT, text=True)
     paths = sorted({relative_repo_path(line) for line in output.splitlines() if line})
     deleted = subprocess.check_output(
-        ["git", "diff", "--name-only", "--diff-filter=D", "--", *allowed],
+        ["git", "diff", "--name-only", "--diff-filter=D", "--", *pathspecs],
         cwd=ROOT,
         text=True,
     ).splitlines()
@@ -94,6 +266,67 @@ def changed_paths(allowed: list[str]) -> list[pathlib.PurePosixPath]:
     return paths
 
 
+def head_bytes(relative: pathlib.PurePosixPath) -> bytes | None:
+    exists = subprocess.run(
+        ["git", "cat-file", "-e", f"HEAD:{relative.as_posix()}"],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if exists.returncode != 0:
+        return None
+    return subprocess.check_output(
+        ["git", "show", f"HEAD:{relative.as_posix()}"], cwd=ROOT
+    )
+
+
+def published_wave_collision_exclusion(
+    repo: pathlib.Path,
+    batch_relative: pathlib.PurePosixPath,
+) -> pathlib.Path | None:
+    """Return this batch's deterministic wave only after it is in ``HEAD``.
+
+    The first publication must still collide with every existing catalog slug.
+    A byte-identical retry or post-commit revalidation may ignore only the
+    module deterministically generated for this exact committed batch; every
+    other module remains part of the collision set.
+    """
+
+    batch_path = safe_join(repo, batch_relative)
+    payload = batch_path.read_bytes()
+    if head_bytes(batch_relative) != payload:
+        return None
+    match = BATCH_RE.fullmatch(batch_relative.as_posix())
+    assert match is not None
+    name = f"auto-{match.group('day')}-{hashlib.sha256(payload).hexdigest()}"
+    return ROOT / "site" / "src" / "data" / "forecast-examples" / f"{name}.ts"
+
+
+def assert_append_only(
+    relative: pathlib.PurePosixPath,
+    source: pathlib.Path,
+) -> None:
+    committed = head_bytes(relative)
+    source_bytes = source.read_bytes()
+    if committed is not None and committed != source_bytes:
+        raise PublicationError(
+            f"append-only publication may not overwrite HEAD path: {relative}"
+        )
+    destination = safe_join(ROOT, relative)
+    if source.resolve() == destination.resolve():
+        return
+    if destination.exists() or destination.is_symlink():
+        if destination.is_symlink() or not destination.is_file():
+            raise PublicationError(
+                f"append-only destination is not a regular file: {relative}"
+            )
+        if destination.read_bytes() != source_bytes:
+            raise PublicationError(
+                f"append-only publication may not overwrite existing path: {relative}"
+            )
+
+
 def stage(args: argparse.Namespace) -> None:
     bundle = pathlib.Path(args.bundle_dir).resolve()
     if bundle.exists():
@@ -101,22 +334,34 @@ def stage(args: argparse.Namespace) -> None:
     repo = bundle / "repo"
     repo.mkdir(parents=True)
 
-    paths = changed_paths(args.allow_path)
-    batch = relative_repo_path(args.batch)
+    batch = validate_batch_path(args.batch)
+    batch_path = safe_join(ROOT, batch)
+    batch_payload = load_json(batch_path, "batch manifest")
+    compare_trusted_targets(batch_payload, args.trusted_targets)
+    exact, prefixes = batch_scope(batch, batch_payload)
+    paths = changed_paths(exact, prefixes)
     if batch not in paths:
-        raise PublicationError(f"batch manifest is not in the delta: {batch}")
+        raise PublicationError(
+            f"batch manifest is not in the invocation delta: {batch}"
+        )
 
     entries = []
     for relative in paths:
-        if not path_allowed(relative, args.allow_path):
+        policy_error = path_policy_error(relative, prefixes)
+        if policy_error:
+            raise PublicationError(f"forbidden bundle path {relative}: {policy_error}")
+        if not path_in_scope(relative, exact, prefixes):
             raise PublicationError(
-                f"path is outside the publication allowlist: {relative}"
+                f"path is outside this invocation's publication scope: {relative}"
             )
         source = safe_join(ROOT, relative)
         if source.is_symlink() or not source.is_file():
             raise PublicationError(
                 f"publication artifact must be a regular file: {relative}"
             )
+        if source.stat().st_mode & 0o111:
+            raise PublicationError(f"executable bundle file is forbidden: {relative}")
+        assert_append_only(relative, source)
         secret_hits = scan_bytes(source.read_bytes())
         if secret_hits:
             raise PublicationError(
@@ -130,11 +375,12 @@ def stage(args: argparse.Namespace) -> None:
                 "path": str(relative),
                 "bytes": source.stat().st_size,
                 "sha256": sha256(source),
+                "mode": stat.S_IMODE(source.stat().st_mode),
             }
         )
 
     manifest = {
-        "schemaVersion": "thesis_docket_publication_bundle_v1",
+        "schemaVersion": BUNDLE_SCHEMA,
         "batchManifest": str(batch),
         "files": entries,
     }
@@ -143,37 +389,65 @@ def stage(args: argparse.Namespace) -> None:
 
 
 def load_bundle(
-    bundle: pathlib.Path, batch: str, allowed: list[str]
+    bundle: pathlib.Path,
+    batch: str,
+    allowed: list[str] | None = None,
+    trusted_targets: str | None = None,
 ) -> tuple[pathlib.Path, dict[str, Any]]:
+    # ``allowed`` remains a no-op compatibility parameter for the prospect
+    # workflow while it migrates. Caller-supplied prefixes are never security
+    # authority; scope is derived solely from the exact batch inventory.
+    del allowed
     bundle = bundle.resolve()
     repo = bundle / "repo"
     manifest_path = bundle / "bundle_manifest.json"
+    if repo.is_symlink() or not repo.is_dir():
+        raise PublicationError("bundle repo inventory is not a regular directory")
+    if manifest_path.is_symlink() or not manifest_path.is_file():
+        raise PublicationError("bundle manifest is not a regular file")
     try:
         manifest = json.loads(manifest_path.read_text())
     except (OSError, json.JSONDecodeError) as exc:
         raise PublicationError(f"invalid bundle manifest: {exc}") from exc
-    if manifest.get("schemaVersion") != "thesis_docket_publication_bundle_v1":
+    if manifest.get("schemaVersion") != BUNDLE_SCHEMA:
         raise PublicationError("unsupported publication bundle schema")
-    if manifest.get("batchManifest") != batch:
+    batch_relative = validate_batch_path(batch)
+    if manifest.get("batchManifest") != batch_relative.as_posix():
         raise PublicationError("bundle does not contain the expected batch manifest")
 
     expected: set[pathlib.PurePosixPath] = set()
-    for entry in manifest.get("files", []):
+    entries = manifest.get("files")
+    if not isinstance(entries, list) or not all(
+        isinstance(entry, dict) for entry in entries
+    ):
+        raise PublicationError("bundle file inventory must be an object list")
+    for entry in entries:
         relative = relative_repo_path(str(entry.get("path", "")))
         if relative in expected:
             raise PublicationError(f"duplicate bundle path: {relative}")
-        if not path_allowed(relative, allowed):
-            raise PublicationError(
-                f"path is outside the publication allowlist: {relative}"
-            )
+        # Apply context-independent denials before deriving scope so a chain or
+        # TypeScript attack is reported as an explicit policy violation.
+        policy_error = path_policy_error(relative)
+        if policy_error and relative.name != "custody_root.json":
+            raise PublicationError(f"forbidden bundle path {relative}: {policy_error}")
         expected.add(relative)
         path = safe_join(repo, relative)
         if path.is_symlink() or not path.is_file():
             raise PublicationError(f"bundle entry is not a regular file: {relative}")
+        if path.stat().st_mode & 0o111:
+            raise PublicationError(f"executable bundle file is forbidden: {relative}")
+        mode = entry.get("mode")
+        if not isinstance(mode, int) or mode & 0o111:
+            raise PublicationError(f"bundle declares executable mode: {relative}")
         if path.stat().st_size != entry.get("bytes") or sha256(path) != entry.get(
             "sha256"
         ):
             raise PublicationError(f"bundle hash mismatch: {relative}")
+        secret_hits = scan_bytes(path.read_bytes())
+        if secret_hits:
+            raise PublicationError(
+                f"refusing to publish {relative}: possible " + ", ".join(secret_hits)
+            )
 
     actual = {
         pathlib.PurePosixPath(path.relative_to(repo).as_posix())
@@ -185,6 +459,22 @@ def load_bundle(
             f"bundle file inventory mismatch: missing={sorted(expected - actual)}, "
             f"extra={sorted(actual - expected)}"
         )
+    if batch_relative not in expected:
+        raise PublicationError("batch manifest is missing from bundle inventory")
+
+    batch_path = safe_join(repo, batch_relative)
+    batch_payload = load_json(batch_path, "batch manifest")
+    compare_trusted_targets(batch_payload, trusted_targets)
+    exact, prefixes = batch_scope(batch_relative, batch_payload)
+    for relative in expected:
+        policy_error = path_policy_error(relative, prefixes)
+        if policy_error:
+            raise PublicationError(f"forbidden bundle path {relative}: {policy_error}")
+        if not path_in_scope(relative, exact, prefixes):
+            raise PublicationError(
+                f"path is outside this invocation's publication scope: {relative}"
+            )
+        assert_append_only(relative, safe_join(repo, relative))
     return repo, manifest
 
 
@@ -195,7 +485,115 @@ def load_json(path: pathlib.Path, label: str) -> Any:
         raise PublicationError(f"invalid {label} {path}: {exc}") from exc
 
 
-def validate_target_registration(repo: pathlib.Path, target: dict[str, Any]) -> None:
+def parse_instant(value: Any, label: str) -> dt.datetime:
+    try:
+        parsed = dt.datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise PublicationError(f"invalid {label}: {value!r}") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise PublicationError(f"{label} lacks a UTC offset: {value!r}")
+    return parsed.astimezone(dt.timezone.utc)
+
+
+def verify_registration_commit(
+    relative: pathlib.PurePosixPath,
+    snapshot_bytes: bytes,
+    snapshot: dict[str, Any],
+    target: dict[str, Any],
+    run_started_at: str,
+) -> None:
+    commit = str(target.get("registrationCommit") or "")
+    if not COMMIT_RE.fullmatch(commit):
+        raise PublicationError("target lacks a valid registrationCommit")
+    ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", commit, "HEAD"],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if ancestor.returncode != 0:
+        raise PublicationError(
+            f"registration commit is not an ancestor of HEAD: {commit}"
+        )
+    status = subprocess.check_output(
+        [
+            "git",
+            "diff-tree",
+            "--root",
+            "--no-commit-id",
+            "--name-status",
+            "-r",
+            commit,
+            "--",
+            relative.as_posix(),
+        ],
+        cwd=ROOT,
+        text=True,
+    ).splitlines()
+    if status != [f"A\t{relative.as_posix()}"]:
+        raise PublicationError(
+            f"registrationCommit did not introduce snapshot {relative}: {status}"
+        )
+    try:
+        committed = subprocess.check_output(
+            ["git", "show", f"{commit}:{relative.as_posix()}"],
+            cwd=ROOT,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise PublicationError(
+            f"registration snapshot is absent from registrationCommit: {relative}"
+        ) from exc
+    if committed != snapshot_bytes:
+        raise PublicationError(
+            f"registrationCommit snapshot bytes differ from HEAD: {relative}"
+        )
+
+    registered_value = snapshot.get("registeredAtUtc")
+    try:
+        registered = parse_utc_instant(str(registered_value))
+    except RegistrationError as exc:
+        raise PublicationError(str(exc)) from exc
+    if target.get("registeredAtUtc") != registered_value:
+        raise PublicationError(f"target registeredAtUtc mismatch: {relative}")
+    if relative.name[:10] != registered.date().isoformat():
+        raise PublicationError(
+            f"registration path date differs from registeredAtUtc: {relative}"
+        )
+    timestamps = subprocess.check_output(
+        ["git", "show", "-s", "--format=%aI%n%cI", commit],
+        cwd=ROOT,
+        text=True,
+    ).splitlines()
+    if len(timestamps) != 2:
+        raise PublicationError(f"could not read registration commit times: {commit}")
+    author_time = parse_instant(timestamps[0], "registration author time")
+    committer_time = parse_instant(timestamps[1], "registration committer time")
+    run_start = parse_instant(run_started_at, "runStartedAt")
+    for label, commit_time in (
+        ("author", author_time),
+        ("committer", committer_time),
+    ):
+        lag = commit_time - registered
+        if lag < dt.timedelta(0) or lag > MAX_REGISTRATION_COMMIT_LAG:
+            raise PublicationError(
+                "registeredAtUtc is not contemporaneous with the privileged "
+                f"commit {label} time: lag={lag}"
+            )
+    if committer_time >= run_start or author_time >= run_start:
+        raise PublicationError(
+            f"registration commit does not predate run start: {commit}"
+        )
+
+
+def validate_target_registration(
+    repo: pathlib.Path,
+    target: dict[str, Any],
+    *,
+    run_started_at: str | None = None,
+    require_git_binding: bool = False,
+) -> dict[str, Any]:
     path_value = target.get("targetRegistrationPath")
     content_hash = target.get("targetContentHash")
     if not path_value or not re.fullmatch(r"[0-9a-f]{64}", str(content_hash or "")):
@@ -205,18 +603,24 @@ def validate_target_registration(repo: pathlib.Path, target: dict[str, Any]) -> 
         raise PublicationError(
             f"target registration is outside records/targets: {relative}"
         )
-    # Registration snapshots are content-addressed and immutable. A
-    # RETRIED roll's snapshot was committed by the earlier attempt, so it
-    # is absent from this bundle's changed-file set — read it from the
-    # checkout in that case. The hash check below makes the source
-    # location irrelevant to integrity.
+    if not TARGET_REGISTRATION_RE.fullmatch(relative.as_posix()):
+        raise PublicationError(f"invalid target registration path: {relative}")
+    # A normal roll reads the already-pushed snapshot from the publisher
+    # checkout. Prospect's legacy path may still carry a new data-only snapshot
+    # in the bundle until that workflow receives its own privileged register job.
     bundle_path = safe_join(repo, relative)
     committed_path = safe_join(ROOT, relative)
-    source = bundle_path if bundle_path.is_file() else committed_path
+    source = (
+        committed_path
+        if require_git_binding
+        else bundle_path if bundle_path.is_file() else committed_path
+    )
     snapshot = load_json(source, "target registration")
-    if snapshot.get("schemaVersion") != "thesis_target_registration_v1":
-        raise PublicationError("unsupported target registration schema")
-    if canonical_sha256(snapshot) != content_hash or not relative.name.endswith(
+    try:
+        actual_hash = registration_content_hash(snapshot)
+    except RegistrationError as exc:
+        raise PublicationError(str(exc)) from exc
+    if actual_hash != content_hash or not relative.name.endswith(
         f"-{content_hash}.json"
     ):
         raise PublicationError(f"target registration hash mismatch: {relative}")
@@ -237,19 +641,155 @@ def validate_target_registration(repo: pathlib.Path, target: dict[str, Any]) -> 
         "period": target.get("period"),
         "catalogSlug": target.get("catalogSlug"),
         "dataPointId": target.get("dataPointId"),
+        "country": target.get("country"),
         "unit": target.get("targetUnit"),
         "valueScale": target.get("valueScale"),
         "sourceBinding": target.get("sourceBinding"),
     }
     for key, value in expected.items():
-        if contract.get(key) != value:
+        if not canonical_equal(contract.get(key), value):
             raise PublicationError(
                 f"target registration contract mismatch for {key}: "
                 f"snapshot={contract.get(key)!r}, batch={value!r}"
             )
+    if require_git_binding:
+        if snapshot.get("schemaVersion") != REGISTRATION_SCHEMA:
+            raise PublicationError(
+                f"privileged publication requires {REGISTRATION_SCHEMA}: {relative}"
+            )
+        if len(snapshot.get("targets", [])) != 1:
+            raise PublicationError(
+                f"privileged registration must contain exactly one target: {relative}"
+            )
+        snapshot_bytes = source.read_bytes()
+        if snapshot_bytes != canonical_bytes(snapshot) + b"\n":
+            raise PublicationError(
+                f"registration snapshot is not canonical: {relative}"
+            )
+        if not run_started_at:
+            raise PublicationError("run manifest lacks runStartedAt")
+        verify_registration_commit(
+            relative,
+            snapshot_bytes,
+            snapshot,
+            target,
+            run_started_at,
+        )
+    return snapshot
 
 
-def validate_cells(repo: pathlib.Path, batch_relative: str) -> None:
+REGISTRATION_BINDING_FIELDS = (
+    "registrationCommit",
+    "targetContentHash",
+    "targetRegistrationPath",
+    "registeredAtUtc",
+)
+
+
+def validate_run_file_inventory(
+    repo: pathlib.Path,
+    manifest_relative: pathlib.PurePosixPath,
+    manifest: dict[str, Any],
+) -> None:
+    run_prefix = manifest_relative.parent
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, list) or not all(
+        isinstance(artifact, dict) for artifact in artifacts
+    ):
+        raise PublicationError(
+            f"run manifest has no artifact inventory: {manifest_relative}"
+        )
+    declared = {run_prefix / "custody_root.json"}
+    for artifact in artifacts:
+        relative = relative_repo_path(str(artifact.get("path") or ""))
+        if relative.parent != run_prefix or relative in declared:
+            raise PublicationError(
+                f"run artifact is duplicated or outside its run: {relative}"
+            )
+        declared.add(relative)
+    run_dir = safe_join(repo, run_prefix)
+    actual = {
+        pathlib.PurePosixPath(path.relative_to(repo).as_posix())
+        for path in run_dir.rglob("*")
+        if path.is_file() or path.is_symlink()
+    }
+    if actual != declared:
+        raise PublicationError(
+            f"run file inventory mismatch for {run_prefix}: "
+            f"unreferenced={sorted(actual - declared)}, "
+            f"missing={sorted(declared - actual)}"
+        )
+
+
+def validate_run_binding(
+    repo: pathlib.Path,
+    result: dict[str, Any],
+    manifest: dict[str, Any],
+    cells: list[dict[str, Any]],
+    *,
+    require_git_binding: bool,
+) -> None:
+    target = result["target"]
+    if not require_git_binding:
+        validate_target_registration(repo, target)
+        return
+    if manifest.get("schemaVersion") != "thesis_analyst_run_manifest_v1":
+        raise PublicationError("unsupported run manifest schema")
+    if not canonical_equal(manifest.get("targetContext"), target):
+        raise PublicationError(
+            "run manifest targetContext differs from trusted batch target"
+        )
+    run_started_at = manifest.get("runStartedAt")
+    if manifest.get("createdAt") != run_started_at:
+        raise PublicationError("run manifest createdAt/runStartedAt mismatch")
+    for field in ("series", "period", "conditional"):
+        if not canonical_equal(manifest.get(field), target.get(field)):
+            raise PublicationError(f"run manifest target identity mismatch: {field}")
+    run_start = parse_instant(run_started_at, "run manifest runStartedAt")
+    manifest_relative = relative_repo_path(str(result.get("manifestPath") or ""))
+    run_dir_stamp = manifest_relative.parent.name[:20]
+    try:
+        path_start = dt.datetime.strptime(
+            run_dir_stamp, "%Y-%m-%dt%H-%M-%Sz"
+        ).replace(tzinfo=dt.timezone.utc)
+    except ValueError as exc:
+        raise PublicationError(
+            f"run directory lacks a canonical start timestamp: {manifest_relative}"
+        ) from exc
+    if path_start != run_start:
+        raise PublicationError("run directory timestamp differs from runStartedAt")
+    wrapper_start = parse_instant(result.get("startedAt"), "batch result startedAt")
+    wrapper_finish = parse_instant(result.get("finishedAt"), "batch result finishedAt")
+    if wrapper_start > run_start or wrapper_finish < run_start:
+        raise PublicationError("batch wrapper timestamps do not contain the run start")
+    for field in REGISTRATION_BINDING_FIELDS:
+        if not canonical_equal(manifest.get(field), target.get(field)):
+            raise PublicationError(
+                f"run manifest registration binding mismatch: {field}"
+            )
+    validate_target_registration(
+        repo,
+        target,
+        run_started_at=str(run_started_at),
+        require_git_binding=True,
+    )
+    for cell in cells:
+        if cell.get("runStartedAt") != run_started_at:
+            raise PublicationError("cell runStartedAt differs from run manifest")
+        if parse_instant(cell.get("runAt"), "cell runAt") < run_start:
+            raise PublicationError("cell seal time predates run start")
+        for field in REGISTRATION_BINDING_FIELDS:
+            if not canonical_equal(cell.get(field), target.get(field)):
+                raise PublicationError(f"cell registration binding mismatch: {field}")
+
+
+def validate_cells(
+    repo: pathlib.Path,
+    batch_relative: str,
+    *,
+    require_git_binding: bool = False,
+    collision_exclusion: pathlib.Path | None = None,
+) -> None:
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
         from run_thesis_analyst import validate_cells as shared_validate_cells
@@ -276,7 +816,12 @@ def validate_cells(repo: pathlib.Path, batch_relative: str) -> None:
         target = result.get("target")
         if not isinstance(target, dict):
             raise PublicationError(f"result {index} has no target context")
-        validate_target_registration(repo, target)
+        if require_git_binding and not manifest_value:
+            raise PublicationError(
+                f"result {index} lacks a registration-bound manifest"
+            )
+        manifest: dict[str, Any] | None = None
+        manifest_path: pathlib.Path | None = None
         if manifest_value:
             manifest_relative = relative_repo_path(str(manifest_value))
             if manifest_relative in referenced_manifests:
@@ -288,30 +833,51 @@ def validate_cells(repo: pathlib.Path, batch_relative: str) -> None:
                 raise PublicationError(
                     f"run manifest status mismatch: {manifest_relative}"
                 )
+            if manifest.get("cellsPath") != cells_value:
+                raise PublicationError(
+                    f"run manifest cellsPath mismatch: {manifest_relative}"
+                )
+            validate_run_file_inventory(repo, manifest_relative, manifest)
             try:
                 verify_run(manifest_path.parent)
             except CustodyError as exc:
                 raise PublicationError(f"custody verification failed: {exc}") from exc
+
+        cells: list[dict[str, Any]] = []
+        cells_relative: pathlib.PurePosixPath | None = None
+        if cells_value:
+            cells_relative = relative_repo_path(str(cells_value))
+            if cells_relative in referenced_payloads:
+                raise PublicationError(f"duplicate cells payload: {cells_relative}")
+            referenced_payloads.add(cells_relative)
+            cells_path = safe_join(repo, cells_relative)
+            loaded_cells = load_json(cells_path, "cells payload")
+            if not isinstance(loaded_cells, list) or not all(
+                isinstance(cell, dict) for cell in loaded_cells
+            ):
+                raise PublicationError(
+                    f"cells payload is not an object list: {cells_relative}"
+                )
+            cells = loaded_cells
+
+        if manifest is not None:
+            validate_run_binding(
+                repo,
+                result,
+                manifest,
+                cells,
+                require_git_binding=require_git_binding,
+            )
+        else:
+            validate_target_registration(repo, target)
         if not cells_value:
             continue
-
-        cells_relative = relative_repo_path(str(cells_value))
-        if cells_relative in referenced_payloads:
-            raise PublicationError(f"duplicate cells payload: {cells_relative}")
-        referenced_payloads.add(cells_relative)
-        cells_path = safe_join(repo, cells_relative)
-        cells = load_json(cells_path, "cells payload")
-        if not isinstance(cells, list) or not all(
-            isinstance(cell, dict) for cell in cells
-        ):
-            raise PublicationError(
-                f"cells payload is not an object list: {cells_relative}"
-            )
 
         report = shared_validate_cells(
             cells,
             target_context=target,
             prompt_mode=prompt_mode,
+            collision_exclusion=collision_exclusion,
         )
         if bool(report.get("ok")) != expected_ok:
             raise PublicationError(
@@ -355,7 +921,8 @@ def apply_bundle(repo: pathlib.Path, manifest: dict[str, Any]) -> None:
         relative = relative_repo_path(entry["path"])
         source = safe_join(repo, relative)
         destination = safe_join(ROOT, relative)
-        if destination.exists() and destination.read_bytes() == source.read_bytes():
+        assert_append_only(relative, source)
+        if destination.exists():
             continue
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
@@ -363,8 +930,24 @@ def apply_bundle(repo: pathlib.Path, manifest: dict[str, Any]) -> None:
 
 def validate(args: argparse.Namespace) -> None:
     bundle = pathlib.Path(args.bundle_dir)
-    repo, manifest = load_bundle(bundle, args.batch, args.allow_path)
-    validate_cells(repo, args.batch)
+    repo, manifest = load_bundle(
+        bundle,
+        args.batch,
+        args.allow_path,
+        args.trusted_targets,
+    )
+    batch_relative = validate_batch_path(args.batch)
+    collision_exclusion = (
+        published_wave_collision_exclusion(repo, batch_relative)
+        if args.allow_published_wave
+        else None
+    )
+    validate_cells(
+        repo,
+        args.batch,
+        require_git_binding=bool(args.trusted_targets),
+        collision_exclusion=collision_exclusion,
+    )
     if args.apply:
         apply_bundle(repo, manifest)
         print("validated publication bundle applied to checkout")
@@ -397,13 +980,16 @@ def parse_args() -> argparse.Namespace:
     stage_parser = subparsers.add_parser("stage")
     stage_parser.add_argument("--bundle-dir", required=True)
     stage_parser.add_argument("--batch", required=True)
-    stage_parser.add_argument("--allow-path", action="append", required=True)
+    stage_parser.add_argument("--trusted-targets")
+    stage_parser.add_argument("--allow-path", action="append", default=[])
     stage_parser.set_defaults(func=stage)
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.add_argument("--bundle-dir", required=True)
     validate_parser.add_argument("--batch", required=True)
-    validate_parser.add_argument("--allow-path", action="append", required=True)
+    validate_parser.add_argument("--trusted-targets")
+    validate_parser.add_argument("--allow-path", action="append", default=[])
+    validate_parser.add_argument("--allow-published-wave", action="store_true")
     validate_parser.add_argument("--apply", action="store_true")
     validate_parser.set_defaults(func=validate)
 
