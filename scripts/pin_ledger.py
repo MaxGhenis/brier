@@ -104,6 +104,31 @@ def _jsonl_at(sha: str) -> bytes:
     )
 
 
+def _compare_commits(base: str, head: str) -> list[dict[str, Any]]:
+    """Every commit base..head, paginated past GitHub's 250-commit page cap."""
+    first = _api(f"compare/{base}...{head}?per_page=100&page=1")
+    total = first.get("total_commits")
+    if not isinstance(total, int):
+        raise PinError(f"compare {base[:12]}..{head[:12]} has no total_commits")
+    commits = list(first.get("commits") or [])
+    page = 2
+    while len(commits) < total:
+        payload = _api(f"compare/{base}...{head}?per_page=100&page={page}")
+        batch = payload.get("commits") or []
+        if not batch:
+            break
+        commits.extend(batch)
+        page += 1
+    if len(commits) != total:
+        raise PinError(
+            f"compare {base[:12]}..{head[:12]} returned {len(commits)} of "
+            f"{total} commits; refusing to advance the pin on a partial history"
+        )
+    if not commits:
+        raise PinError(f"cannot enumerate commits {base[:12]}..{head[:12]}")
+    return commits
+
+
 def _lines(raw: bytes) -> list[str]:
     return [line for line in raw.decode("utf-8").split("\n") if line.strip()]
 
@@ -349,11 +374,12 @@ def refresh() -> None:
     old_lines = _lines(old_raw)
 
     # Every intermediate commit must extend its parent line-for-line, so a
-    # rewrite-then-restore between refreshes cannot hide.
-    compare = _api(f"compare/{pin['sha']}...{head_sha}")
-    commits = compare.get("commits")
-    if not isinstance(commits, list) or not commits:
-        raise PinError(f"cannot enumerate commits {pin['sha']}..{head_sha}")
+    # rewrite-then-restore between refreshes cannot hide. GitHub's compare
+    # endpoint caps its commit list at 250 and paginates beyond that; taking
+    # one page would skip the omitted middle, so a rewrite-then-restore in
+    # that gap could pass (finding 10). Page until every advertised commit
+    # is present and assert the count matches total_commits.
+    commits = _compare_commits(pin["sha"], head_sha)
 
     rows = list(availability["rows"])
     previous_lines = old_lines

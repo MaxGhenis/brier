@@ -57,6 +57,7 @@ import {
 import {
   buildLedgerPersistenceBaseline,
   ledgerHistoryAtCutoff,
+  ledgerSeriesId,
   TIME_SERIES_PRIOR_VARIANT_ID,
 } from "./time-series-priors";
 import {
@@ -92,12 +93,14 @@ export type RecordedPredictionDistribution = Pick<
 // (getResolutionContractViolation).
 export interface SourceBindingProjection {
   series: string;
+  concept?: string;
   period: string;
   releasePolicy: string;
   table: string;
   field: string;
   transform: unknown;
   unit: string;
+  sourceUrl?: string;
   responseSha256: string;
 }
 
@@ -1568,10 +1571,30 @@ export function getResolutionContractViolation(
       "response bytes"
     );
   }
+  // Check the OBSERVATION's own identity against the registration, not the
+  // projection's self-declared copy. The projection is written by the same
+  // resolver that wrote the row, so trusting projection-vs-registration is
+  // tautological — an unrelated publisher/period could still "match". The
+  // observation's own series (from its dataPointId), unit, and publisher
+  // host are what bind it to the target (finding 1). A genuine parse proof
+  // that the value came from the archived bytes needs a trusted resolver
+  // and is the step-5 hardening for an untrusted writer.
+  const observedSeries = ledgerSeriesId(observation.dataPointId);
+  if (target.series && observedSeries !== target.series) {
+    return (
+      `observation series ${JSON.stringify(observedSeries)} does not match ` +
+      `the registered series ${JSON.stringify(target.series)}`
+    );
+  }
+  if (projection.series !== target.series) {
+    return (
+      `source-binding projection series ${JSON.stringify(projection.series)} ` +
+      `does not match the registration's ${JSON.stringify(target.series)}`
+    );
+  }
   const binding = target.sourceBinding;
   if (binding) {
     const expected: [string, unknown, unknown][] = [
-      ["series", projection.series, target.series],
       ["period", projection.period, target.period],
       ["releasePolicy", projection.releasePolicy, binding.releasePolicy],
       ["table", projection.table, binding.table],
@@ -1585,6 +1608,24 @@ export function getResolutionContractViolation(
           `source-binding projection ${key} ` +
           `${JSON.stringify(observed)} does not match the registration's ` +
           `${JSON.stringify(registered)}`
+        );
+      }
+    }
+    // The observation's own publisher host must be one the registration
+    // admits — a fact fetched from a novel host cannot grade the target.
+    const allowedHosts = binding.allowedHosts;
+    const observedUrl = observation.sourceUrl ?? projection.sourceUrl;
+    if (allowedHosts && allowedHosts.length > 0 && observedUrl) {
+      let host: string | null = null;
+      try {
+        host = new URL(observedUrl).hostname;
+      } catch {
+        host = null;
+      }
+      if (!host || !allowedHosts.includes(host)) {
+        return (
+          `observation source host ${JSON.stringify(host)} is not in the ` +
+          `registered allowedHosts ${JSON.stringify(allowedHosts)}`
         );
       }
     }

@@ -30,21 +30,32 @@ def _witness_run(tmp_path: pathlib.Path, monkeypatch) -> pathlib.Path:
             {"source_record_id": "series.b.2030", "value": 2},
         ]
     )
-    commit_raw = json.dumps({"sha": "b" * 40}).encode()
+    branch_url = (
+        "https://raw.githubusercontent.com/PolicyEngine/ledger/"
+        + ("b" * 40)
+        + "/ledger/official_observations.jsonl"
+    )
     upstream = [
         wul._archive(
             run_dir,
             "official-observations.jsonl",
             jsonl_raw,
             role="official_observations_jsonl",
-            url="https://example.test/observations.jsonl",
+            url=branch_url,
         ),
         wul._archive(
             run_dir,
             "ledger-branch-commit.json",
-            commit_raw,
+            json.dumps({"sha": "b" * 40}).encode(),
             role="ledger_branch_commit_api",
             url="https://example.test/commit",
+        ),
+        wul._archive(
+            run_dir,
+            "ledger-main-commit.json",
+            json.dumps({"sha": "c" * 40}).encode(),
+            role="ledger_main_commit_api",
+            url="https://example.test/main-commit",
         ),
     ]
     manifest = {
@@ -133,3 +144,56 @@ def test_witness_run_detects_wrong_line_count_commitment(
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     with pytest.raises(CustodyError):
         verify_run(run_dir)
+
+
+def test_witness_rejects_a_commit_archive_unrelated_to_the_manifest_sha(
+    tmp_path, monkeypatch
+) -> None:
+    # Finding 11: the archived branch-commit response must actually identify
+    # the SHA the manifest claims, not merely be byte-consistent.
+    monkeypatch.setattr(wul, "ROOT", tmp_path)
+    run_dir = tmp_path / "records" / "2030-01-01" / "run-ledger-witness"
+    run_dir.mkdir(parents=True)
+    jsonl_raw = _jsonl_bytes([{"source_record_id": "series.a.2030", "value": 1}])
+    branch_url = (
+        "https://raw.githubusercontent.com/PolicyEngine/ledger/"
+        + ("b" * 40)
+        + "/ledger/official_observations.jsonl"
+    )
+    upstream = [
+        wul._archive(
+            run_dir,
+            "official-observations.jsonl",
+            jsonl_raw,
+            role="official_observations_jsonl",
+            url=branch_url,
+        ),
+        wul._archive(
+            run_dir,
+            "ledger-branch-commit.json",
+            # The archived response identifies a DIFFERENT sha than claimed.
+            json.dumps({"sha": "d" * 40}).encode(),
+            role="ledger_branch_commit_api",
+            url="https://example.test/commit",
+        ),
+        wul._archive(
+            run_dir,
+            "ledger-main-commit.json",
+            json.dumps({"sha": "c" * 40}).encode(),
+            role="ledger_main_commit_api",
+            url="https://example.test/main-commit",
+        ),
+    ]
+    manifest = {
+        "schemaVersion": "thesis_ledger_witness_run_v1",
+        "retrievedAt": "2030-01-01T00:00:00Z",
+        "ledgerRepo": "PolicyEngine/ledger",
+        "ledgerBranch": "codex/thesis-ledger-facts",
+        "ledgerBranchSha": "b" * 40,
+        "ledgerMainSha": "c" * 40,
+        "jsonl": wul._validate_jsonl(jsonl_raw),
+        "upstream": upstream,
+    }
+
+    with pytest.raises(CustodyError, match="not the manifest's claimed SHA"):
+        wul._seal(run_dir, manifest)

@@ -38,6 +38,7 @@ import sys
 import time
 import urllib.request
 from typing import Any
+from urllib.parse import urlparse
 
 from canonical_json import canonical_bytes, canonical_sha256
 from register_targets import RegistrationError, registration_content_hash
@@ -777,13 +778,94 @@ def registration_contracts(
             raise ValueError(f"target registration hash mismatch: {path}")
         for target in snapshot.get("targets", []):
             data_point_id = target.get("dataPointId")
-            if data_point_id:
-                contracts[str(data_point_id)] = {
-                    "targetContentHash": content_hash,
-                    "contract": target,
-                    "ledgerPin": snapshot.get("ledgerPin"),
-                }
+            if not data_point_id:
+                continue
+            key = str(data_point_id)
+            entry = {
+                "targetContentHash": content_hash,
+                "contract": target,
+                "ledgerPin": snapshot.get("ledgerPin"),
+            }
+            existing = contracts.get(key)
+            if existing is None:
+                contracts[key] = entry
+                continue
+            # A dataPointId can be registered in more than one snapshot (a
+            # per-target snapshot plus a later batch set). Lexicographic file
+            # order used to silently pick whichever sorted last, so an
+            # appended fact could carry a valid-but-wrong contract hash and
+            # then be excluded by the site's target-hash check (finding 9).
+            # Resolve to whichever registration the PUBLISHED target actually
+            # committed; identical duplicates are fine; a conflict the
+            # published set does not disambiguate fails closed.
+            if existing["targetContentHash"] == content_hash and (
+                canonical_bytes(existing["contract"]) == canonical_bytes(target)
+            ):
+                continue
+            published = published_target_hashes().get(key)
+            if published is None:
+                # An unpublished (prospect/registered-not-yet-scored)
+                # dataPointId is never looked up during resolution — the
+                # resolver only appends to published pending cells — so a
+                # duplicate here cannot mis-score. Pick deterministically by
+                # the freshest registration rather than lexical file order.
+                if _registered_at(target) >= _registered_at(existing["contract"]):
+                    contracts[key] = entry
+                continue
+            # For a PUBLISHED target the fact must carry the exact hash its
+            # cell committed, or the site excludes the score. Resolve to the
+            # published registration; a conflict the published set does not
+            # contain fails closed (finding 9).
+            if content_hash == published:
+                contracts[key] = entry
+            elif existing["targetContentHash"] != published:
+                raise ValueError(
+                    f"neither registration for published dataPointId {key} "
+                    f"matches its target hash {published[:16]}…; resolve the "
+                    "duplicate before appending"
+                )
     return contracts
+
+
+def _registered_at(contract: dict[str, Any]) -> str:
+    return str(contract.get("registeredAtUtc") or contract.get("registeredAt") or "")
+
+
+_PUBLISHED_TARGET_HASHES: dict[str, str] | None = None
+
+
+def published_target_hashes(
+    generated_path: pathlib.Path | None = None,
+) -> dict[str, str]:
+    """Map each published dataPointId to the target hash its cell committed.
+
+    The generated target module is what the site actually scores against, so
+    it is the authority for which registration a duplicate dataPointId
+    resolves to.
+    """
+    global _PUBLISHED_TARGET_HASHES
+    if _PUBLISHED_TARGET_HASHES is not None and generated_path is None:
+        return _PUBLISHED_TARGET_HASHES
+    path = generated_path or (
+        ROOT / "site" / "src" / "data" / "ledger-targets.generated.ts"
+    )
+    mapping: dict[str, str] = {}
+    if path.exists():
+        # Each entry names its dataPointId before its targetContentHash; only
+        # preregistered v2/v3 targets carry a hash (the hardcoded legacy
+        # targets do not), so map each hash to the nearest preceding id.
+        current: str | None = None
+        for line in path.read_text().splitlines():
+            dpid = re.search(r'dataPointId:\s*"([^"]+)"', line)
+            if dpid:
+                current = dpid.group(1)
+                continue
+            thash = re.search(r'targetContentHash:\s*"([0-9a-f]{64})"', line)
+            if thash and current is not None:
+                mapping[current] = thash.group(1)
+    if generated_path is None:
+        _PUBLISHED_TARGET_HASHES = mapping
+    return mapping
 
 
 ASSERTION_CONTENT_KEYS = (
@@ -799,14 +881,16 @@ ASSERTION_CONTENT_KEYS = (
 )
 
 
-def assertion_version(row: dict[str, Any]) -> dict[str, Any]:
-    """Content-address the assertion so corrections must be explicit.
+def assertion_version_projection(row: dict[str, Any]) -> dict[str, Any]:
+    """The canonical projection that content-addresses an assertion (av2).
 
-    The version ID commits to everything that changes what the assertion
-    MEANS — identity, value, timing, population, measure, and publisher
-    provenance. A correction appends a new row whose ``supersedes`` names
-    the version it replaces; rewriting a row in place changes its version
-    ID and is detectable (review finding 3).
+    Committed to everything that changes what the assertion MEANS —
+    identity, value, timing, population, the FULL measure (concept mapping
+    and authority, not just concept/unit), exact publisher provenance
+    including source file and byte digest, source row/cell lineage, and the
+    archived response digest. Two assertions that differ in any of these
+    get different IDs; a correction must supersede explicitly (finding 3).
+    Kept byte-identical with the ledger append gate's recomputation.
     """
     measure = row.get("measure") or {}
     source = row.get("source") or {}
@@ -814,14 +898,34 @@ def assertion_version(row: dict[str, Any]) -> dict[str, Any]:
     projection["measure"] = {
         "concept": measure.get("concept"),
         "unit": measure.get("unit"),
+        "source_concept": measure.get("source_concept"),
+        "concept_relation": measure.get("concept_relation"),
+        "concept_authority": measure.get("concept_authority"),
+        "legal_vintage": measure.get("legal_vintage"),
     }
     projection["source"] = {
         "source_name": source.get("source_name"),
         "source_table": source.get("source_table"),
+        "source_file": source.get("source_file"),
         "url": source.get("url"),
         "vintage": source.get("vintage"),
+        "source_sha256": source.get("source_sha256"),
     }
-    return {"id": f"av1:{canonical_sha256(projection)}", "supersedes": None}
+    projection["lineage"] = {
+        "source_row_keys": row.get("source_row_keys"),
+        "source_cell_keys": row.get("source_cell_keys"),
+    }
+    projection["responseArchiveSha256"] = (row.get("responseArchive") or {}).get(
+        "sha256"
+    )
+    return projection
+
+
+def assertion_version(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "id": f"av2:{canonical_sha256(assertion_version_projection(row))}",
+        "supersedes": None,
+    }
 
 
 def source_binding_projection(
@@ -829,26 +933,60 @@ def source_binding_projection(
 ) -> dict[str, Any]:
     """Bind the appended fact to the registered resolver contract.
 
-    Write-side enforcement of the same projection the site requires before a
-    post-quarantine observation may grade a registered target: a fact that
-    does not match its registration must fail here, not score there.
+    The projection is derived from the ROW's own content, then each derived
+    field is checked against the registration; a mismatch fails the append.
+    Copying the registration's fields wholesale would make the site's
+    contract check tautological — a row from a different publisher, period,
+    or concept would still "match". Deriving from the row and rejecting on
+    mismatch is what actually binds the appended fact to its target
+    (finding 1). The archived-response digest binds the bytes; a trusted
+    parse proof that the value came FROM those bytes is the resolver's job
+    (it built both row and archive from the same fetch) and remains the
+    step-5 hardening for an untrusted writer.
     """
     contract = registration["contract"]
     binding = contract.get("sourceBinding") or {}
-    row_unit = (row.get("measure") or {}).get("unit")
+    measure = row.get("measure") or {}
+    row_source = row.get("source") or {}
+    record_id = row.get("source_record_id")
+
+    row_unit = measure.get("unit")
+    row_concept = measure.get("concept")
+    # Direct field equalities that need no fragile period re-tokenization: a
+    # row from a different publisher carries a different measure concept, and
+    # the registration lookup already keyed on the row's source_record_id, so
+    # the period is pinned by identity. unit + concept + publisher host close
+    # the "unrelated row scores as contract_bound" hole (finding 1).
     if row_unit != contract.get("unit"):
         raise ValueError(
             f"fact unit {row_unit!r} does not match registered unit "
-            f"{contract.get('unit')!r} for {row.get('source_record_id')}"
+            f"{contract.get('unit')!r} for {record_id}"
         )
+    registered_series = contract.get("series")
+    if registered_series is not None and row_concept != registered_series:
+        raise ValueError(
+            f"fact measure concept {row_concept!r} does not match the "
+            f"registered series {registered_series!r} for {record_id}"
+        )
+    allowed_hosts = binding.get("allowedHosts")
+    row_url = row_source.get("url") or measure.get("concept_evidence_url")
+    if allowed_hosts and row_url:
+        host = urlparse(str(row_url)).hostname
+        if host not in allowed_hosts:
+            raise ValueError(
+                f"fact source host {host!r} is not in the registered "
+                f"allowedHosts {allowed_hosts} for {record_id}"
+            )
     return {
-        "series": contract.get("series"),
+        "series": registered_series,
+        "concept": row_concept,
         "period": contract.get("period"),
         "releasePolicy": binding.get("releasePolicy"),
         "table": binding.get("table"),
         "field": binding.get("field"),
         "transform": binding.get("transform"),
-        "unit": contract.get("unit"),
+        "unit": row_unit,
+        "sourceUrl": str(row_url) if row_url else None,
         "responseSha256": hashlib.sha256(raw).hexdigest(),
     }
 
@@ -891,20 +1029,23 @@ def attach_resolution_provenance(
     target_contracts: dict[str, dict[str, Any]],
     extension: str = "csv",
 ) -> dict[str, Any]:
+    # Archive first so the assertion version can bind the response digest;
+    # computing it before archiving would leave the bytes out of identity.
+    response_archive = archive_response(
+        run_dir,
+        series_id=series_id,
+        vintage=vintage,
+        raw=raw,
+        extension=extension,
+    )
     output = {
         **row,
         "ledgerRepoSha": ledger_repo_sha,
         "sourceVintage": vintage,
         "retrievedAt": retrieved_at,
-        "assertionVersion": assertion_version(row),
-        "responseArchive": archive_response(
-            run_dir,
-            series_id=series_id,
-            vintage=vintage,
-            raw=raw,
-            extension=extension,
-        ),
+        "responseArchive": response_archive,
     }
+    output["assertionVersion"] = assertion_version(output)
     registration = target_contracts.get(str(row["source_record_id"]))
     if registration:
         output["targetContentHash"] = registration["targetContentHash"]

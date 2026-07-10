@@ -69,8 +69,18 @@ def test_archives_raw_response_and_attaches_append_provenance(
     assert projection["unit"] == "thousands"
     assert projection["field"] == "ICSA"
     assert projection["responseSha256"] == archive["sha256"]
-    assert enriched["assertionVersion"]["id"].startswith("av1:")
+    assert enriched["assertionVersion"]["id"].startswith("av2:")
     assert enriched["assertionVersion"]["supersedes"] is None
+    # The assertion version binds the archived response digest, so it must be
+    # computed over the enriched row (with responseArchive), not the bare row.
+    assert (
+        enriched["assertionVersion"]["id"]
+        == resolve_pending.assertion_version(enriched)["id"]
+    )
+    assert (
+        enriched["assertionVersion"]["id"]
+        != resolve_pending.assertion_version(row)["id"]
+    )
     assert enriched["ledgerRepoSha"] == "a" * 40
     assert enriched["sourceVintage"] == "2030-01-10"
     assert enriched["retrievedAt"] == "2030-01-10T13:40:00Z"
@@ -312,6 +322,91 @@ def test_write_side_rejects_a_fact_whose_unit_contradicts_its_contract() -> None
         raise AssertionError("wrong-unit fact was not rejected at write time")
 
 
+def test_write_side_rejects_a_fact_from_a_different_concept() -> None:
+    # Finding 1: a row carrying the registered source_record_id but a
+    # different measure concept (a different publisher/series) must not
+    # stamp the registered projection.
+    registration = {
+        "targetContentHash": "a" * 64,
+        "contract": {
+            "dataPointId": "test.series.2030",
+            "series": "test.series",
+            "period": "2030",
+            "unit": "thousands",
+            "sourceBinding": {
+                "releasePolicy": "advance_vintage",
+                "table": "ALFRED graph CSV",
+                "field": "TEST",
+                "transform": {"operation": "multiply", "factor": 0.001},
+                "allowedHosts": ["alfred.stlouisfed.org"],
+            },
+        },
+        "ledgerPin": None,
+    }
+    wrong_concept = {
+        "source_record_id": "test.series.2030",
+        "value": 999.0,
+        "measure": {"concept": "unrelated.other.series", "unit": "thousands"},
+        "source": {"url": "https://alfred.stlouisfed.org/x"},
+    }
+    try:
+        resolve_pending.source_binding_projection(registration, wrong_concept, b"x")
+    except ValueError as error:
+        assert "concept" in str(error)
+    else:
+        raise AssertionError("wrong-concept fact was not rejected")
+
+    wrong_host = {
+        "source_record_id": "test.series.2030",
+        "value": 5.0,
+        "measure": {"concept": "test.series", "unit": "thousands"},
+        "source": {"url": "https://evil.example.com/x"},
+    }
+    try:
+        resolve_pending.source_binding_projection(registration, wrong_host, b"x")
+    except ValueError as error:
+        assert "host" in str(error)
+    else:
+        raise AssertionError("novel-host fact was not rejected")
+
+
+def test_registration_contracts_resolves_duplicates_to_published_hash(
+    tmp_path,
+) -> None:
+    # Finding 9: two registrations for one dataPointId resolve to whichever
+    # the published target committed, not lexical file order.
+    records = tmp_path / "records" / "targets"
+    records.mkdir(parents=True)
+    dpid = "test.dup.series.2030"
+    for series in ("a.series", "b.series"):
+        contract = {
+            "dataPointId": dpid,
+            "series": series,
+            "period": "2030",
+            "unit": "count",
+            "sourceBinding": {"releasePolicy": "first_print", "table": "t"},
+        }
+        snap = {"schemaVersion": "thesis_target_registration_v1", "targets": [contract]}
+        ch = canonical_sha256(snap)
+        (records / f"2030-01-01-{ch}.json").write_bytes(canonical_bytes(snap) + b"\n")
+    # Determine the two hashes and publish the lexically-FIRST one.
+    hashes = sorted(p.name[11:75] for p in records.glob("*.json"))
+    published = hashes[0]
+    generated = tmp_path / "generated.ts"
+    generated.write_text(
+        f'  {{\n    dataPointId: "{dpid}",\n'
+        f'    targetContentHash: "{published}",\n  }},\n'
+    )
+    resolve_pending._PUBLISHED_TARGET_HASHES = None
+    try:
+        pub = resolve_pending.published_target_hashes(generated)
+        resolve_pending._PUBLISHED_TARGET_HASHES = pub
+        contracts = resolve_pending.registration_contracts(records)
+    finally:
+        resolve_pending._PUBLISHED_TARGET_HASHES = None
+    assert contracts[dpid]["targetContentHash"] == published
+
+
 def test_assertion_version_changes_when_the_value_changes() -> None:
     row = {
         "source_record_id": "test.series.2030",
@@ -325,7 +420,7 @@ def test_assertion_version_changes_when_the_value_changes() -> None:
     original = resolve_pending.assertion_version(row)
     corrected = resolve_pending.assertion_version({**row, "value": 2.5})
 
-    assert original["id"].startswith("av1:")
+    assert original["id"].startswith("av2:")
     assert original["id"] != corrected["id"]
 
 
@@ -434,3 +529,34 @@ def test_append_proposal_refuses_to_merge_on_gate_failure(monkeypatch) -> None:
     else:
         raise AssertionError("gate failure did not block the merge")
     assert not any("/merge" in " ".join(c) for c in calls)
+
+
+def test_assertion_version_binds_measure_mapping_and_lineage() -> None:
+    # Finding 6: av2 must change when concept mapping, authority, source
+    # file/digest, lineage, or the response digest change — not only value.
+    base = {
+        "source_record_id": "test.series.2030",
+        "value": 1.5,
+        "observed_at": "2030-01-10",
+        "period": {"type": "month", "value": "2030-01"},
+        "measure": {
+            "concept": "test.series",
+            "unit": "millions",
+            "source_concept": "SRC",
+            "concept_authority": "auth",
+        },
+        "source": {"source_name": "test", "vintage": "advance", "source_file": "a.csv"},
+        "source_row_keys": ["r1"],
+        "responseArchive": {"sha256": "d" * 64},
+    }
+    base_id = resolve_pending.assertion_version(base)["id"]
+    variants = [
+        {"measure": {**base["measure"], "source_concept": "OTHER"}},
+        {"measure": {**base["measure"], "concept_authority": "other"}},
+        {"source": {**base["source"], "source_file": "b.csv"}},
+        {"source_row_keys": ["r2"]},
+        {"responseArchive": {"sha256": "e" * 64}},
+    ]
+    for override in variants:
+        changed = resolve_pending.assertion_version({**base, **override})["id"]
+        assert changed != base_id, f"av2 did not change for {override}"

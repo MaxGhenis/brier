@@ -569,6 +569,9 @@ def _verify_ledger_witness_v2(
         raise CustodyError("ledger witness manifest lacks a jsonl commitment")
     manifest_archives: set[str] = set()
     observations_witnessed = False
+    roles_seen: dict[str, int] = {}
+    branch_sha = str(manifest.get("ledgerBranchSha", ""))
+    main_sha = str(manifest.get("ledgerMainSha", ""))
     for record in upstream:
         archive = record.get("archive") if isinstance(record, dict) else None
         if not isinstance(archive, dict):
@@ -604,6 +607,23 @@ def _verify_ledger_witness_v2(
             raise CustodyError(
                 f"ledger witness decompressed archive mismatch: {relative}"
             )
+        role = str(record.get("role", ""))
+        roles_seen[role] = roles_seen.get(role, 0) + 1
+        # The archived commit-API responses must actually identify the SHAs
+        # the manifest claims, and the observations archive must be the file
+        # at the branch SHA — otherwise a witness can hash an internally
+        # consistent but contradictory bundle (finding 11).
+        if role == "ledger_branch_commit_api":
+            _require_commit_response(raw, branch_sha, relative)
+        elif role == "ledger_main_commit_api":
+            _require_commit_response(raw, main_sha, relative)
+        elif role == "official_observations_jsonl":
+            url = str(record.get("url", ""))
+            if branch_sha and branch_sha not in url:
+                raise CustodyError(
+                    "ledger witness observations URL does not pin the branch "
+                    f"SHA {branch_sha}: {url!r}"
+                )
         if record.get("role") == "official_observations_jsonl":
             observations_witnessed = True
             lines = [line for line in raw.decode("utf-8").splitlines() if line.strip()]
@@ -641,11 +661,36 @@ def _verify_ledger_witness_v2(
         raise CustodyError(
             "ledger witness run does not witness official_observations.jsonl"
         )
+    for required_role in (
+        "official_observations_jsonl",
+        "ledger_branch_commit_api",
+        "ledger_main_commit_api",
+    ):
+        if roles_seen.get(required_role) != 1:
+            raise CustodyError(
+                f"ledger witness must carry exactly one {required_role} "
+                f"archive, found {roles_seen.get(required_role, 0)}"
+            )
     if rooted_archives != manifest_archives:
         raise CustodyError(
             "ledger witness archive inventory mismatch: "
             f"rooted={sorted(rooted_archives)}, "
             f"manifest={sorted(manifest_archives)}"
+        )
+
+
+def _require_commit_response(raw: bytes, expected_sha: str, relative: str) -> None:
+    try:
+        payload = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CustodyError(
+            f"ledger witness commit archive {relative} is not JSON: {exc}"
+        ) from exc
+    actual = str(payload.get("sha", "")) if isinstance(payload, dict) else ""
+    if not expected_sha or actual != expected_sha:
+        raise CustodyError(
+            f"ledger witness commit archive {relative} identifies {actual!r}, "
+            f"not the manifest's claimed SHA {expected_sha!r}"
         )
 
 

@@ -441,6 +441,7 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     table: "ALFRED graph CSV",
     transform: { operation: "multiply", factor: 0.001 },
     releasePolicy: "advance_vintage" as const,
+    allowedHosts: ["alfred.stlouisfed.org"],
     expectedReleaseWindow: { start: "2026-07-15", end: "2026-07-25" },
   };
   const registered: TargetRegisteredLedgerEntry = {
@@ -485,6 +486,7 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     legacyQuarantined: false,
     sourceKind: "official_release",
     source: "Test",
+    sourceUrl: "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TEST",
     targetContentHash: registered.targetContentHash,
     ledgerRepoSha: "d".repeat(40),
     sourceVintage: "2026-07-20",
@@ -518,6 +520,31 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     ]);
     expect(evaluation.exclusion).toBeUndefined();
     expect(evaluation.score?.contractBinding).toBe("contract_bound");
+  });
+
+  it("rejects a projection whose series contradicts the registration", () => {
+    // Finding 1: the projection's declared series is checked against the
+    // registration, not merely against its own copy.
+    const fact = boundFact({});
+    fact.sourceBindingProjection = {
+      ...fact.sourceBindingProjection!,
+      series: "unrelated.other.series",
+    };
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      fact,
+    ]);
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("series");
+  });
+
+  it("rejects an observation fetched from a non-allowed publisher host", () => {
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      boundFact({ sourceUrl: "https://evil.example.com/data.csv" }),
+    ]);
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("host");
   });
 
   it("rejects a post-quarantine observation with no contract hash", () => {
