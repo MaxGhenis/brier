@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-07-10T14:13:44Z",
+  "finishedAt": "2026-07-10T14:16:39Z",
+  "promptMode": "ladder",
+  "timeoutSeconds": 540,
+  "targets": 1,
+  "ok": 1,
+  "failed": 0,
+  "results": [
+    {
+      "target": {
+        "catalogSlug": "bea-disposable-personal-income-level-june-2026",
+        "comparisonTarget": true,
+        "country": "US",
+        "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+        "period": "2026-06",
+        "registeredAtUtc": "2026-07-10T12:36:34Z",
+        "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+        "resolutionDate": "2026-07-30",
+        "resolutionPolicy": "first_print",
+        "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+        "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+        "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+        "series": "bea.disposable_personal_income.level",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-07-29",
+            "start": "2026-07-21"
+          },
+          "field": "DSPI",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "DSPI",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+          "table": "Personal Income and Outlays, Table 1",
+          "transform": {
+            "factor": 1,
+            "operation": "identity"
+          }
+        },
+        "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+        "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+        "targetUnit": "usd_billions",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-10T14:13:44Z",
+      "finishedAt": "2026-07-10T14:16:39Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t14-13-45z-bea-disposable-personal-income-level-2026-06/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t14-13-45z-bea-disposable-personal-income-level-2026-06/cells.with_activity.json",
+      "stdoutTail": "0c0\",\n      \"bytes\": 26405,\n      \"createdAt\": \"2026-07-10T14:13:45Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t14-13-45z-bea-disposable-personal-income-level-2026-06/distribution.json\",\n      \"sha256\": \"884124e2665e3dd1c779b64d6a929c0c342e981be3e46cb933b24d6513d25728\",\n      \"bytes\": 13743,\n      \"createdAt\": \"2026-07-10T14:13:45Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t14-13-45z-bea-disposable-personal-income-level-2026-06/validation.json\",\n      \"sha256\": \"26210aea3430b80e8e2cc7563234a237b3f4050011991230aa2b7a1e00ba93ea\",\n      \"bytes\": 147,\n      \"createdAt\": \"2026-07-10T14:13:45Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t14-13-45z-bea-disposable-personal-income-level-2026-06/cells.with_activity.json\",\n      \"sha256\": \"94dbb2f71632b067b776acfefcee32cb521006562ed5c97f19d48fe00be47677\",\n      \"bytes\": 41635,\n      \"createdAt\": \"2026-07-10T14:13:45Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t14-13-45z-bea-disposable-personal-income-level-2026-06/manifest.json\",\n      \"sha256\": \"9fbc1a4a96b8b1456436dba6de6d2edb9a8bde302a0fe26569b9d7d149c693c3\",\n      \"bytes\": 16179,\n      \"createdAt\": \"2026-07-10T14:13:45Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"bea-disposable-personal-income-level-june-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"e2af66fed4fe21cb03fe23ecb0658f9c0faf1004768bdc47e9ccbd3fcb1134a7\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    }
+  ]
+}

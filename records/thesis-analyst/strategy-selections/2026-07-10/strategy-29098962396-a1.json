@@ -1,0 +1,82 @@
+{
+  "ledgerEvidence": {
+    "blobSha": "bd3d4c98fde7f7badb79e2a6b70fd6a1b8ede061",
+    "branch": "codex/thesis-ledger-facts",
+    "checkedAtUtc": "2026-07-10T14:13:24Z",
+    "contentSha256": "581f681aa3467d7f58b3ede4f13a17ea80c187d0328e88ae743756cc2b67a48b",
+    "path": "ledger/official_observations.jsonl",
+    "repository": "PolicyEngine/ledger",
+    "repositoryCommit": "3d57d86fd12bd9b447d118e4c43c4f34e9ed23d2",
+    "resolvedDataPointIds": []
+  },
+  "localResolutionEvidence": {
+    "chainHeadPath": "records/CHAIN_HEAD.json",
+    "chainHeadSha256": "3d854879e74ed1a4407f28d5ebd161716951cac0b73eaa662a3fbe3cc1121bd7",
+    "checkedAtUtc": "2026-07-10T14:13:24Z",
+    "resolutionCount": 120,
+    "resolvedDataPointIds": [],
+    "snapshotPath": "records/2026-07-10/digest-29098454379-1.json",
+    "snapshotRecordedAt": "2026-07-10T14:05:01Z",
+    "snapshotSha256": "c92b6cf1862c049b4b9d48dfb44c9da0ddd352724442622dac26fe671cea2350"
+  },
+  "request": {
+    "autoSelect": true,
+    "catalogSlugs": [],
+    "maxTargets": 1,
+    "suite": "ladder"
+  },
+  "schemaVersion": "thesis_strategy_selection_v1",
+  "selectedAtUtc": "2026-07-10T14:13:24Z",
+  "selectionPath": "records/thesis-analyst/strategy-selections/2026-07-10/strategy-29098962396-a1.json",
+  "selectionSetHash": "9d9fc222793452bdcf8486cf50458e39e7663718db09116f8eb88a16909fe2c0",
+  "sourceSha": "17a79b2525c6ab10acba43c81c7b79bdb2f44948",
+  "targets": [
+    {
+      "catalogSlug": "bea-disposable-personal-income-level-june-2026",
+      "comparisonTarget": true,
+      "country": "US",
+      "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+      "period": "2026-06",
+      "registeredAtUtc": "2026-07-10T12:36:34Z",
+      "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+      "resolutionDate": "2026-07-30",
+      "resolutionPolicy": "first_print",
+      "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+      "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+      "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+      "series": "bea.disposable_personal_income.level",
+      "sourceBinding": {
+        "adapter": "generic-url",
+        "allowedHosts": [
+          "alfred.stlouisfed.org"
+        ],
+        "expectedReleaseWindow": {
+          "end": "2026-07-29",
+          "start": "2026-07-21"
+        },
+        "field": "DSPI",
+        "releasePolicy": "first_print",
+        "sourceSeriesId": "DSPI",
+        "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+        "table": "Personal Income and Outlays, Table 1",
+        "transform": {
+          "factor": 1,
+          "operation": "identity"
+        }
+      },
+      "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+      "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+      "targetUnit": "usd_billions",
+      "valueScale": 1
+    }
+  ],
+  "workflow": {
+    "artifactCreatedAtUtc": "2026-07-10T14:13:25Z",
+    "artifactDigest": "sha256:831ab35d530378e4079e5879e9791a8a41fc7527d11c6fb9e3243ec94e56e37d",
+    "artifactId": 8229960170,
+    "artifactName": "strategy-selection-probe-29098962396-1",
+    "repository": "MaxGhenis/brier",
+    "runAttempt": 1,
+    "runId": 29098962396
+  }
+}
