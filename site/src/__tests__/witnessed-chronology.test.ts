@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildScoreId,
   CHRONOLOGY_POLICY_VERSION,
+  CONTRACT_BINDING_POLICY_VERSION,
   classifyPublicationProof,
   composeScoreChronology,
   scoreResolvedForecastRun,
@@ -361,6 +362,8 @@ describe("witness tier through the scoring pipeline", () => {
       observedAt: "2026-07-01T00:00:00Z",
       chronology: "witness_verified",
       chronologyPolicy: CHRONOLOGY_POLICY_VERSION,
+      contractBinding: "contract_bound",
+      contractBindingPolicy: CONTRACT_BINDING_POLICY_VERSION,
       conditionId: null,
       conditionStatus: null,
     };
@@ -372,6 +375,11 @@ describe("witness tier through the scoring pipeline", () => {
         ...payload,
         chronologyPolicy: "chronology_v3_explicit_instants",
       }),
+    );
+    // The contract-binding verdict is score identity for the same reason
+    // the chronology verdict is: it changes what the number means.
+    expect(buildScoreId(payload)).not.toBe(
+      buildScoreId({ ...payload, contractBinding: "legacy_unbound" }),
     );
     expect(CHRONOLOGY_POLICY_VERSION).toBe("chronology_v4_witnessed_publication");
   });

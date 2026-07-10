@@ -87,7 +87,7 @@ def test_registration_snapshot_round_trip_and_hash_stability(
     assert content_hash == register_targets.registration_content_hash(later_snapshot)
     assert canonical_sha256(snapshot) != canonical_sha256(later_snapshot)
     with pytest.raises(
-        register_targets.RegistrationError, match="unexpected top-level fields"
+        register_targets.RegistrationError, match="top-level fields do not match"
     ):
         register_targets.registration_content_hash({**snapshot, "backdatedBy": "agent"})
 

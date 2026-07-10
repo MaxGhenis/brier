@@ -18,9 +18,21 @@ def test_archives_raw_response_and_attaches_append_provenance(
 ) -> None:
     monkeypatch.setattr(resolve_pending, "ROOT", tmp_path)
     data_point_id = "us.dol.initial_claims.sa.week_2030-01-05"
+    contract = {
+        "dataPointId": data_point_id,
+        "series": "us.dol.initial_claims.sa",
+        "period": "2030-01-05",
+        "unit": "thousands",
+        "sourceBinding": {
+            "releasePolicy": "advance_vintage",
+            "table": "ALFRED graph CSV",
+            "field": "ICSA",
+            "transform": {"operation": "multiply", "factor": 0.001},
+        },
+    }
     snapshot = {
         "schemaVersion": "thesis_target_registration_v1",
-        "targets": [{"dataPointId": data_point_id}],
+        "targets": [contract],
     }
     content_hash = canonical_sha256(snapshot)
     records = tmp_path / "records" / "targets"
@@ -28,11 +40,17 @@ def test_archives_raw_response_and_attaches_append_provenance(
     (records / f"2030-01-01-{content_hash}.json").write_bytes(
         canonical_bytes(snapshot) + b"\n"
     )
-    target_hashes = resolve_pending.registration_hashes(records)
+    target_contracts = resolve_pending.registration_contracts(records)
     raw = b"observation_date,ICSA_20300110\n2030-01-05,245000\n"
     run_dir = tmp_path / "records" / "resolutions" / "2030-01-10" / "run"
     run_dir.mkdir(parents=True)
-    row = {"source_record_id": data_point_id, "value": 245.0}
+    row = {
+        "source_record_id": data_point_id,
+        "value": 245.0,
+        "observed_at": "2030-01-10",
+        "measure": {"concept": "us.dol.initial_claims.sa", "unit": "thousands"},
+        "source": {"source_name": "dol_eta", "vintage": "advance"},
+    }
 
     enriched = resolve_pending.attach_resolution_provenance(
         row,
@@ -42,11 +60,17 @@ def test_archives_raw_response_and_attaches_append_provenance(
         raw=raw,
         retrieved_at="2030-01-10T13:40:00Z",
         ledger_repo_sha="a" * 40,
-        target_hashes=target_hashes,
+        target_contracts=target_contracts,
     )
 
     archive = enriched["responseArchive"]
     assert enriched["targetContentHash"] == content_hash
+    projection = enriched["sourceBindingProjection"]
+    assert projection["unit"] == "thousands"
+    assert projection["field"] == "ICSA"
+    assert projection["responseSha256"] == archive["sha256"]
+    assert enriched["assertionVersion"]["id"].startswith("av1:")
+    assert enriched["assertionVersion"]["supersedes"] is None
     assert enriched["ledgerRepoSha"] == "a" * 40
     assert enriched["sourceVintage"] == "2030-01-10"
     assert enriched["retrievedAt"] == "2030-01-10T13:40:00Z"
@@ -255,3 +279,51 @@ def test_manifest_dedupes_shared_response_archives(tmp_path) -> None:
         assert len(responses) == 1
     finally:
         resolve_pending.ROOT = original_root
+
+
+def test_write_side_rejects_a_fact_whose_unit_contradicts_its_contract() -> None:
+    registration = {
+        "targetContentHash": "a" * 64,
+        "contract": {
+            "dataPointId": "test.series.2030",
+            "series": "test.series",
+            "period": "2030",
+            "unit": "thousands",
+            "sourceBinding": {
+                "releasePolicy": "advance_vintage",
+                "table": "ALFRED graph CSV",
+                "field": "TEST",
+                "transform": {"operation": "multiply", "factor": 0.001},
+            },
+        },
+        "ledgerPin": None,
+    }
+    row = {
+        "source_record_id": "test.series.2030",
+        "value": 1.5,
+        "measure": {"concept": "test.series", "unit": "millions"},
+    }
+
+    try:
+        resolve_pending.source_binding_projection(registration, row, b"raw")
+    except ValueError as error:
+        assert "millions" in str(error) and "thousands" in str(error)
+    else:
+        raise AssertionError("wrong-unit fact was not rejected at write time")
+
+
+def test_assertion_version_changes_when_the_value_changes() -> None:
+    row = {
+        "source_record_id": "test.series.2030",
+        "value": 1.5,
+        "observed_at": "2030-01-10",
+        "period": {"type": "month", "value": "2030-01"},
+        "measure": {"concept": "test.series", "unit": "millions"},
+        "source": {"source_name": "test", "vintage": "advance"},
+    }
+
+    original = resolve_pending.assertion_version(row)
+    corrected = resolve_pending.assertion_version({**row, "value": 2.5})
+
+    assert original["id"].startswith("av1:")
+    assert original["id"] != corrected["id"]

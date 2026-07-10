@@ -400,12 +400,19 @@ export function ledgerHistoryAtCutoff(
   const cutoffTime = Date.parse(cutoff);
   if (!Number.isFinite(cutoffTime)) return [];
 
+  // Eligibility requires BOTH the publisher's claimed date and the ledger's
+  // own acceptance to precede the cutoff. A backfilled print carries an old
+  // observedAt but a late acceptance; admitting it would silently rewrite
+  // published baselines and normalization scales (finding N5). Rows without
+  // an acceptance record fail closed.
   const observations = ledger.filter(
     (entry): entry is ObservationRecordedLedgerEntry =>
       entry.kind === "observation_recorded" &&
       entry.unit === forecast.unit &&
       ledgerSeriesId(entry) === targetSeriesId &&
-      Date.parse(entry.observedAt) <= cutoffTime,
+      Date.parse(entry.observedAt) <= cutoffTime &&
+      typeof entry.acceptedAtUtc === "string" &&
+      Date.parse(entry.acceptedAtUtc) <= cutoffTime,
   );
   const byObservationId = new Map(
     observations.map((observation) => [observation.observationId, observation]),

@@ -39,6 +39,7 @@ import urllib.request
 from typing import Any
 
 from canonical_json import canonical_bytes, canonical_sha256
+from register_targets import RegistrationError, registration_content_hash
 from thesis_log_client import load_thesis_log
 from verify_custody import verify_run
 
@@ -632,14 +633,19 @@ def push_ledger(
         raise RuntimeError(f"ledger push failed: {completed.stderr.strip()[:500]}")
 
 
-def registration_hashes(
+def registration_contracts(
     records_dir: pathlib.Path | None = None,
-) -> dict[str, str]:
-    """Map preregistered dataPointIds to verified snapshot hashes."""
+) -> dict[str, dict[str, Any]]:
+    """Map preregistered dataPointIds to their verified contracts.
+
+    Snapshot content hashes deliberately exclude the operational
+    ``registeredAtUtc`` (v2+), so verification must use the schema-aware
+    ``registration_content_hash``, never a whole-file canonical hash.
+    """
     records_dir = records_dir or ROOT / "records" / "targets"
-    hashes: dict[str, str] = {}
+    contracts: dict[str, dict[str, Any]] = {}
     if not records_dir.exists():
-        return hashes
+        return contracts
     for path in sorted(records_dir.glob("*.json")):
         match = re.fullmatch(r"\d{4}-\d{2}-\d{2}-([0-9a-f]{64})\.json", path.name)
         if not match:
@@ -648,25 +654,88 @@ def registration_hashes(
             snapshot = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError):
             continue
-        # v2 per-target snapshots deliberately exclude registeredAtUtc from
-        # their filename hash (the pushed registration commit witnesses that
-        # instant); v1 day-batch snapshots hash the whole payload. Accept
-        # whichever commitment the filename actually carries.
-        accepted = {canonical_sha256(snapshot)}
         try:
-            from register_targets import registration_content_hash
-
-            accepted.add(registration_content_hash(snapshot))
-        except Exception:
-            pass
-        if match.group(1) not in accepted:
+            content_hash = registration_content_hash(snapshot)
+        except RegistrationError as exc:
+            raise ValueError(f"invalid target registration {path}: {exc}") from exc
+        if content_hash != match.group(1):
             raise ValueError(f"target registration hash mismatch: {path}")
-        content_hash = match.group(1)
         for target in snapshot.get("targets", []):
             data_point_id = target.get("dataPointId")
             if data_point_id:
-                hashes[str(data_point_id)] = content_hash
-    return hashes
+                contracts[str(data_point_id)] = {
+                    "targetContentHash": content_hash,
+                    "contract": target,
+                    "ledgerPin": snapshot.get("ledgerPin"),
+                }
+    return contracts
+
+
+ASSERTION_CONTENT_KEYS = (
+    "source_record_id",
+    "value",
+    "observed_at",
+    "period",
+    "geography",
+    "entity",
+    "aggregation",
+    "filters",
+    "domain",
+)
+
+
+def assertion_version(row: dict[str, Any]) -> dict[str, Any]:
+    """Content-address the assertion so corrections must be explicit.
+
+    The version ID commits to everything that changes what the assertion
+    MEANS — identity, value, timing, population, measure, and publisher
+    provenance. A correction appends a new row whose ``supersedes`` names
+    the version it replaces; rewriting a row in place changes its version
+    ID and is detectable (review finding 3).
+    """
+    measure = row.get("measure") or {}
+    source = row.get("source") or {}
+    projection = {key: row.get(key) for key in ASSERTION_CONTENT_KEYS}
+    projection["measure"] = {
+        "concept": measure.get("concept"),
+        "unit": measure.get("unit"),
+    }
+    projection["source"] = {
+        "source_name": source.get("source_name"),
+        "source_table": source.get("source_table"),
+        "url": source.get("url"),
+        "vintage": source.get("vintage"),
+    }
+    return {"id": f"av1:{canonical_sha256(projection)}", "supersedes": None}
+
+
+def source_binding_projection(
+    registration: dict[str, Any], row: dict[str, Any], raw: bytes
+) -> dict[str, Any]:
+    """Bind the appended fact to the registered resolver contract.
+
+    Write-side enforcement of the same projection the site requires before a
+    post-quarantine observation may grade a registered target: a fact that
+    does not match its registration must fail here, not score there.
+    """
+    contract = registration["contract"]
+    binding = contract.get("sourceBinding") or {}
+    row_unit = (row.get("measure") or {}).get("unit")
+    if row_unit != contract.get("unit"):
+        raise ValueError(
+            f"fact unit {row_unit!r} does not match registered unit "
+            f"{contract.get('unit')!r} for {row.get('source_record_id')}"
+        )
+    return {
+        "series": contract.get("series"),
+        "period": contract.get("period"),
+        "releasePolicy": binding.get("releasePolicy"),
+        "table": binding.get("table"),
+        "field": binding.get("field"),
+        "transform": binding.get("transform"),
+        "unit": contract.get("unit"),
+        "responseSha256": hashlib.sha256(raw).hexdigest(),
+    }
 
 
 def archive_response(
@@ -704,7 +773,7 @@ def attach_resolution_provenance(
     raw: bytes,
     retrieved_at: str,
     ledger_repo_sha: str,
-    target_hashes: dict[str, str],
+    target_contracts: dict[str, dict[str, Any]],
     extension: str = "csv",
 ) -> dict[str, Any]:
     output = {
@@ -712,6 +781,7 @@ def attach_resolution_provenance(
         "ledgerRepoSha": ledger_repo_sha,
         "sourceVintage": vintage,
         "retrievedAt": retrieved_at,
+        "assertionVersion": assertion_version(row),
         "responseArchive": archive_response(
             run_dir,
             series_id=series_id,
@@ -720,9 +790,12 @@ def attach_resolution_provenance(
             extension=extension,
         ),
     }
-    target_hash = target_hashes.get(str(row["source_record_id"]))
-    if target_hash:
-        output["targetContentHash"] = target_hash
+    registration = target_contracts.get(str(row["source_record_id"]))
+    if registration:
+        output["targetContentHash"] = registration["targetContentHash"]
+        output["sourceBindingProjection"] = source_binding_projection(
+            registration, row, raw
+        )
     return output
 
 
@@ -946,7 +1019,7 @@ def main() -> int:
     run_retrieved_at = min(item[4] for item in fetched_rows)
     run_dir = resolution_run_dir(run_retrieved_at)
     run_dir.mkdir(parents=True, exist_ok=False)
-    target_hashes = registration_hashes()
+    target_contracts = registration_contracts()
     new_rows = [
         attach_resolution_provenance(
             row,
@@ -956,7 +1029,7 @@ def main() -> int:
             raw=raw,
             retrieved_at=retrieved_at,
             ledger_repo_sha=ledger_repo_sha,
-            target_hashes=target_hashes,
+            target_contracts=target_contracts,
             extension=extension,
         )
         for row, series_id, vintage, raw, retrieved_at, extension in fetched_rows

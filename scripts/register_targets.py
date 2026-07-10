@@ -31,9 +31,19 @@ from canonical_json import canonical_bytes, canonical_sha256
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 GENERATED_TARGETS = ROOT / "site" / "src" / "data" / "ledger-targets.generated.ts"
 
-REGISTRATION_SCHEMA = "thesis_target_registration_v2"
-LEGACY_REGISTRATION_SCHEMA = "thesis_target_registration_v1"
+REGISTRATION_SCHEMA = "thesis_target_registration_v3"
+V2_REGISTRATION_SCHEMA = "thesis_target_registration_v2"
+V1_REGISTRATION_SCHEMA = "thesis_target_registration_v1"
+LEGACY_REGISTRATION_SCHEMAS = {V1_REGISTRATION_SCHEMA, V2_REGISTRATION_SCHEMA}
 REGISTRATION_SET_SCHEMA = "thesis_target_registration_set_v1"
+LEDGER_PIN_PATH = (
+    pathlib.Path(__file__).resolve().parents[1]
+    / "site"
+    / "src"
+    / "data"
+    / "ledger-pin.json"
+)
+LEDGER_PIN_BINDING_KEYS = {"repo", "branch", "sha", "jsonlSha256", "lineCount"}
 SOURCE_ADAPTERS = {"alfred-fred", "generic-url"}
 RELEASE_POLICIES = {"first_print", "advance_vintage"}
 SERIES_BINDINGS: dict[str, dict[str, Any]] = {
@@ -87,35 +97,80 @@ def parse_utc_instant(value: str) -> dt.datetime:
     return parsed
 
 
+def validate_ledger_pin_binding(pin: Any) -> dict[str, Any]:
+    """The pinned ledger state a v3 registration commits to."""
+
+    if not isinstance(pin, dict) or set(pin) != LEDGER_PIN_BINDING_KEYS:
+        raise RegistrationError(
+            "registration ledgerPin must bind exactly "
+            f"{sorted(LEDGER_PIN_BINDING_KEYS)}"
+        )
+    if not re.fullmatch(r"[0-9a-f]{40}", str(pin["sha"])):
+        raise RegistrationError(f"ledgerPin sha is not a commit SHA: {pin['sha']!r}")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(pin["jsonlSha256"])):
+        raise RegistrationError("ledgerPin jsonlSha256 is not a SHA-256 digest")
+    if not isinstance(pin["lineCount"], int) or pin["lineCount"] < 0:
+        raise RegistrationError("ledgerPin lineCount must be a non-negative int")
+    if not pin["repo"] or not pin["branch"]:
+        raise RegistrationError("ledgerPin repo/branch must be non-empty")
+    return pin
+
+
+def load_ledger_pin_binding() -> dict[str, Any]:
+    """Project the committed site pin into the registration binding."""
+
+    try:
+        pin = json.loads(LEDGER_PIN_PATH.read_text())
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RegistrationError(
+            f"cannot register without the committed ledger pin: {exc}"
+        ) from exc
+    if pin.get("schemaVersion") != "thesis_ledger_pin_v1":
+        raise RegistrationError(
+            f"unsupported ledger pin schema {pin.get('schemaVersion')!r}"
+        )
+    return validate_ledger_pin_binding(
+        {key: pin[key] for key in sorted(LEDGER_PIN_BINDING_KEYS)}
+    )
+
+
 def registration_hash_payload(snapshot: dict[str, Any]) -> dict[str, Any]:
     """Return the immutable contract projection committed by targetContentHash.
 
-    v2 deliberately excludes the operational registration instant. Git commit
+    v2+ deliberately excludes the operational registration instant. Git commit
     ancestry and the pushed commit time witness that instant; the content hash
-    remains stable for a byte-identical target contract.
+    remains stable for a byte-identical target contract. v3 additionally
+    commits the pinned ledger state, so the accepted history a target was
+    registered against is part of its contract (a resolving print must enter
+    the ledger after that state; review finding N5).
     """
 
     schema = snapshot.get("schemaVersion")
-    if schema not in {REGISTRATION_SCHEMA, LEGACY_REGISTRATION_SCHEMA}:
+    if schema not in {REGISTRATION_SCHEMA, *LEGACY_REGISTRATION_SCHEMAS}:
         raise RegistrationError(f"unsupported target registration schema {schema!r}")
-    expected_keys = (
-        {"schemaVersion", "registeredAtUtc", "targets"}
-        if schema == REGISTRATION_SCHEMA
-        else {"schemaVersion", "targets"}
-    )
+    if schema == REGISTRATION_SCHEMA:
+        expected_keys = {"schemaVersion", "registeredAtUtc", "targets", "ledgerPin"}
+    elif schema == V2_REGISTRATION_SCHEMA:
+        expected_keys = {"schemaVersion", "registeredAtUtc", "targets"}
+    else:
+        expected_keys = {"schemaVersion", "targets"}
     if set(snapshot) != expected_keys:
         raise RegistrationError(
-            "registration snapshot has unexpected top-level fields: "
-            f"{sorted(set(snapshot) - expected_keys)}"
+            "registration snapshot top-level fields do not match "
+            f"{schema}: extra={sorted(set(snapshot) - expected_keys)}, "
+            f"missing={sorted(expected_keys - set(snapshot))}"
         )
-    if schema == REGISTRATION_SCHEMA:
+    if "registeredAtUtc" in expected_keys:
         parse_utc_instant(str(snapshot.get("registeredAtUtc") or ""))
     targets = snapshot.get("targets")
     if not isinstance(targets, list) or not all(
         isinstance(target, dict) for target in targets
     ):
         raise RegistrationError("registration snapshot targets must be an object list")
-    return {"schemaVersion": schema, "targets": targets}
+    payload = {"schemaVersion": schema, "targets": targets}
+    if schema == REGISTRATION_SCHEMA:
+        payload["ledgerPin"] = validate_ledger_pin_binding(snapshot.get("ledgerPin"))
+    return payload
 
 
 def registration_content_hash(snapshot: dict[str, Any]) -> str:
@@ -379,6 +434,7 @@ def build_snapshot(
     targets: list[dict[str, Any]],
     registration_date: dt.date,
     registered_at_utc: str | None = None,
+    ledger_pin: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     contracts = [build_contract(target, registration_date) for target in targets]
     contracts.sort(key=lambda row: (row["dataPointId"], row["catalogSlug"]))
@@ -391,6 +447,9 @@ def build_snapshot(
         "schemaVersion": REGISTRATION_SCHEMA,
         "registeredAtUtc": registered_at_utc,
         "targets": contracts,
+        "ledgerPin": validate_ledger_pin_binding(
+            ledger_pin if ledger_pin is not None else load_ledger_pin_binding()
+        ),
     }
 
 
@@ -404,11 +463,24 @@ def ts_literal(entry: dict[str, Any]) -> str:
 
 
 def _entry_for(
-    contract: dict[str, Any], content_hash: str, registered_at_utc: str
+    contract: dict[str, Any],
+    content_hash: str,
+    registered_at_utc: str,
+    ledger_pin: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     binding = contract["sourceBinding"]
     source_url = binding["sourceUrl"]
     source = binding["table"] or _host(source_url)
+    pin_fields: dict[str, Any] = {}
+    if ledger_pin is not None:
+        # The pinned ledger state is part of the registered contract: a
+        # resolving observation must be accepted into the ledger at a
+        # sequence at or beyond this count (a print already inside the
+        # pinned state would be a backfill grading a pre-registered target).
+        pin_fields = {
+            "ledgerPinSha": ledger_pin["sha"],
+            "ledgerPinLineCount": ledger_pin["lineCount"],
+        }
     return {
         "kind": "target_registered",
         "dataPointId": contract["dataPointId"],
@@ -440,6 +512,7 @@ def _entry_for(
         "catalogSlug": contract["catalogSlug"],
         "valueScale": contract["valueScale"],
         "sourceBinding": binding,
+        **pin_fields,
     }
 
 
@@ -504,7 +577,12 @@ def render_generated_targets(
         registered_at_utc = registration["registeredAtUtc"]
         data_point_id = contract["dataPointId"]
         expected_block = ts_literal(
-            _entry_for(contract, content_hash, registered_at_utc)
+            _entry_for(
+                contract,
+                content_hash,
+                registered_at_utc,
+                registration["snapshot"].get("ledgerPin"),
+            )
         )
         existing_block = _generated_block(source, data_point_id)
         if existing_block:
@@ -535,26 +613,37 @@ def _load_snapshot(path: pathlib.Path) -> dict[str, Any]:
         snapshot = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError) as exc:
         raise RegistrationError(f"invalid registration snapshot {path}: {exc}") from exc
-    if snapshot.get("schemaVersion") != REGISTRATION_SCHEMA:
+    if snapshot.get("schemaVersion") not in {
+        REGISTRATION_SCHEMA,
+        V2_REGISTRATION_SCHEMA,
+    }:
         raise RegistrationError(
-            f"retry snapshot must use {REGISTRATION_SCHEMA}: {path}"
+            f"snapshot must use {REGISTRATION_SCHEMA} "
+            f"(or the still-live {V2_REGISTRATION_SCHEMA}): {path}"
         )
     registered_at_utc = snapshot.get("registeredAtUtc")
     if not isinstance(registered_at_utc, str):
         raise RegistrationError(f"snapshot lacks registeredAtUtc: {path}")
     parse_utc_instant(registered_at_utc)
+    # Re-running the payload validation enforces the per-schema key set and,
+    # for v3, the ledgerPin binding shape.
+    registration_hash_payload(snapshot)
     if path.read_bytes() != canonical_bytes(snapshot) + b"\n":
         raise RegistrationError(f"registration snapshot is not canonical: {path}")
     return snapshot
 
 
 def _plan_registration(
-    contract: dict[str, Any], registration_date: dt.date, registered_at_utc: str
+    contract: dict[str, Any],
+    registration_date: dt.date,
+    registered_at_utc: str,
+    ledger_pin: dict[str, Any],
 ) -> dict[str, Any]:
     snapshot = {
         "schemaVersion": REGISTRATION_SCHEMA,
         "registeredAtUtc": registered_at_utc,
         "targets": [contract],
+        "ledgerPin": validate_ledger_pin_binding(ledger_pin),
     }
     # Use the canonical JSON round-trip as the sole representation feeding both
     # the snapshot bytes and generated TypeScript. This avoids retry drift from
@@ -661,8 +750,9 @@ def register(
     if len(slugs) != len(set(slugs)):
         raise RegistrationError("registration contains duplicate catalogSlugs")
 
+    ledger_pin = load_ledger_pin_binding()
     registrations = [
-        _plan_registration(contract, registration_date, registered_at_utc)
+        _plan_registration(contract, registration_date, registered_at_utc, ledger_pin)
         for contract in contracts
     ]
     generated_source = render_generated_targets(registrations, allow_published=True)
@@ -934,7 +1024,7 @@ def registration_for_cell(cell: dict[str, Any]) -> dict[str, Any]:
             )
     if cell.get("registeredAtUtc") != snapshot["registeredAtUtc"]:
         raise RegistrationError(f"cell registeredAtUtc mismatch: {relative}")
-    return {
+    finalized = {
         "unit": contract["unit"],
         "registeredAt": snapshot["registeredAtUtc"],
         "targetContentHash": content_hash,
@@ -944,6 +1034,11 @@ def registration_for_cell(cell: dict[str, Any]) -> dict[str, Any]:
         "valueScale": contract["valueScale"],
         "sourceBinding": contract["sourceBinding"],
     }
+    ledger_pin = snapshot.get("ledgerPin")
+    if ledger_pin is not None:
+        finalized["ledgerPinSha"] = ledger_pin["sha"]
+        finalized["ledgerPinLineCount"] = ledger_pin["lineCount"]
+    return finalized
 
 
 def main() -> int:

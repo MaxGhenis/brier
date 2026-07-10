@@ -66,6 +66,9 @@ function observation(
     value,
     observedAt,
     resolvedAt: observedAt,
+    // History eligibility requires ledger acceptance, not just the
+    // publisher's claimed date; the clean fixture case accepts on print.
+    acceptedAtUtc: observedAt,
     sourceKind: "official_release",
     source: "Fixture agency",
     sourceUrl: `https://example.test/${period}`,
@@ -120,6 +123,33 @@ describe("fair ledger-backed baselines", () => {
       new TextEncoder().encode(canonicalStringify(payload)).byteLength,
     );
     expect(artifact?.observationRefs).toEqual(result.record.observationRefs);
+  });
+
+  it("excludes rows the ledger accepted after the cutoff (N5 backfill)", () => {
+    // Same publisher dates as the clean fixture, but the ledger only
+    // accepted the rows AFTER the run cutoff — a backfill. Old observedAt
+    // values must not smuggle the rows into pre-cutoff history.
+    const backfilled = fixtureLedger().map((entry) =>
+      entry.kind === "observation_recorded"
+        ? { ...entry, acceptedAtUtc: "2026-04-20T12:00:00Z" }
+        : entry,
+    );
+    const result = buildLedgerPersistenceBaseline(forecast(), backfilled);
+
+    expect(result.record.status).toBe("unavailable");
+    expect(result.comparisonRun).toBeNull();
+  });
+
+  it("excludes rows with no acceptance record at all (fail closed)", () => {
+    const unaccepted = fixtureLedger().map((entry) =>
+      entry.kind === "observation_recorded"
+        ? { ...entry, acceptedAtUtc: undefined }
+        : entry,
+    );
+    const result = buildLedgerPersistenceBaseline(forecast(), unaccepted);
+
+    expect(result.record.status).toBe("unavailable");
+    expect(result.comparisonRun).toBeNull();
   });
 
   it("records an unavailable baseline when the ledger has no history", () => {

@@ -47,6 +47,11 @@ export interface TargetRegisteredLedgerEntry {
   catalogSlug?: string;
   valueScale?: number;
   sourceBinding?: TargetSourceBinding;
+  // The ledger state pinned at registration (v3 registrations). A resolving
+  // observation must have been accepted at or beyond this sequence count —
+  // membership in the pinned state means the print predated the target.
+  ledgerPinSha?: string;
+  ledgerPinLineCount?: number;
 }
 
 const OEWS_SOURCE =

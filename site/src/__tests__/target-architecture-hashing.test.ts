@@ -371,6 +371,8 @@ describe("target architecture hashing", () => {
       observedAt: "2026-07-01T00:00:00Z",
       chronology: "verified",
       chronologyPolicy: "test",
+      contractBinding: "contract_bound",
+      contractBindingPolicy: "test",
       conditionId: null,
       conditionStatus: null,
     };

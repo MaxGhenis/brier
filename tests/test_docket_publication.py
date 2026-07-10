@@ -28,6 +28,15 @@ RUN_PREFIX = pathlib.PurePosixPath(
 )
 REGISTRATION = pathlib.PurePosixPath(f"records/targets/2030-01-10-{'a' * 64}.json")
 
+TEST_LEDGER_PIN = {
+    "repo": "PolicyEngine/ledger",
+    "branch": "codex/thesis-ledger-facts",
+    "sha": "f" * 40,
+    "jsonlSha256": "0" * 64,
+    "lineCount": 128,
+}
+
+
 
 def git(repo: pathlib.Path, *args: str) -> None:
     subprocess.run(["git", *args], cwd=repo, check=True, capture_output=True)
@@ -384,6 +393,7 @@ def test_validate_target_registration_rejects_snapshot_tampering(
         "schemaVersion": REGISTRATION_SCHEMA,
         "registeredAtUtc": "2030-01-10T11:59:00Z",
         "targets": [contract],
+        "ledgerPin": TEST_LEDGER_PIN,
     }
     content_hash = registration_content_hash(snapshot)
     relative = pathlib.Path("records/targets") / f"2030-01-10-{content_hash}.json"
@@ -445,6 +455,7 @@ def committed_registration(
         "schemaVersion": REGISTRATION_SCHEMA,
         "registeredAtUtc": registered_at,
         "targets": [contract],
+        "ledgerPin": TEST_LEDGER_PIN,
     }
     content_hash = registration_content_hash(snapshot)
     relative = pathlib.PurePosixPath(f"records/targets/2030-01-10-{content_hash}.json")

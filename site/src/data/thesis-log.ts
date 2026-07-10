@@ -46,7 +46,14 @@ import {
   requireLedgerTarget,
   type TargetRegisteredLedgerEntry,
 } from "./ledger-targets";
-import { sha256Hex } from "./canonical-json";
+import { createHash } from "node:crypto";
+import { canonicalStringify, sha256Hex } from "./canonical-json";
+import ledgerPinJson from "./ledger-pin.json";
+import {
+  LEDGER_AVAILABILITY,
+  LEDGER_AVAILABILITY_HEAD_SHA,
+  LEDGER_LEGACY_QUARANTINE_LINE_COUNT,
+} from "./ledger-availability.generated";
 import {
   buildLedgerPersistenceBaseline,
   ledgerHistoryAtCutoff,
@@ -79,6 +86,23 @@ export type RecordedPredictionDistribution = Pick<
   "format" | "pointCount" | "summary" | "provenance"
 > & { transformVersion: string };
 
+// The registered resolver contract, restated by the resolver on the
+// appended fact itself. A post-quarantine observation may grade a
+// registered target only when this projection matches the registration
+// (getResolutionContractViolation).
+export interface SourceBindingProjection {
+  series: string;
+  period: string;
+  releasePolicy: string;
+  table: string;
+  field: string;
+  transform: unknown;
+  unit: string;
+  responseSha256: string;
+}
+
+export type LedgerRowCustody = "append_derived" | "rewritten_in_place";
+
 export interface ObservationRecordedLedgerEntry extends ResolvedOutcome {
   kind: "observation_recorded";
   observationId: string;
@@ -91,6 +115,24 @@ export interface ObservationRecordedLedgerEntry extends ResolvedOutcome {
   ledgerRepoSha?: string;
   sourceVintage?: string;
   retrievedAt?: string;
+  // When the append-only ledger accepted this row, derived from the
+  // thesis-facts branch history (scripts/pin_ledger.py). Publisher
+  // observedAt is what the source claims; acceptance is what the ledger
+  // can prove, and cutoff eligibility uses acceptance (finding N5).
+  acceptedSequence?: number;
+  acceptedAtUtc?: string;
+  acceptedCommit?: string;
+  ledgerCustody?: LedgerRowCustody;
+  // Rows accepted before contract binding existed. They keep grading the
+  // legacy cells they resolved, but every such score is flagged
+  // legacy_unbound rather than silently treated as contract-bound.
+  legacyQuarantined?: boolean;
+  // When the resolution event itself was recorded (retrieval time for
+  // resolver-appended rows, acceptance time otherwise) — distinct from the
+  // publisher's observedAt, which a backfill can predate.
+  resolutionRecordedAt?: string;
+  assertionVersion?: { id: string; supersedes: string | null };
+  sourceBindingProjection?: SourceBindingProjection;
   responseArchive?: {
     path: string;
     sha256: string;
@@ -161,6 +203,7 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   transformVersion: string;
   chronology: ScoreChronology;
   chronologyProof: ScoreChronologyProof;
+  contractBinding: ResolutionContractBinding;
   observedAt: string;
   conditionId: string | null;
   conditionStatus: ConditionStatus | "unregistered" | null;
@@ -233,6 +276,9 @@ export interface PolicyEngineLedgerExport {
     name: "PolicyEngine Ledger";
     url: "https://github.com/PolicyEngine/ledger";
     jsonMirrorUrl: "https://app.thesisinstitute.org/ledger.json";
+    // The immutable upstream state this export was built from; the daily
+    // recorder archives this surface, so the pin rides the witness chain.
+    pin?: PolicyEngineLedgerPin;
   };
   counts: {
     facts: number;
@@ -331,9 +377,23 @@ export interface ForecastJudgeLogSummary {
   fullExportJsonUrl: "https://app.thesisinstitute.org/forecasts/judges.json";
 }
 
-export const POLICYENGINE_LEDGER_FACTS_URL =
-  process.env.POLICYENGINE_LEDGER_FACTS_URL ??
-  "https://github.com/PolicyEngine/ledger/raw/refs/heads/codex/thesis-ledger-facts/ledger/official_observations.jsonl";
+export interface PolicyEngineLedgerPin {
+  schemaVersion: "thesis_ledger_pin_v1";
+  repo: string;
+  branch: string;
+  sha: string;
+  jsonlSha256: string;
+  jsonlBytes: number;
+  lineCount: number;
+  pinnedAtUtc: string;
+}
+
+// The build consumes the fact ledger at one immutable commit whose exact
+// bytes are committed here as a pin (scripts/pin_ledger.py). A branch name
+// would let any upstream writer change what this site scores.
+export const POLICYENGINE_LEDGER_PIN = ledgerPinJson as PolicyEngineLedgerPin;
+
+export const POLICYENGINE_LEDGER_FACTS_URL = `https://raw.githubusercontent.com/${POLICYENGINE_LEDGER_PIN.repo}/${POLICYENGINE_LEDGER_PIN.sha}/ledger/official_observations.jsonl`;
 
 interface PolicyEngineAggregateFactRow {
   value: number;
@@ -356,6 +416,8 @@ interface PolicyEngineAggregateFactRow {
   ledgerRepoSha?: string;
   sourceVintage?: string;
   retrievedAt?: string;
+  assertionVersion?: { id: string; supersedes: string | null };
+  sourceBindingProjection?: SourceBindingProjection;
   responseArchive?: {
     path: string;
     sha256: string;
@@ -389,9 +451,54 @@ export function parsePolicyEngineLedgerFacts(
     .map((line) => mapPolicyEngineAggregateFactToObservation(JSON.parse(line)));
 }
 
+function assertPinnedLedgerBytes(raw: Buffer, pin: PolicyEngineLedgerPin) {
+  const digest = createHash("sha256").update(raw).digest("hex");
+  if (digest !== pin.jsonlSha256 || raw.length !== pin.jsonlBytes) {
+    throw new Error(
+      `ledger bytes at ${pin.sha} are ${digest} (${raw.length} bytes) but ` +
+        `the committed pin requires ${pin.jsonlSha256} (${pin.jsonlBytes}); ` +
+        "refusing to build against an unpinned ledger state",
+    );
+  }
+}
+
+// Every fetched row must carry its acceptance record; a row the committed
+// availability index cannot vouch for (stale index, upstream rewrite) fails
+// the build rather than silently entering cutoff histories.
+function enrichWithAcceptance(
+  entry: ObservationRecordedLedgerEntry,
+  line: string,
+  index: number,
+): ObservationRecordedLedgerEntry {
+  const row = LEDGER_AVAILABILITY[index];
+  if (!row) {
+    throw new Error(
+      `ledger line ${index + 1} has no availability record; regenerate the ` +
+        "pin and availability index together (scripts/pin_ledger.py)",
+    );
+  }
+  const lineSha256 = createHash("sha256").update(line, "utf8").digest("hex");
+  if (row.lineSha256 !== lineSha256 || row.sourceRecordId !== entry.dataPointId) {
+    throw new Error(
+      `ledger line ${index + 1} (${entry.dataPointId}) does not match its ` +
+        `availability record (${row.sourceRecordId})`,
+    );
+  }
+  return {
+    ...entry,
+    acceptedSequence: row.acceptedSequence,
+    acceptedAtUtc: row.acceptedAtUtc,
+    acceptedCommit: row.acceptedCommit,
+    ledgerCustody: row.custody,
+    legacyQuarantined:
+      row.acceptedSequence < LEDGER_LEGACY_QUARANTINE_LINE_COUNT,
+    resolutionRecordedAt: entry.retrievedAt ?? row.acceptedAtUtc,
+  };
+}
+
 function mapPolicyEngineAggregateFactToObservation(
   fact: PolicyEngineAggregateFactRow,
-): PolicyEngineLedgerEntry {
+): ObservationRecordedLedgerEntry {
   assertPolicyEngineFactShape(fact);
 
   return {
@@ -402,7 +509,10 @@ function mapPolicyEngineAggregateFactToObservation(
     value: fact.value,
     unit: fact.measure.unit,
     observedAt: fact.observed_at,
-    resolvedAt: fact.observed_at,
+    // The publisher's date is NOT when the resolution was recorded; a
+    // backfilled print carries an old observed_at. Resolver-appended rows
+    // carry their true retrieval instant.
+    resolvedAt: fact.retrievedAt ?? fact.observed_at,
     sourceKind: "official_release",
     source: formatLedgerSource(fact.source),
     sourceUrl: fact.source.url,
@@ -411,51 +521,52 @@ function mapPolicyEngineAggregateFactToObservation(
     ledgerRepoSha: fact.ledgerRepoSha,
     sourceVintage: fact.sourceVintage,
     retrievedAt: fact.retrievedAt,
+    assertionVersion: fact.assertionVersion,
+    sourceBindingProjection: fact.sourceBindingProjection,
     responseArchive: fact.responseArchive,
   };
 }
 
+// The committed pin also closes a freshness hole the branch URL had:
+// branch-ref raw URLs sit behind a ~5-minute CDN cache, which once made a
+// resolution rebuild read the ledger as it was BEFORE the observations it
+// was rebuilt for (live-caught 2026-07-10: 21 fresh resolutions, unchanged
+// scoreboard). A commit-pinned raw URL is content-addressed by path, and
+// the byte-hash check below fails closed on any anomaly.
 async function fetchPolicyEngineLedger(): Promise<PolicyEngineLedgerEntry[]> {
-  const url = await resolvePolicyEngineLedgerUrl();
-  const response = await fetch(url);
+  const pin = POLICYENGINE_LEDGER_PIN;
+  if (LEDGER_AVAILABILITY_HEAD_SHA !== pin.sha) {
+    throw new Error(
+      `availability index is for ${LEDGER_AVAILABILITY_HEAD_SHA} but the ` +
+        `pin is ${pin.sha}; regenerate both together (scripts/pin_ledger.py)`,
+    );
+  }
+  if (LEDGER_AVAILABILITY.length !== pin.lineCount) {
+    throw new Error(
+      `availability index covers ${LEDGER_AVAILABILITY.length} rows but ` +
+        `the pin commits ${pin.lineCount}`,
+    );
+  }
+  const response = await fetch(POLICYENGINE_LEDGER_FACTS_URL);
   if (!response.ok) {
     throw new Error(
       `PolicyEngine Ledger fetch failed with HTTP ${response.status}`,
     );
   }
-  return [
-    ...THESIS_TARGET_LEDGER,
-    ...parsePolicyEngineLedgerFacts(await response.text()),
-  ];
-}
-
-// Branch-ref raw URLs sit behind a ~5-minute CDN cache, which made a
-// resolution rebuild read the ledger as it was BEFORE the observations it
-// was rebuilt for (live-caught 2026-07-10: 21 fresh resolutions, unchanged
-// scoreboard). Resolve the branch head through the API (uncached) and
-// fetch the immutable commit-pinned raw file; fall back to the branch URL
-// if the API is unavailable so builds never hard-fail on rate limits.
-async function resolvePolicyEngineLedgerUrl(): Promise<string> {
-  if (process.env.POLICYENGINE_LEDGER_FACTS_URL) {
-    return POLICYENGINE_LEDGER_FACTS_URL;
-  }
-  const match = POLICYENGINE_LEDGER_FACTS_URL.match(
-    /^https:\/\/github\.com\/([^/]+\/[^/]+)\/raw\/refs\/heads\/(.+?)\/(ledger\/.+)$/,
-  );
-  if (!match) return POLICYENGINE_LEDGER_FACTS_URL;
-  const [, repo, branch, filePath] = match;
-  try {
-    const head = await fetch(
-      `https://api.github.com/repos/${repo}/commits/${encodeURIComponent(branch)}`,
-      { headers: { Accept: "application/vnd.github.sha" } },
+  const raw = Buffer.from(await response.arrayBuffer());
+  assertPinnedLedgerBytes(raw, pin);
+  const facts = raw
+    .toString("utf-8")
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line, index) =>
+      enrichWithAcceptance(
+        mapPolicyEngineAggregateFactToObservation(JSON.parse(line)),
+        line,
+        index,
+      ),
     );
-    if (!head.ok) return POLICYENGINE_LEDGER_FACTS_URL;
-    const sha = (await head.text()).trim();
-    if (!/^[0-9a-f]{40}$/.test(sha)) return POLICYENGINE_LEDGER_FACTS_URL;
-    return `https://raw.githubusercontent.com/${repo}/${sha}/${filePath}`;
-  } catch {
-    return POLICYENGINE_LEDGER_FACTS_URL;
-  }
+  return [...THESIS_TARGET_LEDGER, ...facts];
 }
 
 function assertPolicyEngineFactShape(
@@ -927,6 +1038,7 @@ export function buildPolicyEngineLedgerExport(
       name: "PolicyEngine Ledger",
       url: "https://github.com/PolicyEngine/ledger",
       jsonMirrorUrl: "https://app.thesisinstitute.org/ledger.json",
+      pin: POLICYENGINE_LEDGER_PIN,
     },
     counts: {
       facts: entries.length,
@@ -1356,10 +1468,46 @@ export interface ForecastRunScoreEvaluation {
   exclusion?: { reason: ScoreExclusionReason; detail?: string };
 }
 
+// How a score's resolving observation relates to its target's registered
+// contract. legacy_unbound rows (the pre-contract quarantine, plus targets
+// registered before source bindings existed) keep grading their cells but
+// are flagged everywhere; they are never silently treated as bound.
+export type ResolutionContractBinding = "contract_bound" | "legacy_unbound";
+
+export const CONTRACT_BINDING_POLICY_VERSION = "contract-binding-v1";
+
+export function classifyResolutionContractBinding(
+  target: TargetRegisteredLedgerEntry | undefined,
+  observation: ObservationRecordedLedgerEntry,
+): ResolutionContractBinding {
+  return !observation.legacyQuarantined &&
+    target?.targetContentHash &&
+    target.sourceBinding &&
+    observation.targetContentHash &&
+    observation.sourceBindingProjection
+    ? "contract_bound"
+    : "legacy_unbound";
+}
+
+function findRegisteredTarget(
+  forecast: ForecastCell,
+  ledger: PolicyEngineLedgerEntry[],
+): TargetRegisteredLedgerEntry | undefined {
+  return ledger.find(
+    (entry): entry is TargetRegisteredLedgerEntry =>
+      entry.kind === "target_registered" &&
+      entry.dataPointId === forecast.dataPointId,
+  );
+}
+
 // A resolution fact must satisfy the target's registered contract before it
-// can grade anything: matching units and, when both sides carry one, the
-// same registered target content hash (re-audit N6: a wrong-unit fact from
-// an unrelated source scored a reproduced target).
+// can grade anything: matching units always (re-audit N6: a wrong-unit fact
+// from an unrelated source scored a reproduced target), and for observations
+// accepted after the legacy quarantine, the full registered binding — the
+// contract hash, retrieval provenance, an archived source response, and a
+// source-binding projection that restates the registration. Missing bindings
+// fail closed; only quarantined legacy rows are exempt, and those grade
+// flagged as legacy_unbound instead.
 export function getResolutionContractViolation(
   forecast: ForecastCell,
   observation: ObservationRecordedLedgerEntry,
@@ -1371,11 +1519,7 @@ export function getResolutionContractViolation(
       `the forecast contract unit ${JSON.stringify(forecast.unit)}`
     );
   }
-  const target = ledger.find(
-    (entry): entry is TargetRegisteredLedgerEntry =>
-      entry.kind === "target_registered" &&
-      entry.dataPointId === forecast.dataPointId,
-  );
+  const target = findRegisteredTarget(forecast, ledger);
   if (!target) return null;
   if (observation.unit !== target.unit) {
     return (
@@ -1393,6 +1537,72 @@ export function getResolutionContractViolation(
       `${observation.targetContentHash.slice(0, 16)}… but the registered ` +
       `contract is ${target.targetContentHash.slice(0, 16)}…`
     );
+  }
+  if (observation.legacyQuarantined || !target.targetContentHash) {
+    return null;
+  }
+
+  if (!observation.targetContentHash) {
+    return (
+      "post-quarantine observation carries no target contract hash for " +
+      `registered target ${target.dataPointId}`
+    );
+  }
+  if (
+    !observation.retrievedAt ||
+    !observation.ledgerRepoSha ||
+    !observation.sourceVintage
+  ) {
+    return "post-quarantine observation lacks retrieval provenance";
+  }
+  if (!observation.responseArchive) {
+    return "post-quarantine observation lacks an archived source response";
+  }
+  const projection = observation.sourceBindingProjection;
+  if (!projection) {
+    return "post-quarantine observation lacks a source-binding projection";
+  }
+  if (projection.responseSha256 !== observation.responseArchive.sha256) {
+    return (
+      "source-binding projection digest does not match the archived " +
+      "response bytes"
+    );
+  }
+  const binding = target.sourceBinding;
+  if (binding) {
+    const expected: [string, unknown, unknown][] = [
+      ["series", projection.series, target.series],
+      ["period", projection.period, target.period],
+      ["releasePolicy", projection.releasePolicy, binding.releasePolicy],
+      ["table", projection.table, binding.table],
+      ["field", projection.field, binding.field],
+      ["transform", projection.transform, binding.transform],
+      ["unit", projection.unit, target.unit],
+    ];
+    for (const [key, observed, registered] of expected) {
+      if (canonicalStringify(observed) !== canonicalStringify(registered)) {
+        return (
+          `source-binding projection ${key} ` +
+          `${JSON.stringify(observed)} does not match the registration's ` +
+          `${JSON.stringify(registered)}`
+        );
+      }
+    }
+  }
+  // Registration pinned a ledger state; a resolving print that was already
+  // a member of that state is a backfill grading a pre-registered target
+  // (finding N5: availability means membership, not publisher dates).
+  if (typeof target.ledgerPinLineCount === "number") {
+    if (typeof observation.acceptedSequence !== "number") {
+      return "post-quarantine observation has no ledger acceptance record";
+    }
+    if (observation.acceptedSequence < target.ledgerPinLineCount) {
+      return (
+        `observation was already inside the pinned ledger state at ` +
+        `registration (sequence ${observation.acceptedSequence} < pinned ` +
+        `count ${target.ledgerPinLineCount})`
+      );
+    }
   }
   return null;
 }
@@ -1449,6 +1659,10 @@ export function evaluateResolvedForecastRun(
       exclusion: { reason: "contract_violation", detail: contractViolation },
     };
   }
+  const contractBinding = classifyResolutionContractBinding(
+    findRegisteredTarget(forecast, ledger),
+    observation,
+  );
 
   const distributionScore = scoreNumericCdfDistribution(
     run.predictionDistribution,
@@ -1501,6 +1715,10 @@ export function evaluateResolvedForecastRun(
       observedAt: observation.observedAt,
       chronology,
       chronologyPolicy: CHRONOLOGY_POLICY_VERSION,
+      // Whether the resolving observation was contract-bound is part of
+      // what the score means, exactly like its chronology verdict.
+      contractBinding,
+      contractBindingPolicy: CONTRACT_BINDING_POLICY_VERSION,
       // A conditional branch's meaning includes WHICH premise gated it and
       // the premise's resolved status: rebinding the cell to a different
       // registered condition must change the score identity (re-audit N7).
@@ -1521,6 +1739,7 @@ export function evaluateResolvedForecastRun(
     transformVersion,
     chronology,
     chronologyProof,
+    contractBinding,
     observedAt: observation.observedAt,
     conditionId: condition?.conditionId ?? null,
     conditionStatus,
@@ -1649,6 +1868,8 @@ export function buildScoreId(payload: {
   observedAt: string;
   chronology: string;
   chronologyPolicy: string;
+  contractBinding: string;
+  contractBindingPolicy: string;
   // The gating premise and its resolved status are part of what the score
   // MEANS: rebinding a branch to another condition, or the same condition
   // resolving differently, must produce a different score ID (N7).

@@ -169,6 +169,8 @@ describe("target normalization scale", () => {
       value,
       observedAt,
       resolvedAt: observedAt,
+      // Normalization history requires ledger acceptance at the cutoff.
+      acceptedAtUtc: observedAt,
       sourceKind: "official_release",
       source: "Test",
     };
@@ -404,6 +406,199 @@ describe("resolution contract gate (N6)", () => {
   });
 });
 
+describe("contract-bound resolution (fail closed past the quarantine)", () => {
+  const cell: ForecastCell = {
+    slug: "bound-cell",
+    country: "US",
+    type: "data",
+    title: "Bound contract test",
+    question: "?",
+    unit: "thousands",
+    pointEstimate: 220,
+    ciLow: 200,
+    ciHigh: 240,
+    confidence: 0.8,
+    resolutionDate: "2026-08-01",
+    resolutionSource: "Test",
+    resolutionRule: "Test",
+    dataPointId: "test.bound.series.2026",
+    historicalContext: [],
+    drivers: [],
+    predictionRun: {
+      kind: "recorded-agent-run",
+      runAt: "2026-04-11T00:00:00Z",
+      agent: "test.agent",
+      model: "test-model",
+      sourceContext: [],
+    },
+    reasoning: [{ kind: "forecast", point: 220, ciLow: 200, ciHigh: 240 }],
+  };
+  const binding = {
+    adapter: "alfred-fred" as const,
+    sourceUrl: "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TEST",
+    sourceSeriesId: "TEST",
+    field: "TEST",
+    table: "ALFRED graph CSV",
+    transform: { operation: "multiply", factor: 0.001 },
+    releasePolicy: "advance_vintage" as const,
+    expectedReleaseWindow: { start: "2026-07-15", end: "2026-07-25" },
+  };
+  const registered: TargetRegisteredLedgerEntry = {
+    kind: "target_registered",
+    dataPointId: cell.dataPointId!,
+    observationId: `obs.${cell.dataPointId}`,
+    country: "US",
+    periodLabel: "2026",
+    unit: "thousands",
+    resolutionDate: cell.resolutionDate,
+    resolutionSource: "Test",
+    resolutionRule: "Test",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Test",
+    note: "fixture",
+    registrationState: "preregistered",
+    registeredAt: "2026-04-10T00:00:00Z",
+    targetContentHash: "a".repeat(64),
+    series: "test.bound.series",
+    period: "2026",
+    catalogSlug: cell.slug,
+    valueScale: 0.001,
+    sourceBinding: binding,
+    ledgerPinSha: "b".repeat(40),
+    ledgerPinLineCount: 107,
+  };
+  const responseSha256 = "c".repeat(64);
+  const boundFact = (
+    overrides: Partial<ObservationRecordedLedgerEntry>,
+  ): ObservationRecordedLedgerEntry => ({
+    kind: "observation_recorded",
+    observationId: `obs.${cell.dataPointId}`,
+    dataPointId: cell.dataPointId!,
+    periodLabel: "2026",
+    unit: "thousands",
+    value: 225,
+    observedAt: "2026-07-20T12:00:00Z",
+    resolvedAt: "2026-07-20T12:00:00Z",
+    acceptedSequence: 110,
+    acceptedAtUtc: "2026-07-20T13:00:00Z",
+    legacyQuarantined: false,
+    sourceKind: "official_release",
+    source: "Test",
+    targetContentHash: registered.targetContentHash,
+    ledgerRepoSha: "d".repeat(40),
+    sourceVintage: "2026-07-20",
+    retrievedAt: "2026-07-20T12:30:00Z",
+    responseArchive: {
+      path: "records/resolutions/test/responses/test.csv.gz",
+      sha256: responseSha256,
+      bytes: 100,
+      gzipSha256: "e".repeat(64),
+      gzipBytes: 60,
+      contentEncoding: "gzip",
+    },
+    sourceBindingProjection: {
+      series: "test.bound.series",
+      period: "2026",
+      releasePolicy: "advance_vintage",
+      table: "ALFRED graph CSV",
+      field: "TEST",
+      transform: { operation: "multiply", factor: 0.001 },
+      unit: "thousands",
+      responseSha256,
+    },
+    ...overrides,
+  });
+  const run = () => getForecastRunEntries(cell)[0];
+
+  it("scores a fully bound post-quarantine observation as contract_bound", () => {
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      boundFact({}),
+    ]);
+    expect(evaluation.exclusion).toBeUndefined();
+    expect(evaluation.score?.contractBinding).toBe("contract_bound");
+  });
+
+  it("rejects a post-quarantine observation with no contract hash", () => {
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      boundFact({ targetContentHash: undefined }),
+    ]);
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("no target contract hash");
+  });
+
+  it("rejects a post-quarantine observation missing the binding projection", () => {
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      boundFact({ sourceBindingProjection: undefined }),
+    ]);
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain(
+      "source-binding projection",
+    );
+  });
+
+  it("rejects a projection that contradicts the registered binding", () => {
+    const fact = boundFact({});
+    fact.sourceBindingProjection = {
+      ...fact.sourceBindingProjection!,
+      transform: { operation: "multiply", factor: 1000 },
+    };
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      fact,
+    ]);
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("transform");
+  });
+
+  it("rejects a projection whose digest is not the archived response", () => {
+    const fact = boundFact({});
+    fact.sourceBindingProjection = {
+      ...fact.sourceBindingProjection!,
+      responseSha256: "f".repeat(64),
+    };
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      fact,
+    ]);
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("digest");
+  });
+
+  it("rejects a print that was already inside the pinned ledger state", () => {
+    // The target was registered against a pinned 107-row state; a resolving
+    // observation at sequence 50 predates the registration — a backfill
+    // grading a pre-registered target (N5 by construction).
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      boundFact({ acceptedSequence: 50 }),
+    ]);
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("pinned ledger state");
+  });
+
+  it("keeps grading quarantined legacy rows, flagged legacy_unbound", () => {
+    const evaluation = evaluateResolvedForecastRun(cell, run(), [
+      registered,
+      boundFact({
+        legacyQuarantined: true,
+        acceptedSequence: 12,
+        targetContentHash: undefined,
+        sourceBindingProjection: undefined,
+        responseArchive: undefined,
+        retrievedAt: undefined,
+        ledgerRepoSha: undefined,
+        sourceVintage: undefined,
+      }),
+    ]);
+    expect(evaluation.exclusion).toBeUndefined();
+    expect(evaluation.score?.contractBinding).toBe("legacy_unbound");
+  });
+});
+
 describe("Supabase projection compatibility (N10)", () => {
   it("emits only sources the migration CHECK admits, with matching null shape", async () => {
     const migration = readFileSync(
@@ -455,6 +650,8 @@ describe("condition identity in score IDs (N7)", () => {
       observedAt: "2026-07-01T00:00:00Z",
       chronology: "witness_verified",
       chronologyPolicy: "test",
+      contractBinding: "contract_bound",
+      contractBindingPolicy: "test",
       conditionId: "cond.a",
       conditionStatus: "satisfied",
     };
