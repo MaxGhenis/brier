@@ -472,8 +472,10 @@ def test_witness_rejects_self_consistent_unapproved_trust_bundle(
 
 
 def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
+    # The frozen clock must postdate every real committed token; the
+    # genesis-enumeration cutover was witnessed at 2026-07-10T04:29:34Z.
     verification = verify_chain(
-        ROOT / "records", now=datetime(2026, 7, 10, 4, 0, tzinfo=timezone.utc)
+        ROOT / "records", now=datetime(2026, 7, 10, 5, 0, tzinfo=timezone.utc)
     )
     assert [path.name for path in verification.ordered] == [
         "digest-f4f3-genesis.json",
@@ -491,6 +493,7 @@ def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
         "2026-07-09T21:41:11Z",
         "2026-07-09T22:02:56Z",
         "2026-07-09T22:17:19Z",
+        "2026-07-10T04:29:34Z",
     ]
     assert {evidence.policy_oid for evidence in available} == {"1.2.3.4.1"}
     assert {evidence.imprint_algorithm_oid for evidence in available} == {
@@ -501,7 +504,8 @@ def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
     assert {evidence.tsa_spki_sha256 for evidence in available} == {
         "fa02bd555e3e483d62b4e70be6218692068d2b0b0a7525db58dcbf2901cdb072"
     }
-    assert verification.witnesses[verification.ordered[-1]].status == "unavailable"
+    # The genesis-enumeration cutover carries its external witness now.
+    assert verification.witnesses[verification.ordered[-1]].status == "available"
 
 
 def test_token_time_rejects_future_and_impossibly_early_values() -> None:
