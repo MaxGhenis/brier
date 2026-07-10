@@ -258,6 +258,21 @@ def derive_source_binding(
     if release_policy not in RELEASE_POLICIES:
         raise RegistrationError(f"unsupported release policy {release_policy!r}")
     _host(source_url)
+    # Official series legitimately span sibling hosts (news release page,
+    # data-file host, ALFRED mirror). The binding allows every host the
+    # series' published history actually used — the previous cell's
+    # resolver plus each URL its run fetched — so an agent citing an
+    # established official host passes while a novel host still fails.
+    allowed_hosts = {_host(source_url)}
+    if previous:
+        prior_url = previous.get("resolutionSourceUrl")
+        if prior_url:
+            allowed_hosts.add(_host(str(prior_url)))
+        for context_url in previous.get("sourceContext") or []:
+            try:
+                allowed_hosts.add(_host(str(context_url)))
+            except RegistrationError:
+                continue
     return {
         "adapter": adapter,
         "sourceUrl": source_url,
@@ -267,6 +282,7 @@ def derive_source_binding(
         "transform": transform,
         "releasePolicy": release_policy,
         "expectedReleaseWindow": window,
+        "allowedHosts": sorted(allowed_hosts),
     }
 
 

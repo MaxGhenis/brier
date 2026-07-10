@@ -115,5 +115,6 @@ def test_claims_binding_is_data_driven_and_advance_vintage() -> None:
         "table": "ALFRED graph CSV",
         "transform": {"operation": "multiply", "factor": 0.001},
         "releasePolicy": "advance_vintage",
+        "allowedHosts": ["alfred.stlouisfed.org"],
         "expectedReleaseWindow": {"start": "2030-01-08", "end": "2030-01-12"},
     }

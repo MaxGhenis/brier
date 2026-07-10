@@ -1771,15 +1771,23 @@ def target_context_validation_errors(
             )
     binding = target_context.get("sourceBinding")
     if isinstance(binding, dict) and binding.get("sourceUrl"):
-        expected_host = (urlparse(str(binding["sourceUrl"])).hostname or "").lower()
+        allowed = {
+            (urlparse(str(url)).hostname or "").lower()
+            for url in (
+                binding.get("allowedHosts")
+                and [f"https://{h}" for h in binding["allowedHosts"]]
+                or [binding["sourceUrl"]]
+            )
+        }
+        allowed.discard("")
         actual_host = (
             urlparse(str(cell.get("resolutionSourceUrl") or "")).hostname or ""
         ).lower()
-        if not expected_host or actual_host != expected_host:
+        if not allowed or actual_host not in allowed:
             errors.append(
                 "resolutionSourceUrl host "
-                f"{actual_host!r} does not match preregistered source binding "
-                f"host {expected_host!r}"
+                f"{actual_host!r} is not among the preregistered source "
+                f"binding hosts {sorted(allowed)!r}"
             )
     errors.extend(first_print_resolution_rule_errors(cell, target_context))
     return errors

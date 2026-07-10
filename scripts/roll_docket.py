@@ -406,6 +406,7 @@ def main() -> int:
                     "resolutionSourceUrl",
                     "resolutionRule",
                     "resolutionPolicy",
+                    "sourceContext",
                 )
                 if previous.get(key) not in (None, "")
             }
