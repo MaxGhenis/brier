@@ -1,10 +1,12 @@
 import {
   buildTargetArchitectureChunkExport,
-  buildTargetArchitectureManifest,
   buildTargetArchitectureTableExport,
   isTargetArchitectureTableKey,
 } from "@/data/thesis-target-architecture-export";
-import { loadTargetArchitectureProjection } from "@/data/thesis-target-architecture-runtime";
+import {
+  loadTargetArchitectureManifest,
+  loadTargetArchitectureProjection,
+} from "@/data/thesis-target-architecture-runtime";
 
 export const dynamic = "force-static";
 
@@ -29,10 +31,15 @@ export async function GET(request: Request, _context: TargetChunkRouteContext) {
     );
   }
 
-  const projection = await loadTargetArchitectureProjection();
+  const [projection, manifest] = await Promise.all([
+    loadTargetArchitectureProjection(),
+    loadTargetArchitectureManifest(),
+  ]);
 
   if (chunk === "manifest") {
-    return Response.json(buildTargetArchitectureTableExport(projection, table));
+    return Response.json(
+      buildTargetArchitectureTableExport(projection, table, manifest),
+    );
   }
 
   const chunkIndex = Number(chunk);
@@ -47,7 +54,6 @@ export async function GET(request: Request, _context: TargetChunkRouteContext) {
     );
   }
 
-  const manifest = buildTargetArchitectureManifest(projection);
   const tableManifest = manifest.tables.find(
     (candidate) => candidate.table === table,
   );
@@ -63,7 +69,7 @@ export async function GET(request: Request, _context: TargetChunkRouteContext) {
   }
 
   return Response.json(
-    buildTargetArchitectureChunkExport(projection, table, chunkIndex),
+    buildTargetArchitectureChunkExport(projection, table, chunkIndex, manifest),
   );
 }
 
