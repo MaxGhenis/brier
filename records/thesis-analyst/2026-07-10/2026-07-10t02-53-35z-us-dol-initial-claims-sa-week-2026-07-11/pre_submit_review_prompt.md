@@ -1,0 +1,48 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: us.dol.initial_claims.sa
+- period: week_2026-07-11
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "initial-claims-week-2026-07-11"
+- targetUnit: "thousands"
+- dataPointId: "us.dol.initial_claims.sa.week_2026-07-11"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org", "www.dol.gov"], "expectedReleaseWindow": {"end": "2026-07-18", "start": "2026-07-14"}, "field": "ICSA", "releasePolicy": "advance_vintage", "sourceSeriesId": "ICSA", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA", "table": "ALFRED graph CSV", "transform": {"factor": 0.001, "operation": "multiply"}}
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+bdbbe3bfe36feba9ab551bb61fa50f21a565a9a138b4a5e9b57bdfc0d89f9f3d
+
+# Draft forecast response
+{"slug":"initial-claims-week-2026-07-11","country":"US","type":"data","title":"US initial claims, week ending Jul 11","question":"What will the U.S. Department of Labor report as the advance seasonally adjusted initial unemployment insurance claims for the week ending July 11, 2026, in the first print?","unit":"thousands","pointEstimate":216,"ciLow":202.5,"ciHigh":229.5,"confidence":0.8,"resolutionDate":"2026-07-16","resolutionSource":"U.S. Department of Labor Unemployment Insurance Weekly Claims Report","resolutionSourceUrl":"https://www.dol.gov/ui/data.pdf","resolutionRule":"Resolve to the first-print advance figure for seasonally adjusted initial claims for regular state programs for the week ending July 11, 2026, as published in the U.S. Department of Labor Unemployment Insurance Weekly Claims Report released July 16, 2026. Use the Initial Claims (SA) figure, convert persons to thousands, and ignore all later revisions.","dataPointId":"us.dol.initial_claims.sa.week_2026-07-11","historicalContext":[{"label":"latest_week_2026-07-04_sa_initial_claims","value":215},{"label":"prior_week_2026-06-27_sa_initial_claims_revised","value":217},{"label":"week_2026-06-20_sa_initial_claims","value":216},{"label":"latest_4wk_average","value":218.75},{"label":"latest_nsa_initial_claims","value":224.583}],"drivers":["recent SA claims clustered near 215 thousand","four-week average at 218.75 thousand","latest weekly change only -2 thousand","holiday-week NSA rise mostly expected by seasonal factors","no broad layoff shock evident in state comments"],"sourceContext":["https://www.dol.gov/ui/data.pdf","https://www.dol.gov/newsroom/releases/eta","https://www.dol.gov/newsroom/economicdata"],"runAt":"2026-07-10T02:53:43Z","reasoning":[{"kind":"heading","text":"US initial claims SA forecast for week ending July 11, 2026"},{"kind":"text","text":"Framing and exact resolver: this is the U.S. Department of Labor Unemployment Insurance Weekly Claims Report, Initial Claims (SA), regular state programs, advance first print, for the week ending July 11, 2026. All anchors below use the same seasonally adjusted initial-claims variant; NSA figures are used only as diagnostics."},{"kind":"tool","tool":"official.lookup","call":"Checked DOL economic-data page and current weekly UI claims PDF for release source and timing.","result":"DOL economic-data page says the Office of Unemployment Insurance publishes the Unemployment Insurance Weekly Claims Report and that the PDF is updated each week; the current PDF is embargoed until 8:30 A.M. Eastern on Thursday, July 9, 2026, for week ending July 4, 2026."},{"kind":"tool","tool":"official.lookup","call":"Checked DOL ETA release index for recent official weekly release sequence around the target window.","result":"DOL ETA release index shows Unemployment Insurance Weekly Claims Report releases dated July 9, 2026; July 2, 2026; June 25, 2026; June 18, 2026; June 11, 2026; and June 4, 2026. With the ledger release window of July 14-18, 2026, the scheduled first print for week ending July 11 is Thursday, July 16, 2026."},{"kind":"tool","tool":"official.lookup","call":"Fetched latest DOL headline seasonally adjusted claims figures from the July 9, 2026 weekly release.","result":"For week ending July 4, 2026, advance SA initial claims were 215,000, down 2,000 from the revised prior week of 217,000; the 4-week moving average was 218,750, down 3,750 from the revised prior average of 222,500."},{"kind":"tool","tool":"official.lookup","call":"Fetched recent DOL historical SA initial-claims table from the current weekly release.","result":"Recent SA initial claims in thousands: May 30 225, June 6 230, June 13 227, June 20 216, June 27 217, July 4 215; recent weekly changes were +13, +5, -3, -11, +1, -2."},{"kind":"tool","tool":"official.lookup","call":"Fetched latest DOL unadjusted diagnostic data and state comments from the current weekly release.","result":"For week ending July 4, 2026, unadjusted initial claims were 224,583, up 9,967 from 214,616; seasonal factors expected an increase of 11,478. Comparable 2025 unadjusted claims were 241,361. State comments included New York +4,855 advance NSA claims, Michigan +4,401, Tennessee +2,310, and Texas 13,625 advance NSA claims."},{"kind":"text","text":"Reference class and base rate: one-week-ahead SA initial claims are highly persistent. The recent official reference class is a 12-week band from 190 to 230 thousand, with the last six prints at 225, 230, 227, 216, 217, and 215. The base rate forecast is therefore close to the latest 215 thousand, with a modest pull toward the 218.75 thousand four-week average."},{"kind":"math","text":"Prior/update/interval: persistence prior = 215.0 from the July 4 first-print SA initial-claims level. Historical sample = 11 successive weekly changes from April 18 through July 4: -25,+9,+13,-2,+2,+13,+5,-3,-11,+1,-2 thousand; mean = 0.0 and sigma = sqrt(1212/11) = 10.5. Adjustments: level +1.0 toward the 218.75 four-week average, momentum 0.0 after the latest -2 change, one-off +0.0 because the July holiday NSA rise was already largely expected by seasonal factors, and policy mechanism +0.0 with no Extended Benefits trigger. Point = 215.0 + 1.0 = 216.0. 80% half-width = 1.28*sigma = 13.4, rounded to 13.5, giving 202.5 to 229.5 thousand."},{"kind":"text","text":"Counter-considerations: upside risk is a larger education, transportation, manufacturing, or state-processing layoff wave that would land above the interval; downside risk is faster reversal of holiday filings or fewer broad layoffs that would land below the interval. Outside the interval would likely require a fresh state-specific reporting shock or a genuine layoff shock comparable to the recent -25 or +23 thousand weekly moves."},{"kind":"forecast","point":216,"ciLow":202.5,"ciHigh":229.5}]}
