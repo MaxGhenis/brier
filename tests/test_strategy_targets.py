@@ -212,3 +212,69 @@ def test_require_pre_cutover_commit_semantics(tmp_path: pathlib.Path) -> None:
             require_pre_cutover_commit(repo, cutover)
     finally:
         monkey.undo()
+
+
+def test_selection_binds_ladder_prompt_mode_sparsely(
+    tmp_path: pathlib.Path,
+) -> None:
+    ledger = empty_ledger(tmp_path)
+
+    # Default selections stay byte-identical to the pre-ladder_v2 shape so
+    # historical selections keep re-verifying.
+    default = selection(tmp_path, ledger=ledger)
+    assert "ladderPromptMode" not in default["request"]
+
+    v2 = select_targets(
+        root=ROOT,
+        source_sha=head(),
+        selected_at_utc="2026-07-10T07:00:00Z",
+        checked_at_utc="2026-07-10T07:00:00Z",
+        workflow={"repository": "example/thesis", "runId": 124, "runAttempt": 1},
+        requested_slugs=[OPEN_SLUG],
+        auto_select=False,
+        max_targets=1,
+        suite="both",
+        ladder_prompt_mode="ladder_v2",
+        ledger_path=ledger,
+        ledger_repository="PolicyEngine/ledger",
+        ledger_branch="codex/thesis-ledger-facts",
+        ledger_logical_path="ledger/official_observations.jsonl",
+        ledger_repository_commit="a" * 40,
+        ledger_blob_sha="b" * 40,
+    )
+    assert v2["request"]["ladderPromptMode"] == "ladder_v2"
+    assert v2["selectionSetHash"] == selection_hash(v2)
+
+    # The trusted verify path replays the mode.
+    stamped = stamp_artifact(
+        v2,
+        artifact_id=457,
+        artifact_name="strategy-selection-probe-124-1",
+        artifact_digest="d" * 64,
+        artifact_created_at_utc="2026-07-10T07:01:00Z",
+    )
+    verify_selection(stamped, root=ROOT, ledger_path=ledger)
+
+    with pytest.raises(StrategyTargetError, match="ladder prompt mode"):
+        select_targets(
+            root=ROOT,
+            source_sha=head(),
+            selected_at_utc="2026-07-10T07:00:00Z",
+            checked_at_utc="2026-07-10T07:00:00Z",
+            workflow={
+                "repository": "example/thesis",
+                "runId": 125,
+                "runAttempt": 1,
+            },
+            requested_slugs=[OPEN_SLUG],
+            auto_select=False,
+            max_targets=1,
+            suite="both",
+            ladder_prompt_mode="ladder_v3",
+            ledger_path=ledger,
+            ledger_repository="PolicyEngine/ledger",
+            ledger_branch="codex/thesis-ledger-facts",
+            ledger_logical_path="ledger/official_observations.jsonl",
+            ledger_repository_commit="a" * 40,
+            ledger_blob_sha="b" * 40,
+        )

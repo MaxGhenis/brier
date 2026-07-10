@@ -1521,3 +1521,36 @@ def test_signed_zeros_never_reach_sealed_artifacts(tmp_path: Path) -> None:
     assert json.dumps(analyst_runner.round_distribution_number(-0.0)) == "0.0"
     assert analyst_runner.unsign_zero(240) == 240
     assert isinstance(analyst_runner.unsign_zero(240), int)
+
+
+def test_ladder_v2_prompt_swaps_the_derivation_contract() -> None:
+    meta = {
+        "agent": "thesis.analyst",
+        "agentVersion": "1.0.0",
+        "promptHash": "a" * 64,
+        "toolPolicyHash": "b" * 64,
+        "model": "gpt-5.5",
+    }
+    v1 = analyst_runner.build_ladder_prompt("s", "2026-07", None, meta)
+    v2 = analyst_runner.build_ladder_v2_prompt("s", "2026-07", None, meta)
+
+    # v1 keeps the parametric discipline; v2 replaces it with the
+    # quantile-native contract and never demands the sigma idiom.
+    assert 'sigma = X' in v1 and "1.28*sigma" in v1
+    assert 'sigma = X' not in v2 and "1.28*sigma" not in v2
+    assert "10th percentile at X" in v2
+    assert "90th percentile at Z" in v2
+    assert "promptMode ladder_v2" in v2
+    # Both elicit the identical ladder mechanics.
+    for phrase in (
+        "11-15 strictly increasing thresholds",
+        "'P(X <= t) = p' pairs",
+        "thresholdLadder",
+    ):
+        assert phrase in v1 and phrase in v2
+
+    prompt, run_meta = analyst_runner.build_run_prompt(
+        "s", "2026-07", None, "ladder_v2"
+    )
+    assert run_meta["agent"] == "thesis.analyst.ladder_v2"
+    assert "promptMode ladder_v2" in prompt

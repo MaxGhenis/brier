@@ -94,6 +94,24 @@ runs three independent fast rollouts and derives their deterministic median
 CDF. `suite=both` runs both interventions. The selector rejects unknown,
 unpublished, resolved, and release-day targets.
 
+`ladder_prompt_mode` picks the ladder lane's elicitation contract and is
+bound into the trusted selection (never a generate-job input). `ladder`
+(default) is the v1 contract: identical ladder elicitation plus the
+fast-mode sigma discipline — the math step must state "sigma = X" (or the
+1.28 z-multiplier) and compare the ladder-implied 80% width against
+1.28*sigma. `ladder_v2` (pre-registered 2026-07-10) is the quantile-native
+contract: the same ladder elicitation and structural gates, but the
+machine-checkable width derivation is the ladder itself — the math step
+must list the "P(X <= t) = p" rungs and state the interpolated 10th and
+90th percentiles literally, with no parametric sigma disclosure demanded.
+Motivation: the 2026-07-10 model wave showed gpt-5.6-luna/-terra producing
+complete quantile-inversion derivations while failing the sigma idiom
+0/12, versus gpt-5.5's 6/6; running the same models under both contracts
+separates capability from idiom compliance. Runs seal their promptMode
+into the cell, land as a distinct agent (`thesis.analyst.ladder_v2`), and
+are validated mode-aware in both `scripts/spawned_cells_to_ts.py` and
+`site/src/__tests__/trace-depth.test.ts`.
+
 Do not run strategy batches locally and push their records or generated
 TypeScript to `main`. `scripts/strategy_comparisons.py` is a trusted publisher
 generator over the complete indexed strategy corpus; it is not an authority

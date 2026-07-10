@@ -29,6 +29,14 @@ on:
         description: "Codex model for the suite (empty = gpt-5.5 default)"
         required: false
         default: ""
+      ladder_prompt_mode:
+        description: "Ladder lane elicitation contract"
+        type: choice
+        required: false
+        default: ladder
+        options:
+          - ladder
+          - ladder_v2
 
 permissions:
   contents: read
@@ -107,6 +115,7 @@ jobs:
           CATALOG_SLUGS: ${{ inputs.catalog_slugs }}
           MAX_TARGETS: ${{ inputs.max_targets }}
           SUITE: ${{ inputs.suite }}
+          LADDER_PROMPT_MODE: ${{ inputs.ladder_prompt_mode || 'ladder' }}
         run: |
           set -euo pipefail
           SELECTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -115,6 +124,7 @@ jobs:
             --catalog-slugs "$CATALOG_SLUGS"
             --max-targets "$MAX_TARGETS"
             --suite "$SUITE"
+            --ladder-prompt-mode "$LADDER_PROMPT_MODE"
             --selected-at-utc "$SELECTED_AT"
             --source-sha "$(git rev-parse HEAD)"
             --workflow-repository "$GITHUB_REPOSITORY"

@@ -449,6 +449,18 @@ def build_run_prompt(
             meta,
             target_context,
         ), ladder_meta
+    if mode == "ladder_v2":
+        # Same ladder elicitation, quantile-native derivation contract —
+        # its own agent identity so the protocols stay separable on the
+        # scoreboard.
+        ladder_meta = {**meta, "agent": f"{meta['agent']}.ladder_v2"}
+        return build_ladder_v2_prompt(
+            series,
+            period,
+            conditional,
+            meta,
+            target_context,
+        ), ladder_meta
     raise ValueError(f"Unsupported prompt mode {mode!r}")
 
 
@@ -493,12 +505,19 @@ def build_fast_prompt(
     conditional: str | None,
     meta: dict[str, Any],
     target_context: dict[str, Any] | None = None,
+    width_discipline: str = "sigma",
+    mode_label: str = "fast",
 ) -> str:
     """Compact prompt for scheduled public-release batches.
 
     The full prompt is better for one-off reasoning audits. This one is for
     scale: it inlines the contract while allowing optional read-only access to
     local repo context, prior runs, packs, and traces.
+
+    width_discipline picks the machine-checkable interval-derivation contract:
+    "sigma" (default) demands the literal "sigma = X" + 1.28*sigma arithmetic;
+    "ladder_quantiles" (ladder_v2) demands the interval be read off the
+    elicited ladder with the interpolated percentiles stated literally.
     """
 
     schema = {
@@ -598,14 +617,26 @@ def build_fast_prompt(
         "- For strict first-print or original-vintage targets, keep the "
         "ledger resolver in substance and do not add same-day correction or "
         "release-day grace exceptions unless the target rule includes them.\n"
-        "- Size the 80% interval from realized dispersion and SHOW the "
-        "arithmetic in the Prior/update/interval step: compute sigma from the "
-        "fetched history (successive changes for level/rate series; the "
-        "values themselves for change/flow series), state it literally as "
-        '"sigma = X", and derive the half-width as roughly 1.28*sigma. If '
-        "you widen or narrow beyond about 0.75x-1.75x of that half-width, "
-        "state the regime or mechanism reason in the same step. Never "
-        "default to a round hedged band.\n"
+        + (
+            "- Size the 80% interval from realized dispersion and SHOW the "
+            "arithmetic in the Prior/update/interval step: compute sigma from "
+            "the fetched history (successive changes for level/rate series; "
+            "the values themselves for change/flow series), state it "
+            'literally as "sigma = X", and derive the half-width as roughly '
+            "1.28*sigma. If you widen or narrow beyond about 0.75x-1.75x of "
+            "that half-width, state the regime or mechanism reason in the "
+            "same step. Never default to a round hedged band.\n"
+            if width_discipline == "sigma"
+            else "- Size the 80% interval by reading it off your elicited "
+            "threshold ladder, and SHOW the derivation in the 'Ladder:' math "
+            "step: state the interpolated values literally as '10th "
+            "percentile at X', 'median at Y', and '90th percentile at Z'. "
+            "Ground the rung placement in the fetched reference-class "
+            "history (state which fetched values anchored the rung span in "
+            "the Prior/update/interval step). Never default to a round "
+            "hedged band.\n"
+        )
+        +
         "- When a release has variants (gross vs smoothed/synthetic, SA vs "
         "NSA, flash vs final), the resolution rule must name the variant and "
         "every anchor and historical value must come from that same variant; "
@@ -656,7 +687,7 @@ def build_fast_prompt(
         "Emit the final JSON object only. "
         f"(agent {meta['agent']} v{meta['agentVersion']}, "
         f"prompt {meta['promptHash'][:12]}, "
-        f"tools {meta['toolPolicyHash'][:12]}, promptMode fast)\n"
+        f"tools {meta['toolPolicyHash'][:12]}, promptMode {mode_label})\n"
     )
 
 
@@ -705,6 +736,70 @@ def build_ladder_prompt(
         "rate, upside/downside/outside-the-interval risks). In the "
         "Prior/update/interval step, also state how the ladder-implied 80% "
         "width compares to the 1.28*sigma width.\n"
+        "- Add this top-level field to the cell JSON, with your actual "
+        "rungs as two equal-length numeric arrays:\n"
+        f"{json.dumps({'thresholdLadder': ladder_schema}, indent=2)}\n"
+    )
+
+
+def build_ladder_v2_prompt(
+    series: str,
+    period: str,
+    conditional: str | None,
+    meta: dict[str, Any],
+    target_context: dict[str, Any] | None = None,
+) -> str:
+    """Ladder elicitation with a quantile-native derivation contract.
+
+    Pre-registered variant of ladder mode (2026-07-10): the 2026-07-10 model
+    wave showed gpt-5.6-luna/-terra reliably producing complete
+    quantile-inversion derivations while skipping ladder mode's parametric
+    sigma cross-check (0/12 ladder compliance vs gpt-5.5's 6/6). ladder_v2
+    keeps the identical ladder elicitation, research discipline, and
+    structural gates, but the machine-checkable width derivation is the
+    ladder itself — the interpolated 10th/50th/90th percentiles stated
+    literally — with no "sigma = X" or 1.28 disclosure demanded. Comparing
+    the same models across ladder and ladder_v2 separates capability from
+    idiom compliance.
+    """
+    base = build_fast_prompt(
+        series,
+        period,
+        conditional,
+        meta,
+        target_context,
+        width_discipline="ladder_quantiles",
+        mode_label="ladder_v2",
+    )
+    ladder_schema = {
+        "thresholds": ["strictly increasing numeric rungs"],
+        "cumulativeProbabilities": ["non-decreasing, within [0.01, 0.99]"],
+    }
+    return base + (
+        "\n# Threshold-ladder elicitation (promptMode ladder_v2)\n"
+        "This run elicits the distribution as binary exceedance questions "
+        "BEFORE stating any point estimate, then derives the published "
+        "numbers from the ladder.\n"
+        "- After research, choose 11-15 strictly increasing thresholds t in "
+        "the target's print units spanning your genuine uncertainty: the "
+        "first rung's cumulative probability must be <= 0.10 and the last "
+        ">= 0.90.\n"
+        "- For each rung independently answer the binary question 'What is "
+        "the probability the first print is <= t?', as if pricing a binary "
+        "market. Probabilities must be non-decreasing across rungs and "
+        "within [0.01, 0.99].\n"
+        "- Add one math reasoning step that begins 'Ladder:' and lists "
+        "every rung literally as 'P(X <= t) = p' pairs, then states the "
+        "interpolated '10th percentile at X', 'median at Y', and '90th "
+        "percentile at Z' in the same step.\n"
+        "- Derive the published numbers FROM the ladder by linear "
+        "interpolation between rungs: pointEstimate at cumulative 0.50, "
+        "ciLow at 0.10, ciHigh at 0.90, each rounded to the print "
+        "precision. The cell fields and the final forecast step must equal "
+        "these derived values exactly.\n"
+        "- Keep every other requirement above (base rate, "
+        "upside/downside/outside-the-interval risks, "
+        "Prior/update/interval step).\n"
         "- Add this top-level field to the cell JSON, with your actual "
         "rungs as two equal-length numeric arrays:\n"
         f"{json.dumps({'thresholdLadder': ladder_schema}, indent=2)}\n"
@@ -1848,7 +1943,7 @@ def validate_cells(
         if allow_existing_slug:
             errors = [error for error in errors if "slug collides" not in error]
         errors.extend(target_context_validation_errors(cell, target_context))
-        if prompt_mode == "ladder":
+        if prompt_mode in {"ladder", "ladder_v2"}:
             errors.extend(ladder_validation_errors(cell))
         if errors:
             ok = False
@@ -2088,7 +2183,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--conditional")
     parser.add_argument("--target-context-json")
     parser.add_argument(
-        "--prompt-mode", choices=["full", "fast", "ladder"], default="full"
+        "--prompt-mode", choices=["full", "fast", "ladder", "ladder_v2"], default="full"
     )
     parser.add_argument("--out-dir")
     parser.add_argument("--command")
@@ -2443,6 +2538,10 @@ def main() -> int:
             cell["agentReportedRunAt"] = agent_run_at
         cell["runStartedAt"] = run_at
         cell["runAt"] = sealed_at
+        # Harness-stamped, never the agent's claim: derivation-contract
+        # gates (sigma vs ladder-quantile) key off the mode downstream in
+        # both the python validator and trace-depth.test.ts.
+        cell["promptMode"] = args.prompt_mode
         cell.update(binding)
         pin_comparison_contract(cell, target_context)
     materialized_distributions = materialize_run_distributions(normalized_cells)

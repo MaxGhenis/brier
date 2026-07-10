@@ -501,6 +501,7 @@ def select_targets(
     auto_select: bool,
     max_targets: int,
     suite: str,
+    ladder_prompt_mode: str = "ladder",
     ledger_path: pathlib.Path,
     ledger_repository: str,
     ledger_branch: str,
@@ -515,6 +516,10 @@ def select_targets(
     parse_utc(checked_at_utc, "checkedAtUtc")
     if suite not in SUITES:
         raise StrategyTargetError(f"unsupported strategy suite: {suite!r}")
+    if ladder_prompt_mode not in {"ladder", "ladder_v2"}:
+        raise StrategyTargetError(
+            f"unsupported ladder prompt mode: {ladder_prompt_mode!r}"
+        )
     if type(max_targets) is not int or max_targets < 0:
         raise StrategyTargetError("maxTargets must be a nonnegative integer")
     if len(requested_slugs) > max_targets:
@@ -612,6 +617,13 @@ def select_targets(
             "autoSelect": auto_select,
             "maxTargets": max_targets,
             "suite": suite,
+            # Sparse by design: absent means the v1 ladder contract, so
+            # pre-ladder_v2 selections re-verify byte-identically.
+            **(
+                {"ladderPromptMode": ladder_prompt_mode}
+                if ladder_prompt_mode != "ladder"
+                else {}
+            ),
         },
         "localResolutionEvidence": local_evidence,
         "ledgerEvidence": ledger_evidence,
@@ -716,6 +728,7 @@ def verify_selection(
         auto_select=request.get("autoSelect") is True,
         max_targets=request.get("maxTargets"),
         suite=str(request.get("suite") or ""),
+        ladder_prompt_mode=str(request.get("ladderPromptMode") or "ladder"),
         ledger_path=ledger_path,
         ledger_repository=str(evidence.get("repository") or ""),
         ledger_branch=str(evidence.get("branch") or ""),
@@ -774,6 +787,11 @@ def parse_args() -> argparse.Namespace:
     select.add_argument("--auto-select", action="store_true")
     select.add_argument("--max-targets", type=int, required=True)
     select.add_argument("--suite", choices=sorted(SUITES), required=True)
+    select.add_argument(
+        "--ladder-prompt-mode",
+        choices=["ladder", "ladder_v2"],
+        default="ladder",
+    )
     select.add_argument("--selected-at-utc", required=True)
     select.add_argument("--checked-at-utc")
     select.add_argument("--source-sha", required=True)
@@ -834,6 +852,7 @@ def main() -> int:
                 auto_select=args.auto_select,
                 max_targets=args.max_targets,
                 suite=args.suite,
+                ladder_prompt_mode=args.ladder_prompt_mode,
                 ledger_path=args.ledger_jsonl,
                 ledger_repository=args.ledger_repository,
                 ledger_branch=args.ledger_branch,

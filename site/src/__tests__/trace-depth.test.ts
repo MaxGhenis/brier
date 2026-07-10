@@ -46,7 +46,18 @@ describe("agent-run trace depth", () => {
           .filter((s) => s.kind === "math")
           .map((s) => ("text" in s ? s.text : ""))
           .join(" ");
-        expect(mathText).toMatch(/sigma\s*[=≈:]|1\.28/i);
+        // ladder_v2 (pre-registered 2026-07-10) uses a quantile-native
+        // derivation contract: the ladder rungs plus the interpolated tail
+        // percentiles stated literally, no parametric sigma disclosure.
+        // Byte-identical semantics live in scripts/spawned_cells_to_ts.py.
+        const promptMode = cell.predictionRun?.promptMode ?? "";
+        if (promptMode === "ladder_v2") {
+          expect((mathText.match(/P\(X\s*<=/g) ?? []).length).toBeGreaterThanOrEqual(3);
+          expect(mathText).toMatch(/10th percentile/i);
+          expect(mathText).toMatch(/90th percentile/i);
+        } else {
+          expect(mathText).toMatch(/sigma\s*[=≈:]|1\.28/i);
+        }
       }
 
       const text = steps
@@ -90,4 +101,30 @@ describe("agent-run trace depth", () => {
       expect(run.toolPolicyHash).toMatch(/^[0-9a-f]{64}$/);
     },
   );
+});
+
+describe("ladder_v2 derivation contract", () => {
+  // Byte-identical semantics to scripts/spawned_cells_to_ts.py: rungs plus
+  // the interpolated tail percentiles stated literally, no sigma demanded.
+  const gate = (mathText: string): boolean =>
+    (mathText.match(/P\(X\s*<=/g) ?? []).length >= 3 &&
+    /10th percentile/i.test(mathText) &&
+    /90th percentile/i.test(mathText);
+
+  it("accepts rungs plus interpolated tail percentiles", () => {
+    expect(
+      gate(
+        "Ladder: P(X <= 3.0) = 0.05; P(X <= 3.4) = 0.30; P(X <= 3.8) = 0.60; " +
+          "P(X <= 4.2) = 0.92. Linear interpolation gives the 10th percentile " +
+          "at 3.1, median at 3.7, and 90th percentile at 4.15.",
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects rungs without percentiles and percentiles without rungs", () => {
+    expect(
+      gate("Ladder: P(X <= 3.0) = 0.05; P(X <= 3.4) = 0.30; P(X <= 4.2) = 0.92."),
+    ).toBe(false);
+    expect(gate("10th percentile at 3.1, 90th percentile at 4.15.")).toBe(false);
+  });
 });

@@ -224,6 +224,13 @@ def run_suite(
     suite = request.get("suite")
     if suite not in SUITES:
         raise StrategySuiteError(f"unsupported strategy suite: {suite!r}")
+    # The ladder lane's elicitation contract comes from the TRUSTED selection
+    # (absent = the v1 ladder contract), never from generate-job inputs.
+    ladder_prompt_mode = str(request.get("ladderPromptMode") or "ladder")
+    if ladder_prompt_mode not in {"ladder", "ladder_v2"}:
+        raise StrategySuiteError(
+            f"unsupported ladder prompt mode: {ladder_prompt_mode!r}"
+        )
     targets = selection.get("targets")
     if not isinstance(targets, list) or not all(
         isinstance(target, dict) for target in targets
@@ -256,12 +263,15 @@ def run_suite(
         run_batch(
             selection_path=selection_path,
             output_path=path,
-            prompt_mode="ladder",
+            prompt_mode=ladder_prompt_mode,
             model=model,
             timeout_seconds=timeout_seconds,
             reviewed=True,
         )
-        lanes["ladder"] = {"batchManifest": repo_relative(path)}
+        lanes["ladder"] = {
+            "batchManifest": repo_relative(path),
+            "promptMode": ladder_prompt_mode,
+        }
 
     rollout_payloads: list[dict[str, Any]] = []
     if suite in {"median3", "both"}:

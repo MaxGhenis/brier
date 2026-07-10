@@ -194,7 +194,26 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
         math_text = " ".join(
             s.get("text") or "" for s in steps if s.get("kind") == "math"
         )
-        if not re.search(r"sigma\s*[=≈:]|1\.28", math_text, re.IGNORECASE):
+        prompt_mode = str(
+            cell.get("promptMode")
+            or (cell.get("predictionRun") or {}).get("promptMode")
+            or ""
+        )
+        if prompt_mode == "ladder_v2":
+            # ladder_v2's pre-registered derivation contract (2026-07-10) is
+            # quantile-native: the ladder rungs plus the interpolated tail
+            # percentiles stated literally, no parametric sigma disclosure.
+            # Keep byte-identical to trace-depth.test.ts.
+            if not (
+                len(re.findall(r"P\(X\s*<=", math_text)) >= 3
+                and re.search(r"10th percentile", math_text, re.IGNORECASE)
+                and re.search(r"90th percentile", math_text, re.IGNORECASE)
+            ):
+                errs.append(
+                    "ladder_v2 math step must list P(X <= t) rungs and state "
+                    "the interpolated 10th and 90th percentiles"
+                )
+        elif not re.search(r"sigma\s*[=≈:]|1\.28", math_text, re.IGNORECASE):
             errs.append(
                 "math step does not show interval derivation (sigma = X or 1.28)"
             )
@@ -298,6 +317,8 @@ def to_forecast_cell(cell: dict) -> dict:
         "toolPolicyHash": stamp["toolPolicyHash"],
         "sourceContext": cell["sourceContext"],
     }
+    if cell.get("promptMode"):
+        out["predictionRun"]["promptMode"] = cell["promptMode"]
     if cell.get("activityLog"):
         out["predictionRun"]["activityLog"] = cell["activityLog"]
     if cell.get("custodyRootSha256"):
