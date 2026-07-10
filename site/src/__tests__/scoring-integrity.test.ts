@@ -38,6 +38,34 @@ describe("chronology gate", () => {
       classifyScoreChronology("2026-06-28T09:00:00Z", undefined),
     ).toBe("unverified");
   });
+
+  it("rejects the seeded instant in any equivalent spelling (X4)", () => {
+    // SEEDED_RUN_RECORDED_AT is 2026-06-08T00:00:00+02:00 == this UTC form.
+    expect(
+      classifyScoreChronology("2026-06-07T22:00:00Z", observedAt),
+    ).toBe("unverified");
+    expect(
+      classifyScoreChronology("2026-06-07T22:00:00.000Z", observedAt),
+    ).toBe("unverified");
+  });
+
+  it("resolves date-only observations at day granularity (X4)", () => {
+    // Strictly earlier UTC date: verified.
+    expect(
+      classifyScoreChronology("2026-06-28T09:00:00Z", "2026-07-01"),
+    ).toBe("verified");
+    // Same UTC date: sub-day ordering unknowable in either direction.
+    expect(
+      classifyScoreChronology("2026-07-01T02:00:00Z", "2026-07-01"),
+    ).toBe("unverified");
+    expect(
+      classifyScoreChronology("2026-07-01T23:59:00Z", "2026-07-01"),
+    ).toBe("unverified");
+    // Strictly later UTC date: violated.
+    expect(
+      classifyScoreChronology("2026-07-02T00:01:00Z", "2026-07-01"),
+    ).toBe("violated");
+  });
 });
 
 describe("target normalization scale", () => {

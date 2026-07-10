@@ -11,6 +11,7 @@ import {
   type DistributionProvenance,
   type NumericCdfDistribution,
 } from "./prediction-distribution";
+import { targetNormalizationScale } from "./thesis-log";
 
 export type ForecastStrategyKind = "deterministic_baseline" | "agent_forward";
 
@@ -332,6 +333,10 @@ function scoreStrategyPrediction({
   const intervalLow = Math.min(ciLow, pointEstimate);
   const intervalHigh = Math.max(ciHigh, pointEstimate);
   const interval80Width = Math.abs(intervalHigh - intervalLow);
+  // Every strategy in the family shares the member target's scale, so a
+  // strategy cannot improve its normalized score by widening its own
+  // interval (cross-review X9; same semantics as headline scoring v2).
+  const targetScale = targetNormalizationScale(member.forecast).scale;
   const predictionDistribution =
     distribution ??
     buildNumericCdfFromInterval({
@@ -344,7 +349,7 @@ function scoreStrategyPrediction({
     member.actual,
   );
   const signedError = member.actual - pointEstimate;
-  const denominator = interval80Width > 0 ? interval80Width : 1;
+  const denominator = targetScale > 0 ? targetScale : 1;
 
   return {
     scoreId: `strategy_score.${familyId}.${strategy.strategyId}.${member.forecast.slug}`,

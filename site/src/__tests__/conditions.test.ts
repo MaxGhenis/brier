@@ -4,6 +4,7 @@ import {
   conditionForCell,
   conditionForContract,
   conditionStatusFor,
+  isConditionGated,
 } from "@/data/conditions";
 import { FORECAST_CELLS } from "@/data/forecast-cells";
 import {
@@ -25,18 +26,34 @@ describe("condition registry", () => {
     expect(unregistered).toEqual([]);
   });
 
-  it("keeps complement pairs mutually exclusive", () => {
+  it("keeps complement pairs in atomic states", () => {
     const byId = new Map(CONDITIONS.map((c) => [c.conditionId, c]));
     for (const condition of CONDITIONS) {
       if (!condition.complementOf) continue;
       const complement = byId.get(condition.complementOf);
       expect(complement, condition.complementOf).toBeDefined();
       expect(complement?.complementOf).toBe(condition.conditionId);
-      expect(
-        condition.status === "satisfied" &&
-          complement?.status === "satisfied",
-      ).toBe(false);
+      // Allowed joint states only: (open, open), (satisfied, failed),
+      // (failed, satisfied). A half-transitioned pair would leave a
+      // resolved branch permanently unscorable (X12).
+      const pair = [condition.status, complement!.status].sort().join("+");
+      expect(["open+open", "failed+satisfied"]).toContain(pair);
     }
+  });
+
+  it("every cell carrying a conditional contract is typed conditional", () => {
+    const downgraded = FORECAST_CELLS.filter(
+      (cell) => cell.conditionalOn && cell.type !== "conditional",
+    ).map((cell) => cell.slug);
+    expect(downgraded).toEqual([]);
+  });
+
+  it("gates by marker even when the type field is downgraded", () => {
+    const conditional = FORECAST_CELLS.find(
+      (cell) => cell.type === "conditional" && cell.conditionalOn,
+    );
+    if (!conditional) return;
+    expect(isConditionGated({ ...conditional, type: "data" })).toBe(true);
   });
 
   it("has well-formed ids and match strings", () => {

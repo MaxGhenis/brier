@@ -11,7 +11,11 @@ import type {
   Unit,
 } from "./forecast-cells";
 import { getForecastRunEntries } from "./forecast-cells";
-import { conditionStatusFor, type ConditionStatus } from "./conditions";
+import {
+  conditionStatusFor,
+  isConditionGated,
+  type ConditionStatus,
+} from "./conditions";
 export type { ConditionStatus } from "./conditions";
 import {
   getDistributionTransformVersion,
@@ -1086,14 +1090,42 @@ export function scoreResolvedForecast(
 // published for transparency but never count toward headline calibration.
 export type ScoreChronology = "verified" | "unverified" | "violated";
 
+// Bump when chronology semantics change; participates in score IDs (X3).
+export const CHRONOLOGY_POLICY_VERSION = "chronology_v2_day_granularity";
+
+const SEEDED_RUN_INSTANT = Date.parse(SEEDED_RUN_RECORDED_AT);
+
+function hasTimeComponent(timestamp: string): boolean {
+  return timestamp.includes("T");
+}
+
+function utcDateOf(instant: number): string {
+  return new Date(instant).toISOString().slice(0, 10);
+}
+
 export function classifyScoreChronology(
   runAt: string | undefined,
   observedAt: string | undefined,
 ): ScoreChronology {
-  if (!runAt || runAt === SEEDED_RUN_RECORDED_AT) return "unverified";
+  if (!runAt) return "unverified";
   const runTime = Date.parse(runAt);
   const observedTime = observedAt ? Date.parse(observedAt) : Number.NaN;
   if (!Number.isFinite(runTime) || !Number.isFinite(observedTime)) {
+    return "unverified";
+  }
+  // The legacy seeded placeholder is unverifiable in ANY spelling of the
+  // same instant, not just the canonical string (cross-review X4).
+  if (runTime === SEEDED_RUN_INSTANT) return "unverified";
+  if (observedAt && !hasTimeComponent(observedAt)) {
+    // Date-only observations carry no release instant, so same-day
+    // ordering is unknowable in either direction across timezones
+    // (X4). Chronology then resolves at day granularity: strictly
+    // earlier UTC dates verify, strictly later violate, same day is
+    // unverifiable.
+    const runDate = utcDateOf(runTime);
+    const observedDate = observedAt.slice(0, 10);
+    if (runDate < observedDate) return "verified";
+    if (runDate > observedDate) return "violated";
     return "unverified";
   }
   return runTime < observedTime ? "verified" : "violated";
@@ -1139,7 +1171,7 @@ export function scoreResolvedForecastRun(
   // actually occurred: both branches of a pair resolve against the same
   // official print, and scoring the counterfactual branch would grade a
   // hypothesis whose premise never happened (review finding F6).
-  if (forecast.type === "conditional") {
+  if (isConditionGated(forecast)) {
     const gate = conditionStatusFor(forecast, conditionOverrides);
     if (gate !== "satisfied") return undefined;
   }
@@ -1189,6 +1221,11 @@ export function scoreResolvedForecastRun(
         observedValue: observation.value,
         unit: observation.unit,
       },
+      normalizationScale: normalization.scale,
+      normalizationScaleSource: normalization.source,
+      observedAt: observation.observedAt,
+      chronology,
+      chronologyPolicy: CHRONOLOGY_POLICY_VERSION,
     }),
     runId,
     runLabel: run.label,
@@ -1299,6 +1336,14 @@ export function buildScoreId(payload: {
   transformVersion: string;
   forecastOutput: unknown;
   outcome: unknown;
+  // A score's identity commits to its full meaning: the normalization
+  // that produced the headline number, the observation instant, and the
+  // chronology verdict + policy that admitted or excluded it (X3).
+  normalizationScale: number;
+  normalizationScaleSource: string;
+  observedAt: string;
+  chronology: string;
+  chronologyPolicy: string;
 }) {
   const payloadDigest = sha256Hex(payload);
   return `score.${payload.runId}.${payload.resolutionEventId}.${payload.scoringRule}.${payloadDigest.slice(0, 16)}`;

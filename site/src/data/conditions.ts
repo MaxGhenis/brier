@@ -179,9 +179,34 @@ export function conditionForCell(cell: {
   slug: string;
   conditionalOn?: string;
 }): ConditionDefinition | undefined {
+  const byContract = conditionForContract(cell.conditionalOn);
+  const bySlug = BY_ID.get(LEGACY_SLUG_BINDINGS[cell.slug] ?? "");
+  // A cell that matches BOTH a recorded contract and a legacy slug
+  // binding must agree with itself; a conflict means someone rebound a
+  // branch to a different premise, which is fail-closed (X5).
+  if (byContract && bySlug && byContract.conditionId !== bySlug.conditionId) {
+    throw new Error(
+      `condition binding conflict for ${cell.slug}: contract resolves to ` +
+        `${byContract.conditionId} but legacy slug binds ` +
+        `${bySlug.conditionId}`,
+    );
+  }
+  return byContract ?? bySlug;
+}
+
+// A cell participates in condition gating if ANYTHING marks it
+// conditional — the declared type, a recorded contract string, or a
+// legacy slug binding. Republishing a conditional as type "data" must
+// not bypass the gate (X5).
+export function isConditionGated(cell: {
+  slug: string;
+  type?: string;
+  conditionalOn?: string;
+}): boolean {
   return (
-    conditionForContract(cell.conditionalOn) ??
-    BY_ID.get(LEGACY_SLUG_BINDINGS[cell.slug] ?? "")
+    cell.type === "conditional" ||
+    Boolean(cell.conditionalOn) ||
+    cell.slug in LEGACY_SLUG_BINDINGS
   );
 }
 

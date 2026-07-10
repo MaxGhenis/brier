@@ -2275,16 +2275,20 @@ def main() -> int:
     if args.conditional:
         for cell in normalized_cells:
             cell["type"] = "conditional"
-    # The published runAt is the harness's own start time, never the
-    # agent's claim: chronology gating scores only runs whose recorded
-    # time provably precedes the observation, so the timestamp must come
-    # from the recorder, not the recorded. The agent's value is kept for
-    # transparency when it disagrees.
+    # The published runAt is the harness's SEAL time — captured here,
+    # after the agent finished — never the agent's claim and never the
+    # harness start time. Chronology verification requires the seal to
+    # precede the observation, so a run that starts before a release and
+    # finishes after it stamps late and classifies as violated instead
+    # of sneaking in under its start time (cross-review finding X1).
+    # Start time and any differing agent claim are kept for audit.
+    sealed_at = utc_now()
     for cell in normalized_cells:
         agent_run_at = cell.get("runAt")
-        if agent_run_at and agent_run_at != run_at:
+        if agent_run_at and agent_run_at != sealed_at:
             cell["agentReportedRunAt"] = agent_run_at
-        cell["runAt"] = run_at
+        cell["runStartedAt"] = run_at
+        cell["runAt"] = sealed_at
     materialized_distributions = materialize_run_distributions(normalized_cells)
     normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
