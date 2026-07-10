@@ -20,20 +20,35 @@ def run(variant_id: str, run_at: str = "2030-01-01T00:00:00Z") -> dict:
     }
 
 
-def test_legacy_all_record_regeneration_is_byte_identical(
+def test_all_record_regeneration_is_byte_identical(
     tmp_path: pathlib.Path,
 ) -> None:
+    # Regenerate exactly like the publisher (frozen legacy index + real
+    # suite records) and require byte-identity with the committed module.
     output = tmp_path / "strategy.ts"
-    augments = strategy.all_record_augments(
-        legacy_index=strategy.LEGACY_INDEX,
-        suites_root=tmp_path / "no-suites",
-    )
+    augments = strategy.all_record_augments()
     strategy.write_strategy_ts(output, augments)
 
     assert output.read_bytes() == (
         ROOT / "site/src/data/thesis-strategy-comparisons.ts"
     ).read_bytes()
-    assert sum(map(len, augments.values())) == 30
+
+
+def test_frozen_legacy_projection_is_preserved_inside_full_corpus(
+    tmp_path: pathlib.Path,
+) -> None:
+    # The 2026-07-08 legacy wave is an immutable record set: its projection
+    # is exactly 30 runs, and suite publications may only add runs on top.
+    legacy_only = strategy.all_record_augments(
+        legacy_index=strategy.LEGACY_INDEX,
+        suites_root=tmp_path / "no-suites",
+    )
+    assert sum(map(len, legacy_only.values())) == 30
+
+    full = strategy.all_record_augments()
+    for slug, legacy_runs in legacy_only.items():
+        assert len(full.get(slug, [])) >= len(legacy_runs)
+    assert sum(map(len, full.values())) >= 30
 
 
 def test_cli_always_regenerates_whole_corpus_and_rejects_partial_inputs(
