@@ -14,6 +14,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Iterable
 
 from canonical_json import canonical_bytes, canonical_sha256
+from register_targets import RegistrationError, registration_content_hash
 from verify_custody import CustodyError, verify_run
 from verify_record_chain import (
     ChainError,
@@ -145,8 +146,21 @@ def _validate_registration(
         payload = json.loads(raw)
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise TimelineError(f"invalid registration JSON {logical}: {exc}") from exc
-    if canonical_hash is not None and canonical_sha256(payload) != canonical_hash:
-        raise TimelineError(f"registration canonical SHA-256 mismatch: {logical}")
+    if canonical_hash is not None:
+        # Two commitment semantics arrive here: recorder digests commit the
+        # whole-payload canonical hash, while run manifests commit the
+        # schema-aware targetContentHash (v2 deliberately excludes the
+        # operational registeredAtUtc; the pushed registration commit
+        # witnesses that instant instead).
+        accepted = {canonical_sha256(payload)}
+        try:
+            accepted.add(registration_content_hash(payload))
+        except RegistrationError:
+            pass
+        if canonical_hash not in accepted:
+            raise TimelineError(
+                f"registration canonical SHA-256 mismatch: {logical}"
+            )
 
 
 def _registration_from_manifest(

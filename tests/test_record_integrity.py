@@ -472,12 +472,14 @@ def test_witness_rejects_self_consistent_unapproved_trust_bundle(
 
 
 def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
-    # The frozen clock must postdate every real committed token; the
-    # genesis-enumeration cutover was witnessed at 2026-07-10T04:29:34Z.
+    # Real tokens are always in the past, so the actual clock is the right
+    # verification time; a frozen instant broke on every new recording.
     verification = verify_chain(
-        ROOT / "records", now=datetime(2026, 7, 10, 5, 0, tzinfo=timezone.utc)
+        ROOT / "records", now=datetime.now(timezone.utc)
     )
-    assert [path.name for path in verification.ordered] == [
+    # The chain PREFIX is immutable history; the tail grows with each
+    # recorded wave.
+    assert [path.name for path in verification.ordered][:5] == [
         "digest-f4f3-genesis.json",
         "digest-29052158922-1.json",
         "digest-29053314493-1.json",
@@ -489,12 +491,14 @@ def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
         for path in verification.ordered
         if verification.witnesses[path].status == "available"
     ]
-    assert [evidence.gen_time for evidence in available] == [
+    gen_times = [evidence.gen_time for evidence in available]
+    assert gen_times[:4] == [
         "2026-07-09T21:41:11Z",
         "2026-07-09T22:02:56Z",
         "2026-07-09T22:17:19Z",
         "2026-07-10T04:29:34Z",
     ]
+    assert gen_times == sorted(gen_times)
     assert {evidence.policy_oid for evidence in available} == {"1.2.3.4.1"}
     assert {evidence.imprint_algorithm_oid for evidence in available} == {
         "2.16.840.1.101.3.4.2.1"
@@ -1027,15 +1031,18 @@ def test_timeline_extracts_direct_and_transitive_cutover_coverage(
     monkeypatch.setattr(timeline_module, "verify_chain", lambda _records: witnessed)
 
     timeline = timeline_module.extract_timeline(ROOT / "records")
-    assert len(timeline["runs"]) == 218
-    assert len(timeline["custodyRoots"]) == 8
-    assert len(timeline["registrationSnapshots"]) == 2
-    assert all(
-        proof["coverage"] == "direct"
-        and proof["inventoryStatus"] == "legacy-incomplete"
-        and proof["headlineEligible"] is False
-        for proof in timeline["custodyRoots"].values()
-    )
+    # The real records tree grows with every recorded wave; assert the
+    # invariants, floored at the state fixed by the enumeration cutover
+    # (218 runs / 8 roots / 2 registrations existed then).
+    assert len(timeline["runs"]) >= 218
+    assert len(timeline["custodyRoots"]) >= 8
+    assert len(timeline["registrationSnapshots"]) >= 2
+    for proof in timeline["custodyRoots"].values():
+        assert proof["coverage"] in {"direct", "transitive"}
+        if proof["inventoryStatus"] == "legacy-incomplete":
+            assert proof["headlineEligible"] is False
+        if proof["headlineEligible"]:
+            assert proof["inventoryStatus"] == "complete"
     explicit_runs = {
         commitment["runDirectory"]
         for commitment in json.loads(cutover.read_text())["artifactCommitments"][
