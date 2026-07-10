@@ -15,6 +15,9 @@ on:
       cadence:
         description: "weekly|monthly|quarterly (empty = all)"
         default: ""
+      prompt_mode:
+        description: "Analyst prompt mode: fast|full|ladder"
+        default: "fast"
 
 permissions:
   contents: read
@@ -223,10 +226,12 @@ jobs:
       - name: Run the analyst batch
         env:
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
+          PROMPT_MODE: ${{ github.event.inputs.prompt_mode || 'fast' }}
         run: |
           set -euo pipefail
           python3 scripts/run_thesis_batch.py \
             --targets-file /tmp/trusted-registration/roll-targets.json \
+            --prompt-mode "$PROMPT_MODE" \
             --timeout-seconds 540 \
             --out "$BATCH_MANIFEST" || true
           # Failures remain immutable run records; partial success is allowed.
