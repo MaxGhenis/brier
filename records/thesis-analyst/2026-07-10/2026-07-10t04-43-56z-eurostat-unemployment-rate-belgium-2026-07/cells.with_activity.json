@@ -1,0 +1,1231 @@
+[
+  {
+    "slug": "belgium-unemployment-rate-july-2026",
+    "country": "BE",
+    "type": "data",
+    "title": "Belgium unemployment rate, July 2026",
+    "question": "Eurostat une_rt_m unemployment rate for Belgium, July 2026, seasonally adjusted, total sex, age 15-74, percent of active population, first print",
+    "unit": "percent",
+    "pointEstimate": 6.5,
+    "ciLow": 6.4,
+    "ciHigh": 6.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-01",
+    "resolutionSource": "Eurostat unemployment by sex and age - monthly data (une_rt_m)",
+    "resolutionSourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en",
+    "resolutionRule": "Resolve to the first value published by Eurostat in table une_rt_m for geo=BE, sex=T, age=Y15-74, s_adj=SA, unit=PC_ACT, time=2026-07. Use the first-print one-decimal percent value and ignore later revisions or corrected vintages unless Eurostat explicitly replaces the first publication before public release.",
+    "dataPointId": "eurostat.une_rt_m.unemployment_rate.belgium.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 latest Eurostat une_rt_m BE SA total 15-74",
+        "value": 6.5
+      },
+      {
+        "label": "2026-04 Eurostat une_rt_m BE SA total 15-74",
+        "value": 6.5
+      },
+      {
+        "label": "2026-03 Eurostat une_rt_m BE SA total 15-74",
+        "value": 6.5
+      },
+      {
+        "label": "2025-12 Eurostat une_rt_m BE SA total 15-74",
+        "value": 6.4
+      },
+      {
+        "label": "2025-06 Eurostat une_rt_m BE SA total 15-74",
+        "value": 6.5
+      }
+    ],
+    "drivers": [
+      "Recent Belgian unemployment has been flat around 6.4-6.5 percent",
+      "Euro area unemployment was low and stable at 6.2 percent in May 2026",
+      "Belgian regional labor-market slack makes a sharp fall less likely than persistence",
+      "One-month first-print volatility in the recent same-variant series is small after rounding"
+    ],
+    "sourceContext": [
+      "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en",
+      "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?geo=BE&sex=T&age=Y15-74&s_adj=SA&unit=PC_ACT&sinceTimePeriod=2025-01",
+      "https://ec.europa.eu/eurostat/web/main/news/release-calendar"
+    ],
+    "runAt": "2026-07-10T04:46:03Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Belgium July 2026 Eurostat unemployment first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets Eurostat table une_rt_m, Belgium geo=BE, seasonally adjusted s_adj=SA, total sex=T, age Y15-74, unit PC_ACT, July 2026 first print. The value resolves from the Eurostat data page, not from FRED, news, or a later revised vintage."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Eurostat release calendar for the monthly unemployment euro-indicator publication covering July 2026.",
+        "result": "Eurostat release calendar lists the July 2026 unemployment release on 2026-09-01 at 11:00, within the ledger window 2026-08-26 to 2026-09-03."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Queried Eurostat une_rt_m for BE, sex=T, age=Y15-74, s_adj=SA, unit=PC_ACT, recent monthly observations.",
+        "result": "Fetched recent Belgium values: 2026-03 = 6.5, 2026-04 = 6.5, 2026-05 = 6.5 percent; 2025-12 = 6.4 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Pulled the recent official-source reference class from Eurostat une_rt_m for the same variant and country over 2025-06 through 2026-05.",
+        "result": "Fetched 12-month same-variant Belgium sequence used for volatility: 2025-06 6.5, 2025-07 6.5, 2025-08 6.4, 2025-09 6.4, 2025-10 6.4, 2025-11 6.4, 2025-12 6.4, 2026-01 6.4, 2026-02 6.5, 2026-03 6.5, 2026-04 6.5, 2026-05 6.5."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Eurostat euro-indicator labor-market context for the euro area around the latest available month.",
+        "result": "Eurostat euro-area unemployment was 6.2 percent in 2026-05 after 6.2 percent in 2026-04, with unemployed persons down by about 55,000 from April to May."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for a monthly level series that is rounded to one decimal and has held at 6.4-6.5 percent, the base rate is persistence of the latest official same-variant value. The reference class is recent month-to-month movements in Belgium une_rt_m SA total 15-74, not annual or unadjusted labor-force statistics."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = latest official 2026-05 value of 6.5 from the same Eurostat une_rt_m variant, with the forecast two months ahead for July because June is not yet used. Historical sample = same-variant monthly values from 2025-06 to 2026-05. Adjustment components: level 0.0 because latest is already at the local plateau; momentum 0.0 because 2026-03, 2026-04, and 2026-05 were all 6.5; one-off +0.0 because no official Belgian shock in the source record; policy-mechanism +0.0 because unemployment insurance/activation changes do not imply a clear July first-print break. Successive rounded monthly changes are 0.0, -0.1, 0.0, 0.0, 0.0, 0.0, 0.0, +0.1, 0.0, 0.0, 0.0, giving sigma = 0.04 percentage points for one-month changes and about 0.06 for a two-month horizon; 1.28*sigma = 0.08, rounded to a one-decimal first-print half-width of 0.1. Final implied bounds: 6.5 - 0.1 = 6.4 and 6.5 + 0.1 = 6.6."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a deterioration in Belgian hiring or a July sample rotation that pushes the first print to 6.7 or above; downside risk is a stronger summer labor-market improvement that pulls unemployment to 6.3 or below; either would land outside the interval. Inside the interval, 6.4, 6.5, or 6.6 are all plausible first prints given recent rounding and flatness."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the geography fix by using BE for the Belgium-specific target and accepted the interval critique by recomputing dispersion from the stated rounded monthly sequence; the half-width is now the one-decimal rounded result of the two-month realized-change calculation rather than the unsupported 0.2 allowance."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.5,
+        "ciLow": 6.4,
+        "ciHigh": 6.6
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T04:44:12Z",
+    "runStartedAt": "2026-07-10T04:43:56Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 6.25,
+        "upper": 6.75
+      },
+      "points": [
+        {
+          "value": 6.25,
+          "probability": 0.0
+        },
+        {
+          "value": 6.2525,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 6.255,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 6.2575,
+          "probability": 0.005
+        },
+        {
+          "value": 6.26,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 6.2625,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 6.265,
+          "probability": 0.01
+        },
+        {
+          "value": 6.2675,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 6.27,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 6.2725,
+          "probability": 0.015
+        },
+        {
+          "value": 6.275,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 6.2775,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 6.28,
+          "probability": 0.02
+        },
+        {
+          "value": 6.2825,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 6.285,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 6.2875,
+          "probability": 0.025
+        },
+        {
+          "value": 6.29,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 6.2925,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 6.295,
+          "probability": 0.03
+        },
+        {
+          "value": 6.2975,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 6.3,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 6.3025,
+          "probability": 0.035
+        },
+        {
+          "value": 6.305,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 6.3075,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 6.31,
+          "probability": 0.04
+        },
+        {
+          "value": 6.3125,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 6.315,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 6.3175,
+          "probability": 0.045
+        },
+        {
+          "value": 6.32,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 6.3225,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 6.325,
+          "probability": 0.05
+        },
+        {
+          "value": 6.3275,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 6.33,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 6.3325,
+          "probability": 0.055
+        },
+        {
+          "value": 6.335,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 6.3375,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 6.34,
+          "probability": 0.06
+        },
+        {
+          "value": 6.3425,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 6.345,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 6.3475,
+          "probability": 0.065
+        },
+        {
+          "value": 6.35,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 6.3525,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 6.355,
+          "probability": 0.07
+        },
+        {
+          "value": 6.3575,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 6.36,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 6.3625,
+          "probability": 0.075
+        },
+        {
+          "value": 6.365,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 6.3675,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 6.37,
+          "probability": 0.08
+        },
+        {
+          "value": 6.3725,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 6.375,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 6.3775,
+          "probability": 0.085
+        },
+        {
+          "value": 6.38,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 6.3825,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 6.385,
+          "probability": 0.09
+        },
+        {
+          "value": 6.3875,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 6.39,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 6.3925,
+          "probability": 0.095
+        },
+        {
+          "value": 6.395,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 6.3975,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 6.4,
+          "probability": 0.1
+        },
+        {
+          "value": 6.4025,
+          "probability": 0.11
+        },
+        {
+          "value": 6.405,
+          "probability": 0.12
+        },
+        {
+          "value": 6.4075,
+          "probability": 0.13
+        },
+        {
+          "value": 6.41,
+          "probability": 0.14
+        },
+        {
+          "value": 6.4125,
+          "probability": 0.15
+        },
+        {
+          "value": 6.415,
+          "probability": 0.16
+        },
+        {
+          "value": 6.4175,
+          "probability": 0.17
+        },
+        {
+          "value": 6.42,
+          "probability": 0.18
+        },
+        {
+          "value": 6.4225,
+          "probability": 0.19
+        },
+        {
+          "value": 6.425,
+          "probability": 0.2
+        },
+        {
+          "value": 6.4275,
+          "probability": 0.21
+        },
+        {
+          "value": 6.43,
+          "probability": 0.22
+        },
+        {
+          "value": 6.4325,
+          "probability": 0.23
+        },
+        {
+          "value": 6.435,
+          "probability": 0.24
+        },
+        {
+          "value": 6.4375,
+          "probability": 0.25
+        },
+        {
+          "value": 6.44,
+          "probability": 0.26
+        },
+        {
+          "value": 6.4425,
+          "probability": 0.27
+        },
+        {
+          "value": 6.445,
+          "probability": 0.28
+        },
+        {
+          "value": 6.4475,
+          "probability": 0.29
+        },
+        {
+          "value": 6.45,
+          "probability": 0.3
+        },
+        {
+          "value": 6.4525,
+          "probability": 0.31
+        },
+        {
+          "value": 6.455,
+          "probability": 0.32
+        },
+        {
+          "value": 6.4575,
+          "probability": 0.33
+        },
+        {
+          "value": 6.46,
+          "probability": 0.34
+        },
+        {
+          "value": 6.4625,
+          "probability": 0.35
+        },
+        {
+          "value": 6.465,
+          "probability": 0.36
+        },
+        {
+          "value": 6.4675,
+          "probability": 0.37
+        },
+        {
+          "value": 6.47,
+          "probability": 0.38
+        },
+        {
+          "value": 6.4725,
+          "probability": 0.39
+        },
+        {
+          "value": 6.475,
+          "probability": 0.4
+        },
+        {
+          "value": 6.4775,
+          "probability": 0.41
+        },
+        {
+          "value": 6.48,
+          "probability": 0.42
+        },
+        {
+          "value": 6.4825,
+          "probability": 0.43
+        },
+        {
+          "value": 6.485,
+          "probability": 0.44
+        },
+        {
+          "value": 6.4875,
+          "probability": 0.45
+        },
+        {
+          "value": 6.49,
+          "probability": 0.46
+        },
+        {
+          "value": 6.4925,
+          "probability": 0.47
+        },
+        {
+          "value": 6.495,
+          "probability": 0.48
+        },
+        {
+          "value": 6.4975,
+          "probability": 0.49
+        },
+        {
+          "value": 6.5,
+          "probability": 0.5
+        },
+        {
+          "value": 6.5025,
+          "probability": 0.51
+        },
+        {
+          "value": 6.505,
+          "probability": 0.52
+        },
+        {
+          "value": 6.5075,
+          "probability": 0.53
+        },
+        {
+          "value": 6.51,
+          "probability": 0.54
+        },
+        {
+          "value": 6.5125,
+          "probability": 0.55
+        },
+        {
+          "value": 6.515,
+          "probability": 0.56
+        },
+        {
+          "value": 6.5175,
+          "probability": 0.57
+        },
+        {
+          "value": 6.52,
+          "probability": 0.58
+        },
+        {
+          "value": 6.5225,
+          "probability": 0.59
+        },
+        {
+          "value": 6.525,
+          "probability": 0.6
+        },
+        {
+          "value": 6.5275,
+          "probability": 0.61
+        },
+        {
+          "value": 6.53,
+          "probability": 0.62
+        },
+        {
+          "value": 6.5325,
+          "probability": 0.63
+        },
+        {
+          "value": 6.535,
+          "probability": 0.64
+        },
+        {
+          "value": 6.5375,
+          "probability": 0.65
+        },
+        {
+          "value": 6.54,
+          "probability": 0.66
+        },
+        {
+          "value": 6.5425,
+          "probability": 0.67
+        },
+        {
+          "value": 6.545,
+          "probability": 0.68
+        },
+        {
+          "value": 6.5475,
+          "probability": 0.69
+        },
+        {
+          "value": 6.55,
+          "probability": 0.7
+        },
+        {
+          "value": 6.5525,
+          "probability": 0.71
+        },
+        {
+          "value": 6.555,
+          "probability": 0.72
+        },
+        {
+          "value": 6.5575,
+          "probability": 0.73
+        },
+        {
+          "value": 6.56,
+          "probability": 0.74
+        },
+        {
+          "value": 6.5625,
+          "probability": 0.75
+        },
+        {
+          "value": 6.565,
+          "probability": 0.76
+        },
+        {
+          "value": 6.5675,
+          "probability": 0.77
+        },
+        {
+          "value": 6.57,
+          "probability": 0.78
+        },
+        {
+          "value": 6.5725,
+          "probability": 0.79
+        },
+        {
+          "value": 6.575,
+          "probability": 0.8
+        },
+        {
+          "value": 6.5775,
+          "probability": 0.81
+        },
+        {
+          "value": 6.58,
+          "probability": 0.82
+        },
+        {
+          "value": 6.5825,
+          "probability": 0.83
+        },
+        {
+          "value": 6.585,
+          "probability": 0.84
+        },
+        {
+          "value": 6.5875,
+          "probability": 0.85
+        },
+        {
+          "value": 6.59,
+          "probability": 0.86
+        },
+        {
+          "value": 6.5925,
+          "probability": 0.87
+        },
+        {
+          "value": 6.595,
+          "probability": 0.88
+        },
+        {
+          "value": 6.5975,
+          "probability": 0.89
+        },
+        {
+          "value": 6.6,
+          "probability": 0.9
+        },
+        {
+          "value": 6.6025,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 6.605,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 6.6075,
+          "probability": 0.905
+        },
+        {
+          "value": 6.61,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 6.6125,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 6.615,
+          "probability": 0.91
+        },
+        {
+          "value": 6.6175,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 6.62,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 6.6225,
+          "probability": 0.915
+        },
+        {
+          "value": 6.625,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 6.6275,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 6.63,
+          "probability": 0.92
+        },
+        {
+          "value": 6.6325,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 6.635,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 6.6375,
+          "probability": 0.925
+        },
+        {
+          "value": 6.64,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 6.6425,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 6.645,
+          "probability": 0.93
+        },
+        {
+          "value": 6.6475,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 6.65,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 6.6525,
+          "probability": 0.935
+        },
+        {
+          "value": 6.655,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 6.6575,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 6.66,
+          "probability": 0.94
+        },
+        {
+          "value": 6.6625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 6.665,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 6.6675,
+          "probability": 0.945
+        },
+        {
+          "value": 6.67,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 6.6725,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 6.675,
+          "probability": 0.95
+        },
+        {
+          "value": 6.6775,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 6.68,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 6.6825,
+          "probability": 0.955
+        },
+        {
+          "value": 6.685,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 6.6875,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 6.69,
+          "probability": 0.96
+        },
+        {
+          "value": 6.6925,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 6.695,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 6.6975,
+          "probability": 0.965
+        },
+        {
+          "value": 6.7,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 6.7025,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 6.705,
+          "probability": 0.97
+        },
+        {
+          "value": 6.7075,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 6.71,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 6.7125,
+          "probability": 0.975
+        },
+        {
+          "value": 6.715,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 6.7175,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 6.72,
+          "probability": 0.98
+        },
+        {
+          "value": 6.7225,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 6.725,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 6.7275,
+          "probability": 0.985
+        },
+        {
+          "value": 6.73,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 6.7325,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 6.735,
+          "probability": 0.99
+        },
+        {
+          "value": 6.7375,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 6.74,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 6.7425,
+          "probability": 0.995
+        },
+        {
+          "value": 6.745,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 6.7475,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 6.75,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 6.5,
+        "median": 6.5,
+        "interval80": {
+          "lower": 6.4,
+          "upper": 6.6
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/prompt.md",
+        "sha256": "267f21b768311647ea8af6700d36f42165e07bac6ffc50ed3a5ce523c68057a2",
+        "bytes": 8531,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_command.json",
+        "sha256": "1b17ae413e78db5246665503c5d2a0ff0ffacab5e43656a7568bb46031e2240d",
+        "bytes": 687,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "b4d774c0bb517eadc6d336a3bacb00dc54fbb79974abc1903e142643d7b9743b",
+        "bytes": 15387,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_stderr.log",
+        "sha256": "125f4a0a38ae5735e69e26b7254b58173cf6bef6086a11235be9831391a085be",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_events.jsonl",
+        "sha256": "baefbb1b3252664624e9d071b732f6d3e8d948691088742613d7cec0548a706f",
+        "bytes": 15380,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_last_message.txt",
+        "sha256": "d6a7bb4edc48a8650c3531189515087f7d117b4e57c1e6d0bb62b422815d4173",
+        "bytes": 5324,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_trace.json",
+        "sha256": "caeae4591754a10582319558763bca0b4c70f5d19b75178d446f6927d7f8bec7",
+        "bytes": 507,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_stdout.txt",
+        "sha256": "d6a7bb4edc48a8650c3531189515087f7d117b4e57c1e6d0bb62b422815d4173",
+        "bytes": 5324,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_stderr.txt",
+        "sha256": "60ad242ce8b4fc3fcb8e3112575ccea5eea98284b110db9c7329f6d85d9edf93",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_prompt.md",
+        "sha256": "f2290f9bb6a3d4344c36088135b0b96d0abee62d262832ef4c3193aaa791d24b",
+        "bytes": 8119,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_command.json",
+        "sha256": "8ef95ee1d3f11a199d183bedbedd6cf01c1b156cccefb35da755e071da25f49d",
+        "bytes": 683,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "d2ce185626240f14a3cae68695a35bacf3c413d6243eb6642915d89f9ab6746b",
+        "bytes": 1652,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "f0305988ff04043e0987da6f50fb33b637432e6a61e1fff7bd9d6a0e44202234",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "091308af5d598e949d80fd9bd9c909da672b81d718a09beced30b981fa6e4824",
+        "bytes": 1674,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "94f136a4b80b715b190336259c9731b22b50b80ee5a0897fb52515cccefb2b45",
+        "bytes": 1274,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "98e66d176acf1c73e23fae162b5ab77971a0e4830b07e1841614c53a7affb4a0",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "94f136a4b80b715b190336259c9731b22b50b80ee5a0897fb52515cccefb2b45",
+        "bytes": 1274,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "600393a037b9f6fde2d067e93b4a5907c7f1dfae976e05d424aba0cbe9823675",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/revision_prompt.md",
+        "sha256": "65768a82f0d6f2486a9fe6fc9e8ee068ac193badc3cc62f4a58a20774e9d043e",
+        "bytes": 16065,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/command.json",
+        "sha256": "8b337ec6c2829b82c3a6bd30f91335ac1f7ab507482526e772c31867bfacf71e",
+        "bytes": 681,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/codex_stdout.jsonl",
+        "sha256": "5dcafb1bc31be5950654a0ae75e14b8d2db7cde4c737f245791141db08ca0555",
+        "bytes": 6430,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/codex_stderr.log",
+        "sha256": "44fd2cf98f67f58f57f071aea09aedf0c8e17985dfd108339d253f98c8360b66",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/codex_events.jsonl",
+        "sha256": "1533f7c420978f28aebb9b79dfe9a4a62dd6c1d99eb808f76b7d937916df0a78",
+        "bytes": 6452,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/codex_last_message.txt",
+        "sha256": "cf763510d08e88bc843bbe0009f695e836f0ed017fe9f5eba6876a56c83c097a",
+        "bytes": 5881,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/codex_trace.json",
+        "sha256": "16a274b81c72b53ed33a0a6169fc5f6ae793cd569fb9676d165b03ec9d22b35b",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/stdout.txt",
+        "sha256": "cf763510d08e88bc843bbe0009f695e836f0ed017fe9f5eba6876a56c83c097a",
+        "bytes": 5881,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/stderr.txt",
+        "sha256": "c806cb2247ff9fc283e96b2c3b8be6840bdd758e2094778a1f7613ceba9663ad",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/raw_response.txt",
+        "sha256": "cf763510d08e88bc843bbe0009f695e836f0ed017fe9f5eba6876a56c83c097a",
+        "bytes": 5881,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/parsed_cells.json",
+        "sha256": "c6755c54b53e601815c59d346a7d72f6d95cf15568f8bdb7a814858a0b2f6d00",
+        "bytes": 6723,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/normalized_cells.json",
+        "sha256": "633994a292d1f9453ea364d1e1092ff8e0acf414aa1d818f6f02ef4abc114a3a",
+        "bytes": 23637,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/distribution.json",
+        "sha256": "3bba4a6823540d513ec945987ad1254331acb8b1790d920fb6c5e2fb9a48822b",
+        "bytes": 13496,
+        "createdAt": "2026-07-10T04:43:56Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/validation.json",
+        "sha256": "68fda9c94382b91a3779f9c1c5145f898b0935cea9b2d7aa35688e7cdd212fd4",
+        "bytes": 136,
+        "createdAt": "2026-07-10T04:43:56Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T04:43:56Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "065d977d36c812f9e21b9ca078e4c14996b427666f10d5e256e03f17d97238b8"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-43-56z-eurostat-unemployment-rate-belgium-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "coherence",
+          "summary": "The JSON field \"country\":\"EA\" conflicts with the Belgium target and title/question.",
+          "actionRequested": "Change the country/geography field to the repository's Belgium value, likely \"BE\" or \"Belgium\", while keeping the same catalog slug and target."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The stated sigma = 0.14 is not clearly supported by the listed 2025-06 to 2026-05 monthly sequence, whose rounded month-to-month changes appear much smaller.",
+          "actionRequested": "Recompute the interval dispersion from the stated historical sample or explicitly label the 0.2 half-width as a judgmental/rounding first-print uncertainty allowance rather than a direct realized-volatility result."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State explicitly that the forecast is two months ahead from the latest May 2026 observation to July 2026, since June is not yet used."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "If the schema expects ISO-like country codes, prefer a canonical country value and avoid euro-area shorthand in Belgium-specific records."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the geography fix by using BE for the Belgium-specific target and accepted the interval critique by recomputing dispersion from the stated rounded monthly sequence; the half-width is now the one-decimal rounded result of the two-month realized-change calculation rather than the unsupported 0.2 allowance.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the geography fix by using BE for the Belgium-specific target and accepted the interval critique by recomputing dispersion from the stated rounded monthly sequence; the half-width is now the one-decimal rounded result of the two-month realized-change calculation rather than the unsupported 0.2 allowance.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the geography fix by using BE for the Belgium-specific target and accepted the interval critique by recomputing dispersion from the stated rounded monthly sequence; the half-width is now the one-decimal rounded result of the two-month realized-change calculation rather than the unsupported 0.2 allowance.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the geography fix by using BE for the Belgium-specific target and accepted the interval critique by recomputing dispersion from the stated rounded monthly sequence; the half-width is now the one-decimal rounded result of the two-month realized-change calculation rather than the unsupported 0.2 allowance.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is broadly publishable on resolver, prior, and target logic, but it needs fixes for a likely country-field mismatch and an unsupported interval-volatility calculation."
+    }
+  }
+]

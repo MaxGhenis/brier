@@ -1,0 +1,16 @@
+{
+  "summary": "Draft is mostly publishable, but its resolver metadata conflicts with the canonical ledger contract and needs explicit alignment or documented exception handling.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "Draft changes the canonical resolutionSourceUrl from the ledger May 2026 bulletin URL to the D7G7 time-series URL and resolves via the June 2026 release, while the ledger binding still names May 2026 and field 2026-05.",
+      "actionRequested": "Keep the JSON target fields tied to the ledger contract, or explicitly flag this as a concrete ledger error in the reasoning while preserving the target slug/dataPointId and making the intended June 2026 first-print resolver unambiguous."
+    }
+  ],
+  "optionalSuggestions": [
+    "Add one sentence saying the resolutionDate of 2026-07-22 comes from the ONS next-release notice, since the ledger expectedReleaseWindow appears inconsistent.",
+    "The prior/update/interval step is strong; consider naming the volatility sample as monthly D7G7 annual-rate changes through May 2026 to make the interval provenance easier to audit.",
+    "Tail scenarios are concrete and target-specific; no change needed there."
+  ]
+}

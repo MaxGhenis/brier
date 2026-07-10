@@ -1,0 +1,48 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: abs.labour.unemployment_rate
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "australia-unemployment-rate-july-2026"
+- targetUnit: "percent"
+- dataPointId: "abs.labour.unemployment_rate.australia.july_2026.first_print"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www.abs.gov.au"], "expectedReleaseWindow": {"end": "2026-08-27", "start": "2026-08-19"}, "field": "abs.labour.unemployment_rate", "releasePolicy": "first_print", "sourceSeriesId": "abs.labour.unemployment_rate", "sourceUrl": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release", "table": "Australian Bureau of Statistics Labour Force, Australia, June 2026", "transform": {"factor": 1.0, "operation": "multiply"}}
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+a8d408690cbd533bda01620aa1c7afdc197f26b6f3739e6d329028d4ef16e57e
+
+# Draft forecast response
+{"slug":"australia-unemployment-rate-july-2026","country":"AU","type":"data","title":"Australia unemployment rate, July 2026","question":"What will the Australian Bureau of Statistics seasonally adjusted unemployment rate for Australia be for July 2026 in the first print of Labour Force, Australia?","unit":"percent","pointEstimate":4.5,"ciLow":4.3,"ciHigh":4.7,"confidence":0.8,"resolutionDate":"2026-08-20","resolutionSource":"Australian Bureau of Statistics Labour Force, Australia, July 2026","resolutionSourceUrl":"https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release","resolutionRule":"Resolve to the ABS national seasonally adjusted unemployment rate, in percent, for reference period July 2026 as first published in Labour Force, Australia, July 2026. Use the first public print rounded to one decimal percent and ignore later revisions or corrections.","dataPointId":"abs.labour.unemployment_rate.australia.july_2026.first_print","historicalContext":[{"label":"Feb 2026 seasonally adjusted unemployment rate","value":4.3},{"label":"Mar 2026 seasonally adjusted unemployment rate","value":4.3},{"label":"Apr 2026 seasonally adjusted unemployment rate","value":4.5},{"label":"May 2026 seasonally adjusted unemployment rate","value":4.4},{"label":"May 2026 trend unemployment rate","value":4.4}],"drivers":["Latest ABS first-print unemployment rate was 4.4% in May 2026 after 4.5% in April","Trend unemployment rate had edged up to 4.4% by May 2026","May employment rose 40,300 and unemployed people fell 18,300, limiting near-term upside","July survey reference period runs 28 June to 11 July, so much of the outcome is already fixed by run date","Monthly unemployment prints have recently moved by about 0.13 percentage points per month"],"sourceContext":["https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release","https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia","https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jul-2025"],"runAt":"2026-07-10T04:42:06Z","reasoning":[{"kind":"heading","text":"Australia July 2026 unemployment first-print forecast"},{"kind":"text","text":"The resolver is the ABS Labour Force, Australia national unemployment rate, seasonally adjusted variant, for July 2026. The relevant ABS graph table is the unemployment-rate table with columns Trend (%) and Seasonally adjusted (%); all anchors below use the seasonally adjusted national rate unless explicitly labelled trend."},{"kind":"tool","tool":"official.lookup","call":"Opened ABS Labour Force, Australia latest release page for reference period, latest print, headline statistics, future release dates, and survey dates.","result":"Fetched latest release reference period May 2026, released 25/06/2026; seasonally adjusted unemployment rate 4.4%, down 0.1 ppts from April 2026 at 4.5%; unemployed people 671,300, down 18,300; employed people 14,738,800, up 40,300."},{"kind":"tool","tool":"official.lookup","call":"Opened ABS Labour Force, Australia all-releases page to verify the official release schedule for the target month.","result":"Fetched future release schedule: Labour Force, Australia, June 2026 release date 23/07/2026 11:30am AEST; July 2026 release date 20/08/2026 11:30am AEST; August 2026 release date 24/09/2026 11:30am AEST."},{"kind":"tool","tool":"official.lookup","call":"Read the ABS unemployment-rate history table on the latest Labour Force release page.","result":"Fetched recent seasonally adjusted unemployment-rate prints: Feb 2026 4.3%, Mar 2026 4.3%, Apr 2026 4.5%, May 2026 4.4%; also Sep 2025 4.5%, Oct 2025 4.3%, Nov 2025 4.3%, Dec 2025 4.1%, Jan 2026 4.1%."},{"kind":"tool","tool":"official.lookup","call":"Read ABS survey timing rows for the July 2026 Labour Force collection.","result":"Fetched July 2026 survey timing: reference week starts 28 June 2026 and ends 11 July 2026; enumeration starts 5 July 2026 and ends 25 July 2026; May 2026 collection ran 3 May to 16 May with enumeration 10 May to 30 May."},{"kind":"text","text":"Reference class/base rate: for a short-horizon national unemployment-rate forecast, the base rate is persistence from the latest official seasonally adjusted ABS print, with recent monthly changes providing the dispersion. The latest level is 4.4%, the trend estimate is also 4.4%, and the recent sequence has more upward than downward drift from late 2025 into May 2026, so I center slightly above May rather than exactly at 4.4%."},{"kind":"math","text":"Prior/update/interval: persistence prior = latest ABS seasonally adjusted unemployment rate of 4.4%; historical sample = rounded monthly ABS seasonally adjusted rates from Jun 2024 through May 2026, using successive changes for the level/rate series; adjustment components = +0.05 ppt level/momentum from trend rising to 4.4 and April-May staying high, +0.03 ppt two-month horizon drift, -0.02 ppt from May employment strength, net +0.06 ppt, giving 4.46 rounded to a 4.5% point. Monthly-change sigma from the 23 successive rounded changes is about 0.13 ppt; two-month horizon sigma = sqrt(2)*0.13 = 0.18, so sigma = 0.18 and 80% half-width = 1.28*0.18 = 0.23 ppt. Applying that to 4.46 gives 4.23 to 4.69, rounded to a one-decimal-compatible 4.3% to 4.7% interval."},{"kind":"text","text":"Counter-considerations: upside risk is a weak June print followed by July job losses or a participation rebound that would lift unemployment to 4.8% or higher and land above the interval. Downside risk is another strong employment month with lower participation that would push the first print to 4.2% or lower and land below the interval. Outside the interval would likely require two same-direction monthly surprises rather than ordinary one-month noise."},{"kind":"forecast","point":4.5,"ciLow":4.3,"ciHigh":4.7}]}

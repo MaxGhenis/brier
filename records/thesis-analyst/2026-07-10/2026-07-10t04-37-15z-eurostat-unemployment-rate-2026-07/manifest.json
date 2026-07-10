@@ -1,0 +1,406 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T04:37:15Z",
+  "series": "eurostat.unemployment_rate",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "euro-area-unemployment-rate-july-2026",
+    "dataPointId": "eurostat.unemployment_rate.euro_area.july_2026.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-10T00:00:00Z",
+    "registrationState": "preregistered",
+    "series": "eurostat.unemployment_rate",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "ec.europa.eu"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-03",
+        "start": "2026-08-26"
+      },
+      "field": "eurostat.unemployment_rate",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "eurostat.unemployment_rate",
+      "sourceUrl": "https://ec.europa.eu/eurostat/news/euro-indicators",
+      "table": "Eurostat monthly unemployment euro-indicators release / une_rt_m data page",
+      "transform": {
+        "factor": 1.0,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279",
+    "targetRegistrationPath": "records/targets/2026-07-10-e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279.json",
+    "targetUnit": "percent",
+    "valueScale": 1.0
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T04:37:15Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "cbf61dab57804ea46fc95717ffd0e4d544576d2b22d7c333948696e9f765990a"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The persistence/base-rate prior is stated after several evidence and macro update paragraphs, so the reasoning does not cleanly put the prior before inside-view updates.",
+        "actionRequested": "Move or restate the base-rate prior near the start, before current drivers, with May 2026 6.2% as the explicit anchor."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a persistence/random-walk logic but does not explicitly label it as the time-series/model prior or state why a richer model is not used.",
+        "actionRequested": "Add one sentence naming the model prior, e.g. one-decimal random-walk persistence with no drift, and note that richer modeling is ruled out because only short-horizon official monthly prints are being forecast."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is based on only three monthly changes from Feb-May 2026, which is a thin realized-volatility sample for interval calibration.",
+        "actionRequested": "Either use a longer recent monthly sample from une_rt_m, or explicitly state that the short sample is a near-term calibration and add judgmental uncertainty to cover sampling error."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the exact 2026-09-01 resolution date tied to the Eurostat calendar entry if available in the saved trace."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider making resolutionSourceUrl the euro-indicators release/calendar page while keeping the data browser as supporting source context."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The upside and downside tails are concrete and do not need major revision."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to move the base-rate prior earlier, explicitly label the random-walk persistence model prior, and state how the thin realized-volatility sample is handled in interval calibration. Kept the resolver, 2026-09-01 resolution date, data-browser resolution URL, and forecast values unchanged because they remain coherent with the official Eurostat first-print target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to move the base-rate prior earlier, explicitly label the random-walk persistence model prior, and state how the thin realized-volatility sample is handled in interval calibration. Kept the resolver, 2026-09-01 resolution date, data-browser resolution URL, and forecast values unchanged because they remain coherent with the official Eurostat first-print target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to move the base-rate prior earlier, explicitly label the random-walk persistence model prior, and state how the thin realized-volatility sample is handled in interval calibration. Kept the resolver, 2026-09-01 resolution date, data-browser resolution URL, and forecast values unchanged because they remain coherent with the official Eurostat first-print target.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to move the base-rate prior earlier, explicitly label the random-walk persistence model prior, and state how the thin realized-volatility sample is handled in interval calibration. Kept the resolver, 2026-09-01 resolution date, data-browser resolution URL, and forecast values unchanged because they remain coherent with the official Eurostat first-print target.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to move the base-rate prior earlier, explicitly label the random-walk persistence model prior, and state how the thin realized-volatility sample is handled in interval calibration. Kept the resolver, 2026-09-01 resolution date, data-browser resolution URL, and forecast values unchanged because they remain coherent with the official Eurostat first-print target.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to move the base-rate prior earlier, explicitly label the random-walk persistence model prior, and state how the thin realized-volatility sample is handled in interval calibration. Kept the resolver, 2026-09-01 resolution date, data-browser resolution URL, and forecast values unchanged because they remain coherent with the official Eurostat first-print target.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after tightening the prior/model and interval support; no blocking leakage, unit, resolver, or coherence issue found."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/prompt.md",
+      "sha256": "c514dd3e11932fcbb72091523ce3ffbfe3a446d1112c98e4716e9be1055ea15a",
+      "bytes": 8477,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_command.json",
+      "sha256": "d73df953f15f6728f593b36a9ade7079cda0dfd0a3f92e878a970017cf127d02",
+      "bytes": 679,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "9a214cc3b0ad72e96e9c12604f34d31efebe51b2202338ed057c4f53e3d9b3ab",
+      "bytes": 18700,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_codex_stderr.log",
+      "sha256": "4bd6adbf1b71b2b176753cde4a32cacf72047daa10650c819099d102f0a1f0eb",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_codex_events.jsonl",
+      "sha256": "bc308f10aa95806df1d0dd6d4c7a0b2e87bb67e2dbd4b3cc692776430e0778f8",
+      "bytes": 18638,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_codex_last_message.txt",
+      "sha256": "c3dced9a8066b8ad002b8ed147da22d057ee65acf35cf0a1cc085e1e604c6a76",
+      "bytes": 6092,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_codex_trace.json",
+      "sha256": "981d0e54a61c1b80c2609ff4e2d3458b3ccb13f1ccd0f59ccdeb24efa41488ce",
+      "bytes": 508,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_stdout.txt",
+      "sha256": "c3dced9a8066b8ad002b8ed147da22d057ee65acf35cf0a1cc085e1e604c6a76",
+      "bytes": 6092,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/draft_stderr.txt",
+      "sha256": "70a8af494659bed26df1d57b44e198875de31488bca6790b738fb273f155e8ca",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_prompt.md",
+      "sha256": "1605cd9a73fed13176b4399c274f21ad26b6312475429a6e028f8ac8fdc6beb4",
+      "bytes": 8833,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_command.json",
+      "sha256": "5d7887757034c29f6b192a54cad7ef40f6e0d5bae50533efb073d4560b94d3ef",
+      "bytes": 675,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "a780ab518444160e59e17ccdfaed5cd665cd51c3c63f0aa665fcae792990a09a",
+      "bytes": 3214,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "5c5880f08398ad530dfc818b9411c5eee7056a1130f697aed9c192e6aa1a0b0f",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "1388f97527f1116c1b2e44ad7b10c167a0df966b8d3813ea1b7dd5f954198150",
+      "bytes": 3229,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "c3e91d1ec0c3d5856af53b007c4a3e60341c1f109a2b3987a80d34414cba6fbe",
+      "bytes": 1744,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "0f90b4b7ecc868022b986695c3670929fe2e545bb38f07f9378e29a105f4c0b8",
+      "bytes": 503,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "c3e91d1ec0c3d5856af53b007c4a3e60341c1f109a2b3987a80d34414cba6fbe",
+      "bytes": 1744,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "18f7acd59f8999ef78f243499f7114b5f9861971b8a6a8c326f132cb2d1e223d",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/revision_prompt.md",
+      "sha256": "5da216e54a5a887a18b70c7b94997d93c6088c6f199c0e776777646f60a13df1",
+      "bytes": 17249,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/command.json",
+      "sha256": "c5c0840ac6b8f9bcaef33a0213bf55a25a54de7a585b220344b558d03e326da4",
+      "bytes": 673,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/codex_stdout.jsonl",
+      "sha256": "929a5bea50c676f194067fa8d94db82c0b1a86ce7d9c8de08d83ab2a87145010",
+      "bytes": 7293,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/codex_stderr.log",
+      "sha256": "d702a40ec23bd730c5abb1d205327739efe2531bea0a95f01911ed8baf3c79d4",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/codex_events.jsonl",
+      "sha256": "b229920dbc8a79f46d721b97b99f7200992362e79a20e08be7278419ceb04454",
+      "bytes": 7315,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/codex_last_message.txt",
+      "sha256": "7ad611a163aa98539876a5925d05e325f0e34183c6003f341d107ff9029529c6",
+      "bytes": 6736,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/codex_trace.json",
+      "sha256": "90ec6e0e374f40d9aa4c4c600f72d2bad6e7c671f47c83490c2ee1578c2c6d0b",
+      "bytes": 505,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/stdout.txt",
+      "sha256": "7ad611a163aa98539876a5925d05e325f0e34183c6003f341d107ff9029529c6",
+      "bytes": 6736,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/stderr.txt",
+      "sha256": "7cb2facb517097950699efadd4a5c0ac379a47400248ad4d6ff0ec77cf9156ef",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/raw_response.txt",
+      "sha256": "7ad611a163aa98539876a5925d05e325f0e34183c6003f341d107ff9029529c6",
+      "bytes": 6736,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/parsed_cells.json",
+      "sha256": "e7f06d4dd709e9caf02ca8c8e9c206d57a86651f41f97ecb711ee8fd85e3b58a",
+      "bytes": 7606,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/normalized_cells.json",
+      "sha256": "12fb975b63fcc6210213285b6925b36f1a10562ef1b4742d71c6cf76835ba0d9",
+      "bytes": 24520,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/distribution.json",
+      "sha256": "27b31c8b2d20686f64d0ca94ddb60ff42e130a0294ce53a2f051c27fb5957f01",
+      "bytes": 13496,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/validation.json",
+      "sha256": "67f3479b2082a472db649c12bddb8ae5361bd917ec1e353f54f336c295c46537",
+      "bytes": 138,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/cells.with_activity.json",
+      "sha256": "0941c0077be5e459e604cb20cf36c856bb6bf99bc7c3b3d94efefe6bc20a3341",
+      "bytes": 42371,
+      "createdAt": "2026-07-10T04:37:15Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-37-15z-eurostat-unemployment-rate-2026-07/manifest.json",
+      "sha256": "2ef2d08cc6f417883948deb63521c7e4821de6670eb619d6500a78c3eca4b7fa",
+      "bytes": 17020,
+      "createdAt": "2026-07-10T04:37:15Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "euro-area-unemployment-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "6c6efd94516cf8916fe9cc5ad452e2a6fb3fbd877e7b600949cdf4db92d77423"
+}

@@ -1,0 +1,1219 @@
+[
+  {
+    "slug": "ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-june-2026",
+    "country": "UK",
+    "type": "data",
+    "title": "UK PSNB ex Banks, June 2026",
+    "question": "ONS PUSF series J5II, public sector net borrowing excluding public sector banks, current-price not seasonally adjusted monthly value for June 2026, first print",
+    "unit": "gbp_billions",
+    "pointEstimate": -26.2,
+    "ciLow": -32.5,
+    "ciHigh": -19.9,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-21",
+    "resolutionSource": "Office for National Statistics public sector finances release",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/economy/governmentpublicsectorandtaxes/publicsectorfinance/bulletins/publicsectorfinances/may2026",
+    "resolutionRule": "Resolve to the first official ONS print for PUSF time-series code J5II for 2026 JUN, converted from pounds millions to pounds billions by dividing by 1000, with no later revisions or same-day correction grace. The provided ledger URL points to the May 2026 bulletin even though the June 2026 observation should appear on the 21 July 2026 Public sector finances release surface; use the ledger URL if required by the catalog while resolving the first official J5II 2026 JUN value.",
+    "dataPointId": "ons.pusf.j5ii.public_sector_net_borrowing_ex_banks.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "latest_2026_may",
+        "value": -23.294
+      },
+      {
+        "label": "2025_jun",
+        "value": -23.878
+      },
+      {
+        "label": "2024_jun",
+        "value": -14.617
+      },
+      {
+        "label": "2023_jun",
+        "value": -19.085
+      },
+      {
+        "label": "2022_jun",
+        "value": -18.871
+      }
+    ],
+    "drivers": [
+      "May 2026 borrowing already much worse than May 2025",
+      "June same-month history has high debt-interest seasonality",
+      "RPI-linked gilt uplift keeps debt interest volatile",
+      "Tax receipts growth partly offsets higher spending",
+      "Ledger resolver URL appears one month early but target remains J5II June 2026 first print"
+    ],
+    "sourceContext": [
+      "https://www.ons.gov.uk/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/j5ii/pusf",
+      "https://www.ons.gov.uk/economy/governmentpublicsectorandtaxes/publicsectorfinance/bulletins/publicsectorfinances/may2026",
+      "https://www.ons.gov.uk/releasecalendar"
+    ],
+    "runAt": "2026-07-10T04:00:51Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for ONS J5II June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: target is ONS PUSF time-series J5II, labelled PS: Net Borrowing excluding public sector banks, pounds millions, CPNSA. The ONS bulletin chart refers to dataset identifier -J5II when presenting borrowing as a positive deficit, while the time-series page reports J5II itself as negative for recent deficit months; I forecast the ledger-bound J5II value in GBP billions. Ledger discrepancy: the supplied resolutionSourceUrl is the May 2026 bulletin, but the 2026 JUN first print should be in the next Public sector finances release on the verified next-release date."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened ONS J5II PUSF time-series page for latest official monthly values and next release field.",
+        "result": "Fetched ONS J5II values: 2026 APR -23033 \u00a3m, 2026 MAY -23294 \u00a3m, 2025 JUN -23878 \u00a3m, 2024 JUN -14617 \u00a3m, 2023 JUN -19085 \u00a3m; page showed release date 19 June 2026 and next release 21 July 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened ONS Public sector finances, UK: May 2026 bulletin for first-print May context and components.",
+        "result": "Fetched bulletin figures: borrowing was \u00a323.3 billion in May 2026, \u00a35.4 billion more than May 2025, and \u00a35.6 billion above the OBR forecast of \u00a317.7 billion; financial-year-to-May borrowing was \u00a346.3 billion, \u00a38.9 billion more than a year earlier."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read ONS May 2026 bulletin component tables for receipts, spending, debt interest, and OBR comparison.",
+        "result": "Fetched component figures: central government receipts were \u00a385.5 billion in May 2026, tax receipts \u00a363.7 billion, current expenditure \u00a395.7 billion, debt interest payable \u00a311.7 billion, and RPI-linked capital uplift added \u00a34.9 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the ONS release-calendar surface and the J5II page scheduling field for the relevant release timing.",
+        "result": "Fetched schedule numbers from ONS surfaces: release calendar page listed 8915 published results and 338 upcoming results; the J5II page gave next release 21 July 2026 after the 19 June 2026 release."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: use the same official, not-seasonally-adjusted J5II variant throughout. The recent same-month June reference class is 2021 -18.721, 2022 -18.871, 2023 -19.085, 2024 -14.617, and 2025 -23.878 GBP billions, averaging -19.034 GBP billions. That simple same-month persistence model is the chosen time-series prior; the outside view is less negative than the latest run-rate, so I update toward weaker 2026 fiscal conditions rather than using the catalog forecast as evidence."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the June 2021-2025 same-month mean of -19.034 GBP billions for J5II; same-month 2025 pull is -23.878 and Apr-May 2026 has deteriorated versus Apr-May 2025 by (-23.033 - -19.521) + (-23.294 - -17.857) = -8.949 GBP billions, or -4.475 per month. Adjustment components: -2.4 from last-year June/debt-interest seasonality, -3.6 from current FY overshoot and high May debt interest, and -1.2 from April-May deterioration and spending pressure after only partial receipts offset, giving -19.0 - 2.4 - 3.6 - 1.2 = -26.2. For the June 2021-2025 values themselves, sigma = 3.3 GBP billions, so 1.28*sigma = 4.2; I widen to 6.3 because the current RPI-linked debt-interest regime and local-government estimates are more volatile than the five-year same-month sample. Final 80% interval is -26.2 +/- 6.3 = [-32.5, -19.9]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk to borrowing, in the bulletin's positive-deficit language, would be another very large RPI-linked gilt uplift or weak receipts print and would land below the interval as a J5II value more negative than -32.5. Downside risk to borrowing would be stronger PAYE/VAT receipts, a smaller capital-uplift accrual, or local-government estimates closer to surplus, which would land above the interval as a J5II value less negative than -19.9. An outside the interval result is plausible mainly if debt-interest timing differs sharply from June 2025."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the coherence critique by relabelling the -1.2 component as an additional downside component after partial receipts offset, and accepted the resolver/prior clarity suggestions; no point or interval change was needed."
+      },
+      {
+        "kind": "forecast",
+        "point": -26.2,
+        "ciLow": -32.5,
+        "ciHigh": -19.9
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T00:00:00Z",
+    "runStartedAt": "2026-07-10T03:58:35Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -41.95,
+        "upper": -10.45
+      },
+      "points": [
+        {
+          "value": -41.95,
+          "probability": 0.0
+        },
+        {
+          "value": -41.7925,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -41.635,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -41.4775,
+          "probability": 0.005
+        },
+        {
+          "value": -41.32,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -41.1625,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -41.005,
+          "probability": 0.01
+        },
+        {
+          "value": -40.8475,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -40.69,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -40.5325,
+          "probability": 0.015
+        },
+        {
+          "value": -40.375,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -40.2175,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -40.06,
+          "probability": 0.02
+        },
+        {
+          "value": -39.9025,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -39.745,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -39.5875,
+          "probability": 0.025
+        },
+        {
+          "value": -39.43,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -39.2725,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -39.115,
+          "probability": 0.03
+        },
+        {
+          "value": -38.9575,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -38.8,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -38.6425,
+          "probability": 0.035
+        },
+        {
+          "value": -38.485,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -38.3275,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -38.17,
+          "probability": 0.04
+        },
+        {
+          "value": -38.0125,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -37.855,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -37.6975,
+          "probability": 0.045
+        },
+        {
+          "value": -37.54,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -37.3825,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -37.225,
+          "probability": 0.05
+        },
+        {
+          "value": -37.0675,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -36.91,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -36.7525,
+          "probability": 0.055
+        },
+        {
+          "value": -36.595,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -36.4375,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -36.28,
+          "probability": 0.06
+        },
+        {
+          "value": -36.1225,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -35.965,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -35.8075,
+          "probability": 0.065
+        },
+        {
+          "value": -35.65,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -35.4925,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -35.335,
+          "probability": 0.07
+        },
+        {
+          "value": -35.1775,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -35.02,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -34.8625,
+          "probability": 0.075
+        },
+        {
+          "value": -34.705,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -34.5475,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -34.39,
+          "probability": 0.08
+        },
+        {
+          "value": -34.2325,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -34.075,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -33.9175,
+          "probability": 0.085
+        },
+        {
+          "value": -33.76,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -33.6025,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -33.445,
+          "probability": 0.09
+        },
+        {
+          "value": -33.2875,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -33.13,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -32.9725,
+          "probability": 0.095
+        },
+        {
+          "value": -32.815,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -32.6575,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -32.5,
+          "probability": 0.1
+        },
+        {
+          "value": -32.3425,
+          "probability": 0.11
+        },
+        {
+          "value": -32.185,
+          "probability": 0.12
+        },
+        {
+          "value": -32.0275,
+          "probability": 0.13
+        },
+        {
+          "value": -31.87,
+          "probability": 0.14
+        },
+        {
+          "value": -31.7125,
+          "probability": 0.15
+        },
+        {
+          "value": -31.555,
+          "probability": 0.16
+        },
+        {
+          "value": -31.3975,
+          "probability": 0.17
+        },
+        {
+          "value": -31.24,
+          "probability": 0.18
+        },
+        {
+          "value": -31.0825,
+          "probability": 0.19
+        },
+        {
+          "value": -30.925,
+          "probability": 0.2
+        },
+        {
+          "value": -30.7675,
+          "probability": 0.21
+        },
+        {
+          "value": -30.61,
+          "probability": 0.22
+        },
+        {
+          "value": -30.4525,
+          "probability": 0.23
+        },
+        {
+          "value": -30.295,
+          "probability": 0.24
+        },
+        {
+          "value": -30.1375,
+          "probability": 0.25
+        },
+        {
+          "value": -29.98,
+          "probability": 0.26
+        },
+        {
+          "value": -29.8225,
+          "probability": 0.27
+        },
+        {
+          "value": -29.665,
+          "probability": 0.28
+        },
+        {
+          "value": -29.5075,
+          "probability": 0.29
+        },
+        {
+          "value": -29.35,
+          "probability": 0.3
+        },
+        {
+          "value": -29.1925,
+          "probability": 0.31
+        },
+        {
+          "value": -29.035,
+          "probability": 0.32
+        },
+        {
+          "value": -28.8775,
+          "probability": 0.33
+        },
+        {
+          "value": -28.72,
+          "probability": 0.34
+        },
+        {
+          "value": -28.5625,
+          "probability": 0.35
+        },
+        {
+          "value": -28.405,
+          "probability": 0.36
+        },
+        {
+          "value": -28.2475,
+          "probability": 0.37
+        },
+        {
+          "value": -28.09,
+          "probability": 0.38
+        },
+        {
+          "value": -27.9325,
+          "probability": 0.39
+        },
+        {
+          "value": -27.775,
+          "probability": 0.4
+        },
+        {
+          "value": -27.6175,
+          "probability": 0.41
+        },
+        {
+          "value": -27.46,
+          "probability": 0.42
+        },
+        {
+          "value": -27.3025,
+          "probability": 0.43
+        },
+        {
+          "value": -27.145,
+          "probability": 0.44
+        },
+        {
+          "value": -26.9875,
+          "probability": 0.45
+        },
+        {
+          "value": -26.83,
+          "probability": 0.46
+        },
+        {
+          "value": -26.6725,
+          "probability": 0.47
+        },
+        {
+          "value": -26.515,
+          "probability": 0.48
+        },
+        {
+          "value": -26.3575,
+          "probability": 0.49
+        },
+        {
+          "value": -26.2,
+          "probability": 0.5
+        },
+        {
+          "value": -26.0425,
+          "probability": 0.51
+        },
+        {
+          "value": -25.885,
+          "probability": 0.52
+        },
+        {
+          "value": -25.7275,
+          "probability": 0.53
+        },
+        {
+          "value": -25.57,
+          "probability": 0.54
+        },
+        {
+          "value": -25.4125,
+          "probability": 0.55
+        },
+        {
+          "value": -25.255,
+          "probability": 0.56
+        },
+        {
+          "value": -25.0975,
+          "probability": 0.57
+        },
+        {
+          "value": -24.94,
+          "probability": 0.58
+        },
+        {
+          "value": -24.7825,
+          "probability": 0.59
+        },
+        {
+          "value": -24.625,
+          "probability": 0.6
+        },
+        {
+          "value": -24.4675,
+          "probability": 0.61
+        },
+        {
+          "value": -24.31,
+          "probability": 0.62
+        },
+        {
+          "value": -24.1525,
+          "probability": 0.63
+        },
+        {
+          "value": -23.995,
+          "probability": 0.64
+        },
+        {
+          "value": -23.8375,
+          "probability": 0.65
+        },
+        {
+          "value": -23.68,
+          "probability": 0.66
+        },
+        {
+          "value": -23.5225,
+          "probability": 0.67
+        },
+        {
+          "value": -23.365,
+          "probability": 0.68
+        },
+        {
+          "value": -23.2075,
+          "probability": 0.69
+        },
+        {
+          "value": -23.05,
+          "probability": 0.7
+        },
+        {
+          "value": -22.8925,
+          "probability": 0.71
+        },
+        {
+          "value": -22.735,
+          "probability": 0.72
+        },
+        {
+          "value": -22.5775,
+          "probability": 0.73
+        },
+        {
+          "value": -22.42,
+          "probability": 0.74
+        },
+        {
+          "value": -22.2625,
+          "probability": 0.75
+        },
+        {
+          "value": -22.105,
+          "probability": 0.76
+        },
+        {
+          "value": -21.9475,
+          "probability": 0.77
+        },
+        {
+          "value": -21.79,
+          "probability": 0.78
+        },
+        {
+          "value": -21.6325,
+          "probability": 0.79
+        },
+        {
+          "value": -21.475,
+          "probability": 0.8
+        },
+        {
+          "value": -21.3175,
+          "probability": 0.81
+        },
+        {
+          "value": -21.16,
+          "probability": 0.82
+        },
+        {
+          "value": -21.0025,
+          "probability": 0.83
+        },
+        {
+          "value": -20.845,
+          "probability": 0.84
+        },
+        {
+          "value": -20.6875,
+          "probability": 0.85
+        },
+        {
+          "value": -20.53,
+          "probability": 0.86
+        },
+        {
+          "value": -20.3725,
+          "probability": 0.87
+        },
+        {
+          "value": -20.215,
+          "probability": 0.88
+        },
+        {
+          "value": -20.0575,
+          "probability": 0.89
+        },
+        {
+          "value": -19.9,
+          "probability": 0.9
+        },
+        {
+          "value": -19.7425,
+          "probability": 0.901666666667
+        },
+        {
+          "value": -19.585,
+          "probability": 0.903333333333
+        },
+        {
+          "value": -19.4275,
+          "probability": 0.905
+        },
+        {
+          "value": -19.27,
+          "probability": 0.906666666667
+        },
+        {
+          "value": -19.1125,
+          "probability": 0.908333333333
+        },
+        {
+          "value": -18.955,
+          "probability": 0.91
+        },
+        {
+          "value": -18.7975,
+          "probability": 0.911666666667
+        },
+        {
+          "value": -18.64,
+          "probability": 0.913333333333
+        },
+        {
+          "value": -18.4825,
+          "probability": 0.915
+        },
+        {
+          "value": -18.325,
+          "probability": 0.916666666667
+        },
+        {
+          "value": -18.1675,
+          "probability": 0.918333333333
+        },
+        {
+          "value": -18.01,
+          "probability": 0.92
+        },
+        {
+          "value": -17.8525,
+          "probability": 0.921666666667
+        },
+        {
+          "value": -17.695,
+          "probability": 0.923333333333
+        },
+        {
+          "value": -17.5375,
+          "probability": 0.925
+        },
+        {
+          "value": -17.38,
+          "probability": 0.926666666667
+        },
+        {
+          "value": -17.2225,
+          "probability": 0.928333333333
+        },
+        {
+          "value": -17.065,
+          "probability": 0.93
+        },
+        {
+          "value": -16.9075,
+          "probability": 0.931666666667
+        },
+        {
+          "value": -16.75,
+          "probability": 0.933333333333
+        },
+        {
+          "value": -16.5925,
+          "probability": 0.935
+        },
+        {
+          "value": -16.435,
+          "probability": 0.936666666667
+        },
+        {
+          "value": -16.2775,
+          "probability": 0.938333333333
+        },
+        {
+          "value": -16.12,
+          "probability": 0.94
+        },
+        {
+          "value": -15.9625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": -15.805,
+          "probability": 0.943333333333
+        },
+        {
+          "value": -15.6475,
+          "probability": 0.945
+        },
+        {
+          "value": -15.49,
+          "probability": 0.946666666667
+        },
+        {
+          "value": -15.3325,
+          "probability": 0.948333333333
+        },
+        {
+          "value": -15.175,
+          "probability": 0.95
+        },
+        {
+          "value": -15.0175,
+          "probability": 0.951666666667
+        },
+        {
+          "value": -14.86,
+          "probability": 0.953333333333
+        },
+        {
+          "value": -14.7025,
+          "probability": 0.955
+        },
+        {
+          "value": -14.545,
+          "probability": 0.956666666667
+        },
+        {
+          "value": -14.3875,
+          "probability": 0.958333333333
+        },
+        {
+          "value": -14.23,
+          "probability": 0.96
+        },
+        {
+          "value": -14.0725,
+          "probability": 0.961666666667
+        },
+        {
+          "value": -13.915,
+          "probability": 0.963333333333
+        },
+        {
+          "value": -13.7575,
+          "probability": 0.965
+        },
+        {
+          "value": -13.6,
+          "probability": 0.966666666667
+        },
+        {
+          "value": -13.4425,
+          "probability": 0.968333333333
+        },
+        {
+          "value": -13.285,
+          "probability": 0.97
+        },
+        {
+          "value": -13.1275,
+          "probability": 0.971666666667
+        },
+        {
+          "value": -12.97,
+          "probability": 0.973333333333
+        },
+        {
+          "value": -12.8125,
+          "probability": 0.975
+        },
+        {
+          "value": -12.655,
+          "probability": 0.976666666667
+        },
+        {
+          "value": -12.4975,
+          "probability": 0.978333333333
+        },
+        {
+          "value": -12.34,
+          "probability": 0.98
+        },
+        {
+          "value": -12.1825,
+          "probability": 0.981666666667
+        },
+        {
+          "value": -12.025,
+          "probability": 0.983333333333
+        },
+        {
+          "value": -11.8675,
+          "probability": 0.985
+        },
+        {
+          "value": -11.71,
+          "probability": 0.986666666667
+        },
+        {
+          "value": -11.5525,
+          "probability": 0.988333333333
+        },
+        {
+          "value": -11.395,
+          "probability": 0.99
+        },
+        {
+          "value": -11.2375,
+          "probability": 0.991666666667
+        },
+        {
+          "value": -11.08,
+          "probability": 0.993333333333
+        },
+        {
+          "value": -10.9225,
+          "probability": 0.995
+        },
+        {
+          "value": -10.765,
+          "probability": 0.996666666667
+        },
+        {
+          "value": -10.6075,
+          "probability": 0.998333333333
+        },
+        {
+          "value": -10.45,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": -26.2,
+        "median": -26.2,
+        "interval80": {
+          "lower": -32.5,
+          "upper": -19.9
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/prompt.md",
+        "sha256": "70423d22baca557f8399e23e84b0eb51f55c768e4c3aee283b71dd545f10b871",
+        "bytes": 8774,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_command.json",
+        "sha256": "008fbfc284501decac9d99677ca7efef7a3019bfae38af61afafd63f5055d7ff",
+        "bytes": 703,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "ab14f4afd1e8262a7ee3e4df3f025600ff4a0da534d70b4d8641801dd60f7993",
+        "bytes": 12329,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_stderr.log",
+        "sha256": "6f337cdbc74367910a79ee702cf487a810ecc117809686afbc7ed868b4a032f3",
+        "bytes": 233,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_events.jsonl",
+        "sha256": "dbb80de268bedc320dce16f1f073d3e80e310b4b6eb4e0a12ac3ee4da727981c",
+        "bytes": 12383,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_last_message.txt",
+        "sha256": "693a3bcf5f74e30ee97da0b36a9fa3a89eadd03c849f7b7ad6824aa2a0cea961",
+        "bytes": 6364,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_trace.json",
+        "sha256": "1f254f792b733f2c0aa442c620f1cb9f5eedeb17d777ad57eeb5eab9dc93f1b0",
+        "bytes": 508,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_stdout.txt",
+        "sha256": "693a3bcf5f74e30ee97da0b36a9fa3a89eadd03c849f7b7ad6824aa2a0cea961",
+        "bytes": 6364,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_stderr.txt",
+        "sha256": "bb477a045628d9512e9027e42a60fc79cf1697c8136b8c931d3b85f7f4c4d687",
+        "bytes": 248,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_prompt.md",
+        "sha256": "d7a26936207855af206a36644105129f5e832a124a129900328fe6c638227893",
+        "bytes": 9366,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_command.json",
+        "sha256": "103a04642343f0dc60ef1768d6356d52c3c55e60b550e58202c0c4a81f86cf7d",
+        "bytes": 699,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "5c18a6a0d7888712fb8c294312b0758130b06d00d4237f6586ab9da93313dd53",
+        "bytes": 3133,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "99bb0d46e3bc11a521bedec3f73b371b2e88d96bab7a01f8dc303da2c89c9fef",
+        "bytes": 233,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "5ee16a15e1e45d2c16639c991a857ca4d2454f53c975e4e377f724ed5d833d79",
+        "bytes": 3141,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "f2a4c17cda91f1ecec4ade03254d9e5fe7b0dd6400d6d13c729333b20271b253",
+        "bytes": 1008,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "eb2555366b5432ff9976872364731d6cabb44367326c7eb6f90ed140e518f9bf",
+        "bytes": 507,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "f2a4c17cda91f1ecec4ade03254d9e5fe7b0dd6400d6d13c729333b20271b253",
+        "bytes": 1008,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "f9ab7bb2bff3e765ac7890c94cf69a7d6946edd030bad89c4334a4121ee1aee6",
+        "bytes": 248,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/revision_prompt.md",
+        "sha256": "25561fd7eaea85418164a6ac20c1e27e949215f619fb1a403ce77df37751f281",
+        "bytes": 17082,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/command.json",
+        "sha256": "c8430d2dc5d7a7b55ab1f5970e5ee9f47dec0b2134f28525e0ed7051df860502",
+        "bytes": 697,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_stdout.jsonl",
+        "sha256": "cb3158f94da0e5a60d34da99b344d7b18090d1063001af318212cc5d8089209b",
+        "bytes": 7247,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_stderr.log",
+        "sha256": "5e852797a660c4e0ab137c3911a70f2c48357839e1b27c2a73091cb2e7a98449",
+        "bytes": 233,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_events.jsonl",
+        "sha256": "8eea8d6c85181a22366acd2f885a476a83555d73420cffa092afcc12955fdfe2",
+        "bytes": 7333,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_last_message.txt",
+        "sha256": "5af7994bcf0dceb7e4a7b316e852c879f8befab83329de3e471a86695d13b6c0",
+        "bytes": 6696,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_trace.json",
+        "sha256": "a01c1a11b4a8d0034bd534636563d151be03097e6a06020837853b9313622d5b",
+        "bytes": 505,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/stdout.txt",
+        "sha256": "5af7994bcf0dceb7e4a7b316e852c879f8befab83329de3e471a86695d13b6c0",
+        "bytes": 6696,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/stderr.txt",
+        "sha256": "7e0bf24c60b43c45924e4c8cc40db84f14c489893c3b845c5759794ee7598688",
+        "bytes": 248,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/raw_response.txt",
+        "sha256": "5af7994bcf0dceb7e4a7b316e852c879f8befab83329de3e471a86695d13b6c0",
+        "bytes": 6696,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/parsed_cells.json",
+        "sha256": "05ea91dd80fe28734526cb47e1608c7b83069c6c0838f2af2d22a97ebbaceec0",
+        "bytes": 7609,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/normalized_cells.json",
+        "sha256": "85e00514a3afff9985094cc38e6c084356a128a40b0f0a21eda15c6d6492ef9b",
+        "bytes": 24937,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/distribution.json",
+        "sha256": "082e7a4a69e44eff02784cf9d27a253877ae3d368c05426fe0921310a5ae61d0",
+        "bytes": 13910,
+        "createdAt": "2026-07-10T03:58:35Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/validation.json",
+        "sha256": "9efc621a1ec0c97b70f7640fd87e74383e5eabdc2137110b01e712721f5e3017",
+        "bytes": 161,
+        "createdAt": "2026-07-10T03:58:35Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T03:58:35Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "966dbdaf86003e6972abac1a49ce8d4ae056077a1326dcadbde29c4d0a7a2cff"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-58-35z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The prior/update math labels the -1.2 component as a partial offset for receipts growth and mean reversion, but applies it as a further negative adjustment: -19.0 - 2.4 - 3.6 - 1.2 = -26.2.",
+          "actionRequested": "Either relabel the -1.2 as an additional downside component or change it to a positive offset and recompute the point estimate and interval around the new point."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the resolver text, make the ledger discrepancy even more explicit by saying publication should use the ledger URL if required by the catalog, while the June 2026 first print is expected on the 21 July 2026 release surface."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Add one short phrase that the simple same-month/persistence model is the chosen time-series prior, so rubric item 3 is unambiguous."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the coherence critique by relabelling the -1.2 component as an additional downside component after partial receipts offset, and accepted the resolver/prior clarity suggestions; no point or interval change was needed.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the coherence critique by relabelling the -1.2 component as an additional downside component after partial receipts offset, and accepted the resolver/prior clarity suggestions; no point or interval change was needed.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the coherence critique by relabelling the -1.2 component as an additional downside component after partial receipts offset, and accepted the resolver/prior clarity suggestions; no point or interval change was needed.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable after a small coherence cleanup: resolver, evidence, prior, interval, tails, and JSON fields are mostly aligned with the target contract."
+    }
+  }
+]

@@ -1,0 +1,370 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T04:03:09Z",
+  "series": "statcan.lfs.employment_change.canada",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "statcan-lfs-employment-change-canada-june-2026",
+    "country": "CA",
+    "dataPointId": "statcan.lfs.employment_change.canada.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T00:00:00Z",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+    "series": "statcan.lfs.employment_change.canada",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www150.statcan.gc.ca"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-09",
+        "start": "2026-07-01"
+      },
+      "field": "official_release:statcan:dq260605a:employment_change",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "statcan.lfs.employment_change",
+      "sourceUrl": "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "table": "Labour Force Survey, May 2026",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "13e96b2f78d91f2402320775746cfd728f67381dce37b02f195d5782197aa32e",
+    "targetRegistrationPath": "records/targets/2026-07-10-13e96b2f78d91f2402320775746cfd728f67381dce37b02f195d5782197aa32e.json",
+    "targetUnit": "thousands",
+    "valueScale": 1.0
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T04:03:09Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "ff329865592c51f5ab4133f38ca0c2996c93115021bd0b97a8046830d787b48a"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft JSON sets resolutionDate to 2026-07-10 and resolutionSourceUrl to the June 2026 Daily page, while the canonical ledger contract supplied for this review gives resolutionSourceUrl as the 2026-06-05 May 2026 page and sourceBinding text/table for May 2026.",
+        "actionRequested": "Either align the JSON resolver fields to the canonical ledger exactly, or explicitly route this back as a ledger correction before publication; do not publish a cell whose resolver fields conflict with the catalog contract."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add the implied 80% bounds directly in the final forecast prose as -62 to 92 thousand, not only in the math block and JSON."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that the July 10, 2026 run time is before the official release time, if known, to make non-leakage clearer."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the ledger conflict must be explicit, but rejected replacing the June 2026 first-print resolver with the May 2026 URL because that would make the cell resolve the wrong period; the forecast remains tied to the supplied slug, unit, and dataPointId while documenting the ledger URL discrepancy.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the ledger conflict must be explicit, but rejected replacing the June 2026 first-print resolver with the May 2026 URL because that would make the cell resolve the wrong period; the forecast remains tied to the supplied slug, unit, and dataPointId while documenting the ledger URL discrepancy.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the ledger conflict must be explicit, but rejected replacing the June 2026 first-print resolver with the May 2026 URL because that would make the cell resolve the wrong period; the forecast remains tied to the supplied slug, unit, and dataPointId while documenting the ledger URL discrepancy.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publishable, with one blocking target-contract mismatch around resolver fields versus the canonical ledger."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/prompt.md",
+      "sha256": "ea0813c24d6679e08d318a88e41588867a42c15841f899fc7a7b2251feba73b9",
+      "bytes": 8596,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_command.json",
+      "sha256": "98cf09b66bf58fa6b865904e1271c5a64e2231f4d821cbb55df829c5ae4a1e65",
+      "bytes": 689,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "e6be5ef041ad48dda87c6acb34f614b792b0e3f71d9d3b6aa9846d7e4c4b4e58",
+      "bytes": 16365,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_codex_stderr.log",
+      "sha256": "b7daaf745807e347fd943f487651fb890a57605f761786e0b1605b580e324338",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_codex_events.jsonl",
+      "sha256": "6c73a8744580b9925caf9588e967b62b7a6c66e8f7d7db9501e2df7f597b92a6",
+      "bytes": 16306,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_codex_last_message.txt",
+      "sha256": "e8c95ea6c7cce74871c99d91144dd3a259db9b4c5e63ff6c7a4c875eff0c09dd",
+      "bytes": 7141,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_codex_trace.json",
+      "sha256": "7d4da3edb09e0eff17d121c8e1423af84a1d1e7a0e576bf395f82c0919458a3b",
+      "bytes": 507,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_stdout.txt",
+      "sha256": "e8c95ea6c7cce74871c99d91144dd3a259db9b4c5e63ff6c7a4c875eff0c09dd",
+      "bytes": 7141,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/draft_stderr.txt",
+      "sha256": "d824921e66b2c4059365d446c6236543ea8e8de3e7a406e8ed957f79d1ae1af4",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_prompt.md",
+      "sha256": "034e3392291d15c6c08c97b424ac66571da22ef2ab3678ea59d8616c3722e437",
+      "bytes": 10013,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_command.json",
+      "sha256": "f492a031e45265d14389a4ea37516e78ac04df1d67ad5a953fe9b892917ab4cd",
+      "bytes": 685,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "489c2885d3032cfac62070741faa23b91a5725ed810e4e2954f672db38bd6068",
+      "bytes": 1333,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "0540c1ac0f19a26b45dc227550cf26da5bf5bfcef3b1b5d0c85a2bff477219bd",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "906b2f6fd2b59f4d1b9c133f1a780ddfda14a5c372186e48a17447517c25353b",
+      "bytes": 1355,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "20661dc0f2caa6b80fcc2a252f02465242193a8917bc8482c6824f96c04482a0",
+      "bytes": 991,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "7c76ed6e3eeef38f86be0309d8ba04f2bdc1c09c03278b805567ef685ca3a05a",
+      "bytes": 501,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "20661dc0f2caa6b80fcc2a252f02465242193a8917bc8482c6824f96c04482a0",
+      "bytes": 991,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "e3f82f80acd01e855bc57b2fd1011cd0e1683a2fbf6c72bae3e389eeea65eb18",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/revision_prompt.md",
+      "sha256": "73a55aeed329cd57b9cf54f5a39462288f0e11b5625ad5e6ebdb903ba51f0323",
+      "bytes": 17664,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/command.json",
+      "sha256": "a893b933ffbc172c51efe885308d5e45ba401eab324684c5df23698d8d90a633",
+      "bytes": 683,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/codex_stdout.jsonl",
+      "sha256": "8a88a27984f801f8a2f2bcc8c4a62db82aae9dd73b2c553b2071691eb068a14d",
+      "bytes": 8102,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/codex_stderr.log",
+      "sha256": "28b9df234ebbd1788028cb3b67f6da4b41e7a294bc7211bfc30b88995e00c48b",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/codex_events.jsonl",
+      "sha256": "0fbcc3318948acc2b207060983bb3ed306e9d8f6963146ff43fc8bf7fbd2f8c0",
+      "bytes": 8124,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/codex_last_message.txt",
+      "sha256": "52166a47a036c10d4684bbebd91b90769bd3fee0359642a94282e749c340fb49",
+      "bytes": 7519,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/codex_trace.json",
+      "sha256": "b0d8d95098a5c8becbcdb833e75ae420879ec77bb5d8244d99c4c3ab8ccd64c9",
+      "bytes": 505,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/stdout.txt",
+      "sha256": "52166a47a036c10d4684bbebd91b90769bd3fee0359642a94282e749c340fb49",
+      "bytes": 7519,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/stderr.txt",
+      "sha256": "883cf5869e11dc2d60231f15370ef59710d7474ff302ad860c0f9570b58e01ee",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/raw_response.txt",
+      "sha256": "52166a47a036c10d4684bbebd91b90769bd3fee0359642a94282e749c340fb49",
+      "bytes": 7519,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/parsed_cells.json",
+      "sha256": "574516b1fb15a9842413163bb7d954124194217af40a1b28ecda31045c5ef0c5",
+      "bytes": 8499,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/normalized_cells.json",
+      "sha256": "b70b418e9918a9a2d582e67e43c172cea67dce80ae0ef8aab065f11927775821",
+      "bytes": 25598,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/distribution.json",
+      "sha256": "bd1b740e5a390379e89f00bec002877d35c5674078a2e7ccab1fd9bbe668f8e0",
+      "bytes": 13681,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/validation.json",
+      "sha256": "ce24cca737e742a6db935bb9ddea9c2dd72993a3035995dae559fb1ea65feaa6",
+      "bytes": 147,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/cells.with_activity.json",
+      "sha256": "37f0b33f9bf1d3fe79d44b82c4bb3b1ec40bd3c4284b430f63e8a1e88435f028",
+      "bytes": 40768,
+      "createdAt": "2026-07-10T04:03:09Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-03-09z-statcan-lfs-employment-change-canada-2026-06/manifest.json",
+      "sha256": "445cabe113603963adbc390921d898fc1c904fd9f168b3b9035cac9f3da8c91f",
+      "bytes": 14945,
+      "createdAt": "2026-07-10T04:03:09Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "statcan-lfs-employment-change-canada-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "205ac1608d4c0c7ddee65ea1e0a73b9750cf414341e32ebf9d52359c785bf09f"
+}

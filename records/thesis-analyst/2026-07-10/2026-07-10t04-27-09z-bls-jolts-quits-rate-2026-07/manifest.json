@@ -1,0 +1,368 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T04:27:09Z",
+  "series": "bls.jolts.quits_rate",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "jolts-quits-rate-july-2026",
+    "dataPointId": "bls.jolts.quits_rate.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-10T00:00:00Z",
+    "registrationState": "preregistered",
+    "series": "bls.jolts.quits_rate",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-08",
+        "start": "2026-08-31"
+      },
+      "field": "bls.jolts.quits_rate",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.jolts.quits_rate",
+      "sourceUrl": "https://www.bls.gov/news.release/jolts.t04.htm",
+      "table": "U.S. Bureau of Labor Statistics Job Openings and Labor Turnover Survey Table 4",
+      "transform": {
+        "factor": 1.0,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279",
+    "targetRegistrationPath": "records/targets/2026-07-10-e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279.json",
+    "targetUnit": "percent",
+    "valueScale": 1.0
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T04:27:09Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "0f766bedefc8eaaa0734921dbfcee3d3dba408bf80d64dafba723edd38ee3d18"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval uses only four changes, including a May 2025 to February 2026 gap treated like a one-month move, and does not adjust for the May-to-July forecast horizon.",
+        "actionRequested": "Recompute or justify the interval using a contiguous monthly realized-volatility sample, or explicitly state why the sparse/non-contiguous sample and one-step half-width are adequate for July 2026."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that the BLS schedule currently lists July 2026 JOLTS for September 1, 2026 at 10:00 AM and that later schedule changes should not alter the first-print target unless the official release date changes before publication."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the persistence prior is being used as the time-series model prior, since no separate model is estimated."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by switching the volatility calculation to the contiguous Jan-May 2026 monthly sample and scaling it for the two-month May-to-July forecast horizon; accepted the clarification that persistence is the time-series prior and that the BLS schedule currently lists Sep. 01, 2026 at 10:00 AM for the July 2026 release.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by switching the volatility calculation to the contiguous Jan-May 2026 monthly sample and scaling it for the two-month May-to-July forecast horizon; accepted the clarification that persistence is the time-series prior and that the BLS schedule currently lists Sep. 01, 2026 at 10:00 AM for the July 2026 release.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by switching the volatility calculation to the contiguous Jan-May 2026 monthly sample and scaling it for the two-month May-to-July forecast horizon; accepted the clarification that persistence is the time-series prior and that the BLS schedule currently lists Sep. 01, 2026 at 10:00 AM for the July 2026 release.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Publishable after tightening the uncertainty justification; the resolver, first-print rule, date, unit, and JSON fields are otherwise coherent with the ledger target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/prompt.md",
+      "sha256": "650c0538ee3ed5cedbdc39800ebeead6dd73bc99d3bc6bdb6caa8e81c5179db3",
+      "bytes": 8540,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_command.json",
+      "sha256": "beec3c9f9de3deb7615825898e0b5be84292fd444ffa2084f963e12005b22283",
+      "bytes": 673,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "ba2ca5048dc301edd18dac7a91ba36cbe7abd29c99cb2d4b5d77934737d02d3a",
+      "bytes": 11380,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_stderr.log",
+      "sha256": "f9a4d80769b02a2b856c0b892e649109f4e108363928624ed217da2c9f55172d",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_events.jsonl",
+      "sha256": "f5ae3d96c1ac496abcb05b8c2854ae94dd1a8e3f10cc0057445b2f4c651cf728",
+      "bytes": 11340,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_last_message.txt",
+      "sha256": "6d47b235dec97e548a7ddc3a2c43d46fe4d19bdc78d15aeaf1f2c2ef37f3f1d7",
+      "bytes": 4656,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_trace.json",
+      "sha256": "d1e93690bf33ea6e76a83803b78d72476eda3c951806d3856ace34eba119e1d1",
+      "bytes": 508,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_stdout.txt",
+      "sha256": "6d47b235dec97e548a7ddc3a2c43d46fe4d19bdc78d15aeaf1f2c2ef37f3f1d7",
+      "bytes": 4656,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_stderr.txt",
+      "sha256": "406e8907fec559f3a1b6f7ce3b2d815d2da43951553a0230df283e5e2c6c69b3",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_prompt.md",
+      "sha256": "591de39a23ea70afcecc2ff6771fff722d4ec8361fddfb7e9ea5665ccb369600",
+      "bytes": 7349,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_command.json",
+      "sha256": "658e562263f00bfa032ab1b4fd4e0c30e446ee5715993fc8962b44448ac19c7b",
+      "bytes": 669,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "082a11e68a45f8b4d118611a841b8fec19161d659dd74a8e7ed3282882f8f07f",
+      "bytes": 2628,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "a545b88b5182900454a557e6e4983c1d8184dffd12631d016a9f14e901071e1b",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "0d91bd30bf5f3bc0be6e2fb12ad81bc848acd4d957755252b5229a3e241da6df",
+      "bytes": 2656,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "4c6da9e01a48f2271d1951050f73e5a90c2c8613e2505f622dce8f7ff8deea42",
+      "bytes": 1097,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "078be9ab1cafc01bf0eeae80c4c6503b1000df613ee24682a40ac5dcd6e90b70",
+      "bytes": 502,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "4c6da9e01a48f2271d1951050f73e5a90c2c8613e2505f622dce8f7ff8deea42",
+      "bytes": 1097,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "afab143417eaf0202aba484eb600cdb11345716565958afa14252ba9aa4be594",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/revision_prompt.md",
+      "sha256": "9f49ca06d320e8538faca4a31422d6610b24e0dd63fb24a73f1c7988fa662987",
+      "bytes": 15229,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/command.json",
+      "sha256": "db32ab818c0e3d64e8333befb7dc8bda47d0144e35354c37a7a8c95e4d474aad",
+      "bytes": 667,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_stdout.jsonl",
+      "sha256": "ee6ac9d9a3641d851d5574a3ab0cdf52483fc8e13b4b10f012c769fdc9289a5c",
+      "bytes": 5846,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_stderr.log",
+      "sha256": "0fe6d2db8b2f1a0553af2c1923baeb4d9ce786f33b4f8540150e27b7e57e4419",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_events.jsonl",
+      "sha256": "c3b36825d55d06ccd1597496e792565fd50cc6c60bb672f2e3e1de758bbdbb8a",
+      "bytes": 5868,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_last_message.txt",
+      "sha256": "6c82981c33b33c1d0fcbb07f176966512d6596857b29bc8eaac0373d39d69dc6",
+      "bytes": 5307,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_trace.json",
+      "sha256": "2a16e0921b6ea653e672d47708cca74b703b1d9b9a85c39706577277fa257cc1",
+      "bytes": 501,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/stdout.txt",
+      "sha256": "6c82981c33b33c1d0fcbb07f176966512d6596857b29bc8eaac0373d39d69dc6",
+      "bytes": 5307,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/stderr.txt",
+      "sha256": "4b8e07989737a6119a707127233636c9cd7d2b6f7188a5de09855630cfd6b6a1",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/raw_response.txt",
+      "sha256": "6c82981c33b33c1d0fcbb07f176966512d6596857b29bc8eaac0373d39d69dc6",
+      "bytes": 5307,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/parsed_cells.json",
+      "sha256": "a1cf67f76ab6165df80c32b4e901f5ace5f5bc683d9ecc7dfd12fc32ae86a88b",
+      "bytes": 6143,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/normalized_cells.json",
+      "sha256": "fe3f955ebc744a5c5681101375b06a17f1881e40a46930898488be24fe11d2f4",
+      "bytes": 23103,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/distribution.json",
+      "sha256": "4692224a865e7d6eb536c6529358b0d24f659dc66753093a59a10dd981bfa96d",
+      "bytes": 13542,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/validation.json",
+      "sha256": "745441ca80bfa5f08887aba33515ec68d60ef370b52842b9b393502768003ac4",
+      "bytes": 127,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/cells.with_activity.json",
+      "sha256": "8a89471d728782b91eaad778b4b8176e5eac9fbd10b10b59fb885b2d3bf24b16",
+      "bytes": 37821,
+      "createdAt": "2026-07-10T04:27:09Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/manifest.json",
+      "sha256": "f68c80c4dfdf8315505b7e90fc75e58c84e64a187a75016ac6bb1691a42716b9",
+      "bytes": 14230,
+      "createdAt": "2026-07-10T04:27:09Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "jolts-quits-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "7e7cc9250e9b72c356aed3fc11c2507a142b5bdf4acd0df5bf32ac7ef6f73a82"
+}

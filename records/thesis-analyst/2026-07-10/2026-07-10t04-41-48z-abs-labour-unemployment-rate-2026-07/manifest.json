@@ -1,0 +1,368 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T04:41:48Z",
+  "series": "abs.labour.unemployment_rate",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "australia-unemployment-rate-july-2026",
+    "dataPointId": "abs.labour.unemployment_rate.australia.july_2026.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-10T00:00:00Z",
+    "registrationState": "preregistered",
+    "series": "abs.labour.unemployment_rate",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.abs.gov.au"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-27",
+        "start": "2026-08-19"
+      },
+      "field": "abs.labour.unemployment_rate",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "abs.labour.unemployment_rate",
+      "sourceUrl": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+      "table": "Australian Bureau of Statistics Labour Force, Australia, June 2026",
+      "transform": {
+        "factor": 1.0,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279",
+    "targetRegistrationPath": "records/targets/2026-07-10-e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279.json",
+    "targetUnit": "percent",
+    "valueScale": 1.0
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T04:41:48Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "2f0c5131321c2e9af6d91931f6b1fabf187bd63b4b6903ffd3ab650642c400c5"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "Canonical sourceBinding.table says \"Labour Force, Australia, June 2026\" while the target, dataPointId, release schedule, and draft resolver all point to July 2026 first print.",
+        "actionRequested": "Add a brief reasoning note that the ledger table label appears to be a month typo and that the forecast remains tied to the July 2026 first-print unemployment-rate target."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the July reference week was still in progress at run time on 2026-07-10, so the outcome was only partly fixed rather than fully observed."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If space allows, show or cite the full Jun 2024-May 2026 monthly-change sample behind the 0.13 ppt volatility estimate."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by explicitly flagging the June-vs-July ledger table-label discrepancy while preserving the July 2026 first-print target; accepted the timing clarification that the July reference week was still partly in progress at run time. Rejected adding a full volatility sample because the existing fetched history and sigma arithmetic are sufficient for this fast public-release record.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by explicitly flagging the June-vs-July ledger table-label discrepancy while preserving the July 2026 first-print target; accepted the timing clarification that the July reference week was still partly in progress at run time. Rejected adding a full volatility sample because the existing fetched history and sigma arithmetic are sufficient for this fast public-release record.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by explicitly flagging the June-vs-July ledger table-label discrepancy while preserving the July 2026 first-print target; accepted the timing clarification that the July reference week was still partly in progress at run time. Rejected adding a full volatility sample because the existing fetched history and sigma arithmetic are sufficient for this fast public-release record.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready, but it should explicitly flag the ledger/sourceBinding table-month discrepancy before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/prompt.md",
+      "sha256": "a8d408690cbd533bda01620aa1c7afdc197f26b6f3739e6d329028d4ef16e57e",
+      "bytes": 8527,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_command.json",
+      "sha256": "a5e051438e87184d5468c517f98cc8a062a93078ebb9ab0d78315da6691925e6",
+      "bytes": 681,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "a5dbf8c218a97125e2b90c612d39b652a54ea56f7627fdb32b5c459b1d963fd5",
+      "bytes": 14203,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_stderr.log",
+      "sha256": "d87d6f9310de8baee053d982617c5a5ab5582cc3c28ac49baff5947e302a842a",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_events.jsonl",
+      "sha256": "8ae5d5d87821a17ec20c86366047a667bc34b672447f4f34e63776cab253fec9",
+      "bytes": 14167,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_last_message.txt",
+      "sha256": "4ed8e1194ed297c82f5e246727d58324292861fa7deaad166ba9f82b28ea873d",
+      "bytes": 5917,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_trace.json",
+      "sha256": "9325e3608bf0a27229b8717bcf6d62db6110bc313db8b36f7827930375ad1ac7",
+      "bytes": 508,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_stdout.txt",
+      "sha256": "4ed8e1194ed297c82f5e246727d58324292861fa7deaad166ba9f82b28ea873d",
+      "bytes": 5917,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_stderr.txt",
+      "sha256": "c02da6f65a38de6990a1bbe7cff9762bb4df77891d173a852d152c16ba28d359",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_prompt.md",
+      "sha256": "22b8df0bfc3d5381cd2080076deacd09f4eed358795f4bac14b1103af949145d",
+      "bytes": 8716,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_command.json",
+      "sha256": "09933dd7b37c87532c019928e57400e8a8e27ef30845ca4b724f983657ed5a54",
+      "bytes": 677,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "c49c9200936dfd1f2c3f4bd76e7087feacb634d804af943d410b6ca0e2f48338",
+      "bytes": 1243,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "c34bc05a61c1f07b3cb6ca883fbba5081a16f4618ddfece24c8076a88bcf0a37",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "22a961cd4b631f384471dc44b9c71665a0f6759bb66dad773f9a49e6373eb956",
+      "bytes": 1265,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "44e09800a5a3b14ef3705550789d4e0911352306b7c286e31be9b7c02ba33174",
+      "bytes": 893,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "ef5d23d725108f5eae8945fdd2e78be1e205a7b01803a58948204ed3671be2d8",
+      "bytes": 505,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "44e09800a5a3b14ef3705550789d4e0911352306b7c286e31be9b7c02ba33174",
+      "bytes": 893,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "13c0eb287dcb56feb92c629cf6d3b5b3d5684d4823f9014cc0b19968127e50b1",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/revision_prompt.md",
+      "sha256": "5790d22da8ff5ed2dea8674479b693d71c87bad07b0e20d4776c93c7bb9fdd39",
+      "bytes": 16273,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/command.json",
+      "sha256": "64ac93868f9de2f0d564c83cad717d7f7aab7333e7ea2636f1dfcea8fa546e6b",
+      "bytes": 675,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_stdout.jsonl",
+      "sha256": "4051a63c9384ff0fae25a3153eba9743265e2cc16b9989fb0547f30fdbf47882",
+      "bytes": 7303,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_stderr.log",
+      "sha256": "75cafb352cd8cb3c276afc99a47825e59dc7f2b69e3a2028943f61058d9f5894",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_events.jsonl",
+      "sha256": "cb215e42813c10fae4ad188935f349e9cf5fd387788eb94b349053a354b2f41e",
+      "bytes": 7325,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_last_message.txt",
+      "sha256": "49b8ca870144df02c7e3caf151aa5820fbf193052053f19e130135b8a09bbb01",
+      "bytes": 6749,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_trace.json",
+      "sha256": "210db855e4ad5f05256cf24119395b8f692f73546b1a87b267a4d1492de9439c",
+      "bytes": 500,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/stdout.txt",
+      "sha256": "49b8ca870144df02c7e3caf151aa5820fbf193052053f19e130135b8a09bbb01",
+      "bytes": 6749,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/stderr.txt",
+      "sha256": "a61ce4a6abece846c6c88bf46276e350ab3e70883f9c229082fd3761d1beeb3d",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/raw_response.txt",
+      "sha256": "49b8ca870144df02c7e3caf151aa5820fbf193052053f19e130135b8a09bbb01",
+      "bytes": 6749,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/parsed_cells.json",
+      "sha256": "127461f7e20b1d0864eecd1db534b12c0fa8c830a3c9134a9e157f6c7ed73635",
+      "bytes": 7632,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/normalized_cells.json",
+      "sha256": "89548f2c7a511561e747697df7c08418a77754cb01b31f575ac80791cf0bd37c",
+      "bytes": 24388,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/distribution.json",
+      "sha256": "eab13e7a0d14ccd7a85b4a90702ac533fb013c318b09343692d86e3bdb595e54",
+      "bytes": 13338,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/validation.json",
+      "sha256": "d992a16dab74b06a17a0cd445657f234aeced7707f83e5b2b4275384e72e08a6",
+      "bytes": 138,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/cells.with_activity.json",
+      "sha256": "bc29ccd7190bea34d7592f4d684e9801125c50001e5f56c4de181bcc4cefcbf2",
+      "bytes": 39446,
+      "createdAt": "2026-07-10T04:41:48Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/manifest.json",
+      "sha256": "825d0c5cb5d5156bd72b10774a3ee4796753cb5c2ba1a140c8367cc718e01de0",
+      "bytes": 14711,
+      "createdAt": "2026-07-10T04:41:48Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "australia-unemployment-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "fbeddd1e8c7765df73f4dbaedb9e842c7d1db1db90105f3a9127b0504e76f022"
+}

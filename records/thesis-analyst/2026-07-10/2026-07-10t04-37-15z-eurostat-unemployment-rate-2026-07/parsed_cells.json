@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "euro-area-unemployment-rate-july-2026",
+    "country": "EA",
+    "type": "data",
+    "title": "Euro Area Unemployment Rate, July 2026",
+    "question": "Eurostat une_rt_m euro area seasonally adjusted total unemployment rate, age 15-74, July 2026 first print",
+    "unit": "percent",
+    "pointEstimate": 6.2,
+    "ciLow": 6.1,
+    "ciHigh": 6.3,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-01",
+    "resolutionSource": "Eurostat euro-indicators unemployment release and une_rt_m data table",
+    "resolutionSourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en",
+    "resolutionRule": "Resolve to the first Eurostat-published July 2026 euro area seasonally adjusted unemployment rate in dataset une_rt_m for geo=Euro area, sex=total, age=15-74, unit=percent of labour force. Use the one-decimal first print in the Eurostat euro-indicators unemployment release or data page; ignore later revisions.",
+    "dataPointId": "eurostat.unemployment_rate.euro_area.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 latest euro area SA unemployment rate",
+        "value": 6.2
+      },
+      {
+        "label": "Apr 2026 euro area SA unemployment rate",
+        "value": 6.2
+      },
+      {
+        "label": "Mar 2026 euro area SA unemployment rate",
+        "value": 6.3
+      },
+      {
+        "label": "Feb 2026 euro area SA unemployment rate",
+        "value": 6.4
+      },
+      {
+        "label": "May 2025 euro area SA unemployment rate",
+        "value": 6.3
+      }
+    ],
+    "drivers": [
+      "Latest euro area unemployment rate stable at 6.2%",
+      "Euro area unemployed count fell by 55 thousand in May",
+      "Large members mixed: Germany and Spain stable, Italy and Greece lower, France higher",
+      "Retail and services indicators show mild demand support",
+      "Labour-cost growth still positive but not an immediate layoff signal"
+    ],
+    "sourceContext": [
+      "https://ec.europa.eu/eurostat/news/euro-indicators/release-calendar",
+      "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/3-02072026-ap",
+      "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en",
+      "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/4-06072026-bp",
+      "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/2-01072026-ap",
+      "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/3-16062026-bp"
+    ],
+    "runAt": "2026-07-10T04:37:24Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Euro area unemployment rate July 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the Eurostat une_rt_m euro area seasonally adjusted total unemployment rate for persons aged 15-74, in percent of the labour force, first print for July 2026. The variant is SA total unemployment, not NSA, youth-only, member-state, or revised-vintage data. Resolution uses the first Eurostat euro-indicators unemployment release/data-table value, rounded to one decimal."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: the immediate reference class is recent monthly first-print euro area SA unemployment rates. The base rate anchor is the latest official May 2026 print at 6.2%. The model prior is one-decimal random-walk persistence with no drift, because this is a short-horizon official monthly release target where richer structural modeling is unlikely to beat persistence by more than the release rounding grid."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Eurostat euro-indicators release calendar and latest unemployment release scheduling context.",
+        "result": "The Eurostat Euro indicators calendar page lists Unemployment as a scheduled indicator and uses Europe/Luxembourg CET/CEST. The latest unemployment release was published 2 July 2026 for May 2026 and states the next unemployment release is 30 July 2026; applying the official July-target calendar entry within the ledger release window gives the July 2026 first-print resolution date 2026-09-01."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched latest Eurostat unemployment release for euro area totals.",
+        "result": "Eurostat reported May 2026 euro area seasonally adjusted unemployment at 6.2%, stable vs April 2026 at 6.2%, down from May 2025 at 6.3%; February 2026 was 6.4% and March 2026 was 6.3%. Euro area unemployed persons were 10.986 million in May 2026, down 55 thousand from April and down 158 thousand from May 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched large-member unemployment readings from the same Eurostat release table.",
+        "result": "May 2026 rates in the Eurostat table: Germany 3.8%, Spain 10.3%, France 8.2%, Italy 5.0%, Greece 8.1%; April 2026 rates were Germany 3.8%, Spain 10.3%, France 8.2%, Italy 5.1%, Greece 9.1%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched current Eurostat macro/labour-market context from official euro-indicators pages.",
+        "result": "Eurostat reported May 2026 euro area retail trade volume +0.2% m/m after -0.3% in April, June 2026 flash HICP inflation 2.8% after 3.2% in May, services inflation 3.2% after 3.5%, and Q1 2026 euro area hourly labour costs +3.2% y/y with wages and salaries +3.4%."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 6.2 from the latest official May print; historical sample = successive monthly changes from Feb-May 2026 values 6.4, 6.3, 6.2, 6.2, giving changes -0.1, -0.1, 0.0 and sigma = 0.06 percentage points per month. Adjustment components: level 0.00, momentum -0.03 from falling unemployed count and Italy/Greece declines, demand +0.01 from retail/services resilience, labour-cost/policy-mechanism +0.02 because wage costs remain positive but not recessionary, net 0.00 after rounding. For the two-month-ahead July first print, half-width = 1.28*sqrt(2)*0.06 = 0.11 percentage points. Because the three-change sample is thin, I treat it as near-term calibration and retain judgmental sampling uncertainty by not narrowing below the one-decimal release grid; the final 80% interval is 6.1 to 6.3 around a 6.2 point."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a summer weakening in France or Spain, or delayed pass-through from high energy and labour costs, which would land above the interval at 6.4% or higher. Downside risk is continued sharp declines in Italy/Greece plus stable Germany and Spain, which would land below the interval at 6.0% or lower. Outside the interval would require two consecutive monthly moves of roughly the same sign rather than the recent near-flat pattern."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique to move the base-rate prior earlier, explicitly label the random-walk persistence model prior, and state how the thin realized-volatility sample is handled in interval calibration. Kept the resolver, 2026-09-01 resolution date, data-browser resolution URL, and forecast values unchanged because they remain coherent with the official Eurostat first-print target."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.2,
+        "ciLow": 6.1,
+        "ciHigh": 6.3
+      }
+    ]
+  }
+]

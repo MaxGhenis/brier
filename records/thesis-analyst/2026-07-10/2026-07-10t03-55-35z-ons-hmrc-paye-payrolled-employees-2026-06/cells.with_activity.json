@@ -1,0 +1,1241 @@
+[
+  {
+    "slug": "ons-hmrc-paye-payrolled-employees-june-2026",
+    "country": "UK",
+    "type": "data",
+    "title": "UK PAYE Payrolled Employees, June 2026",
+    "question": "ONS/HMRC Pay As You Earn Real Time Information seasonally adjusted UK payrolled employees for June 2026, first print",
+    "unit": "millions",
+    "pointEstimate": 30.274,
+    "ciLow": 30.224,
+    "ciHigh": 30.324,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-21",
+    "resolutionSource": "ONS/HMRC Earnings and employment from Pay As You Earn Real Time Information, UK",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/june2026",
+    "resolutionRule": "Resolve to the first official ONS/HMRC PAYE RTI seasonally adjusted UK payrolled employees estimate for the June 2026 data month, in millions, from the first print only. The canonical ledger URL/source binding appear to point to the prior-period May 2026 first print in the June 2026 bulletin; for the target dataPointId, use the first official ONS/HMRC release table that carries the June 2026 data-month estimate, expected on 2026-07-21, and do not use later revisions or same-day corrections unless the official first-print table itself is replaced before publication completes.",
+    "dataPointId": "ons.hmrc.paye_payrolled_employees.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 early level, ONS bulletin rounded, seasonally adjusted",
+        "value": 30.3
+      },
+      {
+        "label": "April 2026 early level, ONS bulletin rounded, seasonally adjusted",
+        "value": 30.2
+      },
+      {
+        "label": "March 2026 early level, ONS bulletin rounded, seasonally adjusted",
+        "value": 30.3
+      },
+      {
+        "label": "May 2026 first-print monthly change, millions",
+        "value": 0.002
+      },
+      {
+        "label": "April 2026 first-print monthly change, millions",
+        "value": -0.1
+      }
+    ],
+    "drivers": [
+      "Recent PAYE employment first prints are weak but not steadily collapsing",
+      "May 2026 flash estimate was nearly flat after a sharp April first print",
+      "Annual PAYE employee growth remains negative",
+      "Early tax-year PAYE flash estimates carry larger revision uncertainty",
+      "Accommodation and food service employment is a visible drag"
+    ],
+    "sourceContext": [
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/june2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/realtimeinformationstatisticsreferencetableseasonallyadjusted",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/may2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/april2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/march2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/february2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/january2026",
+      "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/december2025"
+    ],
+    "runAt": "2026-07-10T03:58:35Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 UK PAYE payrolled employees"
+      },
+      {
+        "kind": "text",
+        "text": "Exact resolver is the ONS/HMRC PAYE RTI UK payrolled employees level, seasonally adjusted, first print for the June 2026 data month, in millions. The relevant table is the seasonally adjusted Earnings and employment from Pay As You Earn Real Time Information dataset; all anchors below use the same seasonally adjusted UK payrolled-employees variant."
+      },
+      {
+        "kind": "text",
+        "text": "Ledger discrepancy noted: the canonical URL and sourceBinding supplied for this target appear to identify the June 2026 bulletin and field for the May 2026 data-month first print, while the requested dataPointId is June 2026. I keep the slug, dataPointId, resolutionDate, and supplied canonical URL tied to the ledger target, but the resolving observation should be the first official ONS/HMRC estimate specifically labelled June 2026 payrolled employees, expected in the 21 July 2026 release."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS/HMRC June 2026 PAYE RTI bulletin and seasonally adjusted dataset page.",
+        "result": "Fetched latest release date 18 June 2026, next release 21 July 2026, May 2026 payrolled employees 30.3 million, May monthly change +2,000 employees, May annual change -119,000 employees, and April monthly change revised to -53,000 employees."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS/HMRC May 2026 PAYE RTI bulletin for the prior first-print April estimate.",
+        "result": "Fetched April 2026 first-print payrolled employees 30.2 million, April monthly change -100,000 employees, April annual change -210,000 employees, and March monthly change revised to -28,000 employees."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened ONS/HMRC April 2026 and March 2026 PAYE RTI bulletins for earlier first-print changes.",
+        "result": "Fetched March 2026 first-print payrolled employees 30.3 million with monthly change -11,000 employees and annual change -65,000 employees; fetched February 2026 first-print payrolled employees 30.3 million with monthly change +20,000 employees and annual change -49,000 employees."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened ONS/HMRC February 2026, January 2026, and December 2025 PAYE RTI bulletins for the recent first-print reference class.",
+        "result": "Fetched January 2026 first-print change -11,000 employees, December 2025 first-print change -43,000 employees, and November 2025 first-print change -38,000 employees; the corresponding early levels were January 30.3 million, December 30.2 million, and November 30.3 million."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate is the recent first-print monthly-change reference class: Nov -38k, Dec -43k, Jan -11k, Feb +20k, Mar -11k, Apr -100k, May +2k. That averages about -26k per month, with the latest print improving after a weak April but still in a negative annual-growth regime. Displayed bulletin levels are rounded to one decimal million, so the monthly-change arithmetic in thousands is more precise than the rounded level labels."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior starts from the May 2026 first-print level of 30.300 million; historical sample is recent first-print monthly changes [-0.038, -0.043, -0.011, 0.020, -0.011, -0.100, 0.002] million; adjustment components are level 30.300, momentum/base-rate change -0.026, one-off April weakness partly faded, and no separate policy-mechanism add-on or extra June-specific release uncertainty. sigma = 0.039 million from the sample standard deviation of those successive changes, so 80% half-width is roughly 1.28*sigma = 0.050 million. Point = 30.300 - 0.026 = 30.274; interval = 30.274 +/- 0.050 = [30.224, 30.324]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a rebound from April tax-year imputation weakness or late RTI submissions, which would land above the interval if June is above 30.324 million, implying a monthly change above about +24k from the 30.300 million May anchor. Downside risk is renewed payroll shedding in retail, hospitality, or administrative services, which would land below the interval if June is below 30.224 million, implying a monthly change below about -76k."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking resolver clarification by explicitly separating the June 2026 target from the supplied prior-period-looking URL/sourceBinding, and accepted the coherence fix by labelling rounded bulletin levels while keeping monthly-change arithmetic in millions. I also clarified the interval sample and no added June-specific uncertainty."
+      },
+      {
+        "kind": "forecast",
+        "point": 30.274,
+        "ciLow": 30.224,
+        "ciHigh": 30.324
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T03:56:29Z",
+    "runStartedAt": "2026-07-10T03:55:35Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 30.149,
+        "upper": 30.399
+      },
+      "points": [
+        {
+          "value": 30.149,
+          "probability": 0.0
+        },
+        {
+          "value": 30.15025,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 30.1515,
+          "probability": 0.00333333333334
+        },
+        {
+          "value": 30.15275,
+          "probability": 0.005
+        },
+        {
+          "value": 30.154,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 30.15525,
+          "probability": 0.00833333333334
+        },
+        {
+          "value": 30.1565,
+          "probability": 0.01
+        },
+        {
+          "value": 30.15775,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 30.159,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 30.16025,
+          "probability": 0.015
+        },
+        {
+          "value": 30.1615,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 30.16275,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 30.164,
+          "probability": 0.02
+        },
+        {
+          "value": 30.16525,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 30.1665,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 30.16775,
+          "probability": 0.025
+        },
+        {
+          "value": 30.169,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 30.17025,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 30.1715,
+          "probability": 0.03
+        },
+        {
+          "value": 30.17275,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 30.174,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 30.17525,
+          "probability": 0.035
+        },
+        {
+          "value": 30.1765,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 30.17775,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 30.179,
+          "probability": 0.04
+        },
+        {
+          "value": 30.18025,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 30.1815,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 30.18275,
+          "probability": 0.045
+        },
+        {
+          "value": 30.184,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 30.18525,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 30.1865,
+          "probability": 0.05
+        },
+        {
+          "value": 30.18775,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 30.189,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 30.19025,
+          "probability": 0.055
+        },
+        {
+          "value": 30.1915,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 30.19275,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 30.194,
+          "probability": 0.06
+        },
+        {
+          "value": 30.19525,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 30.1965,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 30.19775,
+          "probability": 0.065
+        },
+        {
+          "value": 30.199,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 30.20025,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 30.2015,
+          "probability": 0.07
+        },
+        {
+          "value": 30.20275,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 30.204,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 30.20525,
+          "probability": 0.075
+        },
+        {
+          "value": 30.2065,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 30.20775,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 30.209,
+          "probability": 0.08
+        },
+        {
+          "value": 30.21025,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 30.2115,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 30.21275,
+          "probability": 0.085
+        },
+        {
+          "value": 30.214,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 30.21525,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 30.2165,
+          "probability": 0.09
+        },
+        {
+          "value": 30.21775,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 30.219,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 30.22025,
+          "probability": 0.095
+        },
+        {
+          "value": 30.2215,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 30.22275,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 30.224,
+          "probability": 0.1
+        },
+        {
+          "value": 30.22525,
+          "probability": 0.11
+        },
+        {
+          "value": 30.2265,
+          "probability": 0.12
+        },
+        {
+          "value": 30.22775,
+          "probability": 0.13
+        },
+        {
+          "value": 30.229,
+          "probability": 0.14
+        },
+        {
+          "value": 30.23025,
+          "probability": 0.15
+        },
+        {
+          "value": 30.2315,
+          "probability": 0.16
+        },
+        {
+          "value": 30.23275,
+          "probability": 0.17
+        },
+        {
+          "value": 30.234,
+          "probability": 0.18
+        },
+        {
+          "value": 30.23525,
+          "probability": 0.19
+        },
+        {
+          "value": 30.2365,
+          "probability": 0.2
+        },
+        {
+          "value": 30.23775,
+          "probability": 0.21
+        },
+        {
+          "value": 30.239,
+          "probability": 0.22
+        },
+        {
+          "value": 30.24025,
+          "probability": 0.23
+        },
+        {
+          "value": 30.2415,
+          "probability": 0.24
+        },
+        {
+          "value": 30.24275,
+          "probability": 0.25
+        },
+        {
+          "value": 30.244,
+          "probability": 0.26
+        },
+        {
+          "value": 30.24525,
+          "probability": 0.27
+        },
+        {
+          "value": 30.2465,
+          "probability": 0.28
+        },
+        {
+          "value": 30.24775,
+          "probability": 0.29
+        },
+        {
+          "value": 30.249,
+          "probability": 0.3
+        },
+        {
+          "value": 30.25025,
+          "probability": 0.31
+        },
+        {
+          "value": 30.2515,
+          "probability": 0.32
+        },
+        {
+          "value": 30.25275,
+          "probability": 0.33
+        },
+        {
+          "value": 30.254,
+          "probability": 0.34
+        },
+        {
+          "value": 30.25525,
+          "probability": 0.35
+        },
+        {
+          "value": 30.2565,
+          "probability": 0.36
+        },
+        {
+          "value": 30.25775,
+          "probability": 0.37
+        },
+        {
+          "value": 30.259,
+          "probability": 0.38
+        },
+        {
+          "value": 30.26025,
+          "probability": 0.39
+        },
+        {
+          "value": 30.2615,
+          "probability": 0.4
+        },
+        {
+          "value": 30.26275,
+          "probability": 0.41
+        },
+        {
+          "value": 30.264,
+          "probability": 0.42
+        },
+        {
+          "value": 30.26525,
+          "probability": 0.43
+        },
+        {
+          "value": 30.2665,
+          "probability": 0.44
+        },
+        {
+          "value": 30.26775,
+          "probability": 0.45
+        },
+        {
+          "value": 30.269,
+          "probability": 0.46
+        },
+        {
+          "value": 30.27025,
+          "probability": 0.47
+        },
+        {
+          "value": 30.2715,
+          "probability": 0.48
+        },
+        {
+          "value": 30.27275,
+          "probability": 0.49
+        },
+        {
+          "value": 30.274,
+          "probability": 0.5
+        },
+        {
+          "value": 30.27525,
+          "probability": 0.51
+        },
+        {
+          "value": 30.2765,
+          "probability": 0.52
+        },
+        {
+          "value": 30.27775,
+          "probability": 0.53
+        },
+        {
+          "value": 30.279,
+          "probability": 0.54
+        },
+        {
+          "value": 30.28025,
+          "probability": 0.55
+        },
+        {
+          "value": 30.2815,
+          "probability": 0.56
+        },
+        {
+          "value": 30.28275,
+          "probability": 0.57
+        },
+        {
+          "value": 30.284,
+          "probability": 0.58
+        },
+        {
+          "value": 30.28525,
+          "probability": 0.59
+        },
+        {
+          "value": 30.2865,
+          "probability": 0.6
+        },
+        {
+          "value": 30.28775,
+          "probability": 0.61
+        },
+        {
+          "value": 30.289,
+          "probability": 0.62
+        },
+        {
+          "value": 30.29025,
+          "probability": 0.63
+        },
+        {
+          "value": 30.2915,
+          "probability": 0.64
+        },
+        {
+          "value": 30.29275,
+          "probability": 0.65
+        },
+        {
+          "value": 30.294,
+          "probability": 0.66
+        },
+        {
+          "value": 30.29525,
+          "probability": 0.67
+        },
+        {
+          "value": 30.2965,
+          "probability": 0.68
+        },
+        {
+          "value": 30.29775,
+          "probability": 0.69
+        },
+        {
+          "value": 30.299,
+          "probability": 0.7
+        },
+        {
+          "value": 30.30025,
+          "probability": 0.71
+        },
+        {
+          "value": 30.3015,
+          "probability": 0.72
+        },
+        {
+          "value": 30.30275,
+          "probability": 0.73
+        },
+        {
+          "value": 30.304,
+          "probability": 0.74
+        },
+        {
+          "value": 30.30525,
+          "probability": 0.75
+        },
+        {
+          "value": 30.3065,
+          "probability": 0.76
+        },
+        {
+          "value": 30.30775,
+          "probability": 0.77
+        },
+        {
+          "value": 30.309,
+          "probability": 0.78
+        },
+        {
+          "value": 30.31025,
+          "probability": 0.79
+        },
+        {
+          "value": 30.3115,
+          "probability": 0.8
+        },
+        {
+          "value": 30.31275,
+          "probability": 0.81
+        },
+        {
+          "value": 30.314,
+          "probability": 0.82
+        },
+        {
+          "value": 30.31525,
+          "probability": 0.83
+        },
+        {
+          "value": 30.3165,
+          "probability": 0.84
+        },
+        {
+          "value": 30.31775,
+          "probability": 0.85
+        },
+        {
+          "value": 30.319,
+          "probability": 0.86
+        },
+        {
+          "value": 30.32025,
+          "probability": 0.87
+        },
+        {
+          "value": 30.3215,
+          "probability": 0.88
+        },
+        {
+          "value": 30.32275,
+          "probability": 0.89
+        },
+        {
+          "value": 30.324,
+          "probability": 0.9
+        },
+        {
+          "value": 30.32525,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 30.3265,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 30.32775,
+          "probability": 0.905
+        },
+        {
+          "value": 30.329,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 30.33025,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 30.3315,
+          "probability": 0.91
+        },
+        {
+          "value": 30.33275,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 30.334,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 30.33525,
+          "probability": 0.915
+        },
+        {
+          "value": 30.3365,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 30.33775,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 30.339,
+          "probability": 0.92
+        },
+        {
+          "value": 30.34025,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 30.3415,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 30.34275,
+          "probability": 0.925
+        },
+        {
+          "value": 30.344,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 30.34525,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 30.3465,
+          "probability": 0.93
+        },
+        {
+          "value": 30.34775,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 30.349,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 30.35025,
+          "probability": 0.935
+        },
+        {
+          "value": 30.3515,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 30.35275,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 30.354,
+          "probability": 0.94
+        },
+        {
+          "value": 30.35525,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 30.3565,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 30.35775,
+          "probability": 0.945
+        },
+        {
+          "value": 30.359,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 30.36025,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 30.3615,
+          "probability": 0.95
+        },
+        {
+          "value": 30.36275,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 30.364,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 30.36525,
+          "probability": 0.955
+        },
+        {
+          "value": 30.3665,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 30.36775,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 30.369,
+          "probability": 0.96
+        },
+        {
+          "value": 30.37025,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 30.3715,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 30.37275,
+          "probability": 0.965
+        },
+        {
+          "value": 30.374,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 30.37525,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 30.3765,
+          "probability": 0.97
+        },
+        {
+          "value": 30.37775,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 30.379,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 30.38025,
+          "probability": 0.975
+        },
+        {
+          "value": 30.3815,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 30.38275,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 30.384,
+          "probability": 0.98
+        },
+        {
+          "value": 30.38525,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 30.3865,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 30.38775,
+          "probability": 0.985
+        },
+        {
+          "value": 30.389,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 30.39025,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 30.3915,
+          "probability": 0.99
+        },
+        {
+          "value": 30.39275,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 30.394,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 30.39525,
+          "probability": 0.995
+        },
+        {
+          "value": 30.3965,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 30.39775,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 30.399,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 30.274,
+        "median": 30.274,
+        "interval80": {
+          "lower": 30.224,
+          "upper": 30.324
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/prompt.md",
+        "sha256": "e3a89c6ce2f2dcdb93261a718887481421768f2860b2e56c0a88c4131b1362a4",
+        "bytes": 8872,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_command.json",
+        "sha256": "e7bb7652e94780908709a78594e30d0895856238508c4c59a18dcfa6079da410",
+        "bytes": 686,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "e7cc455f33e68b488f89cacfaac1cbab322e96afe02849c8993d5af28c2d7124",
+        "bytes": 21897,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_stderr.log",
+        "sha256": "b02d32a3f728eda3cb2c1c813e85d3e499d0c1ff97212640796e18ebd12f8f6d",
+        "bytes": 233,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_events.jsonl",
+        "sha256": "6e25c14840182e0ab8955abf347221ccfd70bb95ede25c975fa2f65b61b4dfed",
+        "bytes": 21817,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_last_message.txt",
+        "sha256": "98cd83b463af873f54719065ff117caafcfe320cc33753b46339839a30bc9f4f",
+        "bytes": 7014,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_trace.json",
+        "sha256": "42d7e9596155371cd0c02fba1093ef45746f7236bbedd557335298987cb0e4cc",
+        "bytes": 508,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_stdout.txt",
+        "sha256": "98cd83b463af873f54719065ff117caafcfe320cc33753b46339839a30bc9f4f",
+        "bytes": 7014,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_stderr.txt",
+        "sha256": "c2295b703f77e8ac1b1df7dd685d256bffa3905fa4f492859ee25a83cc07d7ff",
+        "bytes": 248,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_prompt.md",
+        "sha256": "142088bb06265b46257269278d5f83b771121c0af7ddf91062da7de54687d272",
+        "bytes": 10114,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_command.json",
+        "sha256": "c33af365a2cece27877e8ac6e810e3f3c60518cd87bee9f466cb3d03d2333d01",
+        "bytes": 682,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "80b88cc644490cd2fabaa340478a41c0adf32acad16199758a8fa2d7d33aaa1d",
+        "bytes": 2088,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "f020010418f985d83235e86f25cc7d64fddfa70ab691747a2dacd92213c00081",
+        "bytes": 233,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "353e8e29f32c164f9b1456e26604013d42429a6fecfd31662dc7e3366756e133",
+        "bytes": 2110,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "4e1a5401b96228af67ad9a49ed2b79b44eee7722b6a355ef6f1f03bfccb003f8",
+        "bytes": 1726,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "c0f7ba6c9558223e6913b17e30fc9f8dce607fc77257b9fffe85701347a41d94",
+        "bytes": 505,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "4e1a5401b96228af67ad9a49ed2b79b44eee7722b6a355ef6f1f03bfccb003f8",
+        "bytes": 1726,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "f538f0f76dd70a9c7c4fba203c1135a50416f86ebfe1fc6250533213875f066f",
+        "bytes": 248,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/revision_prompt.md",
+        "sha256": "be2a8546d4e78f658b64ac11ef10338d526594bce5b878b0475dadb0296d18c2",
+        "bytes": 18548,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/command.json",
+        "sha256": "1811babcf25e9fe390c146ffad64cd83f0358d4ab4ff9a86d2b78a058125db9b",
+        "bytes": 680,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/codex_stdout.jsonl",
+        "sha256": "68012bf452c0a284c85676f4b78f6ff36203373be7367d3a61b5ec8c6e0f5621",
+        "bytes": 8770,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/codex_stderr.log",
+        "sha256": "2393fd9795f67b4edcc884b5adce12920dade7d680bef17f2cfb822db651ecd2",
+        "bytes": 233,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/codex_events.jsonl",
+        "sha256": "8e64e6aa52f089a9230e8bc5ac619412af07ab942f4161fd526852627ea1f543",
+        "bytes": 8792,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/codex_last_message.txt",
+        "sha256": "97bbaff07522210d660d81ba1acda0d61e90552aad2857064bcc9a0f287a7270",
+        "bytes": 8205,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/codex_trace.json",
+        "sha256": "2830fb2ca858a95cfd71ea6e3c30fba58ac0e036638f0fb60a094256c0baa301",
+        "bytes": 501,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/stdout.txt",
+        "sha256": "97bbaff07522210d660d81ba1acda0d61e90552aad2857064bcc9a0f287a7270",
+        "bytes": 8205,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/stderr.txt",
+        "sha256": "07b71a3cfc6cfda45666df7097bcd1f170a488846be9935f9684500daff609c1",
+        "bytes": 248,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/raw_response.txt",
+        "sha256": "97bbaff07522210d660d81ba1acda0d61e90552aad2857064bcc9a0f287a7270",
+        "bytes": 8205,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/parsed_cells.json",
+        "sha256": "c457e8454dde785bc9d7d06f6284a742043fc27f67faf1cd0cb7e846e9d2ace4",
+        "bytes": 9123,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/normalized_cells.json",
+        "sha256": "43c50a25b0b122122902f53d8303c739e734a037cdf96e311309036b7c022beb",
+        "bytes": 26460,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/distribution.json",
+        "sha256": "dceccc2109fa8f15f7d97bcc62ce6db9d37092c4f97a5b2831af6cd203c6b329",
+        "bytes": 13919,
+        "createdAt": "2026-07-10T03:55:35Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/validation.json",
+        "sha256": "71ab0081b474ef15e302355e80f9abf07ff1e35b3653ebc613c599df8f501919",
+        "bytes": 144,
+        "createdAt": "2026-07-10T03:55:35Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T03:55:35Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "bf170749587a013b633e8030383e699e3534690fae8b3a2ae7953750cfa83fde"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-55-35z-ons-hmrc-paye-payrolled-employees-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft notes a ledger discrepancy, but the JSON still uses the supplied June 2026 bulletin URL while saying the June 2026 data period first appears in the 21 July 2026 release; sourceBinding also names 2026-05, not 2026-06.",
+          "actionRequested": "Keep the target slug/dataPointId as instructed, but make the resolver section explicitly state that the forecast target is the June 2026 payrolled-employees first print and flag that the canonical URL/sourceBinding appear to point to the prior-period May 2026 first print; do not leave the reader unsure which release page resolves the target."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "Historical context rounds recent levels to one decimal million, which makes April 30.2 and May 30.3 look inconsistent with the stated +0.002 million May monthly change and point calculation from 30.300.",
+          "actionRequested": "Use more precise level anchors where available, or state that displayed historical levels are rounded ONS bulletin figures while the monthly-change arithmetic is in thousands/millions."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the 80% interval uses sample standard deviation over recent first-print monthly changes only, and whether no extra June-specific release uncertainty was added."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Tail scenarios are adequate, but could name approximate monthly-change thresholds implied by the interval: about +24k upside or -76k downside from the 30.300 million May anchor."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the blocking resolver clarification by explicitly separating the June 2026 target from the supplied prior-period-looking URL/sourceBinding, and accepted the coherence fix by labelling rounded bulletin levels while keeping monthly-change arithmetic in millions. I also clarified the interval sample and no added June-specific uncertainty.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the blocking resolver clarification by explicitly separating the June 2026 target from the supplied prior-period-looking URL/sourceBinding, and accepted the coherence fix by labelling rounded bulletin levels while keeping monthly-change arithmetic in millions. I also clarified the interval sample and no added June-specific uncertainty.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the blocking resolver clarification by explicitly separating the June 2026 target from the supplied prior-period-looking URL/sourceBinding, and accepted the coherence fix by labelling rounded bulletin levels while keeping monthly-change arithmetic in millions. I also clarified the interval sample and no added June-specific uncertainty.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the blocking resolver clarification by explicitly separating the June 2026 target from the supplied prior-period-looking URL/sourceBinding, and accepted the coherence fix by labelling rounded bulletin levels while keeping monthly-change arithmetic in millions. I also clarified the interval sample and no added June-specific uncertainty.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly coherent, but the resolver/source binding is materially confused because the supplied URL/field appear to identify the May 2026 first print while the forecast targets June 2026."
+    }
+  }
+]

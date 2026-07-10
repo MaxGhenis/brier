@@ -1,0 +1,1235 @@
+[
+  {
+    "slug": "us-core-pce-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Core PCE MoM, July 2026",
+    "question": "What will the U.S. Bureau of Economic Analysis first report as the seasonally adjusted month-over-month percent change in the PCE price index excluding food and energy for July 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.3,
+    "ciLow": 0.18,
+    "ciHigh": 0.42,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-26",
+    "resolutionSource": "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+    "resolutionSourceUrl": "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+    "resolutionRule": "Resolve to BEA's first reported seasonally adjusted month-over-month percent change for the PCE price index excluding food and energy for July 2026 in Personal Income and Outlays, Table 2.8.7 / release text. Use the value as first printed and rounded by BEA to one decimal percentage point in the August 26, 2026 release; ignore later revisions, data-archive updates, and the September 30, 2026 annual update.",
+    "dataPointId": "us.bea.core_pce.mom_sa.2026-07",
+    "historicalContext": [
+      {
+        "label": "2026-05 first print core PCE m/m",
+        "value": 0.3
+      },
+      {
+        "label": "2026-04 first print core PCE m/m",
+        "value": 0.2
+      },
+      {
+        "label": "2026-03 first print core PCE m/m",
+        "value": 0.3
+      },
+      {
+        "label": "2026-02 first print core PCE m/m",
+        "value": 0.4
+      },
+      {
+        "label": "2026-01 first print core PCE m/m",
+        "value": 0.4
+      },
+      {
+        "label": "2025-12 first print core PCE m/m",
+        "value": 0.4
+      },
+      {
+        "label": "2025-11 value shown in December release table",
+        "value": 0.2
+      },
+      {
+        "label": "2025-09 first print core PCE m/m",
+        "value": 0.2
+      }
+    ],
+    "drivers": [
+      "Recent first-print core PCE clustered around 0.3 percent m/m",
+      "May 2026 core PCE was 0.3 percent m/m and 3.4 percent y/y",
+      "Services-price persistence keeps upside pressure above a 0.2-only baseline",
+      "July 2026 CPI and PPI source components were not yet available at run time",
+      "Annual-update revisions begin after this first-print target"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-april-2026",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-march-2026",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-february-2026",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-january-2026",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-december-2025",
+      "https://www.bea.gov/news/2025/personal-income-and-outlays-september-2025",
+      "https://fred.stlouisfed.org/series/PCEPILFE"
+    ],
+    "runAt": "2026-07-10T04:34:49Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US Core PCE MoM July 2026 First Print"
+      },
+      {
+        "kind": "text",
+        "text": "Resolver framing: this is the BEA seasonally adjusted PCE price index excluding food and energy, month-over-month percent change for July 2026, first print. The ledger window allowed 2026-08-26 through 2026-09-03, but the official BEA schedule this run shows the July 2026 Personal Income and Outlays release on 2026-08-26 at 8:30 AM, so I use 2026-08-26 while keeping the same catalog target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA release schedule for Personal Income and Outlays July 2026.",
+        "result": "BEA schedule fetched: Personal Income and Outlays, July 2026 is listed for August 26, 2026 at 8:30 AM; the same schedule page also lists June 2026 on July 30, 2026 and August 2026 on September 30, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA exact core PCE data page and current-release status.",
+        "result": "BEA core PCE page fetched: May 2026 y/y +3.4%, April 2026 y/y +3.3%, March 2026 y/y +3.3%, February 2026 y/y +3.0%; current release June 25, 2026 and next release July 30, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BEA Personal Income and Outlays May 2026 release for latest first-print monthly core inflation and related demand context.",
+        "result": "May 2026 release fetched: core PCE price index increased 0.3% m/m; headline PCE price index increased 0.4% m/m; core PCE increased 3.4% y/y; current-dollar PCE increased $156.1 billion and real PCE increased 0.3% m/m."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read prior BEA first-print releases for the same SA monthly core PCE variant and the same release family.",
+        "result": "Fetched first-print monthly core PCE values: January 2026 0.4%, February 2026 0.4%, March 2026 0.3%, April 2026 0.2%, May 2026 0.3%, December 2025 0.4%, November 2025 0.2% from the December release table, and September 2025 0.2%."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.lookup",
+        "call": "Checked FRED mirror for the BEA core PCE chain-type price index to cross-check latest level and source code context, not for final resolution.",
+        "result": "FRED PCEPILFE mirror fetched: May 2026 index 130.082, April 2026 129.667, March 2026 129.343, February 2026 128.961, January 2026 128.455; FRED notes BEA Account Code DPCCRG, monthly seasonally adjusted."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: for this first-print forecast I anchor on the same BEA Personal Income and Outlays monthly core PCE first-print/release-table values because the target is a rounded monthly change, not the revised index level. The recent reference class mean is 0.30 percent across the eight fetched monthly values."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the recent official first-print reference class [0.2, 0.2, 0.4, 0.4, 0.4, 0.3, 0.2, 0.3], mean = 2.4/8 = 0.30. Adjustment components: +0.01 because May y/y core PCE at 3.4% indicates above-target persistence; -0.01 because July CPI/PPI component evidence is not yet available and two monthly releases remain before July; final point remains 0.30. Interval method uses realized dispersion of the change values themselves: sample sigma = 0.093, half-width = 1.28*sigma = 0.119, so 0.30 +/- 0.119 gives 0.181 to 0.419, rounded to 0.18 to 0.42."
+      },
+      {
+        "kind": "text",
+        "text": "Mechanisms: level pressure is still firm because core y/y is 3.4%, momentum is centered at 0.3% after May's 0.3% and April's first-print 0.2%, and no one-off July source component has been observed yet. BEA's annual update is scheduled after this August first print, so it should not change the first-print resolution rule."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a broad July services or tariff-sensitive goods acceleration that would land above the interval, roughly a BEA print of 0.5% or higher. Downside risk is a broad softening in rents, portfolio-management, medical, and goods components that would land below the interval, roughly a BEA print of 0.1% or lower. A shutdown-style delay could move publication mechanics, but the release-date forecast is tied to the official schedule fetched this run."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the small-sample calibration caveat; the eight-observation rounded first-print sample is a heuristic dispersion interval, not a calibrated forecast-error interval. Also clarified that the reference class is the fetched recent BEA release-table sample rather than a complete consecutive run; I did not add October 2025 because it was not part of the draft's fetched evidence."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.3,
+        "ciLow": 0.18,
+        "ciHigh": 0.42
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T04:33:42Z",
+    "runStartedAt": "2026-07-10T04:32:03Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 0.0,
+        "upper": 0.6
+      },
+      "points": [
+        {
+          "value": 0.0,
+          "probability": 0.0
+        },
+        {
+          "value": 0.003,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 0.006,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 0.009,
+          "probability": 0.005
+        },
+        {
+          "value": 0.012,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 0.015,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 0.018,
+          "probability": 0.01
+        },
+        {
+          "value": 0.021,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 0.024,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 0.027,
+          "probability": 0.015
+        },
+        {
+          "value": 0.03,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 0.033,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 0.036,
+          "probability": 0.02
+        },
+        {
+          "value": 0.039,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 0.042,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 0.045,
+          "probability": 0.025
+        },
+        {
+          "value": 0.048,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 0.051,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 0.054,
+          "probability": 0.03
+        },
+        {
+          "value": 0.057,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 0.06,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 0.063,
+          "probability": 0.035
+        },
+        {
+          "value": 0.066,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 0.069,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 0.072,
+          "probability": 0.04
+        },
+        {
+          "value": 0.075,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 0.078,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 0.081,
+          "probability": 0.045
+        },
+        {
+          "value": 0.084,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 0.087,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 0.09,
+          "probability": 0.05
+        },
+        {
+          "value": 0.093,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 0.096,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 0.099,
+          "probability": 0.055
+        },
+        {
+          "value": 0.102,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 0.105,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 0.108,
+          "probability": 0.06
+        },
+        {
+          "value": 0.111,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 0.114,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 0.117,
+          "probability": 0.065
+        },
+        {
+          "value": 0.12,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 0.123,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 0.126,
+          "probability": 0.07
+        },
+        {
+          "value": 0.129,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 0.132,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 0.135,
+          "probability": 0.075
+        },
+        {
+          "value": 0.138,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 0.141,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 0.144,
+          "probability": 0.08
+        },
+        {
+          "value": 0.147,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 0.15,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 0.153,
+          "probability": 0.085
+        },
+        {
+          "value": 0.156,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 0.159,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 0.162,
+          "probability": 0.09
+        },
+        {
+          "value": 0.165,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 0.168,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 0.171,
+          "probability": 0.095
+        },
+        {
+          "value": 0.174,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 0.177,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 0.18,
+          "probability": 0.1
+        },
+        {
+          "value": 0.183,
+          "probability": 0.11
+        },
+        {
+          "value": 0.186,
+          "probability": 0.12
+        },
+        {
+          "value": 0.189,
+          "probability": 0.13
+        },
+        {
+          "value": 0.192,
+          "probability": 0.14
+        },
+        {
+          "value": 0.195,
+          "probability": 0.15
+        },
+        {
+          "value": 0.198,
+          "probability": 0.16
+        },
+        {
+          "value": 0.201,
+          "probability": 0.17
+        },
+        {
+          "value": 0.204,
+          "probability": 0.18
+        },
+        {
+          "value": 0.207,
+          "probability": 0.19
+        },
+        {
+          "value": 0.21,
+          "probability": 0.2
+        },
+        {
+          "value": 0.213,
+          "probability": 0.21
+        },
+        {
+          "value": 0.216,
+          "probability": 0.22
+        },
+        {
+          "value": 0.219,
+          "probability": 0.23
+        },
+        {
+          "value": 0.222,
+          "probability": 0.24
+        },
+        {
+          "value": 0.225,
+          "probability": 0.25
+        },
+        {
+          "value": 0.228,
+          "probability": 0.26
+        },
+        {
+          "value": 0.231,
+          "probability": 0.27
+        },
+        {
+          "value": 0.234,
+          "probability": 0.28
+        },
+        {
+          "value": 0.237,
+          "probability": 0.29
+        },
+        {
+          "value": 0.24,
+          "probability": 0.3
+        },
+        {
+          "value": 0.243,
+          "probability": 0.31
+        },
+        {
+          "value": 0.246,
+          "probability": 0.32
+        },
+        {
+          "value": 0.249,
+          "probability": 0.33
+        },
+        {
+          "value": 0.252,
+          "probability": 0.34
+        },
+        {
+          "value": 0.255,
+          "probability": 0.35
+        },
+        {
+          "value": 0.258,
+          "probability": 0.36
+        },
+        {
+          "value": 0.261,
+          "probability": 0.37
+        },
+        {
+          "value": 0.264,
+          "probability": 0.38
+        },
+        {
+          "value": 0.267,
+          "probability": 0.39
+        },
+        {
+          "value": 0.27,
+          "probability": 0.4
+        },
+        {
+          "value": 0.273,
+          "probability": 0.41
+        },
+        {
+          "value": 0.276,
+          "probability": 0.42
+        },
+        {
+          "value": 0.279,
+          "probability": 0.43
+        },
+        {
+          "value": 0.282,
+          "probability": 0.44
+        },
+        {
+          "value": 0.285,
+          "probability": 0.45
+        },
+        {
+          "value": 0.288,
+          "probability": 0.46
+        },
+        {
+          "value": 0.291,
+          "probability": 0.47
+        },
+        {
+          "value": 0.294,
+          "probability": 0.48
+        },
+        {
+          "value": 0.297,
+          "probability": 0.49
+        },
+        {
+          "value": 0.3,
+          "probability": 0.5
+        },
+        {
+          "value": 0.303,
+          "probability": 0.51
+        },
+        {
+          "value": 0.306,
+          "probability": 0.52
+        },
+        {
+          "value": 0.309,
+          "probability": 0.53
+        },
+        {
+          "value": 0.312,
+          "probability": 0.54
+        },
+        {
+          "value": 0.315,
+          "probability": 0.55
+        },
+        {
+          "value": 0.318,
+          "probability": 0.56
+        },
+        {
+          "value": 0.321,
+          "probability": 0.57
+        },
+        {
+          "value": 0.324,
+          "probability": 0.58
+        },
+        {
+          "value": 0.327,
+          "probability": 0.59
+        },
+        {
+          "value": 0.33,
+          "probability": 0.6
+        },
+        {
+          "value": 0.333,
+          "probability": 0.61
+        },
+        {
+          "value": 0.336,
+          "probability": 0.62
+        },
+        {
+          "value": 0.339,
+          "probability": 0.63
+        },
+        {
+          "value": 0.342,
+          "probability": 0.64
+        },
+        {
+          "value": 0.345,
+          "probability": 0.65
+        },
+        {
+          "value": 0.348,
+          "probability": 0.66
+        },
+        {
+          "value": 0.351,
+          "probability": 0.67
+        },
+        {
+          "value": 0.354,
+          "probability": 0.68
+        },
+        {
+          "value": 0.357,
+          "probability": 0.69
+        },
+        {
+          "value": 0.36,
+          "probability": 0.7
+        },
+        {
+          "value": 0.363,
+          "probability": 0.71
+        },
+        {
+          "value": 0.366,
+          "probability": 0.72
+        },
+        {
+          "value": 0.369,
+          "probability": 0.73
+        },
+        {
+          "value": 0.372,
+          "probability": 0.74
+        },
+        {
+          "value": 0.375,
+          "probability": 0.75
+        },
+        {
+          "value": 0.378,
+          "probability": 0.76
+        },
+        {
+          "value": 0.381,
+          "probability": 0.77
+        },
+        {
+          "value": 0.384,
+          "probability": 0.78
+        },
+        {
+          "value": 0.387,
+          "probability": 0.79
+        },
+        {
+          "value": 0.39,
+          "probability": 0.8
+        },
+        {
+          "value": 0.393,
+          "probability": 0.81
+        },
+        {
+          "value": 0.396,
+          "probability": 0.82
+        },
+        {
+          "value": 0.399,
+          "probability": 0.83
+        },
+        {
+          "value": 0.402,
+          "probability": 0.84
+        },
+        {
+          "value": 0.405,
+          "probability": 0.85
+        },
+        {
+          "value": 0.408,
+          "probability": 0.86
+        },
+        {
+          "value": 0.411,
+          "probability": 0.87
+        },
+        {
+          "value": 0.414,
+          "probability": 0.88
+        },
+        {
+          "value": 0.417,
+          "probability": 0.89
+        },
+        {
+          "value": 0.42,
+          "probability": 0.9
+        },
+        {
+          "value": 0.423,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 0.426,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 0.429,
+          "probability": 0.905
+        },
+        {
+          "value": 0.432,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 0.435,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 0.438,
+          "probability": 0.91
+        },
+        {
+          "value": 0.441,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 0.444,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 0.447,
+          "probability": 0.915
+        },
+        {
+          "value": 0.45,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 0.453,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 0.456,
+          "probability": 0.92
+        },
+        {
+          "value": 0.459,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 0.462,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 0.465,
+          "probability": 0.925
+        },
+        {
+          "value": 0.468,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 0.471,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 0.474,
+          "probability": 0.93
+        },
+        {
+          "value": 0.477,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 0.48,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 0.483,
+          "probability": 0.935
+        },
+        {
+          "value": 0.486,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 0.489,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 0.492,
+          "probability": 0.94
+        },
+        {
+          "value": 0.495,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 0.498,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 0.501,
+          "probability": 0.945
+        },
+        {
+          "value": 0.504,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 0.507,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 0.51,
+          "probability": 0.95
+        },
+        {
+          "value": 0.513,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 0.516,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 0.519,
+          "probability": 0.955
+        },
+        {
+          "value": 0.522,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 0.525,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 0.528,
+          "probability": 0.96
+        },
+        {
+          "value": 0.531,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 0.534,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 0.537,
+          "probability": 0.965
+        },
+        {
+          "value": 0.54,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 0.543,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 0.546,
+          "probability": 0.97
+        },
+        {
+          "value": 0.549,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 0.552,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 0.555,
+          "probability": 0.975
+        },
+        {
+          "value": 0.558,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 0.561,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 0.564,
+          "probability": 0.98
+        },
+        {
+          "value": 0.567,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 0.57,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 0.573,
+          "probability": 0.985
+        },
+        {
+          "value": 0.576,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 0.579,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 0.582,
+          "probability": 0.99
+        },
+        {
+          "value": 0.585,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 0.588,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 0.591,
+          "probability": 0.995
+        },
+        {
+          "value": 0.594,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 0.597,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 0.6,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 0.3,
+        "median": 0.3,
+        "interval80": {
+          "lower": 0.18,
+          "upper": 0.42
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/prompt.md",
+        "sha256": "e21b495db2374dc5485d7ee0dc22b78b43e944c893eb5837ebb2fa686710583c",
+        "bytes": 8557,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_command.json",
+        "sha256": "b01e57eac61c0d34023c7ae95233a642877bee4337ce74991ded55c08fd3d639",
+        "bytes": 669,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "7db4b768f08478c15e679cb5c9169a23bde8a920a9fc0afd1acab95a737007a3",
+        "bytes": 19468,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_codex_stderr.log",
+        "sha256": "c5d2b539188332929bce574ac7e2250e8e1925ce5cff5fa977d332a2fe6789fb",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_codex_events.jsonl",
+        "sha256": "a5fd800b1597bb6fea5ea2e2beae1639fcfa824e9c51a6a14a8fd5a78a3cc3a8",
+        "bytes": 19363,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_codex_last_message.txt",
+        "sha256": "491d6af19ecf78c5163ccf34d40f2ff629740670622e851641fb52ffe508a27e",
+        "bytes": 6900,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_codex_trace.json",
+        "sha256": "b11cf3ab6d1f0613a1e987c99e629ec311b9ac9512b44e23edc75ae2a27d561c",
+        "bytes": 508,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_stdout.txt",
+        "sha256": "491d6af19ecf78c5163ccf34d40f2ff629740670622e851641fb52ffe508a27e",
+        "bytes": 6900,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_stderr.txt",
+        "sha256": "ee6250119fb265b02327379c61b7ed8c597bab003f2ee6bfd0b7db894cc06b08",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_prompt.md",
+        "sha256": "ea70e0033a85e5738974ac3ba7a23477f1b434c2b77cce4f9b72de084f936e21",
+        "bytes": 9610,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_command.json",
+        "sha256": "3d595575ef297e95c6f7074bbf402592f5e5c09e69dac033ee72c9f7e0679c6c",
+        "bytes": 665,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "be0da4d083b0c4bbe33e1121f3963648959dcb7914bbb0180384ad3fac01369a",
+        "bytes": 934,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "735b3cb27a4cd76242f64240763ee8dd32d58cc5d12fcb250eee18689544693b",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "f7f8174054ba386ca3d75e35f9c1f31362fdcefc61bd5db26e85d29bccbc3ead",
+        "bytes": 956,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "07e1b8a524e0dfb7f4d5f9d700b32b055beafb64eff05086fdf5e6a14052151c",
+        "bytes": 597,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "bacfd492f2a6875c0bb4ad847502f227a8f6cee1c3963b332c4fb534e51a6110",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "07e1b8a524e0dfb7f4d5f9d700b32b055beafb64eff05086fdf5e6a14052151c",
+        "bytes": 597,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "d16ccb97e57b041e76b732842f006eaec3f9548db9d95f9d1a1e1c7e4d45d7bf",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/revision_prompt.md",
+        "sha256": "85573fc1f891017199ea169d76688395e53b0cff99a7d63404da985756bebcdc",
+        "bytes": 16990,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/command.json",
+        "sha256": "8e4e9d5626c94a4ae641ed0d97ace1ee69ef8c4565610b8841c569045a568246",
+        "bytes": 663,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/codex_stdout.jsonl",
+        "sha256": "cd5b3ec2982de8db7811c3ffef37f51dbd09adc57648cfbde4c0354056f92f13",
+        "bytes": 7932,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/codex_stderr.log",
+        "sha256": "738d844a06f2d804c03f7167f8a194168e84f861696b51b192bb36c7158b71d0",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/codex_events.jsonl",
+        "sha256": "b5debf9369466a830fe907531fa61d495ec9b24dc2794284853f14fe8666cf09",
+        "bytes": 7954,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/codex_last_message.txt",
+        "sha256": "f4ae0dd5aa4aed710710fe9574ba565158d80db60c9a625e13df1bf524637562",
+        "bytes": 7329,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/codex_trace.json",
+        "sha256": "aa8ce2caeeb54d920861953581b3b77e3ab7670c09cd019ec9b3886a9ed5f276",
+        "bytes": 501,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/stdout.txt",
+        "sha256": "f4ae0dd5aa4aed710710fe9574ba565158d80db60c9a625e13df1bf524637562",
+        "bytes": 7329,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/stderr.txt",
+        "sha256": "bb17af7133a00c1c0e23912cdfad7a12a4752c3c74cb804414201760b93806cf",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/raw_response.txt",
+        "sha256": "f4ae0dd5aa4aed710710fe9574ba565158d80db60c9a625e13df1bf524637562",
+        "bytes": 7329,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/parsed_cells.json",
+        "sha256": "a8094c99bded7b81de06eabd45e6f94526dc9b7bfa159a805c5cf37f8765488f",
+        "bytes": 8417,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/normalized_cells.json",
+        "sha256": "f661562e0a1f4ea80d6cf2b40455b670af32db6e1c84ab38ccc4d146b5981773",
+        "bytes": 25263,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/distribution.json",
+        "sha256": "ca61d1af2c78fe427e70f53db44df99a6ee7aea2a7e4c35c1acde086ff588016",
+        "bytes": 13428,
+        "createdAt": "2026-07-10T04:32:03Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/validation.json",
+        "sha256": "8e5403862b35b2686b77ac2c8e0e5ab93e73674f4778112aa8a44b578819c8df",
+        "bytes": 126,
+        "createdAt": "2026-07-10T04:32:03Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T04:32:03Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "a741029873cf99cd70c0ebe0dcb23c340718daec86f33faecc142298d2d76039"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-32-03z-bea-core-pce-mom-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider noting that the interval is based on a very small recent eight-observation rounded first-print sample, so it is a heuristic dispersion interval rather than a calibrated forecast-error interval."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider explaining why the historical sample skips October 2025 if the cited first-print sequence is meant to be consecutive."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: Accepted the small-sample calibration caveat; the eight-observation rounded first-print sample is a heuristic dispersion interval, not a calibrated forecast-error interval. Also clarified that the reference class is the fetched recent BEA release-table sample rather than a complete consecutive run; I did not add October 2025 because it was not part of the draft's fetched evidence.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: Accepted the small-sample calibration caveat; the eight-observation rounded first-print sample is a heuristic dispersion interval, not a calibrated forecast-error interval. Also clarified that the reference class is the fetched recent BEA release-table sample rather than a complete consecutive run; I did not add October 2025 because it was not part of the draft's fetched evidence.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable with no blocking issues; it clearly ties the forecast to the BEA first-print July 2026 core PCE MoM target and gives a compact prior/update/interval rationale."
+    }
+  }
+]

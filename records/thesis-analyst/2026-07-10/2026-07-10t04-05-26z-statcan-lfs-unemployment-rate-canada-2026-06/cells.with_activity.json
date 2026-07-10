@@ -1,0 +1,1246 @@
+[
+  {
+    "slug": "statcan-lfs-unemployment-rate-canada-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada unemployment rate, June 2026",
+    "question": "Statistics Canada Labour Force Survey unemployment rate for Canada, June 2026 reference month, seasonally adjusted, first print",
+    "unit": "percent",
+    "pointEstimate": 6.6,
+    "ciLow": 6.3,
+    "ciHigh": 6.9,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-10",
+    "resolutionSource": "Statistics Canada The Daily, Labour Force Survey",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/n1/daily-quotidien/260710/dq260710a-eng.htm",
+    "resolutionRule": "Resolve to the first-print seasonally adjusted unemployment rate for Canada in Statistics Canada's Labour Force Survey for the June 2026 reference month, as published in The Daily and sourced to Table 14-10-0287-01. Use the one-decimal percent value as first published; do not substitute later revisions or corrected historical table vintages unless the first-print release itself is replaced before publication.",
+    "dataPointId": "statcan.lfs.unemployment_rate.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 unemployment rate",
+        "value": 6.6
+      },
+      {
+        "label": "April 2026 unemployment rate",
+        "value": 6.9
+      },
+      {
+        "label": "March 2026 unemployment rate",
+        "value": 6.7
+      },
+      {
+        "label": "February 2026 unemployment rate",
+        "value": 6.7
+      },
+      {
+        "label": "January 2026 unemployment rate",
+        "value": 6.5
+      }
+    ],
+    "drivers": [
+      "May unemployment rate fell to 6.6 after April's 6.9",
+      "May employment gain of 88,000 offsets early-2026 unemployment-rate pressure",
+      "Recent monthly unemployment-rate changes had about 0.24 percentage-point dispersion",
+      "LFS unemployment remains above the 2017-2019 pre-pandemic average of 6.0"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/release-diffusion/2026-eng.pdf",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260508/dq260508a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260410/dq260410a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260313/dq260313a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260206/dq260206a-eng.htm",
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410028701"
+    ],
+    "runAt": "2026-07-10T04:07:38Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada LFS Unemployment Rate, June 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: target is the Statistics Canada Labour Force Survey unemployment rate for Canada, seasonally adjusted, June 2026 reference month, first print. I keep the catalog slug and dataPointId, but the supplied ledger URL points to the June 5, 2026 Daily page for Labour Force Survey, May 2026; the official release schedule says the June 2026 LFS reference period is released on July 10, 2026, so the specific resolver page should be the July 10, 2026 Daily LFS page when available."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada 2026-2027 major economic releases PDF and read Labour Force Survey rows.",
+        "result": "Fetched schedule numbers: Labour Force Survey release date for June 2026 reference period is July 10, 2026; May 2026 reference period is June 5, 2026; July 2026 reference period is August 7, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada The Daily, Labour Force Survey, May 2026.",
+        "result": "Fetched latest official LFS numbers: Canada unemployment rate was 6.6% in May 2026, down 0.3 pts; employment increased by 88,000 or 0.4%; employment rate was 60.7%; job-finding rate was 26.3%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada The Daily releases for January through April 2026 and Table 14-10-0287-01 metadata.",
+        "result": "Fetched reference class history from the same seasonally adjusted LFS variant: January 2026 unemployment rate 6.5%, February 2026 6.7%, March 2026 6.7%, April 2026 6.9%, May 2026 6.6%; Table 14-10-0287-01 release date shown as 2026-06-05 for the then-current table view."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for a one-month-ahead LFS unemployment-rate forecast, persistence from the latest same-variant official print is the base rate. The last five first-print-like Daily values were 6.5, 6.7, 6.7, 6.9, and 6.6, putting the local level around 6.7 with recent prints ranging 6.5 to 6.9."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = May 2026 LFS unemployment rate 6.6. Historical sample = Jan-May 2026 same-variant seasonally adjusted Canada unemployment-rate prints; this is a short sample, so it is used only for near-term first-print volatility and not for a structural regime claim. Adjustment components: level +0.05 because the Jan-May average is 6.68 and the labour market remains above the pre-pandemic 6.0 reference; momentum -0.05 because May employment rose 88,000 and unemployment fell 0.3 pts; one-off/policy mechanism 0.00 because no official release evidence points to a discrete June break. Point = 6.6 + 0.05 - 0.05 + 0.00 = 6.6. Successive changes = +0.2, 0.0, +0.2, -0.3; sigma = 0.236 percentage points using sample standard deviation; 1.28*sigma = 0.302, so 80% half-width is about 0.3 and the one-decimal interval is 6.3 to 6.9."
+      },
+      {
+        "kind": "text",
+        "text": "Variant control: all anchors are Statistics Canada LFS, Canada, seasonally adjusted unemployment rate, using The Daily releases sourced to Table 14-10-0287-01. I did not mix unadjusted, provincial, trend-cycle, payroll, or U.S.-concept unemployment series."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a renewed labour-force participation rebound or job losses after May that pushes unemployment to 7.0 or higher, which would land above the interval. Downside risk is a second strong employment month or a participation drop like January that pushes unemployment to 6.2 or lower, outside the interval on the low side."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique to make the resolver discrepancy explicit and to replace the vague rounding judgment with a concrete persistence-based point estimate. I did not align the resolver URL to dq260605a because that page is for the May 2026 LFS release, while the June 2026 reference period is scheduled for July 10, 2026; this should be treated as a ledger discrepancy for human catalog correction before publication. Accepted the interval critique by naming the short-sample limitation rather than implying a broader volatility estimate."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.6,
+        "ciLow": 6.3,
+        "ciHigh": 6.9
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T04:06:08Z",
+    "runStartedAt": "2026-07-10T04:05:26Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 5.85,
+        "upper": 7.35
+      },
+      "points": [
+        {
+          "value": 5.85,
+          "probability": 0.0
+        },
+        {
+          "value": 5.8575,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 5.865,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 5.8725,
+          "probability": 0.005
+        },
+        {
+          "value": 5.88,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 5.8875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 5.895,
+          "probability": 0.01
+        },
+        {
+          "value": 5.9025,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 5.91,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 5.9175,
+          "probability": 0.015
+        },
+        {
+          "value": 5.925,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 5.9325,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 5.94,
+          "probability": 0.02
+        },
+        {
+          "value": 5.9475,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 5.955,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 5.9625,
+          "probability": 0.025
+        },
+        {
+          "value": 5.97,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 5.9775,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 5.985,
+          "probability": 0.03
+        },
+        {
+          "value": 5.9925,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 6.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 6.0075,
+          "probability": 0.035
+        },
+        {
+          "value": 6.015,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 6.0225,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 6.03,
+          "probability": 0.04
+        },
+        {
+          "value": 6.0375,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 6.045,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 6.0525,
+          "probability": 0.045
+        },
+        {
+          "value": 6.06,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 6.0675,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 6.075,
+          "probability": 0.05
+        },
+        {
+          "value": 6.0825,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 6.09,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 6.0975,
+          "probability": 0.055
+        },
+        {
+          "value": 6.105,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 6.1125,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 6.12,
+          "probability": 0.06
+        },
+        {
+          "value": 6.1275,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 6.135,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 6.1425,
+          "probability": 0.065
+        },
+        {
+          "value": 6.15,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 6.1575,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 6.165,
+          "probability": 0.07
+        },
+        {
+          "value": 6.1725,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 6.18,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 6.1875,
+          "probability": 0.075
+        },
+        {
+          "value": 6.195,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 6.2025,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 6.21,
+          "probability": 0.08
+        },
+        {
+          "value": 6.2175,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 6.225,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 6.2325,
+          "probability": 0.085
+        },
+        {
+          "value": 6.24,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 6.2475,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 6.255,
+          "probability": 0.09
+        },
+        {
+          "value": 6.2625,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 6.27,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 6.2775,
+          "probability": 0.095
+        },
+        {
+          "value": 6.285,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 6.2925,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 6.3,
+          "probability": 0.1
+        },
+        {
+          "value": 6.3075,
+          "probability": 0.11
+        },
+        {
+          "value": 6.315,
+          "probability": 0.12
+        },
+        {
+          "value": 6.3225,
+          "probability": 0.13
+        },
+        {
+          "value": 6.33,
+          "probability": 0.14
+        },
+        {
+          "value": 6.3375,
+          "probability": 0.15
+        },
+        {
+          "value": 6.345,
+          "probability": 0.16
+        },
+        {
+          "value": 6.3525,
+          "probability": 0.17
+        },
+        {
+          "value": 6.36,
+          "probability": 0.18
+        },
+        {
+          "value": 6.3675,
+          "probability": 0.19
+        },
+        {
+          "value": 6.375,
+          "probability": 0.2
+        },
+        {
+          "value": 6.3825,
+          "probability": 0.21
+        },
+        {
+          "value": 6.39,
+          "probability": 0.22
+        },
+        {
+          "value": 6.3975,
+          "probability": 0.23
+        },
+        {
+          "value": 6.405,
+          "probability": 0.24
+        },
+        {
+          "value": 6.4125,
+          "probability": 0.25
+        },
+        {
+          "value": 6.42,
+          "probability": 0.26
+        },
+        {
+          "value": 6.4275,
+          "probability": 0.27
+        },
+        {
+          "value": 6.435,
+          "probability": 0.28
+        },
+        {
+          "value": 6.4425,
+          "probability": 0.29
+        },
+        {
+          "value": 6.45,
+          "probability": 0.3
+        },
+        {
+          "value": 6.4575,
+          "probability": 0.31
+        },
+        {
+          "value": 6.465,
+          "probability": 0.32
+        },
+        {
+          "value": 6.4725,
+          "probability": 0.33
+        },
+        {
+          "value": 6.48,
+          "probability": 0.34
+        },
+        {
+          "value": 6.4875,
+          "probability": 0.35
+        },
+        {
+          "value": 6.495,
+          "probability": 0.36
+        },
+        {
+          "value": 6.5025,
+          "probability": 0.37
+        },
+        {
+          "value": 6.51,
+          "probability": 0.38
+        },
+        {
+          "value": 6.5175,
+          "probability": 0.39
+        },
+        {
+          "value": 6.525,
+          "probability": 0.4
+        },
+        {
+          "value": 6.5325,
+          "probability": 0.41
+        },
+        {
+          "value": 6.54,
+          "probability": 0.42
+        },
+        {
+          "value": 6.5475,
+          "probability": 0.43
+        },
+        {
+          "value": 6.555,
+          "probability": 0.44
+        },
+        {
+          "value": 6.5625,
+          "probability": 0.45
+        },
+        {
+          "value": 6.57,
+          "probability": 0.46
+        },
+        {
+          "value": 6.5775,
+          "probability": 0.47
+        },
+        {
+          "value": 6.585,
+          "probability": 0.48
+        },
+        {
+          "value": 6.5925,
+          "probability": 0.49
+        },
+        {
+          "value": 6.6,
+          "probability": 0.5
+        },
+        {
+          "value": 6.6075,
+          "probability": 0.51
+        },
+        {
+          "value": 6.615,
+          "probability": 0.52
+        },
+        {
+          "value": 6.6225,
+          "probability": 0.53
+        },
+        {
+          "value": 6.63,
+          "probability": 0.54
+        },
+        {
+          "value": 6.6375,
+          "probability": 0.55
+        },
+        {
+          "value": 6.645,
+          "probability": 0.56
+        },
+        {
+          "value": 6.6525,
+          "probability": 0.57
+        },
+        {
+          "value": 6.66,
+          "probability": 0.58
+        },
+        {
+          "value": 6.6675,
+          "probability": 0.59
+        },
+        {
+          "value": 6.675,
+          "probability": 0.6
+        },
+        {
+          "value": 6.6825,
+          "probability": 0.61
+        },
+        {
+          "value": 6.69,
+          "probability": 0.62
+        },
+        {
+          "value": 6.6975,
+          "probability": 0.63
+        },
+        {
+          "value": 6.705,
+          "probability": 0.64
+        },
+        {
+          "value": 6.7125,
+          "probability": 0.65
+        },
+        {
+          "value": 6.72,
+          "probability": 0.66
+        },
+        {
+          "value": 6.7275,
+          "probability": 0.67
+        },
+        {
+          "value": 6.735,
+          "probability": 0.68
+        },
+        {
+          "value": 6.7425,
+          "probability": 0.69
+        },
+        {
+          "value": 6.75,
+          "probability": 0.7
+        },
+        {
+          "value": 6.7575,
+          "probability": 0.71
+        },
+        {
+          "value": 6.765,
+          "probability": 0.72
+        },
+        {
+          "value": 6.7725,
+          "probability": 0.73
+        },
+        {
+          "value": 6.78,
+          "probability": 0.74
+        },
+        {
+          "value": 6.7875,
+          "probability": 0.75
+        },
+        {
+          "value": 6.795,
+          "probability": 0.76
+        },
+        {
+          "value": 6.8025,
+          "probability": 0.77
+        },
+        {
+          "value": 6.81,
+          "probability": 0.78
+        },
+        {
+          "value": 6.8175,
+          "probability": 0.79
+        },
+        {
+          "value": 6.825,
+          "probability": 0.8
+        },
+        {
+          "value": 6.8325,
+          "probability": 0.81
+        },
+        {
+          "value": 6.84,
+          "probability": 0.82
+        },
+        {
+          "value": 6.8475,
+          "probability": 0.83
+        },
+        {
+          "value": 6.855,
+          "probability": 0.84
+        },
+        {
+          "value": 6.8625,
+          "probability": 0.85
+        },
+        {
+          "value": 6.87,
+          "probability": 0.86
+        },
+        {
+          "value": 6.8775,
+          "probability": 0.87
+        },
+        {
+          "value": 6.885,
+          "probability": 0.88
+        },
+        {
+          "value": 6.8925,
+          "probability": 0.89
+        },
+        {
+          "value": 6.9,
+          "probability": 0.9
+        },
+        {
+          "value": 6.9075,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 6.915,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 6.9225,
+          "probability": 0.905
+        },
+        {
+          "value": 6.93,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 6.9375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 6.945,
+          "probability": 0.91
+        },
+        {
+          "value": 6.9525,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 6.96,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 6.9675,
+          "probability": 0.915
+        },
+        {
+          "value": 6.975,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 6.9825,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 6.99,
+          "probability": 0.92
+        },
+        {
+          "value": 6.9975,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 7.005,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 7.0125,
+          "probability": 0.925
+        },
+        {
+          "value": 7.02,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 7.0275,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 7.035,
+          "probability": 0.93
+        },
+        {
+          "value": 7.0425,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 7.05,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 7.0575,
+          "probability": 0.935
+        },
+        {
+          "value": 7.065,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 7.0725,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 7.08,
+          "probability": 0.94
+        },
+        {
+          "value": 7.0875,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 7.095,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 7.1025,
+          "probability": 0.945
+        },
+        {
+          "value": 7.11,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 7.1175,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 7.125,
+          "probability": 0.95
+        },
+        {
+          "value": 7.1325,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 7.14,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 7.1475,
+          "probability": 0.955
+        },
+        {
+          "value": 7.155,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 7.1625,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 7.17,
+          "probability": 0.96
+        },
+        {
+          "value": 7.1775,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 7.185,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 7.1925,
+          "probability": 0.965
+        },
+        {
+          "value": 7.2,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 7.2075,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 7.215,
+          "probability": 0.97
+        },
+        {
+          "value": 7.2225,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 7.23,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 7.2375,
+          "probability": 0.975
+        },
+        {
+          "value": 7.245,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 7.2525,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 7.26,
+          "probability": 0.98
+        },
+        {
+          "value": 7.2675,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 7.275,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 7.2825,
+          "probability": 0.985
+        },
+        {
+          "value": 7.29,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 7.2975,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 7.305,
+          "probability": 0.99
+        },
+        {
+          "value": 7.3125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 7.32,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 7.3275,
+          "probability": 0.995
+        },
+        {
+          "value": 7.335,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 7.3425,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 7.35,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 6.6,
+        "median": 6.6,
+        "interval80": {
+          "lower": 6.3,
+          "upper": 6.9
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/prompt.md",
+        "sha256": "85b14a084401ef868269ce7ceae1541e5760f80d8efdbafdf49db559317560ab",
+        "bytes": 8594,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_command.json",
+        "sha256": "2ce71d3b2ed30a890d34d758e2b0a195838e3e358e5a85deff1e9bd50a3e6f75",
+        "bytes": 689,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "2aae27e4fe6fa2fc09ef66acdf610ead7b33f0ea7d183a25708002f58e537ad3",
+        "bytes": 11079,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_stderr.log",
+        "sha256": "12f58421827a0087cbab210852a112e894c339ea37882a58ec0b469e6c1b1652",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_events.jsonl",
+        "sha256": "7d1a3fc475534e3307fb84168bc80149634fb5835369aad76a5df936e367f191",
+        "bytes": 11055,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_last_message.txt",
+        "sha256": "de58a9c8ea9e2de6538807a17379236cbdbc2478321663395ed26747268c528c",
+        "bytes": 5753,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_trace.json",
+        "sha256": "4c88a375056e0c71bebd38e94a94e04f11ac6e5b60f54542602687840049775c",
+        "bytes": 507,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_stdout.txt",
+        "sha256": "de58a9c8ea9e2de6538807a17379236cbdbc2478321663395ed26747268c528c",
+        "bytes": 5753,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_stderr.txt",
+        "sha256": "60ca449b0bd42a8587aadc2d5b33e2a8fc2f0abe8fced5a621fe97f7f61934cd",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_prompt.md",
+        "sha256": "58bde485ddc538d0c92827264b6532964ed46dc5a15b2e1449446261f9985945",
+        "bytes": 8623,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_command.json",
+        "sha256": "49cb1cc2dc12559d62715e506334ebc932c5c542d28bd21a9cc766aeab14b9e3",
+        "bytes": 685,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "783a8f904b046052bd9ed5b28a2a9e8acd0aa34141eea764a41b477bfa0b7f9f",
+        "bytes": 2088,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "c6e33a2d4e3ec639a3437d337b5fafb79848b780891a92ba04af99cb46f4221d",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "3ea7fa73260eef84d5d8ec3e5b1c6e2ca16762ca7d53a7e4ed1ded34b064633d",
+        "bytes": 2110,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "2cce487b06c78a5e0b87007a0ddbc08c1db52be449b0cb79313059e5a1702a88",
+        "bytes": 1710,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "3dacf24c9ba0c0319f0e64e509494d80dc5639f09729581d72e45980e9611daa",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "2cce487b06c78a5e0b87007a0ddbc08c1db52be449b0cb79313059e5a1702a88",
+        "bytes": 1710,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "f9e58202d61c857068935c6472858028bb78fefd253347656ba0118f133d0133",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/revision_prompt.md",
+        "sha256": "e77d70575e1b9284e2db8003a40b3e55628bd565d0a39d1ee94667387709ca36",
+        "bytes": 16993,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/command.json",
+        "sha256": "7c135c712443995f474d4ac412003623545f38c9b5ad369f86831a13aa8112cd",
+        "bytes": 683,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/codex_stdout.jsonl",
+        "sha256": "868e32e796d3fa8aa39f0cc76439e91a4ac7ae2ee183407778a8826fa4385b71",
+        "bytes": 7002,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/codex_stderr.log",
+        "sha256": "f549f83b25e5ab6b0bc36cd6637219507f552d31a86ec304165a9168985666fb",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/codex_events.jsonl",
+        "sha256": "438221e5874fb7bab93fce8cdb61850bbdce033b25486a16f3a1f86457ad3964",
+        "bytes": 7024,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/codex_last_message.txt",
+        "sha256": "074dbf92d49b90aaa62e0687e21d002690936bf2990f6b13bd21454172dee5ea",
+        "bytes": 6453,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/codex_trace.json",
+        "sha256": "fa21ca0ec6e070bfc334cd916f7fb2d4b960eab7914b0d1f46f3c4330437c79b",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/stdout.txt",
+        "sha256": "074dbf92d49b90aaa62e0687e21d002690936bf2990f6b13bd21454172dee5ea",
+        "bytes": 6453,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/stderr.txt",
+        "sha256": "d1a47cad4a22d69c666b1682c252fd22fa4018950f5f7d3ea49fc1e000727b65",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/raw_response.txt",
+        "sha256": "074dbf92d49b90aaa62e0687e21d002690936bf2990f6b13bd21454172dee5ea",
+        "bytes": 6453,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/parsed_cells.json",
+        "sha256": "56a58c8ce2a56a27c16cfbde4ad43cae22c73b3849ea7334a2ae72a4080915fd",
+        "bytes": 7303,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/normalized_cells.json",
+        "sha256": "d835193abac442488f899d483e01c9109f1ca3d386b22ac99c529bf08bf290b9",
+        "bytes": 24217,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/distribution.json",
+        "sha256": "441282682c9377133b2ff26bba38050f557958f276a7043724b149b3063edc62",
+        "bytes": 13496,
+        "createdAt": "2026-07-10T04:05:26Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/validation.json",
+        "sha256": "a8e9bdbb7e944d8adae33f215893e803c1536039d472cddfaa3359449552f310",
+        "bytes": 147,
+        "createdAt": "2026-07-10T04:05:26Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T04:05:26Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "11f02004b7d18f797f9135ad2775185d60c77901fc3853f9772c241eb9f16809"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-05-26z-statcan-lfs-unemployment-rate-canada-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft changes resolutionDate to 2026-07-10 and resolutionSourceUrl to the July 10 Daily page, while the canonical ledger contract specifies resolutionDate/source URL fields tied to dq260605a and the expected release window ending 2026-07-09.",
+          "actionRequested": "Either align the JSON resolver fields to the canonical ledger contract, or explicitly flag this as a ledger discrepancy for human catalog correction before publication; do not silently publish mismatched resolver fields."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "update",
+          "summary": "The move from the 6.6 persistence prior to a 6.7 point estimate rests on a vague '+0.05 rounding judgment' after stated adjustment components net to zero.",
+          "actionRequested": "Replace the rounding judgment with a concrete stated update, or keep the point at the rounded persistence-implied value if no material update is justified."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is based on only four Jan-May 2026 monthly changes, which is a very small realized-volatility sample.",
+          "actionRequested": "Use a longer same-series monthly change sample if available, or explicitly justify why the short 2026 sample is sufficient for the interval width."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State whether the forecast was made before the July 10, 2026 release time to remove any leakage concern."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Keep the reasoning discrepancy note, but mirror the final decision consistently in the top-level JSON fields."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to make the resolver discrepancy explicit and to replace the vague rounding judgment with a concrete persistence-based point estimate. I did not align the resolver URL to dq260605a because that page is for the May 2026 LFS release, while the June 2026 reference period is scheduled for July 10, 2026; this should be treated as a ledger discrepancy for human catalog correction before publication. Accepted the interval critique by naming the short-sample limitation rather than implying a broader volatility estimate.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to make the resolver discrepancy explicit and to replace the vague rounding judgment with a concrete persistence-based point estimate. I did not align the resolver URL to dq260605a because that page is for the May 2026 LFS release, while the June 2026 reference period is scheduled for July 10, 2026; this should be treated as a ledger discrepancy for human catalog correction before publication. Accepted the interval critique by naming the short-sample limitation rather than implying a broader volatility estimate.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to make the resolver discrepancy explicit and to replace the vague rounding judgment with a concrete persistence-based point estimate. I did not align the resolver URL to dq260605a because that page is for the May 2026 LFS release, while the June 2026 reference period is scheduled for July 10, 2026; this should be treated as a ledger discrepancy for human catalog correction before publication. Accepted the interval critique by naming the short-sample limitation rather than implying a broader volatility estimate.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to make the resolver discrepancy explicit and to replace the vague rounding judgment with a concrete persistence-based point estimate. I did not align the resolver URL to dq260605a because that page is for the May 2026 LFS release, while the June 2026 reference period is scheduled for July 10, 2026; this should be treated as a ledger discrepancy for human catalog correction before publication. Accepted the interval critique by naming the short-sample limitation rather than implying a broader volatility estimate.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to make the resolver discrepancy explicit and to replace the vague rounding judgment with a concrete persistence-based point estimate. I did not align the resolver URL to dq260605a because that page is for the May 2026 LFS release, while the June 2026 reference period is scheduled for July 10, 2026; this should be treated as a ledger discrepancy for human catalog correction before publication. Accepted the interval critique by naming the short-sample limitation rather than implying a broader volatility estimate.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly coherent, but it must not publish with resolver fields that diverge from the canonical ledger contract without an explicit review decision."
+    }
+  }
+]

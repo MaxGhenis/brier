@@ -1,0 +1,15 @@
+{
+  "summary": "Publishable after tightening the uncertainty justification; the resolver, first-print rule, date, unit, and JSON fields are otherwise coherent with the ledger target.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval uses only four changes, including a May 2025 to February 2026 gap treated like a one-month move, and does not adjust for the May-to-July forecast horizon.",
+      "actionRequested": "Recompute or justify the interval using a contiguous monthly realized-volatility sample, or explicitly state why the sparse/non-contiguous sample and one-step half-width are adequate for July 2026."
+    }
+  ],
+  "optionalSuggestions": [
+    "Mention that the BLS schedule currently lists July 2026 JOLTS for September 1, 2026 at 10:00 AM and that later schedule changes should not alter the first-print target unless the official release date changes before publication.",
+    "Clarify whether the persistence prior is being used as the time-series model prior, since no separate model is estimated."
+  ]
+}

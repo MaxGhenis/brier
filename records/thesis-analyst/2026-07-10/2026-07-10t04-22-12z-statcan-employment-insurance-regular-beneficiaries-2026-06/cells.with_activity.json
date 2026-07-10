@@ -1,0 +1,1219 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada EI Regular Beneficiaries, June 2026",
+    "question": "What will Statistics Canada first report for Canada regular Employment Insurance beneficiaries, seasonally adjusted, June 2026, in Table 14-10-0011-01?",
+    "unit": "thousands",
+    "pointEstimate": 550.4,
+    "ciLow": 539.6,
+    "ciHigh": 561.2,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada print for Canada, regular Employment Insurance beneficiaries, monthly, seasonally adjusted, June 2026, from Table 14-10-0011-01 or the linked The Daily data-availability release. Use the initially published count of persons converted to thousands by multiplying by 0.001 and do not use later revisions or corrections unless the first-print page itself is replaced before resolution capture.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-04",
+        "value": 544.44
+      },
+      {
+        "label": "2026-03",
+        "value": 548
+      },
+      {
+        "label": "2026-02",
+        "value": 542.11
+      },
+      {
+        "label": "2026-01",
+        "value": 554.83
+      },
+      {
+        "label": "2025-11 recent peak",
+        "value": 569
+      }
+    ],
+    "drivers": [
+      "April level was 544.44 thousand after a small monthly decline",
+      "March-to-April change was -3.56 thousand, but March had risen from February",
+      "Labour-market softness keeps upward pressure on EI inflows with a lag",
+      "Recent beneficiary levels remain below the November 2025 peak of about 569 thousand",
+      "First-print target is seasonally adjusted Canada regular benefits only"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260522/dq260522b-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260423/dq260423c-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260325/dq260325a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/dai-quo/cal3-eng.htm"
+    ],
+    "runAt": "2026-07-10T04:24:58Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada regular EI beneficiaries, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecast is for Statistics Canada Table 14-10-0011-01, Canada geography, regular Employment Insurance beneficiaries, monthly and seasonally adjusted, June 2026 first print, expressed in thousands. The table page identifies Table 14-10-0011-01 as monthly, seasonally adjusted regular-benefit EI beneficiaries by province and territory. I keep the target tied to the canonical June 2026 dataPointId; the ledger table note appears to mention the May 2026 Daily release even though the period and expected release window identify the June 2026 target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada Table 14-10-0011-01 metadata page for the target series and latest table release status.",
+        "result": "Fetched table metadata: Table 14-10-0011-01, monthly frequency, release date 2026-06-18, geography includes Canada, and latest displayed reference range includes 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened The Daily Employment Insurance, April 2026 release for the latest official Canada value before this run.",
+        "result": "Fetched Canada regular EI beneficiaries for April 2026: 544,440 persons = 544.44 thousand, monthly change -0.5%, year-over-year change 3.5%; release says May 2026 EI data will be released July 23."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened The Daily Employment Insurance, March 2026 release for recent official history and labour-market context.",
+        "result": "Fetched Canada regular EI beneficiaries for March 2026: 548,000 persons = 548.00 thousand, monthly change +0.4%, year-over-year change 8.7%; the text says March rose by 2,300 after February fell by 8,700 and the November 2025 recent peak was 569,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened The Daily Employment Insurance, February 2026 and January 2026 releases for additional recent official history.",
+        "result": "Fetched February 2026: 542,110 persons = 542.11 thousand, monthly change -1.6%, year-over-year change 8.1%; fetched January 2026: 554,830 persons = 554.83 thousand, monthly change -1.9%, year-over-year change 13.4%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Statistics Canada The Daily release schedule surface for the resolution date.",
+        "result": "Fetched the official schedule surface current to 2026 with 2026 release dates; for this target contract I use the scheduled June 2026 EI first-print release date 2026-08-20, within the official expected window 2026-08-19 to 2026-08-27."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for this seasonally adjusted level series, the most relevant reference class is month-to-month Canada regular EI beneficiary changes in the current 2026 release sequence. The base rate is mild mean reversion around the 540s-to-550s thousand range rather than a return to the November 2025 peak of 569 thousand."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior starts from April 2026 at 544.44 thousand; the volatility sample is a very short recent-history sample using fetched monthly changes of approximately Dec-Jan -11.0, Jan-Feb -8.7, Feb-Mar +2.3, and Mar-Apr -3.6 thousand, giving sigma = 5.9 thousand. I add +3.0 thousand for May and +3.0 thousand for June because labour-market softness should lift regular-benefit caseloads with a lag but recent first-print EI data have not shown a sustained surge. Point = 544.44 + 3.0 + 3.0 = 550.44, rounded to 550.4. A one-step 80% half-width is 1.28*sigma = 1.28*5.9 = 7.6; because this is two monthly transitions from April to June, I widen by sqrt(2) to about 10.8, so the 80% interval is 550.4 +/- 10.8 = 539.6 to 561.2."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: the level is still high versus early 2025 but below the late-2025 peak; momentum is mixed after January-February declines, a March bounce, and an April dip; no new rule change is included beyond the continuing temporary EI measures noted by StatCan; the policy and administrative mechanism mainly affects eligibility and timing rather than a directional shock this month."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a sharper June claims pickup from tariff-sensitive goods, construction, transport, or education-related layoffs, which would land above the interval if the Canada count exceeds 561.2 thousand. Downside risk is faster re-employment or benefit exhaustion after the winter caseload, which would land below the interval if the first print is under 539.6 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional clarifications to name the volatility basis as a very short recent-history sample and to state the ledger text discrepancy about the May 2026 Daily release while preserving the canonical June 2026 first-print target; no required fixes were identified."
+      },
+      {
+        "kind": "forecast",
+        "point": 550.4,
+        "ciLow": 539.6,
+        "ciHigh": 561.2
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T04:22:38Z",
+    "runStartedAt": "2026-07-10T04:22:12Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 523.4,
+        "upper": 577.4
+      },
+      "points": [
+        {
+          "value": 523.4,
+          "probability": 0.0
+        },
+        {
+          "value": 523.67,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 523.94,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 524.21,
+          "probability": 0.005
+        },
+        {
+          "value": 524.48,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 524.75,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 525.02,
+          "probability": 0.01
+        },
+        {
+          "value": 525.29,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 525.56,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 525.83,
+          "probability": 0.015
+        },
+        {
+          "value": 526.1,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 526.37,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 526.64,
+          "probability": 0.02
+        },
+        {
+          "value": 526.91,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 527.18,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 527.45,
+          "probability": 0.025
+        },
+        {
+          "value": 527.72,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 527.99,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 528.26,
+          "probability": 0.03
+        },
+        {
+          "value": 528.53,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 528.8,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 529.07,
+          "probability": 0.035
+        },
+        {
+          "value": 529.34,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 529.61,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 529.88,
+          "probability": 0.04
+        },
+        {
+          "value": 530.15,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 530.42,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 530.69,
+          "probability": 0.045
+        },
+        {
+          "value": 530.96,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 531.23,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 531.5,
+          "probability": 0.05
+        },
+        {
+          "value": 531.77,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 532.04,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 532.31,
+          "probability": 0.055
+        },
+        {
+          "value": 532.58,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 532.85,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 533.12,
+          "probability": 0.06
+        },
+        {
+          "value": 533.39,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 533.66,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 533.93,
+          "probability": 0.065
+        },
+        {
+          "value": 534.2,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 534.47,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 534.74,
+          "probability": 0.07
+        },
+        {
+          "value": 535.01,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 535.28,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 535.55,
+          "probability": 0.075
+        },
+        {
+          "value": 535.82,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 536.09,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 536.36,
+          "probability": 0.08
+        },
+        {
+          "value": 536.63,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 536.9,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 537.17,
+          "probability": 0.085
+        },
+        {
+          "value": 537.44,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 537.71,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 537.98,
+          "probability": 0.09
+        },
+        {
+          "value": 538.25,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 538.52,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 538.79,
+          "probability": 0.095
+        },
+        {
+          "value": 539.06,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 539.33,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 539.6,
+          "probability": 0.1
+        },
+        {
+          "value": 539.87,
+          "probability": 0.11
+        },
+        {
+          "value": 540.14,
+          "probability": 0.12
+        },
+        {
+          "value": 540.41,
+          "probability": 0.13
+        },
+        {
+          "value": 540.68,
+          "probability": 0.14
+        },
+        {
+          "value": 540.95,
+          "probability": 0.15
+        },
+        {
+          "value": 541.22,
+          "probability": 0.16
+        },
+        {
+          "value": 541.49,
+          "probability": 0.17
+        },
+        {
+          "value": 541.76,
+          "probability": 0.18
+        },
+        {
+          "value": 542.03,
+          "probability": 0.19
+        },
+        {
+          "value": 542.3,
+          "probability": 0.2
+        },
+        {
+          "value": 542.57,
+          "probability": 0.21
+        },
+        {
+          "value": 542.84,
+          "probability": 0.22
+        },
+        {
+          "value": 543.11,
+          "probability": 0.23
+        },
+        {
+          "value": 543.38,
+          "probability": 0.24
+        },
+        {
+          "value": 543.65,
+          "probability": 0.25
+        },
+        {
+          "value": 543.92,
+          "probability": 0.26
+        },
+        {
+          "value": 544.19,
+          "probability": 0.27
+        },
+        {
+          "value": 544.46,
+          "probability": 0.28
+        },
+        {
+          "value": 544.73,
+          "probability": 0.29
+        },
+        {
+          "value": 545.0,
+          "probability": 0.3
+        },
+        {
+          "value": 545.27,
+          "probability": 0.31
+        },
+        {
+          "value": 545.54,
+          "probability": 0.32
+        },
+        {
+          "value": 545.81,
+          "probability": 0.33
+        },
+        {
+          "value": 546.08,
+          "probability": 0.34
+        },
+        {
+          "value": 546.35,
+          "probability": 0.35
+        },
+        {
+          "value": 546.62,
+          "probability": 0.36
+        },
+        {
+          "value": 546.89,
+          "probability": 0.37
+        },
+        {
+          "value": 547.16,
+          "probability": 0.38
+        },
+        {
+          "value": 547.43,
+          "probability": 0.39
+        },
+        {
+          "value": 547.7,
+          "probability": 0.4
+        },
+        {
+          "value": 547.97,
+          "probability": 0.41
+        },
+        {
+          "value": 548.24,
+          "probability": 0.42
+        },
+        {
+          "value": 548.51,
+          "probability": 0.43
+        },
+        {
+          "value": 548.78,
+          "probability": 0.44
+        },
+        {
+          "value": 549.05,
+          "probability": 0.45
+        },
+        {
+          "value": 549.32,
+          "probability": 0.46
+        },
+        {
+          "value": 549.59,
+          "probability": 0.47
+        },
+        {
+          "value": 549.86,
+          "probability": 0.48
+        },
+        {
+          "value": 550.13,
+          "probability": 0.49
+        },
+        {
+          "value": 550.4,
+          "probability": 0.5
+        },
+        {
+          "value": 550.67,
+          "probability": 0.51
+        },
+        {
+          "value": 550.94,
+          "probability": 0.52
+        },
+        {
+          "value": 551.21,
+          "probability": 0.53
+        },
+        {
+          "value": 551.48,
+          "probability": 0.54
+        },
+        {
+          "value": 551.75,
+          "probability": 0.55
+        },
+        {
+          "value": 552.02,
+          "probability": 0.56
+        },
+        {
+          "value": 552.29,
+          "probability": 0.57
+        },
+        {
+          "value": 552.56,
+          "probability": 0.58
+        },
+        {
+          "value": 552.83,
+          "probability": 0.59
+        },
+        {
+          "value": 553.1,
+          "probability": 0.6
+        },
+        {
+          "value": 553.37,
+          "probability": 0.61
+        },
+        {
+          "value": 553.64,
+          "probability": 0.62
+        },
+        {
+          "value": 553.91,
+          "probability": 0.63
+        },
+        {
+          "value": 554.18,
+          "probability": 0.64
+        },
+        {
+          "value": 554.45,
+          "probability": 0.65
+        },
+        {
+          "value": 554.72,
+          "probability": 0.66
+        },
+        {
+          "value": 554.99,
+          "probability": 0.67
+        },
+        {
+          "value": 555.26,
+          "probability": 0.68
+        },
+        {
+          "value": 555.53,
+          "probability": 0.69
+        },
+        {
+          "value": 555.8,
+          "probability": 0.7
+        },
+        {
+          "value": 556.07,
+          "probability": 0.71
+        },
+        {
+          "value": 556.34,
+          "probability": 0.72
+        },
+        {
+          "value": 556.61,
+          "probability": 0.73
+        },
+        {
+          "value": 556.88,
+          "probability": 0.74
+        },
+        {
+          "value": 557.15,
+          "probability": 0.75
+        },
+        {
+          "value": 557.42,
+          "probability": 0.76
+        },
+        {
+          "value": 557.69,
+          "probability": 0.77
+        },
+        {
+          "value": 557.96,
+          "probability": 0.78
+        },
+        {
+          "value": 558.23,
+          "probability": 0.79
+        },
+        {
+          "value": 558.5,
+          "probability": 0.8
+        },
+        {
+          "value": 558.77,
+          "probability": 0.81
+        },
+        {
+          "value": 559.04,
+          "probability": 0.82
+        },
+        {
+          "value": 559.31,
+          "probability": 0.83
+        },
+        {
+          "value": 559.58,
+          "probability": 0.84
+        },
+        {
+          "value": 559.85,
+          "probability": 0.85
+        },
+        {
+          "value": 560.12,
+          "probability": 0.86
+        },
+        {
+          "value": 560.39,
+          "probability": 0.87
+        },
+        {
+          "value": 560.66,
+          "probability": 0.88
+        },
+        {
+          "value": 560.93,
+          "probability": 0.89
+        },
+        {
+          "value": 561.2,
+          "probability": 0.9
+        },
+        {
+          "value": 561.47,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 561.74,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 562.01,
+          "probability": 0.905
+        },
+        {
+          "value": 562.28,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 562.55,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 562.82,
+          "probability": 0.91
+        },
+        {
+          "value": 563.09,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 563.36,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 563.63,
+          "probability": 0.915
+        },
+        {
+          "value": 563.9,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 564.17,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 564.44,
+          "probability": 0.92
+        },
+        {
+          "value": 564.71,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 564.98,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 565.25,
+          "probability": 0.925
+        },
+        {
+          "value": 565.52,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 565.79,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 566.06,
+          "probability": 0.93
+        },
+        {
+          "value": 566.33,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 566.6,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 566.87,
+          "probability": 0.935
+        },
+        {
+          "value": 567.14,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 567.41,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 567.68,
+          "probability": 0.94
+        },
+        {
+          "value": 567.95,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 568.22,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 568.49,
+          "probability": 0.945
+        },
+        {
+          "value": 568.76,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 569.03,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 569.3,
+          "probability": 0.95
+        },
+        {
+          "value": 569.57,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 569.84,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 570.11,
+          "probability": 0.955
+        },
+        {
+          "value": 570.38,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 570.65,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 570.92,
+          "probability": 0.96
+        },
+        {
+          "value": 571.19,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 571.46,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 571.73,
+          "probability": 0.965
+        },
+        {
+          "value": 572.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 572.27,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 572.54,
+          "probability": 0.97
+        },
+        {
+          "value": 572.81,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 573.08,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 573.35,
+          "probability": 0.975
+        },
+        {
+          "value": 573.62,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 573.89,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 574.16,
+          "probability": 0.98
+        },
+        {
+          "value": 574.43,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 574.7,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 574.97,
+          "probability": 0.985
+        },
+        {
+          "value": 575.24,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 575.51,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 575.78,
+          "probability": 0.99
+        },
+        {
+          "value": 576.05,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 576.32,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 576.59,
+          "probability": 0.995
+        },
+        {
+          "value": 576.86,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 577.13,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 577.4,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 550.4,
+        "median": 550.4,
+        "interval80": {
+          "lower": 539.6,
+          "upper": 561.2
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/prompt.md",
+        "sha256": "40b1d111df22e4515825e1b2cf8310b350c95c6801eb5e35e8a0ca0dea4d332a",
+        "bytes": 8619,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_command.json",
+        "sha256": "cb6956eebc1a1d9e0b9374178622fcbdbbbd968edb49dbfd1b7c4e9c24d5375d",
+        "bytes": 703,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "57dcc4c9062eaf03f47b44fef4e8615787148bdb8c425578ded244e7bf48b6a3",
+        "bytes": 21130,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_stderr.log",
+        "sha256": "cd72dd551214b490102f26368470c8da75c4dc4c17fbbdd2dbfb5c99c7b0d36b",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_events.jsonl",
+        "sha256": "da7b74ffdf3bb7362ec1da8cfa89a4c2b4c9113937d264d10b6366bcfe9e4a0a",
+        "bytes": 21004,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_last_message.txt",
+        "sha256": "717b08955f5ed5a560af564801994444143462387f7b3223bc2e849c8e1fb3b7",
+        "bytes": 6658,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_trace.json",
+        "sha256": "9a7ebb5f6b57f0e1de11137ea55746bd6ce708fa78a4e60e5c039594eb1b6e91",
+        "bytes": 508,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_stdout.txt",
+        "sha256": "717b08955f5ed5a560af564801994444143462387f7b3223bc2e849c8e1fb3b7",
+        "bytes": 6658,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_stderr.txt",
+        "sha256": "fd45a2a5abea8e05c0eea86a26f3091fe01799ee388ee5189c48f846faff8bd6",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_prompt.md",
+        "sha256": "2700c895469f8f17f2be31196a29500ae82bcafe603fc936131f76dd3319877a",
+        "bytes": 9553,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_command.json",
+        "sha256": "ba2d556ecc78705aad24ecac9e54b97cd425dd66e2a31d9b8a6e338ef19ea037",
+        "bytes": 699,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "49efe2321b77e9d4f7c1896fecb60e3656264efb8a753e848216895c2bb08d4d",
+        "bytes": 1648,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "9a0661fccf7ef36be77a8099bdf7c48a31bf8bc2406c069b4a5cb4e879259a77",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "18fc862671b07c3169e13f916018dab2f24b34f559386db63f1b9287649d71b2",
+        "bytes": 1669,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "84a7f13c84ccab1984023c53e696368c466a751d48b6e92674f34e6972ad9800",
+        "bytes": 561,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "6613078c44ba3e61a875d89ae8a41f509d0e7ffcd3740a77c553d4d7419a7646",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "84a7f13c84ccab1984023c53e696368c466a751d48b6e92674f34e6972ad9800",
+        "bytes": 561,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "13378584c97c751614389e03c10531f8debc8d280f2177fab057a0a4691bebaf",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/revision_prompt.md",
+        "sha256": "f502cddb1d024318159160a52f0d5f9e2daf8ab9adc97344564fcfa3181e9af9",
+        "bytes": 16774,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/command.json",
+        "sha256": "f9c25a2dbd88d35892c86a1ad72256e9259ef3f253fe61a16fb72ce856f54d89",
+        "bytes": 697,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_stdout.jsonl",
+        "sha256": "9a54e08abeaffae898f45fcb649e75b30b8c6eca3752a008753e085badcf1ef6",
+        "bytes": 7809,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_stderr.log",
+        "sha256": "d868432ae73f8c92caa931049a07449dc9b99d8cafb12a410e8e627bf51d6c9e",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_events.jsonl",
+        "sha256": "51ae4cd55ef79168a2f54fc4808e6cc4a24103079494478472aa3bf96011c710",
+        "bytes": 7831,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_last_message.txt",
+        "sha256": "a7098f11730366f3c0fcbc1123e9e97980c8ce73e7b3043db1d6feaa70209081",
+        "bytes": 7228,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_trace.json",
+        "sha256": "5e8dea5a9b583507f85c53cc9bbab64c1ed3b9976f8461aa804d1f8dacc1554b",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/stdout.txt",
+        "sha256": "a7098f11730366f3c0fcbc1123e9e97980c8ce73e7b3043db1d6feaa70209081",
+        "bytes": 7228,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/stderr.txt",
+        "sha256": "7911716a626de8af28f3976d603e835ab75e42e0be0364ca6362feaa9f13900b",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/raw_response.txt",
+        "sha256": "a7098f11730366f3c0fcbc1123e9e97980c8ce73e7b3043db1d6feaa70209081",
+        "bytes": 7228,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/parsed_cells.json",
+        "sha256": "df9a14dde263720ec1820122cc36a01a2af533ff36b6680ce93315604558c0ec",
+        "bytes": 8186,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/normalized_cells.json",
+        "sha256": "ffdd62b06181900ea40a5b44ddad6f5175e017583e31a049a6bfcef385fe61c4",
+        "bytes": 25246,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/distribution.json",
+        "sha256": "a8fe530cfaa2b1a2ecd10c4e9e06372500fc547b4ff3624969ae15c934c9ccc8",
+        "bytes": 13642,
+        "createdAt": "2026-07-10T04:22:12Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/validation.json",
+        "sha256": "a05a567f741290a0fa4fc2abf0e9cd90adf3e24889c1b4e2b433c121d36aed61",
+        "bytes": 142,
+        "createdAt": "2026-07-10T04:22:12Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T04:22:12Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "ec31f10d38f06131e1b582429264aa4e430f7ba2f1acaece7722b0c6ab3d3637"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-22-12z-statcan-employment-insurance-regular-beneficiaries-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider naming the four-change volatility sample as a very short recent-history sample, since the interval rests on limited realized variation."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Optionally note the ledger text discrepancy that mentions the May 2026 Daily release even though the target is June 2026, while keeping the forecast tied to the canonical June target."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional clarifications to name the volatility basis as a very short recent-history sample and to state the ledger text discrepancy about the May 2026 Daily release while preserving the canonical June 2026 first-print target; no required fixes were identified.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the optional clarifications to name the volatility basis as a very short recent-history sample and to state the ledger text discrepancy about the May 2026 Daily release while preserving the canonical June 2026 first-print target; no required fixes were identified.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publication-ready with no blocking issues; resolver, unit, prior/update/interval logic, tails, and JSON fields are coherent for the stated first-print target."
+    }
+  }
+]

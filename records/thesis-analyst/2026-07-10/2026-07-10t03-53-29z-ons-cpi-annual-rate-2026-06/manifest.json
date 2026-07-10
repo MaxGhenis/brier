@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T03:53:29Z",
+  "series": "ons.cpi.annual_rate",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ons-cpi-annual-rate-june-2026",
+    "country": "UK",
+    "dataPointId": "ons.cpi.annual_rate.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T00:00:00Z",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/may2026",
+    "series": "ons.cpi.annual_rate",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-21",
+        "start": "2026-07-13"
+      },
+      "field": "official_release:ons:cpi:2026-05:cpi_annual_rate",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ons.cpi.annual_rate",
+      "sourceUrl": "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/may2026",
+      "table": "Consumer price inflation, UK: May 2026",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "13e96b2f78d91f2402320775746cfd728f67381dce37b02f195d5782197aa32e",
+    "targetRegistrationPath": "records/targets/2026-07-10-13e96b2f78d91f2402320775746cfd728f67381dce37b02f195d5782197aa32e.json",
+    "targetUnit": "percent",
+    "valueScale": 1.0
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T03:53:29Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "735cf51edafa79e382e10774de97b56e59b78fb15f041cba66610298c2c46154"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "Draft changes the canonical resolutionSourceUrl from the ledger May 2026 bulletin URL to the D7G7 time-series URL and resolves via the June 2026 release, while the ledger binding still names May 2026 and field 2026-05.",
+        "actionRequested": "Keep the JSON target fields tied to the ledger contract, or explicitly flag this as a concrete ledger error in the reasoning while preserving the target slug/dataPointId and making the intended June 2026 first-print resolver unambiguous."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add one sentence saying the resolutionDate of 2026-07-22 comes from the ONS next-release notice, since the ledger expectedReleaseWindow appears inconsistent."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The prior/update/interval step is strong; consider naming the volatility sample as monthly D7G7 annual-rate changes through May 2026 to make the interval provenance easier to audit."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios are concrete and target-specific; no change needed there."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the ledger discrepancy explicit: the canonical May 2026 URL/2026-05 field cannot resolve the June 2026 first print, so the forecast preserves the target slug and dataPointId while using ONS D7G7 and the June 2026 first print. Accepted the optional clarification that the 2026-07-22 resolution date comes from the ONS next-release notice, and named the interval volatility sample more explicitly.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the ledger discrepancy explicit: the canonical May 2026 URL/2026-05 field cannot resolve the June 2026 first print, so the forecast preserves the target slug and dataPointId while using ONS D7G7 and the June 2026 first print. Accepted the optional clarification that the 2026-07-22 resolution date comes from the ONS next-release notice, and named the interval volatility sample more explicitly.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the ledger discrepancy explicit: the canonical May 2026 URL/2026-05 field cannot resolve the June 2026 first print, so the forecast preserves the target slug and dataPointId while using ONS D7G7 and the June 2026 first print. Accepted the optional clarification that the 2026-07-22 resolution date comes from the ONS next-release notice, and named the interval volatility sample more explicitly.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the ledger discrepancy explicit: the canonical May 2026 URL/2026-05 field cannot resolve the June 2026 first print, so the forecast preserves the target slug and dataPointId while using ONS D7G7 and the June 2026 first print. Accepted the optional clarification that the 2026-07-22 resolution date comes from the ONS next-release notice, and named the interval volatility sample more explicitly.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publishable, but its resolver metadata conflicts with the canonical ledger contract and needs explicit alignment or documented exception handling."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/prompt.md",
+      "sha256": "91f9cc07562a04ea4c02ddd71b60278376dc8ccd306ac4c523d2e559f0ebee33",
+      "bytes": 8628,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_command.json",
+      "sha256": "d22bb9f5e867c2b306e4be307c349dcf914a7e9e8e47191ee9ff6ef96a731703",
+      "bytes": 672,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "4f3d6dcff4ef5c85fe280848981b8857a92336276b24e571a92edb1c218b9d42",
+      "bytes": 13683,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_codex_stderr.log",
+      "sha256": "8cf7871f1ca02c54104d069f7ace43e07894e1a9ba552854e2998b40018399a4",
+      "bytes": 233,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_codex_events.jsonl",
+      "sha256": "4a13ffbb509cda21f9a53223cb97a57104d005830bdc2b219efa6291980ab450",
+      "bytes": 13649,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_codex_last_message.txt",
+      "sha256": "d5eea71965046e166c0165e8a437e91592b44109db8c76baac16cadf61796d38",
+      "bytes": 5772,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_codex_trace.json",
+      "sha256": "56a51899017cb2037c3525ece224dc388cc4c0082e7589f5bca4697b190c603a",
+      "bytes": 508,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_stdout.txt",
+      "sha256": "d5eea71965046e166c0165e8a437e91592b44109db8c76baac16cadf61796d38",
+      "bytes": 5772,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/draft_stderr.txt",
+      "sha256": "0694135b7f8387faf8a5dda5c8b31dee95d6daf67238f0539bd66adc63c1f661",
+      "bytes": 248,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_prompt.md",
+      "sha256": "a2d8188025574fd996dfbe36010f96064ed1c801bc2f8205f9a2a11d61eedb46",
+      "bytes": 8628,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_command.json",
+      "sha256": "09aa3e88d772097b3cd9146c8bb7adc43d773f4f301f8c2ca7ee32721d572bc2",
+      "bytes": 668,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "1c0139d1540c79fb0df59a7ccbbb4bec1bd70274ae25b7d970302e326c537c0b",
+      "bytes": 1613,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "9c682e36b6d5cf432f10da5146eb8b751868e811a1ac67b3380e1576b300f355",
+      "bytes": 233,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "c33ca3e812ae14429b920f8beefbc096ad54a29e2aeb13e731a66a9723ec73ce",
+      "bytes": 1635,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "182b686daed356eb27a072520c2f34cffe149d761238f4aaaa22d8e6aadaf872",
+      "bytes": 1250,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "ae0379e15402f28b38cecae878917029d8c419ad8756f591a84a6cfdc6e1b8eb",
+      "bytes": 505,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "182b686daed356eb27a072520c2f34cffe149d761238f4aaaa22d8e6aadaf872",
+      "bytes": 1250,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "35212184a8fdb1797ec72d9aabd0c7909529ff0c315fec71f566e263823525cd",
+      "bytes": 248,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/revision_prompt.md",
+      "sha256": "53f94c18779608d80be271b12701f9c6fe1dde6c6c9e647fdbf69b3ba1035232",
+      "bytes": 16586,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/command.json",
+      "sha256": "bff8fd1d2681c43e20431471ffa77377a355b935223f0ee5f25ccdd08607917a",
+      "bytes": 666,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/codex_stdout.jsonl",
+      "sha256": "27d778183b13553df5aec2791d1bd8c846aebac1b28a7a94e5d21f4da98d6a2e",
+      "bytes": 6859,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/codex_stderr.log",
+      "sha256": "e8fe9c9cfe17bc12dfdb509aad1ec37471685cd4804ed84658094efa1c245fbe",
+      "bytes": 233,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/codex_events.jsonl",
+      "sha256": "29e1c629a44ac68731d97836c750edd534f66fcada0b342a025162a0c4eda059",
+      "bytes": 6881,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/codex_last_message.txt",
+      "sha256": "93d5de77c541312e7c0899bbd7eec47aa9c81d8723386988780853f8b71ce5d0",
+      "bytes": 6300,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/codex_trace.json",
+      "sha256": "36575b29f3f5f2229c36e0b48e1dcbed268a07909aa48d72beaf7e32a1f4d517",
+      "bytes": 505,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/stdout.txt",
+      "sha256": "93d5de77c541312e7c0899bbd7eec47aa9c81d8723386988780853f8b71ce5d0",
+      "bytes": 6300,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/stderr.txt",
+      "sha256": "55b34f9efffab2f4c6884d9aa11e96571c3f38ba439ddb0a68f6c838e2708bc6",
+      "bytes": 248,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/raw_response.txt",
+      "sha256": "93d5de77c541312e7c0899bbd7eec47aa9c81d8723386988780853f8b71ce5d0",
+      "bytes": 6300,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/parsed_cells.json",
+      "sha256": "c4aed229f3a542dc093506f5ab6912a3ff06cd753ff69138127b2d98649061c8",
+      "bytes": 7190,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/normalized_cells.json",
+      "sha256": "893eded4bc7b97518b76dc4a0f6ae6180f217e1893bd3195875e53348a0fdf16",
+      "bytes": 24802,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/distribution.json",
+      "sha256": "494591d8403456521d76da1fc842501e62f3885a0b61961cab05bb56bb705fcf",
+      "bytes": 14194,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/validation.json",
+      "sha256": "ffb57afbef1ebc662cfc83ebd9085b06000fbea0b466e4e03af9eea4a753c684",
+      "bytes": 130,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/cells.with_activity.json",
+      "sha256": "06ca5574364c972d8b0e33d6b920d544b5e421abcf0c81a4abef62b48a95ddb3",
+      "bytes": 40702,
+      "createdAt": "2026-07-10T03:53:29Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-53-29z-ons-cpi-annual-rate-2026-06/manifest.json",
+      "sha256": "38b9a6f2c31d38afae007937e9b4b9c1d4dcccd52667f8401ff996840fd17f57",
+      "bytes": 15459,
+      "createdAt": "2026-07-10T03:53:29Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "ons-cpi-annual-rate-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "f9ad2785bdb8494e02c76bd1b901a46100d9995635ba0f028f701c4bbf8d26e0"
+}

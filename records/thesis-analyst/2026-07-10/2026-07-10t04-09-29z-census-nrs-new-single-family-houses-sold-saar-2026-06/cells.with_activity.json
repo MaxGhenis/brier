@@ -1,0 +1,1233 @@
+[
+  {
+    "slug": "us-new-home-sales-saar-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US New Home Sales SAAR, June 2026",
+    "question": "What will the U.S. Census Bureau/HUD first-print estimate be for sales of new single-family houses in the United States in June 2026, seasonally adjusted annual rate, in thousands?",
+    "unit": "thousands",
+    "pointEstimate": 603,
+    "ciLow": 517,
+    "ciHigh": 689,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-24",
+    "resolutionSource": "U.S. Census Bureau and HUD Monthly New Residential Sales release, Table 1. New Houses Sold and For Sale",
+    "resolutionSourceUrl": "https://www.census.gov/construction/nrs/current/index.html",
+    "resolutionRule": "Resolve to the first-print United States value for Sales of new single-family houses, seasonally adjusted annual rate, in Monthly New Residential Sales Table 1, New Houses Sold and For Sale, for June 2026, rounded as Census reports it in thousands of units. Use the July 24, 2026 first release only; ignore later revisions or historical-table updates. If the Census PDF labels the same release table as Table 1a, preserve the ledger-bound field: United States sales of new single-family houses, seasonally adjusted annual rate.",
+    "dataPointId": "census.nrs.new_single_family_houses_sold_saar.2026_06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 latest first print SAAR",
+        "value": 580
+      },
+      {
+        "label": "2026-04 revised SAAR in May release",
+        "value": 626
+      },
+      {
+        "label": "2026-03 revised SAAR in May release",
+        "value": 664
+      },
+      {
+        "label": "2025-06 revised SAAR in May release",
+        "value": 665
+      },
+      {
+        "label": "2026 year-to-date NSA sales through May",
+        "value": 275
+      }
+    ],
+    "drivers": [
+      "May 2026 new-home sales fell to 580 thousand SAAR from 626 thousand in April",
+      "High 10.3 months' supply points to weak builder absorption",
+      "2026 year-to-date not seasonally adjusted sales were 275 thousand, 7.0 percent below 2025",
+      "Single-family starts and permits were roughly stable in May, limiting downside from construction flow",
+      "Large monthly sampling and revision noise supports a wide interval"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/construction/nrs/current/index.html",
+      "https://www.census.gov/construction/nrs/pdf/newressales.pdf",
+      "https://www.census.gov/construction/soc/schedule.html",
+      "https://www.census.gov/construction/nrc/current/index.html"
+    ],
+    "runAt": "2026-07-10T04:11:12Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 US New Home Sales SAAR Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecasts the Census/HUD Monthly New Residential Sales first print for June 2026, Table 1 New Houses Sold and For Sale field for United States sales of new single-family houses, seasonally adjusted annual rate, in thousands. This uses the same SAAR variant for every anchor and historical value; the PDF table label may appear as Table 1a, but the ledger-bound target is the Table 1 field named above."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census New Residential Sales current release page for May 2026.",
+        "result": "Fetched May 2026 new single-family houses sold at 580,000 SAAR, April 2026 at 626,000 SAAR, May 2025 at 622,000 SAAR, inventory at 496,000, and months' supply at 10.3."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census/HUD May 2026 New Residential Sales PDF, Table 1a/Table 1 field for United States SAAR sales.",
+        "result": "Fetched United States SAAR sales history as carried in the May 2026 release: 2025 May 622, June 665, July 648, August 698, September 714, October 652, November 757, December 723; 2026 January 576, February 630, March 664, April 626, May 580, all in thousands. May 2026 is the latest first print; earlier months are revised as shown in the May release."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census Survey of Construction release schedule.",
+        "result": "Fetched official schedule showing June 2026 survey month: New Residential Construction release July 17, 2026 and New Residential Sales release July 24, 2026 at 10:00 a.m."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Census New Residential Construction May 2026 release for related builder-flow indicators.",
+        "result": "Fetched May 2026 building permits at 1,413,000 SAAR, total housing starts at 1,177,000 SAAR, single-family starts at 882,000 SAAR, and single-family permits at 886,000 SAAR."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: recent same-series SAAR levels from May 2025 through May 2026 averaged about 659 thousand before the latest drop, while the first five months of 2026 averaged 615 thousand. The latest 580 thousand print is below both, so persistence alone looks too low but the elevated 10.3 months' supply argues against full reversion toward the 2025 average."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: no separate statistical time-series model was fit; the model prior is latest-value persistence plus realized month-to-month volatility from the cited same-variant sample. Persistence prior is latest same-variant SAAR of 580. Historical sample is the 13 fetched monthly Table 1/Table 1a SAAR values from 2025-05 through 2026-05, with May 2026 first-print and earlier values revised as of the May release. Adjustment components: +25 for partial rebound after a 46 thousand May decline and mean reversion toward the 2026 year-to-date SAAR average near 615, +8 for June 2025 being 43 above May 2025 in the same series, -10 for high 10.3 months' supply and weak year-to-date NSA sales, giving 580 + 25 + 8 - 10 = 603. Successive changes are +43, -17, +50, +16, -62, +105, -34, -147, +54, +34, -38, -46; sample sigma = 67.4 thousand, so 80% half-width is roughly 1.28*sigma = 86.3 thousand. Rounded interval: 603 - 86 = 517 and 603 + 86 = 689."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a builder-incentive rebound like February-March 2026 or November 2025, which would land above the interval if June prints above 689 thousand. Downside risk is another demand shock from mortgage-rate pressure or cancellations, which would land below the interval if sales fall below 517 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by aligning the source and rule to the canonical Table 1 field while noting the Census PDF Table 1a label, accepted the model-prior critique by stating that no separate time-series model was fit, and accepted the optional clarification that pre-June anchors mix the latest first print with earlier values revised as of the May release."
+      },
+      {
+        "kind": "forecast",
+        "point": 603,
+        "ciLow": 517,
+        "ciHigh": 689
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T04:09:45Z",
+    "runStartedAt": "2026-07-10T04:09:29Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 388.0,
+        "upper": 818.0
+      },
+      "points": [
+        {
+          "value": 388.0,
+          "probability": 0.0
+        },
+        {
+          "value": 390.15,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 392.3,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 394.45,
+          "probability": 0.005
+        },
+        {
+          "value": 396.6,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 398.75,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 400.9,
+          "probability": 0.01
+        },
+        {
+          "value": 403.05,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 405.2,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 407.35,
+          "probability": 0.015
+        },
+        {
+          "value": 409.5,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 411.65,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 413.8,
+          "probability": 0.02
+        },
+        {
+          "value": 415.95,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 418.1,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 420.25,
+          "probability": 0.025
+        },
+        {
+          "value": 422.4,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 424.55,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 426.7,
+          "probability": 0.03
+        },
+        {
+          "value": 428.85,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 431.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 433.15,
+          "probability": 0.035
+        },
+        {
+          "value": 435.3,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 437.45,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 439.6,
+          "probability": 0.04
+        },
+        {
+          "value": 441.75,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 443.9,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 446.05,
+          "probability": 0.045
+        },
+        {
+          "value": 448.2,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 450.35,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 452.5,
+          "probability": 0.05
+        },
+        {
+          "value": 454.65,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 456.8,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 458.95,
+          "probability": 0.055
+        },
+        {
+          "value": 461.1,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 463.25,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 465.4,
+          "probability": 0.06
+        },
+        {
+          "value": 467.55,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 469.7,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 471.85,
+          "probability": 0.065
+        },
+        {
+          "value": 474.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 476.15,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 478.3,
+          "probability": 0.07
+        },
+        {
+          "value": 480.45,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 482.6,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 484.75,
+          "probability": 0.075
+        },
+        {
+          "value": 486.9,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 489.05,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 491.2,
+          "probability": 0.08
+        },
+        {
+          "value": 493.35,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 495.5,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 497.65,
+          "probability": 0.085
+        },
+        {
+          "value": 499.8,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 501.95,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 504.1,
+          "probability": 0.09
+        },
+        {
+          "value": 506.25,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 508.4,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 510.55,
+          "probability": 0.095
+        },
+        {
+          "value": 512.7,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 514.85,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 517.0,
+          "probability": 0.1
+        },
+        {
+          "value": 519.15,
+          "probability": 0.11
+        },
+        {
+          "value": 521.3,
+          "probability": 0.12
+        },
+        {
+          "value": 523.45,
+          "probability": 0.13
+        },
+        {
+          "value": 525.6,
+          "probability": 0.14
+        },
+        {
+          "value": 527.75,
+          "probability": 0.15
+        },
+        {
+          "value": 529.9,
+          "probability": 0.16
+        },
+        {
+          "value": 532.05,
+          "probability": 0.17
+        },
+        {
+          "value": 534.2,
+          "probability": 0.18
+        },
+        {
+          "value": 536.35,
+          "probability": 0.19
+        },
+        {
+          "value": 538.5,
+          "probability": 0.2
+        },
+        {
+          "value": 540.65,
+          "probability": 0.21
+        },
+        {
+          "value": 542.8,
+          "probability": 0.22
+        },
+        {
+          "value": 544.95,
+          "probability": 0.23
+        },
+        {
+          "value": 547.1,
+          "probability": 0.24
+        },
+        {
+          "value": 549.25,
+          "probability": 0.25
+        },
+        {
+          "value": 551.4,
+          "probability": 0.26
+        },
+        {
+          "value": 553.55,
+          "probability": 0.27
+        },
+        {
+          "value": 555.7,
+          "probability": 0.28
+        },
+        {
+          "value": 557.85,
+          "probability": 0.29
+        },
+        {
+          "value": 560.0,
+          "probability": 0.3
+        },
+        {
+          "value": 562.15,
+          "probability": 0.31
+        },
+        {
+          "value": 564.3,
+          "probability": 0.32
+        },
+        {
+          "value": 566.45,
+          "probability": 0.33
+        },
+        {
+          "value": 568.6,
+          "probability": 0.34
+        },
+        {
+          "value": 570.75,
+          "probability": 0.35
+        },
+        {
+          "value": 572.9,
+          "probability": 0.36
+        },
+        {
+          "value": 575.05,
+          "probability": 0.37
+        },
+        {
+          "value": 577.2,
+          "probability": 0.38
+        },
+        {
+          "value": 579.35,
+          "probability": 0.39
+        },
+        {
+          "value": 581.5,
+          "probability": 0.4
+        },
+        {
+          "value": 583.65,
+          "probability": 0.41
+        },
+        {
+          "value": 585.8,
+          "probability": 0.42
+        },
+        {
+          "value": 587.95,
+          "probability": 0.43
+        },
+        {
+          "value": 590.1,
+          "probability": 0.44
+        },
+        {
+          "value": 592.25,
+          "probability": 0.45
+        },
+        {
+          "value": 594.4,
+          "probability": 0.46
+        },
+        {
+          "value": 596.55,
+          "probability": 0.47
+        },
+        {
+          "value": 598.7,
+          "probability": 0.48
+        },
+        {
+          "value": 600.85,
+          "probability": 0.49
+        },
+        {
+          "value": 603.0,
+          "probability": 0.5
+        },
+        {
+          "value": 605.15,
+          "probability": 0.51
+        },
+        {
+          "value": 607.3,
+          "probability": 0.52
+        },
+        {
+          "value": 609.45,
+          "probability": 0.53
+        },
+        {
+          "value": 611.6,
+          "probability": 0.54
+        },
+        {
+          "value": 613.75,
+          "probability": 0.55
+        },
+        {
+          "value": 615.9,
+          "probability": 0.56
+        },
+        {
+          "value": 618.05,
+          "probability": 0.57
+        },
+        {
+          "value": 620.2,
+          "probability": 0.58
+        },
+        {
+          "value": 622.35,
+          "probability": 0.59
+        },
+        {
+          "value": 624.5,
+          "probability": 0.6
+        },
+        {
+          "value": 626.65,
+          "probability": 0.61
+        },
+        {
+          "value": 628.8,
+          "probability": 0.62
+        },
+        {
+          "value": 630.95,
+          "probability": 0.63
+        },
+        {
+          "value": 633.1,
+          "probability": 0.64
+        },
+        {
+          "value": 635.25,
+          "probability": 0.65
+        },
+        {
+          "value": 637.4,
+          "probability": 0.66
+        },
+        {
+          "value": 639.55,
+          "probability": 0.67
+        },
+        {
+          "value": 641.7,
+          "probability": 0.68
+        },
+        {
+          "value": 643.85,
+          "probability": 0.69
+        },
+        {
+          "value": 646.0,
+          "probability": 0.7
+        },
+        {
+          "value": 648.15,
+          "probability": 0.71
+        },
+        {
+          "value": 650.3,
+          "probability": 0.72
+        },
+        {
+          "value": 652.45,
+          "probability": 0.73
+        },
+        {
+          "value": 654.6,
+          "probability": 0.74
+        },
+        {
+          "value": 656.75,
+          "probability": 0.75
+        },
+        {
+          "value": 658.9,
+          "probability": 0.76
+        },
+        {
+          "value": 661.05,
+          "probability": 0.77
+        },
+        {
+          "value": 663.2,
+          "probability": 0.78
+        },
+        {
+          "value": 665.35,
+          "probability": 0.79
+        },
+        {
+          "value": 667.5,
+          "probability": 0.8
+        },
+        {
+          "value": 669.65,
+          "probability": 0.81
+        },
+        {
+          "value": 671.8,
+          "probability": 0.82
+        },
+        {
+          "value": 673.95,
+          "probability": 0.83
+        },
+        {
+          "value": 676.1,
+          "probability": 0.84
+        },
+        {
+          "value": 678.25,
+          "probability": 0.85
+        },
+        {
+          "value": 680.4,
+          "probability": 0.86
+        },
+        {
+          "value": 682.55,
+          "probability": 0.87
+        },
+        {
+          "value": 684.7,
+          "probability": 0.88
+        },
+        {
+          "value": 686.85,
+          "probability": 0.89
+        },
+        {
+          "value": 689.0,
+          "probability": 0.9
+        },
+        {
+          "value": 691.15,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 693.3,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 695.45,
+          "probability": 0.905
+        },
+        {
+          "value": 697.6,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 699.75,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 701.9,
+          "probability": 0.91
+        },
+        {
+          "value": 704.05,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 706.2,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 708.35,
+          "probability": 0.915
+        },
+        {
+          "value": 710.5,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 712.65,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 714.8,
+          "probability": 0.92
+        },
+        {
+          "value": 716.95,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 719.1,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 721.25,
+          "probability": 0.925
+        },
+        {
+          "value": 723.4,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 725.55,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 727.7,
+          "probability": 0.93
+        },
+        {
+          "value": 729.85,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 732.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 734.15,
+          "probability": 0.935
+        },
+        {
+          "value": 736.3,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 738.45,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 740.6,
+          "probability": 0.94
+        },
+        {
+          "value": 742.75,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 744.9,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 747.05,
+          "probability": 0.945
+        },
+        {
+          "value": 749.2,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 751.35,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 753.5,
+          "probability": 0.95
+        },
+        {
+          "value": 755.65,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 757.8,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 759.95,
+          "probability": 0.955
+        },
+        {
+          "value": 762.1,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 764.25,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 766.4,
+          "probability": 0.96
+        },
+        {
+          "value": 768.55,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 770.7,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 772.85,
+          "probability": 0.965
+        },
+        {
+          "value": 775.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 777.15,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 779.3,
+          "probability": 0.97
+        },
+        {
+          "value": 781.45,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 783.6,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 785.75,
+          "probability": 0.975
+        },
+        {
+          "value": 787.9,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 790.05,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 792.2,
+          "probability": 0.98
+        },
+        {
+          "value": 794.35,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 796.5,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 798.65,
+          "probability": 0.985
+        },
+        {
+          "value": 800.8,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 802.95,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 805.1,
+          "probability": 0.99
+        },
+        {
+          "value": 807.25,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 809.4,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 811.55,
+          "probability": 0.995
+        },
+        {
+          "value": 813.7,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 815.85,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 818.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 603,
+        "median": 603,
+        "interval80": {
+          "lower": 517,
+          "upper": 689
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/prompt.md",
+        "sha256": "9875b56d31cb7b5318c5ec8f05b73a1ddede285804a5a782c48a50945405c9ff",
+        "bytes": 8934,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_command.json",
+        "sha256": "712e38389e754a55f15b40e15ed7966a38585e432653ec8a875b5fe6cb5519cf",
+        "bytes": 698,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "3342825c7cca50c842223f7fe2840b0a5b129a2572c5f5b80d5e89a25d2442e1",
+        "bytes": 12154,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_codex_stderr.log",
+        "sha256": "1296f1e3e00b7b72db515b7e3ca3fa568d2a6f5c03dbebd834e9435de28f6731",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_codex_events.jsonl",
+        "sha256": "fde427ca909a88c20bf10ff33c7087e323e32d2ea84bc71cdde90452b9e5594d",
+        "bytes": 12135,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_codex_last_message.txt",
+        "sha256": "bca74b7d8837721f5f4dfe07e834679e61006c8e7472667366c078a12e303fdc",
+        "bytes": 5273,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_codex_trace.json",
+        "sha256": "2e0a97b4194530dc3608ad3aa00a30a643f0992d80d8375b8a2c7bb61d9886fa",
+        "bytes": 507,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_stdout.txt",
+        "sha256": "bca74b7d8837721f5f4dfe07e834679e61006c8e7472667366c078a12e303fdc",
+        "bytes": 5273,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_stderr.txt",
+        "sha256": "4bb0943a8eaf2c458b81a72461960e6c43f625f0246693e52ebec8339f7de09d",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_prompt.md",
+        "sha256": "1d299d464305815d586b8f1c15bee6a3445bf9659ec1a3154e0261270dc7c7fc",
+        "bytes": 8231,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_command.json",
+        "sha256": "51606f87f98b6d3dd36596b9168e627a8cfbb40821b180c3f6e79a2b7df15ad6",
+        "bytes": 694,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "bbaf65658646572641897c961c8169d006e8877e2992d894c493eaf06339f4d8",
+        "bytes": 1816,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "c28ab4fc0ccd00faecc1c516b0c359f157df0630266ddfa66581db7b3fdf77ec",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "13de3a849c5b271a3636d4ecf9e3ce27376291f663ba69330ab77a826fa37680",
+        "bytes": 1838,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "3176478bdd8c73d0d7b38e956e6fa0ca2e89e8d84b0ac10d4481b2b2ed01418e",
+        "bytes": 1446,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "4be9f2225b21d76c631902411d6a62f0b7d6f1345281962f97eed42a76c00153",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "3176478bdd8c73d0d7b38e956e6fa0ca2e89e8d84b0ac10d4481b2b2ed01418e",
+        "bytes": 1446,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "9d24dd7f4bb444146854a1a5d9b74a47a3c3b9307084e4236cf3253d0ae8324f",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/revision_prompt.md",
+        "sha256": "0b83a868b7e0ed0911f2915a17f2529ffa909674357324a611ea0b5659882801",
+        "bytes": 16589,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/command.json",
+        "sha256": "3c764f491e0761d68276efdb9dac861ef6b962f595e0cb01ca6a1e4e944dc03b",
+        "bytes": 692,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/codex_stdout.jsonl",
+        "sha256": "5e48a3a20248212d72c5f47bc86bb5cb3fcc88dbebb571bf38f05ebe98ee7fbc",
+        "bytes": 7029,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/codex_stderr.log",
+        "sha256": "2de21b24b463b4617d69b34d4e3aa4f4a506dc87f968e6002f417cdc04bfdaff",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/codex_events.jsonl",
+        "sha256": "601ef3738953dfe64c9534631c59bc5af9c5761ae71adacad85c18798da7c9d1",
+        "bytes": 7051,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/codex_last_message.txt",
+        "sha256": "9498ad71fa3d1d7ee102cb4b8ab6cd2903f3af01278ec4e01269ea54bc403dcf",
+        "bytes": 6480,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/codex_trace.json",
+        "sha256": "17a3d51ed178d46391408d45215affedd4909c08ef45e2920fe02a3e67256649",
+        "bytes": 501,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/stdout.txt",
+        "sha256": "9498ad71fa3d1d7ee102cb4b8ab6cd2903f3af01278ec4e01269ea54bc403dcf",
+        "bytes": 6480,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/stderr.txt",
+        "sha256": "e89da29ab7b251d21c25885dc806251d29ec49ee8e9c230df8c80c3e380cf6d4",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/raw_response.txt",
+        "sha256": "9498ad71fa3d1d7ee102cb4b8ab6cd2903f3af01278ec4e01269ea54bc403dcf",
+        "bytes": 6480,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/parsed_cells.json",
+        "sha256": "d459ed7fb0d079694b203a6d0cbb51f0e7e6ef716cf7acff0c55e9a5153bd65a",
+        "bytes": 7336,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/normalized_cells.json",
+        "sha256": "e815aab1512a38a1b9bcb0b68eb87829549c6dbd5114afc42cef95e53fa290a3",
+        "bytes": 24308,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/distribution.json",
+        "sha256": "02c232fda8b32864bf560d883de39564a129d597fcb9e4e58bd909cff39316de",
+        "bytes": 13554,
+        "createdAt": "2026-07-10T04:09:29Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/validation.json",
+        "sha256": "bee26e7ea9a864f123990ec75e57585140fedf11989b1270aec31cace40bc4ad",
+        "bytes": 133,
+        "createdAt": "2026-07-10T04:09:29Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T04:09:29Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "d578cf75662e26eb823cbcebfb1da77c47f0962ea2593f66b198fc75981db69b"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-09-29z-census-nrs-new-single-family-houses-sold-saar-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "Draft uses \"Table 1a\" in resolutionSource and resolutionRule, while the canonical ledger binds the target to \"Monthly New Residential Sales, Table 1. New Houses Sold and For Sale\" and the specified field.",
+          "actionRequested": "Align resolver text to the ledger table/field wording, or explicitly state that the Census PDF label differs while preserving the ledger-bound target and first-print June 2026 SAAR United States field."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The draft uses persistence and recent monthly changes but does not explicitly say whether a formal time-series/model prior was used or ruled out.",
+          "actionRequested": "Add one sentence in the prior/update section stating that no separate statistical time-series model was fit, and that the model prior is latest-value persistence plus realized month-to-month volatility from the cited sample."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the 2025-05 through 2026-05 values are first-print, revised as of the May release, or mixed, since the target itself is first-print."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the tail scenarios, name approximate numeric thresholds already implied by the interval, such as upside above 689 and downside below 517."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the source and rule to the canonical Table 1 field while noting the Census PDF Table 1a label, accepted the model-prior critique by stating that no separate time-series model was fit, and accepted the optional clarification that pre-June anchors mix the latest first print with earlier values revised as of the May release.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the source and rule to the canonical Table 1 field while noting the Census PDF Table 1a label, accepted the model-prior critique by stating that no separate time-series model was fit, and accepted the optional clarification that pre-June anchors mix the latest first print with earlier values revised as of the May release.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the source and rule to the canonical Table 1 field while noting the Census PDF Table 1a label, accepted the model-prior critique by stating that no separate time-series model was fit, and accepted the optional clarification that pre-June anchors mix the latest first print with earlier values revised as of the May release.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the source and rule to the canonical Table 1 field while noting the Census PDF Table 1a label, accepted the model-prior critique by stating that no separate time-series model was fit, and accepted the optional clarification that pre-June anchors mix the latest first print with earlier values revised as of the May release.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publishable, but the resolver/table naming should be aligned with the canonical ledger and the model-prior treatment should be explicit."
+    }
+  }
+]
