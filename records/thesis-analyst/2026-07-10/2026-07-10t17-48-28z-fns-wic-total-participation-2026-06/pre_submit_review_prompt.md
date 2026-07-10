@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: fns.wic.total_participation
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "wic-participation-june-2026"
+- country: "US"
+- targetUnit: "millions"
+- dataPointId: "fns.wic.total_participation.2026-06.first_print"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www.fns.usda.gov"], "expectedReleaseWindow": {"end": "2026-09-18", "start": "2026-09-10"}, "field": "fns.wic.total_participation", "releasePolicy": "first_print", "sourceSeriesId": "fns.wic.total_participation", "sourceUrl": "https://www.fns.usda.gov/pd/wic-program", "table": "Official agency release", "transform": {"factor": 0.001, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-10-de8d99ce467a695f4b235a8da2d9fb8973d60a0cd95e9791f53dc8f3e7bb81fb.json"
+- targetContentHash: "de8d99ce467a695f4b235a8da2d9fb8973d60a0cd95e9791f53dc8f3e7bb81fb"
+- registrationCommit: "79e7796ea8cde8d3c263a226250346d3aa2c88d9"
+- registeredAtUtc: "2026-07-10T17:47:41Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+68a07ded0c0282ea4aecec296285b2188c7a65429f54273cf9daa2470c56dfd0
+
+# Draft forecast response
+{"slug":"wic-participation-june-2026","country":"US","type":"data","title":"US WIC Participation, June 2026","question":"What will USDA FNA report as total WIC participation for June 2026, in millions, in the first official print?","unit":"millions","pointEstimate":6.75,"ciLow":6.686,"ciHigh":6.814,"confidence":0.8,"resolutionDate":"2026-09-18","resolutionSource":"Official agency release","resolutionSourceUrl":"https://www.fns.usda.gov/pd/wic-program","resolutionRule":"Resolve to the total participants value for June 2026 in the first official USDA FNA WIC monthly national-level table published on the WIC Data Tables page, multiplied by 0.001 to convert thousands to millions. Use that first print without incorporating later revisions or corrections, and round only the resolved millions value to six decimal places.","dataPointId":"fns.wic.total_participation.2026-06.first_print","historicalContext":[{"label":"December 2025","value":6.712611},{"label":"January 2026","value":6.6963},{"label":"February 2026","value":6.66458},{"label":"March 2026","value":6.701661},{"label":"June 2025","value":6.8832}],"drivers":["recent March rebound after winter declines","typical March-to-June seasonal increase","lower FY2026 participation level than FY2025","preliminary reporting volatility"],"sourceContext":["https://www.fns.usda.gov/pd/wic-program","https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-6.pdf","https://www.fns.usda.gov/pd/overview","https://www.fns.usda.gov/pd/data-release-schedule"],"runAt":"2026-07-10T17:49:31Z","reasoning":[{"kind":"heading","text":"June 2026 WIC participation forecast"},{"kind":"text","text":"The target is national total WIC participants for June 2026, not an annual fiscal-year measure or a participant-category subtotal. It resolves from the first official monthly national-level print. The official release calendar schedules this target for 2026-09-18; the ledger window of 2026-09-10 through 2026-09-18 is consistent with that date."},{"kind":"tool","tool":"official.lookup","call":"Fetch the latest USDA FNA WIC monthly national-level table and read total participants for December 2025 through March 2026.","result":"The official table reports 6,712,611 participants in Dec 2025, 6,696,300 in Jan 2026, 6,664,580 in Feb 2026, and 6,701,661 in Mar 2026."},{"kind":"tool","tool":"official.lookup","call":"Fetch same-variant historical March and June national total-participation observations from the official WIC monthly table.","result":"Total participants were 6,621,311 in Mar 2023 and 6,732,424 in Jun 2023; 6,680,974 in Mar 2024 and 6,736,885 in Jun 2024; 6,850,836 in Mar 2025 and 6,883,200 in Jun 2025."},{"kind":"tool","tool":"official.lookup","call":"Fetch the recent FY2026 level transition from the official national monthly WIC table.","result":"Total participation fell from 6,909,938 in Oct 2025 to 6,771,734 in Nov 2025 and 6,712,611 in Dec 2025 before reaching 6,701,661 in Mar 2026."},{"kind":"text","text":"The reference class is the three prior March-to-June changes in the same official total-participation series: +0.111113 million in 2023, +0.055911 million in 2024, and +0.032364 million in 2025. Their base-rate mean is +0.066463 million."},{"kind":"text","text":"Level is anchored at March's 6.701661 million. Momentum improved in March by 0.037081 million after four monthly declines, while the one-off October-to-November drop and continued lower FY2026 level argue against applying the full seasonal base rate. Policy mechanisms such as eligibility-guideline and food-package changes are unlikely to reverse the level break fully by June."},{"kind":"math","text":"Prior/update/interval: persistence-plus-seasonality prior using the official Oct 2024-Mar 2026 monthly history; historical sample is the 13 successive changes from Mar 2025 through Mar 2026. The mean prior adds the three-year March-to-June base rate of 0.066463 million to 6.701661, then applies a -0.018124 million momentum/policy-level adjustment: 6.701661 + 0.066463 - 0.018124 = 6.750000. The sample dispersion of those successive monthly changes gives sigma = 0.050 million, so the 80% half-width is approximately 1.28*sigma = 1.28*0.050 = 0.064 million, implying bounds 6.750-0.064=6.686 and 6.750+0.064=6.814."},{"kind":"text","text":"Upside risk comes from a stronger normal spring enrollment rebound and would land above the interval if participation exceeds 6.814 million. Downside risk comes from renewed attrition comparable to the late-2025 decline and would land below the interval if participation falls under 6.686 million. These are the concrete outside-the-interval scenarios."},{"kind":"forecast","point":6.75,"ciLow":6.686,"ciHigh":6.814}]}

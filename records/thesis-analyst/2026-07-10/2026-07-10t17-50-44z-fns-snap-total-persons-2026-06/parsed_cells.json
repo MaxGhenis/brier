@@ -1,0 +1,110 @@
+[
+  {
+    "slug": "snap-participation-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US SNAP Participation, June 2026",
+    "question": "What will USDA FNS first report for total persons participating in SNAP nationally in June 2026, unadjusted, in millions?",
+    "unit": "millions",
+    "pointEstimate": 35.55,
+    "ciLow": 34.71,
+    "ciHigh": 36.39,
+    "confidence": 0.8,
+    "resolutionDate": "2026-11-03",
+    "resolutionSource": "USDA Food and Nutrition Service SNAP Data Tables",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap",
+    "resolutionRule": "Resolve to the first value published for Persons for June 2026 in the USDA FNS SNAP national monthly participation table, reported in thousands and multiplied by 0.001 to millions. Use the first print available on the specified SNAP Data Tables page; disregard later revisions. Round the resolved value to three decimal places in millions.",
+    "dataPointId": "usda.fns.snap.persons.june_2026",
+    "historicalContext": [
+      {
+        "label": "January 2026 official table value",
+        "value": 38.456892
+      },
+      {
+        "label": "February 2026 official table value",
+        "value": 37.72941
+      },
+      {
+        "label": "March 2026 latest official table value",
+        "value": 37.298271
+      },
+      {
+        "label": "June 2025 official table value",
+        "value": 42.08488
+      }
+    ],
+    "drivers": [
+      "Strong FY2026 participation downtrend",
+      "Recent monthly decline beginning to moderate",
+      "Tighter eligibility and work-requirement environment",
+      "Administrative reporting volatility"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/snap-4fymonthly-6.pdf",
+      "https://fns-prod.azureedge.us/pd/overview",
+      "https://www.fns.usda.gov/snap/recipient/eligibility"
+    ],
+    "runAt": "2026-07-10T17:51:47Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 national SNAP participation forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the unadjusted national Persons field for June 2026 in the USDA Food and Nutrition Service SNAP monthly participation table, not an annual quality-control measure. The official table reports persons in thousands; the cell converts that figure to millions. The first print is binding, with no correction-day grace period."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the USDA FNS SNAP national monthly participation table and read the latest FY2026 Persons observations.",
+        "result": "The table dated June 12, 2026 reports 38,456,892 persons in January 2026, 37,729,410 in February 2026, and 37,298,271 in March 2026, equivalent to 38.456892, 37.729410, and 37.298271 million."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the same official SNAP table's recent reference-class history.",
+        "result": "Official Persons values were 42,180,523 in February 2025, 42,193,855 in March, 42,353,149 in April, 42,248,301 in May, 42,084,880 in June, 42,012,830 in July, 41,836,900 in August, and 41,633,090 in September."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Check the official SNAP table's FY2026 transition and annual summaries.",
+        "result": "Persons fell from 41,091,800 in October 2025 to 39,997,940 in November and 39,205,146 in December; USDA reports FY2025 average participation of 42,383,194 and the preliminary FY2026-to-date average of 38,963,243."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Verify release timing against the official FNS program-data schedule and target release window.",
+        "result": "The official schedule places the June 2026 SNAP monthly-table release on 2026-11-03; the latest table available during this run covered March 2026 and was dated 2026-06-12."
+      },
+      {
+        "kind": "text",
+        "text": "The outside-view base rate is persistence with drift for a slowly moving administrative caseload. The 13 monthly changes from February 2025 through March 2026 average -0.376 million, while October 2025 through March 2026 participation fell 3.794 million. The level anchor is therefore March's 37.298 million; momentum remains negative, with the smaller March decline supporting partial moderation."
+      },
+      {
+        "kind": "text",
+        "text": "Mechanisms are separated into the March level, recent downward momentum, moderation as declines decelerate, and a negative adjustment for tighter eligibility and work-rule mechanisms. Administrative reporting volatility remains a secondary source of uncertainty."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence-with-drift prior anchored at March 2026 = 37.298271 million. Apply momentum of -0.580 million per month for April-June (-1.740), moderation of +0.100 million per month (+0.300), and a policy-mechanism adjustment of -0.308, for a net update of -1.748 and point = 37.298 - 1.748 = 35.550 million. The historical sample is 13 successive monthly changes from February 2025 through March 2026 in the official table; vintage status for every historical observation is not separately identified. Its sample standard deviation is sigma = 0.376 million. The one-month 80% half-width is 1.28*sigma = 1.28*0.376 = 0.482 million; scaling over three months gives 0.482*sqrt(3) = 0.835, rounded to 0.840. Final implied bounds are 35.550 +/- 0.840 = [34.710, 36.390]."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: faster stabilization in enrollment or delayed implementation of tighter eligibility rules would land above 36.39 million. Downside risk: an average decline greater than about 0.863 million per month from March through June, broad recertification losses, or unusually aggressive enforcement would put June below 34.71 million, outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the correction from FNA to USDA FNS and expanded the prior/update calculation to show the anchor, momentum, moderation, policy adjustment, volatility scaling, and bounds. Also clarified that the historical table does not separately establish first-print vintage status and quantified the downside path."
+      },
+      {
+        "kind": "forecast",
+        "point": 35.55,
+        "ciLow": 34.71,
+        "ciHigh": 36.39
+      }
+    ]
+  }
+]
