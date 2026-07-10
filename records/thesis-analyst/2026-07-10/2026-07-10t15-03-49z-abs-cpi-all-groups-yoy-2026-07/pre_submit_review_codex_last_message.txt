@@ -1,0 +1,33 @@
+{
+  "summary": "The forecast targets the correct ledger contract and provides a reasonable persistence-based rationale, but its interval and ladder calculations are internally inconsistent.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "The ladder gives P(X <= 3.4) = 0.10, not 3.6, while the stated interval begins at 3.6.",
+      "actionRequested": "Recalculate ciLow from the stated ladder or revise the ladder so the reported interval represents the intended confidence level."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The reported point estimate is 4.1, but the interval 3.6-4.8 is centered at 4.2, and the claimed 80% interval does not match the ladder probabilities.",
+      "actionRequested": "Make point estimate, interval bounds, confidence, percentile interpretation, and final forecast object mutually consistent."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The interval method mixes dispersion of four successive changes with an arbitrarily reduced ladder half-width of 0.81 times the benchmark.",
+      "actionRequested": "Justify the shrinkage quantitatively or state a clearer interval method using an appropriate realized-volatility or explicit predictive-uncertainty estimate."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The cited evidence stops at May 2026 despite the July target and does not establish whether June data were available at run time.",
+      "actionRequested": "Use the latest available official ABS observation before the forecast, or explicitly explain why June evidence was unavailable or excluded."
+    }
+  ],
+  "optionalSuggestions": [
+    "Include Jan-Jun observations in historicalContext if June was available.",
+    "State the model prior explicitly as a short-horizon persistence or mean-reversion forecast around the latest annual rate."
+  ]
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada regular EI beneficiaries, June 2026",
+    "question": "Statistics Canada regular Employment Insurance beneficiaries for Canada, June 2026, seasonally adjusted, first print",
+    "unit": "thousands",
+    "pointEstimate": 541.8,
+    "ciLow": 537.6,
+    "ciHigh": 546.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only and ignore later revisions or table corrections unless Statistics Canada changes the first-print rule before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "December 2025",
+        "value": 567.62
+      },
+      {
+        "label": "January 2026",
+        "value": 559.02
+      },
+      {
+        "label": "February 2026",
+        "value": 550.35
+      },
+      {
+        "label": "March 2026",
+        "value": 547.44
+      },
+      {
+        "label": "April 2026",
+        "value": 544.44
+      }
+    ],
+    "drivers": [
+      "continued post-winter decline in seasonally adjusted beneficiaries",
+      "elevated unemployment and year-over-year beneficiary levels",
+      "administrative eligibility, exhaustion, and re-employment flows"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://stats.gov.nl.ca/pdf/upcomingreleases.pdf"
+    ],
+    "runAt": "2026-07-10T15:14:22Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada regular Employment Insurance beneficiaries, June 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first Statistics Canada print for the seasonally adjusted Canada total in Table 14-10-0011-01: regular benefits, both sexes, age 15 years and over, converted from persons to thousands. The canonical ledger binds resolutionDate to 2026-08-20; an accessible public release-schedule artifact lists a different June date, so that discrepancy is retained rather than silently changing the ledger target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the latest official Statistics Canada The Daily release for the same series and variant.",
+        "result": "Statistics Canada reported 544,440 persons, or 544.44 thousand, in April 2026; the monthly change was -0.5% and the year-over-year change was +3.5%. The Daily identifies Table 14-10-0011-01 as the source."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the recent official Table 14-10-0011-01 reference-class observations.",
+        "result": "The official seasonally adjusted Canada series showed 567,620 persons in December 2025, 559,020 in January 2026, 550,350 in February 2026, 547,440 in March 2026, and 544,440 in April 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Verify the agency release timing and series definition from official public release materials.",
+        "result": "The April 2026 The Daily release states that May 2026 data would be released July 23; the public release-schedule artifact records Employment Insurance for June 2026 as July 19, while the canonical target registration specifies a 2026-08-20 resolution date and an August 19-27 expected window."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate is a persistent but decelerating decline after the December peak: successive monthly changes were -8.60, -8.67, -2.91, and -3.00 thousand. Momentum therefore supports another modest decline, while the still-elevated year-over-year level and normal beneficiary entry, exit, exhaustion, and re-employment flows argue against extrapolating the large January-February falls."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: persistence prior uses the April level of 544.44 thousand and the four-change historical sample from December 2025 through April 2026; the momentum adjustment is -2.6 thousand, with no separate policy one-off assumed. Using successive changes, sample sigma = 3.28 thousand, so the nominal 80% half-width is roughly 1.28*3.28 = 4.20 thousand. The final point is 544.44 - 2.64 = 541.80, with bounds 541.80 - 4.20 = 537.60 and 541.80 + 4.20 = 546.00."
+      },
+      {
+        "kind": "text",
+        "text": "Downside risk is a renewed labour-market deterioration or unusually high inflows, which would land below the interval. Upside risk is faster re-employment or benefit exhaustion, which would land above the interval. A material administrative or eligibility change would also be outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 541.8,
+        "ciLow": 537.6,
+        "ciHigh": 546.0
+      }
+    ]
+  }
+]

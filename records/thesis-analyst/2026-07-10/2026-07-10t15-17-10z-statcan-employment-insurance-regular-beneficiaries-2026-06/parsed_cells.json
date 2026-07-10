@@ -1,0 +1,114 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada regular EI beneficiaries, June 2026",
+    "question": "Statistics Canada regular Employment Insurance beneficiaries for Canada, June 2026, seasonally adjusted, first print",
+    "unit": "thousands",
+    "pointEstimate": 539,
+    "ciLow": 533.5,
+    "ciHigh": 544.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only and ignore later revisions or table corrections unless Statistics Canada changes the first-print rule before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "December 2025",
+        "value": 567.62
+      },
+      {
+        "label": "January 2026",
+        "value": 559.02
+      },
+      {
+        "label": "February 2026",
+        "value": 550.35
+      },
+      {
+        "label": "March 2026",
+        "value": 547.44
+      },
+      {
+        "label": "April 2026",
+        "value": 544.44
+      }
+    ],
+    "drivers": [
+      "recent downward beneficiary trend",
+      "May labour-market improvement",
+      "seasonally adjusted administrative count",
+      "first-print revision risk"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260219/cg-b001-png-eng.htm"
+    ],
+    "runAt": "2026-07-10T15:17:37Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada regular EI beneficiaries, June 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The target is Canada regular EI beneficiaries in persons aged 15 years and over, both sexes, seasonally adjusted, converted to thousands, resolved on the first June 2026 Statistics Canada print. The registered resolution date is 2026-08-20; the first-print policy excludes later revisions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada Table 14-10-0011-01 lookup for the latest available national seasonally adjusted regular-beneficiary observations",
+        "result": "Fetched December 2025 567,620; January 2026 559,020; February 2026 550,350; March 2026 547,440; April 2026 544,440 persons for Canada."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada The Daily Employment Insurance April 2026 release lookup",
+        "result": "Fetched April 2026 national regular beneficiaries of 544,440 persons, a monthly change of -0.5%, and the notice that May 2026 data would be released July 23."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada Labour Force Survey May 2026 lookup for current labour-market adjustment evidence",
+        "result": "Fetched May 2026 employment growth of 88,000 persons, unemployment rate 6.6%, and a monthly unemployment-rate decline of 0.3 percentage points."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada historical Employment Insurance chart lookup for seasonal and reference-class context",
+        "result": "Fetched revised June 2025 regular beneficiaries of 547,700 persons, compared with 479,800 in June 2024 and 427,070 in June 2023."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate is persistence around the latest seasonally adjusted level, with the recent reference class showing a decline from 567.62 thousand in December to 544.44 thousand in April. The 2025 historical June increase is a counterexample to assuming that the recent downward path must continue mechanically."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum point modestly lower: the recent decline is likely to persist into June, while the May employment gain and unemployment-rate improvement reduce the case for a sharp increase in beneficiary counts. No specific policy change or administrative break is evidenced in the fetched sources."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: persistence prior uses the five fetched December 2025-April 2026 levels; successive changes are -8.60, -8.67, -2.91, and -3.00 thousand, giving sigma = 3.28 thousand using sample standard deviation. The unadjusted 80% half-width is roughly 1.28*sigma = 4.20 thousand; I widen it to 5.50 thousand, or 1.31x, for June seasonal uncertainty and first-print administrative variation. A -5.44 thousand update from April gives 539.00 thousand, with final bounds 533.50 to 544.50."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a repeat of the June 2025 seasonal increase, which would place the result above the interval. Downside risk is a renewed labour-market weakening or unusually large benefit exits; a result below 533.50 thousand would land outside the interval."
+      },
+      {
+        "kind": "math",
+        "text": "Point estimate = 544.44 - 5.44 = 539.00 thousand; 80% interval = 539.00 +/- 5.50 = [533.50, 544.50] thousand."
+      },
+      {
+        "kind": "forecast",
+        "point": 539,
+        "ciLow": 533.5,
+        "ciHigh": 544.5
+      }
+    ]
+  }
+]

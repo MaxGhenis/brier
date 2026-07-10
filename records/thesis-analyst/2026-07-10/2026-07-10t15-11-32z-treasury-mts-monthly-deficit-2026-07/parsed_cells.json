@@ -1,0 +1,107 @@
+[
+  {
+    "slug": "us-mts-deficit-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "U.S. Treasury July 2026 Monthly Deficit",
+    "question": "U.S. Treasury Monthly Treasury Statement Table 1 monthly Deficit/Surplus (-) for July 2026, nominal not seasonally adjusted, first print",
+    "unit": "usd_billions",
+    "pointEstimate": 300,
+    "ciLow": 29,
+    "ciHigh": 571,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-17",
+    "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+    "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+    "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026",
+        "value": 94.61516237
+      },
+      {
+        "label": "February 2026",
+        "value": 307.50143343
+      },
+      {
+        "label": "March 2026",
+        "value": 164.10033882
+      },
+      {
+        "label": "April 2026",
+        "value": -215.0241402
+      },
+      {
+        "label": "May 2026",
+        "value": 292.64846208
+      }
+    ],
+    "drivers": [
+      "large July outlays",
+      "seasonal revenue timing",
+      "higher interest expense",
+      "tariff and customs receipts"
+    ],
+    "sourceContext": [
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+      "https://fiscal.treasury.gov/accounting/monthly-treasury-statement",
+      "https://fred.stlouisfed.org/series/MTSDS133FMS"
+    ],
+    "runAt": "2026-07-10T00:00:00Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "July 2026 Treasury monthly deficit forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first official July 2026 Monthly Treasury Statement Table 1 print, monthly Deficit/Surplus (-), expressed as a positive deficit in usd_billions. I retain the registered resolution date of 2026-08-17; Treasury's official release guidance states that MTS is normally released on the eighth workday after the reporting month."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched recent official-source history through the Treasury MTS series mirror.",
+        "result": "Fetched January 2026 deficit 94.61516237, February 2026 deficit 307.50143343, March 2026 deficit 164.10033882, April 2026 surplus -215.02414020, and May 2026 deficit 292.64846208, all in $ millions converted to positive-deficit billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched Treasury MTS definition and release guidance.",
+        "result": "Treasury states that MTS summarizes receipts, outlays, and surplus or deficit on a modified cash basis, and that the report is normally released on the 8th workday; the target contract specifies Table 1 and first-print resolution on 2026-08-17."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the latest published MTS series observation.",
+        "result": "The latest fetched observation is May 2026 at -292648.46208 million in the surplus-or-deficit sign convention, equivalent to a 292.64846208 billion deficit; April 2026 is 215024.14020 million, equivalent to a 215.02414020 billion surplus."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is the recent five-month flow distribution, with a mean deficit of about 128.8 billion but substantial month-to-month cash-timing variation. July is usually a deficit month because quarterly receipt strength has faded while mandatory and interest outlays remain large."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and one-off components point in different directions: the May deficit was 292.648 billion, recent fiscal-year deficits remain elevated, July receipts should benefit from ongoing customs collections, while entitlement payments, debt interest, and payment-timing effects support a deficit near 300 billion."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: persistence prior is the recent five-point flow reference class [94.615, 307.501, 164.100, -215.024, 292.648] billion; the update adds July's usual outlay-heavy seasonal pattern and offsets it partly with customs-receipt growth; using the values themselves for a flow series gives sigma = 211.8, so the nominal 80% half-width is roughly 1.28*sigma = 271.1 billion, implying bounds of about 29 to 571 billion around the 300 billion point estimate."
+      },
+      {
+        "kind": "text",
+        "text": "Downside risk is an unusually strong customs-receipt month or delayed outlays, which would push the deficit below the interval. Upside risk is accelerated benefit, defense, or interest payments; a major payment-timing shock would land outside the interval above it."
+      },
+      {
+        "kind": "math",
+        "text": "Point estimate = 300 billion; 80% interval = 300 \u00b1 271, rounded to ciLow 29 and ciHigh 571 billion."
+      },
+      {
+        "kind": "forecast",
+        "point": 300,
+        "ciLow": 29,
+        "ciHigh": 571
+      }
+    ]
+  }
+]

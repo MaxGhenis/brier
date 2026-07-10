@@ -1,0 +1,143 @@
+[
+  {
+    "slug": "australia-cpi-annual-rate-july-2026",
+    "country": "AU",
+    "type": "data",
+    "title": "Australia CPI annual rate, July 2026",
+    "question": "ABS All groups CPI annual movement for July 2026, original weighted-average-of-eight-capital-cities series, first print",
+    "unit": "percent",
+    "pointEstimate": 4.1,
+    "ciLow": 3.6,
+    "ciHigh": 4.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-26",
+    "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+    "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+    "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "Jan-26",
+        "value": 3.8
+      },
+      {
+        "label": "Feb-26",
+        "value": 3.7
+      },
+      {
+        "label": "Mar-26",
+        "value": 4.6
+      },
+      {
+        "label": "Apr-26",
+        "value": 4.2
+      },
+      {
+        "label": "May-26",
+        "value": 4.0
+      }
+    ],
+    "drivers": [
+      "recent annual-rate easing from 4.6% to 4.0%",
+      "volatile monthly movements",
+      "persistent housing and services inflation",
+      "one-decimal first-print rounding"
+    ],
+    "sourceContext": [
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/may-2026",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia",
+      "https://www.abs.gov.au/release-calendar/future-releases/202608"
+    ],
+    "runAt": "2026-07-10T15:04:02Z",
+    "thresholdLadder": {
+      "thresholds": [
+        3,
+        3.2,
+        3.4,
+        3.6,
+        3.8,
+        4,
+        4.2,
+        4.4,
+        4.6,
+        4.8,
+        5,
+        5.2,
+        5.4
+      ],
+      "cumulativeProbabilities": [
+        0.03,
+        0.05,
+        0.07,
+        0.1,
+        0.25,
+        0.42,
+        0.58,
+        0.72,
+        0.84,
+        0.9,
+        0.95,
+        0.97,
+        0.98
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Australia July 2026 CPI annual movement first-print forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the ABS All groups CPI annual movement for July 2026 in the original weighted-average-of-eight-capital-cities variant, rounded to one decimal on the first official print. The ledger sourceBinding discrepancy is retained: its URL names the June 2026 CPI page, while the registered target identity and resolver specify the July 2026 release."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the latest available official ABS All groups CPI annual movements before the forecast",
+        "result": "ABS reported annual movements of 3.8% in Jan-26, 3.7% in Feb-26, 4.6% in Mar-26, 4.2% in Apr-26, and 4.0% in May-26; May monthly movement was -0.7%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Verify the official ABS release schedule for the target period",
+        "result": "ABS Release Calendar lists Consumer Price Index, Australia, reference period July 2026 for Wednesday 26 August 2026 at 11:30am AEST; the CPI publication page lists the July 2026 release date as 26/08/2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Check the latest ABS component and analytical context",
+        "result": "ABS May 2026 release reported headline annual CPI at 4.0%, trimmed mean at 3.6%, housing annual inflation at 6.5%, food at 3.3%, and transport at 3.3%."
+      },
+      {
+        "kind": "text",
+        "text": "June 2026 evidence is excluded because the forecast run occurred on 10 July 2026 and the latest fetched official observation was May 2026; the June CPI release was not yet available in the inspected ABS evidence. The base rate/reference class is the Jan-May annual-rate path of 3.8%, 3.7%, 4.6%, 4.2%, and 4.0%."
+      },
+      {
+        "kind": "text",
+        "text": "A short-horizon persistence and mean-reversion prior centered near the latest 4.0% rate is updated upward for persistent housing and services inflation while allowing reversal of the March-April spike. The original non-seasonally-adjusted all-groups series is used consistently for anchors and history."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: The persistence prior starts at 4.0% and adds modest housing/services persistence while subtracting some March-spike persistence. Successive Jan-May changes are -0.1, +0.9, -0.4, and -0.2 percentage points; sample dispersion gives sigma = 0.58, so the nominal 80% half-width is roughly 1.28*sigma = 0.74. The ladder-implied 10th-to-90th interval is 3.6%-4.8%, with a 0.60-point half-width around its 4.2% percentile midpoint; this is about 0.81 times the benchmark, a deliberate modest shrinkage for short-horizon mean reversion and one-decimal first-print rounding."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= 3.0) = 0.03; P(X <= 3.2) = 0.05; P(X <= 3.4) = 0.07; P(X <= 3.6) = 0.10; P(X <= 3.8) = 0.25; P(X <= 4.0) = 0.42; P(X <= 4.2) = 0.58; P(X <= 4.4) = 0.72; P(X <= 4.6) = 0.84; P(X <= 4.8) = 0.90; P(X <= 5.0) = 0.95; P(X <= 5.2) = 0.97; P(X <= 5.4) = 0.98. Linear interpolation gives the 10th percentile at 3.6, median at 4.1, and 90th percentile at 4.8, all rounded to one-decimal print precision."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a renewed fuel, housing, or services impulse that would land above the interval, especially above 4.8%. Downside risk is continuation of the May monthly decline or reversal of housing and transport pressure; a print below 3.6% would be outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the reviewer\u2019s interval and coherence critique by revising the ladder so its 10th percentile is 3.6%, median is 4.1%, and 90th percentile is 4.8%. Accepted the update critique by explicitly stating that June evidence was unavailable at the 10 July run date. Retained the target contract and documented sourceBinding discrepancy."
+      },
+      {
+        "kind": "forecast",
+        "point": 4.1,
+        "ciLow": 3.6,
+        "ciHigh": 4.8
+      }
+    ]
+  }
+]

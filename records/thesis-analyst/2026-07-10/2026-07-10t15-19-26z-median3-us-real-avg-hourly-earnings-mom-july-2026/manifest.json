@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "thesis_derived_ensemble_manifest_v1",
+  "createdAt": "2026-07-10T15:19:26Z",
+  "runStartedAt": "2026-07-10T15:19:26Z",
+  "custodyInventoryVersion": 2,
+  "runMode": "derived_ensemble",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "series": "bls.real_earnings.avg_hourly_mom",
+  "period": "2026-07",
+  "targetContext": {
+    "catalogSlug": "us-real-avg-hourly-earnings-mom-july-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-12",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 value for July 2026, seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, as first printed on the official release page; use the one-decimal percent value shown by BLS and do not revise for later updates.",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+    "series": "bls.real_earnings.avg_hourly_mom",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-18",
+        "start": "2026-08-10"
+      },
+      "field": "bls.real_earnings.avg_hourly_mom",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.real_earnings.avg_hourly_mom",
+      "sourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+      "table": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+    "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "promptMode": "median3",
+  "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+  "agent": {
+    "agent": "thesis.analyst.median3",
+    "model": "gpt-5.6-luna",
+    "agentVersion": "2.2.0+median3",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1"
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-19-26z-median3-us-real-avg-hourly-earnings-mom-july-2026/cells.with_activity.json",
+  "constituentRuns": [
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-12-11z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+      "manifestSha256": "a9f8c18a684d119e3d57e94683965486e371b33eadd8ecd424e56b6fb83850e5",
+      "manifestBytes": 9010,
+      "custodyRootSha256": "cc040feecc31d6f8e127e4454c19e9ecb6d6646eb6016791bfc1ab90b7abc256",
+      "runAt": "2026-07-10T15:12:31Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-15-15z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+      "manifestSha256": "7a7ee0a51f0ca95a31c3fd9b37e7f1e0c838086c63226c3298059ca849518fe2",
+      "manifestBytes": 9010,
+      "custodyRootSha256": "24342cea1c4cf143152f6ce15da414008555981e41d68dd53fd21cbd49de5b7f",
+      "runAt": "2026-07-10T15:15:40Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-18-30z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+      "manifestSha256": "686edf456f370bc341049f090bdfd24dfe1bf9fbff106a58ada0d7c2a7f3b480",
+      "manifestBytes": 9010,
+      "custodyRootSha256": "db27773957027b5e2c7affd4fb6479588d95b27ee0fb28ddc426e70e8f83b247",
+      "runAt": "2026-07-10T15:18:50Z"
+    }
+  ],
+  "constituentManifests": [
+    "records/thesis-analyst/2026-07-10/2026-07-10t15-12-11z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t15-15-15z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t15-18-30z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json"
+  ],
+  "artifacts": [
+    {
+      "artifactType": "derived_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-19-26z-median3-us-real-avg-hourly-earnings-mom-july-2026/distribution.json",
+      "sha256": "29b96a2f2f9add0eb10a044484b39c168a3fef4b6eac4d00e3de894ee7e8e478",
+      "bytes": 11231,
+      "createdAt": "2026-07-10T15:19:26Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-19-26z-median3-us-real-avg-hourly-earnings-mom-july-2026/cells.with_activity.json",
+      "sha256": "ee327f8a071eaeb7af2d934bbf88902a6c552352d7dd0a4da539a747e011a14d",
+      "bytes": 6973,
+      "createdAt": "2026-07-10T15:19:26Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-19-26z-median3-us-real-avg-hourly-earnings-mom-july-2026/manifest.json",
+      "sha256": "8114a6b4aac183bdab2b90d4e10e639296b47e07e765969fb21185dd013aa999",
+      "bytes": 4887,
+      "createdAt": "2026-07-10T15:19:26Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+  "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "custodyRootSha256": "92286e85af4858382910a1013abcc7a2e6a59829f3795680c9b11007ddb17f45"
+}

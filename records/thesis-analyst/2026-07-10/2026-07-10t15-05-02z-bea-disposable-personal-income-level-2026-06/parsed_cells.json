@@ -1,0 +1,139 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "U.S. Disposable Personal Income, June 2026",
+    "question": "BEA disposable personal income (DSPI), June 2026, current dollars, seasonally adjusted annual rate, first print",
+    "unit": "usd_billions",
+    "pointEstimate": 23708.3,
+    "ciLow": 23550,
+    "ciHigh": 23900,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026",
+        "value": 23395.9
+      },
+      {
+        "label": "February 2026",
+        "value": 23382.4
+      },
+      {
+        "label": "March 2026",
+        "value": 23510.4
+      },
+      {
+        "label": "April 2026",
+        "value": 23486.9
+      },
+      {
+        "label": "May 2026",
+        "value": 23651.7
+      }
+    ],
+    "drivers": [
+      "recent nominal income momentum",
+      "volatile transfer and farm-proprietor components",
+      "seasonally adjusted annual-rate level persistence",
+      "possible first-print revision noise"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule/full/2026",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://fred.stlouisfed.org/series/DSPI"
+    ],
+    "runAt": "2026-07-10T15:05:23Z",
+    "thresholdLadder": {
+      "thresholds": [
+        23500,
+        23550,
+        23600,
+        23650,
+        23700,
+        23750,
+        23800,
+        23850,
+        23900,
+        23950,
+        24000
+      ],
+      "cumulativeProbabilities": [
+        0.05,
+        0.1,
+        0.22,
+        0.36,
+        0.48,
+        0.6,
+        0.72,
+        0.82,
+        0.9,
+        0.95,
+        0.97
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 first-print forecast for BEA DSPI"
+      },
+      {
+        "kind": "text",
+        "text": "The target is current-dollar disposable personal income, BEA series DSPI/account A067RC in Table 2.6, measured in billions of dollars at a seasonally adjusted annual rate. The first-print resolver remains the retained ledger ALFRED binding; its vintage_date appears to precede the June release, which is a noted ledger discrepancy rather than a target change."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BEA 2026 release calendar lookup",
+        "result": "BEA's official calendar lists Personal Income and Outlays, June 2026, for July 30, 2026 at 8:30 a.m.; the May release was June 25, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BEA May 2026 Personal Income and Outlays release lookup",
+        "result": "BEA reported May disposable personal income increased 164.9 billion, or 0.7 percent monthly; April current-dollar DPI change was -0.1 percent and May was 0.7 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "DSPI history lookup through the latest official May print",
+        "result": "FRED's BEA-sourced DSPI history fetched January 2026 = 23395.9, February = 23382.4, March = 23510.4, April = 23486.9, and May = 23651.7 billion dollars SAAR."
+      },
+      {
+        "kind": "text",
+        "text": "The same-variant requirement is satisfied: the target and every historical anchor use nominal current-dollar DSPI, seasonally adjusted annual rate, not real DPI or a change series. The May release also identifies farm-proprietor payments and compensation as major contributors, so the recent jump is not treated as pure smooth trend."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is short-horizon monthly level persistence in the latest five-point official history: changes were -13.5, 128.0, -23.5, and 164.8 billion. That favors a modest continuation above May rather than extrapolating the full May jump."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is another unusually large compensation or transfer-related increase; downside risk is a reversal of May's farm-proprietor or transfer effects. A first print below 23500 or above 24000 would be outside the interval and would indicate a larger-than-usual one-off or source revision regime."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: persistence-plus-recent-change prior uses the January-May 2026 DSPI history; the level anchor is May 23651.7, with a modest momentum adjustment toward 23708.3. Successive changes have sample sigma = 96.5 billion, so the standard 80% half-width is roughly 1.28*sigma = 123.5 billion. The ladder-implied 80% interval is 23550-23900, width 350 billion, judgmentally widened beyond the 247.0-billion two-sided sigma width because the sample contains only four changes and farm-proprietor and transfer components create a high one-off regime and first-print uncertainty."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= 23500) = 0.05; P(X <= 23550) = 0.10; P(X <= 23600) = 0.22; P(X <= 23650) = 0.36; P(X <= 23700) = 0.48; P(X <= 23750) = 0.60; P(X <= 23800) = 0.72; P(X <= 23850) = 0.82; P(X <= 23900) = 0.90; P(X <= 23950) = 0.95; P(X <= 24000) = 0.97. Linear interpolation gives the 10th percentile at 23550, the median at 23708.3 between 23700 and 23750, and the 90th percentile at 23900."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer\u2019s suggestion by clarifying that the 350-billion interval width is judgmentally widened because the historical sample has only four observed monthly changes; no required critique items were present."
+      },
+      {
+        "kind": "forecast",
+        "point": 23708.3,
+        "ciLow": 23550,
+        "ciHigh": 23900
+      }
+    ]
+  }
+]

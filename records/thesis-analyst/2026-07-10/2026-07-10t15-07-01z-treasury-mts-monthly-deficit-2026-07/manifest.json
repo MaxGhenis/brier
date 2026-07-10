@@ -1,0 +1,397 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T15:07:01Z",
+  "runStartedAt": "2026-07-10T15:07:01Z",
+  "series": "treasury.mts.monthly_deficit",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-mts-deficit-july-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+    "period": "2026-07",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-17",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+    "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+    "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    "series": "treasury.mts.monthly_deficit",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "fiscaldata.treasury.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-17",
+        "start": "2026-08-09"
+      },
+      "field": "treasury.mts.monthly_deficit",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "treasury.mts.monthly_deficit",
+      "sourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+      "table": "U.S. Department of the Treasury, Monthly Treasury Statement (Table 1)",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5",
+    "targetRegistrationPath": "records/targets/2026-07-10-ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5",
+  "targetRegistrationPath": "records/targets/2026-07-10-ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "ladder",
+  "agent": {
+    "agent": "thesis.analyst.ladder",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-luna",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T15:07:01Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.6-luna",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "95ab9bf706d38daa043a36575aadc3cfe174c3db8a335059bb27bd39fc93d500"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The move from the recent January\u2013May reference class toward the July 2025 level is attributed mainly to recurring payment timing and higher interest costs without quantified current evidence or a clear seasonal comparison.",
+        "actionRequested": "Identify the historical seasonal sample or official evidence supporting the July adjustment, and state which components are observed versus modeled assumptions."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The dispersion-based interval is described using a 271.1 billion half-width, while the reported ladder interval is asymmetric around the 287.5 billion point; calling 231.25 billion its half-width is therefore misleading.",
+        "actionRequested": "Describe the reported bounds as ladder-derived 10th and 90th percentiles, report separate lower and upper distances from the point, and explain why this interval supersedes the volatility-based benchmark."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State whether the 211.8 billion volatility is sample or population standard deviation."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Provide a direct official URL or citation for the July 2025 first-print observation."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the request to distinguish observed evidence from modeled seasonal and spending assumptions, added the July 2025 official observation to the historical context, identified sigma as the sample standard deviation, and replaced the misleading symmetric-half-width description with separate ladder-derived percentile distances. No resolver or source change was needed.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the request to distinguish observed evidence from modeled seasonal and spending assumptions, added the July 2025 official observation to the historical context, identified sigma as the sample standard deviation, and replaced the misleading symmetric-half-width description with separate ladder-derived percentile distances. No resolver or source change was needed.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the request to distinguish observed evidence from modeled seasonal and spending assumptions, added the July 2025 official observation to the historical context, identified sigma as the sample standard deviation, and replaced the misleading symmetric-half-width description with separate ladder-derived percentile distances. No resolver or source change was needed.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the request to distinguish observed evidence from modeled seasonal and spending assumptions, added the July 2025 official observation to the historical context, identified sigma as the sample standard deviation, and replaced the misleading symmetric-half-width description with separate ladder-derived percentile distances. No resolver or source change was needed.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The forecast largely satisfies the review criteria, but its evidence-based update and interval explanation need clarification before publication."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/prompt.md",
+      "sha256": "897b48ec36dc71f6796d3e4e3953a33e1a64a737e074117e0454667e6d3970ef",
+      "bytes": 11094,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_command.json",
+      "sha256": "61b0d8fa50598702107901d61ffcd5f64e64383f292e82ed3d547aac8b7898ee",
+      "bytes": 708,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "ade3d08aa030232938d7a33f07b5e37392dbeddf065624b0f888ab51cc8207bd",
+      "bytes": 10895,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_codex_stderr.log",
+      "sha256": "88900225a58efc6a6409fd78dc9cceb3f58114bcc8099be593f8a3ff06cbdceb",
+      "bytes": 233,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_codex_events.jsonl",
+      "sha256": "78fc0b756733dac987debb3ab96048ac0951f76d609189871f649cc09018c686",
+      "bytes": 10890,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_codex_last_message.txt",
+      "sha256": "422c3e5092b0ec589b0a875668ece25057725e818d3c5e8b1cf2c4904b3c229b",
+      "bytes": 5479,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_codex_trace.json",
+      "sha256": "38e74b30ade03832590fd650eb21b5013db11cdaadf77e03318899eaea09faf2",
+      "bytes": 514,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_stdout.txt",
+      "sha256": "422c3e5092b0ec589b0a875668ece25057725e818d3c5e8b1cf2c4904b3c229b",
+      "bytes": 5479,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/draft_stderr.txt",
+      "sha256": "9eb5fa03d1b3602f80aadba816b0549aa3c0a899621e9a4c80b2219f0424aa0f",
+      "bytes": 248,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_prompt.md",
+      "sha256": "84840e97b41167e0f665d3b81990aafefb05ab5ffab7acfdc356b8918c260351",
+      "bytes": 9202,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_command.json",
+      "sha256": "5058388b4cf336e0c6ee43d9b8b9535329ef9a8dc926bf49e94896367481e9d9",
+      "bytes": 704,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "bd34c2bf49d2596a91edb1907a6a67658901645ce2aacd62aabc8bd734186223",
+      "bytes": 1706,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "284055e71a8d45c6b07e4c02cb2386ad4e687549bc8586759759d823ff38891e",
+      "bytes": 233,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "0c4c3897b4f3ac171453cf578ac3c0ef6eb4baaf834c97ffb68c9fd24ed57cb7",
+      "bytes": 1731,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "4ae04feeb52ea6361265a15e924e126b8802828a3bb7ed40b80d8e8d6ff7ab3d",
+      "bytes": 1346,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "caffa924fb1be7302430d0f719cc1f52d5571587ecf7b18f150e4c4dfc22b790",
+      "bytes": 508,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "4ae04feeb52ea6361265a15e924e126b8802828a3bb7ed40b80d8e8d6ff7ab3d",
+      "bytes": 1346,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "7b2d5e308860f66d0e0b9ea673e66ad6a4c9ca5c20d204214d00c5a4291b0209",
+      "bytes": 248,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/revision_prompt.md",
+      "sha256": "cbef081d37e8bd99b855aa4d3cc7543aedd37c9d05ca45841dcafb7eecf388a8",
+      "bytes": 18855,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/command.json",
+      "sha256": "cf5e1e88d1348714b5d04d3c8deb3802575ba0c89bfe7c6e1c4df303360f1793",
+      "bytes": 702,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/codex_stdout.jsonl",
+      "sha256": "df1c4197c974b32a2e816c987ee8dd834fb58b459730b2081635174ef761b3d3",
+      "bytes": 6725,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/codex_stderr.log",
+      "sha256": "884f3747dae004776ec1a4b013027cce51cdeb882c6343dad1aef0b6514b35d8",
+      "bytes": 233,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/codex_events.jsonl",
+      "sha256": "88e2dab1904ab96907fd49f9207f74cf209bad10f3223785ae42401f940a0cc2",
+      "bytes": 6750,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/codex_last_message.txt",
+      "sha256": "59b72392e17687e7ef2a7b4d0d06439c72413b0d34b7598e984fd26f34d21647",
+      "bytes": 6164,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/codex_trace.json",
+      "sha256": "46cbca67061d2ac871b4688ea2ffa8141452f8bcbb2923bfc18280dc7336205a",
+      "bytes": 510,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/stdout.txt",
+      "sha256": "59b72392e17687e7ef2a7b4d0d06439c72413b0d34b7598e984fd26f34d21647",
+      "bytes": 6164,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/stderr.txt",
+      "sha256": "b91138116d9fd9064bd8d0f26ef059e7225c219f5c8c4a6e0d973c9463bcf388",
+      "bytes": 248,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/raw_response.txt",
+      "sha256": "59b72392e17687e7ef2a7b4d0d06439c72413b0d34b7598e984fd26f34d21647",
+      "bytes": 6164,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/parsed_cells.json",
+      "sha256": "107aec32e6c25ceeeace381fc627947bbf52b57bad4150beb8c33d4a5cd4fc78",
+      "bytes": 7350,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/normalized_cells.json",
+      "sha256": "7e1cde493f376f2b9d74196330ebf07a8ec611ade7eb39005f6d432c64f3ed6d",
+      "bytes": 25382,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/distribution.json",
+      "sha256": "c6926a1dc513717c8b3007bfb882671afa26d82f9accf9f192207fe38e351231",
+      "bytes": 14347,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/validation.json",
+      "sha256": "db41fbbc2f6b5e7562b97e3ae404b659436127aeaa73a5759e733c036755b65f",
+      "bytes": 208,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/cells.with_activity.json",
+      "sha256": "d85b8972f733be53eec6aff4ad37730694cb36f9cdcf59a053b8472536af8650",
+      "bytes": 41465,
+      "createdAt": "2026-07-10T15:07:01Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-07-01z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+      "sha256": "3965977aa1d16d0dc8bdfaa1a916f411e50d92c07d0b33cf0f229ec8e518656f",
+      "bytes": 16710,
+      "createdAt": "2026-07-10T15:07:01Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "us-mts-deficit-july-2026",
+        "ok": false,
+        "errors": [
+          "math step does not show interval derivation (sigma = X or 1.28)"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "9e39409aa022202ad31e4302bb896c0368b461341bf7923fb05f4aee87dc58b6"
+}

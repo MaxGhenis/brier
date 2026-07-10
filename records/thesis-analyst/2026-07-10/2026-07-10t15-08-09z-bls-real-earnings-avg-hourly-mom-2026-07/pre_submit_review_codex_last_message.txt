@@ -1,0 +1,21 @@
+{
+  "summary": "The forecast largely satisfies the resolver, evidence, prior, tail, and coherence requirements, but its stated volatility calculation does not support the selected interval without further justification.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The reported sample sigma of 0.385 implies an approximately -0.6 to 0.4 80% interval around the -0.1 point, whereas the selected interval is -0.7 to 0.8 and materially wider and asymmetric.",
+      "actionRequested": "Recalculate the interval using an explicitly justified volatility or uncertainty method, or explain and quantify the additional inflation, first-print, and model uncertainty that produces the wider asymmetric bounds."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The update identifies nominal wages minus CPI as a mechanism but does not clearly separate the historical prior, current-information adjustment, and added uncertainty components.",
+      "actionRequested": "State the prior, each evidence-based adjustment with its direction and approximate magnitude, the volatility/uncertainty components, and how these combine into the final point and bounds."
+    }
+  ],
+  "optionalSuggestions": [
+    "Incorporate or explicitly rule out the latest available June nominal-wage evidence as of the forecast date.",
+    "Clarify whether confidence 0.8 denotes the probability contained between the stated bounds."
+  ]
+}
