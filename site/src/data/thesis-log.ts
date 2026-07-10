@@ -416,7 +416,8 @@ function mapPolicyEngineAggregateFactToObservation(
 }
 
 async function fetchPolicyEngineLedger(): Promise<PolicyEngineLedgerEntry[]> {
-  const response = await fetch(POLICYENGINE_LEDGER_FACTS_URL);
+  const url = await resolvePolicyEngineLedgerUrl();
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(
       `PolicyEngine Ledger fetch failed with HTTP ${response.status}`,
@@ -426,6 +427,35 @@ async function fetchPolicyEngineLedger(): Promise<PolicyEngineLedgerEntry[]> {
     ...THESIS_TARGET_LEDGER,
     ...parsePolicyEngineLedgerFacts(await response.text()),
   ];
+}
+
+// Branch-ref raw URLs sit behind a ~5-minute CDN cache, which made a
+// resolution rebuild read the ledger as it was BEFORE the observations it
+// was rebuilt for (live-caught 2026-07-10: 21 fresh resolutions, unchanged
+// scoreboard). Resolve the branch head through the API (uncached) and
+// fetch the immutable commit-pinned raw file; fall back to the branch URL
+// if the API is unavailable so builds never hard-fail on rate limits.
+async function resolvePolicyEngineLedgerUrl(): Promise<string> {
+  if (process.env.POLICYENGINE_LEDGER_FACTS_URL) {
+    return POLICYENGINE_LEDGER_FACTS_URL;
+  }
+  const match = POLICYENGINE_LEDGER_FACTS_URL.match(
+    /^https:\/\/github\.com\/([^/]+\/[^/]+)\/raw\/refs\/heads\/(.+?)\/(ledger\/.+)$/,
+  );
+  if (!match) return POLICYENGINE_LEDGER_FACTS_URL;
+  const [, repo, branch, filePath] = match;
+  try {
+    const head = await fetch(
+      `https://api.github.com/repos/${repo}/commits/${encodeURIComponent(branch)}`,
+      { headers: { Accept: "application/vnd.github.sha" } },
+    );
+    if (!head.ok) return POLICYENGINE_LEDGER_FACTS_URL;
+    const sha = (await head.text()).trim();
+    if (!/^[0-9a-f]{40}$/.test(sha)) return POLICYENGINE_LEDGER_FACTS_URL;
+    return `https://raw.githubusercontent.com/${repo}/${sha}/${filePath}`;
+  } catch {
+    return POLICYENGINE_LEDGER_FACTS_URL;
+  }
 }
 
 function assertPolicyEngineFactShape(
