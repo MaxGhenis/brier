@@ -1,0 +1,34 @@
+{
+  "summary": "The draft is publishable in structure, but it has a likely blocking evidence/model issue around the claimed 2026 SNAP decline and policy driver, which appears inconsistent with the cited historical values and needs substantiation or revision.",
+  "requiredFixes": [
+    {
+      "rubricItem": "update",
+      "severity": "blocking",
+      "summary": "The inside-view update relies on 'expanded SNAP eligibility and work-requirement effects' and 'rapid recent participation decline,' but the cited evidence only shows reported series values and does not substantiate the policy mechanism or why the recent decline should average -0.35 million per month through July.",
+      "actionRequested": "Either cite concrete official evidence for the eligibility/work-requirement implementation affecting this target period, or remove that driver and restate the update as a purely statistical momentum adjustment with a clear shrinkage rationale."
+    },
+    {
+      "rubricItem": "base_rate",
+      "severity": "warning",
+      "summary": "The draft states a 24-change March 2024 through March 2026 base-rate sample, but only a few observations are shown in historicalContext and sourceContext.",
+      "actionRequested": "Add enough compact detail to make the historical sample auditable, such as the start/end values, mean monthly change, latest five-change mean, and confirmation that all values come from the same first-print FNS Persons series."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The model prior is named as damped monthly-change persistence, but the damping rule is not explicit; the forecast uses -0.35 million per month without showing how it is derived from the 24-month mean and latest-five momentum.",
+      "actionRequested": "State the exact formula or judgmental weighting that maps the historical mean and recent changes to the -0.35 million monthly decline."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval uses sqrt(4) scaling of one-month volatility, which is reasonable, but it appears to ignore uncertainty in the selected -0.35 million monthly drift and possible first-print reporting noise.",
+      "actionRequested": "Briefly state whether the 80% interval is innovation-only or includes drift/model uncertainty; widen or justify unchanged bounds accordingly."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the resolver wording; it matches the ledger target, unit conversion, first-print rule, and 2026-12-07 resolution date.",
+    "Clarify whether 'expanded SNAP eligibility' is intended to mean expanded restrictions or administrative eligibility changes, since the phrase currently reads directionally ambiguous.",
+    "Add one sentence that no catalog forecast point or interval was used as an input."
+  ]
+}
