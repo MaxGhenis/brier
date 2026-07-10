@@ -1,0 +1,106 @@
+[
+  {
+    "slug": "us-mts-deficit-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US July 2026 Monthly Treasury Deficit",
+    "question": "U.S. Treasury Monthly Treasury Statement Table 1 monthly Deficit/Surplus (-) for July 2026, first print",
+    "unit": "usd_billions",
+    "pointEstimate": 305,
+    "ciLow": 259.4,
+    "ciHigh": 350.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-17",
+    "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+    "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+    "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "July FY2022 Table 1 deficit",
+        "value": 211.052
+      },
+      {
+        "label": "July FY2023 Table 1 deficit",
+        "value": 220.782
+      },
+      {
+        "label": "July FY2024 Table 1 deficit",
+        "value": 243.741
+      },
+      {
+        "label": "July FY2025 deficit",
+        "value": 291
+      }
+    ],
+    "drivers": [
+      "July seasonal deficit reference class",
+      "Higher interest and program outlays",
+      "Tariff and tax-receipt offset",
+      "Monthly payment-timing volatility"
+    ],
+    "sourceContext": [
+      "https://fiscaldata.treasury.gov/static-data/published-reports/mts/MonthlyTreasuryStatement_202309.pdf",
+      "https://fiscaldata.treasury.gov/static-data/published-reports/mts/MonthlyTreasuryStatement_202409.pdf",
+      "https://fiscaldata.treasury.gov/static-data/published-reports/mts/MonthlyTreasuryStatement_202506.pdf",
+      "https://fiscaldata.treasury.gov/static-data/published-reports/mts/MonthlyTreasuryStatement_202606.pdf"
+    ],
+    "runAt": "2026-07-10T15:46:57Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "July 2026 Treasury monthly deficit forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the original first-print July 2026 value in MTS Table 1, \u201cDeficit/Surplus (-),\u201d reported in $ millions and divided by 1,000; deficits are expressed as positive usd_billions here. The Table 1 monthly variant, rather than fiscal-year-to-date receipts, outlays, or a revised table, is the sole target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched Treasury MTS Table 1 July observations from the FY2022/FY2023 statement.",
+        "result": "Treasury Table 1 reports July deficits of $211,052 million for FY2022 and $220,782 million for FY2023, equal to 211.052 and 220.782 usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched Treasury MTS Table 1 July FY2024 observation.",
+        "result": "Treasury Table 1 reports July FY2024 receipts of $330,377 million, outlays of $574,119 million, and a deficit of $243,741 million, equal to 243.741 usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched Treasury MTS publication methodology and recent monthly reference data.",
+        "result": "Treasury states that the MTS is normally released on the 8th workday after the reporting month; its June 2025 Table 1 reports receipts of $526,445 million, outlays of $499,435 million, and a $27,010 million surplus."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official MTS scheduled-release listing for the target accounting month.",
+        "result": "The official scheduled-release listing assigns the July 2026 MTS first print to August 17, 2026, within the stated August 9\u201317 release window."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is the same July Table 1 monthly deficit: 211.052, 220.782, 243.741, and 291.000 usd_billions for FY2022\u2013FY2025. The FY2025 $291 billion reading is the most relevant persistence anchor, while the earlier same-month values retain July seasonality."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: The model is a same-month seasonal persistence prior using FY2022\u2013FY2025 July Table 1 deficits [211.052, 220.782, 243.741, 291.000]. Their mean is 241.644 and sample sigma = 35.644 usd_billions; 1.28*sigma = 45.624. I update the FY2025 persistence anchor upward for higher interest/program outlays, partly offset by tariff and tax receipts, to 305.0; the resulting 80% bounds are 305.0 \u00b1 45.6 = [259.4, 350.6]."
+      },
+      {
+        "kind": "math",
+        "text": "point = 305.0 usd_billions; sigma = 35.644; 80% half-width = 1.28 \u00d7 35.644 = 45.624; ciLow = 305.0 - 45.624 = 259.376, rounded to 259.4; ciHigh = 305.0 + 45.624 = 350.624, rounded to 350.6."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: a larger-than-assumed outlay acceleration or payment shift into July would land above the interval. Downside risk: stronger receipts, including tariff collections, or delayed outlays would land below the interval. A major one-off refund, benefit-payment, or accounting-timing shift is the principal outside the interval scenario."
+      },
+      {
+        "kind": "forecast",
+        "point": 305,
+        "ciLow": 259.4,
+        "ciHigh": 350.6
+      }
+    ]
+  }
+]

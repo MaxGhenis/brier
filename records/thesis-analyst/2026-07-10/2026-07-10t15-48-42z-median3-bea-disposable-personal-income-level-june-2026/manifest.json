@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "thesis_derived_ensemble_manifest_v1",
+  "createdAt": "2026-07-10T15:48:42Z",
+  "runStartedAt": "2026-07-10T15:48:42Z",
+  "custodyInventoryVersion": 2,
+  "runMode": "derived_ensemble",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "series": "bea.disposable_personal_income.level",
+  "period": "2026-06",
+  "targetContext": {
+    "catalogSlug": "bea-disposable-personal-income-level-june-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAtUtc": "2026-07-10T12:36:34Z",
+    "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+    "resolutionDate": "2026-07-30",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "series": "bea.disposable_personal_income.level",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-29",
+        "start": "2026-07-21"
+      },
+      "field": "DSPI",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "DSPI",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+      "table": "Personal Income and Outlays, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+    "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "promptMode": "median3",
+  "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+  "agent": {
+    "agent": "thesis.analyst.median3",
+    "model": "gpt-5.6-terra",
+    "agentVersion": "2.2.0+median3",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1"
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-48-42z-median3-bea-disposable-personal-income-level-june-2026/cells.with_activity.json",
+  "constituentRuns": [
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-37-10z-bea-disposable-personal-income-level-2026-06/manifest.json",
+      "manifestSha256": "d91c64733f28749ba46434df73a9c913d5f699f49614a3b16d1db828635f2aa3",
+      "manifestBytes": 9374,
+      "custodyRootSha256": "1874adf9db3d7950deed69fff444950a9dd405ce343c1ad62f84e613ced5d66c",
+      "runAt": "2026-07-10T15:37:53Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-40-55z-bea-disposable-personal-income-level-2026-06/manifest.json",
+      "manifestSha256": "fd8c92b05231b4fc948a57848bf508cde76b4101db75e69db174456e10d0e780",
+      "manifestBytes": 9374,
+      "custodyRootSha256": "ab1f0d936fbbfc2a3d54bfbb8565807eec18ff35ae0f8c203b4b623149fbfeb8",
+      "runAt": "2026-07-10T15:41:38Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-45-17z-bea-disposable-personal-income-level-2026-06/manifest.json",
+      "manifestSha256": "ae0887dc6d2fc5a5177deb9b7113f92406a8604c9a9ed4a6f87f41b7dba95cb7",
+      "manifestBytes": 9374,
+      "custodyRootSha256": "d4b9b79c9c4fdd03a6058f30841809e3520786132b7b3f394b38711f54cf1c83",
+      "runAt": "2026-07-10T15:45:51Z"
+    }
+  ],
+  "constituentManifests": [
+    "records/thesis-analyst/2026-07-10/2026-07-10t15-37-10z-bea-disposable-personal-income-level-2026-06/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t15-40-55z-bea-disposable-personal-income-level-2026-06/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t15-45-17z-bea-disposable-personal-income-level-2026-06/manifest.json"
+  ],
+  "artifacts": [
+    {
+      "artifactType": "derived_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-48-42z-median3-bea-disposable-personal-income-level-june-2026/distribution.json",
+      "sha256": "0bdc18b5d479d4bd27049e8bb35b10db43373750d0a9502b8a51033fc26da362",
+      "bytes": 12838,
+      "createdAt": "2026-07-10T15:48:42Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-48-42z-median3-bea-disposable-personal-income-level-june-2026/cells.with_activity.json",
+      "sha256": "9a4b87cb358bf58df2ab1365fdc3c014cc938d81415a60734c18a027d665471d",
+      "bytes": 7670,
+      "createdAt": "2026-07-10T15:48:42Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-48-42z-median3-bea-disposable-personal-income-level-june-2026/manifest.json",
+      "sha256": "3822c5e0040a5c6d947e6d58ffa87fb6517840b7f97c511f345dc2e5c3265ae1",
+      "bytes": 5217,
+      "createdAt": "2026-07-10T15:48:42Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+  "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+  "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+  "registeredAtUtc": "2026-07-10T12:36:34Z",
+  "custodyRootSha256": "c4f0aec1213b192feef012c9ebc6e3a814b37a1cb877f576da99305b6f1f078c"
+}

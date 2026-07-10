@@ -1,0 +1,1026 @@
+[
+  {
+    "slug": "wic-participation-may-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US WIC total participation \u2014 May 2026",
+    "question": "USDA FNS monthly national-level WIC Total Participants for May 2026, first print",
+    "unit": "millions",
+    "pointEstimate": 6.995,
+    "ciLow": 6.943,
+    "ciHigh": 7.047,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-14",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. The expected displayed FNS monthly table value is a whole participant count, as in 6,894,610 for May 2025; convert that displayed person count to millions by dividing by 1,000,000 and round to 0.001 million for the cell. If the ledger adapter instead extracts an intermediate value expressed in thousands of participants, its listed factor 0.001 produces the same final unit of millions. Use the first posted May 2026 value only; ignore later preliminary/final revisions or annual-summary revisions.",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2023 total participants",
+        "value": 6.697
+      },
+      {
+        "label": "May 2024 total participants",
+        "value": 6.764
+      },
+      {
+        "label": "May 2025 total participants",
+        "value": 6.895
+      },
+      {
+        "label": "November 2025 total participants",
+        "value": 6.752
+      }
+    ],
+    "drivers": [
+      "May-to-May participation has risen by 0.067 million and 0.131 million in the two available prior years",
+      "FY 2025 annual average participation was 6.866 million, above FY 2024's 6.704 million",
+      "The November 2025 decline is a seasonal monthly movement rather than evidence of a reversed annual trend",
+      "FY 2026 figures are preliminary, so the target is explicitly the first print"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/wic-program",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-2.pdf",
+      "https://www.fns.usda.gov/pd/overview"
+    ],
+    "runAt": "2026-07-10T15:40:26Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "USDA FNS WIC total participants, May 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the monthly national-level WIC table's Total Participants column, not annual quality-control material or a state table. The FNS release-calendar schedule verified the target's 2026-08-14 resolution date. The source variant is the unadjusted monthly national-level total-participant series; all anchors below use that same table."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched USDA FNS WIC Data Tables and its linked monthly national-level participation table.",
+        "result": "The official table reports May total participants of 6,696,739 in 2023, 6,763,710 in 2024, and 6,894,610 in 2025; expressed in millions these are 6.697, 6.764, and 6.895."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the official USDA FNS monthly WIC participation PDF through the WIC Data Tables page.",
+        "result": "The PDF reports FY 2025 annual average total participation of 6,866,095, versus 6,704,329 in FY 2024 and 6,575,977 in FY 2023."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the latest observations in the official monthly national-level WIC table.",
+        "result": "The latest displayed FY 2026 observations are 6,909,050 total participants in October 2025 and 6,752,138 in November 2025; the table labels FY 2026 data preliminary."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class/base rate is recent May-to-May growth in this exact national monthly series: +0.067 million from May 2023 to May 2024 and +0.131 million from May 2024 to May 2025, for a two-change mean of +0.099 million. I use that seasonal persistence prior rather than extrapolating November's seasonal decline directly."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence-plus-May-seasonality model using the two historical May-over-May changes (+0.067 and +0.131 million) implies 6.895 + 0.099 = 6.994 million, rounded to a 6.995 million point after modest support from the FY 2025 level. From the FY 2025 successive monthly changes in the fetched table, sigma = 0.041 million; 1.28*sigma = 0.052 million. The 80% interval is therefore 6.995 +/- 0.052 = [6.943, 7.047] million. No widening is applied because the historical May trend and recent annual level point in the same direction."
+      },
+      {
+        "kind": "text",
+        "text": "upside risk is continued enrollment expansion at the stronger 2024-to-2025 May pace, which could put May 2026 above 7.047 million. downside risk is a durable rather than seasonal post-October enrollment contraction, which could put it below 6.943 million. A large reporting or eligibility-policy discontinuity would land outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.995,
+        "ciLow": 6.943,
+        "ciHigh": 7.047
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T00:00:00Z",
+    "runStartedAt": "2026-07-10T15:39:47Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+    "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 6.865,
+        "upper": 7.125
+      },
+      "points": [
+        {
+          "value": 6.865,
+          "probability": 0.0
+        },
+        {
+          "value": 6.8663,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 6.8676,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 6.8689,
+          "probability": 0.005
+        },
+        {
+          "value": 6.8702,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 6.8715,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 6.8728,
+          "probability": 0.01
+        },
+        {
+          "value": 6.8741,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 6.8754,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 6.8767,
+          "probability": 0.015
+        },
+        {
+          "value": 6.878,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 6.8793,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 6.8806,
+          "probability": 0.02
+        },
+        {
+          "value": 6.8819,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 6.8832,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 6.8845,
+          "probability": 0.025
+        },
+        {
+          "value": 6.8858,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 6.8871,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 6.8884,
+          "probability": 0.03
+        },
+        {
+          "value": 6.8897,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 6.891,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 6.8923,
+          "probability": 0.035
+        },
+        {
+          "value": 6.8936,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 6.8949,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 6.8962,
+          "probability": 0.04
+        },
+        {
+          "value": 6.8975,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 6.8988,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 6.9001,
+          "probability": 0.045
+        },
+        {
+          "value": 6.9014,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 6.9027,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 6.904,
+          "probability": 0.05
+        },
+        {
+          "value": 6.9053,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 6.9066,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 6.9079,
+          "probability": 0.055
+        },
+        {
+          "value": 6.9092,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 6.9105,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 6.9118,
+          "probability": 0.06
+        },
+        {
+          "value": 6.9131,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 6.9144,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 6.9157,
+          "probability": 0.065
+        },
+        {
+          "value": 6.917,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 6.9183,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 6.9196,
+          "probability": 0.07
+        },
+        {
+          "value": 6.9209,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 6.9222,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 6.9235,
+          "probability": 0.075
+        },
+        {
+          "value": 6.9248,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 6.9261,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 6.9274,
+          "probability": 0.08
+        },
+        {
+          "value": 6.9287,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 6.93,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 6.9313,
+          "probability": 0.085
+        },
+        {
+          "value": 6.9326,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 6.9339,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 6.9352,
+          "probability": 0.09
+        },
+        {
+          "value": 6.9365,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 6.9378,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 6.9391,
+          "probability": 0.095
+        },
+        {
+          "value": 6.9404,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 6.9417,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 6.943,
+          "probability": 0.1
+        },
+        {
+          "value": 6.9443,
+          "probability": 0.11
+        },
+        {
+          "value": 6.9456,
+          "probability": 0.12
+        },
+        {
+          "value": 6.9469,
+          "probability": 0.13
+        },
+        {
+          "value": 6.9482,
+          "probability": 0.14
+        },
+        {
+          "value": 6.9495,
+          "probability": 0.15
+        },
+        {
+          "value": 6.9508,
+          "probability": 0.16
+        },
+        {
+          "value": 6.9521,
+          "probability": 0.17
+        },
+        {
+          "value": 6.9534,
+          "probability": 0.18
+        },
+        {
+          "value": 6.9547,
+          "probability": 0.19
+        },
+        {
+          "value": 6.956,
+          "probability": 0.2
+        },
+        {
+          "value": 6.9573,
+          "probability": 0.21
+        },
+        {
+          "value": 6.9586,
+          "probability": 0.22
+        },
+        {
+          "value": 6.9599,
+          "probability": 0.23
+        },
+        {
+          "value": 6.9612,
+          "probability": 0.24
+        },
+        {
+          "value": 6.9625,
+          "probability": 0.25
+        },
+        {
+          "value": 6.9638,
+          "probability": 0.26
+        },
+        {
+          "value": 6.9651,
+          "probability": 0.27
+        },
+        {
+          "value": 6.9664,
+          "probability": 0.28
+        },
+        {
+          "value": 6.9677,
+          "probability": 0.29
+        },
+        {
+          "value": 6.969,
+          "probability": 0.3
+        },
+        {
+          "value": 6.9703,
+          "probability": 0.31
+        },
+        {
+          "value": 6.9716,
+          "probability": 0.32
+        },
+        {
+          "value": 6.9729,
+          "probability": 0.33
+        },
+        {
+          "value": 6.9742,
+          "probability": 0.34
+        },
+        {
+          "value": 6.9755,
+          "probability": 0.35
+        },
+        {
+          "value": 6.9768,
+          "probability": 0.36
+        },
+        {
+          "value": 6.9781,
+          "probability": 0.37
+        },
+        {
+          "value": 6.9794,
+          "probability": 0.38
+        },
+        {
+          "value": 6.9807,
+          "probability": 0.39
+        },
+        {
+          "value": 6.982,
+          "probability": 0.4
+        },
+        {
+          "value": 6.9833,
+          "probability": 0.41
+        },
+        {
+          "value": 6.9846,
+          "probability": 0.42
+        },
+        {
+          "value": 6.9859,
+          "probability": 0.43
+        },
+        {
+          "value": 6.9872,
+          "probability": 0.44
+        },
+        {
+          "value": 6.9885,
+          "probability": 0.45
+        },
+        {
+          "value": 6.9898,
+          "probability": 0.46
+        },
+        {
+          "value": 6.9911,
+          "probability": 0.47
+        },
+        {
+          "value": 6.9924,
+          "probability": 0.48
+        },
+        {
+          "value": 6.9937,
+          "probability": 0.49
+        },
+        {
+          "value": 6.995,
+          "probability": 0.5
+        },
+        {
+          "value": 6.9963,
+          "probability": 0.51
+        },
+        {
+          "value": 6.9976,
+          "probability": 0.52
+        },
+        {
+          "value": 6.9989,
+          "probability": 0.53
+        },
+        {
+          "value": 7.0002,
+          "probability": 0.54
+        },
+        {
+          "value": 7.0015,
+          "probability": 0.55
+        },
+        {
+          "value": 7.0028,
+          "probability": 0.56
+        },
+        {
+          "value": 7.0041,
+          "probability": 0.57
+        },
+        {
+          "value": 7.0054,
+          "probability": 0.58
+        },
+        {
+          "value": 7.0067,
+          "probability": 0.59
+        },
+        {
+          "value": 7.008,
+          "probability": 0.6
+        },
+        {
+          "value": 7.0093,
+          "probability": 0.61
+        },
+        {
+          "value": 7.0106,
+          "probability": 0.62
+        },
+        {
+          "value": 7.0119,
+          "probability": 0.63
+        },
+        {
+          "value": 7.0132,
+          "probability": 0.64
+        },
+        {
+          "value": 7.0145,
+          "probability": 0.65
+        },
+        {
+          "value": 7.0158,
+          "probability": 0.66
+        },
+        {
+          "value": 7.0171,
+          "probability": 0.67
+        },
+        {
+          "value": 7.0184,
+          "probability": 0.68
+        },
+        {
+          "value": 7.0197,
+          "probability": 0.69
+        },
+        {
+          "value": 7.021,
+          "probability": 0.7
+        },
+        {
+          "value": 7.0223,
+          "probability": 0.71
+        },
+        {
+          "value": 7.0236,
+          "probability": 0.72
+        },
+        {
+          "value": 7.0249,
+          "probability": 0.73
+        },
+        {
+          "value": 7.0262,
+          "probability": 0.74
+        },
+        {
+          "value": 7.0275,
+          "probability": 0.75
+        },
+        {
+          "value": 7.0288,
+          "probability": 0.76
+        },
+        {
+          "value": 7.0301,
+          "probability": 0.77
+        },
+        {
+          "value": 7.0314,
+          "probability": 0.78
+        },
+        {
+          "value": 7.0327,
+          "probability": 0.79
+        },
+        {
+          "value": 7.034,
+          "probability": 0.8
+        },
+        {
+          "value": 7.0353,
+          "probability": 0.81
+        },
+        {
+          "value": 7.0366,
+          "probability": 0.82
+        },
+        {
+          "value": 7.0379,
+          "probability": 0.83
+        },
+        {
+          "value": 7.0392,
+          "probability": 0.84
+        },
+        {
+          "value": 7.0405,
+          "probability": 0.85
+        },
+        {
+          "value": 7.0418,
+          "probability": 0.86
+        },
+        {
+          "value": 7.0431,
+          "probability": 0.87
+        },
+        {
+          "value": 7.0444,
+          "probability": 0.88
+        },
+        {
+          "value": 7.0457,
+          "probability": 0.89
+        },
+        {
+          "value": 7.047,
+          "probability": 0.9
+        },
+        {
+          "value": 7.0483,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 7.0496,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 7.0509,
+          "probability": 0.905
+        },
+        {
+          "value": 7.0522,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 7.0535,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 7.0548,
+          "probability": 0.91
+        },
+        {
+          "value": 7.0561,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 7.0574,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 7.0587,
+          "probability": 0.915
+        },
+        {
+          "value": 7.06,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 7.0613,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 7.0626,
+          "probability": 0.92
+        },
+        {
+          "value": 7.0639,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 7.0652,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 7.0665,
+          "probability": 0.925
+        },
+        {
+          "value": 7.0678,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 7.0691,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 7.0704,
+          "probability": 0.93
+        },
+        {
+          "value": 7.0717,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 7.073,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 7.0743,
+          "probability": 0.935
+        },
+        {
+          "value": 7.0756,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 7.0769,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 7.0782,
+          "probability": 0.94
+        },
+        {
+          "value": 7.0795,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 7.0808,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 7.0821,
+          "probability": 0.945
+        },
+        {
+          "value": 7.0834,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 7.0847,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 7.086,
+          "probability": 0.95
+        },
+        {
+          "value": 7.0873,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 7.0886,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 7.0899,
+          "probability": 0.955
+        },
+        {
+          "value": 7.0912,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 7.0925,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 7.0938,
+          "probability": 0.96
+        },
+        {
+          "value": 7.0951,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 7.0964,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 7.0977,
+          "probability": 0.965
+        },
+        {
+          "value": 7.099,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 7.1003,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 7.1016,
+          "probability": 0.97
+        },
+        {
+          "value": 7.1029,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 7.1042,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 7.1055,
+          "probability": 0.975
+        },
+        {
+          "value": 7.1068,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 7.1081,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 7.1094,
+          "probability": 0.98
+        },
+        {
+          "value": 7.1107,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 7.112,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 7.1133,
+          "probability": 0.985
+        },
+        {
+          "value": 7.1146,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 7.1159,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 7.1172,
+          "probability": 0.99
+        },
+        {
+          "value": 7.1185,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 7.1198,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 7.1211,
+          "probability": 0.995
+        },
+        {
+          "value": 7.1224,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 7.1237,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 7.125,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 6.995,
+        "median": 6.995,
+        "interval80": {
+          "lower": 6.943,
+          "upper": 7.047
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.6-terra",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/prompt.md",
+        "sha256": "435f2f70689ccac40d97519328c5b82355335a982a8fbf93a29a6f0920059727",
+        "bytes": 9749,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/command.json",
+        "sha256": "ca2073621c1cb24e901094e7d6a8aaf00fa6b345cc953aa25489a817782b7f3c",
+        "bytes": 702,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/codex_stdout.jsonl",
+        "sha256": "bc5d762a713c7ffe57f5b93f03bfbc74429a9036a5e8440894ccb6b4754f8d07",
+        "bytes": 8032,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/codex_stderr.log",
+        "sha256": "d42c76d50373ae3809b1e38717857f7b16683750e73455b6f3455733aff5099d",
+        "bytes": 233,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/codex_events.jsonl",
+        "sha256": "6550e592771dbbc9ab6ac50800fc12604f6dc7bbc289f65c40d20999684faeb6",
+        "bytes": 8027,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/codex_last_message.txt",
+        "sha256": "785b8995a2bc0bb3f29f1b8226c3a5583c97eebc6e22b45915914c403d4e35ba",
+        "bytes": 4501,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/codex_trace.json",
+        "sha256": "4024cc7ea6f11f0bcfa4e8bb3dda33665c63a5a9f10c7ab70357d9b329677ead",
+        "bytes": 515,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/stdout.txt",
+        "sha256": "785b8995a2bc0bb3f29f1b8226c3a5583c97eebc6e22b45915914c403d4e35ba",
+        "bytes": 4501,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/stderr.txt",
+        "sha256": "2312beedc1e6b8d11b19c1374119339bbdf39f5e3f79e3163d4ece582efa2f54",
+        "bytes": 248,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/raw_response.txt",
+        "sha256": "785b8995a2bc0bb3f29f1b8226c3a5583c97eebc6e22b45915914c403d4e35ba",
+        "bytes": 4501,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/parsed_cells.json",
+        "sha256": "6689a39804b1e0c7a0b552fddf5a9d261ada1154ef66d668dd455e8073f31e64",
+        "bytes": 5224,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/normalized_cells.json",
+        "sha256": "9831d76ea2a112d1e45cff54f7d225049a7b9138f16aa38dfa43f0a5416cfa7f",
+        "bytes": 22912,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/distribution.json",
+        "sha256": "9c31ad822b2b32050093f4b3abc409812c1aac1a2e353ff92fe252cf6f0434af",
+        "bytes": 13640,
+        "createdAt": "2026-07-10T15:39:47Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-39-47z-fns-wic-total-participation-2026-05/validation.json",
+        "sha256": "dc31521bbc6d28c50d60119c83ed2def1564aab7f6f220ba90c5409b59820b0b",
+        "bytes": 127,
+        "createdAt": "2026-07-10T15:39:47Z"
+      }
+    ]
+  }
+]

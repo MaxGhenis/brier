@@ -1,0 +1,102 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada regular EI beneficiaries, June 2026",
+    "question": "Statistics Canada regular Employment Insurance beneficiaries for Canada, June 2026, seasonally adjusted, beneficiary detail total, sex total, age group total; first print.",
+    "unit": "thousands",
+    "pointEstimate": 541.0,
+    "ciLow": 534.0,
+    "ciHigh": 548.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026",
+        "value": 554.4
+      },
+      {
+        "label": "February 2026",
+        "value": 545.7
+      },
+      {
+        "label": "March 2026",
+        "value": 548.0
+      },
+      {
+        "label": "April 2026",
+        "value": 544.44
+      }
+    ],
+    "drivers": [
+      "recent beneficiary level slightly below March",
+      "May employment rebound and lower unemployment",
+      "administrative EI eligibility and temporary-measure effects"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260522/dq260522b-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "https://www150.statcan.gc.ca/release-diffusion/2026-eng.pdf"
+    ],
+    "runAt": "2026-07-10T15:46:16Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada regular EI beneficiaries \u2014 June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is Statistics Canada table 14-10-0011-01: Canada, regular-beneficiary detail total, sex total, age-group total, seasonally adjusted. All anchors below use that same variant; values are persons converted to thousands by 0.001, and only the first June print counts."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the official Statistics Canada Table 14-10-0011-01 page and linked April 2026 The Daily release for the Canada seasonally adjusted total.",
+        "result": "The table identifies 14-10-0011-01 and its 2026-06-18 release; The Daily reports 544,440 regular EI beneficiaries for Canada in April 2026, down 0.5% month over month."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the preceding official March 2026 Employment Insurance release for matching Canada seasonally adjusted totals.",
+        "result": "The March release reports 548,000 beneficiaries, up 2,300 (+0.4%) from February after February fell 8,700 (-1.6%); this implies January 554,400 and February 545,700 on the published first-release sequence."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched Statistics Canada's May 2026 Labour Force Survey as a contemporaneous public labour-market indicator.",
+        "result": "May employment was 21,122,000, up 88,000 (+0.4%), while the unemployment rate fell 0.3 percentage points to 6.6%; this is a modest downward adjustment to near-term beneficiary pressure."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched Statistics Canada's 2026-2027 official release-date calendar to check the target date.",
+        "result": "The official calendar lists Employment Insurance for June 2026 on August 19, 2026, while the ledger contract specifies 2026-08-20; the forecast remains tied to the supplied target and its 2026-08-20 resolutionDate, with this one-day discrepancy recorded rather than silently changed."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the near-term reference class is the four latest matching seasonally adjusted Canada totals, 554.4, 545.7, 548.0, and 544.44 thousand. The April level and the May labour-market improvement favour a small decline rather than a return to the November 2025 peak of 569.0 thousand."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is April's 544.44 thousand, using the January-April 2026 matching-variant historical sample (554.4, 545.7, 548.0, 544.44). Successive changes are -8.7, +2.3, and -3.56 thousand; sample sigma = 5.5 thousand, so 1.28*sigma = 7.0 thousand. I apply a -3.4 thousand combined adjustment for recent level/momentum (slightly negative), the May employment and unemployment improvement (negative), and offsetting administrative/eligibility uncertainty (positive), giving 541.0 thousand and implied 80% bounds of 534.0 to 548.0 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a renewed rise in layoffs or eligibility-driven inflows, which would land above the interval. Downside risk is a stronger-than-May employment recovery and faster exits from benefits, which would land below the interval. A material administrative-policy change would also put the first print outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 541.0,
+        "ciLow": 534.0,
+        "ciHigh": 548.0
+      }
+    ]
+  }
+]

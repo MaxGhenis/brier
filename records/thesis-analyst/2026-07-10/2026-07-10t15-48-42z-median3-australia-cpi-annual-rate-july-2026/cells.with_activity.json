@@ -1,0 +1,142 @@
+[
+  {
+    "slug": "australia-cpi-annual-rate-july-2026",
+    "country": "AU",
+    "type": "data",
+    "title": "Australia CPI annual rate \u2014 July 2026",
+    "question": "Australian Bureau of Statistics All groups CPI, Australia, annual movement for July 2026, headline unadjusted series, original first print.",
+    "unit": "percent",
+    "resolutionDate": "2026-08-26",
+    "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+    "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+    "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 annual movement",
+        "value": 4
+      },
+      {
+        "label": "April 2026 annual movement",
+        "value": 4.2
+      },
+      {
+        "label": "March 2026 annual movement",
+        "value": 4.6
+      },
+      {
+        "label": "July 2025 annual movement",
+        "value": 3
+      }
+    ],
+    "pointEstimate": 3.6,
+    "ciLow": 3.0,
+    "ciHigh": 4.2,
+    "confidence": 0.8,
+    "drivers": [
+      "Large July 2025 monthly base effect of 1.3%",
+      "Housing inflation remained 6.5% year-on-year in May",
+      "May headline CPI was 4.0% while trimmed mean was 3.6%",
+      "Fuel-price and rebate effects can move the headline rate materially"
+    ],
+    "sourceContext": [
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/may-2026",
+      "https://www.abs.gov.au/release-calendar/future-releases/202608",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release?region=PT",
+      "https://www.abs.gov.au/release-calendar/future-releases/202608/rcc_economy",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/latest-release",
+      "https://www.abs.gov.au/media-centre/media-releases/cpi-rose-40-year-may-2026"
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-10T15:37:10Z, 2026-07-10T15:40:54Z, 2026-07-10T15:45:17Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-10T15:37:10Z\", \"2026-07-10T15:40:54Z\", \"2026-07-10T15:45:17Z\"]})",
+        "result": "{rollout_points: [3.3, 4.1, 3.6], rollout_widths: [1.6, 1.4, 1.2], q10: 3.0, q50: 3.6, q90: 4.2}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 3.0, q50 = 3.6, q90 = 4.2. Constituent points [3.3, 4.1, 3.6] with 80% widths [1.6, 1.4, 1.2]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.6,
+        "ciLow": 3.0,
+        "ciHigh": 4.2
+      }
+    ],
+    "runStartedAt": "2026-07-10T15:48:42Z",
+    "runAt": "2026-07-10T15:48:42Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+    "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "model": "gpt-5.6-terra",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+    "constituentRuns": [
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-36-40z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "manifestSha256": "048a0bbecf0826f477ba34438e71d8a10665b98204f27890f5fffc4f136e1d27",
+        "manifestBytes": 9265,
+        "custodyRootSha256": "4fa8f0230c9085ad9e2bedfcb5f703d5d4abdd8007dc9471aa4c45db02d0d2ca",
+        "runAt": "2026-07-10T15:37:10Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-40-26z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "manifestSha256": "60930b5be72b049a50a33597496928d10d9cc6fd125ac2b72debab25ad624dfb",
+        "manifestBytes": 9265,
+        "custodyRootSha256": "00a751daccbd54c9554773ba90552b2a3a1cdd1488abd5f9abe0581d40d9d659",
+        "runAt": "2026-07-10T15:40:54Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t15-44-49z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "manifestSha256": "a3ec7568f1ec79e0da7de0722869c7dbc8ad8e3a66b90c1f4f8214b32d1a0fdc",
+        "manifestBytes": 9265,
+        "custodyRootSha256": "4e2502d1b6d07b7e8f2f51d5b4a5cf90a4cc626ec6a7cf5e1131df718e860d80",
+        "runAt": "2026-07-10T15:45:17Z"
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-36-40z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "sha256": "048a0bbecf0826f477ba34438e71d8a10665b98204f27890f5fffc4f136e1d27",
+        "bytes": 9265,
+        "custodyRootSha256": "4fa8f0230c9085ad9e2bedfcb5f703d5d4abdd8007dc9471aa4c45db02d0d2ca",
+        "createdAt": "2026-07-10T15:48:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-40-26z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "sha256": "60930b5be72b049a50a33597496928d10d9cc6fd125ac2b72debab25ad624dfb",
+        "bytes": 9265,
+        "custodyRootSha256": "00a751daccbd54c9554773ba90552b2a3a1cdd1488abd5f9abe0581d40d9d659",
+        "createdAt": "2026-07-10T15:48:42Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-44-49z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "sha256": "a3ec7568f1ec79e0da7de0722869c7dbc8ad8e3a66b90c1f4f8214b32d1a0fdc",
+        "bytes": 9265,
+        "custodyRootSha256": "4e2502d1b6d07b7e8f2f51d5b4a5cf90a4cc626ec6a7cf5e1131df718e860d80",
+        "createdAt": "2026-07-10T15:48:42Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t15-48-42z-median3-australia-cpi-annual-rate-july-2026/distribution.json",
+        "sha256": "c8e41296d457fabe805c385223c59d8f9c333a2d792bf02dd10816b32441ac35",
+        "bytes": 11630,
+        "createdAt": "2026-07-10T15:48:42Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "slug": "wic-participation-may-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US WIC participation, May 2026",
+    "question": "USDA FNS national WIC Total Participants for May 2026, unadjusted monthly total, first official print",
+    "unit": "millions",
+    "pointEstimate": 6.765,
+    "ciLow": 6.701,
+    "ciHigh": 6.829,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-14",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. Convert the displayed whole-person count to millions by dividing by 1,000,000 and round to 0.001 million. Use the first posted May 2026 value only; ignore later preliminary, final, or annual-summary revisions.",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2023 FNS total participants",
+        "value": 6.697
+      },
+      {
+        "label": "May 2024 FNS total participants",
+        "value": 6.764
+      },
+      {
+        "label": "May 2025 FNS total participants",
+        "value": 6.895
+      },
+      {
+        "label": "March 2026 latest FNS total participants",
+        "value": 6.702
+      }
+    ],
+    "drivers": [
+      "Latest March 2026 national participation level",
+      "Typical March-to-May seasonal increase",
+      "Post-2025 participation decline relative to the prior year",
+      "Monthly administrative-report volatility"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/wic-program",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-6.pdf"
+    ],
+    "runAt": "2026-07-10T15:44:34Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US WIC total participation forecast for May 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the FNS national monthly Total Participants series, not a fiscal-year quality-control or annual average measure. The source table is the unadjusted monthly national WIC participation table; all anchors below use that same Total Participants variant."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Retrieved USDA FNS WIC Participation and Costs monthly national table, FY 2022 through March 2026.",
+        "result": "FNS reports May 2023 Total Participants of 6,696,739, May 2024 of 6,763,710, May 2025 of 6,894,610, and March 2026 of 6,701,661 persons."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Retrieved the recent FNS monthly rows to measure current level and short-run momentum.",
+        "result": "The FNS table reports October 2025 at 6,909,938, November 2025 at 6,771,734, December 2025 at 6,712,611, January 2026 at 6,696,300, February 2026 at 6,664,580, and March 2026 at 6,701,661 participants."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Retrieved matching historical March-to-May rows from the FNS national monthly table for the seasonal reference class.",
+        "result": "FNS reports March-to-May changes of 6,621,311 to 6,696,739 in 2023 (+75,428), 6,680,974 to 6,763,710 in 2024 (+82,736), and 6,850,836 to 6,894,610 in 2025 (+43,774) participants."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is the same national monthly total series: May rose by 0.067 million year over year in 2024 and 0.131 million in 2025, while the latest 2026 level is materially below March 2025. I therefore use the recent 2026 level and the historical March-to-May pattern rather than extrapolating the earlier annual acceleration."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: A seasonal-persistence prior starts from March 2026 at 6.702 million; the 2023-25 March-to-May increases average (0.075+0.083+0.044)/3 = 0.067 million. A downward momentum adjustment of 0.004 million for the weaker late-2025/early-2026 level gives 6.702+0.067-0.004 = 6.765 million. From the 11 successive monthly changes from April 2025 through March 2026, sigma = 0.050 million; 1.28*sigma = 0.064 million, so the 80% bounds are 6.765-0.064 = 6.701 and 6.765+0.064 = 6.829 million."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a renewed enrollment or retention increase that recreates the 2024-25 year-over-year gains; downside risk is continued weakness in women, infant, and child enrollment after the late-2025 fall. A sustained administrative or policy shock would land outside the interval, above 6.829 or below 6.701 million."
+      },
+      {
+        "kind": "text",
+        "text": "The official FNS release schedule was checked for the August 14, 2026 release window. Resolution remains strict first print: use the first FNS posting containing the May 2026 national total, convert the whole-person display to millions, and do not substitute later revisions."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.765,
+        "ciLow": 6.701,
+        "ciHigh": 6.829
+      }
+    ]
+  }
+]

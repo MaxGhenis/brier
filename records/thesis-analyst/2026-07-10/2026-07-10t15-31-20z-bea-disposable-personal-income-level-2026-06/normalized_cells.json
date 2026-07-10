@@ -1,0 +1,937 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US disposable personal income, June 2026",
+    "question": "BEA disposable personal income (DSPI / account code A067RC), June 2026, billions of dollars at a seasonally adjusted annual rate, first print.",
+    "unit": "usd_billions",
+    "pointEstimate": 23730.0,
+    "ciLow": 23606.5,
+    "ciHigh": 23853.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026 DSPI",
+        "value": 23395.9
+      },
+      {
+        "label": "February 2026 DSPI",
+        "value": 23382.4
+      },
+      {
+        "label": "March 2026 DSPI",
+        "value": 23510.4
+      },
+      {
+        "label": "April 2026 DSPI",
+        "value": 23486.9
+      },
+      {
+        "label": "May 2026 DSPI",
+        "value": 23651.7
+      }
+    ],
+    "drivers": [
+      "May's unusually large farm-payment contribution should fade",
+      "June payroll and wage growth support a continued nominal-income gain",
+      "Personal-current-tax and transfer-receipt movements remain the main residual uncertainty"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://www.bea.gov/news/schedule/full",
+      "https://fred.stlouisfed.org/series/DSPI",
+      "https://www.bls.gov/news.release/archives/empsit_07022026.htm"
+    ],
+    "runAt": "2026-07-10T15:32:31Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 BEA disposable personal income first-print forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is BEA disposable personal income, DSPI / account code A067RC, in current dollars at a seasonally adjusted annual rate. The official BEA schedule verifies that Personal Income and Outlays for June 2026 is scheduled for July 30, 2026 at 8:30 a.m. EDT. Resolution remains tied to the canonical ALFRED DSPI CSV binding, field DSPI, strict first_print, and no-later-revisions rule; its 2026-06-25 vintage appears to be the prior May print."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Fetched the DSPI history mirror for the BEA series, using the same monthly SAAR current-dollar variant as the target.",
+        "result": "FRED, sourced to BEA and identifying account code A067RC, reports DSPI of 23,395.9 in Jan 2026, 23,382.4 in Feb, 23,510.4 in Mar, 23,486.9 in Apr, and 23,651.7 billion dollars SAAR in May."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class/base rate is the latest four successive same-variant monthly DSPI changes: -13.5, +128.0, -23.5, and +164.8 billion dollars SAAR. Their mean change is +63.95, so a persistence-plus-mean-change prior from May's 23,651.7 implies 23,715.7 before current-release information."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: I use a persistence-plus-mean-change model on the Jan-May 2026 same-variant DSPI history. The four successive changes have mean +63.95 and sample sigma = 96.5 billion; 1.28*sigma = 123.5 billion. The four-change sample is sparse, but its volatility includes both ordinary movement and the recent one-off payment swing, so I retain the normal 80% historical-dispersion width rather than claim spurious precision. Starting at May's 23,651.7, the prior implies 23,715.7. I add 14.3 for June's positive wage/payroll signal while not extrapolating May's farm-payment surge, giving 23,730.0. The 80% interval is 23,730.0 +/- 123.5 = [23,606.5, 23,853.5]."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the latest official BEA Personal Income and Outlays release as context for the May level and one-off income composition.",
+        "result": "BEA's May release reports DPI increased $164.9 billion (0.7 percent) in May; it reports May DSPI 23,651.7, April DSPI 23,486.9, May personal income 26,916.4, and May personal saving 704.2 billion dollars SAAR."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the official BLS June Employment Situation as a contemporaneous input to June wage income.",
+        "result": "BLS reports June nonfarm payroll employment rose 57,000, private average hourly earnings rose $0.13 (0.3 percent) to $37.64, aggregate weekly payrolls rose 0.4 percent, and the unemployment rate was 4.2 percent."
+      },
+      {
+        "kind": "text",
+        "text": "The +14.3 billion adjustment is deliberately modest relative to the +63.95 billion historical mean: the 0.4 percent aggregate-weekly-payroll gain supports continued compensation growth, but disposable income also depends on proprietors' income, transfers, and personal current taxes. May's identified farm proprietors' income and USDA Supplemental Disaster Relief Program payment contribution is treated as nonpersistent rather than a June trend."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a further large farm-payment or transfer-receipt increase, or unexpectedly low personal current taxes, which could put June DSPI above 23,853.5. Downside risk is a sharper reversal of farm proprietors' income, weaker compensation, or higher taxes; a combined reversal would land below 23,606.5 and outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the canonical ALFRED resolver wording and removed unsupported table-number claims; accepted reordering the base-rate and interval prior before inside-view evidence; accepted explicit acknowledgement of the sparse four-change sample and retained its dispersion width because it captures current one-off volatility. The payroll adjustment is quantified as a modest +14.3 billion update."
+      },
+      {
+        "kind": "forecast",
+        "point": 23730.0,
+        "ciLow": 23606.5,
+        "ciHigh": 23853.5
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T15:31:54Z",
+    "runStartedAt": "2026-07-10T15:31:20Z",
+    "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+    "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+    "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+    "registeredAtUtc": "2026-07-10T12:36:34Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 23421.25,
+        "upper": 24038.75
+      },
+      "points": [
+        {
+          "value": 23421.25,
+          "probability": 0.0
+        },
+        {
+          "value": 23424.3375,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 23427.425,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 23430.5125,
+          "probability": 0.005
+        },
+        {
+          "value": 23433.6,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 23436.6875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 23439.775,
+          "probability": 0.01
+        },
+        {
+          "value": 23442.8625,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 23445.95,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 23449.0375,
+          "probability": 0.015
+        },
+        {
+          "value": 23452.125,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 23455.2125,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 23458.3,
+          "probability": 0.02
+        },
+        {
+          "value": 23461.3875,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 23464.475,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 23467.5625,
+          "probability": 0.025
+        },
+        {
+          "value": 23470.65,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 23473.7375,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 23476.825,
+          "probability": 0.03
+        },
+        {
+          "value": 23479.9125,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 23483.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 23486.0875,
+          "probability": 0.035
+        },
+        {
+          "value": 23489.175,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 23492.2625,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 23495.35,
+          "probability": 0.04
+        },
+        {
+          "value": 23498.4375,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 23501.525,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 23504.6125,
+          "probability": 0.045
+        },
+        {
+          "value": 23507.7,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 23510.7875,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 23513.875,
+          "probability": 0.05
+        },
+        {
+          "value": 23516.9625,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 23520.05,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 23523.1375,
+          "probability": 0.055
+        },
+        {
+          "value": 23526.225,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 23529.3125,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 23532.4,
+          "probability": 0.06
+        },
+        {
+          "value": 23535.4875,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 23538.575,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 23541.6625,
+          "probability": 0.065
+        },
+        {
+          "value": 23544.75,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 23547.8375,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 23550.925,
+          "probability": 0.07
+        },
+        {
+          "value": 23554.0125,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 23557.1,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 23560.1875,
+          "probability": 0.075
+        },
+        {
+          "value": 23563.275,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 23566.3625,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 23569.45,
+          "probability": 0.08
+        },
+        {
+          "value": 23572.5375,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 23575.625,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 23578.7125,
+          "probability": 0.085
+        },
+        {
+          "value": 23581.8,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 23584.8875,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 23587.975,
+          "probability": 0.09
+        },
+        {
+          "value": 23591.0625,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 23594.15,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 23597.2375,
+          "probability": 0.095
+        },
+        {
+          "value": 23600.325,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 23603.4125,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 23606.5,
+          "probability": 0.1
+        },
+        {
+          "value": 23609.5875,
+          "probability": 0.11
+        },
+        {
+          "value": 23612.675,
+          "probability": 0.12
+        },
+        {
+          "value": 23615.7625,
+          "probability": 0.13
+        },
+        {
+          "value": 23618.85,
+          "probability": 0.14
+        },
+        {
+          "value": 23621.9375,
+          "probability": 0.15
+        },
+        {
+          "value": 23625.025,
+          "probability": 0.16
+        },
+        {
+          "value": 23628.1125,
+          "probability": 0.17
+        },
+        {
+          "value": 23631.2,
+          "probability": 0.18
+        },
+        {
+          "value": 23634.2875,
+          "probability": 0.19
+        },
+        {
+          "value": 23637.375,
+          "probability": 0.2
+        },
+        {
+          "value": 23640.4625,
+          "probability": 0.21
+        },
+        {
+          "value": 23643.55,
+          "probability": 0.22
+        },
+        {
+          "value": 23646.6375,
+          "probability": 0.23
+        },
+        {
+          "value": 23649.725,
+          "probability": 0.24
+        },
+        {
+          "value": 23652.8125,
+          "probability": 0.25
+        },
+        {
+          "value": 23655.9,
+          "probability": 0.26
+        },
+        {
+          "value": 23658.9875,
+          "probability": 0.27
+        },
+        {
+          "value": 23662.075,
+          "probability": 0.28
+        },
+        {
+          "value": 23665.1625,
+          "probability": 0.29
+        },
+        {
+          "value": 23668.25,
+          "probability": 0.3
+        },
+        {
+          "value": 23671.3375,
+          "probability": 0.31
+        },
+        {
+          "value": 23674.425,
+          "probability": 0.32
+        },
+        {
+          "value": 23677.5125,
+          "probability": 0.33
+        },
+        {
+          "value": 23680.6,
+          "probability": 0.34
+        },
+        {
+          "value": 23683.6875,
+          "probability": 0.35
+        },
+        {
+          "value": 23686.775,
+          "probability": 0.36
+        },
+        {
+          "value": 23689.8625,
+          "probability": 0.37
+        },
+        {
+          "value": 23692.95,
+          "probability": 0.38
+        },
+        {
+          "value": 23696.0375,
+          "probability": 0.39
+        },
+        {
+          "value": 23699.125,
+          "probability": 0.4
+        },
+        {
+          "value": 23702.2125,
+          "probability": 0.41
+        },
+        {
+          "value": 23705.3,
+          "probability": 0.42
+        },
+        {
+          "value": 23708.3875,
+          "probability": 0.43
+        },
+        {
+          "value": 23711.475,
+          "probability": 0.44
+        },
+        {
+          "value": 23714.5625,
+          "probability": 0.45
+        },
+        {
+          "value": 23717.65,
+          "probability": 0.46
+        },
+        {
+          "value": 23720.7375,
+          "probability": 0.47
+        },
+        {
+          "value": 23723.825,
+          "probability": 0.48
+        },
+        {
+          "value": 23726.9125,
+          "probability": 0.49
+        },
+        {
+          "value": 23730.0,
+          "probability": 0.5
+        },
+        {
+          "value": 23733.0875,
+          "probability": 0.51
+        },
+        {
+          "value": 23736.175,
+          "probability": 0.52
+        },
+        {
+          "value": 23739.2625,
+          "probability": 0.53
+        },
+        {
+          "value": 23742.35,
+          "probability": 0.54
+        },
+        {
+          "value": 23745.4375,
+          "probability": 0.55
+        },
+        {
+          "value": 23748.525,
+          "probability": 0.56
+        },
+        {
+          "value": 23751.6125,
+          "probability": 0.57
+        },
+        {
+          "value": 23754.7,
+          "probability": 0.58
+        },
+        {
+          "value": 23757.7875,
+          "probability": 0.59
+        },
+        {
+          "value": 23760.875,
+          "probability": 0.6
+        },
+        {
+          "value": 23763.9625,
+          "probability": 0.61
+        },
+        {
+          "value": 23767.05,
+          "probability": 0.62
+        },
+        {
+          "value": 23770.1375,
+          "probability": 0.63
+        },
+        {
+          "value": 23773.225,
+          "probability": 0.64
+        },
+        {
+          "value": 23776.3125,
+          "probability": 0.65
+        },
+        {
+          "value": 23779.4,
+          "probability": 0.66
+        },
+        {
+          "value": 23782.4875,
+          "probability": 0.67
+        },
+        {
+          "value": 23785.575,
+          "probability": 0.68
+        },
+        {
+          "value": 23788.6625,
+          "probability": 0.69
+        },
+        {
+          "value": 23791.75,
+          "probability": 0.7
+        },
+        {
+          "value": 23794.8375,
+          "probability": 0.71
+        },
+        {
+          "value": 23797.925,
+          "probability": 0.72
+        },
+        {
+          "value": 23801.0125,
+          "probability": 0.73
+        },
+        {
+          "value": 23804.1,
+          "probability": 0.74
+        },
+        {
+          "value": 23807.1875,
+          "probability": 0.75
+        },
+        {
+          "value": 23810.275,
+          "probability": 0.76
+        },
+        {
+          "value": 23813.3625,
+          "probability": 0.77
+        },
+        {
+          "value": 23816.45,
+          "probability": 0.78
+        },
+        {
+          "value": 23819.5375,
+          "probability": 0.79
+        },
+        {
+          "value": 23822.625,
+          "probability": 0.8
+        },
+        {
+          "value": 23825.7125,
+          "probability": 0.81
+        },
+        {
+          "value": 23828.8,
+          "probability": 0.82
+        },
+        {
+          "value": 23831.8875,
+          "probability": 0.83
+        },
+        {
+          "value": 23834.975,
+          "probability": 0.84
+        },
+        {
+          "value": 23838.0625,
+          "probability": 0.85
+        },
+        {
+          "value": 23841.15,
+          "probability": 0.86
+        },
+        {
+          "value": 23844.2375,
+          "probability": 0.87
+        },
+        {
+          "value": 23847.325,
+          "probability": 0.88
+        },
+        {
+          "value": 23850.4125,
+          "probability": 0.89
+        },
+        {
+          "value": 23853.5,
+          "probability": 0.9
+        },
+        {
+          "value": 23856.5875,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 23859.675,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 23862.7625,
+          "probability": 0.905
+        },
+        {
+          "value": 23865.85,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 23868.9375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 23872.025,
+          "probability": 0.91
+        },
+        {
+          "value": 23875.1125,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 23878.2,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 23881.2875,
+          "probability": 0.915
+        },
+        {
+          "value": 23884.375,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 23887.4625,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 23890.55,
+          "probability": 0.92
+        },
+        {
+          "value": 23893.6375,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 23896.725,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 23899.8125,
+          "probability": 0.925
+        },
+        {
+          "value": 23902.9,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 23905.9875,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 23909.075,
+          "probability": 0.93
+        },
+        {
+          "value": 23912.1625,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 23915.25,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 23918.3375,
+          "probability": 0.935
+        },
+        {
+          "value": 23921.425,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 23924.5125,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 23927.6,
+          "probability": 0.94
+        },
+        {
+          "value": 23930.6875,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 23933.775,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 23936.8625,
+          "probability": 0.945
+        },
+        {
+          "value": 23939.95,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 23943.0375,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 23946.125,
+          "probability": 0.95
+        },
+        {
+          "value": 23949.2125,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 23952.3,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 23955.3875,
+          "probability": 0.955
+        },
+        {
+          "value": 23958.475,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 23961.5625,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 23964.65,
+          "probability": 0.96
+        },
+        {
+          "value": 23967.7375,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 23970.825,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 23973.9125,
+          "probability": 0.965
+        },
+        {
+          "value": 23977.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 23980.0875,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 23983.175,
+          "probability": 0.97
+        },
+        {
+          "value": 23986.2625,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 23989.35,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 23992.4375,
+          "probability": 0.975
+        },
+        {
+          "value": 23995.525,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 23998.6125,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 24001.7,
+          "probability": 0.98
+        },
+        {
+          "value": 24004.7875,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 24007.875,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 24010.9625,
+          "probability": 0.985
+        },
+        {
+          "value": 24014.05,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 24017.1375,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 24020.225,
+          "probability": 0.99
+        },
+        {
+          "value": 24023.3125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 24026.4,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 24029.4875,
+          "probability": 0.995
+        },
+        {
+          "value": 24032.575,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 24035.6625,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 24038.75,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 23730.0,
+        "median": 23730.0,
+        "interval80": {
+          "lower": 23606.5,
+          "upper": 23853.5
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]
