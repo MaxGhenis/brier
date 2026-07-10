@@ -257,7 +257,10 @@ def git(repo: pathlib.Path, *args: str, env: dict | None = None) -> None:
 
 
 def committed_registration(
-    root: pathlib.Path, *, commit_lag: dt.timedelta
+    root: pathlib.Path,
+    *,
+    commit_lag: dt.timedelta,
+    schema: str = register_targets.REGISTRATION_SCHEMA,
 ) -> dict:
     root.mkdir()
     git(root, "init")
@@ -278,10 +281,18 @@ def committed_registration(
     registered = dt.datetime(2030, 1, 10, 12, tzinfo=dt.timezone.utc)
     registered_at = registered.isoformat().replace("+00:00", "Z")
     snapshot = {
-        "schemaVersion": register_targets.REGISTRATION_SCHEMA,
+        "schemaVersion": schema,
         "registeredAtUtc": registered_at,
         "targets": [contract],
     }
+    if schema == register_targets.REGISTRATION_SCHEMA:
+        snapshot["ledgerPin"] = {
+            "repo": "example/ledger",
+            "branch": "main",
+            "sha": "a" * 40,
+            "jsonlSha256": "b" * 64,
+            "lineCount": 1,
+        }
     content_hash = register_targets.registration_content_hash(snapshot)
     relative = pathlib.Path("records/targets") / f"2030-01-10-{content_hash}.json"
     path = root / relative
@@ -308,7 +319,7 @@ def committed_registration(
     return target
 
 
-def test_exact_contemporaneous_v2_registration_is_retryable(
+def test_exact_contemporaneous_v3_registration_is_retryable(
     tmp_path: pathlib.Path,
 ) -> None:
     root = tmp_path / "repo"
@@ -323,6 +334,37 @@ def test_exact_contemporaneous_v2_registration_is_retryable(
     )
 
     assert targets == {"targets": [target]}
+
+
+def test_pre_v3_registration_is_not_retryable(tmp_path: pathlib.Path) -> None:
+    root = tmp_path / "repo"
+    target = committed_registration(
+        root,
+        commit_lag=dt.timedelta(minutes=1),
+        schema=register_targets.V2_REGISTRATION_SCHEMA,
+    )
+    payload = envelope(("codex", target))
+
+    with pytest.raises(
+        prospect_targets.ProspectValidationError, match="not retryable"
+    ):
+        prospect_targets.validate_proposals(
+            payload,
+            today=TODAY,
+            root=root,
+            state=empty_state(),
+            strict=True,
+        )
+
+    filtered, targets = prospect_targets.validate_proposals(
+        payload,
+        today=TODAY,
+        root=root,
+        state=empty_state(),
+        strict=False,
+    )
+    assert filtered["proposals"] == []
+    assert targets == {"targets": []}
 
 
 def test_legacy_chronology_invalid_registration_is_filtered_not_grandfathered(

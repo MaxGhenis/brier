@@ -168,3 +168,47 @@ def test_selection_hash_rejects_boolean_number_substitution(
     payload = selection(tmp_path)
     payload["request"]["maxTargets"] = True
     assert selection_hash(payload) != payload["selectionSetHash"]
+
+
+def test_require_pre_cutover_commit_semantics(tmp_path: pathlib.Path) -> None:
+    import strategy_targets as module
+    from strategy_targets import require_pre_cutover_commit
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    def git(*args: str) -> str:
+        return subprocess.check_output(
+            [
+                "git",
+                "-c",
+                "user.name=test",
+                "-c",
+                "user.email=test@example.com",
+                *args,
+            ],
+            cwd=repo,
+            text=True,
+        ).strip()
+
+    git("init")
+    (repo / "a").write_text("a\n")
+    git("add", "a")
+    git("commit", "-m", "first")
+    first = git("rev-parse", "HEAD")
+    (repo / "b").write_text("b\n")
+    git("add", "b")
+    git("commit", "-m", "cutover")
+    cutover = git("rev-parse", "HEAD")
+
+    monkey = pytest.MonkeyPatch()
+    try:
+        monkey.setattr(module, "V3_REGISTRATION_CUTOVER_COMMIT", cutover)
+        require_pre_cutover_commit(repo, first)
+        with pytest.raises(StrategyTargetError, match="strictly predate"):
+            require_pre_cutover_commit(repo, cutover)
+        monkey.setattr(module, "V3_REGISTRATION_CUTOVER_COMMIT", first)
+        with pytest.raises(StrategyTargetError, match="strictly predate"):
+            require_pre_cutover_commit(repo, cutover)
+    finally:
+        monkey.undo()

@@ -18,6 +18,8 @@ from typing import Any
 from canonical_json import canonical_bytes
 from register_targets import (
     REGISTRATION_SCHEMA,
+    V2_REGISTRATION_SCHEMA,
+    V3_REGISTRATION_CUTOVER_COMMIT,
     RegistrationError,
     parse_utc_instant,
     registration_content_hash,
@@ -588,6 +590,7 @@ def validate_target_registration(
     *,
     run_started_at: str | None = None,
     require_git_binding: bool = False,
+    allow_pre_cutover_v2: bool = False,
 ) -> dict[str, Any]:
     path_value = target.get("targetRegistrationPath")
     content_hash = target.get("targetContentHash")
@@ -650,7 +653,13 @@ def validate_target_registration(
                 f"snapshot={contract.get(key)!r}, batch={value!r}"
             )
     if require_git_binding:
-        if snapshot.get("schemaVersion") != REGISTRATION_SCHEMA:
+        schema = snapshot.get("schemaVersion")
+        # The strategy comparison lane targets registrations that predate the
+        # v3 cutover; those are trustworthy only because trusted history can
+        # no longer mint v2 snapshots and the ancestry check below proves the
+        # snapshot existed before the cutover. Everything else must be v3.
+        pre_cutover_v2 = allow_pre_cutover_v2 and schema == V2_REGISTRATION_SCHEMA
+        if schema != REGISTRATION_SCHEMA and not pre_cutover_v2:
             raise PublicationError(
                 f"privileged publication requires {REGISTRATION_SCHEMA}: {relative}"
             )
@@ -672,7 +681,30 @@ def validate_target_registration(
             target,
             run_started_at,
         )
+        if pre_cutover_v2:
+            require_pre_cutover_registration(
+                str(target.get("registrationCommit") or ""), relative
+            )
     return snapshot
+
+
+def require_pre_cutover_registration(
+    commit: str, relative: pathlib.PurePosixPath
+) -> None:
+    """A grandfathered v2 snapshot must strictly predate the v3 cutover."""
+
+    cutover = V3_REGISTRATION_CUTOVER_COMMIT
+    probe = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", commit, cutover],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if commit == cutover or probe.returncode != 0:
+        raise PublicationError(
+            f"v2 registration does not strictly predate the v3 cutover: {relative}"
+        )
 
 
 REGISTRATION_BINDING_FIELDS = (

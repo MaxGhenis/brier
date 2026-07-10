@@ -450,11 +450,14 @@ def _validate_analyst_result(
                 f"run registration binding mismatch: {field}"
             )
     try:
+        # Comparison targets are pre-existing registrations by design; v2
+        # snapshots introduced strictly before the v3 cutover stay eligible.
         docket.validate_target_registration(
             repo,
             target,
             run_started_at=str(manifest.get("runStartedAt")),
             require_git_binding=True,
+            allow_pre_cutover_v2=True,
         )
     except docket.PublicationError as exc:
         raise StrategyPublicationError(str(exc)) from exc

@@ -24,6 +24,7 @@ from urllib.parse import urlparse
 
 from canonical_json import canonical_bytes
 from register_targets import (
+    LEGACY_REGISTRATION_SCHEMAS,
     REGISTRATION_SCHEMA,
     RegistrationError,
     build_contract,
@@ -511,7 +512,9 @@ def _verify_retry_snapshot(
     contract: dict[str, Any],
 ) -> None:
     if snapshot.get("schemaVersion") != REGISTRATION_SCHEMA:
-        raise ProspectValidationError("existing target is not a v2 registration")
+        raise ProspectValidationError(
+            f"existing target is not a {REGISTRATION_SCHEMA} registration"
+        )
     if canonical_bytes(snapshot.get("targets")) != canonical_bytes([contract]):
         raise ProspectValidationError("existing target registration contract differs")
     try:
@@ -615,18 +618,33 @@ def _validate_existing_registration(
                 )
             ):
                 related.append((path, snapshot, row))
-    exact_v2 = [
+    exact_current = [
         (path, snapshot)
         for path, snapshot, row in related
         if snapshot.get("schemaVersion") == REGISTRATION_SCHEMA
         and canonical_bytes(row) == canonical_bytes(contract)
         and len(snapshot.get("targets", [])) == 1
     ]
-    if exact_v2:
-        if len(exact_v2) != 1:
-            raise ProspectValidationError("multiple exact v2 registrations exist")
-        _verify_retry_snapshot(root, exact_v2[0][0], exact_v2[0][1], contract)
+    if exact_current:
+        if len(exact_current) != 1:
+            raise ProspectValidationError(
+                f"multiple exact {REGISTRATION_SCHEMA} registrations exist"
+            )
+        _verify_retry_snapshot(
+            root, exact_current[0][0], exact_current[0][1], contract
+        )
         return
+    if any(
+        snapshot.get("schemaVersion") in LEGACY_REGISTRATION_SCHEMAS
+        and canonical_bytes(row) == canonical_bytes(contract)
+        for _, snapshot, row in related
+    ):
+        # Pre-v3 registrations are read-only history: never retried, never
+        # rewritten. The series advances to a fresh target period instead.
+        raise ProspectValidationError(
+            "existing pre-v3 registration is not retryable; "
+            "advance the series to a fresh period"
+        )
     if related:
         raise ProspectValidationError(
             "target was already attempted or conflicts with an existing registration"

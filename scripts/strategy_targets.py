@@ -2,10 +2,12 @@
 """Select and verify already-published targets for strategy comparisons.
 
 The selector is trusted workflow code.  It admits only catalog targets whose
-canonical one-target v2 registration was introduced by an ancestor of the
+canonical one-target registration was introduced by an ancestor of the
 selected source commit and whose generated ledger entry is already published.
-It also binds two resolution-absence checks: the latest verified local record
-chain snapshot and a pinned PolicyEngine ledger blob.
+Registrations are v3, or v2 introduced strictly before the v3 cutover commit
+(trusted history can no longer mint v2 snapshots).  It also binds two
+resolution-absence checks: the latest verified local record chain snapshot
+and a pinned PolicyEngine ledger blob.
 """
 
 from __future__ import annotations
@@ -29,6 +31,8 @@ from generate_ledger_targets import (
 )
 from register_targets import (
     REGISTRATION_SCHEMA,
+    V2_REGISTRATION_SCHEMA,
+    V3_REGISTRATION_CUTOVER_COMMIT,
     parse_utc_instant,
     registration_content_hash,
 )
@@ -140,18 +144,39 @@ def known_catalog_slugs(generated_source: str) -> set[str]:
     }
 
 
-def v2_registrations_by_slug(root: pathlib.Path) -> dict[str, list[dict[str, Any]]]:
+def require_pre_cutover_commit(root: pathlib.Path, commit: str) -> None:
+    """A v2 registration must have been introduced strictly before the v3
+    cutover; trusted history cannot mint v2 snapshots after it."""
+
+    cutover = V3_REGISTRATION_CUTOVER_COMMIT
+    probe = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", commit, cutover],
+        cwd=root,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if commit == cutover or probe.returncode != 0:
+        raise StrategyTargetError(
+            "v2 registration does not strictly predate the v3 cutover"
+        )
+
+
+def registrations_by_slug(root: pathlib.Path) -> dict[str, list[dict[str, Any]]]:
     registrations: dict[str, list[dict[str, Any]]] = {}
     for path in sorted((root / "records" / "targets").glob("*.json")):
         snapshot = load_object(path, "target registration")
-        if snapshot.get("schemaVersion") != REGISTRATION_SCHEMA:
+        if snapshot.get("schemaVersion") not in {
+            REGISTRATION_SCHEMA,
+            V2_REGISTRATION_SCHEMA,
+        }:
             continue
         if path.read_bytes() != canonical_bytes(snapshot) + b"\n":
-            raise StrategyTargetError(f"v2 registration is not canonical: {path}")
+            raise StrategyTargetError(f"registration is not canonical: {path}")
         contracts = snapshot.get("targets")
         if not isinstance(contracts, list) or len(contracts) != 1:
             raise StrategyTargetError(
-                f"v2 comparison registration must contain one target: {path}"
+                f"comparison registration must contain one target: {path}"
             )
         contract = contracts[0]
         if not isinstance(contract, dict) or not contract.get("catalogSlug"):
@@ -285,7 +310,7 @@ def published_target(
     candidates = registrations.get(slug, [])
     if len(candidates) != 1:
         raise StrategyTargetError(
-            f"target is not backed by one unique published v2 registration: {slug}"
+            f"target is not backed by one unique published registration: {slug}"
         )
     registration = candidates[0]
     contract = registration["contract"]
@@ -312,7 +337,7 @@ def published_target(
     for key, expected in expected_registration.items():
         if canonical_bytes(block_value(block, key)) != canonical_bytes(expected):
             raise StrategyTargetError(
-                f"published ledger entry differs from v2 registration for {slug}: {key}"
+                f"published ledger entry differs from registration for {slug}: {key}"
             )
     commit = introducing_commit(
         root,
@@ -320,6 +345,8 @@ def published_target(
         head,
         selection_started_at=selection_started_at,
     )
+    if registration["snapshot"].get("schemaVersion") == V2_REGISTRATION_SCHEMA:
+        require_pre_cutover_commit(root, commit)
     required_block_fields = (
         "country",
         "resolutionDate",
@@ -498,7 +525,7 @@ def select_targets(
     unknown = sorted(set(requested_slugs) - known_slugs)
     if unknown:
         raise StrategyTargetError(f"unknown catalog slug(s): {', '.join(unknown)}")
-    registrations = v2_registrations_by_slug(root)
+    registrations = registrations_by_slug(root)
     local_evidence, locally_resolved = load_local_resolution_evidence(
         root, checked_at_utc
     )

@@ -669,3 +669,81 @@ def test_privileged_publication_requires_and_enforces_upper_bound(
             require_git_binding=True,
             publish_validated_at_utc=publish_upper,
         )
+
+
+def _real_pre_cutover_v2_target() -> dict:
+    """Project a real committed pre-cutover v2 snapshot into a batch target."""
+
+    for path in sorted((ROOT / "records" / "targets").glob("*.json")):
+        snapshot = json.loads(path.read_text())
+        if snapshot.get("schemaVersion") != "thesis_target_registration_v2":
+            continue
+        rows = snapshot.get("targets") or []
+        if len(rows) != 1:
+            continue
+        contract = rows[0]
+        relative = path.relative_to(ROOT).as_posix()
+        commits = subprocess.check_output(
+            ["git", "log", "--diff-filter=A", "--format=%H", "--", relative],
+            cwd=ROOT,
+            text=True,
+        ).split()
+        if len(commits) != 1:
+            continue
+        return {
+            "series": contract["series"],
+            "period": contract["period"],
+            "catalogSlug": contract["catalogSlug"],
+            "dataPointId": contract["dataPointId"],
+            "country": contract["country"],
+            "targetUnit": contract["unit"],
+            "valueScale": contract["valueScale"],
+            "sourceBinding": contract["sourceBinding"],
+            "registeredAtUtc": snapshot["registeredAtUtc"],
+            "targetContentHash": registration_content_hash(snapshot),
+            "targetRegistrationPath": relative,
+            "registrationCommit": commits[0],
+        }
+    pytest.skip("repository has no single-target pre-cutover v2 registration")
+
+
+def test_pre_cutover_v2_registration_requires_explicit_grandfather() -> None:
+    target = _real_pre_cutover_v2_target()
+    run_started_at = "2026-07-10T23:59:59Z"
+
+    with pytest.raises(PublicationError, match="privileged publication requires"):
+        docket_publication.validate_target_registration(
+            ROOT,
+            target,
+            run_started_at=run_started_at,
+            require_git_binding=True,
+        )
+
+    snapshot = docket_publication.validate_target_registration(
+        ROOT,
+        target,
+        run_started_at=run_started_at,
+        require_git_binding=True,
+        allow_pre_cutover_v2=True,
+    )
+    assert snapshot["schemaVersion"] == "thesis_target_registration_v2"
+
+
+def test_grandfathered_v2_must_strictly_predate_the_cutover(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = _real_pre_cutover_v2_target()
+    monkeypatch.setattr(
+        docket_publication,
+        "V3_REGISTRATION_CUTOVER_COMMIT",
+        target["registrationCommit"],
+    )
+
+    with pytest.raises(PublicationError, match="strictly predate the v3 cutover"):
+        docket_publication.validate_target_registration(
+            ROOT,
+            target,
+            run_started_at="2026-07-10T23:59:59Z",
+            require_git_binding=True,
+            allow_pre_cutover_v2=True,
+        )

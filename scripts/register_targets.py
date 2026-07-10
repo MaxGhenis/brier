@@ -35,6 +35,11 @@ REGISTRATION_SCHEMA = "thesis_target_registration_v3"
 V2_REGISTRATION_SCHEMA = "thesis_target_registration_v2"
 V1_REGISTRATION_SCHEMA = "thesis_target_registration_v1"
 LEGACY_REGISTRATION_SCHEMAS = {V1_REGISTRATION_SCHEMA, V2_REGISTRATION_SCHEMA}
+# The first commit whose privileged register jobs mint v3 snapshots. Trusted
+# history can only introduce v2 registrations strictly before this commit, so
+# a consumer that grandfathers v2 (the strategy comparison lane) must verify
+# the snapshot's introducing commit is a strict ancestor of it.
+V3_REGISTRATION_CUTOVER_COMMIT = "bd9316c5e3e63306eefbcd4f1611bcf4ce5da0f5"
 REGISTRATION_SET_SCHEMA = "thesis_target_registration_set_v1"
 LEDGER_PIN_PATH = (
     pathlib.Path(__file__).resolve().parents[1]
