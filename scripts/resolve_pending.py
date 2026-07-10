@@ -1797,7 +1797,11 @@ def ledger_state(repo: str, branch: str, path: str) -> tuple[str, str, str]:
 
 
 def _gh_api(*args: str, input_body: dict[str, Any] | None = None) -> str:
-    command = ["gh", "api", *args]
+    # Without `--input -` gh ignores stdin and sends an empty request body
+    # (GitHub answers 422 "nil is not an object"); the flag precedes the
+    # endpoint so callers' path arguments stay the trailing tokens.
+    body_flags = ["--input", "-"] if input_body is not None else []
+    command = ["gh", "api", *body_flags, *args]
     completed = subprocess.run(
         command,
         input=json.dumps(input_body) if input_body is not None else None,
