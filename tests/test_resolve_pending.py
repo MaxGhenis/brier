@@ -1145,3 +1145,50 @@ def test_intl_dialects_share_one_spec_so_dialects_share_archives() -> None:
             ".month_to_month_percent_change"
         ]
     )
+
+
+def test_custody_seal_accepts_xlsx_response_archives(tmp_path) -> None:
+    """The e-Stat workbook is a first-class resolver response.
+
+    Regression: the first international run failed custody verification
+    because the response-name schema only admitted csv/html/json.
+    """
+    original_root = resolve_pending.ROOT
+    resolve_pending.ROOT = tmp_path
+    try:
+        run_dir = tmp_path / "records" / "resolutions" / "run"
+        raw = b"PK\x03\x04 not a real workbook, bytes are opaque here"
+        archive = resolve_pending.archive_response(
+            run_dir,
+            series_id="estat-tokyo-cpi-table1-2",
+            vintage="2026-06-26",
+            raw=raw,
+            extension="xlsx",
+        )
+        assert archive["path"].endswith(".xlsx.gz")
+        manifest = resolve_pending.finalize_resolution_manifest(
+            run_dir,
+            {
+                "schemaVersion": "thesis_resolution_run_v1",
+                "retrievedAt": "2026-07-10T20:00:00Z",
+                "ledgerRepo": "PolicyEngine/ledger",
+                "ledgerBranch": "test",
+                "ledgerRepoSha": "0" * 40,
+                "facts": [
+                    {
+                        "dataPointId": (
+                            "statjp.cpi.tokyo_all_items_annual_rate"
+                            ".june_2026.preliminary"
+                        ),
+                        "sourceVintage": "2026-06-26",
+                        "retrievedAt": "2026-07-10T20:00:00Z",
+                        "responseArchive": archive,
+                    }
+                ],
+            },
+        )
+        result = verify_run(run_dir)
+        assert result.inventory_status == "complete"
+        assert manifest["custodyInventoryVersion"] == 2
+    finally:
+        resolve_pending.ROOT = original_root

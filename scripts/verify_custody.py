@@ -57,9 +57,12 @@ RESOLVER_RESPONSE_RE = re.compile(
     # One archived source response per fetched document: a lowercase series
     # or page identifier, the first-print vintage date, and a content-hash
     # prefix. CSV for ALFRED vintage fetches, HTML for archived source
-    # pages (e.g. the Wayback snapshot of BLS Table A-19), JSON for BLS
-    # Public Data API captures (the defense CES cells).
-    r"responses/[a-z0-9._-]+-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}\.(?:csv|html|json)\.gz"
+    # pages (e.g. the Wayback snapshot of BLS Table A-19 and the Eurostat/
+    # ABS release-day pages), JSON for API captures (BLS Public Data API,
+    # StatCan WDS, ABS Data API, Eurostat SDMX), XLSX for e-Stat release
+    # workbooks (the Tokyo CPI preliminary's only machine-readable form).
+    r"responses/[a-z0-9._-]+-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}"
+    r"\.(?:csv|html|json|xlsx)\.gz"
 )
 LEDGER_WITNESS_ARCHIVE_RE = re.compile(r"upstream/[a-z0-9][a-z0-9._-]*\.gz")
 RECORDER_REQUIRED_SURFACES = {
