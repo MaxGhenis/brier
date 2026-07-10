@@ -1,0 +1,412 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import pathlib
+import stat
+import subprocess
+import sys
+from collections.abc import Mapping
+
+import pytest
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+
+import strategy_publication as publication  # noqa: E402
+from canonical_json import canonical_sha256  # noqa: E402
+
+SUITE = pathlib.PurePosixPath(
+    "records/thesis-analyst/strategy-suites/2030-01-10/strategy-123-a1.json"
+)
+BATCH = pathlib.PurePosixPath(
+    "records/thesis-analyst/batches/2030-01-10/strategy-123-a1-ladder.json"
+)
+RUN_PREFIX = pathlib.PurePosixPath(
+    "records/thesis-analyst/2030-01-10/2030-01-10t12-01-00z-agency-test-rate"
+)
+
+
+def target() -> dict:
+    return {
+        "series": "agency.test.rate",
+        "period": "2030-01",
+        "catalogSlug": "agency-test-rate-january-2030",
+        "country": "US",
+        "dataPointId": "agency.test.rate.2030_01.first_print",
+        "targetUnit": "percent",
+        "valueScale": 1,
+        "sourceBinding": {
+            "adapter": "generic-url",
+            "sourceUrl": "https://agency.example/rate",
+            "allowedHosts": ["agency.example"],
+        },
+        "resolutionDate": "2030-02-15",
+        "resolutionSource": "Agency",
+        "resolutionSourceUrl": "https://agency.example/rate",
+        "resolutionRule": "Use the first official print only.",
+        "resolutionPolicy": "first_print",
+        "registeredAtUtc": "2030-01-01T00:00:00Z",
+        "targetContentHash": "b" * 64,
+        "targetRegistrationPath": f"records/targets/2030-01-01-{'b' * 64}.json",
+        "registrationCommit": "a" * 40,
+        "comparisonTarget": True,
+    }
+
+
+def selection_payload() -> dict:
+    value = {
+        "schemaVersion": publication.SELECTION_SCHEMA,
+        "sourceSha": "c" * 40,
+        "selectedAtUtc": "2030-01-10T12:00:00Z",
+        "selectionPath": (
+            "records/thesis-analyst/strategy-selections/2030-01-10/strategy-123-a1.json"
+        ),
+        "workflow": {
+            "repository": "owner/repo",
+            "runId": 123,
+            "runAttempt": 1,
+            "artifactId": 456,
+            "artifactName": "strategy-probe-123-1",
+            "artifactDigest": "sha256:" + "d" * 64,
+            "artifactCreatedAtUtc": "2030-01-10T12:01:00Z",
+        },
+        "request": {
+            "catalogSlugs": [target()["catalogSlug"]],
+            "autoSelect": False,
+            "maxTargets": 1,
+            "suite": "ladder",
+        },
+        "localResolutionEvidence": {},
+        "ledgerEvidence": {},
+        "targets": [target()],
+    }
+    value["selectionSetHash"] = canonical_sha256(value)
+    return value
+
+
+def suite_payload(selection_path: pathlib.Path) -> dict:
+    selection = json.loads(selection_path.read_text())
+    return {
+        "schemaVersion": publication.SUITE_SCHEMA,
+        "sourceSha": selection["sourceSha"],
+        "selectionPath": selection["selectionPath"],
+        "selectionSha256": hashlib.sha256(selection_path.read_bytes()).hexdigest(),
+        "selectionSetHash": selection["selectionSetHash"],
+        "suite": "ladder",
+        "createdAt": "2030-01-10T12:10:00Z",
+        "lanes": {
+            "ladder": {"batchManifest": BATCH.as_posix()},
+            "rollouts": [],
+            "median3": [],
+        },
+    }
+
+
+def write_selection(tmp_path: pathlib.Path) -> pathlib.Path:
+    path = tmp_path / "selection.json"
+    path.write_text(json.dumps(selection_payload(), indent=2) + "\n")
+    return path
+
+
+def init_git(path: pathlib.Path) -> None:
+    path.mkdir()
+    subprocess.run(["git", "init"], cwd=path, check=True, capture_output=True)
+    (path / "README.md").write_text("base\n")
+    subprocess.run(["git", "add", "README.md"], cwd=path, check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-m",
+            "base",
+        ],
+        cwd=path,
+        check=True,
+        capture_output=True,
+    )
+
+
+def write_bundle(
+    root: pathlib.Path,
+    selection_path: pathlib.Path,
+    files: Mapping[pathlib.PurePosixPath, bytes],
+) -> pathlib.Path:
+    bundle = root / "bundle"
+    repo = bundle / "repo"
+    entries = []
+    for relative, raw in files.items():
+        path = repo.joinpath(*relative.parts)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(raw)
+        entries.append(
+            {
+                "path": relative.as_posix(),
+                "bytes": len(raw),
+                "sha256": hashlib.sha256(raw).hexdigest(),
+                "mode": stat.S_IMODE(path.stat().st_mode),
+            }
+        )
+    selection = json.loads(selection_path.read_text())
+    (bundle / "bundle_manifest.json").write_text(
+        json.dumps(
+            {
+                "schemaVersion": publication.BUNDLE_SCHEMA,
+                "publicationKind": "strategy_comparison",
+                "suiteManifest": SUITE.as_posix(),
+                "sourceSha": selection["sourceSha"],
+                "selectionSha256": hashlib.sha256(
+                    selection_path.read_bytes()
+                ).hexdigest(),
+                "selectionSetHash": selection["selectionSetHash"],
+                "files": entries,
+            }
+        )
+        + "\n"
+    )
+    return bundle
+
+
+def test_selection_requires_server_timestamp_near_select(tmp_path: pathlib.Path):
+    path = write_selection(tmp_path)
+    selection = json.loads(path.read_text())
+    selection["workflow"]["artifactCreatedAtUtc"] = "2030-01-10T12:16:00Z"
+    selection.pop("selectionSetHash")
+    selection["selectionSetHash"] = canonical_sha256(selection)
+    path.write_text(json.dumps(selection))
+
+    with pytest.raises(
+        publication.StrategyPublicationError, match="not contemporaneous"
+    ):
+        publication._validate_selection(path)
+
+
+@pytest.mark.parametrize("label", ["analyst", "median3"])
+def test_claimed_runat_before_artifact_witness_is_rejected(label: str):
+    lower = publication._instant("2030-01-10T12:01:00Z", "lower")
+    with pytest.raises(
+        publication.StrategyPublicationError, match="outside the witnessed window"
+    ):
+        publication._require_claimed_run_window(
+            lower,
+            publication._instant("2030-01-10T12:00:59Z", "start"),
+            publication._instant("2030-01-10T12:01:01Z", "runAt"),
+            publication._instant("2030-01-10T12:10:00Z", "upper"),
+            label,
+        )
+
+
+@pytest.mark.parametrize("label", ["analyst", "median3"])
+def test_claimed_runat_after_publish_validation_is_rejected(label: str):
+    lower = publication._instant("2030-01-10T12:01:00Z", "lower")
+    with pytest.raises(
+        publication.StrategyPublicationError, match="outside the witnessed window"
+    ):
+        publication._require_claimed_run_window(
+            lower,
+            publication._instant("2030-01-10T12:02:00Z", "start"),
+            publication._instant("2030-01-10T12:10:01Z", "runAt"),
+            publication._instant("2030-01-10T12:10:00Z", "upper"),
+            label,
+        )
+
+
+def test_suite_shape_yields_only_exact_component_batches(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+):
+    selection_path = write_selection(tmp_path)
+    repo = tmp_path / "repo"
+    suite_path = repo.joinpath(*SUITE.parts)
+    suite_path.parent.mkdir(parents=True)
+    suite_path.write_text(json.dumps(suite_payload(selection_path)))
+    monkeypatch.setattr(publication, "_validate_source_sha", lambda *_a, **_k: None)
+    monkeypatch.setattr(
+        publication,
+        "_validate_batch",
+        lambda *_a, **_k: (
+            {target()["catalogSlug"]: {"target": target()}},
+            {RUN_PREFIX},
+            publication._instant("2030-01-10T12:09:00Z", "fixture"),
+        ),
+    )
+
+    exact, prefixes = publication.validate_tree(
+        repo,
+        SUITE,
+        selection_path,
+        publish_validated_at="2030-01-10T12:11:00Z",
+        exact_source=True,
+    )
+    assert exact == {SUITE, BATCH}
+    assert prefixes == {RUN_PREFIX}
+
+
+def test_suite_shape_rejects_batch_from_another_invocation(
+    tmp_path: pathlib.Path,
+) -> None:
+    selection_path = write_selection(tmp_path)
+    selection = json.loads(selection_path.read_text())
+    suite = suite_payload(selection_path)
+    suite["lanes"]["ladder"]["batchManifest"] = (
+        "records/thesis-analyst/batches/2030-01-10/strategy-999-a1-ladder.json"
+    )
+
+    with pytest.raises(
+        publication.StrategyPublicationError, match="trusted lane"
+    ):
+        publication._validate_suite_shape(
+            suite,
+            SUITE,
+            selection,
+            selection_path,
+            {target()["catalogSlug"]: target()},
+        )
+
+
+@pytest.mark.parametrize(
+    ("forbidden", "message"),
+    [
+        (
+            pathlib.PurePosixPath(f"records/targets/2030-01-01-{'b' * 64}.json"),
+            "target registration snapshots",
+        ),
+        (RUN_PREFIX / "ledger-targets.generated.ts", "executable source code"),
+        (RUN_PREFIX / "resolution.json", "resolution markers"),
+        (pathlib.PurePosixPath("records/CHAIN_HEAD.json"), "record-chain"),
+    ],
+)
+def test_bundle_rejects_forbidden_paths_even_if_suite_scope_claims_them(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    forbidden: pathlib.PurePosixPath,
+    message: str,
+):
+    checkout = tmp_path / "checkout"
+    init_git(checkout)
+    selection_path = write_selection(tmp_path)
+    suite_raw = json.dumps(suite_payload(selection_path)).encode()
+    files = {SUITE: suite_raw, BATCH: b"{}\n", forbidden: b"{}\n"}
+    bundle = write_bundle(tmp_path, selection_path, files)
+    monkeypatch.setattr(publication, "ROOT", checkout)
+    monkeypatch.setattr(
+        publication,
+        "validate_tree",
+        lambda *_a, **_k: ({SUITE, BATCH, forbidden}, {RUN_PREFIX}),
+    )
+
+    with pytest.raises(publication.StrategyPublicationError, match=message):
+        publication._load_bundle(
+            bundle,
+            SUITE,
+            selection_path,
+            "2030-01-10T12:11:00Z",
+        )
+
+
+def test_bundle_rejects_uninventoried_file(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+):
+    checkout = tmp_path / "checkout"
+    init_git(checkout)
+    selection_path = write_selection(tmp_path)
+    bundle = write_bundle(
+        tmp_path,
+        selection_path,
+        {SUITE: json.dumps(suite_payload(selection_path)).encode(), BATCH: b"{}\n"},
+    )
+    extra = bundle / "repo" / RUN_PREFIX.as_posix() / "surprise.txt"
+    extra.parent.mkdir(parents=True)
+    extra.write_text("not inventoried\n")
+    monkeypatch.setattr(publication, "ROOT", checkout)
+
+    with pytest.raises(
+        publication.StrategyPublicationError, match="inventory mismatch"
+    ):
+        publication._load_bundle(
+            bundle,
+            SUITE,
+            selection_path,
+            "2030-01-10T12:11:00Z",
+        )
+
+
+@pytest.mark.parametrize("symlinked", ["repo", "manifest"])
+def test_bundle_rejects_symlinked_control_roots(
+    tmp_path: pathlib.Path,
+    symlinked: str,
+) -> None:
+    selection_path = write_selection(tmp_path)
+    bundle = write_bundle(
+        tmp_path,
+        selection_path,
+        {SUITE: json.dumps(suite_payload(selection_path)).encode(), BATCH: b"{}\n"},
+    )
+    if symlinked == "repo":
+        original = tmp_path / "real-repo"
+        (bundle / "repo").rename(original)
+        (bundle / "repo").symlink_to(original, target_is_directory=True)
+    else:
+        original = tmp_path / "real-bundle-manifest.json"
+        (bundle / "bundle_manifest.json").rename(original)
+        (bundle / "bundle_manifest.json").symlink_to(original)
+
+    with pytest.raises(publication.StrategyPublicationError, match="not a regular"):
+        publication._load_bundle(
+            bundle,
+            SUITE,
+            selection_path,
+            "2030-01-10T12:11:00Z",
+        )
+
+
+def test_batch_target_set_rejects_out_of_selection_target():
+    rogue = {**target(), "catalogSlug": "rogue-target"}
+    with pytest.raises(
+        publication.StrategyPublicationError, match="unauthorized target"
+    ):
+        publication._target_map(
+            [{"target": rogue}],
+            {target()["catalogSlug"]: target()},
+            "fast",
+        )
+
+
+def test_strategy_lanes_cannot_reuse_failed_run_directories() -> None:
+    claimed = {RUN_PREFIX}
+
+    with pytest.raises(publication.StrategyPublicationError, match="reuse analyst"):
+        publication._claim_run_prefixes(claimed, {RUN_PREFIX})
+
+
+def test_strategy_manifest_identity_must_match_trusted_target() -> None:
+    trusted = target()
+
+    with pytest.raises(publication.StrategyPublicationError, match="series"):
+        publication._validate_manifest_identity(
+            {"series": "rogue.series", "period": trusted["period"]},
+            trusted,
+            ("series", "period"),
+        )
+
+
+def test_cell_resolver_equality_does_not_require_resolution_policy():
+    trusted = target()
+    cell = {
+        "slug": trusted["catalogSlug"],
+        "country": trusted["country"],
+        "dataPointId": trusted["dataPointId"],
+        "unit": trusted["targetUnit"],
+        "resolutionDate": trusted["resolutionDate"],
+        "resolutionSource": trusted["resolutionSource"],
+        "resolutionSourceUrl": trusted["resolutionSourceUrl"],
+        "resolutionRule": trusted["resolutionRule"],
+        **{field: trusted[field] for field in publication.REGISTRATION_FIELDS},
+    }
+    publication._resolver_equal(cell, trusted)
+    cell["resolutionDate"] = "2030-02-16"
+    with pytest.raises(publication.StrategyPublicationError, match="resolutionDate"):
+        publication._resolver_equal(cell, trusted)

@@ -16,13 +16,13 @@ Everything is emitted into site/src/data/thesis-strategy-comparisons.ts as
 STRATEGY_COMPARISON_RUN_AUGMENTS, merged onto cells alongside the existing
 recorded-run augments.
 
+The command-line interface always rebuilds the complete trusted corpus: the
+code-owned legacy index plus every committed strategy-suite manifest. Partial
+lane publication is intentionally unavailable.
+
 Usage:
     python3 scripts/strategy_comparisons.py \
-        --ladder-batch records/thesis-analyst/batches/....json \
-        --rollout-batch records/thesis-analyst/batches/r1.json \
-        --rollout-batch records/thesis-analyst/batches/r2.json \
-        --rollout-batch records/thesis-analyst/batches/r3.json \
-        --median-list /tmp/median-manifests.txt \
+        [--all-records] \
         [--out site/src/data/thesis-strategy-comparisons.ts]
 """
 
@@ -37,6 +37,10 @@ from typing import Any
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 DEFAULT_OUT = ROOT / "site" / "src" / "data" / "thesis-strategy-comparisons.ts"
+LEGACY_INDEX = SCRIPTS / "strategy_comparison_legacy.json"
+SUITES_ROOT = ROOT / "records" / "thesis-analyst" / "strategy-suites"
+LEGACY_INDEX_SCHEMA = "thesis_strategy_legacy_index_v1"
+SUITE_SCHEMA = "thesis_strategy_suite_v1"
 
 sys.path.insert(0, str(SCRIPTS))
 from thesis_records_to_comparisons import (  # noqa: E402
@@ -236,8 +240,40 @@ def rollout_augments(
     return augments
 
 
+def indexed_rollout_augments(
+    rollout_batches: list[tuple[int, pathlib.Path]],
+) -> dict[str, list[dict[str, Any]]]:
+    """Build fixed 1/2/3 labels within one suite, never across suites."""
+
+    if [index for index, _path in rollout_batches] != [1, 2, 3]:
+        raise ValueError("strategy suite rollouts must have indices 1, 2, 3")
+    augments: dict[str, list[dict[str, Any]]] = {}
+    for index, batch_path in rollout_batches:
+        for target, manifest, cell in batch_results([batch_path]):
+            slug = target["catalogSlug"]
+            run = comparison_run(
+                cell,
+                manifest,
+                slug,
+                target.get("valueScale", 1),
+                target.get("targetUnit"),
+            )
+            label = f"Fast rollout {index} of 3"
+            run["label"] = label
+            run["predictionRun"]["runLabel"] = label
+            run["description"] = (
+                "Independent fast rollout recorded for median prediction "
+                "sampling (Turtel et al. 2025, arXiv:2505.17989). "
+                + run["description"]
+            )
+            augments.setdefault(slug, []).append(run)
+    return augments
+
+
 def median_augments(
     manifest_paths: list[pathlib.Path],
+    *,
+    legacy: bool = False,
 ) -> dict[str, list[dict[str, Any]]]:
     augments: dict[str, list[dict[str, Any]]] = {}
     for manifest_path in manifest_paths:
@@ -245,33 +281,45 @@ def median_augments(
         if not manifest.get("ok"):
             continue
         constituent_runs = manifest.get("constituentRuns") or []
-        custody_roots = {
-            reference.get("custodyRootSha256")
-            for reference in constituent_runs
-            if reference.get("custodyRootSha256")
-        }
-        manifest_refs = {
-            reference.get("manifestPath")
-            for reference in constituent_runs
-            if reference.get("manifestPath")
-        }
         algorithm_version = manifest.get("aggregationAlgorithmVersion")
-        if (
-            len(constituent_runs) != 3
-            or len(custody_roots) != 3
-            or len(manifest_refs) != 3
-            or algorithm_version != MEDIAN3_ALGORITHM_VERSION
-        ):
-            raise ValueError(
-                f"invalid median3 derivation {manifest_path}: expected "
-                "exactly 3 distinct custody-verifiable constituent run "
-                f"references and {MEDIAN3_ALGORITHM_VERSION}"
-            )
+        if legacy:
+            constituent_manifests = manifest.get("constituentManifests") or []
+            if (
+                len(constituent_manifests) != 3
+                or len(set(constituent_manifests)) != 3
+                or constituent_runs
+                or algorithm_version
+            ):
+                raise ValueError(
+                    f"invalid grandfathered median3 derivation {manifest_path}"
+                )
+        else:
+            custody_roots = {
+                reference.get("custodyRootSha256")
+                for reference in constituent_runs
+                if reference.get("custodyRootSha256")
+            }
+            manifest_refs = {
+                reference.get("manifestPath")
+                for reference in constituent_runs
+                if reference.get("manifestPath")
+            }
+            if (
+                len(constituent_runs) != 3
+                or len(custody_roots) != 3
+                or len(manifest_refs) != 3
+                or algorithm_version != MEDIAN3_ALGORITHM_VERSION
+            ):
+                raise ValueError(
+                    f"invalid median3 derivation {manifest_path}: expected "
+                    "exactly 3 distinct custody-verifiable constituent run "
+                    f"references and {MEDIAN3_ALGORITHM_VERSION}"
+                )
         target = manifest.get("targetContext") or {}
         slug = target.get("catalogSlug")
         cells = json.loads(repo_path(manifest["cellsPath"]).read_text())
         if not slug or not cells:
-            continue
+            raise ValueError(f"median3 derivation lacks target/cell: {manifest_path}")
         cell = cells[0]
         scale = effective_scale(
             cell, target.get("valueScale", 1), target.get("targetUnit")
@@ -280,13 +328,25 @@ def median_augments(
             cell, manifest, slug, target.get("valueScale", 1),
             target.get("targetUnit"),
         )
-        label = f"Median of {len(constituent_runs)} rollouts"
+        label = (
+            "Median of 3 rollouts"
+            if legacy
+            else f"Median of {len(constituent_runs)} rollouts"
+        )
         run["label"] = label
         run["predictionRun"]["runLabel"] = label
-        run["predictionRun"]["aggregationAlgorithmVersion"] = (
-            algorithm_version
-        )
-        run["predictionRun"]["constituentRuns"] = constituent_runs
+        if not legacy:
+            run["predictionRun"]["aggregationAlgorithmVersion"] = (
+                algorithm_version
+            )
+            run["predictionRun"]["constituentRuns"] = constituent_runs
+            activity = cell.get("activityLog")
+            if not isinstance(activity, list) or len(activity) != 4:
+                raise ValueError(
+                    f"median3 derivation lacks its verified parent activity: "
+                    f"{manifest_path}"
+                )
+            run["predictionRun"]["activityLog"] = activity
         run["predictionRun"]["runDescription"] = (
             "Derived run: pointwise median of the constituent rollout CDFs "
             "(median prediction sampling, Turtel et al. 2025, "
@@ -302,30 +362,33 @@ def median_augments(
         for artifact in manifest.get("artifacts", []):
             if artifact.get("artifactType") == "derived_distribution":
                 distribution_path = artifact["path"]
-        if distribution_path:
-            distribution = json.loads(repo_path(distribution_path).read_text())
-            if scale != 1:
-                distribution["points"] = [
-                    {
-                        "value": scaled(point["value"], scale),
-                        "probability": point["probability"],
-                    }
-                    for point in distribution["points"]
-                ]
-                distribution["support"] = {
-                    "lower": scaled(distribution["support"]["lower"], scale),
-                    "upper": scaled(distribution["support"]["upper"], scale),
+        if not distribution_path:
+            raise ValueError(
+                f"median3 derivation lacks a distribution artifact: {manifest_path}"
+            )
+        distribution = json.loads(repo_path(distribution_path).read_text())
+        if scale != 1:
+            distribution["points"] = [
+                {
+                    "value": scaled(point["value"], scale),
+                    "probability": point["probability"],
                 }
-                summary = distribution["summary"]
-                distribution["summary"] = {
-                    "pointEstimate": scaled(summary["pointEstimate"], scale),
-                    "median": scaled(summary["median"], scale),
-                    "interval80": {
-                        "lower": scaled(summary["interval80"]["lower"], scale),
-                        "upper": scaled(summary["interval80"]["upper"], scale),
-                    },
-                }
-            run["predictionDistribution"] = distribution
+                for point in distribution["points"]
+            ]
+            distribution["support"] = {
+                "lower": scaled(distribution["support"]["lower"], scale),
+                "upper": scaled(distribution["support"]["upper"], scale),
+            }
+            summary = distribution["summary"]
+            distribution["summary"] = {
+                "pointEstimate": scaled(summary["pointEstimate"], scale),
+                "median": scaled(summary["median"], scale),
+                "interval80": {
+                    "lower": scaled(summary["interval80"]["lower"], scale),
+                    "upper": scaled(summary["interval80"]["upper"], scale),
+                },
+            }
+        run["predictionDistribution"] = distribution
         augments.setdefault(slug, []).append(run)
     return augments
 
@@ -339,37 +402,158 @@ def merge(
             merged.setdefault(slug, []).extend(runs)
     for runs in merged.values():
         runs.sort(key=lambda run: run["predictionRun"]["runAt"])
+    variant_ids: set[str] = set()
+    for slug, runs in merged.items():
+        for run in runs:
+            variant_id = str(run.get("variantId") or "")
+            if not variant_id or variant_id in variant_ids:
+                raise ValueError(
+                    f"duplicate or missing strategy variantId for {slug}: {variant_id}"
+                )
+            variant_ids.add(variant_id)
     return dict(sorted(merged.items()))
+
+
+def load_legacy_waves(
+    index_path: pathlib.Path = LEGACY_INDEX,
+) -> list[dict[str, Any]]:
+    payload = json.loads(index_path.read_text())
+    if payload.get("schemaVersion") != LEGACY_INDEX_SCHEMA:
+        raise ValueError("unsupported strategy legacy index")
+    waves = payload.get("waves")
+    if not isinstance(waves, list):
+        raise ValueError("strategy legacy index has no wave list")
+    normalized = []
+    for wave in waves:
+        if not isinstance(wave, dict):
+            raise ValueError("strategy legacy wave is not an object")
+        rollout_batches = wave.get("rolloutBatches")
+        median_manifests = wave.get("medianManifests")
+        if (
+            not wave.get("ladderBatch")
+            or not isinstance(rollout_batches, list)
+            or len(rollout_batches) != 3
+            or not isinstance(median_manifests, list)
+        ):
+            raise ValueError(f"invalid strategy legacy wave: {wave.get('waveId')}")
+        paths = [wave["ladderBatch"], *rollout_batches, *median_manifests]
+        if any(not repo_path(path).is_file() for path in paths):
+            raise ValueError("strategy legacy wave references a missing file")
+        normalized.append(wave)
+    return normalized
+
+
+def load_suite_waves(
+    suites_root: pathlib.Path = SUITES_ROOT,
+) -> list[dict[str, Any]]:
+    waves: list[dict[str, Any]] = []
+    if not suites_root.exists():
+        return waves
+    for path in sorted(suites_root.glob("????-??-??/strategy-*-a*.json")):
+        suite = json.loads(path.read_text())
+        if suite.get("schemaVersion") != SUITE_SCHEMA:
+            raise ValueError(f"unsupported strategy suite manifest: {path}")
+        selector = suite.get("suite")
+        if selector not in {"ladder", "median3", "both"}:
+            raise ValueError(f"invalid suite selector in {path}")
+        lanes = suite.get("lanes")
+        if not isinstance(lanes, dict) or set(lanes) != {
+            "ladder",
+            "rollouts",
+            "median3",
+        }:
+            raise ValueError(f"invalid strategy lane inventory in {path}")
+        ladder = lanes["ladder"]
+        ladder_batches = []
+        if ladder is not None:
+            if not isinstance(ladder, dict) or not ladder.get("batchManifest"):
+                raise ValueError(f"invalid ladder lane in {path}")
+            ladder_batches = [pathlib.Path(ladder["batchManifest"])]
+        if selector in {"ladder", "both"} and not ladder_batches:
+            raise ValueError(f"selected suite lacks its ladder lane in {path}")
+        if selector == "median3" and ladder_batches:
+            raise ValueError(f"median3-only suite has a ladder lane in {path}")
+        rollout_rows = lanes["rollouts"]
+        if not isinstance(rollout_rows, list):
+            raise ValueError(f"invalid rollout lanes in {path}")
+        rollout_batches = [
+            (row.get("index"), pathlib.Path(str(row.get("batchManifest") or "")))
+            for row in rollout_rows
+            if isinstance(row, dict)
+        ]
+        expected_rollouts = [1, 2, 3] if selector in {"median3", "both"} else []
+        if [index for index, _batch in rollout_batches] != expected_rollouts:
+            raise ValueError(f"invalid rollout lane cardinality in {path}")
+        median_rows = lanes["median3"]
+        if not isinstance(median_rows, list):
+            raise ValueError(f"invalid median3 lanes in {path}")
+        if selector == "ladder" and median_rows:
+            raise ValueError(f"ladder-only suite has median3 lanes in {path}")
+        median_paths = []
+        for row in median_rows:
+            if not isinstance(row, dict) or type(row.get("ok")) is not bool:
+                raise ValueError(f"invalid median3 result in {path}")
+            if row["ok"] is True:
+                if not row.get("manifestPath") or row.get("error") is not None:
+                    raise ValueError(f"passing median3 result is incomplete in {path}")
+                median_paths.append(pathlib.Path(row["manifestPath"]))
+            elif row.get("manifestPath") is not None or not row.get("error"):
+                raise ValueError(f"failed median3 result is incomplete in {path}")
+        waves.append(
+            {
+                "ladderBatches": ladder_batches,
+                "rolloutBatches": rollout_batches,
+                "medianManifests": median_paths,
+            }
+        )
+    return waves
+
+
+def all_record_augments(
+    *,
+    legacy_index: pathlib.Path = LEGACY_INDEX,
+    suites_root: pathlib.Path = SUITES_ROOT,
+) -> dict[str, list[dict[str, Any]]]:
+    wave_augments: list[dict[str, list[dict[str, Any]]]] = []
+    for wave in load_legacy_waves(legacy_index):
+        wave_augments.append(
+            merge(
+                ladder_augments([pathlib.Path(wave["ladderBatch"])]),
+                # The legacy labels were assigned by runAt order. Preserve that
+                # exact projection so the 2026-07-08 module remains byte-identical.
+                rollout_augments(
+                    [pathlib.Path(path) for path in wave["rolloutBatches"]]
+                ),
+                median_augments(
+                    [pathlib.Path(path) for path in wave["medianManifests"]],
+                    legacy=True,
+                ),
+            )
+        )
+    for wave in load_suite_waves(suites_root):
+        wave_augments.append(
+            merge(
+                ladder_augments(wave["ladderBatches"]),
+                indexed_rollout_augments(wave["rolloutBatches"])
+                if wave["rolloutBatches"]
+                else {},
+                median_augments(wave["medianManifests"]),
+            )
+        )
+    return merge(*wave_augments)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--ladder-batch", action="append", default=[], type=pathlib.Path
+        "--all-records",
+        action="store_true",
+        help="compatibility flag; complete-corpus regeneration is always used",
     )
-    parser.add_argument(
-        "--rollout-batch", action="append", default=[], type=pathlib.Path
-    )
-    parser.add_argument(
-        "--median-manifest", action="append", default=[], type=pathlib.Path
-    )
-    parser.add_argument("--median-list", type=pathlib.Path)
     parser.add_argument("--out", type=pathlib.Path, default=DEFAULT_OUT)
     args = parser.parse_args()
 
-    median_paths = list(args.median_manifest)
-    if args.median_list and args.median_list.exists():
-        median_paths.extend(
-            pathlib.Path(line)
-            for line in args.median_list.read_text().splitlines()
-            if line.strip()
-        )
-
-    augments = merge(
-        ladder_augments(args.ladder_batch),
-        rollout_augments(args.rollout_batch),
-        median_augments(median_paths),
-    )
+    augments = all_record_augments()
     write_strategy_ts(args.out, augments)
     total = sum(len(runs) for runs in augments.values())
     print(f"wrote {total} strategy runs across {len(augments)} cells -> {args.out}")

@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import copy
 import datetime as dt
 import hashlib
 import json
@@ -28,6 +29,7 @@ import pathlib
 import sys
 from typing import Any
 
+from canonical_json import canonical_bytes, canonical_sha256
 from verify_custody import CustodyError, verify_run
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -35,6 +37,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 POINT_COUNT = 201
 REQUIRED_ROLLOUTS = 3
 AGGREGATION_ALGORITHM_VERSION = "pointwise_median_cdf_v1"
+CUSTODY_INVENTORY_VERSION = 2
+MANIFEST_HASH_MODE = (
+    "canonical-json-v1; exclude artifacts where artifactType=manifest and "
+    "exclude custodyRootSha256"
+)
 
 
 def utc_now() -> str:
@@ -86,9 +93,7 @@ def cdf_at(knots: list[tuple[float, float]], value: float) -> float:
     return knots[-1][1]
 
 
-def quantile_from_points(
-    points: list[dict[str, float]], q: float
-) -> float:
+def quantile_from_points(points: list[dict[str, float]], q: float) -> float:
     for index in range(1, len(points)):
         prev, current = points[index - 1], points[index]
         if current["probability"] >= q:
@@ -126,9 +131,7 @@ def median_distribution(cells: list[dict[str, Any]]) -> dict[str, Any]:
     points = []
     for index in range(POINT_COUNT):
         value = (
-            support_upper
-            if index == POINT_COUNT - 1
-            else support_lower + step * index
+            support_upper if index == POINT_COUNT - 1 else support_lower + step * index
         )
         probability = median([cdf_at(knots, value) for knots in knot_sets])
         points.append(
@@ -179,19 +182,19 @@ def collect_rollouts(
 
 def validate_constituent_rollouts(
     rollouts: list[dict[str, Any]],
-) -> list[dict[str, str]]:
+) -> list[dict[str, Any]]:
     """Require exactly three distinct runs whose custody roots verify."""
     if len(rollouts) != REQUIRED_ROLLOUTS:
         raise ValueError(
-            "median3 requires exactly 3 constituent runs; "
-            f"received {len(rollouts)}"
+            f"median3 requires exactly 3 constituent runs; received {len(rollouts)}"
         )
 
-    references: list[dict[str, str]] = []
+    references: list[dict[str, Any]] = []
+    canonical_target: bytes | None = None
     for rollout in rollouts:
         manifest_path = repo_path(rollout["manifestPath"])
         try:
-            verify_run(manifest_path.parent)
+            verification = verify_run(manifest_path.parent)
         except CustodyError as exc:
             raise ValueError(
                 f"constituent custody verification failed: {manifest_path}: {exc}"
@@ -203,6 +206,40 @@ def validate_constituent_rollouts(
             raise ValueError(
                 f"constituent lacks custody root or runAt: {manifest_path}"
             )
+        # Tests may replace verify_run with a no-op to exercise only the
+        # distinct-reference rule. Real runs must be complete, successful
+        # analyst inventories.
+        if verification is not None:
+            if (
+                verification.run_mode != "analyst"
+                or verification.inventory_status != "complete"
+                or not verification.run_succeeded
+            ):
+                raise ValueError(
+                    "median3 constituents must be successful complete-v2 "
+                    f"analyst runs: {manifest_path}"
+                )
+            if (
+                manifest.get("schemaVersion") != "thesis_analyst_run_manifest_v1"
+                or manifest.get("promptMode") != "fast"
+                or manifest.get("ok") is not True
+            ):
+                raise ValueError(
+                    f"median3 constituent is not a successful fast run: {manifest_path}"
+                )
+            target = rollout.get("target")
+            if not isinstance(target, dict) or canonical_bytes(
+                manifest.get("targetContext")
+            ) != canonical_bytes(target):
+                raise ValueError(
+                    f"median3 constituent target context mismatch: {manifest_path}"
+                )
+            encoded_target = canonical_bytes(target)
+            if canonical_target is None:
+                canonical_target = encoded_target
+            elif encoded_target != canonical_target:
+                raise ValueError("median3 constituents do not share one target")
+        manifest_raw = manifest_path.read_bytes()
         references.append(
             {
                 "manifestPath": (
@@ -210,6 +247,8 @@ def validate_constituent_rollouts(
                     if manifest_path.is_relative_to(ROOT)
                     else str(manifest_path)
                 ),
+                "manifestSha256": hashlib.sha256(manifest_raw).hexdigest(),
+                "manifestBytes": len(manifest_raw),
                 "custodyRootSha256": str(custody_root),
                 "runAt": str(run_at),
             }
@@ -225,15 +264,20 @@ def validate_constituent_rollouts(
 
 
 def build_derived_run(
-    slug: str, rollouts: list[dict[str, Any]], run_at: str
+    slug: str,
+    rollouts: list[dict[str, Any]],
+    run_at: str,
+    *,
+    sealed_at: str | None = None,
 ) -> tuple[dict[str, Any], pathlib.Path]:
+    rollouts = sorted(
+        rollouts,
+        key=lambda row: (row["cell"].get("runAt", ""), row["manifestPath"]),
+    )
     constituent_runs = validate_constituent_rollouts(rollouts)
-    rollouts = sorted(rollouts, key=lambda r: r["cell"].get("runAt", ""))
     cells = [rollout["cell"] for rollout in rollouts]
     target = rollouts[0]["target"]
-    manifest_source = json.loads(
-        repo_path(rollouts[0]["manifestPath"]).read_text()
-    )
+    manifest_source = json.loads(repo_path(rollouts[0]["manifestPath"]).read_text())
     agent_meta = manifest_source.get("agent", {})
 
     distribution = median_distribution(cells)
@@ -258,9 +302,7 @@ def build_derived_run(
     nearest = min(cells, key=lambda cell: abs(cell["pointEstimate"] - q50))
     run_ats = [cell.get("runAt", "?") for cell in cells]
     rollout_points = [cell["pointEstimate"] for cell in cells]
-    widths = [
-        round(cell["ciHigh"] - cell["ciLow"], precision + 2) for cell in cells
-    ]
+    widths = [round(cell["ciHigh"] - cell["ciLow"], precision + 2) for cell in cells]
     source_context: list[str] = []
     for cell in cells:
         for url in cell.get("sourceContext", []):
@@ -293,7 +335,6 @@ def build_derived_run(
             "confidence": 0.8,
             "drivers": nearest.get("drivers", []),
             "sourceContext": source_context[:8],
-            "runAt": run_at,
             "reasoning": [
                 {"kind": "heading", "text": "Median-of-3 rollout ensemble"},
                 {
@@ -313,10 +354,7 @@ def build_derived_run(
                 {
                     "kind": "tool",
                     "tool": "ensemble.median",
-                    "call": (
-                        "ensemble.median({rollouts: "
-                        f"{json.dumps(run_ats)}}})"
-                    ),
+                    "call": (f"ensemble.median({{rollouts: {json.dumps(run_ats)}}})"),
                     "result": (
                         f"{{rollout_points: {json.dumps(rollout_points)}, "
                         f"rollout_widths: {json.dumps(widths)}, "
@@ -345,23 +383,16 @@ def build_derived_run(
     )
 
     day = run_at[:10]
-    out_dir = (
-        ROOT
-        / "records"
-        / "thesis-analyst"
-        / day
-        / f"{slug}-median3-{run_at.lower().replace(':', '-').replace('+00-00', 'z')}"
-    )
+    stamp = run_at.lower().replace(":", "-").replace("+00-00", "z")
+    out_dir = ROOT / "records" / "thesis-analyst" / day / f"{stamp}-median3-{slug}"
+    if out_dir.exists() and any(out_dir.iterdir()):
+        raise ValueError(f"derived run directory already exists: {out_dir}")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     cells_path = out_dir / "cells.with_activity.json"
     distribution_path = out_dir / "distribution.json"
 
-    def artifact_ref(
-        artifact_type: str,
-        path: str,
-        custody_root_sha256: str | None = None,
-    ) -> dict[str, Any]:
+    def artifact_ref(artifact_type: str, path: str) -> dict[str, Any]:
         data = repo_path(path).read_bytes()
         ref = {
             "artifactType": artifact_type,
@@ -370,26 +401,45 @@ def build_derived_run(
             "bytes": len(data),
             "createdAt": run_at,
         }
-        if custody_root_sha256:
-            ref["custodyRootSha256"] = custody_root_sha256
         return ref
 
     distribution_path.write_text(json.dumps(distribution, indent=1) + "\n")
-    artifacts = [
-        artifact_ref(
-            "constituent_manifest",
-            reference["manifestPath"],
-            reference["custodyRootSha256"],
-        )
+    distribution_ref = artifact_ref(
+        "derived_distribution", repo_relative(distribution_path)
+    )
+    sealed_at = sealed_at or utc_now()
+    if sealed_at < run_at:
+        raise ValueError("derived seal time predates run start")
+    derived_cell["runStartedAt"] = run_at
+    derived_cell["runAt"] = sealed_at
+    for field in (
+        "registrationCommit",
+        "targetContentHash",
+        "targetRegistrationPath",
+        "registeredAtUtc",
+    ):
+        if target.get(field) not in (None, ""):
+            derived_cell[field] = target[field]
+
+    parent_activity = [
+        {
+            "artifactType": "constituent_manifest",
+            "path": reference["manifestPath"],
+            "sha256": reference["manifestSha256"],
+            "bytes": reference["manifestBytes"],
+            "custodyRootSha256": reference["custodyRootSha256"],
+            "createdAt": run_at,
+        }
         for reference in constituent_runs
     ]
-    artifacts.append(
-        artifact_ref("derived_distribution", repo_relative(distribution_path))
-    )
 
     manifest = {
         "schemaVersion": "thesis_derived_ensemble_manifest_v1",
         "createdAt": run_at,
+        "runStartedAt": run_at,
+        "custodyInventoryVersion": CUSTODY_INVENTORY_VERSION,
+        "runMode": "derived_ensemble",
+        "manifestHashSemantics": MANIFEST_HASH_MODE,
         "series": manifest_source.get("series"),
         "period": manifest_source.get("period"),
         "targetContext": target,
@@ -409,34 +459,87 @@ def build_derived_run(
         "constituentManifests": [
             reference["manifestPath"] for reference in constituent_runs
         ],
-        "artifacts": artifacts,
+        "artifacts": [],
     }
+    for field in (
+        "registrationCommit",
+        "targetContentHash",
+        "targetRegistrationPath",
+        "registeredAtUtc",
+    ):
+        if target.get(field) not in (None, ""):
+            manifest[field] = target[field]
 
     cell_with_activity = {
         **derived_cell,
         "model": agent_meta.get("model"),
         "aggregationAlgorithmVersion": AGGREGATION_ALGORITHM_VERSION,
         "constituentRuns": constituent_runs,
-        "activityLog": artifacts,
+        "activityLog": [*parent_activity, distribution_ref],
     }
     cells_path.write_text(json.dumps([cell_with_activity], indent=2) + "\n")
     manifest["cellsPath"] = repo_relative(cells_path)
+    cells_ref = artifact_ref("cells_with_activity", repo_relative(cells_path))
+    local_refs = [distribution_ref, cells_ref]
+
     manifest_path = out_dir / "manifest.json"
+    self_payload = copy.deepcopy(manifest)
+    self_payload["artifacts"] = local_refs
+    self_bytes = canonical_bytes(self_payload)
+    manifest_ref = {
+        "artifactType": "manifest",
+        "path": repo_relative(manifest_path),
+        "sha256": hashlib.sha256(self_bytes).hexdigest(),
+        "bytes": len(self_bytes),
+        "createdAt": run_at,
+        "hashMode": MANIFEST_HASH_MODE,
+    }
+    manifest["artifacts"] = [*local_refs, manifest_ref]
+    custody_entries = []
+    for ref in local_refs:
+        path = repo_path(ref["path"])
+        raw = path.read_bytes()
+        entry = {
+            "artifactType": ref["artifactType"],
+            "path": path.name,
+            "bytes": len(raw),
+            "sha256": hashlib.sha256(raw).hexdigest(),
+        }
+        if path.suffix == ".json":
+            entry["canonicalJsonSha256"] = canonical_sha256(json.loads(raw))
+        custody_entries.append(entry)
+    custody_root = {
+        "schemaVersion": "thesis_custody_root_v1",
+        "custodyInventoryVersion": CUSTODY_INVENTORY_VERSION,
+        "runMode": "derived_ensemble",
+        "hashAlgorithm": "sha256",
+        "canonicalJson": (
+            "UTF-16 code-unit key order; ECMAScript JSON number/string encoding"
+        ),
+        "artifacts": custody_entries,
+        "constituentCustodyRoots": constituent_runs,
+        "manifestWithoutCustodyRoot": {
+            "path": "manifest.json",
+            "excludedField": "custodyRootSha256",
+            "canonicalJsonSha256": canonical_sha256(manifest),
+        },
+    }
+    (out_dir / "custody_root.json").write_text(
+        json.dumps(custody_root, indent=2) + "\n"
+    )
+    manifest["custodyRootSha256"] = canonical_sha256(custody_root)
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     return manifest, manifest_path
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--batch", action="append", required=True, type=pathlib.Path
-    )
+    parser.add_argument("--batch", action="append", required=True, type=pathlib.Path)
     parser.add_argument("--out-list")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
     groups = collect_rollouts([repo_path(path) for path in args.batch])
-    run_at = utc_now()
     written = []
     for slug, rollouts in sorted(groups.items()):
         try:
@@ -448,10 +551,10 @@ def main() -> int:
             points = [r["cell"]["pointEstimate"] for r in rollouts]
             print(f"  would derive {slug} from points {points}")
             continue
-        manifest, manifest_path = build_derived_run(slug, rollouts, run_at)
-        summary = json.loads(
-            (manifest_path.parent / "distribution.json").read_text()
-        )["summary"]
+        manifest, manifest_path = build_derived_run(slug, rollouts, utc_now())
+        summary = json.loads((manifest_path.parent / "distribution.json").read_text())[
+            "summary"
+        ]
         print(
             f"  {slug}: median {summary['pointEstimate']} "
             f"[{summary['interval80']['lower']}, "

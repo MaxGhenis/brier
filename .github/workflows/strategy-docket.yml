@@ -1,0 +1,636 @@
+name: Run strategy comparisons
+
+on:
+  workflow_dispatch:
+    inputs:
+      catalog_slugs:
+        description: "Comma/newline-separated published catalog slugs"
+        required: false
+        default: ""
+      auto_select:
+        description: "Fill remaining capacity with nearest open published targets"
+        type: boolean
+        required: true
+        default: false
+      max_targets:
+        description: "Maximum comparison targets"
+        required: true
+        default: "1"
+      suite:
+        description: "Strategy suite"
+        type: choice
+        required: true
+        default: both
+        options:
+          - ladder
+          - median3
+          - both
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docket-writers
+  cancel-in-progress: false
+
+env:
+  LEDGER_REPOSITORY: PolicyEngine/ledger
+  LEDGER_BRANCH: codex/thesis-ledger-facts
+  LEDGER_PATH: ledger/official_observations.jsonl
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      count: ${{ steps.metadata.outputs.count }}
+      source_sha: ${{ steps.metadata.outputs.source_sha }}
+      selection_set_hash: ${{ steps.metadata.outputs.selection_set_hash }}
+      selection_artifact: ${{ steps.metadata.outputs.selection_artifact }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify the local publication witnesses
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_record_chain.py records
+          while IFS= read -r -d '' root; do
+            python3 scripts/verify_custody.py "$(dirname "$root")"
+          done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+
+      - name: Fetch and pin the official resolution ledger
+        id: ledger
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REPO_SHA=$(gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha)
+          BLOB_SHA=$(gh api \
+            "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA" --jq .sha)
+          gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA" \
+            > /tmp/official-observations.jsonl
+          echo "blob_sha=$BLOB_SHA" >> "$GITHUB_OUTPUT"
+          echo "repository_sha=$REPO_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve comparison targets with trusted code
+        id: provisional
+        env:
+          AUTO_SELECT: ${{ inputs.auto_select }}
+          CATALOG_SLUGS: ${{ inputs.catalog_slugs }}
+          MAX_TARGETS: ${{ inputs.max_targets }}
+          SUITE: ${{ inputs.suite }}
+        run: |
+          set -euo pipefail
+          SELECTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          args=(
+            python3 scripts/strategy_targets.py select
+            --catalog-slugs "$CATALOG_SLUGS"
+            --max-targets "$MAX_TARGETS"
+            --suite "$SUITE"
+            --selected-at-utc "$SELECTED_AT"
+            --source-sha "$(git rev-parse HEAD)"
+            --workflow-repository "$GITHUB_REPOSITORY"
+            --workflow-run-id "$GITHUB_RUN_ID"
+            --workflow-run-attempt "$GITHUB_RUN_ATTEMPT"
+            --ledger-jsonl /tmp/official-observations.jsonl
+            --ledger-repository "$LEDGER_REPOSITORY"
+            --ledger-branch "$LEDGER_BRANCH"
+            --ledger-path "$LEDGER_PATH"
+            --ledger-repository-commit "${{ steps.ledger.outputs.repository_sha }}"
+            --ledger-blob-sha "${{ steps.ledger.outputs.blob_sha }}"
+            --out /tmp/strategy-targets-provisional.json
+          )
+          if [ "$AUTO_SELECT" = "true" ]; then
+            args+=(--auto-select)
+          fi
+          "${args[@]}"
+          mkdir -p /tmp/strategy-selection-probe
+          install -m 0644 /tmp/strategy-targets-provisional.json \
+            /tmp/strategy-selection-probe/strategy-targets.json
+
+      - name: Upload the server-time witness probe
+        id: probe
+        uses: actions/upload-artifact@v7
+        with:
+          name: strategy-selection-probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/strategy-selection-probe/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Bind the selection to GitHub artifact server time
+        id: metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBE_DIGEST: ${{ steps.probe.outputs.artifact-digest }}
+          PROBE_ID: ${{ steps.probe.outputs.artifact-id }}
+          PROBE_NAME: strategy-selection-probe-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            echo "artifact witness lookup attempt $attempt"
+            if gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$PROBE_ID" \
+                > /tmp/selection-probe-api.json; then
+              break
+            fi
+            sleep 2
+          done
+          CREATED_AT=$(python3 -c \
+            "import json;print(json.load(open('/tmp/selection-probe-api.json'))['created_at'])")
+          python3 scripts/strategy_targets.py stamp-artifact \
+            --selection /tmp/strategy-targets-provisional.json \
+            --artifact-id "$PROBE_ID" \
+            --artifact-name "$PROBE_NAME" \
+            --artifact-digest "$PROBE_DIGEST" \
+            --artifact-created-at-utc "$CREATED_AT" \
+            --out /tmp/strategy-targets.json
+          mkdir -p /tmp/strategy-selection
+          install -m 0644 /tmp/strategy-targets.json \
+            /tmp/strategy-selection/strategy-targets.json
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          from pathlib import Path
+
+          selection = json.loads(Path("/tmp/strategy-targets.json").read_text())
+          run_id = selection["workflow"]["runId"]
+          attempt = selection["workflow"]["runAttempt"]
+          print(f"count={len(selection['targets'])}")
+          print(f"source_sha={selection['sourceSha']}")
+          print(f"selection_set_hash={selection['selectionSetHash']}")
+          print(f"selection_artifact=strategy-selection-{run_id}-{attempt}")
+          PY
+
+      - name: Upload the trusted final selection
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.metadata.outputs.selection_artifact }}
+          path: /tmp/strategy-selection/
+          if-no-files-found: error
+          retention-days: 7
+
+  generate:
+    if: ${{ needs.select.result == 'success' && needs.select.outputs.count != '0' }}
+    needs: select
+    runs-on: ubuntu-latest
+    timeout-minutes: 210
+    permissions:
+      contents: read
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.select.outputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download the trusted strategy selection
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.select.outputs.selection_artifact }}
+          path: /tmp/trusted-selection
+
+      - name: Fetch pinned and current resolution ledgers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/selection-ledger-env
+          import json
+          selection = json.load(open("/tmp/trusted-selection/strategy-targets.json"))
+          evidence = selection["ledgerEvidence"]
+          for key in ("repository", "branch", "path", "repositoryCommit", "blobSha"):
+              print(f"{key}={evidence[key]}")
+          PY
+          source /tmp/selection-ledger-env
+          test "$(gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
+          gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$repositoryCommit" \
+            > /tmp/pinned-ledger.jsonl
+          latest_sha=$(gh api "repos/$repository/commits/$branch" --jq .sha)
+          gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$latest_sha" \
+            > /tmp/latest-ledger.jsonl
+
+      - name: Independently verify the target set and open state
+        env:
+          EXPECTED_SET_HASH: ${{ needs.select.outputs.selection_set_hash }}
+          EXPECTED_SOURCE_SHA: ${{ needs.select.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          test "$(python3 -c "import json;print(json.load(open('/tmp/trusted-selection/strategy-targets.json'))['selectionSetHash'])")" = "$EXPECTED_SET_HASH"
+          python3 scripts/strategy_targets.py verify \
+            --selection /tmp/trusted-selection/strategy-targets.json \
+            --ledger-jsonl /tmp/pinned-ledger.jsonl
+          python3 scripts/strategy_targets.py ensure-open \
+            --selection /tmp/trusted-selection/strategy-targets.json \
+            --ledger-jsonl /tmp/latest-ledger.jsonl \
+            --checked-at-utc "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Resolve the trusted invocation identity
+        id: invocation
+        env:
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+          EXPECTED_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+
+          selection = json.load(open("/tmp/trusted-selection/strategy-targets.json"))
+          workflow = selection["workflow"]
+          run_id = workflow.get("runId")
+          run_attempt = workflow.get("runAttempt")
+          if (
+              workflow.get("repository") != os.environ["EXPECTED_REPOSITORY"]
+              or type(run_id) is not int
+              or run_id < 1
+              or str(run_id) != os.environ["EXPECTED_RUN_ID"]
+              or type(run_attempt) is not int
+              or run_attempt < 1
+          ):
+              raise SystemExit("selection belongs to a different workflow invocation")
+          print(f"run_id={run_id}")
+          print(f"run_attempt={run_attempt}")
+          print(f"publication_artifact=strategy-docket-{run_id}-{run_attempt}")
+          PY
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install codex CLI
+        run: bun add -g @openai/codex@0.144.0
+
+      - name: Authenticate codex
+        run: printenv OPENAI_API_KEY | codex login --with-api-key
+
+      - name: Run the selected strategy suite
+        id: suite
+        run: |
+          set -euo pipefail
+          python3 scripts/run_strategy_suite.py \
+            --selection /tmp/trusted-selection/strategy-targets.json \
+            --run-id "${{ steps.invocation.outputs.run_id }}" \
+            --run-attempt "${{ steps.invocation.outputs.run_attempt }}"
+          SUITE_MANIFEST=$(find records/thesis-analyst/strategy-suites \
+            -type f -name "strategy-${{ steps.invocation.outputs.run_id }}-a${{ steps.invocation.outputs.run_attempt }}.json" \
+            -print -quit)
+          test -n "$SUITE_MANIFEST"
+          echo "suite_manifest=$SUITE_MANIFEST" >> "$GITHUB_OUTPUT"
+
+      - name: Stage one exact-scope strategy bundle
+        run: |
+          set -euo pipefail
+          python3 scripts/strategy_publication.py stage \
+            --bundle-dir /tmp/strategy-publication \
+            --suite-manifest "${{ steps.suite.outputs.suite_manifest }}" \
+            --trusted-selection /tmp/trusted-selection/strategy-targets.json
+
+      - name: Upload generated data bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.invocation.outputs.publication_artifact }}
+          path: /tmp/strategy-publication/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    if: ${{ always() }}
+    needs: [select, generate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      actions: write
+      contents: write
+      issues: write
+    steps:
+      - name: Propagate upstream failure
+        if: >-
+          needs.select.result != 'success' ||
+          (needs.select.outputs.count != '0' && needs.generate.result != 'success')
+        run: |
+          echo "The trusted select or unprivileged generate job failed" >&2
+          exit 1
+
+      - uses: actions/checkout@v5
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+
+      - name: Download the trusted strategy selection independently
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.select.outputs.selection_artifact }}
+          path: /tmp/trusted-selection
+
+      - name: Resolve the trusted invocation identity
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        id: invocation
+        env:
+          EXPECTED_REPOSITORY: ${{ github.repository }}
+          EXPECTED_RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+
+          selection = json.load(open("/tmp/trusted-selection/strategy-targets.json"))
+          workflow = selection["workflow"]
+          run_id = workflow.get("runId")
+          run_attempt = workflow.get("runAttempt")
+          if (
+              workflow.get("repository") != os.environ["EXPECTED_REPOSITORY"]
+              or type(run_id) is not int
+              or run_id < 1
+              or str(run_id) != os.environ["EXPECTED_RUN_ID"]
+              or type(run_attempt) is not int
+              or run_attempt < 1
+          ):
+              raise SystemExit("selection belongs to a different workflow invocation")
+          print(f"run_id={run_id}")
+          print(f"run_attempt={run_attempt}")
+          print(f"publication_artifact=strategy-docket-{run_id}-{run_attempt}")
+          PY
+
+      - name: Download the untrusted strategy bundle
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ steps.invocation.outputs.publication_artifact }}
+          path: /tmp/strategy-publication
+
+      - name: Resolve the invocation-scoped suite from the bundle header
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        id: bundle_metadata
+        env:
+          RUN_ID: ${{ steps.invocation.outputs.run_id }}
+          RUN_ATTEMPT: ${{ steps.invocation.outputs.run_attempt }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+          import os
+          import re
+
+          manifest = json.load(open("/tmp/strategy-publication/bundle_manifest.json"))
+          value = manifest.get("suiteManifest")
+          pattern = (
+              r"records/thesis-analyst/strategy-suites/\d{4}-\d{2}-\d{2}/"
+              + rf"strategy-{re.escape(os.environ['RUN_ID'])}-"
+              + rf"a{re.escape(os.environ['RUN_ATTEMPT'])}\.json"
+          )
+          if not isinstance(value, str) or not re.fullmatch(pattern, value):
+              raise SystemExit("bundle suiteManifest is not invocation-scoped")
+          print(f"suite_manifest={value}")
+          PY
+
+      - name: Verify the GitHub-server selection witness
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ID=$(python3 -c \
+            "import json;print(json.load(open('/tmp/trusted-selection/strategy-targets.json'))['workflow']['artifactId'])")
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" \
+            > /tmp/selection-artifact-api.json
+          python3 scripts/strategy_targets.py verify-artifact \
+            --selection /tmp/trusted-selection/strategy-targets.json \
+            --artifact-json /tmp/selection-artifact-api.json
+
+      - name: Fetch pinned and current resolution ledgers
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > /tmp/selection-ledger-env
+          import json
+          selection = json.load(open("/tmp/trusted-selection/strategy-targets.json"))
+          evidence = selection["ledgerEvidence"]
+          for key in ("repository", "branch", "path", "repositoryCommit", "blobSha"):
+              print(f"{key}={evidence[key]}")
+          PY
+          source /tmp/selection-ledger-env
+          test "$(gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
+          gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$repositoryCommit" \
+            > /tmp/pinned-ledger.jsonl
+          latest_sha=$(gh api "repos/$repository/commits/$branch" --jq .sha)
+          gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$latest_sha" \
+            > /tmp/latest-ledger.jsonl
+
+      - name: Reverify the exact selected source and current open state
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        env:
+          SOURCE_SHA: ${{ needs.select.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$SOURCE_SHA" HEAD
+          git worktree add --detach /tmp/strategy-selected-source "$SOURCE_SHA"
+          (
+            cd /tmp/strategy-selected-source
+            python3 scripts/strategy_targets.py verify \
+              --selection /tmp/trusted-selection/strategy-targets.json \
+              --ledger-jsonl /tmp/pinned-ledger.jsonl
+          )
+          python3 scripts/strategy_targets.py ensure-open \
+            --selection /tmp/trusted-selection/strategy-targets.json \
+            --ledger-jsonl /tmp/latest-ledger.jsonl \
+            --checked-at-utc "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Validate and apply the entire strategy bundle
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        id: validation
+        env:
+          SUITE_MANIFEST: ${{ steps.bundle_metadata.outputs.suite_manifest }}
+        run: |
+          set -euo pipefail
+          VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          python3 scripts/strategy_publication.py validate \
+            --bundle-dir /tmp/strategy-publication \
+            --suite-manifest "$SUITE_MANIFEST" \
+            --trusted-selection /tmp/trusted-selection/strategy-targets.json \
+            --publish-validated-at-utc "$VALIDATED_AT" \
+            --apply
+          python3 scripts/strategy_targets.py persist \
+            --selection /tmp/trusted-selection/strategy-targets.json
+
+      - name: Verify custody and regenerate all strategy comparisons
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        id: regenerate
+        env:
+          SUITE_MANIFEST: ${{ steps.bundle_metadata.outputs.suite_manifest }}
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_record_chain.py records
+          while IFS= read -r -d '' root; do
+            python3 scripts/verify_custody.py "$(dirname "$root")"
+          done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+          python3 scripts/strategy_comparisons.py --all-records
+          if python3 - <<'PY'
+          import json
+          import os
+
+          suite = json.load(open(os.environ["SUITE_MANIFEST"]))
+          batches = []
+          ladder = suite["lanes"]["ladder"]
+          if ladder:
+              batches.append(ladder["batchManifest"])
+          batches.extend(row["batchManifest"] for row in suite["lanes"]["rollouts"])
+          passing = any(
+              result.get("ok") is True
+              for path in batches
+              for result in json.load(open(path))["results"]
+          ) or any(row["ok"] is True for row in suite["lanes"]["median3"])
+          raise SystemExit(0 if passing else 1)
+          PY
+          then
+            echo "published=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test and build the trusted regenerated site
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        run: |
+          cd site
+          bun install --frozen-lockfile
+          bun run test
+          bun run build
+
+      - name: Commit records and trusted generated comparisons
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-strategy-runner"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/thesis-analyst/ \
+            site/src/data/thesis-strategy-comparisons.ts
+          if git diff --cached --quiet; then
+            echo "committed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/docket_publication.py scan-staged
+          git commit -m "Publish strategy comparisons $(date -u +%F)"
+          echo "committed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Rebase, reverify, and push
+        if: steps.commit.outputs.committed == '1'
+        timeout-minutes: 45
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ needs.select.outputs.source_sha }}
+          SUITE_MANIFEST: ${{ steps.bundle_metadata.outputs.suite_manifest }}
+        run: |
+          set -euo pipefail
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          pushed=0
+          for attempt in 1 2 3; do
+            echo "strategy publication push attempt $attempt"
+            test -z "$(git status --porcelain)"
+            git pull --rebase origin main
+            git merge-base --is-ancestor "$SOURCE_SHA" HEAD
+            gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha \
+              > /tmp/latest-ledger-sha
+            gh api -H "Accept: application/vnd.github.raw+json" \
+              "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$(cat /tmp/latest-ledger-sha)" \
+              > /tmp/latest-ledger.jsonl
+            python3 scripts/strategy_targets.py ensure-open \
+              --selection /tmp/trusted-selection/strategy-targets.json \
+              --ledger-jsonl /tmp/latest-ledger.jsonl \
+              --checked-at-utc "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            python3 scripts/strategy_publication.py validate \
+              --bundle-dir /tmp/strategy-publication \
+              --suite-manifest "$SUITE_MANIFEST" \
+              --trusted-selection /tmp/trusted-selection/strategy-targets.json \
+              --publish-validated-at-utc "$VALIDATED_AT"
+            python3 scripts/strategy_comparisons.py --all-records
+            git diff --exit-code
+            git diff --cached --exit-code
+            python3 scripts/verify_record_chain.py records
+            while IFS= read -r -d '' root; do
+              python3 scripts/verify_custody.py "$(dirname "$root")"
+            done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+            (
+              cd site
+              bun install --frozen-lockfile
+              bun run test
+              bun run build
+            )
+            LOCAL=$(git rev-parse HEAD)
+            if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
+              REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+              if [ "$REMOTE" = "$LOCAL" ]; then
+                pushed=1
+                break
+              fi
+            fi
+            sleep 2
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "strategy publication push did not converge after 3 attempts" >&2
+            exit 1
+          fi
+
+      - name: Stamp the publication record
+        if: steps.commit.outputs.committed == '1' || steps.commit.outputs.committed == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MANUAL_DEPLOY_HOOK_URL: ${{ secrets.MANUAL_DEPLOY_HOOK_URL }}
+          PUBLISHED: ${{ steps.regenerate.outputs.published }}
+        run: |
+          set -euo pipefail
+          SHA=$(git rev-parse HEAD)
+          if [ "$PUBLISHED" != "1" ]; then
+            gh workflow run record-forecasts.yml --ref main
+            exit 0
+          fi
+          GOT=""
+          for i in $(seq 1 24); do
+            GOT=$(curl -sf https://app.thesisinstitute.org/build.json \
+              | python3 -c 'import json,sys;print(json.load(sys.stdin).get("commit",""))' \
+              2>/dev/null || true)
+            [ "$GOT" = "$SHA" ] && break
+            if [ "$i" = "12" ] && [ -n "$MANUAL_DEPLOY_HOOK_URL" ]; then
+              curl -sf -X POST "$MANUAL_DEPLOY_HOOK_URL" > /dev/null || true
+            fi
+            sleep 30
+          done
+          if [ "$GOT" != "$SHA" ]; then
+            echo "production never reached $SHA (canary shows: $GOT)" >&2
+            exit 1
+          fi
+          gh workflow run record-forecasts.yml --ref main -f expected_sha="$SHA"
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Strategy docket failed $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" \
+            --json number --jq '.[0].number' || true)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" \
+              --body "The strategy docket failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          fi

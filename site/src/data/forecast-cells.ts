@@ -157,6 +157,7 @@ export interface PredictionRunActivityArtifact {
   createdAt: string;
   observationRefs?: LedgerObservationReference[];
   custodyRootSha256?: string;
+  hashMode?: string;
 }
 
 export interface LedgerObservationReference {
@@ -240,6 +241,8 @@ export interface PredictionRunMetadata {
   aggregationAlgorithmVersion?: string;
   constituentRuns?: Array<{
     manifestPath: string;
+    manifestSha256?: string;
+    manifestBytes?: number;
     custodyRootSha256: string;
     runAt: string;
   }>;

@@ -25,6 +25,39 @@ timestamp; protected Git ancestry and the later RFC 3161 record witness provide
 the timing evidence. Publication accepts only data artifacts and regenerates
 all TypeScript with trusted checkout code.
 
+Prospect proposals follow the same registration boundary even though the
+proposals themselves are untrusted. The prospect workflow mines gaps and asks
+Codex for candidates in a read-only job, then a separate privileged job
+revalidates the proposal schema, denylist, registry/catalog uniqueness, and
+resolver bindability before it creates and pushes any v2 registration. Analyst
+generation checks out that exact registered SHA. Records and trusted generated
+TypeScript land together only after full bundle, chain, custody, test, and build
+validation.
+
+## Strategy comparison workflow
+
+Ladder and median-of-three comparison runs attach to existing published cells;
+they never create target registrations or forecast wave modules. Dispatch them
+through `.github/workflows/strategy-docket.yml`. Its trusted selector binds an
+open published target set to an exact source SHA and a GitHub-server-witnessed
+selection artifact. The unprivileged job runs a reviewed ladder and/or three
+independent fast rollouts, then derives median3 without another model call. The
+publisher accepts only the exact suite inventory, checks every claimed run time
+inside the witnessed select-to-publish window, verifies custody, and regenerates
+`site/src/data/thesis-strategy-comparisons.ts` from every indexed strategy
+suite on disk.
+
+New median3 records use timestamp-first run directories and custody inventory
+v2. Their custody root commits the local derived distribution and cell plus
+exactly three distinct, verified constituent custody roots. The July 8, 2026
+median records predate this contract and remain narrowly classified as
+legacy-incomplete; new publication bundles cannot use that legacy shape.
+
+Never push locally generated strategy records or a partial strategy TypeScript
+file to `main`. The CI selector and publisher are the publication authority,
+and whole-corpus regeneration prevents a later suite from dropping an earlier
+wave.
+
 ## Subscription-backed Codex run
 
 Use the native Codex path for local GPT-family runs. It follows the same

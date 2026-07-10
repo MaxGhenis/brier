@@ -73,19 +73,33 @@ After a successful run:
 4. Verify the detail page, log page, and Brier reward export if the run is
    wired into the UI.
 
-### Add Comparison Runs
+### Add comparison runs
 
-Prefer generated comparison augments:
+Strategy comparisons are published only through the dispatch-only strategy
+docket. The workflow selects open, already-published targets with trusted
+checkout code, runs the requested ladder and/or median-of-three suite without a
+write token, and lets a separate publisher validate the exact data bundle and
+regenerate the complete comparison file:
 
 ```bash
-uv run python scripts/thesis_records_to_comparisons.py \
-  site/src/data/thesis-analyst-live-comparisons.ts \
-  RECORDED_THESIS_ANALYST_COMPARISON_RUN_AUGMENTS \
-  records/thesis-analyst/YYYY-MM-DD/.../manifest.json
+gh workflow run strategy-docket.yml --ref main \
+  -f catalog_slugs=australia-cpi-annual-rate-july-2026 \
+  -f auto_select=false \
+  -f max_targets=1 \
+  -f suite=both
 ```
 
-If units differ between the live cell and the catalog target, encode the
-conversion in the generator mapping so comparisons render in the catalog unit.
+`suite=ladder` runs reviewed threshold-ladder elicitation. `suite=median3`
+runs three independent fast rollouts and derives their deterministic median
+CDF. `suite=both` runs both interventions. The selector rejects unknown,
+unpublished, resolved, and release-day targets.
+
+Do not run strategy batches locally and push their records or generated
+TypeScript to `main`. `scripts/strategy_comparisons.py` is a trusted publisher
+generator over the complete indexed strategy corpus; it is not an authority
+for bypassing the select → generate → publish boundary. If units differ
+between a run and its catalog target, encode the conversion in the trusted
+target or generator mapping so comparisons render in the catalog unit.
 
 ### Add Or Change Packs
 

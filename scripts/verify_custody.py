@@ -11,6 +11,7 @@ import re
 import stat
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -20,6 +21,17 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 INVENTORY_VERSION = 2
 INVENTORY_STATUS_COMPLETE = "complete"
 INVENTORY_STATUS_LEGACY = "legacy-incomplete"
+DERIVED_ENSEMBLE_SCHEMA = "thesis_derived_ensemble_manifest_v1"
+DERIVED_ENSEMBLE_ALGORITHM = "pointwise_median_cdf_v1"
+LEGACY_DERIVED_AT = "2026-07-08T03:03:42Z"
+LEGACY_DERIVED_DIRS = {
+    "bls-ppi-final-demand-monthly-change-june-2026-median3-2026-07-08t03-03-42z",
+    "census-housing-starts-saar-june-2026-median3-2026-07-08t03-03-42z",
+    "continued-claims-week-2026-06-27-median3-2026-07-08t03-03-42z",
+    "initial-claims-week-2026-07-04-median3-2026-07-08t03-03-42z",
+    "us-core-cpi-mom-june-2026-median3-2026-07-08t03-03-42z",
+    "us-cpi-u-mom-june-2026-median3-2026-07-08t03-03-42z",
+}
 
 ANALYST_COMPLETED_INVENTORY = {
     "prompt.md": "prompt",
@@ -186,6 +198,32 @@ def _regular_files(root: Path) -> set[str]:
             raise CustodyError(f"run contains a symlink or special file: {relative}")
         discovered.add(relative)
     return discovered
+
+
+def _repository_artifact_path(run_dir: Path, value: str) -> Path:
+    """Resolve a repository-relative cross-run reference beside ``run_dir``."""
+
+    logical = _safe_relative(value)
+    candidates = [REPOSITORY_ROOT.joinpath(*logical.parts)]
+    candidates.extend(
+        ancestor.parent.joinpath(*logical.parts)
+        for ancestor in run_dir.parents
+        if ancestor.name == "records"
+    )
+    for candidate in candidates:
+        if candidate.is_file() and not candidate.is_symlink():
+            return candidate
+    raise CustodyError(f"referenced repository artifact is missing: {value}")
+
+
+def _instant(value: Any, label: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise CustodyError(f"invalid {label}: {value!r}") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise CustodyError(f"{label} lacks a UTC offset: {value!r}")
+    return parsed.astimezone(timezone.utc)
 
 
 def _required(entries: list[dict[str, Any]], required: dict[str, str]) -> None:
@@ -611,16 +649,313 @@ def _verify_ledger_witness_v2(
         )
 
 
+def _verified_constituent_runs(
+    run_dir: Path,
+    manifest: dict[str, Any],
+    references: Any,
+    *,
+    require_complete: bool,
+) -> list[dict[str, Any]]:
+    if (
+        not isinstance(references, list)
+        or len(references) != 3
+        or not all(isinstance(reference, dict) for reference in references)
+    ):
+        raise CustodyError("derived ensemble requires exactly 3 constituent runs")
+    paths: set[str] = set()
+    roots: set[str] = set()
+    normalized: list[dict[str, Any]] = []
+    target = manifest.get("targetContext")
+    for reference in references:
+        logical = _safe_relative(str(reference.get("manifestPath") or "")).as_posix()
+        root_sha = str(reference.get("custodyRootSha256") or "")
+        manifest_sha = str(reference.get("manifestSha256") or "")
+        manifest_bytes = reference.get("manifestBytes")
+        if (
+            logical in paths
+            or root_sha in roots
+            or not re.fullmatch(r"[0-9a-f]{64}", root_sha)
+            or not re.fullmatch(r"[0-9a-f]{64}", manifest_sha)
+            or type(manifest_bytes) is not int
+            or manifest_bytes < 1
+        ):
+            raise CustodyError(
+                "derived ensemble requires 3 distinct, fully hashed constituent roots"
+            )
+        parent_path = _repository_artifact_path(run_dir, logical)
+        raw = parent_path.read_bytes()
+        if _sha256(raw) != manifest_sha or len(raw) != manifest_bytes:
+            raise CustodyError(f"constituent manifest integrity mismatch: {logical}")
+        parent = _load_object(parent_path)
+        if parent.get("custodyRootSha256") != root_sha:
+            raise CustodyError(f"constituent custody root mismatch: {logical}")
+        verification = verify_run(parent_path.parent)
+        if verification.run_mode != "analyst" or not verification.run_succeeded:
+            raise CustodyError(
+                f"constituent is not a successful analyst run: {logical}"
+            )
+        if (
+            require_complete
+            and verification.inventory_status != INVENTORY_STATUS_COMPLETE
+        ):
+            raise CustodyError(f"constituent is not a complete v2 run: {logical}")
+        if parent.get("promptMode") != "fast" or canonical_bytes(
+            parent.get("targetContext")
+        ) != canonical_bytes(target):
+            raise CustodyError(f"constituent target or prompt mode mismatch: {logical}")
+        parent_cells_path = _repository_artifact_path(
+            run_dir, str(parent.get("cellsPath") or "")
+        )
+        try:
+            parent_cells = json.loads(parent_cells_path.read_bytes())
+        except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+            raise CustodyError(f"invalid constituent cells: {logical}: {exc}") from exc
+        if not isinstance(parent_cells, list) or len(parent_cells) != 1:
+            raise CustodyError(f"constituent must contain exactly one cell: {logical}")
+        parent_run_at = str(parent_cells[0].get("runAt") or "")
+        if reference.get("runAt") != parent_run_at:
+            raise CustodyError(f"constituent runAt mismatch: {logical}")
+        paths.add(logical)
+        roots.add(root_sha)
+        normalized.append({**reference, "manifestPath": logical})
+    return normalized
+
+
+def _verify_derived_ensemble_v2(
+    run_dir: Path,
+    manifest: dict[str, Any],
+    entries: list[dict[str, Any]],
+    custody: dict[str, Any],
+) -> None:
+    if (
+        manifest.get("schemaVersion") != DERIVED_ENSEMBLE_SCHEMA
+        or manifest.get("aggregationAlgorithmVersion") != DERIVED_ENSEMBLE_ALGORITHM
+        or manifest.get("promptMode") != "median3"
+        or manifest.get("ok") is not True
+    ):
+        raise CustodyError("invalid derived ensemble manifest contract")
+    if manifest.get("createdAt") != manifest.get("runStartedAt"):
+        raise CustodyError("derived manifest createdAt/runStartedAt mismatch")
+    target = manifest.get("targetContext")
+    if not isinstance(target, dict) or any(
+        canonical_bytes(manifest.get(field)) != canonical_bytes(target.get(field))
+        for field in ("series", "period")
+    ):
+        raise CustodyError("derived manifest target identity mismatch")
+    if (
+        _manifest_relative(
+            run_dir, str(manifest.get("cellsPath") or ""), legacy=False
+        )
+        != "cells.with_activity.json"
+    ):
+        raise CustodyError("derived manifest cellsPath is outside its run")
+    actual_inventory = [
+        (str(entry["artifactType"]), str(entry["path"])) for entry in entries
+    ]
+    if actual_inventory != [
+        ("derived_distribution", "distribution.json"),
+        ("cells_with_activity", "cells.with_activity.json"),
+    ]:
+        raise CustodyError("derived ensemble has an invalid local artifact inventory")
+
+    references = _verified_constituent_runs(
+        run_dir,
+        manifest,
+        manifest.get("constituentRuns"),
+        require_complete=True,
+    )
+    if canonical_bytes(custody.get("constituentCustodyRoots")) != canonical_bytes(
+        references
+    ):
+        raise CustodyError("custody root constituent chain differs from manifest")
+    if manifest.get("constituentManifests") != [
+        reference["manifestPath"] for reference in references
+    ]:
+        raise CustodyError("derived constituent manifest list is inconsistent")
+
+    start = _instant(manifest.get("runStartedAt"), "derived runStartedAt")
+    for reference in references:
+        if _instant(reference.get("runAt"), "constituent runAt") > start:
+            raise CustodyError("derived run starts before a constituent was sealed")
+
+    cells_path = run_dir / "cells.with_activity.json"
+    distribution_path = run_dir / "distribution.json"
+    try:
+        cells = json.loads(cells_path.read_bytes())
+        distribution = json.loads(distribution_path.read_bytes())
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CustodyError(f"invalid derived JSON artifact: {exc}") from exc
+    if not isinstance(cells, list) or len(cells) != 1 or not isinstance(cells[0], dict):
+        raise CustodyError("derived cells payload must contain exactly one cell")
+    cell = cells[0]
+    if (
+        cell.get("runStartedAt") != manifest.get("runStartedAt")
+        or _instant(cell.get("runAt"), "derived cell runAt") < start
+        or cell.get("aggregationAlgorithmVersion") != DERIVED_ENSEMBLE_ALGORITHM
+        or canonical_bytes(cell.get("constituentRuns")) != canonical_bytes(references)
+        or cell.get("slug") != (manifest.get("targetContext") or {}).get("catalogSlug")
+    ):
+        raise CustodyError("derived cell metadata differs from its manifest")
+    for field in (
+        "registrationCommit",
+        "targetContentHash",
+        "targetRegistrationPath",
+        "registeredAtUtc",
+    ):
+        target_value = (manifest.get("targetContext") or {}).get(field)
+        if target_value not in (None, "") and (
+            manifest.get(field) != target_value or cell.get(field) != target_value
+        ):
+            raise CustodyError(f"derived registration binding mismatch: {field}")
+
+    summary = distribution.get("summary") if isinstance(distribution, dict) else None
+    interval = summary.get("interval80") if isinstance(summary, dict) else None
+    if (
+        distribution.get("format") != "numeric_cdf_v1"
+        or not isinstance(interval, dict)
+        or canonical_bytes(summary.get("pointEstimate"))
+        != canonical_bytes(cell.get("pointEstimate"))
+        or canonical_bytes(interval.get("lower")) != canonical_bytes(cell.get("ciLow"))
+        or canonical_bytes(interval.get("upper")) != canonical_bytes(cell.get("ciHigh"))
+    ):
+        raise CustodyError("derived distribution summary differs from its cell")
+
+    activity = cell.get("activityLog")
+    if not isinstance(activity, list) or len(activity) != 4:
+        raise CustodyError(
+            "derived activity log must expose 3 parents and distribution"
+        )
+    for activity_ref, reference in zip(activity[:3], references):
+        expected = {
+            "artifactType": "constituent_manifest",
+            "path": reference["manifestPath"],
+            "sha256": reference["manifestSha256"],
+            "bytes": reference["manifestBytes"],
+            "custodyRootSha256": reference["custodyRootSha256"],
+            "createdAt": manifest["runStartedAt"],
+        }
+        if canonical_bytes(activity_ref) != canonical_bytes(expected):
+            raise CustodyError("derived activity log has a mismatched constituent")
+    distribution_ref = next(
+        ref
+        for ref in manifest["artifacts"]
+        if ref.get("artifactType") == "derived_distribution"
+    )
+    if canonical_bytes(activity[3]) != canonical_bytes(distribution_ref):
+        raise CustodyError("derived activity log has a mismatched distribution")
+
+
+def _verify_legacy_derived_without_root(
+    run_dir: Path, manifest: dict[str, Any]
+) -> CustodyVerification:
+    """Verify the six immutable July-8 median runs as incomplete legacy data."""
+
+    if (
+        manifest.get("schemaVersion") != DERIVED_ENSEMBLE_SCHEMA
+        or manifest.get("createdAt") != LEGACY_DERIVED_AT
+        or manifest.get("promptMode") != "median3"
+        or manifest.get("aggregationAlgorithmVersion")
+        not in {None, DERIVED_ENSEMBLE_ALGORITHM}
+        or manifest.get("ok") is not True
+        or manifest.get("runMode") is not None
+        or manifest.get("custodyInventoryVersion") is not None
+        or manifest.get("custodyRootSha256") is not None
+        or run_dir.parent.name != "2026-07-08"
+        or run_dir.name not in LEGACY_DERIVED_DIRS
+    ):
+        raise CustodyError(f"missing custody root: {run_dir / 'custody_root.json'}")
+    discovered = _regular_files(run_dir)
+    expected_files = {"cells.with_activity.json", "distribution.json", "manifest.json"}
+    if discovered != expected_files:
+        raise CustodyError("legacy derived run has an unexpected file inventory")
+    references = manifest.get("constituentManifests")
+    artifacts = manifest.get("artifacts")
+    if (
+        not isinstance(references, list)
+        or len(references) != 3
+        or len(set(references)) != 3
+        or not isinstance(artifacts, list)
+        or len(artifacts) != 4
+    ):
+        raise CustodyError("legacy derived run has an invalid constituent inventory")
+    parent_entries = [
+        entry
+        for entry in artifacts
+        if isinstance(entry, dict)
+        and entry.get("artifactType") == "constituent_manifest"
+    ]
+    distribution_entries = [
+        entry
+        for entry in artifacts
+        if isinstance(entry, dict)
+        and entry.get("artifactType") == "derived_distribution"
+    ]
+    if [entry.get("path") for entry in parent_entries] != references or len(
+        distribution_entries
+    ) != 1:
+        raise CustodyError("legacy derived artifacts do not match constituent list")
+    parent_hashes: set[str] = set()
+    for entry in parent_entries:
+        parent_path = _repository_artifact_path(run_dir, str(entry["path"]))
+        raw = parent_path.read_bytes()
+        if _sha256(raw) != entry.get("sha256") or len(raw) != entry.get("bytes"):
+            raise CustodyError("legacy constituent manifest integrity mismatch")
+        parent_hashes.add(str(entry.get("sha256")))
+    if len(parent_hashes) != 3:
+        raise CustodyError("legacy derived run lacks 3 distinct constituent manifests")
+    distribution_path = _repository_artifact_path(
+        run_dir, str(distribution_entries[0]["path"])
+    )
+    raw_distribution = distribution_path.read_bytes()
+    if (
+        distribution_path.parent != run_dir
+        or _sha256(raw_distribution) != distribution_entries[0].get("sha256")
+        or len(raw_distribution) != distribution_entries[0].get("bytes")
+    ):
+        raise CustodyError("legacy derived distribution integrity mismatch")
+    cells_path = _repository_artifact_path(
+        run_dir, str(manifest.get("cellsPath") or "")
+    )
+    try:
+        cells = json.loads(cells_path.read_bytes())
+        distribution = json.loads(raw_distribution)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CustodyError(f"invalid legacy derived JSON: {exc}") from exc
+    if not isinstance(cells, list) or len(cells) != 1:
+        raise CustodyError("legacy derived cells must contain exactly one cell")
+    summary = distribution.get("summary") or {}
+    interval = summary.get("interval80") or {}
+    cell = cells[0]
+    if (
+        cell.get("runAt") != LEGACY_DERIVED_AT
+        or cell.get("aggregationAlgorithmVersion")
+        not in {None, DERIVED_ENSEMBLE_ALGORITHM}
+        or canonical_bytes(cell.get("pointEstimate"))
+        != canonical_bytes(summary.get("pointEstimate"))
+        or canonical_bytes(cell.get("ciLow")) != canonical_bytes(interval.get("lower"))
+        or canonical_bytes(cell.get("ciHigh")) != canonical_bytes(interval.get("upper"))
+    ):
+        raise CustodyError("legacy derived cells differ from distribution")
+    return CustodyVerification(
+        run_mode="derived_ensemble",
+        custody_inventory_version=1,
+        inventory_status=INVENTORY_STATUS_LEGACY,
+        custody_root_sha256=_sha256((run_dir / "manifest.json").read_bytes()),
+        artifact_count=len(artifacts),
+        run_succeeded=True,
+    )
+
+
 def verify_run(run_dir: Path) -> CustodyVerification:
     run_dir = run_dir.resolve()
     root_path = run_dir / "custody_root.json"
     manifest_path = run_dir / "manifest.json"
-    if not root_path.is_file():
-        raise CustodyError(f"missing custody root: {root_path}")
     if not manifest_path.is_file():
         raise CustodyError(f"missing manifest: {manifest_path}")
-    custody = _load_object(root_path)
     manifest = _load_object(manifest_path)
+    if not root_path.is_file():
+        return _verify_legacy_derived_without_root(run_dir, manifest)
+    custody = _load_object(root_path)
     if custody.get("schemaVersion") != "thesis_custody_root_v1":
         raise CustodyError(
             f"unsupported custody schema: {custody.get('schemaVersion')!r}"
@@ -843,10 +1178,10 @@ def verify_run(run_dir: Path) -> CustodyVerification:
             _verify_resolver_v2(run_dir, manifest, normalized_entries)
         elif run_mode == "ledger_witness":
             _verify_ledger_witness_v2(run_dir, manifest, normalized_entries)
+        elif run_mode == "derived_ensemble":
+            _verify_derived_ensemble_v2(run_dir, manifest, normalized_entries, custody)
         else:
-            raise CustodyError(
-                "derived ensembles do not yet have a complete v2 custody inventory"
-            )
+            raise CustodyError(f"unsupported custody run mode: {run_mode}")
 
     return CustodyVerification(
         run_mode=run_mode,
@@ -857,10 +1192,13 @@ def verify_run(run_dir: Path) -> CustodyVerification:
         custody_root_sha256=actual_root_sha,
         artifact_count=len(entries),
         run_succeeded=(
-            run_mode == "analyst"
-            and manifest.get("ok") is True
-            and isinstance(manifest.get("validation"), dict)
-            and manifest["validation"].get("ok") is True
+            (
+                run_mode == "analyst"
+                and manifest.get("ok") is True
+                and isinstance(manifest.get("validation"), dict)
+                and manifest["validation"].get("ok") is True
+            )
+            or (run_mode == "derived_ensemble" and manifest.get("ok") is True)
         ),
     )
 
