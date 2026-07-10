@@ -15,7 +15,7 @@
     {"series": "bea.core_pce.mom", "cadence": "monthly", "slug": "us-core-pce-mom-{month}-{year}"},
     {"series": "treasury.mts.monthly_deficit", "cadence": "monthly", "slug": "us-mts-deficit-{month}-{year}"},
     {"series": "fns.wic.total_participation", "cadence": "monthly", "slug": "wic-participation-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
-    {"series": "fns.snap.total_persons", "cadence": "monthly", "slug": "snap-participation-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
+    {"series": "fns.snap.total_persons", "cadence": "monthly", "slug": "snap-participation-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions", "sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap", "sourceSeriesId": "fns.snap.total_persons", "field": "Persons", "table": "FNS SNAP data tables, national monthly participation (thousands)", "transform": {"operation": "multiply", "factor": 0.001}, "releasePolicy": "first_print"}}},
     {"series": "ssa.ssi.total_recipients", "cadence": "monthly", "slug": "ssi-recipients-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
 
     {"series": "eurostat.hicp.flash.yoy", "cadence": "monthly", "slug": "euro-flash-hicp-{month}-{year}"},

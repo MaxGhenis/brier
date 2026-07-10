@@ -411,7 +411,9 @@ def append_generated_targets(
 
 
 def register(
-    targets_path: pathlib.Path, registration_date: dt.date
+    targets_path: pathlib.Path,
+    registration_date: dt.date,
+    skip_unbindable: bool = False,
 ) -> tuple[pathlib.Path, str, dict[str, Any]]:
     payload = json.loads(targets_path.read_text())
     targets = payload.get("targets") if isinstance(payload, dict) else None
@@ -419,6 +421,28 @@ def register(
         isinstance(row, dict) for row in targets
     ):
         raise RegistrationError("targets file must contain an object-list 'targets'")
+    if skip_unbindable:
+        # A docket roll should register every bindable target rather than
+        # abort the whole wave on the first series that cannot yet be bound
+        # independently. Skipped targets stay OUT of the targets file (the
+        # analyst must never run an unregistered target) and are reported
+        # loudly so their series get bindings.
+        bindable: list[dict[str, Any]] = []
+        for target in targets:
+            try:
+                build_contract(target, registration_date)
+            except RegistrationError as exc:
+                print(
+                    "skipping unbindable target "
+                    f"{target.get('catalogSlug', target.get('series', '?'))}: {exc}",
+                    file=sys.stderr,
+                )
+                continue
+            bindable.append(target)
+        if not bindable:
+            raise RegistrationError("no bindable targets in this roll")
+        targets = bindable
+        payload["targets"] = targets
     snapshot = build_snapshot(targets, registration_date)
     content_hash = canonical_sha256(snapshot)
     relative = (
@@ -458,9 +482,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--targets-file", type=pathlib.Path, required=True)
     parser.add_argument("--date", default=dt.date.today().isoformat())
+    parser.add_argument("--skip-unbindable", action="store_true")
     args = parser.parse_args()
     try:
-        path, content_hash, snapshot = register(args.targets_file, _iso_date(args.date))
+        path, content_hash, snapshot = register(
+            args.targets_file, _iso_date(args.date), args.skip_unbindable
+        )
     except (
         OSError,
         KeyError,
