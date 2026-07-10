@@ -10,7 +10,7 @@ export interface LedgerAvailabilityRow {
   custody: "append_derived" | "rewritten_in_place";
 }
 
-export const LEDGER_AVAILABILITY_HEAD_SHA = "3d57d86fd12bd9b447d118e4c43c4f34e9ed23d2";
+export const LEDGER_AVAILABILITY_HEAD_SHA = "47ca684cae6bda2b1faab5122af78b5ae255e015";
 export const LEDGER_LEGACY_QUARANTINE_LINE_COUNT = 128;
 
 export const LEDGER_AVAILABILITY: readonly LedgerAvailabilityRow[] = [
