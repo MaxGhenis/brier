@@ -300,3 +300,20 @@ def test_merge_rejects_duplicate_variant_ids() -> None:
             {"first": [run("duplicate")]},
             {"second": [run("duplicate", "2030-01-02T00:00:00Z")]},
         )
+
+
+def test_model_lane_stats_regeneration_is_byte_identical(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Same publisher-defaults discipline as the comparisons module: the
+    # committed stats must equal a fresh regeneration from records.
+    rows = strategy.build_model_lane_stats()
+    output = tmp_path / "model-lane-stats.generated.ts"
+    strategy.write_model_lane_stats(output, rows)
+    assert output.read_bytes() == strategy.MODEL_LANE_STATS_OUT.read_bytes()
+
+    for row in rows:
+        assert 0 <= row["passed"] <= row["attempted"]
+    assert rows == sorted(
+        rows, key=lambda row: (row["model"], row["lane"])
+    )

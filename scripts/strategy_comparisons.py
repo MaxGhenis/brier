@@ -46,6 +46,7 @@ sys.path.insert(0, str(SCRIPTS))
 from thesis_records_to_comparisons import (  # noqa: E402
     comparison_run,
     effective_scale,
+    infer_runtime_model,
     repo_path,
     scaled,
     unsign_zero,
@@ -77,6 +78,152 @@ def write_strategy_ts(out_path: pathlib.Path, augments: dict) -> None:
         "  ForecastComparisonRun[]\n"
         f"> = {body};\n"
     )
+
+MODEL_LANE_STATS_OUT = (
+    ROOT / "site" / "src" / "data" / "model-lane-stats.generated.ts"
+)
+
+
+def _batch_model(batch: dict[str, Any]) -> str | None:
+    for result in batch.get("results", []):
+        manifest_path = result.get("manifestPath")
+        if not manifest_path:
+            continue
+        manifest = json.loads(repo_path(manifest_path).read_text())
+        model = infer_runtime_model(manifest)
+        if not model:
+            agent = manifest.get("agent") or {}
+            model = agent.get("model")
+        if model:
+            return str(model)
+    return None
+
+
+def build_model_lane_stats(
+    *,
+    legacy_index: pathlib.Path = LEGACY_INDEX,
+    suites_root: pathlib.Path = SUITES_ROOT,
+) -> list[dict[str, Any]]:
+    """Per-(model, lane) rubric pass counts, derived only from records.
+
+    A lane is the batch's promptMode (fast / ladder / ladder_v2) plus the
+    suite-level median3 derivation. attempted counts every recorded run in
+    the lane; passed counts runs whose sealed validation succeeded (only
+    those become comparison rows). Failed medians live in suite manifests
+    (ok=false rows), so they count as attempted too.
+    """
+
+    tally: dict[tuple[str, str], list[int]] = {}
+
+    def bump(model: str | None, lane: str, *, attempted: int, passed: int) -> None:
+        if not model or not attempted:
+            return
+        row = tally.setdefault((model, lane), [0, 0])
+        row[0] += attempted
+        row[1] += passed
+
+    def bump_batch(batch_path: pathlib.Path) -> None:
+        batch = json.loads(repo_path(str(batch_path)).read_text())
+        results = batch.get("results", [])
+        bump(
+            _batch_model(batch),
+            str(batch.get("promptMode") or "?"),
+            attempted=len(results),
+            passed=sum(1 for result in results if result.get("ok") is True),
+        )
+
+    for wave in load_legacy_waves(legacy_index):
+        bump_batch(pathlib.Path(wave["ladderBatch"]))
+        for path in wave["rolloutBatches"]:
+            bump_batch(pathlib.Path(path))
+        medians = [
+            json.loads(repo_path(str(path)).read_text())
+            for path in wave["medianManifests"]
+        ]
+        for manifest in medians:
+            model = infer_runtime_model(manifest) or (
+                (manifest.get("agent") or {}).get("model")
+            )
+            bump(str(model) if model else None, "median3", attempted=1, passed=1)
+
+    if suites_root.exists():
+        for path in sorted(suites_root.glob("????-??-??/strategy-*-a*.json")):
+            suite = json.loads(path.read_text())
+            if suite.get("schemaVersion") != SUITE_SCHEMA:
+                continue
+            lanes = suite.get("lanes") or {}
+            ladder = lanes.get("ladder")
+            suite_model: str | None = None
+            if isinstance(ladder, dict) and ladder.get("batchManifest"):
+                batch = json.loads(
+                    repo_path(str(ladder["batchManifest"])).read_text()
+                )
+                suite_model = _batch_model(batch)
+                results = batch.get("results", [])
+                bump(
+                    suite_model,
+                    str(batch.get("promptMode") or "ladder"),
+                    attempted=len(results),
+                    passed=sum(
+                        1 for result in results if result.get("ok") is True
+                    ),
+                )
+            for row in lanes.get("rollouts") or []:
+                if not isinstance(row, dict) or not row.get("batchManifest"):
+                    continue
+                batch = json.loads(
+                    repo_path(str(row["batchManifest"])).read_text()
+                )
+                suite_model = suite_model or _batch_model(batch)
+                results = batch.get("results", [])
+                bump(
+                    _batch_model(batch),
+                    str(batch.get("promptMode") or "fast"),
+                    attempted=len(results),
+                    passed=sum(
+                        1 for result in results if result.get("ok") is True
+                    ),
+                )
+            median_rows = [
+                row
+                for row in (lanes.get("median3") or [])
+                if isinstance(row, dict)
+            ]
+            bump(
+                suite_model,
+                "median3",
+                attempted=len(median_rows),
+                passed=sum(1 for row in median_rows if row.get("ok") is True),
+            )
+
+    return [
+        {
+            "model": model,
+            "lane": lane,
+            "attempted": attempted,
+            "passed": passed,
+        }
+        for (model, lane), (attempted, passed) in sorted(tally.items())
+    ]
+
+
+def write_model_lane_stats(
+    out_path: pathlib.Path, rows: list[dict[str, Any]]
+) -> None:
+    body = json.dumps(rows, indent=2, ensure_ascii=True)
+    out_path.write_text(
+        "// Generated by scripts/strategy_comparisons.py from recorded\n"
+        "// strategy-lane batch and suite manifests: per-(model, lane) trace\n"
+        "// rubric pass counts. Regenerate; do not hand-edit.\n"
+        "export interface ModelLaneStat {\n"
+        "  model: string;\n"
+        "  lane: string;\n"
+        "  attempted: number;\n"
+        "  passed: number;\n"
+        "}\n\n"
+        f"export const MODEL_LANE_STATS: ModelLaneStat[] = {body};\n"
+    )
+
 
 POINT_COUNT = 201
 MEDIAN3_ALGORITHM_VERSION = "pointwise_median_cdf_v1"
@@ -561,6 +708,9 @@ def main() -> int:
     write_strategy_ts(args.out, augments)
     total = sum(len(runs) for runs in augments.values())
     print(f"wrote {total} strategy runs across {len(augments)} cells -> {args.out}")
+    stats = build_model_lane_stats()
+    write_model_lane_stats(MODEL_LANE_STATS_OUT, stats)
+    print(f"wrote {len(stats)} model-lane stat rows -> {MODEL_LANE_STATS_OUT}")
     return 0
 
 

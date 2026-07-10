@@ -12,7 +12,8 @@ export function Header({
     | "forecasts"
     | "packs"
     | "log"
-    | "calibration";
+    | "calibration"
+    | "models";
 }) {
   return (
     <header
@@ -129,6 +130,21 @@ export function Header({
             }
           >
             Log
+          </Link>
+          <Link
+            href="/models"
+            className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
+              activePage === "models"
+                ? "text-[#A94E80]"
+                : "text-[var(--theme-text-muted)]"
+            }`}
+            style={
+              activePage !== "models"
+                ? { color: "var(--theme-text-muted)" }
+                : undefined
+            }
+          >
+            Models
           </Link>
           <Link
             href="/calibration"

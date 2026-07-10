@@ -588,7 +588,8 @@ jobs:
           git config user.name "thesis-strategy-runner"
           git config user.email "recorder@thesisinstitute.org"
           git add records/thesis-analyst/ \
-            site/src/data/thesis-strategy-comparisons.ts
+            site/src/data/thesis-strategy-comparisons.ts \
+            site/src/data/model-lane-stats.generated.ts
           if git diff --cached --quiet; then
             echo "committed=0" >> "$GITHUB_OUTPUT"
             exit 0
