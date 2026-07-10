@@ -39,7 +39,9 @@ The committed migration defines the target architecture directly:
   `artifact_refs`;
 - review and judge diagnostics: `review_runs`, `judge_runs`;
 - resolution and learning records: `resolution_events`, `scores`;
-- integrity records: `audit_events`.
+- integrity records: `audit_events`, `thesis_audit_chain_head`,
+  `thesis_projection_generations`, and
+  `thesis_projection_active_generation`.
 
 The migration is append-only by default, enables public read policies with
 artifact visibility checks, and records insert audit events for public-state
@@ -60,7 +62,9 @@ normalize forecast cells, but the database surface is target-first.
 
 - Clean target records are generated in
   `site/src/data/thesis-target-architecture.ts`.
-- `/forecasts/targets.json` and `/targets.json` expose a small manifest.
+- `/forecasts/targets.json` and `/targets.json` expose the projection root
+  manifest, including source commit, builder version, canonical per-chunk
+  hashes, per-table commitments, and one projection root.
 - `/log.json` exposes the `thesis_log_v3` manifest; the complete entries,
   specs, runs, and scores are canonical-hashed chunks under `/log/{table}/`.
 - Per-table exports are available under `/forecasts/targets/{table}.json`.
@@ -70,11 +74,17 @@ normalize forecast cells, but the database surface is target-first.
 ## Cutover Steps
 
 1. Pick or create the Thesis Supabase project and link the repo to that project.
-2. Apply `site/supabase/migrations/20260629_thesis_target_architecture.sql`.
-3. Generate the current projection and backfill SQL from forecast cells and
-   ledger records.
-4. Load the SQL backfill into the linked database.
-5. Verify table counts against the projection manifest.
+2. Apply `site/supabase/migrations/20260629_thesis_target_architecture.sql`,
+   followed by
+   `site/supabase/migrations/20260710_verifiable_projection_snapshots.sql`.
+3. Verify the complete site publication without opening the database:
+   `python3 scripts/ingest_target_architecture.py --dry-run`.
+4. Run the snapshot ingest with a service-role database URL. It downloads all
+   chunks before connecting, verifies their root binding and canonical hashes,
+   loads a staging schema in one transaction, checks canonical row equality,
+   and atomically activates the new schema.
+5. Run the same command with `--verify`; row-digest or typed-value drift must
+   exit nonzero. Row counts alone are not an integrity check.
 6. Cut new forecast, review, judge, resolution, and score writers over to
    append to the database and artifact store first.
 7. Generate site TypeScript and JSON exports from the database/artifact records.

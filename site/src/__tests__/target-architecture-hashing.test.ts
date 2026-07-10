@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { sha256Hex } from "@/data/canonical-json";
 import {
@@ -10,6 +11,12 @@ import { THESIS_TARGET_LEDGER } from "@/data/ledger-targets";
 import { buildRecordedPredictionRunId } from "@/data/prediction-specs";
 import { buildTargetArchitectureProjection } from "@/data/thesis-target-architecture";
 import {
+  buildTargetArchitectureChunkExport,
+  buildTargetArchitectureChunkHashPayload,
+  buildTargetArchitectureManifest,
+  buildTargetArchitectureRootPayload,
+} from "@/data/thesis-target-architecture-export";
+import {
   buildScoreId,
   buildPredictionResolutionEvents,
   scoreResolvedForecastRun,
@@ -19,6 +26,97 @@ import {
 const FULL_DIGEST = /^[0-9a-f]{64}$/;
 
 describe("target architecture hashing", () => {
+  it("commits every canonical chunk and table manifest into one root", () => {
+    const projection = buildTargetArchitectureProjection([FORECAST_CELLS[0]]);
+    const manifest = buildTargetArchitectureManifest(projection, {
+      sourceCommit: "0123456789abcdef0123456789abcdef01234567",
+    });
+
+    expect(manifest.schemaVersion).toBe(
+      "thesis_target_architecture_manifest_v2",
+    );
+    expect(manifest.projectionRootSha256).toBe(
+      sha256Hex(buildTargetArchitectureRootPayload(manifest)),
+    );
+    for (const table of manifest.tables) {
+      const { sha256, ...tablePayload } = table;
+      expect(sha256).toBe(sha256Hex(tablePayload));
+      for (const reference of table.chunks) {
+        const chunk = buildTargetArchitectureChunkExport(
+          projection,
+          table.table,
+          reference.index,
+          manifest,
+        );
+        expect(chunk.projectionRootSha256).toBe(manifest.projectionRootSha256);
+        expect(reference.sha256).toBe(
+          sha256Hex(buildTargetArchitectureChunkHashPayload(chunk)),
+        );
+      }
+    }
+
+    const otherCommit = buildTargetArchitectureManifest(projection, {
+      sourceCommit: "ffffffffffffffffffffffffffffffffffffffff",
+    });
+    expect(otherCommit.projectionRootSha256).not.toBe(
+      manifest.projectionRootSha256,
+    );
+  });
+
+  it("hashes every chunk of a table larger than the chunk boundary", () => {
+    const projection = buildTargetArchitectureProjection([FORECAST_CELLS[0]]);
+    const template = projection.targets[0];
+    projection.targets = Array.from({ length: 10_001 }, (_, index) => ({
+      ...template,
+      targetId: `target.synthetic.${index}`,
+      slug: `synthetic-${index}`,
+      dataPointId: `synthetic.${index}`,
+    }));
+    projection.counts.targets = projection.targets.length;
+
+    const manifest = buildTargetArchitectureManifest(projection, {
+      sourceCommit: "0123456789abcdef0123456789abcdef01234567",
+    });
+    const targets = manifest.tables.find((table) => table.table === "targets");
+
+    expect(targets?.chunkCount).toBe(2);
+    expect(targets?.chunks.map((chunk) => chunk.rowCount)).toEqual([10_000, 1]);
+    expect(targets?.chunks[0].sha256).not.toBe(targets?.chunks[1].sha256);
+  });
+
+  it("uses the shared canonical row digest parity vector", () => {
+    const row = {
+      alpha: 1,
+      items: [true, null, 1e-7],
+      nested: { "😀": "astral", "\uffff": "bmp" },
+      timestamp: "2026-07-09T12:34:56Z",
+    };
+
+    expect(sha256Hex(row)).toBe(
+      "e199cead09a282ee400e6dc9c5ab8b4c12822b75d25bc2fc84bc1a6652528402",
+    );
+  });
+
+  it("defines an atomic generation pointer and locked audit-chain head", () => {
+    const sql = readFileSync(
+      `${process.cwd()}/supabase/migrations/20260710_verifiable_projection_snapshots.sql`,
+      "utf8",
+    );
+
+    expect(sql).toContain("create table if not exists thesis_audit_chain_head");
+    expect(sql).toContain("chain_sequence bigint");
+    expect(sql).toContain("where singleton\n    for update");
+    expect(sql).toContain("last_sequence + 1");
+    expect(sql).not.toContain("order by event_time desc");
+    expect(sql).toContain(
+      "create table if not exists thesis_projection_generations",
+    );
+    expect(sql).toContain(
+      "create table if not exists thesis_projection_active_generation",
+    );
+    expect(sql).toContain("thesis_projection_generations_append_only");
+  });
+
   it("builds a synthetic catalog at three times today's target count", () => {
     const template = FORECAST_CELLS[0];
     const syntheticCatalog = Array.from(

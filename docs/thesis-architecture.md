@@ -382,8 +382,11 @@ Core tables:
   `qualityGateResultId`; optional `runId`, `targetVersionId`, `packVersionId`,
   or `judgeRunId`; gate ID; pass/fail status; findings; artifact reference.
 - `audit_events`: hash-chained append-only audit log for every mutation and
-  derived export. Primary key `auditEventId`; subject type; subject ID; event
-  kind; actor; parent hash; payload hash; artifact reference; timestamp.
+  derived export. A locked singleton head allocates a monotonically increasing
+  sequence before each insert, so bulk rows cannot fork the chain when their
+  transaction-stable timestamps match. Primary key `auditEventId`; chain
+  sequence; subject type; subject ID; event kind; actor; parent hash; payload
+  hash; artifact reference; timestamp.
 - `artifact_refs`: content-addressed references to prompts, command logs, model
   event streams, source snapshots, normalized JSON, validation reports, review
   outputs, judge outputs, and resolution proofs. Primary key `artifactRefId`;
@@ -411,6 +414,44 @@ not Python's Unicode-code-point order. This distinction matters for
 astral-plane keys. Custody records retain both the raw-byte SHA-256 (proof of
 the exact stored file) and, for JSON files, the canonical-JSON SHA-256
 (cross-language content identity).
+
+### Verifiable projection replica
+
+`/targets.json` is the root manifest for the target-architecture projection.
+It commits the builder version, `VERCEL_GIT_COMMIT_SHA`, and every per-table
+manifest. Each table manifest commits the canonical-JSON SHA-256 of every row
+chunk. Every chunk names the same projection root, preventing a deployment
+change during download from producing a mixed-generation input. To avoid a
+circular commitment, the chunk digest covers the complete canonical chunk
+except its `projectionRootSha256` reference; the manifest declares this hash
+semantic explicitly.
+
+The Supabase copy is a replica, not a second source of truth. The ingest first
+downloads and verifies the root and every chunk, then loads a fresh staging
+schema in one database transaction. It compares canonical per-row digest
+multisets and each typed database value with the downloaded logical rows before
+atomically renaming the staged schema to `thesis_projection_active`. The
+active tables retain the committed logical payload, digest, and projected key
+set in `_projection_*` verification columns alongside the typed replica row.
+The `thesis_projection_active_generation` singleton exposes the root currently
+served by that schema, while `thesis_projection_generations` retains an
+append-only history of root hash, source commit, builder version, row counts,
+and ingest time.
+
+A third party can therefore corroborate the site's state independently:
+
+1. Fetch `/targets.json` and all referenced chunks.
+2. Recompute every canonical chunk hash, table-manifest hash, and the root.
+3. Read the replica's active-generation singleton and require the same root.
+4. Run `scripts/ingest_target_architecture.py --verify` with read access to
+   recompute the live replica's row digests and typed values against those
+   downloaded chunks.
+
+Matching roots prove that the replica claims the exact site generation;
+`--verify` additionally detects row insertion, deletion, or mutation behind
+that pointer. The existing forecast-snapshot recorder already archives
+`/targets.json`, so its `targets` surface now preserves this root manifest
+without adding another URL to the fetch list.
 
 ### Forecast-record chain and independent witness
 

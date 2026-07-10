@@ -35,6 +35,10 @@ import ThesisPage from "../app/thesis/page";
 import { ForecastRuntime } from "../components/ForecastRuntime";
 import { FORECAST_CELLS, getForecastCell } from "../data/forecast-cells";
 import { buildTargetArchitectureProjection } from "../data/thesis-target-architecture";
+import {
+  buildTargetArchitectureChunkHashPayload,
+  buildTargetArchitectureRootPayload,
+} from "../data/thesis-target-architecture-export";
 import { sha256Hex } from "../data/canonical-json";
 import { buildTargetArchitectureBackfillSql } from "../data/thesis-target-architecture-sql";
 import {
@@ -387,13 +391,19 @@ describe("Next.js migration", () => {
       const response = await getForecastTargetsJson();
       const body = await response.json();
 
-      expect(body.schemaVersion).toBe("thesis_target_architecture_manifest_v1");
+      expect(body.schemaVersion).toBe("thesis_target_architecture_manifest_v2");
       expect(body.projectionSchemaVersion).toBe(
         "thesis_target_architecture_projection_v1",
       );
       expect(body.source).toEqual({
         records: "forecast_cells",
       });
+      expect(body.sourceCommit).toBeTruthy();
+      expect(body.builderVersion).toBe("thesis_target_architecture_builder_v2");
+      expect(body.projectionRootSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(body.projectionRootSha256).toBe(
+        sha256Hex(buildTargetArchitectureRootPayload(body)),
+      );
       expect(body.counts.targets).toBeGreaterThan(100);
       expect(body.counts.targetVersions).toBe(body.counts.targets);
       expect(body.counts.forecastRuns).toBeGreaterThanOrEqual(
@@ -446,13 +456,15 @@ describe("Next.js migration", () => {
       const tableBody = await tableResponse.json();
 
       expect(tableBody.schemaVersion).toBe(
-        "thesis_target_architecture_table_v1",
+        "thesis_target_architecture_table_v2",
       );
       expect(tableBody.projectionSchemaVersion).toBe(
         "thesis_target_architecture_projection_v1",
       );
       expect(tableBody.table).toBe("targets");
       expect(tableBody.rowCount).toBeGreaterThan(100);
+      expect(tableBody.projectionRootSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(tableBody.sha256).toMatch(/^[0-9a-f]{64}$/);
       expect(tableBody.rows[0].targetId).toMatch(/^target\./);
       expect(tableBody.rows[0].dataPointId).toBeTruthy();
 
@@ -467,7 +479,7 @@ describe("Next.js migration", () => {
       const distributionTableBody = await distributionTableResponse.json();
 
       expect(distributionTableBody.schemaVersion).toBe(
-        "thesis_target_architecture_table_v1",
+        "thesis_target_architecture_table_v2",
       );
       expect(distributionTableBody.table).toBe("forecastDistributions");
       expect(distributionTableBody.chunkCount).toBeGreaterThan(1);
@@ -476,6 +488,7 @@ describe("Next.js migration", () => {
         index: 0,
         url: "/forecasts/targets/forecastDistributions/0.json",
       });
+      expect(distributionTableBody.chunks[0].sha256).toMatch(/^[0-9a-f]{64}$/);
 
       const chunkResponse = await getForecastTargetChunkJson(
         new Request(
@@ -488,12 +501,18 @@ describe("Next.js migration", () => {
       const chunkBody = await chunkResponse.json();
 
       expect(chunkBody.schemaVersion).toBe(
-        "thesis_target_architecture_chunk_v1",
+        "thesis_target_architecture_chunk_v2",
       );
       expect(chunkBody.table).toBe("forecastDistributions");
       expect(chunkBody.chunkIndex).toBe(0);
       expect(chunkBody.rows.length).toBeLessThanOrEqual(chunkBody.chunkSize);
       expect(chunkBody.rows[0].pointIndex).toBe(0);
+      expect(chunkBody.projectionRootSha256).toBe(
+        distributionTableBody.projectionRootSha256,
+      );
+      expect(
+        sha256Hex(buildTargetArchitectureChunkHashPayload(chunkBody)),
+      ).toBe(distributionTableBody.chunks[0].sha256);
     });
 
     it("builds the clean target-architecture projection rows", async () => {

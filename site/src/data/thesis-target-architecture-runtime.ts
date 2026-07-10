@@ -1,9 +1,13 @@
 import { FORECAST_CELLS } from "./forecast-cells";
+import { buildTargetArchitectureManifest } from "./thesis-target-architecture-export";
 import { buildTargetArchitectureProjection } from "./thesis-target-architecture";
 import { loadPolicyEngineLedger, withResolvedOutcomes } from "./thesis-log";
 
 let targetArchitectureProjectionPromise: ReturnType<
   typeof buildTargetArchitectureProjectionOnce
+> | null = null;
+let targetArchitectureManifestPromise: ReturnType<
+  typeof buildTargetArchitectureManifestOnce
 > | null = null;
 
 /** Share one projection across the manifest, table, and chunk static routes. */
@@ -13,8 +17,15 @@ export function loadTargetArchitectureProjection() {
   return targetArchitectureProjectionPromise;
 }
 
+/** Cache the expensive canonical chunk/root hashing across all static routes. */
+export function loadTargetArchitectureManifest() {
+  targetArchitectureManifestPromise ??= buildTargetArchitectureManifestOnce();
+  return targetArchitectureManifestPromise;
+}
+
 export function resetTargetArchitectureProjectionCache() {
   targetArchitectureProjectionPromise = null;
+  targetArchitectureManifestPromise = null;
 }
 
 async function buildTargetArchitectureProjectionOnce() {
@@ -22,5 +33,11 @@ async function buildTargetArchitectureProjectionOnce() {
   return buildTargetArchitectureProjection(
     withResolvedOutcomes(FORECAST_CELLS, ledger),
     ledger,
+  );
+}
+
+async function buildTargetArchitectureManifestOnce() {
+  return buildTargetArchitectureManifest(
+    await loadTargetArchitectureProjection(),
   );
 }
