@@ -1,0 +1,112 @@
+[
+  {
+    "slug": "us-mts-deficit-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "U.S. MTS July 2026 Deficit",
+    "question": "What will the U.S. Department of the Treasury Monthly Treasury Statement Table 1 monthly Deficit/Surplus (-) be for July 2026 on the first official print, converted to deficits-positive USD billions?",
+    "unit": "usd_billions",
+    "pointEstimate": 324.2,
+    "ciLow": 213.1,
+    "ciHigh": 435.3,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-17",
+    "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+    "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/summary-of-receipts-outlays-and-the-deficit-surplus-of-the-u-s-government",
+    "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+    "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2025-07 first print",
+        "value": 291.2
+      },
+      {
+        "label": "2024-07 first print",
+        "value": 243.7
+      },
+      {
+        "label": "2023-07 first print",
+        "value": 220.8
+      },
+      {
+        "label": "2022-07 first print",
+        "value": 211.1
+      },
+      {
+        "label": "2021-07 first print",
+        "value": 302.0
+      },
+      {
+        "label": "2020-07 first print",
+        "value": 63.0
+      },
+      {
+        "label": "2019-07 first print",
+        "value": 119.7
+      }
+    ],
+    "drivers": [
+      "July monthly deficit seasonality",
+      "higher net interest expense",
+      "mandatory outlay drift",
+      "tariff receipts offset part of deficit",
+      "defense and emergency spending risk",
+      "monthly payment-timing noise"
+    ],
+    "sourceContext": [
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/summary-of-receipts-outlays-and-the-deficit-surplus-of-the-u-s-government",
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+      "https://apnews.com/article/us-budget-deficit-trump-tariffs-treasury-992949ccc115fddbf3838a6213cf2c94",
+      "https://www.marketwatch.com/story/budget-deficit-climbs-10-in-july-government-spends-more-on-interest-than-medicare-military-b5a35b48",
+      "https://www.barrons.com/articles/deficit-interest-war-budget-taxes-ce63a614",
+      "https://apnews.com/article/45a61cb88eb6083a6e18389d19320c8a"
+    ],
+    "runAt": "2026-07-10T16:48:07Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "U.S. MTS July 2026 Deficit Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the first official U.S. Treasury Monthly Treasury Statement Table 1 monthly Deficit/Surplus (-) for July 2026, not fiscal-year-to-date deficit, receipts alone, outlays alone, or later revised historical tables. The table reports $ millions; I convert to usd_billions and keep deficits positive. The ledger URL is the broader MTS dataset page, while the more specific stable Fiscal Data table page used here is the Summary of Receipts, Outlays, and Deficit/Surplus table. The official release-calendar contract for this run shows the July 2026 MTS first print on 2026-08-17."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fiscal Data Monthly Treasury Statement Table 1, July monthly Deficit/Surplus (-), recent July reference class",
+        "result": "Fetched/rounded July monthly deficits: 2025-07 deficit 291.2 usd_billions, 2024-07 deficit 243.7 usd_billions, 2023-07 deficit 220.8 usd_billions; 2024 July receipts were about 330.4 and outlays about 574.1 usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fiscal Data Monthly Treasury Statement Table 1, additional July monthly Deficit/Surplus (-) history",
+        "result": "Fetched/rounded older July monthly deficits: 2022-07 deficit 211.1 usd_billions, 2021-07 deficit 302.0 usd_billions, 2020-07 deficit 63.0 usd_billions, 2019-07 deficit 119.7 usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Recent fiscal-state checks from public Treasury/CBO-linked reporting before the July 2026 month closes",
+        "result": "Fetched current-context numbers: March 2026 monthly deficit 164 usd_billions, March 2026 net interest 103 usd_billions, March 2026 tariff revenue 24 usd_billions, individual refunds up 22 percent, corporate refunds up 215 percent, gross corporate receipts down 28 percent, and CBO FY2026 deficit projection around 1900 usd_billions."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the same-variant July MTS Table 1 flow values from 2019-2025 average 207.4 usd_billions, but the post-2021 July values cluster much higher: 211.1, 220.8, 243.7, and 291.2. I put more weight on the latest July print because nominal outlays, interest costs, and the annual deficit level are materially above the 2019-2020 regime."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is 2025-07 first-print deficit of 291.2. Historical sample is July MTS Table 1 monthly deficits for 2019-2025: 119.7, 63.0, 302.0, 211.1, 220.8, 243.7, 291.2. Adjustment components are +20.0 for structural outlay and net-interest drift, -10.0 for elevated customs/tariff receipts, +15.0 for defense/emergency/policy spending pressure, and +8.0 for ordinary July payment-timing skew, giving point = 291.2 + 20.0 - 10.0 + 15.0 + 8.0 = 324.2. For this flow series, sigma = 86.8 from the fetched July values themselves, so the 80 percent half-width is about 1.28*sigma = 111.1; interval = 324.2 +/- 111.1 = [213.1, 435.3]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a larger deficit if July benefit, defense, disaster, or interest outlays bunch into the month while tariff receipts fade, which would land above the interval if the deficit exceeds 435.3. Downside risk is stronger-than-expected withheld/income/customs receipts or delayed spending, which would land below the interval if the deficit is under 213.1. A shutdown-style or debt-management timing distortion is the main outside the interval scenario."
+      },
+      {
+        "kind": "forecast",
+        "point": 324.2,
+        "ciLow": 213.1,
+        "ciHigh": 435.3
+      }
+    ]
+  }
+]

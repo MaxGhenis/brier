@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is publishable after a small resolver URL cleanup; the prior, update, interval, tails, and JSON forecast fields are mostly coherent.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft uses a more specific FiscalData table URL, while the canonical ledger target specifies the dataset landing URL.",
+      "actionRequested": "Set resolutionSourceUrl to the canonical ledger URL https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/ or explicitly note that the table-specific URL is only supporting context, not a target change."
+    }
+  ],
+  "optionalSuggestions": [
+    "State explicitly that the persistence/ladder approach is the time-series model prior, and that no separate fitted model was used because only same-month July observations were used.",
+    "Tighten the prior/update sentence by naming the net adjustment from 292.8 to 319.1 as about +26.3 usd_billions."
+  ]
+}

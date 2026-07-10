@@ -1,0 +1,110 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Disposable Personal Income, June 2026",
+    "question": "What will BEA report as the first-print June 2026 disposable personal income series DSPI / account code A067RC, seasonally adjusted annual rate, in billions of dollars?",
+    "unit": "usd_billions",
+    "pointEstimate": 23690.0,
+    "ciLow": 23596.0,
+    "ciHigh": 23784.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 DSPI latest FRED mirror",
+        "value": 23651.7
+      },
+      {
+        "label": "2026-04 DSPI FRED mirror",
+        "value": 23486.9
+      },
+      {
+        "label": "2026-03 DSPI FRED mirror",
+        "value": 23510.4
+      },
+      {
+        "label": "2026-02 DSPI FRED mirror",
+        "value": 23382.4
+      },
+      {
+        "label": "2026-01 DSPI FRED mirror",
+        "value": 23395.9
+      }
+    ],
+    "drivers": [
+      "May DPI was boosted by farm proprietors' income and compensation",
+      "Recent DSPI trend remains positive but volatile",
+      "June forecast allows partial unwind of May farm-related transfer boost",
+      "Resolution is first print only, rounded to one decimal"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://fred.stlouisfed.org/series/DSPI",
+      "https://fred.stlouisfed.org/data/DSPI"
+    ],
+    "runAt": "2026-07-10T16:19:53Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast: BEA DSPI June 2026 First Print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets BEA disposable personal income, DSPI / account code A067RC, for June 2026, seasonally adjusted annual rate in billions of dollars. The retained ledger resolver is the ALFRED generic-url binding, field DSPI, first_print, rounded to one decimal; I note that the supplied ALFRED vintage_date=2026-06-25 appears tied to the May 2026 print, but I keep the forecast on the registered target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BEA release schedule for 2026 upcoming releases.",
+        "result": "BEA schedule lists Personal Income and Outlays, June 2026 on July 30, 2026 at 8:30 AM; the same schedule also lists GDP on July 30, 2026 at 8:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BEA Personal Income and Outlays, May 2026 release.",
+        "result": "BEA reported May 2026 personal income increased $181.6 billion, disposable personal income increased $164.9 billion or 0.7 percent, PCE increased $156.1 billion, personal saving was $704.2 billion, and the saving rate was 3.0 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Opened FRED DSPI series page as public history mirror for BEA A067RC.",
+        "result": "FRED DSPI page shows May 2026 = 23,651.7, Apr 2026 = 23,486.9, Mar 2026 = 23,510.4, Feb 2026 = 23,382.4, Jan 2026 = 23,395.9, units billions of dollars SAAR, updated Jun 25, 2026 7:43 AM CDT."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Opened FRED table data for full recent DSPI history.",
+        "result": "FRED table data reports date range 1959-01-01 to 2026-05-01; recent levels include 2025-12 = 23,165.9, 2026-01 = 23,395.9, 2026-02 = 23,382.4, 2026-03 = 23,510.4, 2026-04 = 23,486.9, and 2026-05 = 23,651.7."
+      },
+      {
+        "kind": "text",
+        "text": "Variant check: all anchors use current-dollar disposable personal income, DSPI/A067RC, monthly, seasonally adjusted annual rate, billions of dollars. I did not mix real DPI, percent growth, saving rate, or PCE variants into the target level."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate / reference class: using the Jan 2024 through May 2026 FRED-mirrored DSPI levels as the recent reference class, the 28 successive monthly changes average about +77.5 billion. A pure persistence-plus-average-change prior from May's 23,651.7 would therefore be 23,729.2."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is May 2026 DSPI 23,651.7 plus the 2024-2026 average monthly change +77.5 = 23,729.2; adjustment components are -40.0 for likely partial unwind of the May farm-proprietors/Supplemental Disaster Relief boost and +0.8 rounding/normal wage continuation, giving 23,690.0. Interval method uses the recent successive-change sample from Jan 2024-May 2026: sigma = 73.3, so 1.28*sigma = 93.8; rounded half-width is 94.0, giving 23,690.0 +/- 94.0 = [23,596.0, 23,784.0]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is another large compensation or transfer month that would land above the interval if June DSPI exceeds 23,784.0; downside risk is a larger reversal of the May farm-payment boost or weak wage accruals that would land below the interval if June DSPI is under 23,596.0. A later annual revision is outside the interval logic because the target is first print only."
+      },
+      {
+        "kind": "forecast",
+        "point": 23690.0,
+        "ciLow": 23596.0,
+        "ciHigh": 23784.0
+      }
+    ]
+  }
+]

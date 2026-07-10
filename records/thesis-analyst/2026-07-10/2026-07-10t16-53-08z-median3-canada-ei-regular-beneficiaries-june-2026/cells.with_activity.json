@@ -1,0 +1,148 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada EI Regular Beneficiaries, June 2026",
+    "question": "Statistics Canada regular Employment Insurance beneficiaries for Canada, June 2026, seasonally adjusted, beneficiary detail total, sex total, age group total, first print",
+    "unit": "thousands",
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-04 first print",
+        "value": 544.44
+      },
+      {
+        "label": "2026-03 first print",
+        "value": 548
+      },
+      {
+        "label": "2026-02 first print",
+        "value": 542.11
+      },
+      {
+        "label": "2026-01 first print",
+        "value": 554.83
+      },
+      {
+        "label": "2025-12 first print",
+        "value": 569.11
+      }
+    ],
+    "pointEstimate": 536.5,
+    "ciLow": 522.2,
+    "ciHigh": 553.5,
+    "confidence": 0.8,
+    "drivers": [
+      "April EI level was 544.44 thousand after a small monthly decline",
+      "January-February declines offset the late-2025 rise, with March-April near flat",
+      "June Labour Force Survey context showed unemployment easing to 6.5 percent and employment up 18.2 thousand",
+      "EI beneficiary counts lag labour-market changes and can move differently from the unemployment rate",
+      "No resolved May EI print was available before this run"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260522/dq260522b-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260423/dq260423c-eng.htm",
+      "https://www150.statcan.gc.ca/release-diffusion/2026-eng.pdf",
+      "https://www.wsj.com/economy/central-banking/canada-unemployment-rate-slips-to-6-5-in-june-27ba3f7d",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260325/dq260325a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/dai-quo/index-eng.htm"
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-10T16:23:42Z, 2026-07-10T16:35:20Z, 2026-07-10T16:46:34Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-10T16:23:42Z\", \"2026-07-10T16:35:20Z\", \"2026-07-10T16:46:34Z\"]})",
+        "result": "{rollout_points: [536.0, 540, 536.5], rollout_widths: [27.2, 34, 33.8], q10: 522.2, q50: 536.5, q90: 553.5}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 522.2, q50 = 536.5, q90 = 553.5. Constituent points [536.0, 540, 536.5] with 80% widths [27.2, 34, 33.8]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 536.5,
+        "ciLow": 522.2,
+        "ciHigh": 553.5
+      }
+    ],
+    "runStartedAt": "2026-07-10T16:53:08Z",
+    "runAt": "2026-07-10T16:53:08Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+    "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "model": "gpt-5.5",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+    "constituentRuns": [
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-21-49z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+        "manifestSha256": "f61266c139bb54f0acd27b2f56de639ef3e54e6d86e07909c20ec128be51c2ca",
+        "manifestBytes": 9680,
+        "custodyRootSha256": "913645ceb5e8e44f63606144afa870267a8512f7788d27ff89104d2b021c2245",
+        "runAt": "2026-07-10T16:23:42Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-33-38z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+        "manifestSha256": "a8915ef11a9828043bd9872d704c29c785f2c300d0a570fad3c2b4109d32f17b",
+        "manifestBytes": 9680,
+        "custodyRootSha256": "68a9b06a7e920503c392c9bd77c3f1ec5580a32167944bfd177074a316a2b67d",
+        "runAt": "2026-07-10T16:35:20Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-44-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+        "manifestSha256": "230334d1bce3c5453b45c986c98507651bbe065d3f0564a11a86495bc34f6dd2",
+        "manifestBytes": 9680,
+        "custodyRootSha256": "991ceb1495ef57fc7d499a669462161c93f4d9490cd91c9ce4c0c5206d26ec25",
+        "runAt": "2026-07-10T16:46:34Z"
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-21-49z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+        "sha256": "f61266c139bb54f0acd27b2f56de639ef3e54e6d86e07909c20ec128be51c2ca",
+        "bytes": 9680,
+        "custodyRootSha256": "913645ceb5e8e44f63606144afa870267a8512f7788d27ff89104d2b021c2245",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-33-38z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+        "sha256": "a8915ef11a9828043bd9872d704c29c785f2c300d0a570fad3c2b4109d32f17b",
+        "bytes": 9680,
+        "custodyRootSha256": "68a9b06a7e920503c392c9bd77c3f1ec5580a32167944bfd177074a316a2b67d",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-44-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+        "sha256": "230334d1bce3c5453b45c986c98507651bbe065d3f0564a11a86495bc34f6dd2",
+        "bytes": 9680,
+        "custodyRootSha256": "991ceb1495ef57fc7d499a669462161c93f4d9490cd91c9ce4c0c5206d26ec25",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-08z-median3-canada-ei-regular-beneficiaries-june-2026/distribution.json",
+        "sha256": "e39acbc97882a66e18f4aab7b8aa84176472a817786ba5aed78932e72abba0e0",
+        "bytes": 12576,
+        "createdAt": "2026-07-10T16:53:08Z"
+      }
+    ]
+  }
+]

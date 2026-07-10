@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "thesis_derived_ensemble_manifest_v1",
+  "createdAt": "2026-07-10T16:53:09Z",
+  "runStartedAt": "2026-07-10T16:53:09Z",
+  "custodyInventoryVersion": 2,
+  "runMode": "derived_ensemble",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "series": "fns.wic.total_participation",
+  "period": "2026-05",
+  "targetContext": {
+    "catalogSlug": "wic-participation-may-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "period": "2026-05",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-14",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. The expected displayed FNS monthly table value is a whole participant count, as in 6,894,610 for May 2025; convert that displayed person count to millions by dividing by 1,000,000 and round to 0.001 million for the cell. If the ledger adapter instead extracts an intermediate value expressed in thousands of participants, its listed factor 0.001 produces the same final unit of millions. Use the first posted May 2026 value only; ignore later preliminary/final revisions or annual-summary revisions.",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "series": "fns.wic.total_participation",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.fns.usda.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-15",
+        "start": "2026-08-07"
+      },
+      "field": "fns.wic.total_participation",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "fns.wic.total_participation",
+      "sourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+      "table": "Official agency release",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+    "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "promptMode": "median3",
+  "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+  "agent": {
+    "agent": "thesis.analyst.median3",
+    "model": "gpt-5.5",
+    "agentVersion": "2.2.0+median3",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1"
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-09z-median3-wic-participation-may-2026/cells.with_activity.json",
+  "constituentRuns": [
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-27-44z-fns-wic-total-participation-2026-05/manifest.json",
+      "manifestSha256": "78613889ed5c203ea8ee31f016370df46d6751418d655e1f26b0e2996a0d3055",
+      "manifestBytes": 9153,
+      "custodyRootSha256": "2bd175f6752d2fb5d7f2091d519908a44bc33387f07039c6762a260a53c75881",
+      "runAt": "2026-07-10T16:29:32Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-39-16z-fns-wic-total-participation-2026-05/manifest.json",
+      "manifestSha256": "96f36fc7c48b36a7f1e8fd55bc65df3c9d255905fdc9940e94a01e1d31539aff",
+      "manifestBytes": 9153,
+      "custodyRootSha256": "59f518539ca46df6a4cb2fcece0ce75465baeefd88b161aec309577f12b77403",
+      "runAt": "2026-07-10T16:41:06Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-50-39z-fns-wic-total-participation-2026-05/manifest.json",
+      "manifestSha256": "73d9c9ff5ce6a31f9e4ae788395a8eb5e5dc250b4d25f5ab34a687739d0035ed",
+      "manifestBytes": 9153,
+      "custodyRootSha256": "b24954f57ca92a14c7724283effd5243fd1d5bb0494b2d936505bfed795fe7e9",
+      "runAt": "2026-07-10T16:53:08Z"
+    }
+  ],
+  "constituentManifests": [
+    "records/thesis-analyst/2026-07-10/2026-07-10t16-27-44z-fns-wic-total-participation-2026-05/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t16-39-16z-fns-wic-total-participation-2026-05/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t16-50-39z-fns-wic-total-participation-2026-05/manifest.json"
+  ],
+  "artifacts": [
+    {
+      "artifactType": "derived_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-09z-median3-wic-participation-may-2026/distribution.json",
+      "sha256": "89241319e0c6a05f42fb001215c85e6bfd2372ec8cd63fd8ee2ee80ab5b77a6c",
+      "bytes": 11292,
+      "createdAt": "2026-07-10T16:53:09Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-09z-median3-wic-participation-may-2026/cells.with_activity.json",
+      "sha256": "b1f6970f31088302326bcdb3781a72f86302c421df56fc9be2f49ce3bc145832",
+      "bytes": 7815,
+      "createdAt": "2026-07-10T16:53:09Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-09z-median3-wic-participation-may-2026/manifest.json",
+      "sha256": "78cc9171ec22f1faa3fad63dc18446f0baed161f3d98ac58c5a5ffbd9e00fee5",
+      "bytes": 5053,
+      "createdAt": "2026-07-10T16:53:09Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+  "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "custodyRootSha256": "7d07de9d5a513f84da849b44b386e874a0e767e2b569e7bbf606b9f6758fb234"
+}

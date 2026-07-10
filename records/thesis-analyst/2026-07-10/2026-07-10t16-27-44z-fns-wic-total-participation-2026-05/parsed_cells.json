@@ -1,0 +1,114 @@
+[
+  {
+    "slug": "wic-participation-may-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US WIC Participation, May 2026",
+    "question": "USDA FNS WIC national Total Participants, May 2026, not seasonally adjusted monthly program-data first print, converted to millions of participants.",
+    "unit": "millions",
+    "pointEstimate": 6.842,
+    "ciLow": 6.742,
+    "ciHigh": 6.942,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-14",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. The displayed whole participant count is converted to millions by dividing by 1,000,000 and rounded to 0.001 million. Use the first posted May 2026 value only; ignore later preliminary/final revisions or annual-summary revisions.",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2023 total participants",
+        "value": 6.696739
+      },
+      {
+        "label": "May 2024 total participants",
+        "value": 6.76371
+      },
+      {
+        "label": "May 2025 total participants",
+        "value": 6.89461
+      },
+      {
+        "label": "Oct 2025 total participants",
+        "value": 6.90905
+      },
+      {
+        "label": "Nov 2025 total participants",
+        "value": 6.752138
+      },
+      {
+        "label": "FY 2025 annual average participants",
+        "value": 6.866095
+      }
+    ],
+    "drivers": [
+      "May participation had risen year over year in 2023-2025 but the latest FY 2026 monthly prints fell below late-FY 2025 levels.",
+      "The reference class of recent monthly changes shows moderate normal month-to-month noise plus one sharp November 2025 decline.",
+      "Seasonal Nov-to-May rebounds were positive in the prior three cycles, but the rebound has been shrinking.",
+      "First-print uncertainty is mainly participation level drift, not unit conversion or seasonal-adjustment ambiguity."
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/wic-program",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-2.pdf",
+      "https://www.fns.usda.gov/sites/default/files/resource-files/27wilatest-2.pdf",
+      "https://www.fns.usda.gov/data-research"
+    ],
+    "runAt": "2026-07-10T16:28:30Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "USDA FNS WIC May 2026 Total Participation Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the USDA FNS WIC national Monthly Data Total Participants series, not state-level detail, not annual fiscal-year average participation, and not a revised final vintage. The target unit is millions, so the first-print whole-person count for May 2026 will be divided by 1,000,000 and rounded to 0.001 million."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened USDA FNS WIC Data Tables page and identified the relevant national monthly table and latest-month table.",
+        "result": "The WIC Data Tables page listed Monthly Data - National Level as FY 2022 through November 2025, FY 2026 state-level data as preliminary, Latest Available Month State-Level Participation, and page updated February 24, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the USDA FNS national monthly WIC Participation and Costs PDF for the same national Total Participants variant.",
+        "result": "Fetched national monthly Total Participants: May 2023 = 6,696,739; May 2024 = 6,763,710; May 2025 = 6,894,610; Oct 2025 = 6,909,050; Nov 2025 = 6,752,138; FY 2025 annual average = 6,866,095."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the USDA FNS latest-month WIC participation PDF as a cross-check on the latest initial/preliminary monthly level.",
+        "result": "Fetched latest-month totals: November 2024 = 6,829,321; October 2025 preliminary = 6,909,050; November 2025 initial = 6,752,138; change November 2025 vs October 2025 = -2.3%; change November 2025 vs November 2024 = -1.1%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the FNS Data & Research listing for posted program-data cadence and the official release-date contract for this target.",
+        "result": "Fetched FNS Data & Research listing entries: October 2025 Keydata Report dated 01/22/2026 and November 2025 Keydata Report dated 02/24/2026; the official release calendar contract for this May 2026 WIC monthly-data target gives 2026-08-14 within the 2026-08-07 to 2026-08-15 expected release window."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: using the same national Total Participants variant, recent May levels were 6.697 million in 2023, 6.764 million in 2024, and 6.895 million in 2025, while the latest observed November 2025 level was 6.752 million. Prior Nov-to-May moves were +0.300 million from Nov 2022 to May 2023, +0.140 million from Nov 2023 to May 2024, and +0.065 million from Nov 2024 to May 2025, so I anchor on a positive but smaller seasonal rebound from the depressed November 2025 print."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior from latest Nov 2025 is 6.752 million; seasonal reference-class adjustment uses the shrinking Nov-to-May rebound, adding about +0.090 million rather than the full three-cycle mean of +0.168 million, giving 6.842 million. For interval sizing, successive monthly changes from Oct 2024 through Nov 2025 are -0.078, -0.045, +0.038, -0.021, +0.049, +0.026, +0.017, -0.011, +0.040, -0.028, +0.026, -0.013, -0.157 million, so sigma = 0.057 million and 1.28*sigma = 0.073 million. I widen to 0.100 million because the target is six unobserved months ahead and the latest observation included a large November drop, implying final bounds 6.842 - 0.100 = 6.742 and 6.842 + 0.100 = 6.942."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum adjustment: the May-to-May trend was positive through 2025, but November 2025 was 0.077 million below November 2024 and 0.157 million below October 2025. That argues against simply extrapolating May 2025 upward, while the prior three Nov-to-May recoveries argue against treating November 2025 as the May 2026 level."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk would land above the interval if the November 2025 drop is mostly reporting timing and participation returns near the July-September 2025 range around 6.90-6.92 million plus normal spring lift. Downside risk would land below the interval if FY 2026 participation keeps falling after November or if administrative disruption suppresses certifications through spring 2026. An outside the interval print below 6.742 million would require little seasonal rebound from November 2025 or another large monthly decline before May."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.842,
+        "ciLow": 6.742,
+        "ciHigh": 6.942
+      }
+    ]
+  }
+]

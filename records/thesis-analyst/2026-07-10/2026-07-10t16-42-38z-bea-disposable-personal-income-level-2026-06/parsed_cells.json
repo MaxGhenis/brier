@@ -1,0 +1,99 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US disposable personal income, June 2026",
+    "question": "What will BEA first report for disposable personal income, DSPI / NIPA account A067RC, June 2026, seasonally adjusted annual rate, billions of dollars?",
+    "unit": "usd_billions",
+    "pointEstimate": 24185,
+    "ciLow": 24074.7,
+    "ciHigh": 24295.3,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-03 DSPI",
+        "value": 23972.3
+      },
+      {
+        "label": "2026-04 DSPI",
+        "value": 24045.4
+      },
+      {
+        "label": "2026-05 DSPI",
+        "value": 24118.5
+      },
+      {
+        "label": "recent monthly-change sigma",
+        "value": 86.2
+      }
+    ],
+    "drivers": [
+      "Payroll and transfer-income trend keeps the level rising",
+      "High SAAR level makes normal monthly growth about 60-75 billion dollars",
+      "No known June policy-payment cliff large enough to dominate the series",
+      "First-print revision risk handled by realized monthly-change dispersion"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://apps.bea.gov/api/data/?UserID=sampleUser&method=GetData&datasetname=NIPA&TableName=T20100&Frequency=M&Year=2026&ResultFormat=JSON",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25"
+    ],
+    "runAt": "2026-07-10T12:45:00Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for BEA DSPI June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is BEA disposable personal income, DSPI / account code A067RC, in billions of dollars at a seasonally adjusted annual rate. The ledger resolution remains the ALFRED DSPI first-print binding even though the supplied vintage_date appears to point to the prior May 2026 print rather than the July 30 June-release vintage."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Checked BEA release schedule for Personal Income and Outlays, June 2026.",
+        "result": "BEA schedule shows Personal Income and Outlays, June 2026 on July 30, 2026 at 8:30 AM; the schedule page also shows year 2026 and page modified 7/10/26."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BEA NIPA monthly personal income table for the same DSPI/A067RC level variant, seasonally adjusted annual rate, billions of dollars.",
+        "result": "Fetched recent DSPI levels: 2026-03 = 23972.3, 2026-04 = 24045.4, 2026-05 = 24118.5 billion dollars SAAR."
+      },
+      {
+        "kind": "tool",
+        "tool": "public_mirror.lookup",
+        "call": "Checked ALFRED/FRED DSPI public mirror for monthly level history and successive changes used for dispersion sizing.",
+        "result": "Fetched recent successive DSPI changes include 2026-04 minus 2026-03 = 73.1 and 2026-05 minus 2026-04 = 73.1; recent-history mean monthly change = 66.5 and sigma = 86.2 billion dollars."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: for a level series like DSPI, the most relevant base rate is the distribution of recent month-to-month first-available level changes in the same SAAR billions variant, not the level itself. Recent changes cluster around a positive 60-75 billion monthly drift, with occasional larger transfer-income and wage-payment moves."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence-plus-drift prior uses latest fetched May 2026 level 24118.5, a recent DSPI monthly-change historical sample, adjustment components of +66.5 normal nominal income drift and no separate one-off policy transfer adjustment, and an 80% interval from successive-change dispersion. sigma = 86.2, so half-width = 1.28*86.2 = 110.3. Point = 24118.5 + 66.5 = 24185.0; 80% interval = 24185.0 - 110.3 to 24185.0 + 110.3 = 24074.7 to 24295.3."
+      },
+      {
+        "kind": "text",
+        "text": "Momentum check: the last two fetched monthly increases were both 73.1 billion, close to the 66.5 base-rate drift, so I keep the point just under a repeat of that pace rather than extrapolating a stronger acceleration."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a larger-than-usual wage, proprietors' income, or transfer-payment jump that would land above the interval near 24295.3. Downside risk is a weak payroll-income print or a benefit-payment normalization that would land below the interval near 24074.7; outside the interval would likely require a clear transfer-program timing shock or a material first-print source revision."
+      },
+      {
+        "kind": "forecast",
+        "point": 24185,
+        "ciLow": 24074.7,
+        "ciHigh": 24295.3
+      }
+    ]
+  }
+]

@@ -1,0 +1,147 @@
+[
+  {
+    "slug": "wic-participation-may-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US WIC total participation, May 2026",
+    "question": "What will USDA FNS report as national WIC Total Participants for May 2026 in the first official monthly WIC program-data posting, converted from persons to millions?",
+    "unit": "millions",
+    "resolutionDate": "2026-08-14",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. The expected displayed FNS monthly table value is a whole participant count, as in 6,894,610 for May 2025; convert that displayed person count to millions by dividing by 1,000,000 and round to 0.001 million for the cell. If the ledger adapter instead extracts an intermediate value expressed in thousands of participants, its listed factor 0.001 produces the same final unit of millions. Use the first posted May 2026 value only; ignore later preliminary/final revisions or annual-summary revisions.",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2025 first-print/official monthly total",
+        "value": 6.895
+      },
+      {
+        "label": "October 2025 preliminary total",
+        "value": 6.909
+      },
+      {
+        "label": "November 2025 initial total",
+        "value": 6.752
+      },
+      {
+        "label": "FY 2025 annual average total",
+        "value": 6.866
+      },
+      {
+        "label": "May 2024 official monthly total",
+        "value": 6.764
+      }
+    ],
+    "pointEstimate": 6.82,
+    "ciLow": 6.674,
+    "ciHigh": 6.943,
+    "confidence": 0.8,
+    "drivers": [
+      "Recent WIC participation was roughly flat to slightly lower through FY 2025 before a weak November 2025 initial print.",
+      "May is usually above the prior November because spring participation tends to rebound from late-year lows.",
+      "The FY 2026 starting point is below May 2025, so the May 2026 point is held below the prior May despite normal seasonal lift.",
+      "First-print risk is material because the November 2025 latest-month table is initial and FNS states FY 2026 data are preliminary."
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/wic-program",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-2.pdf",
+      "https://www.fns.usda.gov/sites/default/files/resource-files/27wilatest-2.pdf",
+      "https://www.fns.usda.gov/data-research",
+      "https://www.fns.usda.gov/pd/data-release-calendar",
+      "https://www.fns.usda.gov/sites/default/files/resource-files/37wic-monthly-2.pdf",
+      "https://www.fns.usda.gov/sites/default/files/resource-files/27wilatest-3.pdf",
+      "https://www.fns.usda.gov/sites/default/files/resource-files/27wilatest-6.pdf"
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-10T16:29:32Z, 2026-07-10T16:41:06Z, 2026-07-10T16:53:08Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-10T16:29:32Z\", \"2026-07-10T16:41:06Z\", \"2026-07-10T16:53:08Z\"]})",
+        "result": "{rollout_points: [6.842, 6.82, 6.759], rollout_widths: [0.2, 0.308, 0.168], q10: 6.674, q50: 6.82, q90: 6.943}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 6.674, q50 = 6.82, q90 = 6.943. Constituent points [6.842, 6.82, 6.759] with 80% widths [0.2, 0.308, 0.168]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.82,
+        "ciLow": 6.674,
+        "ciHigh": 6.943
+      }
+    ],
+    "runStartedAt": "2026-07-10T16:53:09Z",
+    "runAt": "2026-07-10T16:53:09Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+    "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "model": "gpt-5.5",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+    "constituentRuns": [
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-27-44z-fns-wic-total-participation-2026-05/manifest.json",
+        "manifestSha256": "78613889ed5c203ea8ee31f016370df46d6751418d655e1f26b0e2996a0d3055",
+        "manifestBytes": 9153,
+        "custodyRootSha256": "2bd175f6752d2fb5d7f2091d519908a44bc33387f07039c6762a260a53c75881",
+        "runAt": "2026-07-10T16:29:32Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-39-16z-fns-wic-total-participation-2026-05/manifest.json",
+        "manifestSha256": "96f36fc7c48b36a7f1e8fd55bc65df3c9d255905fdc9940e94a01e1d31539aff",
+        "manifestBytes": 9153,
+        "custodyRootSha256": "59f518539ca46df6a4cb2fcece0ce75465baeefd88b161aec309577f12b77403",
+        "runAt": "2026-07-10T16:41:06Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-50-39z-fns-wic-total-participation-2026-05/manifest.json",
+        "manifestSha256": "73d9c9ff5ce6a31f9e4ae788395a8eb5e5dc250b4d25f5ab34a687739d0035ed",
+        "manifestBytes": 9153,
+        "custodyRootSha256": "b24954f57ca92a14c7724283effd5243fd1d5bb0494b2d936505bfed795fe7e9",
+        "runAt": "2026-07-10T16:53:08Z"
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-27-44z-fns-wic-total-participation-2026-05/manifest.json",
+        "sha256": "78613889ed5c203ea8ee31f016370df46d6751418d655e1f26b0e2996a0d3055",
+        "bytes": 9153,
+        "custodyRootSha256": "2bd175f6752d2fb5d7f2091d519908a44bc33387f07039c6762a260a53c75881",
+        "createdAt": "2026-07-10T16:53:09Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-39-16z-fns-wic-total-participation-2026-05/manifest.json",
+        "sha256": "96f36fc7c48b36a7f1e8fd55bc65df3c9d255905fdc9940e94a01e1d31539aff",
+        "bytes": 9153,
+        "custodyRootSha256": "59f518539ca46df6a4cb2fcece0ce75465baeefd88b161aec309577f12b77403",
+        "createdAt": "2026-07-10T16:53:09Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-50-39z-fns-wic-total-participation-2026-05/manifest.json",
+        "sha256": "73d9c9ff5ce6a31f9e4ae788395a8eb5e5dc250b4d25f5ab34a687739d0035ed",
+        "bytes": 9153,
+        "custodyRootSha256": "b24954f57ca92a14c7724283effd5243fd1d5bb0494b2d936505bfed795fe7e9",
+        "createdAt": "2026-07-10T16:53:09Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-09z-median3-wic-participation-may-2026/distribution.json",
+        "sha256": "89241319e0c6a05f42fb001215c85e6bfd2372ec8cd63fd8ee2ee80ab5b77a6c",
+        "bytes": 11292,
+        "createdAt": "2026-07-10T16:53:09Z"
+      }
+    ]
+  }
+]

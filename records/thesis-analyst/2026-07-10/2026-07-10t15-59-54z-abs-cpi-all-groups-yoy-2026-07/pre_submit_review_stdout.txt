@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is mostly methodologically sound, but it should not publish while resolver fields diverge from the canonical ledger target contract.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft changes the canonical resolutionSourceUrl and resolver wording from the ledger Monthly CPI Indicator July 2026 target to a Consumer Price Index, Australia URL and rule.",
+      "actionRequested": "Set resolutionSource, resolutionSourceUrl, and resolutionRule to the canonical ledger fields exactly; keep the ABS publication-discrepancy explanation only in reasoning, not by changing target fields."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "The question/title/resolver wording alternates between Monthly CPI Indicator and Consumer Price Index, Australia, which could make the published target identity look ambiguous.",
+      "actionRequested": "Keep the JSON target identity aligned with catalogSlug, dataPointId, unit, and canonical resolver text; explain any ABS naming transition as context without redefining the target."
+    }
+  ],
+  "optionalSuggestions": [
+    "The prior/update/interval step is strong; consider making the final implied 80% bounds explicit in the same sentence as the point estimate.",
+    "Tail scenarios are concrete, but the upside tail could name the specific July-relevant administered-price or energy channels if known from ABS history."
+  ]
+}

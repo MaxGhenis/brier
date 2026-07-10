@@ -1,0 +1,279 @@
+{
+  "ledgerEvidence": {
+    "blobSha": "bd3d4c98fde7f7badb79e2a6b70fd6a1b8ede061",
+    "branch": "codex/thesis-ledger-facts",
+    "checkedAtUtc": "2026-07-10T15:59:31Z",
+    "contentSha256": "581f681aa3467d7f58b3ede4f13a17ea80c187d0328e88ae743756cc2b67a48b",
+    "path": "ledger/official_observations.jsonl",
+    "repository": "PolicyEngine/ledger",
+    "repositoryCommit": "47ca684cae6bda2b1faab5122af78b5ae255e015",
+    "resolvedDataPointIds": []
+  },
+  "localResolutionEvidence": {
+    "chainHeadPath": "records/CHAIN_HEAD.json",
+    "chainHeadSha256": "752536cf1fcf2c93ce875ed7d26d5628e1e7308b4a736872efefe5d3f779cf1d",
+    "checkedAtUtc": "2026-07-10T15:59:31Z",
+    "resolutionCount": 120,
+    "resolvedDataPointIds": [],
+    "snapshotPath": "records/2026-07-10/digest-29103805372-1.json",
+    "snapshotRecordedAt": "2026-07-10T15:28:49Z",
+    "snapshotSha256": "1b53ae3db8eec680ab6abc91b9ca720c13d4db2d6b61a44b674dfbbed3dcaf2f"
+  },
+  "request": {
+    "autoSelect": false,
+    "catalogSlugs": [
+      "australia-cpi-annual-rate-july-2026",
+      "bea-disposable-personal-income-level-june-2026",
+      "canada-ei-regular-beneficiaries-june-2026",
+      "us-mts-deficit-july-2026",
+      "us-real-avg-hourly-earnings-mom-july-2026",
+      "wic-participation-may-2026"
+    ],
+    "maxTargets": 6,
+    "suite": "both"
+  },
+  "schemaVersion": "thesis_strategy_selection_v1",
+  "selectedAtUtc": "2026-07-10T15:59:31Z",
+  "selectionPath": "records/thesis-analyst/strategy-selections/2026-07-10/strategy-29105694358-a1.json",
+  "selectionSetHash": "3f684935824e07e8af4c007361385833bbb2f35501c43ee4fe04f391e6c82bf4",
+  "sourceSha": "eb27e8fccaaaed3ca5a40565836564479df5c573",
+  "targets": [
+    {
+      "catalogSlug": "australia-cpi-annual-rate-july-2026",
+      "comparisonTarget": true,
+      "country": "AU",
+      "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+      "period": "2026-07",
+      "registeredAtUtc": "2026-07-10T05:03:56Z",
+      "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+      "resolutionDate": "2026-08-26",
+      "resolutionPolicy": "first_print",
+      "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+      "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+      "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+      "series": "abs.cpi.all_groups.yoy",
+      "sourceBinding": {
+        "adapter": "generic-url",
+        "allowedHosts": [
+          "www.abs.gov.au"
+        ],
+        "expectedReleaseWindow": {
+          "end": "2026-09-02",
+          "start": "2026-08-25"
+        },
+        "field": "abs.cpi.all_groups.yoy",
+        "releasePolicy": "first_print",
+        "sourceSeriesId": "abs.cpi.all_groups.yoy",
+        "sourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/june-2026",
+        "table": "Australian Bureau of Statistics Consumer Price Index, Australia, June 2026 release",
+        "transform": {
+          "factor": 1,
+          "operation": "multiply"
+        }
+      },
+      "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+      "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+      "targetUnit": "percent",
+      "valueScale": 1
+    },
+    {
+      "catalogSlug": "bea-disposable-personal-income-level-june-2026",
+      "comparisonTarget": true,
+      "country": "US",
+      "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+      "period": "2026-06",
+      "registeredAtUtc": "2026-07-10T12:36:34Z",
+      "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+      "resolutionDate": "2026-07-30",
+      "resolutionPolicy": "first_print",
+      "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+      "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+      "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+      "series": "bea.disposable_personal_income.level",
+      "sourceBinding": {
+        "adapter": "generic-url",
+        "allowedHosts": [
+          "alfred.stlouisfed.org"
+        ],
+        "expectedReleaseWindow": {
+          "end": "2026-07-29",
+          "start": "2026-07-21"
+        },
+        "field": "DSPI",
+        "releasePolicy": "first_print",
+        "sourceSeriesId": "DSPI",
+        "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+        "table": "Personal Income and Outlays, Table 1",
+        "transform": {
+          "factor": 1,
+          "operation": "identity"
+        }
+      },
+      "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+      "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+      "targetUnit": "usd_billions",
+      "valueScale": 1
+    },
+    {
+      "catalogSlug": "canada-ei-regular-beneficiaries-june-2026",
+      "comparisonTarget": true,
+      "country": "CA",
+      "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+      "period": "2026-06",
+      "registeredAtUtc": "2026-07-10T05:03:56Z",
+      "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+      "resolutionDate": "2026-08-20",
+      "resolutionPolicy": "first_print",
+      "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+      "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+      "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "series": "statcan.employment_insurance.regular_beneficiaries",
+      "sourceBinding": {
+        "adapter": "generic-url",
+        "allowedHosts": [
+          "www150.statcan.gc.ca"
+        ],
+        "expectedReleaseWindow": {
+          "end": "2026-08-27",
+          "start": "2026-08-19"
+        },
+        "field": "statcan.employment_insurance.regular_beneficiaries",
+        "releasePolicy": "first_print",
+        "sourceSeriesId": "statcan.employment_insurance.regular_beneficiaries",
+        "sourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+        "table": "Statistics Canada Employment Insurance Statistics, Table 14-10-0011-01 and The Daily release for May 2026",
+        "transform": {
+          "factor": 0.001,
+          "operation": "multiply"
+        }
+      },
+      "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+      "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+      "targetUnit": "thousands",
+      "valueScale": 0.001
+    },
+    {
+      "catalogSlug": "us-mts-deficit-july-2026",
+      "comparisonTarget": true,
+      "country": "US",
+      "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+      "period": "2026-07",
+      "registeredAtUtc": "2026-07-10T05:03:56Z",
+      "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+      "resolutionDate": "2026-08-17",
+      "resolutionPolicy": "first_print",
+      "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+      "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+      "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+      "series": "treasury.mts.monthly_deficit",
+      "sourceBinding": {
+        "adapter": "generic-url",
+        "allowedHosts": [
+          "fiscaldata.treasury.gov"
+        ],
+        "expectedReleaseWindow": {
+          "end": "2026-08-17",
+          "start": "2026-08-09"
+        },
+        "field": "treasury.mts.monthly_deficit",
+        "releasePolicy": "first_print",
+        "sourceSeriesId": "treasury.mts.monthly_deficit",
+        "sourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+        "table": "U.S. Department of the Treasury, Monthly Treasury Statement (Table 1)",
+        "transform": {
+          "factor": 1,
+          "operation": "multiply"
+        }
+      },
+      "targetContentHash": "ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5",
+      "targetRegistrationPath": "records/targets/2026-07-10-ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5.json",
+      "targetUnit": "usd_billions",
+      "valueScale": 1
+    },
+    {
+      "catalogSlug": "us-real-avg-hourly-earnings-mom-july-2026",
+      "comparisonTarget": true,
+      "country": "US",
+      "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+      "period": "2026-07",
+      "registeredAtUtc": "2026-07-10T05:03:56Z",
+      "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+      "resolutionDate": "2026-08-12",
+      "resolutionPolicy": "first_print",
+      "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 value for July 2026, seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, as first printed on the official release page; use the one-decimal percent value shown by BLS and do not revise for later updates.",
+      "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+      "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+      "series": "bls.real_earnings.avg_hourly_mom",
+      "sourceBinding": {
+        "adapter": "generic-url",
+        "allowedHosts": [
+          "www.bls.gov"
+        ],
+        "expectedReleaseWindow": {
+          "end": "2026-08-18",
+          "start": "2026-08-10"
+        },
+        "field": "bls.real_earnings.avg_hourly_mom",
+        "releasePolicy": "first_print",
+        "sourceSeriesId": "bls.real_earnings.avg_hourly_mom",
+        "sourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+        "table": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+        "transform": {
+          "factor": 1,
+          "operation": "multiply"
+        }
+      },
+      "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+      "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+      "targetUnit": "percent",
+      "valueScale": 1
+    },
+    {
+      "catalogSlug": "wic-participation-may-2026",
+      "comparisonTarget": true,
+      "country": "US",
+      "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+      "period": "2026-05",
+      "registeredAtUtc": "2026-07-10T05:03:56Z",
+      "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+      "resolutionDate": "2026-08-14",
+      "resolutionPolicy": "first_print",
+      "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. The expected displayed FNS monthly table value is a whole participant count, as in 6,894,610 for May 2025; convert that displayed person count to millions by dividing by 1,000,000 and round to 0.001 million for the cell. If the ledger adapter instead extracts an intermediate value expressed in thousands of participants, its listed factor 0.001 produces the same final unit of millions. Use the first posted May 2026 value only; ignore later preliminary/final revisions or annual-summary revisions.",
+      "resolutionSource": "Official agency release",
+      "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+      "series": "fns.wic.total_participation",
+      "sourceBinding": {
+        "adapter": "generic-url",
+        "allowedHosts": [
+          "www.fns.usda.gov"
+        ],
+        "expectedReleaseWindow": {
+          "end": "2026-08-15",
+          "start": "2026-08-07"
+        },
+        "field": "fns.wic.total_participation",
+        "releasePolicy": "first_print",
+        "sourceSeriesId": "fns.wic.total_participation",
+        "sourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+        "table": "Official agency release",
+        "transform": {
+          "factor": 0.001,
+          "operation": "multiply"
+        }
+      },
+      "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+      "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+      "targetUnit": "millions",
+      "valueScale": 0.001
+    }
+  ],
+  "workflow": {
+    "artifactCreatedAtUtc": "2026-07-10T15:59:32Z",
+    "artifactDigest": "sha256:dd6dd2a37577ac0e6a2ca73f86c1ba3b4c883fa385ea79feb5fb23fee501e31c",
+    "artifactId": 8232697697,
+    "artifactName": "strategy-selection-probe-29105694358-1",
+    "repository": "MaxGhenis/brier",
+    "runAttempt": 1,
+    "runId": 29105694358
+  }
+}

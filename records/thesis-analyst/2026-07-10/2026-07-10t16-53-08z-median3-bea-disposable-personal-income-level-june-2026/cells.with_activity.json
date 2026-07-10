@@ -1,0 +1,147 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Disposable Personal Income, June 2026",
+    "question": "BEA disposable personal income, June 2026, seasonally adjusted annual rate, first print",
+    "unit": "usd_billions",
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 latest DSPI",
+        "value": 23651.7
+      },
+      {
+        "label": "2026-04 DSPI",
+        "value": 23486.9
+      },
+      {
+        "label": "2026-03 DSPI",
+        "value": 23510.4
+      },
+      {
+        "label": "2026-02 DSPI",
+        "value": 23382.4
+      },
+      {
+        "label": "2026-01 DSPI",
+        "value": 23395.9
+      }
+    ],
+    "pointEstimate": 23705.0,
+    "ciLow": 23603.7,
+    "ciHigh": 23806.4,
+    "confidence": 0.8,
+    "drivers": [
+      "May 2026 DSPI first print was 23651.7 billion dollars SAAR",
+      "May DPI rose 164.9 billion dollars, or 0.7 percent, from April",
+      "May farm proprietors income rose to 106.9 billion from 47.3 billion in April, a likely partial one-off",
+      "Recent 2023-2026 monthly DSPI changes average about 91.6 billion with sigma = 77.9",
+      "June release date verified on BEA schedule as July 30, 2026 at 8:30 AM"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://fred.stlouisfed.org/series/DSPI",
+      "https://fred.stlouisfed.org/data/DSPI",
+      "https://fred.stlouisfed.org/release/tables?eid=155443&rid=54",
+      "https://apps.bea.gov/api/data/?UserID=sampleUser&method=GetData&datasetname=NIPA&TableName=T20100&Frequency=M&Year=2026&ResultFormat=JSON",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25"
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-10T16:21:49Z, 2026-07-10T16:33:38Z, 2026-07-10T16:44:08Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-10T16:21:49Z\", \"2026-07-10T16:33:38Z\", \"2026-07-10T16:44:08Z\"]})",
+        "result": "{rollout_points: [23690.0, 23705.0, 24185], rollout_widths: [188.0, 199.4, 220.6], q10: 23603.7, q50: 23705.0, q90: 23806.4}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 23603.7, q50 = 23705.0, q90 = 23806.4. Constituent points [23690.0, 23705.0, 24185] with 80% widths [188.0, 199.4, 220.6]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 23705.0,
+        "ciLow": 23603.7,
+        "ciHigh": 23806.4
+      }
+    ],
+    "runStartedAt": "2026-07-10T16:53:08Z",
+    "runAt": "2026-07-10T16:53:08Z",
+    "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+    "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+    "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+    "registeredAtUtc": "2026-07-10T12:36:34Z",
+    "model": "gpt-5.5",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+    "constituentRuns": [
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-19-40z-bea-disposable-personal-income-level-2026-06/manifest.json",
+        "manifestSha256": "0266d3524a48f6ca4a9451f58fa7504ee37c3616fd89103731ca8d66490cdc08",
+        "manifestBytes": 9370,
+        "custodyRootSha256": "9df9cb92f2987ff7954d59be17a3aaad7baaed6292dcbf8221c2b9e5cb25374f",
+        "runAt": "2026-07-10T16:21:49Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-30-43z-bea-disposable-personal-income-level-2026-06/manifest.json",
+        "manifestSha256": "9317abe7754c3050fe710a05be4bca1893e7fa645e18473a46037fa4ddf59966",
+        "manifestBytes": 9370,
+        "custodyRootSha256": "ca2eb77c251bbde05964ede7b0e1c3db0fdd5043460772e65ec10da613a4413d",
+        "runAt": "2026-07-10T16:33:38Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-42-38z-bea-disposable-personal-income-level-2026-06/manifest.json",
+        "manifestSha256": "feb5f59a7f37ef1835d41f11fbb69d4716a1fd46ac293923eff3b91c9460eb08",
+        "manifestBytes": 9370,
+        "custodyRootSha256": "4568ee1b9b304f3e6785d1091864aa63177091ca35a3bfd423e47e9653956372",
+        "runAt": "2026-07-10T16:44:08Z"
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-19-40z-bea-disposable-personal-income-level-2026-06/manifest.json",
+        "sha256": "0266d3524a48f6ca4a9451f58fa7504ee37c3616fd89103731ca8d66490cdc08",
+        "bytes": 9370,
+        "custodyRootSha256": "9df9cb92f2987ff7954d59be17a3aaad7baaed6292dcbf8221c2b9e5cb25374f",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-30-43z-bea-disposable-personal-income-level-2026-06/manifest.json",
+        "sha256": "9317abe7754c3050fe710a05be4bca1893e7fa645e18473a46037fa4ddf59966",
+        "bytes": 9370,
+        "custodyRootSha256": "ca2eb77c251bbde05964ede7b0e1c3db0fdd5043460772e65ec10da613a4413d",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-42-38z-bea-disposable-personal-income-level-2026-06/manifest.json",
+        "sha256": "feb5f59a7f37ef1835d41f11fbb69d4716a1fd46ac293923eff3b91c9460eb08",
+        "bytes": 9370,
+        "custodyRootSha256": "4568ee1b9b304f3e6785d1091864aa63177091ca35a3bfd423e47e9653956372",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-08z-median3-bea-disposable-personal-income-level-june-2026/distribution.json",
+        "sha256": "bd15c8c17d8e32ce873a8458c0ac90dfe4329ff9618dad43ea92a434b806036f",
+        "bytes": 12246,
+        "createdAt": "2026-07-10T16:53:08Z"
+      }
+    ]
+  }
+]

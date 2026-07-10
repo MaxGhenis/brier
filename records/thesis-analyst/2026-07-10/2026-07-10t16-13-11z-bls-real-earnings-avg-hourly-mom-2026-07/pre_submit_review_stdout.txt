@@ -1,0 +1,21 @@
+{
+  "summary": "The draft is mostly publishable, but its prior/interval uses a non-contiguous mixed historical sample that includes May 2025 as if it were recent 2026 history.",
+  "requiredFixes": [
+    {
+      "rubricItem": "base_rate",
+      "severity": "blocking",
+      "summary": "The stated reference class [0.4, -0.6, -0.5, -0.1] mixes May 2025 with Mar-May 2026 while describing it as recent Table A-1 history.",
+      "actionRequested": "Use a clearly defined historical sample, such as recent contiguous monthly Table A-1 values or same-month historical July prints, and label the sample dates correctly."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is derived from only four observations, one of which appears to be a year-earlier May value, making the realized-volatility basis weak.",
+      "actionRequested": "Recompute or justify the interval using a valid realized-volatility sample, or explicitly state why the small sample is being used despite the limitation."
+    }
+  ],
+  "optionalSuggestions": [
+    "Make the CPI moderation update more concrete by tying it to expected July CPI components or recent CPI subcomponent behavior.",
+    "State explicitly whether no longer time-series model was used because the target is dominated by near-term CPI and nominal wage inputs."
+  ]
+}

@@ -1,0 +1,395 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T16:13:11Z",
+  "runStartedAt": "2026-07-10T16:13:11Z",
+  "series": "bls.real_earnings.avg_hourly_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-real-avg-hourly-earnings-mom-july-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-12",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 value for July 2026, seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, as first printed on the official release page; use the one-decimal percent value shown by BLS and do not revise for later updates.",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+    "series": "bls.real_earnings.avg_hourly_mom",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-18",
+        "start": "2026-08-10"
+      },
+      "field": "bls.real_earnings.avg_hourly_mom",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.real_earnings.avg_hourly_mom",
+      "sourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+      "table": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+    "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+  "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "ladder",
+  "agent": {
+    "agent": "thesis.analyst.ladder",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T16:13:11Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "79f6b79f1c9596503e09dedac2b586c1e0a6043cf0c1b43d1012af99a44c30a9"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "base_rate",
+        "summary": "The stated reference class [0.4, -0.6, -0.5, -0.1] mixes May 2025 with Mar-May 2026 while describing it as recent Table A-1 history.",
+        "actionRequested": "Use a clearly defined historical sample, such as recent contiguous monthly Table A-1 values or same-month historical July prints, and label the sample dates correctly."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is derived from only four observations, one of which appears to be a year-earlier May value, making the realized-volatility basis weak.",
+        "actionRequested": "Recompute or justify the interval using a valid realized-volatility sample, or explicitly state why the small sample is being used despite the limitation."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the CPI moderation update more concrete by tying it to expected July CPI components or recent CPI subcomponent behavior."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly whether no longer time-series model was used because the target is dominated by near-term CPI and nominal wage inputs."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the base-rate sample should not mix May 2025 with recent 2026 prints, so the prior and sigma now use the contiguous Mar-May 2026 Table A-1 values and label their small-sample limitation; accepted the optional note to state that no longer time-series model was used.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the base-rate sample should not mix May 2025 with recent 2026 prints, so the prior and sigma now use the contiguous Mar-May 2026 Table A-1 values and label their small-sample limitation; accepted the optional note to state that no longer time-series model was used.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the base-rate sample should not mix May 2025 with recent 2026 prints, so the prior and sigma now use the contiguous Mar-May 2026 Table A-1 values and label their small-sample limitation; accepted the optional note to state that no longer time-series model was used.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the base-rate sample should not mix May 2025 with recent 2026 prints, so the prior and sigma now use the contiguous Mar-May 2026 Table A-1 values and label their small-sample limitation; accepted the optional note to state that no longer time-series model was used.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is mostly publishable, but its prior/interval uses a non-contiguous mixed historical sample that includes May 2025 as if it were recent 2026 history."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/prompt.md",
+      "sha256": "178d9f1ab50e659ec88db59c912ea8098ebd0f20cf29bd59c7761acedc749d7a",
+      "bytes": 11003,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_command.json",
+      "sha256": "bede102b8dc195539cb47fef24c68350f5a391dc5f5df82526f4a6de350f9dcf",
+      "bytes": 707,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "9a23a0dad9fde056eefd1bcb6c76407ec5cb3ed44956f40d97e0c6d148c9255e",
+      "bytes": 12767,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "3d7731d943bd1461aeab126586d88306d6f7d73ba11b8a82e0e5adbd87ea9a3d",
+      "bytes": 233,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "f6361e310cb08b42f34d558dd913e6b8dc22f7c7470d1f29f7cb2e6715a733a5",
+      "bytes": 12764,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "5ce77920569f7a136721f67f8f1784eb6ab0b6483a8f79a71c2821f03c32f00a",
+      "bytes": 6607,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_trace.json",
+      "sha256": "f7bad5adf3df79db35917b0c1d35398cd7ff27c4c2de300aca1f07e4eb67a8b7",
+      "bytes": 507,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_stdout.txt",
+      "sha256": "5ce77920569f7a136721f67f8f1784eb6ab0b6483a8f79a71c2821f03c32f00a",
+      "bytes": 6607,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/draft_stderr.txt",
+      "sha256": "de38c6f6a6187f23b27109c17df4f19ec79c30a9c933e6278a0b0ef0d1ac4176",
+      "bytes": 248,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "df965bde5084c5833dffc15cbb4f6ec57827a61bef736e1647da195efd5cddde",
+      "bytes": 10241,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "0b56c882f35d110c4d4121cec681e06667187209ddfb41a91b15df2e90195317",
+      "bytes": 703,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "92ceda9c416eb76487346c87fc617de3faa1ca77710a95619da4bd5f1ccb028d",
+      "bytes": 1745,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "ca41455bcdde88bde958add29717b09d75fd84d11c273e3e56fddd45f763187a",
+      "bytes": 233,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "f16aff37f16c024f6b0556fd876c3e5ca93396cd0cc8ad0d848b127d40e56e0f",
+      "bytes": 1767,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "720d16606307bc91da85c4b4643a3290cde0ba093d5b30d843097a38a3bf557f",
+      "bytes": 1363,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "ac101157de5f7cb7ac322f24d0962d5c9344495e6a9906a3780be10da604bcc3",
+      "bytes": 505,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "720d16606307bc91da85c4b4643a3290cde0ba093d5b30d843097a38a3bf557f",
+      "bytes": 1363,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "7e2b96610d6a5c9e86bc009276146309cade965807dd69e30023627253bb7692",
+      "bytes": 248,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/revision_prompt.md",
+      "sha256": "cdf6aef930e6b0266838d65122926fec4987136d11cbb6dd33ccaad25167cd29",
+      "bytes": 19909,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/command.json",
+      "sha256": "44455f228667d3c3965e383b18bb61ef70d4684e4f2be2c40798804a56cf75dd",
+      "bytes": 701,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "23ca33c12428abe7552924c18e6a77aeddfb87871bc142eb17b48df1a2a6ce9d",
+      "bytes": 7653,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/codex_stderr.log",
+      "sha256": "3067375b817f1ffd5408ef98c53d11fd1d82ee365f41a79f8c4dcfe799f7b87b",
+      "bytes": 233,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/codex_events.jsonl",
+      "sha256": "df8dac6498fb183bf2cfeee70f8a3fa6ee652d9793cd4dfb2087473dcf4aa560",
+      "bytes": 7675,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/codex_last_message.txt",
+      "sha256": "7eeb8cb097a7954136ada3877f7a6ad5f9ee9532d9d0f89ead56d870b44a7c69",
+      "bytes": 7084,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/codex_trace.json",
+      "sha256": "d7925d5a0d82a4a76aa9b0e6525833e7825288253b8f9dba4fbedddeb46f047a",
+      "bytes": 505,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/stdout.txt",
+      "sha256": "7eeb8cb097a7954136ada3877f7a6ad5f9ee9532d9d0f89ead56d870b44a7c69",
+      "bytes": 7084,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/stderr.txt",
+      "sha256": "3042088a76470eb3051665855ea92dde7514ffe5ba2d1e79d61ccd9c9d3e5ca2",
+      "bytes": 248,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/raw_response.txt",
+      "sha256": "7eeb8cb097a7954136ada3877f7a6ad5f9ee9532d9d0f89ead56d870b44a7c69",
+      "bytes": 7084,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/parsed_cells.json",
+      "sha256": "89a6c093cc880a6a8c962f6d80ed14a3bbc6b3ade4725a48efcfbc521b0eae03",
+      "bytes": 8292,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/normalized_cells.json",
+      "sha256": "b3bfa5ae5803e242f91226524027aae6fe575931c16474d936f7908f548c4fb2",
+      "bytes": 25296,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/distribution.json",
+      "sha256": "e7a0cc4ff142a8e4b11099c32c85b275eb499b95d3d33f13e5085e0974a2faa3",
+      "bytes": 13246,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/validation.json",
+      "sha256": "920ec2d5507e2a98bece860c23bb401c59952c981916cdb40755a22090184a9e",
+      "bytes": 142,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/cells.with_activity.json",
+      "sha256": "bcde878a36ef43f730baba26b70d072f3a5f670cefa6f23c223fbe3ec62fd5a7",
+      "bytes": 41087,
+      "createdAt": "2026-07-10T16:13:11Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-13-11z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+      "sha256": "b094e63a14f1530e6e79575ecdd11284bcd21ad1e32c4ceb42173de4f70f9b23",
+      "bytes": 16293,
+      "createdAt": "2026-07-10T16:13:11Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-real-avg-hourly-earnings-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "87f7a2f1caac4a28e02efd5f59eb811b68176357cc25b0e30fcd171660f406e9"
+}

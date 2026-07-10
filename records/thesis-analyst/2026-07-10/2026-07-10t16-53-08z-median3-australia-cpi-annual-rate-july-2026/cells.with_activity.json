@@ -1,0 +1,148 @@
+[
+  {
+    "slug": "australia-cpi-annual-rate-july-2026",
+    "country": "AU",
+    "type": "data",
+    "title": "Australia CPI Annual Rate, July 2026",
+    "question": "Australian Bureau of Statistics Consumer Price Index, Australia, All groups CPI annual movement for July 2026, original first print, percent change from July 2025 to July 2026 as printed to one decimal.",
+    "unit": "percent",
+    "resolutionDate": "2026-08-26",
+    "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+    "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+    "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 All groups CPI annual change",
+        "value": 4
+      },
+      {
+        "label": "April 2026 All groups CPI annual change",
+        "value": 4.2
+      },
+      {
+        "label": "March 2026 All groups CPI annual change",
+        "value": 4.6
+      },
+      {
+        "label": "February 2026 All groups CPI annual change",
+        "value": 3.7
+      },
+      {
+        "label": "July 2025 All groups CPI annual change",
+        "value": 3
+      }
+    ],
+    "pointEstimate": 3.8,
+    "ciLow": 3.0,
+    "ciHigh": 4.7,
+    "confidence": 0.8,
+    "drivers": [
+      "May 2026 headline CPI still elevated at 4.0 percent year over year",
+      "trimmed mean rose to 3.6 percent, arguing against a rapid drop",
+      "housing inflation at 6.5 percent remains the largest persistent contribution",
+      "transport contribution has eased from the March spike but remains positive",
+      "July 2025 base month was unusually strong, which mechanically leans July 2026 annual inflation lower"
+    ],
+    "sourceContext": [
+      "https://www.abs.gov.au/release-calendar/future-releases/202608",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/may-2026",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/latest-release",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/may-2025",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/may-2026",
+      "https://www.abs.gov.au/release-calendar",
+      "https://www.news.com.au/finance/economy/australian-economy/australias-inflation-battle-continues-as-rba-warns-of-more-tough-decisions/news-story/ffcedc46df18140671179984d1b2c634",
+      "https://www.theguardian.com/australia-news/2026/jun/24/interest-rate-hikes-remain-on-cards-as-underlying-inflation-climbs-economists-warn"
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-10T16:19:40Z, 2026-07-10T16:30:43Z, 2026-07-10T16:42:38Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-10T16:19:40Z\", \"2026-07-10T16:30:43Z\", \"2026-07-10T16:42:38Z\"]})",
+        "result": "{rollout_points: [3.8, 4.4, 3.6], rollout_widths: [1.8, 1.8, 1.2], q10: 3.0, q50: 3.8, q90: 4.7}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 3.0, q50 = 3.8, q90 = 4.7. Constituent points [3.8, 4.4, 3.6] with 80% widths [1.8, 1.8, 1.2]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.8,
+        "ciLow": 3.0,
+        "ciHigh": 4.7
+      }
+    ],
+    "runStartedAt": "2026-07-10T16:53:08Z",
+    "runAt": "2026-07-10T16:53:08Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+    "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "model": "gpt-5.5",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+    "constituentRuns": [
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-17-58z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "manifestSha256": "3d343d4e77a9e0bf30bc9ae5ecdfc132178ffb110091542b376b05f80f79765a",
+        "manifestBytes": 9261,
+        "custodyRootSha256": "20623d2b4c7ef2a8f1abe2658ff8194e7198925eb39041716758b8bbd33af25f",
+        "runAt": "2026-07-10T16:19:40Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-29-32z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "manifestSha256": "dae9ba7f7107d81dabecec59d913e0268bbd19405b481f5e19f75ccc9c1059b1",
+        "manifestBytes": 9261,
+        "custodyRootSha256": "e322c59148527704d0754a53a5de008cf721b5877be3335da9b026ebf215a33e",
+        "runAt": "2026-07-10T16:30:43Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-41-07z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "manifestSha256": "9a79818f856a9ef73c8c9f3fa4d8c0673249ce587df83baaf1140ca4a693b443",
+        "manifestBytes": 9261,
+        "custodyRootSha256": "6022be9d08e1ac4c851d28657302f57daf9ab4f7aed1ba1eac19693c3e959186",
+        "runAt": "2026-07-10T16:42:38Z"
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-17-58z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "sha256": "3d343d4e77a9e0bf30bc9ae5ecdfc132178ffb110091542b376b05f80f79765a",
+        "bytes": 9261,
+        "custodyRootSha256": "20623d2b4c7ef2a8f1abe2658ff8194e7198925eb39041716758b8bbd33af25f",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-29-32z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "sha256": "dae9ba7f7107d81dabecec59d913e0268bbd19405b481f5e19f75ccc9c1059b1",
+        "bytes": 9261,
+        "custodyRootSha256": "e322c59148527704d0754a53a5de008cf721b5877be3335da9b026ebf215a33e",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-41-07z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+        "sha256": "9a79818f856a9ef73c8c9f3fa4d8c0673249ce587df83baaf1140ca4a693b443",
+        "bytes": 9261,
+        "custodyRootSha256": "6022be9d08e1ac4c851d28657302f57daf9ab4f7aed1ba1eac19693c3e959186",
+        "createdAt": "2026-07-10T16:53:08Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-08z-median3-australia-cpi-annual-rate-july-2026/distribution.json",
+        "sha256": "1b38f9edd2c054a33c35304428bfdfb728751804adf708bc267566a6536ac429",
+        "bytes": 11619,
+        "createdAt": "2026-07-10T16:53:08Z"
+      }
+    ]
+  }
+]

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "thesis_derived_ensemble_manifest_v1",
+  "createdAt": "2026-07-10T16:53:08Z",
+  "runStartedAt": "2026-07-10T16:53:08Z",
+  "custodyInventoryVersion": 2,
+  "runMode": "derived_ensemble",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "series": "statcan.employment_insurance.regular_beneficiaries",
+  "period": "2026-06",
+  "targetContext": {
+    "catalogSlug": "canada-ei-regular-beneficiaries-june-2026",
+    "comparisonTarget": true,
+    "country": "CA",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-20",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "series": "statcan.employment_insurance.regular_beneficiaries",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www150.statcan.gc.ca"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-27",
+        "start": "2026-08-19"
+      },
+      "field": "statcan.employment_insurance.regular_beneficiaries",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "statcan.employment_insurance.regular_beneficiaries",
+      "sourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "table": "Statistics Canada Employment Insurance Statistics, Table 14-10-0011-01 and The Daily release for May 2026",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+    "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "median3",
+  "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+  "agent": {
+    "agent": "thesis.analyst.median3",
+    "model": "gpt-5.5",
+    "agentVersion": "2.2.0+median3",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1"
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-08z-median3-canada-ei-regular-beneficiaries-june-2026/cells.with_activity.json",
+  "constituentRuns": [
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-21-49z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+      "manifestSha256": "f61266c139bb54f0acd27b2f56de639ef3e54e6d86e07909c20ec128be51c2ca",
+      "manifestBytes": 9680,
+      "custodyRootSha256": "913645ceb5e8e44f63606144afa870267a8512f7788d27ff89104d2b021c2245",
+      "runAt": "2026-07-10T16:23:42Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-33-38z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+      "manifestSha256": "a8915ef11a9828043bd9872d704c29c785f2c300d0a570fad3c2b4109d32f17b",
+      "manifestBytes": 9680,
+      "custodyRootSha256": "68a9b06a7e920503c392c9bd77c3f1ec5580a32167944bfd177074a316a2b67d",
+      "runAt": "2026-07-10T16:35:20Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t16-44-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+      "manifestSha256": "230334d1bce3c5453b45c986c98507651bbe065d3f0564a11a86495bc34f6dd2",
+      "manifestBytes": 9680,
+      "custodyRootSha256": "991ceb1495ef57fc7d499a669462161c93f4d9490cd91c9ce4c0c5206d26ec25",
+      "runAt": "2026-07-10T16:46:34Z"
+    }
+  ],
+  "constituentManifests": [
+    "records/thesis-analyst/2026-07-10/2026-07-10t16-21-49z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t16-33-38z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t16-44-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json"
+  ],
+  "artifacts": [
+    {
+      "artifactType": "derived_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-08z-median3-canada-ei-regular-beneficiaries-june-2026/distribution.json",
+      "sha256": "e39acbc97882a66e18f4aab7b8aa84176472a817786ba5aed78932e72abba0e0",
+      "bytes": 12576,
+      "createdAt": "2026-07-10T16:53:08Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-08z-median3-canada-ei-regular-beneficiaries-june-2026/cells.with_activity.json",
+      "sha256": "185a08f5b95897a03aefbe06aeb4ed466dd0e7d57781f8d265ead6558046c410",
+      "bytes": 7810,
+      "createdAt": "2026-07-10T16:53:08Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t16-53-08z-median3-canada-ei-regular-beneficiaries-june-2026/manifest.json",
+      "sha256": "5717c819eb1e6e79042914c5e1fcc2e33a3459c8093603417342ed8592a4b4c1",
+      "bytes": 5357,
+      "createdAt": "2026-07-10T16:53:08Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+  "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "custodyRootSha256": "858890bd2aa00610b6f68d0dba575ceda962a4e8621d55801ef7f4054517f02a"
+}
