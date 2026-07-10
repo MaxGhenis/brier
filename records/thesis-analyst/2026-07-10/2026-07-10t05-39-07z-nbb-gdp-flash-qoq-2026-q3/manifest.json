@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T05:39:07Z",
+  "runStartedAt": "2026-07-10T05:39:07Z",
+  "series": "nbb.gdp.flash_qoq",
+  "period": "2026-Q3",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "belgium-gdp-flash-q3-2026",
+    "country": "BE",
+    "dataPointId": "nbb.gdp.flash_qoq.2026_q3.first_print",
+    "period": "2026-Q3",
+    "registeredAt": "2026-07-10T05:03:56Z",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "registrationState": "preregistered",
+    "series": "nbb.gdp.flash_qoq",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.nbb.be"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-11-06",
+        "start": "2026-10-23"
+      },
+      "field": "nbb.gdp.flash_qoq",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "nbb.gdp.flash_qoq",
+      "sourceUrl": "https://www.nbb.be/en/statistics/nationalregional-accounts",
+      "table": "National Bank of Belgium national accounts flash estimate release",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "da431620f539636e89bd1a5a6ed665ca1ceb2b08735ee192fb2f14528c0ad43f",
+    "targetRegistrationPath": "records/targets/2026-07-10-da431620f539636e89bd1a5a6ed665ca1ceb2b08735ee192fb2f14528c0ad43f.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "da431620f539636e89bd1a5a6ed665ca1ceb2b08735ee192fb2f14528c0ad43f",
+  "targetRegistrationPath": "records/targets/2026-07-10-da431620f539636e89bd1a5a6ed665ca1ceb2b08735ee192fb2f14528c0ad43f.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T05:39:07Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "83057fff85f63590f5415bdcf178e3d002be059c51dc43d0a08439b3dc49191a"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step uses an eight-observation sample, but the top-level historicalContext only lists three dated observations plus a mean, and the sample appears non-contiguous without explanation.",
+        "actionRequested": "List the full dated reference-class observations used for the 0.25 prior, or state why omitted quarters were unavailable/excluded, so the mean and volatility calculation are reproducible."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State whether the interval is based on first-print value volatility rather than forecast-error volatility, since the sample is small."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver tied to the ledger date/source as written; it is coherent with the target contract."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer request to list the full dated reference-class observations and clarify that the interval uses first-print value volatility from a small public sample; kept the ledger date, source, and resolver unchanged.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer request to list the full dated reference-class observations and clarify that the interval uses first-print value volatility from a small public sample; kept the ledger date, source, and resolver unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer request to list the full dated reference-class observations and clarify that the interval uses first-print value volatility from a small public sample; kept the ledger date, source, and resolver unchanged.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Publishable after a small clarification to make the historical prior sample auditable and internally consistent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/prompt.md",
+      "sha256": "7a2a2ffe3596185ff25405d067563e5e1ef259fb202e8b199209fc75e99a4f32",
+      "bytes": 8762,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_command.json",
+      "sha256": "bce805d1d77a403dc23bc66f643135e2a629bcbb204915cd011606076892d9bf",
+      "bytes": 692,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_codex_stdout.jsonl",
+      "sha256": "f77345cb0d45e8bcd2c01cbd12a00f6ce301a3171ab7d0993e2ab5bbaaf8c9f8",
+      "bytes": 19637,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_codex_stderr.log",
+      "sha256": "71c684e0d62e24e9a4b0eed998b486552c416aede9c64b56b107701850033da6",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_codex_events.jsonl",
+      "sha256": "b533a92ab5b2e3c30b6486d6c883bde5efd1de6f83bc9aabbeb90165e86573eb",
+      "bytes": 19592,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_codex_last_message.txt",
+      "sha256": "5670731b32e8ed50fdf9c1a6b955cdf6c6abe179bfbbb55e05b85de378333b17",
+      "bytes": 5693,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_codex_trace.json",
+      "sha256": "f4b9269454ebe4539341a8bb99d00df65dcad319bad11cadd0bd807dd98d6f5a",
+      "bytes": 508,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_stdout.txt",
+      "sha256": "5670731b32e8ed50fdf9c1a6b955cdf6c6abe179bfbbb55e05b85de378333b17",
+      "bytes": 5693,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/draft_stderr.txt",
+      "sha256": "f829810943e3b890bd412f7138f4f83912fe0373e350c06aeac59cf4a40d7d72",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_prompt.md",
+      "sha256": "05ce31877f9d55d45a468626a6aef79e7149f9d40b5d08cec91cca591501cd85",
+      "bytes": 8712,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_command.json",
+      "sha256": "0f2d7a6ae135c7a97e5efa4e6a09276fbbac481a3b79f00e5da39088bc2e517f",
+      "bytes": 688,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "33c92c1808005183e46c1e999ab2eb117865a5c1bd09cd81654c282388c06540",
+      "bytes": 1251,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_codex_stderr.log",
+      "sha256": "50f3a1f47140c1dbb3e15089fe5df803d3bf499bae26956ec09d24311daeb95a",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_codex_events.jsonl",
+      "sha256": "03738cae4674da619f37ad00aa8f0e9f5b2c29f92ec0ec79b7096ede0b808df3",
+      "bytes": 1273,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_codex_last_message.txt",
+      "sha256": "d0ef1852c56ececf1b6cacfde34daa065ede0fb7287ded16a1ed1fa809300c54",
+      "bytes": 905,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_codex_trace.json",
+      "sha256": "e89fe6509dd8f925b73c8d3bf55e0f3d620dbc2abde1b5ead45830c095de53dc",
+      "bytes": 505,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_stdout.txt",
+      "sha256": "d0ef1852c56ececf1b6cacfde34daa065ede0fb7287ded16a1ed1fa809300c54",
+      "bytes": 905,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/pre_submit_review_stderr.txt",
+      "sha256": "1113b861d92d06f51ff19ad106d12d52097f16896f1258efab4b428c004c4e1a",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/revision_prompt.md",
+      "sha256": "1bceac720cdce5af9ea5c835f05e74e0a41a843d78a3cb1995d09ba765289831",
+      "bytes": 16296,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/command.json",
+      "sha256": "3075bd0ad72382d477a8208426683eec4e8713df0bbec21e6b6976558f21dc90",
+      "bytes": 686,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/codex_stdout.jsonl",
+      "sha256": "63e0bd1b75d83dbd73753aca8aff936e99cbc423c9591ff5f3e661e9ccc4ced4",
+      "bytes": 6975,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/codex_stderr.log",
+      "sha256": "1eca10b0dc70fe3e24f4081e9441b82dfac6baf03b21adcccf0b25bc12d35672",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/codex_events.jsonl",
+      "sha256": "a8fe8dc446a932696ba3f99e76ae6b45f7dadc2e53143ee81f47d3bb5c596022",
+      "bytes": 6997,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/codex_last_message.txt",
+      "sha256": "89de6d75c847ca47dee228f45aaf9c508e44898e054b8b43c4dead52b400f2b3",
+      "bytes": 6400,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/codex_trace.json",
+      "sha256": "40aa809a176052ca1ff669092357ae39d945810e87df7625e18545dedf579afa",
+      "bytes": 505,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/stdout.txt",
+      "sha256": "89de6d75c847ca47dee228f45aaf9c508e44898e054b8b43c4dead52b400f2b3",
+      "bytes": 6400,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/stderr.txt",
+      "sha256": "64a62f14512a349cb8bc17fa611947d758e4138eb6558d88cfd02fb12292af6a",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/raw_response.txt",
+      "sha256": "89de6d75c847ca47dee228f45aaf9c508e44898e054b8b43c4dead52b400f2b3",
+      "bytes": 6400,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/parsed_cells.json",
+      "sha256": "5d84541e85a03c2699741f3c27845c23ac33b8b337c7811dd06406393ca85132",
+      "bytes": 7399,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/normalized_cells.json",
+      "sha256": "7e4cf92612012d89472a3a3ab8a85057805256937a6fad76b42097a4ac412ecf",
+      "bytes": 24569,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/distribution.json",
+      "sha256": "a33cbd83c520283e57d6d48a831fa3941a6b27e00621f3e87017e53088159808",
+      "bytes": 13412,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/validation.json",
+      "sha256": "a20bb5cbcd554ac9f791a2f458e9ccde9606e994b099d243b7c8bb89b9ba74d1",
+      "bytes": 126,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/cells.with_activity.json",
+      "sha256": "5ac866a49fdb63145aee162e0d8af7b2aed696a1b98b2d7a6735e0c950af4bec",
+      "bytes": 38711,
+      "createdAt": "2026-07-10T05:39:07Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-39-07z-nbb-gdp-flash-qoq-2026-q3/manifest.json",
+      "sha256": "f7d08a95819c63dec1a3b45bd5904ffb2fd8c2eb8e8d484af7e7f32be44bc59e",
+      "bytes": 14158,
+      "createdAt": "2026-07-10T05:39:07Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "belgium-gdp-flash-q3-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "541ba1752d0159c8f8080d2ec42f08596294230a2b202d59045178cee845acbf"
+}

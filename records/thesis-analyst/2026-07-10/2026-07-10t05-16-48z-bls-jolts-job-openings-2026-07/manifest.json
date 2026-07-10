@@ -1,0 +1,365 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T05:16:48Z",
+  "runStartedAt": "2026-07-10T05:16:48Z",
+  "series": "bls.jolts.job_openings",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "jolts-openings-july-2026",
+    "country": "US",
+    "dataPointId": "bls.jolts.job_openings.july_2026.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-10T05:03:56Z",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "registrationState": "preregistered",
+    "series": "bls.jolts.job_openings",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-08",
+        "start": "2026-08-31"
+      },
+      "field": "bls.jolts.job_openings",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.jolts.job_openings",
+      "sourceUrl": "https://www.bls.gov/news.release/jolts.nr0.htm",
+      "table": "U.S. Bureau of Labor Statistics, Job Openings and Labor Turnover Survey",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "21e06e0656e420fc38e5db6513825baad3becf73234e1df0a074fcadcc13535f",
+    "targetRegistrationPath": "records/targets/2026-07-10-21e06e0656e420fc38e5db6513825baad3becf73234e1df0a074fcadcc13535f.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "21e06e0656e420fc38e5db6513825baad3becf73234e1df0a074fcadcc13535f",
+  "targetRegistrationPath": "records/targets/2026-07-10-21e06e0656e420fc38e5db6513825baad3becf73234e1df0a074fcadcc13535f.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T05:16:48Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f1dbd247923378799829d0bae90ecadb7743fe1a30b9326caac40001d91755aa"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Briefly quantify why weak June payroll growth warrants a -0.20 million openings adjustment, since that is the largest inside-view move from persistence."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that the 0.55 million half-width is close to a two-step random-walk volatility band to make the interval calibration more transparent."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted both optional reviewer suggestions by clarifying the -0.20 million payroll-growth adjustment and noting that the 0.55 million interval half-width is close to a two-step random-walk volatility band; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted both optional reviewer suggestions by clarifying the -0.20 million payroll-growth adjustment and noting that the 0.55 million interval half-width is close to a two-step random-walk volatility band; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publication-ready with the resolver, unit, first-print rule, prior/update structure, interval, tails, and JSON fields aligned to the ledger target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/prompt.md",
+      "sha256": "821d5c291887a405807226bf5659b5d40c8796f56d3bf84d3157920af9bab75d",
+      "bytes": 8880,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_command.json",
+      "sha256": "a414a8ebe0a1b3cce173ac563edf99d3f93802f18a5c3e0411c8e600ed6bfd8b",
+      "bytes": 697,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "64f8edb1a6c630f296394ae16d575abd6ef1de970ad27983c6f8cc0b490446da",
+      "bytes": 19834,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_codex_stderr.log",
+      "sha256": "2b88ca3160084c81d482849389713a985ae7cfbf4db69ca8bb10d75f53421ba0",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_codex_events.jsonl",
+      "sha256": "94569b2019fec1b56d2cd5074aec669e36d625a7e7e3e99662ba47bfe8d27fb4",
+      "bytes": 19771,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_codex_last_message.txt",
+      "sha256": "6aff2f16970208061f7f4961a01d115e1db50ac8dea7f361c4118ca1d759ec30",
+      "bytes": 5604,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_codex_trace.json",
+      "sha256": "a379798433fae752d7bacd5ea2e2994ca0f5e700cd6a60c809fd1448526c454d",
+      "bytes": 507,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_stdout.txt",
+      "sha256": "6aff2f16970208061f7f4961a01d115e1db50ac8dea7f361c4118ca1d759ec30",
+      "bytes": 5604,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/draft_stderr.txt",
+      "sha256": "03c32f83ee551fb2e63eeefec7a4b616453f70f022682bdc71c1eeac58d17fff",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_prompt.md",
+      "sha256": "fb427e38ddc7345bd91cd2a644092b0967e68abb10d29fd9be752dbcecbd0eef",
+      "bytes": 8637,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_command.json",
+      "sha256": "386187b5742bb111f268dd331e1c2f95d2aced606be169ae6333dc37a885a888",
+      "bytes": 693,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "c8f86d3f60fd0c378497f7ccb87b544b19c573eeba6b1dc72cc2380f0e3f4029",
+      "bytes": 1823,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1496f9b18f3b9bb66d5b8f236609cbf417f57c74d52dee88ff358ca5e6d8c192",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "e2578e434cb07c7ab1dad82710cb9f6bb4bfc5c495a5d4dbc24ef3c3edced1f5",
+      "bytes": 1837,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "f704ca0585eedd3aa133e76188dc30c6fc90b4ca6ce4ee5586c6c264d43fe8f6",
+      "bytes": 521,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "48fe6f506469172e53301553814b65528352dbda2cdbe2c4e2d744241c1cd681",
+      "bytes": 501,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "f704ca0585eedd3aa133e76188dc30c6fc90b4ca6ce4ee5586c6c264d43fe8f6",
+      "bytes": 521,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "5036cab0b26ed5b35e3db613e3a83fd27ae232caa8df5f000cdf40b331a3f791",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/revision_prompt.md",
+      "sha256": "ce9817b2069b66549262a814704e9cc1ff34be1497d18dbb61bd92c318082eeb",
+      "bytes": 15941,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/command.json",
+      "sha256": "63b33229615adb76562074a0b1c858ece1974950582e605e5bd48bc8ff3c870f",
+      "bytes": 691,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/codex_stdout.jsonl",
+      "sha256": "0dd8a6edc9cc84cd5a669c34bc40740e063bea2ee895a83d4417961acc14a152",
+      "bytes": 6598,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/codex_stderr.log",
+      "sha256": "d3e0a308ccb071de564876477fa466a7e594f27b45fe598e4d8c171ae8e85009",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/codex_events.jsonl",
+      "sha256": "e9941211f5ac481635551374a36df9948d17388940e996bec8dfe25646a738ba",
+      "bytes": 6620,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/codex_last_message.txt",
+      "sha256": "c5a54f7aadd800485ad56cd5f6f57d18ba785dc6c8cc6b42f795c9ea8b925591",
+      "bytes": 6055,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/codex_trace.json",
+      "sha256": "3a6f15d602cffb3b08cebdec873d56083e0a43a7118594eb3bf445d144fa495f",
+      "bytes": 505,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/stdout.txt",
+      "sha256": "c5a54f7aadd800485ad56cd5f6f57d18ba785dc6c8cc6b42f795c9ea8b925591",
+      "bytes": 6055,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/stderr.txt",
+      "sha256": "75677ee5373036912a1b7caab47427e64e53a090b7ed5b957b7e4a5ded4e7318",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/raw_response.txt",
+      "sha256": "c5a54f7aadd800485ad56cd5f6f57d18ba785dc6c8cc6b42f795c9ea8b925591",
+      "bytes": 6055,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/parsed_cells.json",
+      "sha256": "1801611075ed6fe90a8dc11a16664589bbb874d84ef8c2c3d124fa010cf2d329",
+      "bytes": 6884,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/normalized_cells.json",
+      "sha256": "b1228f644102b0ff565ccb5edffeb9a74a4e69cfff84a719dd451c4f4e9b7494",
+      "bytes": 24322,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/distribution.json",
+      "sha256": "0f836f325ea4f420358d22fe55be138da9ec7f39bfc42f7c797c78ccd59ba4a5",
+      "bytes": 13680,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/validation.json",
+      "sha256": "8998661c18ac9a82c150ee426649bfa555f812558444cfe60a0cf09fcdcc9138",
+      "bytes": 125,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/cells.with_activity.json",
+      "sha256": "504b8365b112aef395ed1d0df9d0ede7aa11f33fec417eeb8ef2d569f020ff1a",
+      "bytes": 37759,
+      "createdAt": "2026-07-10T05:16:48Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-16-48z-bls-jolts-job-openings-2026-07/manifest.json",
+      "sha256": "736ccf4313927f1c487fad10f96107965d95013f8a8d0e77f5bf17eaa00befd5",
+      "bytes": 13629,
+      "createdAt": "2026-07-10T05:16:48Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "jolts-openings-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "d32d0c9be100fefa2d5fe7be6d4eff5d4afa4b4d531c16ca3933b1ae562ed344"
+}

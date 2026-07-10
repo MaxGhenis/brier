@@ -1,0 +1,28 @@
+{
+  "summary": "Draft is mostly methodologically coherent, but publication should wait until the ledger/resolver-source mismatch is reconciled and the interval evidence is strengthened.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft resolves against the July 2026 Monthly CPI Indicator page, while the canonical ledger sourceBinding points to the ABS Consumer Price Index, Australia, June 2026 release.",
+      "actionRequested": "Either fix the target registration/sourceBinding before publication or keep the draft explicitly tied to the ledger contract while documenting the concrete ledger discrepancy; do not leave resolver fields and ledger fields pointing to different ABS releases."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is based on only three recent monthly changes, which is too small a realized-volatility sample to support the stated uncertainty cleanly.",
+      "actionRequested": "Use a longer same-series historical sample for month-ahead or two-month-ahead changes, or state that the half-width is judgmental and explain why [3.2, 5.0] is calibrated."
+    },
+    {
+      "rubricItem": "leakage",
+      "severity": "warning",
+      "summary": "The sourceContext includes the July 2026 ABS page before publication, which could look like outcome leakage even if it is only a placeholder/resolver URL.",
+      "actionRequested": "Label the July 2026 URL as the intended resolver page or remove it from evidence sources until after release."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify whether the persistence prior is anchored on May 2026 level or the Feb-May mean, since both are mentioned.",
+    "Add one sentence saying a richer time-series model was ruled out because only a short-horizon persistence forecast was needed.",
+    "Make the final resolver text match the exact first-print artifact that the automated resolver will fetch."
+  ]
+}

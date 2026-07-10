@@ -1,0 +1,174 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: statcan.gdp_by_industry.monthly_growth
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "canada-monthly-gdp-growth-june-2026"
+- country: "CA"
+- targetUnit: "percent_growth"
+- dataPointId: "statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-06.first_print"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www150.statcan.gc.ca"], "expectedReleaseWindow": {"end": "2026-09-04", "start": "2026-08-27"}, "field": "statcan.gdp_by_industry.monthly_growth", "releasePolicy": "first_print", "sourceSeriesId": "statcan.gdp_by_industry.monthly_growth", "sourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043401", "table": "Statistics Canada The Daily release and Table 36-10-0434-01", "transform": {"factor": 1, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-10-179f91bd3a2b21417904502f7baff0eb106445c690577ba3dcf9a6580a04a2a6.json"
+- targetContentHash: "179f91bd3a2b21417904502f7baff0eb106445c690577ba3dcf9a6580a04a2a6"
+- registrationCommit: "f2738042716881427217caa9c3c13aa4ca8783e5"
+- registeredAtUtc: "2026-07-10T05:03:56Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+0507d72f0395e46431a60fd5d30b741d0a4bf1a7c5ad15f57a99e9d8c59365d6
+
+# Draft forecast response
+{
+  "slug": "canada-monthly-gdp-growth-june-2026",
+  "country": "CA",
+  "type": "data",
+  "title": "Canada Monthly GDP Growth, June 2026",
+  "question": "What will Statistics Canada report as the first-print month-to-month percent change in seasonally adjusted real GDP by industry, all industries, for June 2026?",
+  "unit": "percent_growth",
+  "pointEstimate": 0.1,
+  "ciLow": -0.2,
+  "ciHigh": 0.4,
+  "confidence": 0.8,
+  "resolutionDate": "2026-08-28",
+  "resolutionSource": "Statistics Canada The Daily release and Table 36-10-0434-01",
+  "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043401",
+  "resolutionRule": "Resolve to the first Statistics Canada The Daily/Table 36-10-0434-01 print for seasonally adjusted real GDP by industry, all industries, June 2026 month-to-month percent change; use the value first published on 2026-08-28, rounded to the one-decimal percentage-point precision used in the release/table, and ignore later revisions.",
+  "dataPointId": "statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-06.first_print",
+  "historicalContext": [
+    {
+      "label": "2026-05 advance",
+      "value": 0.1
+    },
+    {
+      "label": "2026-04 official",
+      "value": 0.5
+    },
+    {
+      "label": "2026-03 official",
+      "value": -0.1
+    },
+    {
+      "label": "2026-02 official",
+      "value": 0.2
+    },
+    {
+      "label": "2026-01 official",
+      "value": 0.1
+    },
+    {
+      "label": "2025-12 cited in January release",
+      "value": 0.2
+    },
+    {
+      "label": "2025-11 official",
+      "value": 0
+    },
+    {
+      "label": "2025-10 cited in November release",
+      "value": -0.3
+    }
+  ],
+  "drivers": [
+    "May 2026 advance estimate was +0.1%",
+    "April 2026 rebound was +0.5% after March -0.1%",
+    "Recent monthly GDP by industry base rate is near +0.1%",
+    "Goods rebound in April likely partly one-off",
+    "Services momentum and finance-real-estate support lean mildly positive",
+    "Wholesale, agriculture, and tariff-sensitive goods sectors are downside risks"
+  ],
+  "sourceContext": [
+    "https://www150.statcan.gc.ca/release-diffusion/2026-eng.pdf",
+    "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043401",
+    "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043402",
+    "https://www150.statcan.gc.ca/n1/daily-quotidien/260630/dq260630a-eng.htm",
+    "https://www150.statcan.gc.ca/n1/daily-quotidien/260529/dq260529b-eng.htm",
+    "https://www150.statcan.gc.ca/n1/daily-quotidien/260430/dq260430a-eng.htm",
+    "https://www150.statcan.gc.ca/n1/daily-quotidien/260331/dq260331a-eng.htm",
+    "https://www150.statcan.gc.ca/n1/daily-quotidien/260130/dq260130a-eng.htm"
+  ],
+  "runAt": "2026-07-10T05:11:44Z",
+  "reasoning": [
+    {
+      "kind": "heading",
+      "text": "Canada June 2026 Monthly GDP By Industry Forecast"
+    },
+    {
+      "kind": "text",
+      "text": "Framing and exact resolver: target is Statistics Canada's first-print, seasonally adjusted real GDP by industry, all industries, month-to-month percent change for June 2026. The ledger binds resolution to Table 36-10-0434-01 and The Daily; StatCan also exposes a derived growth-rates view as Table 36-10-0434-02, but I keep the forecast tied to the ledger resolver."
+    },
+    {
+      "kind": "tool",
+      "tool": "official.lookup",
+      "call": "Opened Statistics Canada 2026-2027 major economic releases PDF and read the Gross domestic product by industry schedule.",
+      "result": "Fetched schedule shows Gross domestic product by industry release date July 31, 2026 for May 2026, August 28, 2026 for June 2026, September 29, 2026 for July 2026, and October 30, 2026 for August 2026."
+    },
+    {
+      "kind": "tool",
+      "tool": "official.lookup",
+      "call": "Opened Statistics Canada table pages for the target table and growth-rate view.",
+      "result": "Fetched Table 36-10-0434-01, frequency Monthly, geography Canada, release date 2026-06-30; fetched related growth-rates Table 36-10-0434-02, frequency Monthly, release date 2026-06-30."
+    },
+    {
+      "kind": "tool",
+      "tool": "official.lookup",
+      "call": "Opened The Daily release for Gross domestic product by industry, April 2026.",
+      "result": "Fetched April 2026 real GDP by industry monthly change +0.5%, after March -0.1%; goods-producing industries +1.2%, services-producing industries +0.3%, 14 of 20 industrial sectors grew, and advance information indicated May 2026 real GDP by industry +0.1%."
+    },
+    {
+      "kind": "tool",
+      "tool": "official.lookup",
+      "call": "Opened prior The Daily releases for March, February, January, and November 2025/2026 GDP by industry.",
+      "result": "Fetched March 2026 -0.1% after February +0.2%; February 2026 +0.2%; January 2026 +0.1% following December +0.2%; November 2025 0.0% following October -0.3%."
+    },
+    {
+      "kind": "text",
+      "text": "The base rate/reference class is the recent official and official-advance monthly percent-change sequence for the same variant: seasonally adjusted real GDP by industry at basic prices, all industries, monthly change. The average of October 2025 through May 2026 advance values [-0.3, 0.0, 0.2, 0.1, 0.2, -0.1, 0.5, 0.1] is +0.0875%, so a near +0.1% prior is appropriate before inside-view adjustments."
+    },
+    {
+      "kind": "math",
+      "text": "Prior/update/interval: persistence prior is the recent same-series reference class mean +0.0875% from Oct 2025-May 2026 advance; adjustment components are +0.02 for May advance persistence, -0.03 for partial unwind after April's oil/goods rebound, +0.02 for services/finance-real-estate support, and -0.01 for wholesale/agriculture/tariff-sensitive drag, leaving a rounded point of +0.1%. For a change/flow series, sigma is computed from the values themselves: sample sigma = 0.24 percentage point for [-0.3, 0.0, 0.2, 0.1, 0.2, -0.1, 0.5, 0.1]. The 80% half-width is roughly 1.28*sigma = 1.28*0.24 = 0.31 percentage point, rounded to 0.30, so +0.1 +/- 0.3 gives [-0.2, +0.4]."
+    },
+    {
+      "kind": "text",
+      "text": "Counter-considerations: upside risk would come from another mining/oil, construction, or manufacturing rebound plus steady services and would land above the interval if broad sector gains pushed June to +0.5% or stronger. Downside risk would come from renewed goods-sector weakness, wildfire or energy disruption, or a sharper tariff-sensitive trade slowdown and would land below the interval if June printed -0.3% or weaker. The outside the interval scenarios are plausible but not central given the May advance and recent base rate."
+    },
+    {
+      "kind": "forecast",
+      "point": 0.1,
+      "ciLow": -0.2,
+      "ciHigh": 0.4
+    }
+  ]
+}

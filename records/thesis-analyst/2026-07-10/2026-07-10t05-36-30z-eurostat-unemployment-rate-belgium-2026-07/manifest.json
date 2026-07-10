@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T05:36:30Z",
+  "runStartedAt": "2026-07-10T05:36:30Z",
+  "series": "eurostat.unemployment_rate.belgium",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "belgium-unemployment-rate-july-2026",
+    "country": "BE",
+    "dataPointId": "eurostat.une_rt_m.unemployment_rate.belgium.2026_07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-10T05:03:56Z",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "registrationState": "preregistered",
+    "series": "eurostat.unemployment_rate.belgium",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "ec.europa.eu"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-03",
+        "start": "2026-08-26"
+      },
+      "field": "eurostat.unemployment_rate.belgium",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "eurostat.unemployment_rate.belgium",
+      "sourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en",
+      "table": "Eurostat monthly unemployment euro-indicators release / une_rt_m data page",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "f2450430ddeb46be2e3d63b9b8e4a4e1b976b106bf685c4aecdd49b40f482653",
+    "targetRegistrationPath": "records/targets/2026-07-10-f2450430ddeb46be2e3d63b9b8e4a4e1b976b106bf685c4aecdd49b40f482653.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "f2450430ddeb46be2e3d63b9b8e4a4e1b976b106bf685c4aecdd49b40f482653",
+  "targetRegistrationPath": "records/targets/2026-07-10-f2450430ddeb46be2e3d63b9b8e4a4e1b976b106bf685c4aecdd49b40f482653.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T05:36:30Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "c9c934dfcddf3babe4eed50bb40d6442b07f82be9e42941bbc424039fff745e2"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The +0.05 soft-labour-market adjustment moves the rounded point from a 6.0 latest-value persistence prior to 6.1, but the draft does not cite concrete current evidence for Belgian labour-market softness beyond same-series persistence and mild downward/flat momentum.",
+        "actionRequested": "Either add specific cited evidence supporting the upside adjustment, or remove/neutralize the adjustment and make the final point follow the stated persistence prior."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that the 5.9-6.3 interval is centered on the rounded 6.1 point and is an 80% interval after widening for first-print and rounding uncertainty."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the Eurostat release-calendar check in the final trace because it supports the 2026-09-01 resolutionDate within the registered release window."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer warning about unsupported upward adjustment; removed the +0.05 soft-labour-market adjustment and centered the forecast on the same-series persistence prior. Kept the official release-calendar check and made the widened 80% interval explicitly centered on the rounded 6.0 point.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning about unsupported upward adjustment; removed the +0.05 soft-labour-market adjustment and centered the forecast on the same-series persistence prior. Kept the official release-calendar check and made the widened 80% interval explicitly centered on the rounded 6.0 point.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning about unsupported upward adjustment; removed the +0.05 soft-labour-market adjustment and centered the forecast on the same-series persistence prior. Kept the official release-calendar check and made the widened 80% interval explicitly centered on the rounded 6.0 point.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after tightening the evidence for the small upward adjustment from the persistence prior."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/prompt.md",
+      "sha256": "780f142e8b3f41d2b53efc138402a1decf1b6627c9d7d91dfbaa0f3b59f7ce2f",
+      "bytes": 8865,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_command.json",
+      "sha256": "7d3c58a2fd92810f053f707d43201d04d7805a8a94ede52f4152d80ee1ad6680",
+      "bytes": 709,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "a21511e5b7e9c188e8c4a8c2d408b77df4e27b2635a41d6a9237c7c4f217101e",
+      "bytes": 17177,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_stderr.log",
+      "sha256": "2169d2a7e1ad066f0b4ed7d8c94ab87b29d33844915dd5e6a623d65820824b13",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_events.jsonl",
+      "sha256": "eb77149cfbfecc9278578487eb7ad44ef0ce3cfaae233ae76031aa94f290068a",
+      "bytes": 17127,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_last_message.txt",
+      "sha256": "e5970b8a49ef24d3adf0513bdfec255827b38477b1cb5b3eb137c1e623adf811",
+      "bytes": 5229,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_codex_trace.json",
+      "sha256": "2af0643b7e899a7fe038297077756a91cf38018e9aae7d9ad5f078650813d637",
+      "bytes": 507,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_stdout.txt",
+      "sha256": "e5970b8a49ef24d3adf0513bdfec255827b38477b1cb5b3eb137c1e623adf811",
+      "bytes": 5229,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/draft_stderr.txt",
+      "sha256": "5f369ef1ce27c5283a6596fdb7bd165e83696453711817b3b07d4aa3a20a81a3",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_prompt.md",
+      "sha256": "889951f0a86f19592884f4471c0d201dfa1fa7f4565b844c1d34dc1d04d59a63",
+      "bytes": 8358,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_command.json",
+      "sha256": "8f0200ff9f342448eeb1cc9ece06d97206b0e2b2b8f5cb5e3d0fdf0322b547b3",
+      "bytes": 705,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "e7512ac2a04618a5df956a7959877af10ff16c3bdf2932ffa794dc8b32954cc8",
+      "bytes": 2212,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "0adc8d698a888f8a5d14cecc72b201c95187358f5281fb0578257402f4eee8af",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "c7d0f965e807457f779119ff05aae4a853a410a51342e519e5ad7a742cf022e6",
+      "bytes": 2246,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "75f83425f0a6ff8f62e7e5bb4120cbd47c99524c21be0120e2677a412dfcb59c",
+      "bytes": 989,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "011c56bdb26a2fc163d2d966f41d74a46741ce203a420b73a42ad03110836dae",
+      "bytes": 506,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "75f83425f0a6ff8f62e7e5bb4120cbd47c99524c21be0120e2677a412dfcb59c",
+      "bytes": 989,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "240d621ebeac0c1c56d01927696654abfbd433c2f990bf5087a95d1eb8e31f4f",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/revision_prompt.md",
+      "sha256": "2c27283ed6853b0e6a385d70bee8c39572a4b7bf621cb1637849551827037a55",
+      "bytes": 16019,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/command.json",
+      "sha256": "79335bc73e64ed8931d2052a1ef9b8701a8d169e16ef019dd7542d5da9d4c402",
+      "bytes": 703,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/codex_stdout.jsonl",
+      "sha256": "215e1cb9d908e781e17e6339206b5568daf8239fa956c6a657c44269955dc158",
+      "bytes": 6148,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/codex_stderr.log",
+      "sha256": "fe3769478c36fbad6909ac9b457b5f0dda1d824250edcd03733e9d97df3f91f5",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/codex_events.jsonl",
+      "sha256": "4a902a817e72839cfdd6d3ddb4c5e0c6fc584629904a25dcd76243cb77c6d778",
+      "bytes": 6170,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/codex_last_message.txt",
+      "sha256": "b545f284d787f0af0187aa9c8fa546880a0110e3e93be2356054a22b473817d0",
+      "bytes": 5617,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/codex_trace.json",
+      "sha256": "59e2c1c51be8c9ef840d076d600982e3019980d6d4307ad6730852c531511b65",
+      "bytes": 501,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/stdout.txt",
+      "sha256": "b545f284d787f0af0187aa9c8fa546880a0110e3e93be2356054a22b473817d0",
+      "bytes": 5617,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/stderr.txt",
+      "sha256": "bb9514fe669c2c48e2803715ab933e9a292c5817a93cb12b517e843c5227aa91",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/raw_response.txt",
+      "sha256": "b545f284d787f0af0187aa9c8fa546880a0110e3e93be2356054a22b473817d0",
+      "bytes": 5617,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/parsed_cells.json",
+      "sha256": "ccb9cffc26c9a2bdc44462ae6e45a2d269b3add3818c262d2ed7cf352220facf",
+      "bytes": 6405,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/normalized_cells.json",
+      "sha256": "e5eb458f1244cae549f746ec67666a9da5ba6224012ae7ba521029ea2ada31fb",
+      "bytes": 23501,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/distribution.json",
+      "sha256": "d3bea16d50aec6b4cb116fe177df419a48516c8d28fcc03b982c2ba887361917",
+      "bytes": 13338,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/validation.json",
+      "sha256": "68fda9c94382b91a3779f9c1c5145f898b0935cea9b2d7aa35688e7cdd212fd4",
+      "bytes": 136,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/cells.with_activity.json",
+      "sha256": "2aa55374dea50325e24c168b1178c6bd485f5931211b099d599aeedeb57a0c6d",
+      "bytes": 38536,
+      "createdAt": "2026-07-10T05:36:30Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-36-30z-eurostat-unemployment-rate-belgium-2026-07/manifest.json",
+      "sha256": "3fec5af770ed4cb305113c1fea503c26f84cd8f6b6852b64ed2495faad0cc85f",
+      "bytes": 15224,
+      "createdAt": "2026-07-10T05:36:30Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "belgium-unemployment-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "0d5b44d3ebf8c5a68c4364fe4465ca4ade717b770eeaab7e4a9f738e9a02d9a1"
+}

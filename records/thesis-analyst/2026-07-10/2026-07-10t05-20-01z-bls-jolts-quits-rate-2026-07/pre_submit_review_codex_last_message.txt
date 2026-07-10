@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is publishable with no blocking issues; the main weakness is that the interval volatility estimate rests on only three monthly changes.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is derived from only three recent monthly changes, which is a very small realized-volatility sample for calibrating uncertainty.",
+      "actionRequested": "Broaden the historical volatility sample or explicitly state that the narrow recent-change sample is being used as a judgmental short-run uncertainty proxy."
+    }
+  ],
+  "optionalSuggestions": [
+    "State explicitly that BLS reports the target rate in percent and normally to one decimal, while the forecast interval is expressed on the underlying percent scale.",
+    "Mention that the release date is tied to the BLS July 2026 JOLTS schedule entry on September 1, 2026, not inferred from monthly cadence."
+  ]
+}

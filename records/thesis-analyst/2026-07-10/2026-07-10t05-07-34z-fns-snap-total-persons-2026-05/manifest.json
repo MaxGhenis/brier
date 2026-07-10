@@ -1,0 +1,416 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T05:07:34Z",
+  "runStartedAt": "2026-07-10T05:07:34Z",
+  "series": "fns.snap.total_persons",
+  "period": "2026-05",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "snap-participation-may-2026",
+    "country": "US",
+    "dataPointId": "usda.fns.snap.persons.may_2026",
+    "period": "2026-05",
+    "registeredAt": "2026-07-10T05:03:56Z",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "registrationState": "preregistered",
+    "series": "fns.snap.total_persons",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.fns.usda.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-10-04",
+        "start": "2026-09-26"
+      },
+      "field": "Persons",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "fns.snap.total_persons",
+      "sourceUrl": "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap",
+      "table": "FNS SNAP data tables, national monthly participation (thousands)",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "ce991f6991d220d23c0e726215dd851d2dc220fecb76c58a8a740d915a0eeacd",
+    "targetRegistrationPath": "records/targets/2026-07-10-ce991f6991d220d23c0e726215dd851d2dc220fecb76c58a8a740d915a0eeacd.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "ce991f6991d220d23c0e726215dd851d2dc220fecb76c58a8a740d915a0eeacd",
+  "targetRegistrationPath": "records/targets/2026-07-10-ce991f6991d220d23c0e726215dd851d2dc220fecb76c58a8a740d915a0eeacd.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T05:07:34Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "16842a91120ad0efd22e2c7960250534b7fcdb3cbe1edcae4ba0328fbf0e89b6"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "The -0.65 million policy/administrative tightening adjustment is material but is not supported by a cited policy source or quantified bridge from current evidence.",
+        "actionRequested": "Add public evidence for the 2026 SNAP eligibility or administrative tightening mechanism and explain how it maps to about -0.65 million persons, or reduce/reframe the adjustment as a weaker judgmental update."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval cites realized dispersion and sigma = 0.52 million, but the actual historical sample, dates, and calculation are not shown.",
+        "actionRequested": "Name the exact historical window or comparable changes used to estimate sigma, including sample size or representative realized movements."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "tails",
+        "summary": "Tail labels are directionally confusing: faster eligibility removals are called upside risk even though they lower participation, while delayed effects are described as downside risk to a low-participation forecast.",
+        "actionRequested": "Rewrite tail scenarios in target-outcome terms, with low-tail below 40.9 million and high-tail above 42.34 million clearly tied to SNAP participation."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that the resolution date is the scheduled first-print release date, 2026-09-30, and that this remains within the ledger release window."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "List one or two actual Nov-to-May historical movements if those are central to the persistence prior."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the final JSON unchanged only after the reasoning supports the same point and interval."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the draft's -0.65 million policy adjustment was under-supported, so I reduced it to -0.35 million and described it as judgmental; accepted the interval critique by naming the May-to-May movements used for sigma; accepted the tail critique by rewriting risks in target-outcome terms.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the draft's -0.65 million policy adjustment was under-supported, so I reduced it to -0.35 million and described it as judgmental; accepted the interval critique by naming the May-to-May movements used for sigma; accepted the tail critique by rewriting risks in target-outcome terms.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the draft's -0.65 million policy adjustment was under-supported, so I reduced it to -0.35 million and described it as judgmental; accepted the interval critique by naming the May-to-May movements used for sigma; accepted the tail critique by rewriting risks in target-outcome terms.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the draft's -0.65 million policy adjustment was under-supported, so I reduced it to -0.35 million and described it as judgmental; accepted the interval critique by naming the May-to-May movements used for sigma; accepted the tail critique by rewriting risks in target-outcome terms.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the draft's -0.65 million policy adjustment was under-supported, so I reduced it to -0.35 million and described it as judgmental; accepted the interval critique by naming the May-to-May movements used for sigma; accepted the tail critique by rewriting risks in target-outcome terms.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the draft's -0.65 million policy adjustment was under-supported, so I reduced it to -0.35 million and described it as judgmental; accepted the interval critique by naming the May-to-May movements used for sigma; accepted the tail critique by rewriting risks in target-outcome terms.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The forecast is mostly tied to the correct SNAP May 2026 first-print target, but the large policy-driven downward adjustment and interval need better evidentiary support and clearer tail wording before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/prompt.md",
+      "sha256": "d1f0fc44052a6e6632b0d53839f25a322259ec070397fb6997d0e4ba172d3894",
+      "bytes": 8901,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_command.json",
+      "sha256": "6da857326765f41832b12c9c44bc9d24a505e46cb0c14562ff98f48d0977558e",
+      "bytes": 697,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_codex_stdout.jsonl",
+      "sha256": "5095000b6a30e6b753c149c3123246634c8de4929a9da8ecf32b74ecbaf089a5",
+      "bytes": 22398,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_codex_stderr.log",
+      "sha256": "35cf97f23fcb3ffcd5abfe0ef8cb4a97dffac9f5bb4f55bd01234f6c00959298",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_codex_events.jsonl",
+      "sha256": "5d8d7d15dd25beb129bc4d020ef1523cff137432e41b5827ab0fa8260fc6a37d",
+      "bytes": 22338,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_codex_last_message.txt",
+      "sha256": "535858e0f1c6fc080b9fc1c9999966fe444da2af71a0f88339a71d34827273c0",
+      "bytes": 5394,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_codex_trace.json",
+      "sha256": "41091b51620b1e84456abb9b28be5207650a8825c0f315823b05907278ef65c3",
+      "bytes": 508,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_stdout.txt",
+      "sha256": "535858e0f1c6fc080b9fc1c9999966fe444da2af71a0f88339a71d34827273c0",
+      "bytes": 5394,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/draft_stderr.txt",
+      "sha256": "a69416a02ca980d865324e3e7a69286151031d55abed4b96fb0f10bf80843b01",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_prompt.md",
+      "sha256": "7ecb32c1fd5e4bda5d27e1c6f97398bc6542466a8207fd6914f447fc4712dd7f",
+      "bytes": 8427,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_command.json",
+      "sha256": "a850dbfda9e629bb2dcbbbbef9e2bc277dea24d4840ffeecb20d765c450c7fc5",
+      "bytes": 693,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "f41287cff831a416b6eddaaed231500e67068b601b58bcbc6ebbf93a44486f88",
+      "bytes": 2436,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_codex_stderr.log",
+      "sha256": "993c0aee694d7e46785c5884f259a49b9d9d88b7405d69d1165668feefb7bfda",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_codex_events.jsonl",
+      "sha256": "6c21abd55edb1a8f6f9735225a0587416145729b9209d977e7b42cdb78d4521b",
+      "bytes": 2458,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_codex_last_message.txt",
+      "sha256": "439e05a1b74219f4f7f51fc528f09ec72ac319eb206e774a0b80a9eba525bf92",
+      "bytes": 2033,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_codex_trace.json",
+      "sha256": "b7e2dc0ca8105f02f4bb7bb698df4868e13276bb5ae975ab5c3a72fa7884e3fb",
+      "bytes": 501,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_stdout.txt",
+      "sha256": "439e05a1b74219f4f7f51fc528f09ec72ac319eb206e774a0b80a9eba525bf92",
+      "bytes": 2033,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/pre_submit_review_stderr.txt",
+      "sha256": "5ceb3b47c1dc67f6479b89c177e731d51f805fc66890cd6082235cb6ffbf1717",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/revision_prompt.md",
+      "sha256": "99f6ac718c2a8cba048aec06aae4fc889c45a1c975426b45dfe5ae7827097d8c",
+      "bytes": 17264,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/command.json",
+      "sha256": "cb77856565631ba29213e8247f2b76f64455ee115cdfadc18e565db187bfc111",
+      "bytes": 691,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/codex_stdout.jsonl",
+      "sha256": "009845c88700ab884682d80e7098f4202a4264d772f8388d4db5d975cbc53845",
+      "bytes": 7324,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/codex_stderr.log",
+      "sha256": "f62dcceb5d7bfb457c5509566819002c23ac4d23eeb5b866cae1a53196f26a59",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/codex_events.jsonl",
+      "sha256": "7905b4fdc0ed5606078f35d12c59122ebad4ed7167d551434e73a6506d92d466",
+      "bytes": 7346,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/codex_last_message.txt",
+      "sha256": "c35e20678efeec39e33ef0c47ea66bda6ee7e80ddaf78f34ad55a8d256f9fcf0",
+      "bytes": 6758,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/codex_trace.json",
+      "sha256": "33a88229a9366c48525687a63ea91c28e003cd05f8a1677541945d7c132e151e",
+      "bytes": 506,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/stdout.txt",
+      "sha256": "c35e20678efeec39e33ef0c47ea66bda6ee7e80ddaf78f34ad55a8d256f9fcf0",
+      "bytes": 6758,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/stderr.txt",
+      "sha256": "f533489199f03dba3e73a037bf8df37048e5b48ad6a8b292f93058213f287c5a",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/raw_response.txt",
+      "sha256": "c35e20678efeec39e33ef0c47ea66bda6ee7e80ddaf78f34ad55a8d256f9fcf0",
+      "bytes": 6758,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/parsed_cells.json",
+      "sha256": "5b41946f20860c1b7c698b8b9008ea2053e1448a743833cf44d4e377e6d3a1fe",
+      "bytes": 7668,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/normalized_cells.json",
+      "sha256": "9ceb55fb960f341a7d48e2207c6f289cf0867395e16a93b1e34a8b99f7e137aa",
+      "bytes": 25043,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/distribution.json",
+      "sha256": "95df61e3902ae73d583b438c35f456b8bcf9cabe0cbeb6b1285b91dd876d3957",
+      "bytes": 13617,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/validation.json",
+      "sha256": "1841a14b9cc444613559d393d53929081f94d83cc5082bbbea047a8500977c5f",
+      "bytes": 128,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/cells.with_activity.json",
+      "sha256": "2dce84266c3e17899803b16178a028cb4301123b142bed6cfc79c80a97d52c93",
+      "bytes": 42433,
+      "createdAt": "2026-07-10T05:07:34Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-07-34z-fns-snap-total-persons-2026-05/manifest.json",
+      "sha256": "35a55a50fb667af6ccfd151443d339d97555d639d6aaa1a0318e186947afc683",
+      "bytes": 17021,
+      "createdAt": "2026-07-10T05:07:34Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "snap-participation-may-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "69b267231a9218a5ed50a245ed70c5b223ac7080167c86ab5c466b1e4e2580c9"
+}

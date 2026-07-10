@@ -1,0 +1,404 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T05:23:14Z",
+  "runStartedAt": "2026-07-10T05:23:14Z",
+  "series": "bea.core_pce.mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-core-pce-mom-july-2026",
+    "country": "US",
+    "dataPointId": "us.bea.core_pce.mom_sa.2026-07",
+    "period": "2026-07",
+    "registeredAt": "2026-07-10T05:03:56Z",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "registrationState": "preregistered",
+    "series": "bea.core_pce.mom",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bea.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-03",
+        "start": "2026-08-26"
+      },
+      "field": "bea.core_pce.mom",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bea.core_pce.mom",
+      "sourceUrl": "https://www.bea.gov/data/personal-consumption-expenditures-price-index-excluding-food-and-energy",
+      "table": "U.S. Bureau of Economic Analysis, Personal Income and Outlays",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "32674225cad71e81ea6b8ff485cc40f0187cf9a4186ed313499c427655355a93",
+    "targetRegistrationPath": "records/targets/2026-07-10-32674225cad71e81ea6b8ff485cc40f0187cf9a4186ed313499c427655355a93.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "32674225cad71e81ea6b8ff485cc40f0187cf9a4186ed313499c427655355a93",
+  "targetRegistrationPath": "records/targets/2026-07-10-32674225cad71e81ea6b8ff485cc40f0187cf9a4186ed313499c427655355a93.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T05:23:14Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "5300517fc495a279c6c1728d94c45ba05f04a54ce1f3e88b51d24e529da78a5e"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is based on the standard deviation of only four recent monthly changes, which is too small a realized-volatility sample for a two-month-ahead first-print forecast.",
+        "actionRequested": "Use a longer realized-volatility sample for core PCE MoM, or explicitly justify why the four-month sample is sufficient and add uncertainty for July being two releases ahead."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step exists, but the base-rate prior is introduced after current evidence/tool results rather than cleanly before inside-view updates.",
+        "actionRequested": "Reorder or restate the reasoning so the persistence/base-rate prior is named first, then list the evidence-based adjustments, then the interval method and implied bounds."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The -0.04 mean-reversion adjustment is larger than the cited evidence clearly supports, since May's 0.320 is only slightly above the 0.315 four-month average and April's softer value is already included in that average.",
+        "actionRequested": "Either reduce the mean-reversion adjustment or explain with concrete evidence why July should be materially below the recent same-series persistence prior."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that FRED is used only as a BEA history mirror, not as the resolver."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider naming the longer historical sample window if used for volatility, such as pre-pandemic, post-2021, or trailing 24-60 months."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by widening beyond the four-month realized-volatility half-width for two-release-ahead uncertainty, accepted the prior-ordering critique by stating the persistence base rate before adjustments, and accepted the mean-reversion critique by reducing the downward adjustment from the draft.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by widening beyond the four-month realized-volatility half-width for two-release-ahead uncertainty, accepted the prior-ordering critique by stating the persistence base rate before adjustments, and accepted the mean-reversion critique by reducing the downward adjustment from the draft.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by widening beyond the four-month realized-volatility half-width for two-release-ahead uncertainty, accepted the prior-ordering critique by stating the persistence base rate before adjustments, and accepted the mean-reversion critique by reducing the downward adjustment from the draft.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by widening beyond the four-month realized-volatility half-width for two-release-ahead uncertainty, accepted the prior-ordering critique by stating the persistence base rate before adjustments, and accepted the mean-reversion critique by reducing the downward adjustment from the draft.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by widening beyond the four-month realized-volatility half-width for two-release-ahead uncertainty, accepted the prior-ordering critique by stating the persistence base rate before adjustments, and accepted the mean-reversion critique by reducing the downward adjustment from the draft.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publishable, but the interval support is too thin and the prior/update presentation should be tightened before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/prompt.md",
+      "sha256": "64a70e0b352461531c14453cffe8ec910a1a95fde4c46c6b5a84f64aa444ac8c",
+      "bytes": 8891,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_command.json",
+      "sha256": "fa1f56b7702745e59b3fa5800902dc6771f8d6ddd145efacd297f1b998b72a75",
+      "bytes": 691,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "f7f78b948eaee409f4df84fdee35284378ef77bbf5f64e3076bf95e75e4fac3b",
+      "bytes": 19471,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "72369d2ba60e2e0b2c471ada8c1be24d5c779d57a8553a06c3e755eb3c00e222",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "755c4ede2a1510474fcd7b4a31cb892a7d621f98fe28a0e75f0b7e56c9ad8108",
+      "bytes": 19384,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "ee4be51eb219483b672ebcfd8b17845ad4260061370a2cad64d28e34ce35fa32",
+      "bytes": 5982,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_codex_trace.json",
+      "sha256": "73298c4a1548c45b2efb85c59248fa0be9c78009c83cf63939c627a30e77d97d",
+      "bytes": 507,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_stdout.txt",
+      "sha256": "ee4be51eb219483b672ebcfd8b17845ad4260061370a2cad64d28e34ce35fa32",
+      "bytes": 5982,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/draft_stderr.txt",
+      "sha256": "4c2966bf6fb96b025bcee25af7c814b3681ee6bf77de86d6892531263d10be87",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "269197c899971d006fdef88835457ce143e4a6f67a498c2326334f69f5bafbf5",
+      "bytes": 9026,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "839e57dbbe26da51a718aec8d32f8da575f05b57da087d3d0c2257f2328e886a",
+      "bytes": 687,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "e0f1eb00c842702dcbfdff28601c661b7471acd09f68bb89890c197b775bdec1",
+      "bytes": 2118,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "420d9834870ea29a980b711664f2d7a276bbfdc70ec11e115187b3a130a87c75",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "84f5c11361d11a522c1aa9617bbf7753a8b92bf580fdb3062ad72d5d8e890bd6",
+      "bytes": 2140,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "2cb9dd509a2f535ab1b3429465c64ff98e5b840144de7de3d8765286b2ee64f3",
+      "bytes": 1740,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "9b4f1b54aad06c75f93bb37cfcec03635045436e8f4ea331447f1116cfba4ab3",
+      "bytes": 505,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "2cb9dd509a2f535ab1b3429465c64ff98e5b840144de7de3d8765286b2ee64f3",
+      "bytes": 1740,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "472cc1b6ebf1ffe4b7384c278be2eb6759f491837fe03e9e9948e05e9eb5bf13",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/revision_prompt.md",
+      "sha256": "fa34ff6f82302fe035875991e94654c5293f81e9f7905d56e49cbbf1f1232b0f",
+      "bytes": 17549,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/command.json",
+      "sha256": "f29b9e1eb05b51b27f59adf35bf2b686dcf35956d1c9adf19ca0192f25ccd3e6",
+      "bytes": 685,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "5b891c29d8212f99b2ef10d889c63509bead1178624c0d0c133047a6281d74c4",
+      "bytes": 7209,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/codex_stderr.log",
+      "sha256": "36ab31017f9f758d7baeba367a1de5f26b4c8be2250b48930962b7f39357f6b3",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/codex_events.jsonl",
+      "sha256": "f13dfeecfa76068bbd33843f67901dc4db993afc06342f6af9f583302eccbbcc",
+      "bytes": 7231,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/codex_last_message.txt",
+      "sha256": "e4e4789a6c62d51555dbfb664f27ade55be0672706aead30901f74c31ca4fe58",
+      "bytes": 6666,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/codex_trace.json",
+      "sha256": "58eb1d630e3edae7711602b3268669a3a368f340e3336b753ca3b94c1d0526dc",
+      "bytes": 505,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/stdout.txt",
+      "sha256": "e4e4789a6c62d51555dbfb664f27ade55be0672706aead30901f74c31ca4fe58",
+      "bytes": 6666,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/stderr.txt",
+      "sha256": "94aa4234dbed086a0603bd0728f222080c2909f346c80a43f43e1de3b0a31cb2",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/raw_response.txt",
+      "sha256": "e4e4789a6c62d51555dbfb664f27ade55be0672706aead30901f74c31ca4fe58",
+      "bytes": 6666,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/parsed_cells.json",
+      "sha256": "89a774bebe798a7e77237e97f5fb80992aa83f234a75db5bc45427cb24dc63b1",
+      "bytes": 7474,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/normalized_cells.json",
+      "sha256": "21855b7dd3bc98644788acfe84b728c83b89fa1e35956039bda6ba0483dc7844",
+      "bytes": 24670,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/distribution.json",
+      "sha256": "d863903d97f3f05cc8fe57d01116b1133a97f683a8d7809ca3a36e39c639ed75",
+      "bytes": 13438,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/validation.json",
+      "sha256": "8e5403862b35b2686b77ac2c8e0e5ab93e73674f4778112aa8a44b578819c8df",
+      "bytes": 126,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/cells.with_activity.json",
+      "sha256": "910f7c0754f15b38e5eded6219b76f959453f98d06a47c428f2a5d4124a49889",
+      "bytes": 41094,
+      "createdAt": "2026-07-10T05:23:14Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-23-14z-bea-core-pce-mom-2026-07/manifest.json",
+      "sha256": "5a253845e910561a69a22fc2012d357aa9bb425bc9fa88e99fd809fefdc635c9",
+      "bytes": 16174,
+      "createdAt": "2026-07-10T05:23:14Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-core-pce-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "7aa78973cb11f5841167fe5f19c97d35fd05137c88eb7e9a0103134fddc6f61d"
+}

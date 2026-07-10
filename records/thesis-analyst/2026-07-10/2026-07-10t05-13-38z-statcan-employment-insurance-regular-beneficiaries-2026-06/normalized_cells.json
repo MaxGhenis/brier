@@ -1,0 +1,943 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada regular EI beneficiaries, June 2026",
+    "question": "What will Statistics Canada first print for Canada regular Employment Insurance beneficiaries, seasonally adjusted, for June 2026, in Table 14-10-0011-01?",
+    "unit": "thousands",
+    "pointEstimate": 535,
+    "ciLow": 519,
+    "ciHigh": 551,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-04 latest official Table 14-10-0011-01 print",
+        "value": 544.44
+      },
+      {
+        "label": "2026-03 The Daily print",
+        "value": 548
+      },
+      {
+        "label": "2026-02 The Daily print",
+        "value": 542.11
+      },
+      {
+        "label": "2026-05 Labour Force Survey unemployment rate, percent",
+        "value": 6.6
+      }
+    ],
+    "drivers": [
+      "April regular EI level was 544.44 thousand after a 0.5% monthly decline",
+      "January and February EI declines were only partly reversed in March",
+      "May Labour Force Survey showed employment up 88,000 and unemployment down to 6.6%, pointing to lower near-term EI inflow pressure",
+      "EI benefits lag labour-market conditions, so the strong May LFS is a small downward adjustment against a larger stabilization and lag adjustment",
+      "Temporary EI measures and tariff-sensitive sectors keep upside risk from a sharper claims build"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260522/dq260522b-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260423/dq260423c-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "https://www150.statcan.gc.ca/release-diffusion/2026-eng.pdf"
+    ],
+    "runAt": "2026-07-10T05:16:48Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada regular EI beneficiaries, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets Statistics Canada Table 14-10-0011-01, Canada, regular Employment Insurance beneficiaries, monthly, seasonally adjusted, June 2026, first print, converted from persons to thousands. The ledger table description mentions The Daily release for May 2026, but the catalog slug, dataPointId, expected release window, and question period identify June 2026, so I keep the forecast tied to the June 2026 target."
+      },
+      {
+        "kind": "text",
+        "text": "Resolution timing: the Statistics Canada 2026 release schedule and the April EI release notice place the EI sequence on July 23, 2026 for May 2026 and August 20, 2026 for June 2026 within the registered August 19 to August 27 window. I therefore use 2026-08-20 as the first-print resolution date rather than inferring solely from cadence."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada Table 14-10-0011-01 and the April 2026 The Daily Employment Insurance release.",
+        "result": "Fetched latest same-series values: April 2026 regular EI beneficiaries Canada = 544,440 persons = 544.44 thousand; monthly change = -0.5%; year-over-year change = +3.5%; The Daily states May 2026 EI data will be released 2026-07-23."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada The Daily Employment Insurance, March 2026.",
+        "result": "Fetched March 2026 regular EI beneficiaries Canada = 548,000 persons = 548.0 thousand; monthly change = +0.4%; year-over-year change = +8.7%; text says March increased by 2,300 after a February decline of 8,700 and remained below the November 2025 peak of 569,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada The Daily Employment Insurance, February 2026.",
+        "result": "Fetched February 2026 regular EI beneficiaries Canada = 542,110 persons = 542.11 thousand; monthly change = -1.6%; year-over-year change = +8.1%; text says February declined by 8,700 after a January decline of 17,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Statistics Canada Labour Force Survey, May 2026, as a public leading labour-market indicator for EI inflows.",
+        "result": "Fetched May 2026 Canada employment = 21,122,000; employment monthly change = +0.4%; unemployment rate = 6.6%; unemployment rate monthly change = -0.3 percentage points; highlights say employment increased by 88,000 in May after a net decline of 112,000 over January-April 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for a two-month-ahead level forecast of a seasonally adjusted EI beneficiary count, the base rate is persistence from the latest available level with recent official monthly changes. Same-variant anchors are all Canada regular EI beneficiaries, seasonally adjusted, from the same Statistics Canada EI series, not gross claims, LFS unemployment, or unadjusted counts."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior starts at April 2026 = 544.44 thousand. Recent official EI changes used for dispersion are January -17.0 thousand, February -8.7 thousand, March +2.3 thousand, and April about -2.7 thousand from -0.5% of roughly 547.2 thousand; mean change = -6.5 thousand and sample sigma = 8.3 thousand. Base two-month trend prior is 544.4 - 2*6.5 = 531.4 thousand. I add +5.6 thousand for March-April stabilization and EI benefit duration lag, then subtract 2.0 thousand for the strong May LFS signal lowering expected inflows, for a net +3.6 thousand adjustment and point = 535.0 thousand. The short four-change volatility sample is narrow but same-variant and recent, so I use it as a base and widen for horizon. The one-month 80% half-width is 1.28*sigma = 1.28*8.3 = 10.6 thousand; because June is two unpublished EI months beyond April, I widen to about 16.0 thousand, within 1.5x the one-month half-width, so interval = 535.0 +/- 16.0 = [519.0, 551.0]."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: tariff-sensitive layoffs, administrative backlogs, or slower exits from regular benefits would land above the interval if the first-print June 2026 Table 14-10-0011-01 value exceeds 551 thousand. Downside risk: a broad job-finding improvement after the May LFS rebound would land below the interval if the first-print June 2026 value falls below 519 thousand. Outside the interval would be most plausible if the May LFS employment gain carries directly into EI exits or if a sudden sectoral shock reverses it before the June EI reference week."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by naming the August 20, 2026 official release-calendar basis, accepted the update critique by separating stabilization, EI lag, and LFS components, and accepted the interval-sample note by flagging the four-change volatility base and horizon widening."
+      },
+      {
+        "kind": "forecast",
+        "point": 535,
+        "ciLow": 519,
+        "ciHigh": 551
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T05:15:31Z",
+    "runStartedAt": "2026-07-10T05:13:38Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+    "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 495.0,
+        "upper": 575.0
+      },
+      "points": [
+        {
+          "value": 495.0,
+          "probability": 0.0
+        },
+        {
+          "value": 495.4,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 495.8,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 496.2,
+          "probability": 0.005
+        },
+        {
+          "value": 496.6,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 497.0,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 497.4,
+          "probability": 0.01
+        },
+        {
+          "value": 497.8,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 498.2,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 498.6,
+          "probability": 0.015
+        },
+        {
+          "value": 499.0,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 499.4,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 499.8,
+          "probability": 0.02
+        },
+        {
+          "value": 500.2,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 500.6,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 501.0,
+          "probability": 0.025
+        },
+        {
+          "value": 501.4,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 501.8,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 502.2,
+          "probability": 0.03
+        },
+        {
+          "value": 502.6,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 503.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 503.4,
+          "probability": 0.035
+        },
+        {
+          "value": 503.8,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 504.2,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 504.6,
+          "probability": 0.04
+        },
+        {
+          "value": 505.0,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 505.4,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 505.8,
+          "probability": 0.045
+        },
+        {
+          "value": 506.2,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 506.6,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 507.0,
+          "probability": 0.05
+        },
+        {
+          "value": 507.4,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 507.8,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 508.2,
+          "probability": 0.055
+        },
+        {
+          "value": 508.6,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 509.0,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 509.4,
+          "probability": 0.06
+        },
+        {
+          "value": 509.8,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 510.2,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 510.6,
+          "probability": 0.065
+        },
+        {
+          "value": 511.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 511.4,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 511.8,
+          "probability": 0.07
+        },
+        {
+          "value": 512.2,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 512.6,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 513.0,
+          "probability": 0.075
+        },
+        {
+          "value": 513.4,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 513.8,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 514.2,
+          "probability": 0.08
+        },
+        {
+          "value": 514.6,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 515.0,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 515.4,
+          "probability": 0.085
+        },
+        {
+          "value": 515.8,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 516.2,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 516.6,
+          "probability": 0.09
+        },
+        {
+          "value": 517.0,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 517.4,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 517.8,
+          "probability": 0.095
+        },
+        {
+          "value": 518.2,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 518.6,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 519.0,
+          "probability": 0.1
+        },
+        {
+          "value": 519.4,
+          "probability": 0.11
+        },
+        {
+          "value": 519.8,
+          "probability": 0.12
+        },
+        {
+          "value": 520.2,
+          "probability": 0.13
+        },
+        {
+          "value": 520.6,
+          "probability": 0.14
+        },
+        {
+          "value": 521.0,
+          "probability": 0.15
+        },
+        {
+          "value": 521.4,
+          "probability": 0.16
+        },
+        {
+          "value": 521.8,
+          "probability": 0.17
+        },
+        {
+          "value": 522.2,
+          "probability": 0.18
+        },
+        {
+          "value": 522.6,
+          "probability": 0.19
+        },
+        {
+          "value": 523.0,
+          "probability": 0.2
+        },
+        {
+          "value": 523.4,
+          "probability": 0.21
+        },
+        {
+          "value": 523.8,
+          "probability": 0.22
+        },
+        {
+          "value": 524.2,
+          "probability": 0.23
+        },
+        {
+          "value": 524.6,
+          "probability": 0.24
+        },
+        {
+          "value": 525.0,
+          "probability": 0.25
+        },
+        {
+          "value": 525.4,
+          "probability": 0.26
+        },
+        {
+          "value": 525.8,
+          "probability": 0.27
+        },
+        {
+          "value": 526.2,
+          "probability": 0.28
+        },
+        {
+          "value": 526.6,
+          "probability": 0.29
+        },
+        {
+          "value": 527.0,
+          "probability": 0.3
+        },
+        {
+          "value": 527.4,
+          "probability": 0.31
+        },
+        {
+          "value": 527.8,
+          "probability": 0.32
+        },
+        {
+          "value": 528.2,
+          "probability": 0.33
+        },
+        {
+          "value": 528.6,
+          "probability": 0.34
+        },
+        {
+          "value": 529.0,
+          "probability": 0.35
+        },
+        {
+          "value": 529.4,
+          "probability": 0.36
+        },
+        {
+          "value": 529.8,
+          "probability": 0.37
+        },
+        {
+          "value": 530.2,
+          "probability": 0.38
+        },
+        {
+          "value": 530.6,
+          "probability": 0.39
+        },
+        {
+          "value": 531.0,
+          "probability": 0.4
+        },
+        {
+          "value": 531.4,
+          "probability": 0.41
+        },
+        {
+          "value": 531.8,
+          "probability": 0.42
+        },
+        {
+          "value": 532.2,
+          "probability": 0.43
+        },
+        {
+          "value": 532.6,
+          "probability": 0.44
+        },
+        {
+          "value": 533.0,
+          "probability": 0.45
+        },
+        {
+          "value": 533.4,
+          "probability": 0.46
+        },
+        {
+          "value": 533.8,
+          "probability": 0.47
+        },
+        {
+          "value": 534.2,
+          "probability": 0.48
+        },
+        {
+          "value": 534.6,
+          "probability": 0.49
+        },
+        {
+          "value": 535.0,
+          "probability": 0.5
+        },
+        {
+          "value": 535.4,
+          "probability": 0.51
+        },
+        {
+          "value": 535.8,
+          "probability": 0.52
+        },
+        {
+          "value": 536.2,
+          "probability": 0.53
+        },
+        {
+          "value": 536.6,
+          "probability": 0.54
+        },
+        {
+          "value": 537.0,
+          "probability": 0.55
+        },
+        {
+          "value": 537.4,
+          "probability": 0.56
+        },
+        {
+          "value": 537.8,
+          "probability": 0.57
+        },
+        {
+          "value": 538.2,
+          "probability": 0.58
+        },
+        {
+          "value": 538.6,
+          "probability": 0.59
+        },
+        {
+          "value": 539.0,
+          "probability": 0.6
+        },
+        {
+          "value": 539.4,
+          "probability": 0.61
+        },
+        {
+          "value": 539.8,
+          "probability": 0.62
+        },
+        {
+          "value": 540.2,
+          "probability": 0.63
+        },
+        {
+          "value": 540.6,
+          "probability": 0.64
+        },
+        {
+          "value": 541.0,
+          "probability": 0.65
+        },
+        {
+          "value": 541.4,
+          "probability": 0.66
+        },
+        {
+          "value": 541.8,
+          "probability": 0.67
+        },
+        {
+          "value": 542.2,
+          "probability": 0.68
+        },
+        {
+          "value": 542.6,
+          "probability": 0.69
+        },
+        {
+          "value": 543.0,
+          "probability": 0.7
+        },
+        {
+          "value": 543.4,
+          "probability": 0.71
+        },
+        {
+          "value": 543.8,
+          "probability": 0.72
+        },
+        {
+          "value": 544.2,
+          "probability": 0.73
+        },
+        {
+          "value": 544.6,
+          "probability": 0.74
+        },
+        {
+          "value": 545.0,
+          "probability": 0.75
+        },
+        {
+          "value": 545.4,
+          "probability": 0.76
+        },
+        {
+          "value": 545.8,
+          "probability": 0.77
+        },
+        {
+          "value": 546.2,
+          "probability": 0.78
+        },
+        {
+          "value": 546.6,
+          "probability": 0.79
+        },
+        {
+          "value": 547.0,
+          "probability": 0.8
+        },
+        {
+          "value": 547.4,
+          "probability": 0.81
+        },
+        {
+          "value": 547.8,
+          "probability": 0.82
+        },
+        {
+          "value": 548.2,
+          "probability": 0.83
+        },
+        {
+          "value": 548.6,
+          "probability": 0.84
+        },
+        {
+          "value": 549.0,
+          "probability": 0.85
+        },
+        {
+          "value": 549.4,
+          "probability": 0.86
+        },
+        {
+          "value": 549.8,
+          "probability": 0.87
+        },
+        {
+          "value": 550.2,
+          "probability": 0.88
+        },
+        {
+          "value": 550.6,
+          "probability": 0.89
+        },
+        {
+          "value": 551.0,
+          "probability": 0.9
+        },
+        {
+          "value": 551.4,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 551.8,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 552.2,
+          "probability": 0.905
+        },
+        {
+          "value": 552.6,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 553.0,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 553.4,
+          "probability": 0.91
+        },
+        {
+          "value": 553.8,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 554.2,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 554.6,
+          "probability": 0.915
+        },
+        {
+          "value": 555.0,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 555.4,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 555.8,
+          "probability": 0.92
+        },
+        {
+          "value": 556.2,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 556.6,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 557.0,
+          "probability": 0.925
+        },
+        {
+          "value": 557.4,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 557.8,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 558.2,
+          "probability": 0.93
+        },
+        {
+          "value": 558.6,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 559.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 559.4,
+          "probability": 0.935
+        },
+        {
+          "value": 559.8,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 560.2,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 560.6,
+          "probability": 0.94
+        },
+        {
+          "value": 561.0,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 561.4,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 561.8,
+          "probability": 0.945
+        },
+        {
+          "value": 562.2,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 562.6,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 563.0,
+          "probability": 0.95
+        },
+        {
+          "value": 563.4,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 563.8,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 564.2,
+          "probability": 0.955
+        },
+        {
+          "value": 564.6,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 565.0,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 565.4,
+          "probability": 0.96
+        },
+        {
+          "value": 565.8,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 566.2,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 566.6,
+          "probability": 0.965
+        },
+        {
+          "value": 567.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 567.4,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 567.8,
+          "probability": 0.97
+        },
+        {
+          "value": 568.2,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 568.6,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 569.0,
+          "probability": 0.975
+        },
+        {
+          "value": 569.4,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 569.8,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 570.2,
+          "probability": 0.98
+        },
+        {
+          "value": 570.6,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 571.0,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 571.4,
+          "probability": 0.985
+        },
+        {
+          "value": 571.8,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 572.2,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 572.6,
+          "probability": 0.99
+        },
+        {
+          "value": 573.0,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 573.4,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 573.8,
+          "probability": 0.995
+        },
+        {
+          "value": 574.2,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 574.6,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 575.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 535,
+        "median": 535,
+        "interval80": {
+          "lower": 519,
+          "upper": 551
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

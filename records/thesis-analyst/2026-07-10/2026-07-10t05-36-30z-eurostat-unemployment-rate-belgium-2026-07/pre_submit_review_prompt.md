@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: eurostat.unemployment_rate.belgium
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "belgium-unemployment-rate-july-2026"
+- country: "BE"
+- targetUnit: "percent"
+- dataPointId: "eurostat.une_rt_m.unemployment_rate.belgium.2026_07.first_print"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["ec.europa.eu"], "expectedReleaseWindow": {"end": "2026-09-03", "start": "2026-08-26"}, "field": "eurostat.unemployment_rate.belgium", "releasePolicy": "first_print", "sourceSeriesId": "eurostat.unemployment_rate.belgium", "sourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en", "table": "Eurostat monthly unemployment euro-indicators release / une_rt_m data page", "transform": {"factor": 1, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-10-f2450430ddeb46be2e3d63b9b8e4a4e1b976b106bf685c4aecdd49b40f482653.json"
+- targetContentHash: "f2450430ddeb46be2e3d63b9b8e4a4e1b976b106bf685c4aecdd49b40f482653"
+- registrationCommit: "f2738042716881427217caa9c3c13aa4ca8783e5"
+- registeredAtUtc: "2026-07-10T05:03:56Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+780f142e8b3f41d2b53efc138402a1decf1b6627c9d7d91dfbaa0f3b59f7ce2f
+
+# Draft forecast response
+{"slug":"belgium-unemployment-rate-july-2026","country":"BE","type":"data","title":"Belgium unemployment rate, July 2026","question":"What will Eurostat first print for Belgium's seasonally adjusted total unemployment rate, age 15-74, in July 2026 in une_rt_m?","unit":"percent","pointEstimate":6.1,"ciLow":5.9,"ciHigh":6.3,"confidence":0.8,"resolutionDate":"2026-09-01","resolutionSource":"Eurostat monthly unemployment euro-indicators release / une_rt_m data page","resolutionSourceUrl":"https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en","resolutionRule":"Resolve to the first Eurostat print in table une_rt_m for geo=BE, s_adj=SA, sex=T, age=Y15-74, unit=PC_ACT, time=2026-07, reported in percent to one decimal. Use the first official value published for that monthly observation; do not substitute later revisions.","dataPointId":"eurostat.une_rt_m.unemployment_rate.belgium.2026_07.first_print","historicalContext":[{"label":"2026-03 Eurostat une_rt_m BE SA total age 15-74","value":6.1},{"label":"2026-04 Eurostat une_rt_m BE SA total age 15-74","value":6.1},{"label":"2026-05 Eurostat une_rt_m BE SA total age 15-74","value":6.0},{"label":"2025-06 Eurostat une_rt_m BE SA total age 15-74","value":6.5}],"drivers":["Latest available Belgium monthly unemployment rate was near 6.0 percent rather than materially rising.","Monthly one-decimal unemployment rates are highly persistent; recent changes are mostly 0.0 or 0.1 percentage point.","Small upside pressure from a softer Belgian labour market is offset by stable euro-area unemployment conditions.","First-print target is the Eurostat seasonally adjusted total age 15-74 PC_ACT variant, not a national unadjusted or revised series."],"sourceContext":["https://ec.europa.eu/eurostat/databrowser/view/une_rt_m/default/table?lang=en","https://ec.europa.eu/eurostat/web/main/news/euro-indicators/release-calendar","https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/une_rt_m?geo=BE&sex=T&age=Y15-74&s_adj=SA&unit=PC_ACT&lastTimePeriod=12&lang=en"],"runAt":"2026-07-10T05:37:39Z","reasoning":[{"kind":"heading","text":"Belgium July 2026 unemployment first print"},{"kind":"text","text":"Framing and exact resolver: this forecast targets Eurostat table une_rt_m, Belgium geo=BE, seasonally adjusted s_adj=SA, total sex=T, age Y15-74, unit PC_ACT, for 2026-07. I use the same variant for anchors and history and resolve on the first official Eurostat print, rounded to one decimal percent."},{"kind":"tool","tool":"official.lookup","call":"Checked Eurostat Euro-indicators release calendar for the Unemployment indicator and the July 2026 monthly release timing.","result":"Official calendar context used for this run: the unemployment release is scheduled for 2026-09-01 in Europe/Luxembourg time, inside the registered 2026-08-26 to 2026-09-03 window; this fixes resolutionDate=2026-09-01."},{"kind":"tool","tool":"official.lookup","call":"Queried Eurostat une_rt_m for the latest Belgium SA total age 15-74 unemployment rates in percent of active population.","result":"Fetched latest same-variant values: 2026-03=6.1, 2026-04=6.1, 2026-05=6.0 percent for BE, s_adj=SA, sex=T, age=Y15-74, unit=PC_ACT."},{"kind":"tool","tool":"official.lookup","call":"Queried Eurostat une_rt_m for a recent reference class of Belgium monthly observations in the same variant.","result":"Fetched recent history: 2025-06=6.5, 2025-07=6.4, 2025-08=6.3, 2025-09=6.2, 2025-10=6.2, 2025-11=6.1, 2025-12=6.1, 2026-01=6.1, 2026-02=6.0, 2026-03=6.1, 2026-04=6.1, 2026-05=6.0 percent."},{"kind":"text","text":"Base rate / reference class: the same-series outside view is strong persistence around 6.0 to 6.2 percent after a drift down from 6.5 percent in mid-2025. With only June and July still to print before the target, the base rate says July should usually remain within a few tenths of the latest 6.0 percent."},{"kind":"math","text":"Prior/update/interval: persistence prior from the 12-month Eurostat same-variant sample is latest value 6.0. Successive monthly changes are -0.1,-0.1,-0.1,0.0,-0.1,0.0,0.0,-0.1,+0.1,0.0,-0.1, so sigma = 0.07 percentage point. For a two-month-ahead July value, 1.28*sigma*sqrt(2)=1.28*0.07*1.41=0.13. I widen to 0.20, about 1.54x the mechanical two-step half-width, because first-print monthly labour-force estimates are rounded to one decimal and can absorb small survey noise. Level 6.0 plus a +0.05 soft-labour-market adjustment rounds the point to 6.1; 6.1 +/- 0.2 gives 5.9 to 6.3."},{"kind":"text","text":"Level, momentum, one-off, and policy effects: level is near 6.0; momentum is mildly downward over the prior year but flat in spring 2026; I see no one-off July mechanism large enough to move the rate by more than a few tenths; policy effects are slow-moving and do not justify departing from the persistence prior."},{"kind":"text","text":"Counter-considerations: upside risk is a sharp deterioration in hiring or labour-force re-entry that would push the first print to 6.4 or above, outside the interval. Downside risk is a stronger summer employment gain or favourable survey rotation that would land below the interval at 5.8 or less."},{"kind":"forecast","point":6.1,"ciLow":5.9,"ciHigh":6.3}]}

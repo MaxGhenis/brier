@@ -1,0 +1,107 @@
+[
+  {
+    "slug": "australia-cpi-annual-rate-july-2026",
+    "country": "AU",
+    "type": "data",
+    "title": "Australia CPI annual rate, July 2026",
+    "question": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, All groups CPI annual movement for July 2026, original first print, percent, rounded to one decimal.",
+    "unit": "percent",
+    "pointEstimate": 4.1,
+    "ciLow": 3.2,
+    "ciHigh": 5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-26",
+    "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+    "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+    "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 all groups annual movement",
+        "value": 4
+      },
+      {
+        "label": "April 2026 all groups annual movement",
+        "value": 4.2
+      },
+      {
+        "label": "March 2026 all groups annual movement",
+        "value": 4.6
+      },
+      {
+        "label": "February 2026 all groups annual movement",
+        "value": 3.7
+      }
+    ],
+    "drivers": [
+      "Latest headline monthly CPI was about 4.0 percent in May 2026 after 4.2 percent in April",
+      "Trimmed mean near 3.6 percent points to persistent underlying inflation",
+      "Fuel excise and petrol effects lower headline temporarily but can reverse by July",
+      "Housing and food inflation keep the annual rate above the RBA target band"
+    ],
+    "sourceContext": [
+      "https://www.abs.gov.au/statistics/release-calendar",
+      "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/may-2026",
+      "https://www.theguardian.com/australia-news/2026/jun/24/interest-rate-hikes-remain-on-cards-as-underlying-inflation-climbs-economists-warn"
+    ],
+    "runAt": "2026-07-10T05:31:50Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Australia July 2026 monthly CPI indicator forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the ABS Monthly Consumer Price Index Indicator, All groups CPI annual movement for July 2026, original first print, percent, one-decimal published value. This is the monthly indicator variant, not quarterly CPI, not trimmed mean, and not a later revised vintage."
+      },
+      {
+        "kind": "text",
+        "text": "Resolver-source note: the intended resolver page is the future ABS July 2026 Monthly CPI Indicator release at https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026. That URL is used only as the stable first-print resolver location, not as evidence for the unreleased outcome."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ABS release-calendar lookup for the July 2026 monthly CPI indicator release date",
+        "result": "ABS calendar check for this target window gives the July 2026 Monthly Consumer Price Index Indicator first-print release on 2026-08-26 at the usual 11:30 Australia time slot; the ledger window was 2026-08-25 to 2026-09-02."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ABS latest monthly CPI indicator all-groups annual movement and components",
+        "result": "Fetched latest public release context: May 2026 headline All groups annual CPI was 4.0 percent, April 2026 was 4.2 percent, and the May 2026 trimmed mean annual rate was 3.6 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ABS recent monthly CPI indicator reference points before April-May",
+        "result": "Fetched recent annual headline points for the same monthly all-groups variant: March 2026 was 4.6 percent and February 2026 was 3.7 percent; May 2026 housing was about 6.0 percent annually and food was about 3.3 percent annually."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for a one-to-two-month-ahead forecast of a monthly year-over-year inflation rate, the outside-view base rate is recent persistence in the same ABS all-groups annual series. The prior is anchored on the latest May 2026 level of 4.0 percent, with the Feb-May mean of about 4.1 percent used as a cross-check rather than as the mechanical starting point."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: level is still above target because housing and services remain firm; momentum from May is slightly down; temporary fuel and petrol declines depress headline inflation; a partial rebound or base-effect reversal by July argues against projecting May's 4.0 percent mechanically lower. A richer time-series model was not used because this is a short-horizon first-print forecast and the main uncertainty is ordinary monthly movement around recent persistence."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses the same-series recent historical sample available in the draft: February-May 2026 at 3.7, 4.6, 4.2, 4.0. Adjustment components are +0.1 pp for possible fuel/base-effect rebound by July and 0.0 pp for underlying inflation persistence because trimmed mean at 3.6 is already below headline but still elevated. Successive changes are +0.9, -0.4, -0.2, so sigma = 0.70 using sample standard deviation of those changes; the 80 percent half-width is roughly 1.28*sigma = 0.90. Because this is only a short volatility sample, the interval is judgmental but kept at the direct realized-change width rather than narrowed. Point = 4.0 + 0.1 = 4.1, interval = 4.1 +/- 0.9 = [3.2, 5.0]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a renewed fuel-price or utility-price jump plus sticky rents, which would land above the interval if July prints over 5.0 percent. Downside risk is a larger petrol reversal or broader demand slowdown, which would land below the interval if headline falls under 3.2 percent. An outside the interval result would most likely require a sharp energy or administered-price shock rather than ordinary month-to-month noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by explicitly documenting the ledger sourceBinding mismatch while keeping the forecast tied to the registered dataPointId; accepted the leakage critique by treating the July 2026 URL only as the intended resolver page and removing it from evidence sourceContext; accepted the interval critique by stating the short-sample limitation and judgmental calibration rather than claiming a stronger realized-volatility basis."
+      },
+      {
+        "kind": "forecast",
+        "point": 4.1,
+        "ciLow": 3.2,
+        "ciHigh": 5
+      }
+    ]
+  }
+]

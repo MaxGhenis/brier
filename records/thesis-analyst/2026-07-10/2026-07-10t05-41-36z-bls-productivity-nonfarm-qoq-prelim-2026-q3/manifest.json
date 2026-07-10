@@ -1,0 +1,377 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T05:41:36Z",
+  "runStartedAt": "2026-07-10T05:41:36Z",
+  "series": "bls.productivity.nonfarm_qoq_prelim",
+  "period": "2026-Q3",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-nonfarm-productivity-q3-2026-prelim",
+    "country": "US",
+    "dataPointId": "bls.productivity.nonfarm_qoq_prelim.2026_q3.first_print",
+    "period": "2026-Q3",
+    "registeredAt": "2026-07-10T05:03:56Z",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "registrationState": "preregistered",
+    "series": "bls.productivity.nonfarm_qoq_prelim",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-11-13",
+        "start": "2026-10-30"
+      },
+      "field": "bls.productivity.nonfarm_qoq_prelim",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.productivity.nonfarm_qoq_prelim",
+      "sourceUrl": "https://www.bls.gov/news.release/prod2.t02.htm",
+      "table": "U.S. Bureau of Labor Statistics Productivity and Costs news release, Table 2",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "305e7cc4fb0cea02fc06d094b277fc0b19edb85507cbcefe73e0b64e7d6e02df",
+    "targetRegistrationPath": "records/targets/2026-07-10-305e7cc4fb0cea02fc06d094b277fc0b19edb85507cbcefe73e0b64e7d6e02df.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "305e7cc4fb0cea02fc06d094b277fc0b19edb85507cbcefe73e0b64e7d6e02df",
+  "targetRegistrationPath": "records/targets/2026-07-10-305e7cc4fb0cea02fc06d094b277fc0b19edb85507cbcefe73e0b64e7d6e02df.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T05:41:36Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "173a3d4adcf2e671d1aedd7f5d39b1037cdc3528b5e29b8d4d06b28e0c4acffb"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the 2021Q1-2026Q1 history uses revised BLS/FRED values as a proxy for first-print volatility, or switch to first-print vintage history if available."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that no separate AR or econometric time-series model was used beyond the reference-class/persistence prior."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tighten the +0.2 adjustment by separating the weak-Q1 mean-reversion component from the AI/capital-deepening trend component."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to clarify that revised BLS/FRED history is a proxy for first-print volatility, state that no separate AR or econometric model was used, and split the +0.2 adjustment into weak-Q1 mean reversion and moderate trend productivity components.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to clarify that revised BLS/FRED history is a proxy for first-print volatility, state that no separate AR or econometric model was used, and split the +0.2 adjustment into weak-Q1 mean reversion and moderate trend productivity components.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to clarify that revised BLS/FRED history is a proxy for first-print volatility, state that no separate AR or econometric model was used, and split the +0.2 adjustment into weak-Q1 mean reversion and moderate trend productivity components.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; resolver, first-print rule, point, interval, and JSON fields are coherent, with only minor clarity improvements recommended."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/prompt.md",
+      "sha256": "a5f82f6f99aa2d4b13c7ef70e61474f0058363e80e872400ed595985a2300bcf",
+      "bytes": 8951,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_command.json",
+      "sha256": "4857e84c03581e7848a88b10d559194f3baded1f3d8e8296ded70f4a65c81fd8",
+      "bytes": 710,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_codex_stdout.jsonl",
+      "sha256": "8440d5ecb7c45a83553c0020f811ced36de493dab69bebe50b2f135ecd49d8a7",
+      "bytes": 15629,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_codex_stderr.log",
+      "sha256": "10543a83751f31a96b039bece844d08696e513c2f98ce476e053b8b69afb7093",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_codex_events.jsonl",
+      "sha256": "e7ddbd5f99ab8ead81c0315f2862fc66dc44724ad542c1b92af5e964d13ea77a",
+      "bytes": 15583,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_codex_last_message.txt",
+      "sha256": "a0a4cce49d7e5a1a5ac9d65a4ccadad30beb7865591ff5e7f3b9be793f9006ff",
+      "bytes": 5187,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_codex_trace.json",
+      "sha256": "f76a842531138732e3d8b7e4ed35ca8da5b0c05fdead1cafd54fb465f8a8f6d1",
+      "bytes": 508,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_stdout.txt",
+      "sha256": "a0a4cce49d7e5a1a5ac9d65a4ccadad30beb7865591ff5e7f3b9be793f9006ff",
+      "bytes": 5187,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/draft_stderr.txt",
+      "sha256": "2e42fba14d3e22865d7f863c1b5ab69363392f8301ea638c8eb34a6a66ff8717",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_prompt.md",
+      "sha256": "ce9210b7057e560f936e54c98b21694e0234b03917aee4bd31a0177c1eaadf0a",
+      "bytes": 8291,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_command.json",
+      "sha256": "ad24f5f768c8363e80e7b0833fdc25894655b49815ed0ab1b89e54aa0d207438",
+      "bytes": 706,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "995b450245f9e16b9706fdc28c60ca85e59a48ad79220dac7d502b6f176c4c4a",
+      "bytes": 2053,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_codex_stderr.log",
+      "sha256": "d1a82a2d06a1e3601e6c7237fb3dc69500f770507f85fc1a60f426c24c6fe0e8",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_codex_events.jsonl",
+      "sha256": "107a696b02a4cb1de82f9d8375c800080289108636c7aaf93b3dc6d6c6a8ab0c",
+      "bytes": 2067,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_codex_last_message.txt",
+      "sha256": "f00fe7cd31855317c6eb96628036d45bf73a41c65118cc24065371d402ec41c7",
+      "bytes": 646,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_codex_trace.json",
+      "sha256": "d6d322364b40439ed97f905d9db23893dd6c26b1c1747b9863c1fafcd2df33c3",
+      "bytes": 505,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_stdout.txt",
+      "sha256": "f00fe7cd31855317c6eb96628036d45bf73a41c65118cc24065371d402ec41c7",
+      "bytes": 646,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/pre_submit_review_stderr.txt",
+      "sha256": "f6f272bf539f7a456b4d7cba7a79eee4cd409eeeb617d1af6e9e166b507972c8",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/revision_prompt.md",
+      "sha256": "0857b30645021b3a524f28db10f3ff6e63af2c16cc6e19d4a60345c8376b6080",
+      "bytes": 15720,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/command.json",
+      "sha256": "36a2ae5ec9d98fdef0e86be534d5868a49e5d7cb19e5f141cb9dbd953698b958",
+      "bytes": 704,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/codex_stdout.jsonl",
+      "sha256": "ac863c4f9a7f53f1e164af56a485e10f718d787a01b7fe9b7d8b8fa0f656e721",
+      "bytes": 6312,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/codex_stderr.log",
+      "sha256": "572146d25128cc978b429d9331c9150dc4d1e9d5f40c8f89ff3988c2cd6640ca",
+      "bytes": 233,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/codex_events.jsonl",
+      "sha256": "86540838e75feefc9d36484244192306ec8769d4ae92ced680655a5813278675",
+      "bytes": 6334,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/codex_last_message.txt",
+      "sha256": "6f1679d07861e0d10eec2210d23728e7fdde4b17f454734325f801214f344696",
+      "bytes": 5761,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/codex_trace.json",
+      "sha256": "1d441d3d20daa667a836c81d05b3e8d790bd9976399e10704809b71ce26f3345",
+      "bytes": 505,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/stdout.txt",
+      "sha256": "6f1679d07861e0d10eec2210d23728e7fdde4b17f454734325f801214f344696",
+      "bytes": 5761,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/stderr.txt",
+      "sha256": "4abbdd6abc17f96dedbcb94d7d03ca72f21f287e0acb6a742a8a851f569b33df",
+      "bytes": 248,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/raw_response.txt",
+      "sha256": "6f1679d07861e0d10eec2210d23728e7fdde4b17f454734325f801214f344696",
+      "bytes": 5761,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/parsed_cells.json",
+      "sha256": "2e351696e7d16f18f54f06f50a9bde1da62e26358f845482e9dde5aad83c061d",
+      "bytes": 6610,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/normalized_cells.json",
+      "sha256": "76ca336b88df4859055925622a56dae62b0fc4f2862dcf1103e5a4dfa55ca14d",
+      "bytes": 23804,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/distribution.json",
+      "sha256": "4d203da9e05644846757bec19a07a524c8eeeb3e20f99b43c9ad2d25b9df369c",
+      "bytes": 13436,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/validation.json",
+      "sha256": "33ad3f275d222f754371c616e831fce66beea05835e3fd46fed4cb90b2c73c9e",
+      "bytes": 139,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/cells.with_activity.json",
+      "sha256": "308d150d823e93ce8e9f3da35094c9be60cfaa102c627a33e9dc757c5078b512",
+      "bytes": 38517,
+      "createdAt": "2026-07-10T05:41:36Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t05-41-36z-bls-productivity-nonfarm-qoq-prelim-2026-q3/manifest.json",
+      "sha256": "83a2b49fb61e01ce952507fb734cc2577b3aa447c42afc4b2524df1c1524a812",
+      "bytes": 14893,
+      "createdAt": "2026-07-10T05:41:36Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-nonfarm-productivity-q3-2026-prelim",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "e2f831e8def507c1e7a76cdf2211e6964147c75024b24e12f1cab25d46883875"
+}
