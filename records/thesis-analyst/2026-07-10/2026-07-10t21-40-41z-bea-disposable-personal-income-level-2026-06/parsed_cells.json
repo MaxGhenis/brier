@@ -1,0 +1,145 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US disposable personal income, June 2026",
+    "question": "What will BEA report as the first-print June 2026 level of current-dollar disposable personal income, seasonally adjusted at an annual rate, in billions of dollars?",
+    "unit": "usd_billions",
+    "pointEstimate": 23715.0,
+    "ciLow": 23590.0,
+    "ciHigh": 23836.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "March 2026 DSPI",
+        "value": 23510.4
+      },
+      {
+        "label": "April 2026 DSPI",
+        "value": 23486.9
+      },
+      {
+        "label": "May 2026 DSPI",
+        "value": 23651.7
+      },
+      {
+        "label": "May 2026 first-release monthly increase",
+        "value": 164.9
+      },
+      {
+        "label": "May 2026 current-dollar DPI growth",
+        "value": 0.7
+      }
+    ],
+    "drivers": [
+      "May level of $23,651.7 billion SAAR",
+      "four-change mean of +63.9 billion",
+      "four-change sample standard deviation of 96.5 billion",
+      "normalization after May farm-support payments",
+      "continued ordinary nominal income growth"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://www.bea.gov/news/schedule/",
+      "https://fred.stlouisfed.org/data/DSPI",
+      "https://www.bea.gov/data/income-saving/disposable-personal-income"
+    ],
+    "runAt": "2026-07-10T21:41:03Z",
+    "thresholdLadder": {
+      "thresholds": [
+        23550,
+        23590,
+        23630,
+        23670,
+        23710,
+        23750,
+        23790,
+        23830,
+        23850,
+        23870,
+        23910,
+        23950,
+        23990
+      ],
+      "cumulativeProbabilities": [
+        0.04,
+        0.1,
+        0.19,
+        0.32,
+        0.48,
+        0.64,
+        0.78,
+        0.89,
+        0.92,
+        0.94,
+        0.97,
+        0.985,
+        0.99
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "First-print June 2026 disposable personal income"
+      },
+      {
+        "kind": "text",
+        "text": "The target is BEA NIPA Table 2.6 current-dollar disposable personal income, account code A067RC and FRED/ALFRED series DSPI, for June 2026 in billions of dollars at a seasonally adjusted annual rate. It is not real DPI or a monthly flow. Resolution retains the ledger's strict first-print ALFRED binding despite its concrete vintage-date discrepancy: 2026-06-25 is the May release date and may not expose the June first print."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch BEA's Personal Income and Outlays, May 2026 release for the latest same-variant observations and release mechanics.",
+        "result": "BEA reported May 2026 disposable personal income increasing $164.9 billion, or 0.7%, while personal income rose $181.6 billion; the PCE price index rose 0.4% month over month."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Fetch the public DSPI history mirror for recent current-dollar, seasonally adjusted annual-rate levels.",
+        "result": "DSPI levels were 23395.9 in January 2026, 23382.4 in February, 23510.4 in March, 23486.9 in April, and 23651.7 in May, all USD billions SAAR; sequential changes were -13.5, +128.0, -23.5, and +164.8 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Verify the June 2026 Personal Income and Outlays publication date on BEA's official release schedule.",
+        "result": "BEA schedules Personal Income and Outlays for June 2026 at 8:30 a.m. EDT on July 30, 2026; the May release also states July 30, 2026 as the next release date."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class is the four latest fetched monthly DSPI changes: -13.5, +128.0, -23.5, and +164.8 billion. Their mean is +63.95 billion, median is +57.25 billion, and sample standard deviation is 96.5 billion. This supplies the base rate, while the $23,651.7 billion May level supplies the persistence anchor."
+      },
+      {
+        "kind": "text",
+        "text": "May's $164.9 billion gain was unusually strong and BEA attributed the broader personal-income increase partly to farm proprietors' income from a second round of Supplemental Disaster Relief Program payments. That argues against extrapolating May's full increase. Ordinary nominal income growth is already represented in the recent-change base rate, so no separate wage, employment, or inflation increment is added."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: use a level-persistence model anchored at the fetched May value of 23651.7 and the four-change January-May 2026 reference class (-13.5, +128.0, -23.5, +164.8). The mean-change prior is +63.95 billion; with no quantitatively supported new June adjustment, the central level is about 23715.7 before ladder interpolation. The sample standard deviation is sqrt(27920.3/3) = 96.5 billion. A normal-reference 80% range is approximately 63.95 +/- 1.282*96.5, or changes of -59.8 to +187.7 billion, corresponding to levels near 23591.9 to 23839.4. The elicited ladder rounds and slightly discretizes that calculation, giving final implied bounds of 23590.0 to 23836.7."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk comes from another large transfer, farm-payment, compensation, or proprietors' income increase and would land above the interval if June DSPI exceeds 23836.7. Downside risk comes from tax-payment timing, weaker compensation, or reversal of temporary income and would land below the interval if DSPI is under 23590.0. These are the principal outside the interval scenarios."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= 23550) = 0.04; P(X <= 23590) = 0.10; P(X <= 23630) = 0.19; P(X <= 23670) = 0.32; P(X <= 23710) = 0.48; P(X <= 23750) = 0.64; P(X <= 23790) = 0.78; P(X <= 23830) = 0.89; P(X <= 23850) = 0.92; P(X <= 23870) = 0.94; P(X <= 23910) = 0.97; P(X <= 23950) = 0.985; P(X <= 23990) = 0.99. Linear interpolation gives the 10th percentile at 23590.0, median at 23715.0, and 90th percentile at 23836.7."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted all three requested fixes by removing the unsupported +55 billion inside-view increment, reconciling the point forecast directly to the May anchor and reference-class prior, and calibrating the ladder to the explicitly calculated 96.5 billion sample volatility. Retained the ledger vintage-date warning."
+      },
+      {
+        "kind": "forecast",
+        "point": 23715.0,
+        "ciLow": 23590.0,
+        "ciHigh": 23836.7
+      }
+    ]
+  }
+]
