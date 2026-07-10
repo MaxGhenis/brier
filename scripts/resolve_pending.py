@@ -648,9 +648,20 @@ def registration_hashes(
             snapshot = json.loads(path.read_text())
         except (OSError, json.JSONDecodeError):
             continue
-        content_hash = canonical_sha256(snapshot)
-        if content_hash != match.group(1):
+        # v2 per-target snapshots deliberately exclude registeredAtUtc from
+        # their filename hash (the pushed registration commit witnesses that
+        # instant); v1 day-batch snapshots hash the whole payload. Accept
+        # whichever commitment the filename actually carries.
+        accepted = {canonical_sha256(snapshot)}
+        try:
+            from register_targets import registration_content_hash
+
+            accepted.add(registration_content_hash(snapshot))
+        except Exception:
+            pass
+        if match.group(1) not in accepted:
             raise ValueError(f"target registration hash mismatch: {path}")
+        content_hash = match.group(1)
         for target in snapshot.get("targets", []):
             data_point_id = target.get("dataPointId")
             if data_point_id:

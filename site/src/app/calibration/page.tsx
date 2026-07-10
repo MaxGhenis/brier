@@ -67,6 +67,21 @@ export default async function CalibrationPage() {
 
   const covered = scores.filter((score) => score.interval80Covered).length;
   const coverage = scores.length > 0 ? covered / scores.length : null;
+  // The claimed-time tier stays fully DISPLAYED one level below the
+  // headline: an empty headline (which is exactly what the witnessed
+  // standard implies until the first custody-v2 waves resolve) must read
+  // as a raised bar, never as an empty record.
+  const claimedCovered = publishedScores.filter(
+    (score) => score.interval80Covered,
+  ).length;
+  const claimedCoverage =
+    publishedScores.length > 0 ? claimedCovered / publishedScores.length : null;
+  const claimedByAgent = new Map<string, number>();
+  for (const row of rewardExport.rewardRows) {
+    if (row.scoreEligibility !== "excluded_chronology_claimed_only") continue;
+    const key = `${row.agent ?? ""}\u0000${row.model ?? ""}`;
+    claimedByAgent.set(key, (claimedByAgent.get(key) ?? 0) + 1);
+  }
   const normalizedScores = scores.filter(
     (score) => score.normalizedCrps !== null && score.sharpness !== null,
   );
@@ -173,7 +188,10 @@ export default async function CalibrationPage() {
             {
               label: "80% interval coverage",
               value: formatCoverage(coverage),
-              detail: `${covered} of ${scores.length} witness-verified observed inside the stated interval`,
+              detail:
+                scores.length > 0
+                  ? `${covered} of ${scores.length} witness-verified observed inside the stated interval`
+                  : `No witness-verified scores yet — the first custody-v2 waves resolve from July 16. Claimed-time tier below: ${claimedCovered} of ${publishedScores.length} (${formatCoverage(claimedCoverage)}) inside.`,
             },
             {
               label: "Unpaired mean normalized CRPS",
@@ -224,6 +242,64 @@ export default async function CalibrationPage() {
           ))}
         </section>
 
+        <section
+          className="mt-6 rounded-[14px] border p-5"
+          style={{
+            borderColor: "var(--theme-border)",
+            backgroundColor: "var(--theme-card-bg)",
+          }}
+        >
+          <div
+            className="[font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.12em]"
+            style={{ color: "var(--theme-text-muted)" }}
+          >
+            The claimed-time tier
+          </div>
+          <div className="mt-3 flex flex-wrap items-baseline gap-x-10 gap-y-3">
+            {[
+              {
+                value: publishedScores.length.toLocaleString(),
+                label: "scores verified by recorded timestamps",
+              },
+              {
+                value: formatCoverage(claimedCoverage),
+                label: `interval coverage (${claimedCovered} of ${publishedScores.length} inside)`,
+              },
+              {
+                value: violatedCount.toLocaleString(),
+                label: "chronology violations",
+              },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <span
+                  className="[font-family:var(--font-display)] text-[1.35rem] font-semibold"
+                  style={{ color: "var(--theme-text)" }}
+                >
+                  {stat.value}
+                </span>
+                <span
+                  className="ml-2 text-[0.78rem]"
+                  style={{ color: "var(--theme-text-muted)" }}
+                >
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p
+            className="mt-3 text-[0.78rem] leading-[1.55]"
+            style={{ color: "var(--theme-text-muted)" }}
+          >
+            Scores whose runs predate the witnessed custody chain: their
+            recorded timestamps order them before their outcomes, but no
+            independent timestamp proves it, so they sit one tier below the
+            headline — published and flagged in{" "}
+            <a href="/log.json">log.json</a>, never deleted. The headline
+            starts at zero by construction and fills as custody-v2 runs
+            resolve against official prints.
+          </p>
+        </section>
+
         <section className="mt-14">
           <h2
             className="[font-family:var(--font-display)] text-[1.3rem] font-semibold"
@@ -258,6 +334,9 @@ export default async function CalibrationPage() {
                   <th className="px-4 py-3 text-left font-normal">Agent</th>
                   <th className="px-4 py-3 text-right font-normal">
                     Scored / total runs
+                  </th>
+                  <th className="px-4 py-3 text-right font-normal">
+                    Claimed-time scored
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
                     CRPS ratio vs persistence
@@ -319,6 +398,14 @@ export default async function CalibrationPage() {
                         style={{ color: "var(--theme-text-muted)" }}
                       >
                         {row.scoredRuns} / {row.totalRuns}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-right [font-family:var(--font-mono)]"
+                        style={{ color: "var(--theme-text-muted)" }}
+                      >
+                        {claimedByAgent.get(
+                          `${row.agent}\u0000${row.model ?? ""}`,
+                        ) ?? 0}
                       </td>
                       <td
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"
