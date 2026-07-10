@@ -20,6 +20,8 @@ import re
 import sys
 from urllib.parse import urlparse
 
+from register_targets import registration_for_cell
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 GENERATED = ROOT / "site" / "src" / "data" / "ledger-targets.generated.ts"
 HAND_AUTHORED = ROOT / "site" / "src" / "data" / "ledger-targets.ts"
@@ -90,6 +92,19 @@ def block_value(block: str, key: str):
     return json.loads(match.group(1)) if match else None
 
 
+def generated_entry_for(
+    source: str, data_point_id: str
+) -> re.Match[str] | None:
+    return next(
+        (
+            match
+            for match in generated_entry_blocks(source)
+            if block_value(match.group(0), "dataPointId") == data_point_id
+        ),
+        None,
+    )
+
+
 def preregistration_for(
     source: str, data_point_id: str
 ) -> tuple[re.Match[str], dict] | None:
@@ -151,6 +166,28 @@ def main() -> int:
     replacements: list[tuple[int, int, str]] = []
     finalized_ids: set[str] = set()
     for cell in cells:
+        if cell.get("targetRegistrationPath"):
+            if cell["dataPointId"] in finalized_ids:
+                continue
+            registration = registration_for_cell(cell)
+            validate_preregistered_contract(cell, registration)
+            match = generated_entry_for(source, cell["dataPointId"])
+            if match is None:
+                raise ValueError(
+                    "registered cell has no generated preregistration for "
+                    f"{cell['dataPointId']}"
+                )
+            expected = ts_literal(entry_for(cell, registration))
+            state = block_value(match.group(0), "registrationState")
+            if state == "preregistered":
+                replacements.append((match.start(), match.end(), expected))
+            elif state != "published" or match.group(0) != expected:
+                raise ValueError(
+                    "published generated target differs from canonical "
+                    f"registration and cell for {cell['dataPointId']}"
+                )
+            finalized_ids.add(cell["dataPointId"])
+            continue
         if cell["dataPointId"] in existing:
             if cell["dataPointId"] in finalized_ids:
                 continue

@@ -76,6 +76,12 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def canonical_equal(left: Any, right: Any) -> bool:
+    """Compare JSON values without Python's bool/number loose equality."""
+
+    return canonical_bytes(left) == canonical_bytes(right)
+
+
 def repo_relative(path: pathlib.Path) -> str:
     try:
         return str(path.resolve().relative_to(ROOT))
@@ -438,6 +444,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         return ""
     keys = [
         "catalogSlug",
+        "country",
         "targetUnit",
         "dataPointId",
         "resolutionDate",
@@ -446,6 +453,10 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         "resolutionRule",
         "resolutionPolicy",
         "sourceBinding",
+        "targetRegistrationPath",
+        "targetContentHash",
+        "registrationCommit",
+        "registeredAtUtc",
         "conditional",
     ]
     lines = [
@@ -1624,6 +1635,23 @@ def stamp_runtime_invocation(
     return runtime_meta
 
 
+def registration_binding(
+    target_context: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if not target_context:
+        return {}
+    return {
+        key: target_context[key]
+        for key in (
+            "registrationCommit",
+            "targetContentHash",
+            "targetRegistrationPath",
+            "registeredAtUtc",
+        )
+        if target_context.get(key) not in (None, "")
+    }
+
+
 def write_failure_manifest(
     out_dir: pathlib.Path,
     run_at: str,
@@ -1633,6 +1661,7 @@ def write_failure_manifest(
     phase: str,
     message: str,
     command_result: dict[str, Any] | None,
+    target_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     error = {
         "phase": phase,
@@ -1658,9 +1687,12 @@ def write_failure_manifest(
     manifest = {
         "schemaVersion": "thesis_analyst_run_manifest_v1",
         "createdAt": run_at,
+        "runStartedAt": run_at,
         "series": args.series,
         "period": args.period,
         "conditional": args.conditional,
+        "targetContext": target_context,
+        **registration_binding(target_context),
         "promptMode": args.prompt_mode,
         "agent": meta,
         "ok": False,
@@ -1719,6 +1751,7 @@ def validate_cells(
     allow_existing_slug: bool = False,
     target_context: dict[str, Any] | None = None,
     prompt_mode: str = "full",
+    collision_exclusion: pathlib.Path | None = None,
 ) -> dict[str, Any]:
     sys.path.insert(0, str(SCRIPTS))
     try:
@@ -1727,7 +1760,10 @@ def validate_cells(
         if sys.path[0] == str(SCRIPTS):
             sys.path.pop(0)
 
-    taken = existing_slugs(ROOT / "site" / "src" / "data", ROOT / "__runner__.ts")
+    taken = existing_slugs(
+        ROOT / "site" / "src" / "data",
+        collision_exclusion or ROOT / "__runner__.ts",
+    )
     seen: set[str] = set()
     rows = []
     ok = True
@@ -1754,9 +1790,14 @@ def target_context_validation_errors(
         return []
     checks = [
         ("catalogSlug", "slug"),
+        ("country", "country"),
         ("targetUnit", "unit"),
         ("dataPointId", "dataPointId"),
         ("resolutionDate", "resolutionDate"),
+        ("targetRegistrationPath", "targetRegistrationPath"),
+        ("targetContentHash", "targetContentHash"),
+        ("registrationCommit", "registrationCommit"),
+        ("registeredAtUtc", "registeredAtUtc"),
     ]
     errors = []
     for context_key, cell_key in checks:
@@ -1764,7 +1805,7 @@ def target_context_validation_errors(
         if expected in (None, ""):
             continue
         actual = cell.get(cell_key)
-        if actual != expected:
+        if not canonical_equal(actual, expected):
             errors.append(
                 f"{cell_key} {actual!r} does not match target context "
                 f"{context_key} {expected!r}"
@@ -2275,6 +2316,7 @@ def main() -> int:
             "parse",
             str(exc),
             command_result,
+            target_context,
         )
         print(json.dumps(manifest, indent=2))
         return 1
@@ -2306,12 +2348,14 @@ def main() -> int:
     # of sneaking in under its start time (cross-review finding X1).
     # Start time and any differing agent claim are kept for audit.
     sealed_at = utc_now()
+    binding = registration_binding(target_context)
     for cell in normalized_cells:
         agent_run_at = cell.get("runAt")
         if agent_run_at and agent_run_at != sealed_at:
             cell["agentReportedRunAt"] = agent_run_at
         cell["runStartedAt"] = run_at
         cell["runAt"] = sealed_at
+        cell.update(binding)
     materialized_distributions = materialize_run_distributions(normalized_cells)
     normalized_path.write_text(json.dumps(normalized_cells, indent=2) + "\n")
     refs.append(
@@ -2383,10 +2427,12 @@ def main() -> int:
     manifest = {
         "schemaVersion": "thesis_analyst_run_manifest_v1",
         "createdAt": run_at,
+        "runStartedAt": run_at,
         "series": args.series,
         "period": args.period,
         "conditional": args.conditional,
         "targetContext": target_context,
+        **binding,
         "promptMode": args.prompt_mode,
         "agent": runtime_meta,
         "preSubmitReview": pre_submit_review,

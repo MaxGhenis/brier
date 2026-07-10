@@ -17,6 +17,14 @@ policy, and expected release window in a canonical-hashed
 `dataPointId` and unit and use the bound source host; the analyst still writes
 the precise first-print rule within that binding.
 
+Scheduled rolls use `thesis_target_registration_v2`: a privileged workflow job
+captures `registeredAtUtc`, commits and pushes the canonical snapshot before any
+analyst code runs, then binds the target and run record to the snapshot's
+introducing `registrationCommit`. The contract hash excludes the operational
+timestamp; protected Git ancestry and the later RFC 3161 record witness provide
+the timing evidence. Publication accepts only data artifacts and regenerates
+all TypeScript with trusted checkout code.
+
 ## Subscription-backed Codex run
 
 Use the native Codex path for local GPT-family runs. It follows the same
