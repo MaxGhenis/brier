@@ -172,7 +172,15 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     # earlier cells were valid under their run date's rubric and republishing
     # a wave must not retro-reject them. Keep the regex byte-identical to
     # the test.
-    run_at = str((cell.get("predictionRun") or {}).get("runAt") or "")
+    # Raw spawned cells carry the sealed runAt at the TOP level; the
+    # predictionRun object only exists after this converter builds it.
+    # Reading only predictionRun.runAt left run_at empty for every fresh
+    # cell, silently skipping the leakage and sigma gates until vitest
+    # bounced the staged wave (caught live 2026-07-10, Canada June LFS
+    # forecast on LFS release day).
+    run_at = str(
+        cell.get("runAt") or (cell.get("predictionRun") or {}).get("runAt") or ""
+    )
     # A forecast of an already-published number is leakage, not a forecast:
     # the resolution date must postdate the run. Caught live 2026-07-07 (a
     # "2025 provisional infant mortality" cell whose release was 2026-05-26).
@@ -221,6 +229,10 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
             "no interval-falsification phrasing (CI regex — say what would "
             "land outside the 80% interval / upside risk / downside risk)"
         )
+    if not steps:
+        # An empty trace must FAIL validation, not crash it: the length and
+        # content errors above already describe the failure.
+        return errs
     last = steps[-1]
     if last.get("kind") != "forecast":
         errs.append("last step is not the forecast")

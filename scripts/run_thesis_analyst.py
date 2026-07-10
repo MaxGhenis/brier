@@ -1988,8 +1988,9 @@ def mock_cell(series: str, period: str, run_at: str) -> dict[str, Any]:
             {
                 "kind": "math",
                 "text": (
-                    "Point = recent center 5.1. Realized volatility plus "
-                    "horizon uncertainty gives an 80% interval [4.6, 5.8]."
+                    "Point = recent center 5.1. Realized month-to-month "
+                    "volatility sigma = 0.45; 80% interval = point ± 1.28 × "
+                    "sigma → [4.6, 5.8]."
                 ),
             },
             {

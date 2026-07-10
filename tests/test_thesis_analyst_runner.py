@@ -793,7 +793,8 @@ def review_test_cell(
             "kind": "math",
             "text": (
                 f"Point {point} uses the recent center plus a 0.1 update; "
-                f"80% interval [{ci_low}, {ci_high}] uses realized dispersion."
+                f"realized dispersion sigma = 0.45, so the 80% interval "
+                f"[{ci_low}, {ci_high}] is point \u00b1 1.28 \u00d7 sigma."
             ),
         },
         {
@@ -950,8 +951,9 @@ def test_command_model_override_is_stamped_in_manifest_and_cells(tmp_path):
                         {
                             "kind": "math",
                             "text": (
-                                "Center on the 5.1 recent mean and use an "
-                                "80% interval from 4.7 to 5.8."
+                                "Center on the 5.1 recent mean; sigma = "
+                                "0.43 so 1.28 \u00d7 sigma gives the 80% "
+                                "interval from 4.7 to 5.8."
                             ),
                         },
                         {
