@@ -1,0 +1,147 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada EI beneficiaries, June 2026",
+    "question": "What will Statistics Canada first report for June 2026 regular Employment Insurance beneficiaries in Canada, seasonally adjusted, beneficiary detail total, sex total, age group total?",
+    "unit": "thousands",
+    "pointEstimate": 543.33,
+    "ciLow": 526.67,
+    "ciHigh": 560,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026 first print",
+        "value": 554.83
+      },
+      {
+        "label": "February 2026 first print",
+        "value": 542.11
+      },
+      {
+        "label": "March 2026 first print",
+        "value": 548
+      },
+      {
+        "label": "April 2026 first print",
+        "value": 544.44
+      }
+    ],
+    "drivers": [
+      "Recent EI-beneficiary level near 544,000",
+      "May unemployment rate fell to 6.6%",
+      "EI receipt responds to labour-market changes with a lag",
+      "Temporary EI measures remain an unquantified upside risk",
+      "Claims exhaustion and return-to-work flows"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260522/dq260522b-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260423/dq260423c-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "https://stats.gov.nl.ca/pdf/upcomingreleases.pdf"
+    ],
+    "runAt": "2026-07-10T17:08:55Z",
+    "thresholdLadder": {
+      "thresholds": [
+        520,
+        525,
+        530,
+        535,
+        540,
+        545,
+        550,
+        555,
+        560,
+        565,
+        570,
+        575
+      ],
+      "cumulativeProbabilities": [
+        0.03,
+        0.08,
+        0.14,
+        0.25,
+        0.4,
+        0.55,
+        0.68,
+        0.8,
+        0.9,
+        0.95,
+        0.98,
+        0.99
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada regular EI beneficiaries, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is Statistics Canada Table 14-10-0011-01: Canada, regular benefits, seasonally adjusted, beneficiary detail total, sex total and age group total. All anchors use that same variant. Persons are converted to thousands by multiplying by 0.001, and subsequent revisions are ignored."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch recent Canada observations from Statistics Canada Table 14-10-0011-01 and corresponding first-release pages.",
+        "result": "First-release observations were January 2026 554,830 persons, February 542,110, March 548,000 and April 544,440, equal to 554.83, 542.11, 548.00 and 544.44 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch Statistics Canada April 2026 Employment Insurance release.",
+        "result": "April regular beneficiaries were 544,440, down 0.5% monthly and up 3.5% year over year; the page states May 2026 data would be released July 23."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch Statistics Canada Labour Force Survey for May 2026 as a leading labour-market indicator.",
+        "result": "Canada's unemployment rate fell 0.3 percentage points to 6.6% in May, after reaching 6.9% in April; the cited 2017-2019 average was 6.0%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Verify the announced August 2026 release date from the public-government upcoming-release calendar.",
+        "result": "The calendar lists Employment Insurance for the June 2026 reference period on August 19, 2026, while the registered ledger specifies August 20, 2026; the forecast remains tied to the registered target and retains 2026-08-20."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class/base rate is short-horizon persistence in this slowly moving beneficiary stock. The four first-release levels average 547.35 thousand, but the latest observation is 544.44 thousand and receives greater weight because the target is only two months ahead."
+      },
+      {
+        "kind": "text",
+        "text": "The update is deliberately small and auditable: start from April persistence at 544.44 thousand; apply -1.50 thousand for the May unemployment-rate decline, only about 0.16 of one-month historical sigma because EI receipt is lagged; add +0.39 thousand for incomplete pass-through over the two-month horizon; assign 0.00 to temporary EI measures and tariff effects because the cited evidence does not quantify them. The signed adjustments sum to -1.11 thousand, giving 543.33 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: The model is latest-level persistence using January-April 2026 first prints. Successive changes were -12.72, +5.89 and -3.56 thousand; their sample standard deviation is sigma = 9.31 thousand. For a two-month horizon, independent-change scaling gives 9.31*sqrt(2) = 13.17 thousand and an 80% half-width of roughly 1.28*sigma_two_month = 16.86 thousand. Applied around 543.33, this independently implies bounds near 526.47 and 560.19 thousand. The ladder-implied bounds of 526.67 and 560.00 have half-widths of 16.66 and 16.67 thousand, effectively matching that volatility benchmark rather than determining it."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= 520) = 0.03; P(X <= 525) = 0.08; P(X <= 530) = 0.14; P(X <= 535) = 0.25; P(X <= 540) = 0.40; P(X <= 545) = 0.55; P(X <= 550) = 0.68; P(X <= 555) = 0.80; P(X <= 560) = 0.90; P(X <= 565) = 0.95; P(X <= 570) = 0.98; P(X <= 575) = 0.99. Linear interpolation gives q10 = 525 + (0.10-0.08)/(0.14-0.08)*5 = 526.67, median = 540 + (0.50-0.40)/(0.55-0.40)*5 = 543.33, and q90 = 560.00 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk comes from delayed tariff-related layoffs, broader use of temporary EI measures, or slower exits from benefits; a first print above 560.00 thousand would land above the interval. Downside risk comes from sustained employment gains, faster return-to-work flows, or benefit exhaustion; a print below 526.67 thousand would land below the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the volatility correction, independent two-month interval derivation, and signed adjustment breakdown. Reduced the unsupported upward update and retained the documented August 19 calendar versus August 20 ledger discrepancy while keeping the registered resolution date."
+      },
+      {
+        "kind": "forecast",
+        "point": 543.33,
+        "ciLow": 526.67,
+        "ciHigh": 560
+      }
+    ]
+  }
+]

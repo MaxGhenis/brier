@@ -1,0 +1,113 @@
+[
+  {
+    "slug": "us-real-avg-hourly-earnings-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US real hourly earnings, July 2026",
+    "question": "What will the first-print July 2026 seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls be?",
+    "unit": "percent",
+    "pointEstimate": 0.0,
+    "ciLow": -0.5,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+    "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 value for July 2026, seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, as first printed on the official release page; use the one-decimal percent value shown by BLS and do not revise for later updates.",
+    "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026 first print",
+        "value": 0.3
+      },
+      {
+        "label": "February 2026 first print",
+        "value": 0.2
+      },
+      {
+        "label": "March 2026 first print",
+        "value": -0.6
+      },
+      {
+        "label": "April 2026 first print",
+        "value": -0.5
+      },
+      {
+        "label": "May 2026 first print",
+        "value": -0.1
+      }
+    ],
+    "drivers": [
+      "nominal hourly-pay growth near 0.3 percent",
+      "CPI-U inflation near 0.3 percent",
+      "recent downside volatility from elevated monthly inflation",
+      "one-decimal BLS publication rounding"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/news.release/archives/realer_02132026.htm",
+      "https://www.bls.gov/news.release/archives/realer_03112026.htm",
+      "https://www.bls.gov/news.release/archives/realer_06102026.htm",
+      "https://www.bls.gov/news.release/archives/empsit_07022026.htm",
+      "https://www.bls.gov/schedule/2026/08_sched.htm"
+    ],
+    "runAt": "2026-07-10T17:21:07Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "July 2026 US real average hourly earnings forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is BLS Real Earnings Table A-1: the seasonally adjusted over-the-month change in real average hourly earnings for all employees on private nonfarm payrolls. CPI-U is the deflator. Resolution uses the one-decimal July 2026 first print without later revisions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch BLS Real Earnings Table A-1 releases for January and February 2026.",
+        "result": "BLS first printed real average hourly earnings changes of 0.3% in January 2026 and 0.2% in February 2026; the February table also reported nominal hourly earnings +0.4% and CPI-U +0.3%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the latest BLS Real Earnings Table A-1 history through May 2026.",
+        "result": "The BLS May release shows real hourly earnings changes of -0.6% for March, -0.5% for April, and -0.1% for May 2026; May nominal hourly earnings rose 0.3% while CPI-U rose 0.5%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the June 2026 BLS Employment Situation nominal-pay indicator.",
+        "result": "The June 2026 establishment data reported average hourly earnings of $37.57 and a 0.2% over-the-month increase, following $37.49 in May."
+      },
+      {
+        "kind": "text",
+        "text": "The official BLS calendar schedules Real Earnings for July 2026 at 8:30 a.m. ET on August 12, 2026, verifying the ledger resolution date."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class and base rate are the five available 2026 first-print changes: 0.3%, 0.2%, -0.6%, -0.5%, and -0.1%, with a mean of -0.14%. This series is a monthly change, so dispersion is measured from the values themselves."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: nominal wage growth remains positive but slowed to 0.2% in June; recent real-earnings momentum is weak; unusually strong spring CPI prints produced much of that weakness; continuing price pressure can still offset ordinary wage growth in July."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: A mean/persistence prior from the five first-print 2026 observations is -0.14%. The historical sample is [0.3, 0.2, -0.6, -0.5, -0.1]. I adjust about +0.14 percentage point toward 0.0% because a roughly 0.3% nominal-pay gain and roughly 0.3% CPI-U gain would offset. Sample sigma = sqrt(0.652/4) = 0.40 percentage point; 1.28*sigma = 0.52, which rounds to a one-decimal-compatible half-width of 0.5. Final implied bounds are -0.5% to 0.5%."
+      },
+      {
+        "kind": "math",
+        "text": "Mechanism point estimate: forecast nominal average hourly earnings growth 0.3% minus forecast CPI-U inflation 0.3% = 0.0%. The 80% interval is 0.0% \u00b1 1.28\u00d70.40% = 0.0% \u00b1 0.52%, reported as [-0.5%, 0.5%] in the target's one-decimal units."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk would come from a strong July wage print combined with softer CPI-U and could land above 0.5%. Downside risk would come from another tariff- or energy-driven inflation surge with subdued pay growth and could land below -0.5%; either outcome would be outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.0,
+        "ciLow": -0.5,
+        "ciHigh": 0.5
+      }
+    ]
+  }
+]

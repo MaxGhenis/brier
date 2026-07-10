@@ -1,0 +1,103 @@
+[
+  {
+    "slug": "bea-disposable-personal-income-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US disposable personal income, June 2026",
+    "question": "What will BEA first report for June 2026 disposable personal income, current dollars, seasonally adjusted at an annual rate?",
+    "unit": "usd_billions",
+    "pointEstimate": 23729.1,
+    "ciLow": 23626.7,
+    "ciHigh": 23831.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-01",
+        "value": 23395.9
+      },
+      {
+        "label": "2026-02",
+        "value": 23382.4
+      },
+      {
+        "label": "2026-03",
+        "value": 23510.4
+      },
+      {
+        "label": "2026-04",
+        "value": 23486.9
+      },
+      {
+        "label": "2026-05",
+        "value": 23651.7
+      }
+    ],
+    "drivers": [
+      "Recent monthly level-change persistence",
+      "Wage and salary growth",
+      "Normalization after May farm relief payments",
+      "Personal current taxes"
+    ],
+    "sourceContext": [
+      "https://fred.stlouisfed.org/data/DSPI",
+      "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+      "https://www.bea.gov/news/schedule/"
+    ],
+    "runAt": "2026-07-10T17:29:37Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 disposable personal income forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is BEA disposable personal income, series DSPI / NIPA account code A067RC, in billions of current dollars at a seasonally adjusted annual rate. It resolves on the June 2026 first print, rounded to one decimal, with later revisions ignored. The retained ALFRED URL has a 2026-06-25 vintage that appears to capture the prior May print rather than the July release; this ledger discrepancy is preserved rather than silently corrected."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the BEA Personal Income and Outlays release for May 2026.",
+        "result": "BEA reported May disposable personal income increased by $164.9 billion, or 0.7%; personal income increased $181.6 billion and personal consumption expenditures increased $156.1 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Fetch the public DSPI history mirror corresponding to BEA's current-dollar seasonally adjusted annual-rate series.",
+        "result": "Fetched DSPI levels: 2026-01 23395.9, 2026-02 23382.4, 2026-03 23510.4, 2026-04 23486.9, and 2026-05 23651.7 billion dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Verify the June 2026 Personal Income and Outlays release date on BEA's official release schedule.",
+        "result": "BEA schedules Personal Income and Outlays, June 2026 for July 30, 2026 at 8:30 AM; the May release also names July 30, 2026 as the next release date."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class is the 12 successive monthly DSPI level changes from June 2025 through May 2026: 41.5, 139.0, 105.9, 82.6, -28.8, 48.0, 55.1, 230.0, -13.5, 128.0, -23.5, and 164.8 billion. Their base rate mean is +77.425 billion per month."
+      },
+      {
+        "kind": "text",
+        "text": "Level momentum remains positive, but May's $164.9 billion jump was partly supported by farm proprietors' income after a second round of disaster-relief payments. Normal wage and salary growth supports another increase, while fading relief payments and movements in personal current taxes argue against simply repeating May's gain."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: The model is a one-month persistence prior using the mean of the 12 fetched June 2025\u2013May 2026 successive changes. Historical mean change = 77.425 and sigma = 80.0524. Adjustments are +0 for trend persistence, +0 for wage momentum already represented in the reference class, and +0 net for offsetting normalization of May relief payments and tax uncertainty. Point = 23651.7 + 77.425 = 23729.125, rounded to 23729.1. The empirical 80% half-width is 1.28*sigma = 1.28*80.0524 = 102.4671, giving 23626.6579 to 23831.5921, rounded to 23626.7\u201323831.6."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk comes from unusually strong payroll compensation or another transfer/proprietors' income boost and would land above the interval. Downside risk comes from a reversal of May's farm-relief effect, weak compensation, or a sharp increase in current taxes; a monthly decline exceeding about $25.0 billion would land below the interval. Either outcome would be outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 23729.1,
+        "ciLow": 23626.7,
+        "ciHigh": 23831.6
+      }
+    ]
+  }
+]

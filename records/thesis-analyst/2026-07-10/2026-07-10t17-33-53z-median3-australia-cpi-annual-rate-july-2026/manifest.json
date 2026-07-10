@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "thesis_derived_ensemble_manifest_v1",
+  "createdAt": "2026-07-10T17:33:53Z",
+  "runStartedAt": "2026-07-10T17:33:53Z",
+  "custodyInventoryVersion": 2,
+  "runMode": "derived_ensemble",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "series": "abs.cpi.all_groups.yoy",
+  "period": "2026-07",
+  "targetContext": {
+    "catalogSlug": "australia-cpi-annual-rate-july-2026",
+    "comparisonTarget": true,
+    "country": "AU",
+    "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-26",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+    "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+    "series": "abs.cpi.all_groups.yoy",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.abs.gov.au"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-02",
+        "start": "2026-08-25"
+      },
+      "field": "abs.cpi.all_groups.yoy",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "abs.cpi.all_groups.yoy",
+      "sourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/june-2026",
+      "table": "Australian Bureau of Statistics Consumer Price Index, Australia, June 2026 release",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+    "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "promptMode": "median3",
+  "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+  "agent": {
+    "agent": "thesis.analyst.median3",
+    "model": "gpt-5.6-sol",
+    "agentVersion": "2.2.0+median3",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1"
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-53z-median3-australia-cpi-annual-rate-july-2026/cells.with_activity.json",
+  "constituentRuns": [
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-16-30z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+      "manifestSha256": "eda7c282152a3788ecf838e3327c0b25c890ac8a7168eafd9e0e0ec47fa4511b",
+      "manifestBytes": 9263,
+      "custodyRootSha256": "24fc081c0230f4823b48093ac382311a71ca1f7a7248de569dd8e7cd8e3d8f01",
+      "runAt": "2026-07-10T17:17:18Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-22-38z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+      "manifestSha256": "c683e5c8231359de54e362500041e4c667e4827ff93e1017af4dbdc007a2dd9b",
+      "manifestBytes": 9263,
+      "custodyRootSha256": "7cbb61ccd46a5bf18b3ebb600ae7f4b1b4c2b3b95af55ea6af7fb339062bfc04",
+      "runAt": "2026-07-10T17:23:36Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-28-34z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+      "manifestSha256": "21376f97a63758afce2a4b474b0463b4ca871912b2cccf10add388a32f007806",
+      "manifestBytes": 9263,
+      "custodyRootSha256": "4713027f466e49fecff115801b4e386aa2403b6af6d1670f2791db6b87237302",
+      "runAt": "2026-07-10T17:29:16Z"
+    }
+  ],
+  "constituentManifests": [
+    "records/thesis-analyst/2026-07-10/2026-07-10t17-16-30z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t17-22-38z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t17-28-34z-abs-cpi-all-groups-yoy-2026-07/manifest.json"
+  ],
+  "artifacts": [
+    {
+      "artifactType": "derived_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-53z-median3-australia-cpi-annual-rate-july-2026/distribution.json",
+      "sha256": "b0318d87093429ecf355ac2c8b28efc3cbfae3eefe00983361c6d9eb5db42970",
+      "bytes": 11577,
+      "createdAt": "2026-07-10T17:33:53Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-53z-median3-australia-cpi-annual-rate-july-2026/cells.with_activity.json",
+      "sha256": "dc263435a6e76084507c328269b881b9b65f33a88096c3f1767b566f82cbaf80",
+      "bytes": 7651,
+      "createdAt": "2026-07-10T17:33:53Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-53z-median3-australia-cpi-annual-rate-july-2026/manifest.json",
+      "sha256": "ff78f131327818074498671b901deddea66f3181ab79aee93eb121871314058b",
+      "bytes": 5238,
+      "createdAt": "2026-07-10T17:33:53Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+  "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "custodyRootSha256": "d1d03eae037fb891a42d5e1868cd7d13d3821ed3407c97712930d470def94c28"
+}

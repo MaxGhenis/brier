@@ -1,0 +1,110 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada EI regular beneficiaries, June 2026",
+    "question": "What will Statistics Canada first report for June 2026 regular Employment Insurance beneficiaries in Canada, seasonally adjusted, beneficiary detail total, both sexes, age 15 years and over?",
+    "unit": "thousands",
+    "pointEstimate": 542.0,
+    "ciLow": 529.6,
+    "ciHigh": 554.4,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "December 2025 first print",
+        "value": 569.11
+      },
+      {
+        "label": "February 2026 first print",
+        "value": 542.11
+      },
+      {
+        "label": "March 2026 first print",
+        "value": 548.0
+      },
+      {
+        "label": "April 2026 first print",
+        "value": 544.44
+      }
+    ],
+    "drivers": [
+      "Recent EI-beneficiary level near 544 thousand",
+      "Strong May and June employment gains reduce new claims",
+      "Temporary tariff-related EI measures support eligibility through October",
+      "Administrative-benefit exhaustion and processing lags",
+      "Seasonally adjusted national total from Table 14-10-0011-01"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260522/dq260522b-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260423/dq260423c-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/en/release-diffusion/2026-eng.pdf",
+      "https://www.canada.ca/en/employment-social-development/news/2026/03/government-of-canada-extending-employment-insurance-temporary-measures-to-ensure-critical-income-support-continues-for-workers-impacted-by-tariffs.html"
+    ],
+    "runAt": "2026-07-10T17:18:59Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada regular EI beneficiaries, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the Canada total for regular-benefit recipients, seasonally adjusted, both sexes and age 15 years and over, in Statistics Canada Table 14-10-0011-01. All anchors below use this same variant. The table reports persons, converted to thousands by multiplying by 0.001."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch recent Canada totals from Statistics Canada Table 14-10-0011-01 and its first-print The Daily releases.",
+        "result": "Fetched first-print totals: December 2025 = 569,110 persons, February 2026 = 542,110, March 2026 = 548,000, and April 2026 = 544,440; these equal 569.11, 542.11, 548.00, and 544.44 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the Statistics Canada February and March 2026 Employment Insurance releases to reconstruct recent monthly momentum.",
+        "result": "February 2026 fell by 8,700 persons (-1.6%) to 542,110; March rose by about 5,890 to 548,000 (+0.4%); April then fell by 3,560 to 544,440 (-0.5%)."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch Statistics Canada Labour Force Survey evidence available for the target period.",
+        "result": "May 2026 employment increased by 88,000 (+0.4%), the employment rate rose 0.2 percentage points to 60.7%, and unemployment fell 0.3 percentage points to 6.6%; the June release reported employment up 18,000 and unemployment at 6.5%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Verify the June 2026 EI release date against the official Statistics Canada 2026 release-date publication.",
+        "result": "The official 2026 release-date PDF lists Employment Insurance for reference period June 2026 on August 19, 2026. This conflicts with the canonical ledger resolutionDate of August 20, 2026; the forecast remains tied to the supplied target and first-publication rule, but the ledger date appears one day late."
+      },
+      {
+        "kind": "text",
+        "text": "The recent reference class has a roughly flat-to-declining level after the late-2025 peak: 569.11 thousand in December, 542.11 thousand in February, 548.00 thousand in March, and 544.44 thousand in April. This supplies the base rate: short-horizon persistence around the latest level, with monthly noise near ten thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Level is 544.44 thousand in April. Momentum is mildly negative across the latest observations. The May and June employment gains are a downside adjustment because stronger employment should reduce entries and speed exits, although EI administrative lags weaken the immediate effect. Temporary tariff-related EI measures lasting through October 10 are an upside adjustment because easier access and longer entitlement can sustain beneficiaries."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence model prior = April's 544.44 thousand; historical sample = November 565.96, December 569.11, inferred January 550.81 from the published February decline, February 542.11, March 548.00, and April 544.44. Successive changes are +3.15, -18.30, -8.70, +5.89, and -3.56 thousand; sample sigma = 9.68 thousand. Adjustments are -4.0 thousand for stronger May-June employment and +1.5 thousand for temporary EI eligibility/entitlement measures, giving 544.44 - 4.0 + 1.5 = 541.94, rounded to 542.0. The 80% half-width is 1.28*9.68 = 12.39 thousand, producing 542.0 \u00b1 12.4 = [529.6, 554.4]."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk would come from tariff-related layoffs, broader uptake under temporary EI measures, or delayed exits and would land above 554.4 thousand. Downside risk would come from the May-June employment improvement rapidly reducing claims or accelerating returns to work and would land below 529.6 thousand; either outcome is outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 542.0,
+        "ciLow": 529.6,
+        "ciHigh": 554.4
+      }
+    ]
+  }
+]

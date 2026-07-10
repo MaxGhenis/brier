@@ -1,0 +1,147 @@
+[
+  {
+    "slug": "us-real-avg-hourly-earnings-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US real hourly earnings, July 2026",
+    "question": "What will the first-print July 2026 seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls be?",
+    "unit": "percent",
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+    "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 value for July 2026, seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, as first printed on the official release page; use the one-decimal percent value shown by BLS and do not revise for later updates.",
+    "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026 first print",
+        "value": 0.3
+      },
+      {
+        "label": "February 2026 first print",
+        "value": 0.2
+      },
+      {
+        "label": "March 2026 first print",
+        "value": -0.6
+      },
+      {
+        "label": "April 2026 first print",
+        "value": -0.5
+      },
+      {
+        "label": "May 2026 first print",
+        "value": -0.1
+      }
+    ],
+    "pointEstimate": 0.0,
+    "ciLow": -0.5,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "drivers": [
+      "nominal hourly-pay growth near 0.3 percent",
+      "CPI-U inflation near 0.3 percent",
+      "recent downside volatility from elevated monthly inflation",
+      "one-decimal BLS publication rounding"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/news.release/archives/realer_02132026.htm",
+      "https://www.bls.gov/news.release/archives/realer_03112026.htm",
+      "https://www.bls.gov/news.release/archives/realer_06102026.htm",
+      "https://www.bls.gov/news.release/archives/empsit_07022026.htm",
+      "https://www.bls.gov/schedule/2026/08_sched.htm",
+      "https://www.bls.gov/news.release/realer.t01.htm",
+      "https://www.bls.gov/news.release/archives/realer_04102026.htm",
+      "https://www.bls.gov/news.release/archives/realer_08122025.htm"
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-10T17:21:35Z, 2026-07-10T17:27:05Z, 2026-07-10T17:32:35Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-10T17:21:35Z\", \"2026-07-10T17:27:05Z\", \"2026-07-10T17:32:35Z\"]})",
+        "result": "{rollout_points: [0.0, 0.0, 0.0], rollout_widths: [1.0, 0.8, 1.0], q10: -0.5, q50: 0.0, q90: 0.5}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = -0.5, q50 = 0.0, q90 = 0.5. Constituent points [0.0, 0.0, 0.0] with 80% widths [1.0, 0.8, 1.0]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.0,
+        "ciLow": -0.5,
+        "ciHigh": 0.5
+      }
+    ],
+    "runStartedAt": "2026-07-10T17:33:54Z",
+    "runAt": "2026-07-10T17:33:54Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+    "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "model": "gpt-5.6-sol",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+    "constituentRuns": [
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-20-49z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+        "manifestSha256": "9261368286d08a3e6d2e9d129fbe9d4127d6d842758a86fdccc85011edfa64ea",
+        "manifestBytes": 9009,
+        "custodyRootSha256": "950d9ac022486c2f7fb83988a1beecb12fd8b673701258c3af460224d753e2f5",
+        "runAt": "2026-07-10T17:21:35Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-26-15z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+        "manifestSha256": "bbe9f7fccd7521575c8057a6edc08fde1a927b6428fc38471b98bc6eaff3aa4a",
+        "manifestBytes": 9009,
+        "custodyRootSha256": "ae4f6637af58714c8c16f024b560c61d95d4fcc2dc488d7dd7dce42c441a7e2f",
+        "runAt": "2026-07-10T17:27:05Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-31-59z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+        "manifestSha256": "2345743d8a50d362bcf0dc8a4d28e3ba5141045b16849268d824bb5c950e879a",
+        "manifestBytes": 9009,
+        "custodyRootSha256": "b01244e49024c39ffdff7b72c370f2683f6d35ab084f7acbd27fe79a0343b39e",
+        "runAt": "2026-07-10T17:32:35Z"
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-20-49z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+        "sha256": "9261368286d08a3e6d2e9d129fbe9d4127d6d842758a86fdccc85011edfa64ea",
+        "bytes": 9009,
+        "custodyRootSha256": "950d9ac022486c2f7fb83988a1beecb12fd8b673701258c3af460224d753e2f5",
+        "createdAt": "2026-07-10T17:33:54Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-26-15z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+        "sha256": "bbe9f7fccd7521575c8057a6edc08fde1a927b6428fc38471b98bc6eaff3aa4a",
+        "bytes": 9009,
+        "custodyRootSha256": "ae4f6637af58714c8c16f024b560c61d95d4fcc2dc488d7dd7dce42c441a7e2f",
+        "createdAt": "2026-07-10T17:33:54Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-31-59z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+        "sha256": "2345743d8a50d362bcf0dc8a4d28e3ba5141045b16849268d824bb5c950e879a",
+        "bytes": 9009,
+        "custodyRootSha256": "b01244e49024c39ffdff7b72c370f2683f6d35ab084f7acbd27fe79a0343b39e",
+        "createdAt": "2026-07-10T17:33:54Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-54z-median3-us-real-avg-hourly-earnings-mom-july-2026/distribution.json",
+        "sha256": "a0073e5951c61eee4cd5168e0f69e412c0a6acac7fa0ea48fb782ed5d03d56ae",
+        "bytes": 11292,
+        "createdAt": "2026-07-10T17:33:54Z"
+      }
+    ]
+  }
+]

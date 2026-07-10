@@ -1,0 +1,100 @@
+[
+  {
+    "slug": "wic-participation-may-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US WIC participation, May 2026",
+    "question": "What will USDA FNS first report for national WIC Total Participants in May 2026, in millions of people?",
+    "unit": "millions",
+    "pointEstimate": 6.75,
+    "ciLow": 6.692,
+    "ciHigh": 6.808,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-14",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. Convert the displayed whole-person count to millions by dividing by 1,000,000 and round to 0.001 million. Use only the first posted May 2026 value and ignore later preliminary, final, or annual-summary revisions.",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "March 2025 first available table vintage",
+        "value": 6.850711
+      },
+      {
+        "label": "April 2025 first available table vintage",
+        "value": 6.876342
+      },
+      {
+        "label": "May 2025 first available table vintage",
+        "value": 6.8895
+      },
+      {
+        "label": "December 2025 later official table vintage",
+        "value": 6.694838
+      }
+    ],
+    "drivers": [
+      "Recent participation level near 6.7 million",
+      "Typical spring participation increase",
+      "Lower late-2025 starting level",
+      "Preliminary state-reporting volatility"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/wic-program",
+      "https://fns-prod.azureedge.us/sites/default/files/data-files/Keydata-May-2025.pdf",
+      "https://fns-prod.azureedge.us/sites/default/files/data-files/keydata-dec2025.pdf",
+      "https://www.fns.usda.gov/data-research/data-release-calendar"
+    ],
+    "runAt": "2026-07-10T17:33:31Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "May 2026 national WIC participation forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first USDA FNS national monthly WIC Total Participants print for May 2026, measured as certified individuals issued food benefits during that calendar month. The WIC national monthly table is the exact series; no seasonal adjustment or alternative eligibility measure is used."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read USDA FNS WIC Data Tables and its national monthly WIC table.",
+        "result": "The official page was updated June 18, 2026 and identifies national monthly data through March 2026; its May 2025 table vintage reports totals of 6,850,711 in March 2025, 6,876,342 in April 2025, and 6,889,500 in May 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read USDA FNS Keydata Table 21 for the late-2025 WIC level.",
+        "result": "USDA Table 21 reports 6,907,747 participants in October 2024, 6,829,321 in November 2024, 6,784,735 in December 2024, and 6,694,838 in December 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Check the official FNS data-release calendar for the posting expected to first include May 2026.",
+        "result": "The official calendar schedules the relevant August 2026 program-data release for 2026-08-14, within the listed August 7-15 release window."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class and base rate are monthly national WIC participation prints. The 2025 spring sequence rose from 6.851 million in March to 6.876 million in April and 6.890 million in May, while the later December 2025 level was lower at 6.695 million. A persistence-plus-seasonality forecast therefore starts near the recent 6.7-million regime and adds a modest spring lift."
+      },
+      {
+        "kind": "text",
+        "text": "Level effect: anchor near 6.70 million from the late-2025 regime. Momentum effect: participation had declined from 6.908 million in October 2024 to 6.695 million in December 2025. Seasonal effect: March-to-May 2025 added about 0.039 million. Policy/one-off effect: no quantified nationwide May 2026 eligibility or benefit-issuance discontinuity is added, so the adjustment is deliberately small."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 6.695 million from December 2025; historical sample = October 2024 through May 2025 official monthly totals; adjustments = +0.039 million spring pattern and +0.016 million partial normalization, giving 6.750 million. Successive changes in that sample were -0.078, -0.045, +0.036, -0.020, +0.050, +0.026, and +0.013 million; their realized standard deviation is sigma = 0.045 million. The 80% half-width is approximately 1.28*sigma = 1.28*0.045 = 0.058 million, implying 6.750 \u00b1 0.058 = [6.692, 6.808]."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: stronger outreach, recertification retention, or a broad rise in adjunct eligibility would land above 6.808 million. Downside risk: continued caseload attrition, delayed state reporting, or administrative disruptions would land below 6.692 million. Either outcome would be outside the interval and falsify the assumed stable spring regime."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.75,
+        "ciLow": 6.692,
+        "ciHigh": 6.808
+      }
+    ]
+  }
+]

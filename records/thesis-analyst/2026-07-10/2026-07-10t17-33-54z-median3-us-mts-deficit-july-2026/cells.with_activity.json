@@ -1,0 +1,144 @@
+[
+  {
+    "slug": "us-mts-deficit-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "U.S. July 2026 monthly deficit",
+    "question": "What will the U.S. Treasury Monthly Treasury Statement Table 1 first print report for the July 2026 monthly deficit, not seasonally adjusted, in nominal USD billions with deficits positive?",
+    "unit": "usd_billions",
+    "resolutionDate": "2026-08-17",
+    "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+    "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+    "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "July 2023 deficit",
+        "value": 220.782
+      },
+      {
+        "label": "July 2024 deficit",
+        "value": 243.741
+      },
+      {
+        "label": "July 2025 deficit",
+        "value": 291.143
+      },
+      {
+        "label": "May 2026 deficit",
+        "value": 292.648
+      }
+    ],
+    "pointEstimate": 289.0,
+    "ciLow": 176.1,
+    "ciHigh": 372.9,
+    "confidence": 0.8,
+    "drivers": [
+      "July deficit persistence near the 2025 level",
+      "Current FY January-May deficit slightly below 2025",
+      "Higher nominal outlays and interest costs",
+      "Receipt growth and tariff revenue offset part of spending growth",
+      "Calendar-driven payment timing"
+    ],
+    "sourceContext": [
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+      "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/mts/mts_table_1",
+      "https://www.cbo.gov/publication/61981",
+      "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/summary-of-receipts-outlays-and-the-deficit-surplus-of-the-u-s-government",
+      "https://fred.stlouisfed.org/data/MTSDS133FMS",
+      "https://home.treasury.gov/policy-issues/financial-markets-financial-institutions-and-fiscal-service/cash-and-debt-forecasting",
+      "https://fred.stlouisfed.org/releases/calendar?m=&ob=rd&od=asc&rid=363&ve=2026-12-31&vs=2026-01-01&y=",
+      "https://fiscaldata.treasury.gov/static-data/published-reports/mts/MonthlyTreasuryStatement_202407.pdf"
+    ],
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Median-of-3 rollout ensemble"
+      },
+      {
+        "kind": "text",
+        "text": "Derived run: the pointwise median of the CDFs of 3 independent thesis.analyst fast rollouts on this target \u2014 median prediction sampling per Turtel et al. 2025 (arXiv:2505.17989). No new model call; this run is a deterministic aggregate of the recorded rollouts at 2026-07-10T17:20:49Z, 2026-07-10T17:26:15Z, 2026-07-10T17:31:59Z. Drivers and resolver fields mirror the rollout closest to the median."
+      },
+      {
+        "kind": "tool",
+        "tool": "ensemble.median",
+        "call": "ensemble.median({rollouts: [\"2026-07-10T17:20:49Z\", \"2026-07-10T17:26:15Z\", \"2026-07-10T17:31:59Z\"]})",
+        "result": "{rollout_points: [260, 289, 300.0], rollout_widths: [224, 224, 105.0], q10: 176.1, q50: 289.0, q90: 372.9}"
+      },
+      {
+        "kind": "math",
+        "text": "Median CDF quantiles: q10 = 176.1, q50 = 289.0, q90 = 372.9. Constituent points [260, 289, 300.0] with 80% widths [224, 224, 105.0]; the median interval inherits the central rollout mass rather than averaging tails."
+      },
+      {
+        "kind": "forecast",
+        "point": 289.0,
+        "ciLow": 176.1,
+        "ciHigh": 372.9
+      }
+    ],
+    "runStartedAt": "2026-07-10T17:33:54Z",
+    "runAt": "2026-07-10T17:33:54Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5",
+    "targetRegistrationPath": "records/targets/2026-07-10-ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "model": "gpt-5.6-sol",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+    "constituentRuns": [
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-19-37z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+        "manifestSha256": "9437af0e875a481e1a7096ed6cfa4173a386bbf42dddbf0a04be35f0fb7fa160",
+        "manifestBytes": 9011,
+        "custodyRootSha256": "c7a734dfc5243e42b3c6ef5ada52d4b92804137871bb9e35cdbc6e324811c127",
+        "runAt": "2026-07-10T17:20:49Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-25-21z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+        "manifestSha256": "8a9d9a934528da7e15bea17075f16574d19ef72a4ec3ecfc55205315decd663d",
+        "manifestBytes": 9009,
+        "custodyRootSha256": "174e8b3611802ca9e8a88ec9da0666ca1c585b31d90be83deba33061b1ecce87",
+        "runAt": "2026-07-10T17:26:15Z"
+      },
+      {
+        "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-30-53z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+        "manifestSha256": "6f235f6bd5e1a4e518a65b2f866c59b0b8db70d89b76257e09cd606df80f8060",
+        "manifestBytes": 9011,
+        "custodyRootSha256": "09b4ad77aa3c833186674f1144bcc1c689c2009fd50c6a206d70c785109ca757",
+        "runAt": "2026-07-10T17:31:59Z"
+      }
+    ],
+    "activityLog": [
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-19-37z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+        "sha256": "9437af0e875a481e1a7096ed6cfa4173a386bbf42dddbf0a04be35f0fb7fa160",
+        "bytes": 9011,
+        "custodyRootSha256": "c7a734dfc5243e42b3c6ef5ada52d4b92804137871bb9e35cdbc6e324811c127",
+        "createdAt": "2026-07-10T17:33:54Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-25-21z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+        "sha256": "8a9d9a934528da7e15bea17075f16574d19ef72a4ec3ecfc55205315decd663d",
+        "bytes": 9009,
+        "custodyRootSha256": "174e8b3611802ca9e8a88ec9da0666ca1c585b31d90be83deba33061b1ecce87",
+        "createdAt": "2026-07-10T17:33:54Z"
+      },
+      {
+        "artifactType": "constituent_manifest",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-30-53z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+        "sha256": "6f235f6bd5e1a4e518a65b2f866c59b0b8db70d89b76257e09cd606df80f8060",
+        "bytes": 9011,
+        "custodyRootSha256": "09b4ad77aa3c833186674f1144bcc1c689c2009fd50c6a206d70c785109ca757",
+        "createdAt": "2026-07-10T17:33:54Z"
+      },
+      {
+        "artifactType": "derived_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-54z-median3-us-mts-deficit-july-2026/distribution.json",
+        "sha256": "d82c2f873f739fc58e495f2998a1410f09c535a6a1353628726d44f55ddc5ff5",
+        "bytes": 12131,
+        "createdAt": "2026-07-10T17:33:54Z"
+      }
+    ]
+  }
+]

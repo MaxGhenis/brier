@@ -1,0 +1,103 @@
+[
+  {
+    "slug": "wic-participation-may-2026",
+    "country": "US",
+    "type": "data",
+    "title": "WIC participation, May 2026",
+    "question": "What will USDA FNS first report for national WIC Total Participants in May 2026, in millions of people, not seasonally adjusted?",
+    "unit": "millions",
+    "pointEstimate": 6.91,
+    "ciLow": 6.86,
+    "ciHigh": 6.96,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-14",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. Convert the displayed whole-person count to millions by dividing by 1,000,000 and round to 0.001 million. Use only the first posted May 2026 value and ignore later preliminary, final, or annual-summary revisions.",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2023",
+        "value": 6.696739
+      },
+      {
+        "label": "May 2024",
+        "value": 6.76371
+      },
+      {
+        "label": "May 2025",
+        "value": 6.89461
+      },
+      {
+        "label": "October 2025",
+        "value": 6.90905
+      },
+      {
+        "label": "November 2025 initial",
+        "value": 6.752138
+      }
+    ],
+    "drivers": [
+      "May participation has risen in each of the last two years",
+      "FY2025 participation averaged above FY2024",
+      "October 2025 remained near the May 2025 level",
+      "Initial monthly reports can contain substantial reporting noise"
+    ],
+    "sourceContext": [
+      "https://www.fns.usda.gov/pd/wic-program",
+      "https://fns-prod.azureedge.us/sites/default/files/resource-files/37wic-monthly-2.pdf",
+      "https://www.fns.usda.gov/pd/overview"
+    ],
+    "runAt": "2026-07-10T17:22:05Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "May 2026 national WIC participation forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the unadjusted national Total Participants series in the USDA FNS WIC monthly table, not an annual fiscal-year quality-control measure. Resolution uses the first May 2026 posting and converts persons to millions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the USDA FNS national WIC monthly participation table and read May observations.",
+        "result": "The official table reports Total Participants of 6,696,739 in May 2023, 6,763,710 in May 2024, and 6,894,610 in May 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the latest official FY2025 and FY2026 national monthly observations.",
+        "result": "The table reports 6,907,747 in October 2024, 6,829,321 in November 2024, 6,921,555 in September 2025, 6,909,050 in October 2025, and an initial 6,752,138 in November 2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Verify the target date against the official FNS release schedule recorded for this release.",
+        "result": "The official schedule check identifies 2026-08-14 within the listed 2026-08-07 through 2026-08-15 release window for the May 2026 first print."
+      },
+      {
+        "kind": "text",
+        "text": "The outside-view reference class is the official national monthly series. Its base rate shows May rising by 0.067 million from 2023 to 2024 and by 0.131 million from 2024 to 2025, while FY2025 averaged 6.866095 million versus 6.704329 million in FY2024."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum are separated as follows: the May 2025 level supplies the seasonal anchor; the two-year May momentum is positive; October 2025 was nearly flat against that anchor; and the November 2025 initial decline is treated mainly as reporting noise rather than a persistent policy effect."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = May 2025 at 6.894610 million; historical sample = the 12 successive official monthly changes from October 2024 through October 2025; adjustments = +0.025 million for the positive May reference-class trend, -0.010 million for weak late-2025 momentum, and 0.000 million for identified policy effects, giving 6.910 million after rounding. The sample standard deviation of those successive changes is sigma = 0.039 million, so the 80% normal half-width is approximately 1.28*sigma = 1.28*0.039 = 0.050 million, implying bounds of 6.910-0.050 = 6.860 and 6.910+0.050 = 6.960 million."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk comes from continued child-participation growth and stronger retention, which could put the print above 6.960 million. Downside risk comes from broad caseload attrition or incomplete state reporting; a repeat of the November 2025 initial-report disruption would land below the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 6.91,
+        "ciLow": 6.86,
+        "ciHigh": 6.96
+      }
+    ]
+  }
+]

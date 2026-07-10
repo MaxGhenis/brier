@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "thesis_derived_ensemble_manifest_v1",
+  "createdAt": "2026-07-10T17:33:54Z",
+  "runStartedAt": "2026-07-10T17:33:54Z",
+  "custodyInventoryVersion": 2,
+  "runMode": "derived_ensemble",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "series": "treasury.mts.monthly_deficit",
+  "period": "2026-07",
+  "targetContext": {
+    "catalogSlug": "us-mts-deficit-july-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+    "period": "2026-07",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-17",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+    "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+    "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+    "series": "treasury.mts.monthly_deficit",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "fiscaldata.treasury.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-17",
+        "start": "2026-08-09"
+      },
+      "field": "treasury.mts.monthly_deficit",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "treasury.mts.monthly_deficit",
+      "sourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+      "table": "U.S. Department of the Treasury, Monthly Treasury Statement (Table 1)",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5",
+    "targetRegistrationPath": "records/targets/2026-07-10-ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "promptMode": "median3",
+  "aggregationAlgorithmVersion": "pointwise_median_cdf_v1",
+  "agent": {
+    "agent": "thesis.analyst.median3",
+    "model": "gpt-5.6-sol",
+    "agentVersion": "2.2.0+median3",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "aggregationAlgorithmVersion": "pointwise_median_cdf_v1"
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-54z-median3-us-mts-deficit-july-2026/cells.with_activity.json",
+  "constituentRuns": [
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-19-37z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+      "manifestSha256": "9437af0e875a481e1a7096ed6cfa4173a386bbf42dddbf0a04be35f0fb7fa160",
+      "manifestBytes": 9011,
+      "custodyRootSha256": "c7a734dfc5243e42b3c6ef5ada52d4b92804137871bb9e35cdbc6e324811c127",
+      "runAt": "2026-07-10T17:20:49Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-25-21z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+      "manifestSha256": "8a9d9a934528da7e15bea17075f16574d19ef72a4ec3ecfc55205315decd663d",
+      "manifestBytes": 9009,
+      "custodyRootSha256": "174e8b3611802ca9e8a88ec9da0666ca1c585b31d90be83deba33061b1ecce87",
+      "runAt": "2026-07-10T17:26:15Z"
+    },
+    {
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-30-53z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+      "manifestSha256": "6f235f6bd5e1a4e518a65b2f866c59b0b8db70d89b76257e09cd606df80f8060",
+      "manifestBytes": 9011,
+      "custodyRootSha256": "09b4ad77aa3c833186674f1144bcc1c689c2009fd50c6a206d70c785109ca757",
+      "runAt": "2026-07-10T17:31:59Z"
+    }
+  ],
+  "constituentManifests": [
+    "records/thesis-analyst/2026-07-10/2026-07-10t17-19-37z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t17-25-21z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+    "records/thesis-analyst/2026-07-10/2026-07-10t17-30-53z-treasury-mts-monthly-deficit-2026-07/manifest.json"
+  ],
+  "artifacts": [
+    {
+      "artifactType": "derived_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-54z-median3-us-mts-deficit-july-2026/distribution.json",
+      "sha256": "d82c2f873f739fc58e495f2998a1410f09c535a6a1353628726d44f55ddc5ff5",
+      "bytes": 12131,
+      "createdAt": "2026-07-10T17:33:54Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-54z-median3-us-mts-deficit-july-2026/cells.with_activity.json",
+      "sha256": "9118c31c6c7a9120c6167b2148a161342c95a8bbd1751d905bc37593958aeb5c",
+      "bytes": 7404,
+      "createdAt": "2026-07-10T17:33:54Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t17-33-54z-median3-us-mts-deficit-july-2026/manifest.json",
+      "sha256": "450de252e65a4831a4fed71bf800fb9a1ab9e437067d5bb5d14c3b5054dc4c4d",
+      "bytes": 4896,
+      "createdAt": "2026-07-10T17:33:54Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5",
+  "targetRegistrationPath": "records/targets/2026-07-10-ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "custodyRootSha256": "57be64b16724e8e712eeb744925860a8694595f38cb1cdf1a2a0ce908ca00a4b"
+}

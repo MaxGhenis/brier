@@ -1,0 +1,105 @@
+[
+  {
+    "slug": "canada-ei-regular-beneficiaries-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada EI beneficiaries, June 2026",
+    "question": "What will Statistics Canada first report for June 2026 regular Employment Insurance beneficiaries in Canada, seasonally adjusted, beneficiary detail total, both sexes, age 15 years and over?",
+    "unit": "thousands",
+    "pointEstimate": 541.5,
+    "ciLow": 529.5,
+    "ciHigh": 553.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "December 2025 first print",
+        "value": 569.11
+      },
+      {
+        "label": "January 2026 first print",
+        "value": 555
+      },
+      {
+        "label": "February 2026 first print",
+        "value": 542
+      },
+      {
+        "label": "March 2026 first print",
+        "value": 548
+      },
+      {
+        "label": "April 2026 first print",
+        "value": 544.44
+      }
+    ],
+    "drivers": [
+      "Recent EI-beneficiary declines",
+      "May employment rebound",
+      "Lower May unemployment rate",
+      "Lag from unemployment to benefit receipt",
+      "Temporary EI measures remain active"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf"
+    ],
+    "runAt": "2026-07-10T17:24:59Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 regular EI beneficiaries"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first-print Canada total in Statistics Canada Table 14-10-0011-01: regular benefits, seasonally adjusted, both sexes, age 15 years and over. All anchors use this same variant and are converted from persons to thousands. The ledger carries 2026-08-20, but Statistics Canada's official 2026 release-date PDF currently schedules Employment Insurance for June 2026 on 2026-08-19; this is a concrete one-day ledger discrepancy, so the forecast remains tied to the registered target while flagging it."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the recent first-published national totals from Statistics Canada Table 14-10-0011-01 and associated The Daily EI releases.",
+        "result": "Fetched first-print totals: December 2025 569.110 thousand, January 2026 555.000 thousand, February 2026 542.000 thousand, March 2026 548.000 thousand, and April 2026 544.440 thousand."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the April 2026 Employment Insurance release from The Daily.",
+        "result": "Statistics Canada reported 544,440 regular EI beneficiaries in April 2026, down 0.5% month over month but up 3.5% year over year; it stated that May 2026 data would be released July 23."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch Statistics Canada's May 2026 Labour Force Survey as contemporaneous labour-market evidence.",
+        "result": "May employment increased by 88,000, the unemployment rate fell 0.3 percentage points to 6.6%, and 26.3% of people unemployed in April found work in May."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class/base rate is short-horizon persistence in this slowly moving administrative level series. Recent first-print monthly changes were -14.110, -13.000, +6.000, and -3.560 thousand; their mean was -6.168 thousand, although the two latest changes show much less deterioration than January and February."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum point mildly downward from April's 544.440 thousand. The May employment rebound and lower unemployment rate argue against extrapolating the early-2026 declines, while the lag between joblessness and benefit receipt means they do not imply an immediate sharp fall. Temporary EI measures are a policy-mechanism support to beneficiary counts."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 544.440 thousand using the December 2025-April 2026 first-print sample; adjustment components = -2.0 thousand for residual claims momentum and -0.94 thousand for the net May-June labour-market and policy mix, giving 544.440 - 2.000 - 0.940 = 541.500. From successive changes [-14.110, -13.000, 6.000, -3.560], sample sigma = 9.39 thousand; the normal 80% half-width is roughly 1.28*sigma = 1.28*9.39 = 12.02 thousand, rounded to 12.0, yielding 541.5 \u00b1 12.0 = [529.5, 553.5]."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a delayed rise in eligible claims following earlier job losses or stronger take-up under temporary EI measures, which could land above 553.5 thousand. Downside risk is faster job finding, benefit exhaustion, or the May employment rebound passing quickly into claims, which could land below 529.5 thousand; either would be outside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 541.5,
+        "ciLow": 529.5,
+        "ciHigh": 553.5
+      }
+    ]
+  }
+]

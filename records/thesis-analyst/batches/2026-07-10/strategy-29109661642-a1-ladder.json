@@ -1,0 +1,308 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-07-10T17:05:09Z",
+  "finishedAt": "2026-07-10T17:16:30Z",
+  "promptMode": "ladder",
+  "timeoutSeconds": 540,
+  "targets": 6,
+  "ok": 5,
+  "failed": 1,
+  "results": [
+    {
+      "target": {
+        "catalogSlug": "australia-cpi-annual-rate-july-2026",
+        "comparisonTarget": true,
+        "country": "AU",
+        "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+        "period": "2026-07",
+        "registeredAtUtc": "2026-07-10T05:03:56Z",
+        "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+        "resolutionDate": "2026-08-26",
+        "resolutionPolicy": "first_print",
+        "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+        "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+        "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+        "series": "abs.cpi.all_groups.yoy",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "www.abs.gov.au"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-09-02",
+            "start": "2026-08-25"
+          },
+          "field": "abs.cpi.all_groups.yoy",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "abs.cpi.all_groups.yoy",
+          "sourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/june-2026",
+          "table": "Australian Bureau of Statistics Consumer Price Index, Australia, June 2026 release",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+        "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-10T17:05:09Z",
+      "finishedAt": "2026-07-10T17:06:28Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-05-09z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-05-09z-abs-cpi-all-groups-yoy-2026-07/cells.with_activity.json",
+      "stdoutTail": "56\": \"0e1c4139850e68a15204f3999ffb2e83686e79cb8e22ca207c9b8953eaff5deb\",\n      \"bytes\": 25367,\n      \"createdAt\": \"2026-07-10T17:05:09Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-05-09z-abs-cpi-all-groups-yoy-2026-07/distribution.json\",\n      \"sha256\": \"a7c8a60c1167d9a550ba0e2b44c570920749c54be691786d9901cf0b52586c2c\",\n      \"bytes\": 13432,\n      \"createdAt\": \"2026-07-10T17:05:09Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-05-09z-abs-cpi-all-groups-yoy-2026-07/validation.json\",\n      \"sha256\": \"5b3a8b7f7d37456c98cc08eeedd9937ac48f7fe425c4f36f483bb1b3fecec611\",\n      \"bytes\": 136,\n      \"createdAt\": \"2026-07-10T17:05:09Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-05-09z-abs-cpi-all-groups-yoy-2026-07/cells.with_activity.json\",\n      \"sha256\": \"3e6a82f19dabfbd11a403680a3720f181eb483499b84c1a2577446443d606b9d\",\n      \"bytes\": 41136,\n      \"createdAt\": \"2026-07-10T17:05:09Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-05-09z-abs-cpi-all-groups-yoy-2026-07/manifest.json\",\n      \"sha256\": \"27bf224c69d7e6c6c2a8169ddd4bbc16d2ee7087992c82a2d2dccfd18182291b\",\n      \"bytes\": 16651,\n      \"createdAt\": \"2026-07-10T17:05:09Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"australia-cpi-annual-rate-july-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"7addf6c74f387c2beb1ce184508359f7eee75f5f34e088c093de8d9b66f81555\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "bea-disposable-personal-income-level-june-2026",
+        "comparisonTarget": true,
+        "country": "US",
+        "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+        "period": "2026-06",
+        "registeredAtUtc": "2026-07-10T12:36:34Z",
+        "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+        "resolutionDate": "2026-07-30",
+        "resolutionPolicy": "first_print",
+        "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+        "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+        "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+        "series": "bea.disposable_personal_income.level",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-07-29",
+            "start": "2026-07-21"
+          },
+          "field": "DSPI",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "DSPI",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+          "table": "Personal Income and Outlays, Table 1",
+          "transform": {
+            "factor": 1,
+            "operation": "identity"
+          }
+        },
+        "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+        "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+        "targetUnit": "usd_billions",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-10T17:06:28Z",
+      "finishedAt": "2026-07-10T17:08:15Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-06-29z-bea-disposable-personal-income-level-2026-06/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-06-29z-bea-disposable-personal-income-level-2026-06/cells.with_activity.json",
+      "stdoutTail": "9e1\",\n      \"bytes\": 25827,\n      \"createdAt\": \"2026-07-10T17:06:29Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-06-29z-bea-disposable-personal-income-level-2026-06/distribution.json\",\n      \"sha256\": \"b857e57d44416b7ce7e64beb75b6aaf57d16bc393c3e476dfad6c71f4ff01cb9\",\n      \"bytes\": 14472,\n      \"createdAt\": \"2026-07-10T17:06:29Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-06-29z-bea-disposable-personal-income-level-2026-06/validation.json\",\n      \"sha256\": \"26210aea3430b80e8e2cc7563234a237b3f4050011991230aa2b7a1e00ba93ea\",\n      \"bytes\": 147,\n      \"createdAt\": \"2026-07-10T17:06:29Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-06-29z-bea-disposable-personal-income-level-2026-06/cells.with_activity.json\",\n      \"sha256\": \"150a237c141627c9944091f5a83dedbb251ccdebf4ddf8707efd913adb4ab39f\",\n      \"bytes\": 40120,\n      \"createdAt\": \"2026-07-10T17:06:29Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-06-29z-bea-disposable-personal-income-level-2026-06/manifest.json\",\n      \"sha256\": \"a16df778383955993d9fb130b23dde0b0c3b26eb113c32051b57ca17adcad0b3\",\n      \"bytes\": 15359,\n      \"createdAt\": \"2026-07-10T17:06:29Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"bea-disposable-personal-income-level-june-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"63b0fc61f0af0ba5349b7c0e465893d8906d57362196a365a439b13d7f7be8dd\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "canada-ei-regular-beneficiaries-june-2026",
+        "comparisonTarget": true,
+        "country": "CA",
+        "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+        "period": "2026-06",
+        "registeredAtUtc": "2026-07-10T05:03:56Z",
+        "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+        "resolutionDate": "2026-08-20",
+        "resolutionPolicy": "first_print",
+        "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+        "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+        "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+        "series": "statcan.employment_insurance.regular_beneficiaries",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "www150.statcan.gc.ca"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-27",
+            "start": "2026-08-19"
+          },
+          "field": "statcan.employment_insurance.regular_beneficiaries",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "statcan.employment_insurance.regular_beneficiaries",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+          "table": "Statistics Canada Employment Insurance Statistics, Table 14-10-0011-01 and The Daily release for May 2026",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+        "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+        "targetUnit": "thousands",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-07-10T17:08:15Z",
+      "finishedAt": "2026-07-10T17:10:26Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-08-15z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-08-15z-statcan-employment-insurance-regular-beneficiaries-2026-06/cells.with_activity.json",
+      "stdoutTail": " \"records/thesis-analyst/2026-07-10/2026-07-10t17-08-15z-statcan-employment-insurance-regular-beneficiaries-2026-06/distribution.json\",\n      \"sha256\": \"1226b08f6d0a6f1b86d2e4dc96eed238d9554da7e779e96d0ab8fa3af0467aac\",\n      \"bytes\": 14604,\n      \"createdAt\": \"2026-07-10T17:08:15Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-08-15z-statcan-employment-insurance-regular-beneficiaries-2026-06/validation.json\",\n      \"sha256\": \"7a1d7f6d2496d546c7ef7577e3c08326879ff61c149226c66cd08c24f66b5fd8\",\n      \"bytes\": 225,\n      \"createdAt\": \"2026-07-10T17:08:15Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-08-15z-statcan-employment-insurance-regular-beneficiaries-2026-06/cells.with_activity.json\",\n      \"sha256\": \"55d9da4aa41e9c98227c363804ff07462beccfe9967dc775c38c605645dbcd4e\",\n      \"bytes\": 43569,\n      \"createdAt\": \"2026-07-10T17:08:15Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-08-15z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json\",\n      \"sha256\": \"44115e90e781afdc9ef754050a26b8183e33ba22aa2114a5aaced63100731b6b\",\n      \"bytes\": 18176,\n      \"createdAt\": \"2026-07-10T17:08:15Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"canada-ei-regular-beneficiaries-june-2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"math step does not show interval derivation (sigma = X or 1.28)\"\n        ]\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"a69dda0ad7b69a43554af28a674ea21e3252e94c7747ac7c5d66535b06f53679\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "math step does not show interval derivation (sigma = X or 1.28)"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "us-mts-deficit-july-2026",
+        "comparisonTarget": true,
+        "country": "US",
+        "dataPointId": "treasury.mts.monthly_deficit.july_2026.first_print",
+        "period": "2026-07",
+        "registeredAtUtc": "2026-07-10T05:03:56Z",
+        "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+        "resolutionDate": "2026-08-17",
+        "resolutionPolicy": "first_print",
+        "resolutionRule": "Resolve from the first official Monthly Treasury Statement print for July 2026, Table 1, monthly Deficit/Surplus (-) for July 2026. Use the Table 1 value in $ millions, convert to usd_billions by dividing by 1000, and keep deficits positive and surpluses negative. Do not revise for later MTS revisions or corrected historical tables.",
+        "resolutionSource": "U.S. Department of the Treasury, Bureau of the Fiscal Service, Monthly Treasury Statement Table 1",
+        "resolutionSourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+        "series": "treasury.mts.monthly_deficit",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "fiscaldata.treasury.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-17",
+            "start": "2026-08-09"
+          },
+          "field": "treasury.mts.monthly_deficit",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "treasury.mts.monthly_deficit",
+          "sourceUrl": "https://fiscaldata.treasury.gov/datasets/monthly-treasury-statement/",
+          "table": "U.S. Department of the Treasury, Monthly Treasury Statement (Table 1)",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5",
+        "targetRegistrationPath": "records/targets/2026-07-10-ccce2d4ba13735bf7cf54d29cec40a578718bf06407927c523573dd505f8a3f5.json",
+        "targetUnit": "usd_billions",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-10T17:10:26Z",
+      "finishedAt": "2026-07-10T17:12:40Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-10-26z-treasury-mts-monthly-deficit-2026-07/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-10-26z-treasury-mts-monthly-deficit-2026-07/cells.with_activity.json",
+      "stdoutTail": "b1868c1ea7c2927ab68fc19a557108aa9a78b6b1aed09e39f6e4c05c7\",\n      \"bytes\": 25818,\n      \"createdAt\": \"2026-07-10T17:10:26Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-10-26z-treasury-mts-monthly-deficit-2026-07/distribution.json\",\n      \"sha256\": \"1eb62c19bf1a40fb2342c5c7f78ad3104c691abb6188ac12d759be1c2c1ef51b\",\n      \"bytes\": 14647,\n      \"createdAt\": \"2026-07-10T17:10:26Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-10-26z-treasury-mts-monthly-deficit-2026-07/validation.json\",\n      \"sha256\": \"3f9447ab19681da38151b17758d5d05aa33a53389a3bf96fcd5ba4f0bb7b05a9\",\n      \"bytes\": 125,\n      \"createdAt\": \"2026-07-10T17:10:26Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-10-26z-treasury-mts-monthly-deficit-2026-07/cells.with_activity.json\",\n      \"sha256\": \"0e42ee5704b25c1e31a3d72054b3f4ff47946d36c58bb6bdd566b16346a1d792\",\n      \"bytes\": 41730,\n      \"createdAt\": \"2026-07-10T17:10:26Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-10-26z-treasury-mts-monthly-deficit-2026-07/manifest.json\",\n      \"sha256\": \"3002c2aa5ff422b99b1cdc3f4b6d8a7708f8a3cb546bcfe352c43391ad0fc8db\",\n      \"bytes\": 16471,\n      \"createdAt\": \"2026-07-10T17:10:26Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"us-mts-deficit-july-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"a9869b7d61106b2f18a7e05645874c1ed9ef9b25e0bdc490fe90fcba7d1f1659\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "us-real-avg-hourly-earnings-mom-july-2026",
+        "comparisonTarget": true,
+        "country": "US",
+        "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+        "period": "2026-07",
+        "registeredAtUtc": "2026-07-10T05:03:56Z",
+        "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+        "resolutionDate": "2026-08-12",
+        "resolutionPolicy": "first_print",
+        "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 value for July 2026, seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, as first printed on the official release page; use the one-decimal percent value shown by BLS and do not revise for later updates.",
+        "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+        "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+        "series": "bls.real_earnings.avg_hourly_mom",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "www.bls.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-18",
+            "start": "2026-08-10"
+          },
+          "field": "bls.real_earnings.avg_hourly_mom",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "bls.real_earnings.avg_hourly_mom",
+          "sourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+          "table": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+        "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-10T17:12:40Z",
+      "finishedAt": "2026-07-10T17:14:32Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-12-40z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-12-40z-bls-real-earnings-avg-hourly-mom-2026-07/cells.with_activity.json",
+      "stdoutTail": "995047d3467585d52a6a85eb\",\n      \"bytes\": 25116,\n      \"createdAt\": \"2026-07-10T17:12:40Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-12-40z-bls-real-earnings-avg-hourly-mom-2026-07/distribution.json\",\n      \"sha256\": \"9c853645e91a1c57341b74c41b798f7528f769b0b44ddff7ed942f3b9629c1c8\",\n      \"bytes\": 13670,\n      \"createdAt\": \"2026-07-10T17:12:40Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-12-40z-bls-real-earnings-avg-hourly-mom-2026-07/validation.json\",\n      \"sha256\": \"920ec2d5507e2a98bece860c23bb401c59952c981916cdb40755a22090184a9e\",\n      \"bytes\": 142,\n      \"createdAt\": \"2026-07-10T17:12:40Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-12-40z-bls-real-earnings-avg-hourly-mom-2026-07/cells.with_activity.json\",\n      \"sha256\": \"c16133f52539a6a3ca527f0215370175d59c019af73ea2321a377ff60eabba34\",\n      \"bytes\": 43071,\n      \"createdAt\": \"2026-07-10T17:12:40Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-12-40z-bls-real-earnings-avg-hourly-mom-2026-07/manifest.json\",\n      \"sha256\": \"804e26523cc2b8a88d80fe63a9458563f7a2dc580ffc33f31eff4229adf33329\",\n      \"bytes\": 18169,\n      \"createdAt\": \"2026-07-10T17:12:40Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"us-real-avg-hourly-earnings-mom-july-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"d5369e8dd0a3a34e343e22579b2e7db4a04d644ca012e9e23c4061c71eed575b\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "wic-participation-may-2026",
+        "comparisonTarget": true,
+        "country": "US",
+        "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+        "period": "2026-05",
+        "registeredAtUtc": "2026-07-10T05:03:56Z",
+        "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+        "resolutionDate": "2026-08-14",
+        "resolutionPolicy": "first_print",
+        "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. The expected displayed FNS monthly table value is a whole participant count, as in 6,894,610 for May 2025; convert that displayed person count to millions by dividing by 1,000,000 and round to 0.001 million for the cell. If the ledger adapter instead extracts an intermediate value expressed in thousands of participants, its listed factor 0.001 produces the same final unit of millions. Use the first posted May 2026 value only; ignore later preliminary/final revisions or annual-summary revisions.",
+        "resolutionSource": "Official agency release",
+        "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+        "series": "fns.wic.total_participation",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "www.fns.usda.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-15",
+            "start": "2026-08-07"
+          },
+          "field": "fns.wic.total_participation",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "fns.wic.total_participation",
+          "sourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+          "table": "Official agency release",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+        "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+        "targetUnit": "millions",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-07-10T17:14:32Z",
+      "finishedAt": "2026-07-10T17:16:30Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-14-32z-fns-wic-total-participation-2026-05/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t17-14-32z-fns-wic-total-participation-2026-05/cells.with_activity.json",
+      "stdoutTail": "9c16f3f825960f5d5eff0138c5db47733571d1137e795a5d1dc23b73548\",\n      \"bytes\": 24512,\n      \"createdAt\": \"2026-07-10T17:14:32Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-14-32z-fns-wic-total-participation-2026-05/distribution.json\",\n      \"sha256\": \"a0820952503bfc60b2c27d08044a52791a3511bf99cb9729167f7c07cfe74efd\",\n      \"bytes\": 13233,\n      \"createdAt\": \"2026-07-10T17:14:32Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-14-32z-fns-wic-total-participation-2026-05/validation.json\",\n      \"sha256\": \"dc31521bbc6d28c50d60119c83ed2def1564aab7f6f220ba90c5409b59820b0b\",\n      \"bytes\": 127,\n      \"createdAt\": \"2026-07-10T17:14:32Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-14-32z-fns-wic-total-participation-2026-05/cells.with_activity.json\",\n      \"sha256\": \"8c3c44dc28a8eb83f07ef60c5b2639567011d1daa4cb1f38c72b435d6dd04fe3\",\n      \"bytes\": 38458,\n      \"createdAt\": \"2026-07-10T17:14:32Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t17-14-32z-fns-wic-total-participation-2026-05/manifest.json\",\n      \"sha256\": \"7a7750f833947f356cebf747cbc520d2bd329a7609763fa57f0853a47b75d04d\",\n      \"bytes\": 14951,\n      \"createdAt\": \"2026-07-10T17:14:32Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"wic-participation-may-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"e04a4bd59933831c7ec523bb2a869e499f9bb4270d5b665ca05a33e42777bdb6\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    }
+  ]
+}

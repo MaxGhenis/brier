@@ -1,0 +1,58 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: statcan.employment_insurance.regular_beneficiaries
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "canada-ei-regular-beneficiaries-june-2026"
+- country: "CA"
+- targetUnit: "thousands"
+- dataPointId: "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print"
+- resolutionDate: "2026-08-20"
+- resolutionSource: "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release"
+- resolutionSourceUrl: "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101"
+- resolutionRule: "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release."
+- resolutionPolicy: "first_print"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www150.statcan.gc.ca"], "expectedReleaseWindow": {"end": "2026-08-27", "start": "2026-08-19"}, "field": "statcan.employment_insurance.regular_beneficiaries", "releasePolicy": "first_print", "sourceSeriesId": "statcan.employment_insurance.regular_beneficiaries", "sourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101", "table": "Statistics Canada Employment Insurance Statistics, Table 14-10-0011-01 and The Daily release for May 2026", "transform": {"factor": 0.001, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json"
+- targetContentHash: "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b"
+- registrationCommit: "f2738042716881427217caa9c3c13aa4ca8783e5"
+- registeredAtUtc: "2026-07-10T05:03:56Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+4bb21ef60fbeaf9f353b1eff38c9399b5c627ec62de6169f07c8e2945fda0def
+
+# Draft forecast response
+{"slug":"canada-ei-regular-beneficiaries-june-2026","country":"CA","type":"data","title":"Canada EI beneficiaries, June 2026","question":"What will Statistics Canada first report for June 2026 regular Employment Insurance beneficiaries in Canada, seasonally adjusted, beneficiary detail total, sex total, age group total?","unit":"thousands","pointEstimate":547.22,"ciLow":531.67,"ciHigh":562.86,"confidence":0.8,"resolutionDate":"2026-08-20","resolutionSource":"Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release","resolutionSourceUrl":"https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101","resolutionRule":"Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.","dataPointId":"statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print","historicalContext":[{"label":"January 2026 first print","value":554.83},{"label":"February 2026 first print","value":542.11},{"label":"March 2026 first print","value":548},{"label":"April 2026 first print","value":544.44}],"drivers":["Recent EI-beneficiary level near 544,000","May unemployment rate fell to 6.6%","Lagged tariff-related labour-market weakness","Temporary EI eligibility measures","Claims exhaustion and return-to-work flows"],"sourceContext":["https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101","https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm","https://www150.statcan.gc.ca/n1/daily-quotidien/260522/dq260522b-eng.htm","https://www150.statcan.gc.ca/n1/daily-quotidien/260423/dq260423c-eng.htm","https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm","https://stats.gov.nl.ca/pdf/upcomingreleases.pdf"],"runAt":"2026-07-10T17:08:55Z","thresholdLadder":{"thresholds":[525,530,535,540,545,550,555,560,565,570,575],"cumulativeProbabilities":[0.04,0.08,0.14,0.25,0.42,0.6,0.75,0.86,0.93,0.97,0.99]},"reasoning":[{"kind":"heading","text":"Canada regular EI beneficiaries, June 2026 first print"},{"kind":"text","text":"The resolver is Statistics Canada Table 14-10-0011-01: Canada, regular benefits, seasonally adjusted, beneficiary detail total, sex total and age group total. All anchors use that same variant. Persons are converted to thousands by multiplying by 0.001, and subsequent revisions are ignored."},{"kind":"tool","tool":"official.lookup","call":"Fetch recent Canada observations from Statistics Canada Table 14-10-0011-01 and corresponding first-release pages.","result":"First-release observations were January 2026 554,830 persons, February 542,110, March 548,000 and April 544,440, equal to 554.83, 542.11, 548.00 and 544.44 thousand."},{"kind":"tool","tool":"official.lookup","call":"Fetch Statistics Canada April 2026 Employment Insurance release.","result":"April regular beneficiaries were 544,440, down 0.5% monthly and up 3.5% year over year; the page states May 2026 data would be released July 23."},{"kind":"tool","tool":"official.lookup","call":"Fetch Statistics Canada Labour Force Survey for May 2026 as a leading labour-market indicator.","result":"Canada's unemployment rate fell 0.3 percentage points to 6.6% in May, after reaching 6.9% in April; the pre-pandemic 2017-2019 average cited was 6.0%."},{"kind":"tool","tool":"official.lookup","call":"Verify the announced August 2026 Statistics Canada release date from the public-government upcoming-release calendar.","result":"The calendar lists Employment Insurance for the June 2026 reference period on August 19, 2026, while the registered ledger says August 20, 2026; this is a concrete one-day ledger discrepancy, so the forecast remains tied to the ledger target and retains 2026-08-20."},{"kind":"text","text":"The reference class/base rate is short-horizon persistence in this slowly moving beneficiary stock. The four first-release levels average 547.35 thousand, while April's latest level is 544.44 thousand; this anchors the forecast in the mid-540s before adjustments."},{"kind":"text","text":"Level and momentum effects are mixed: beneficiaries fell from January to February, partially rebounded in March, and eased in April. The May unemployment decline argues for fewer new beneficiaries, but EI receipt lags job loss and temporary tariff-related EI measures can raise eligibility or duration. I apply a modest net upward adjustment from April rather than extrapolating either the January decline or March rebound."},{"kind":"text","text":"Prior/update/interval: The model is persistence around the latest first-release level, using the January-April 2026 first-print sample. Successive changes were -12.72, +5.89 and -3.56 thousand; their sample standard deviation is sigma = 9.47 thousand, so the one-change 80% half-width is 1.28*sigma = 12.12 thousand. A two-month target and policy/lag uncertainty justify the ladder-implied 80% width of 31.19 thousand, or half-width 15.60 thousand, 1.29 times the one-change benchmark. Starting from 544.44, a roughly +2.8-thousand combined persistence, lag and policy update places the median near 547.22, with final implied bounds 531.67 to 562.86 thousand."},{"kind":"math","text":"Ladder: P(X <= 525) = 0.04; P(X <= 530) = 0.08; P(X <= 535) = 0.14; P(X <= 540) = 0.25; P(X <= 545) = 0.42; P(X <= 550) = 0.60; P(X <= 555) = 0.75; P(X <= 560) = 0.86; P(X <= 565) = 0.93; P(X <= 570) = 0.97; P(X <= 575) = 0.99. Linear interpolation gives q10 = 530 + (0.10-0.08)/(0.14-0.08)*5 = 531.67, median = 545 + (0.50-0.42)/(0.60-0.42)*5 = 547.22, and q90 = 560 + (0.90-0.86)/(0.93-0.86)*5 = 562.86 thousand."},{"kind":"text","text":"Upside risk comes from delayed tariff-related layoffs, more claims qualifying under temporary EI measures, or slower exits from benefits; a broad shock could land above the interval. Downside risk comes from sustained employment gains, faster return-to-work flows, or benefit exhaustion; a sharp normalization would land below the interval."},{"kind":"forecast","point":547.22,"ciLow":531.67,"ciHigh":562.86}]}
