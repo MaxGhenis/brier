@@ -76,6 +76,13 @@ jobs:
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           echo "batch=records/thesis-analyst/batches/$DAY/auto-roll-r${GITHUB_RUN_NUMBER}.json" >> "$GITHUB_OUTPUT"
 
+      - name: Preregister targets before forecasting
+        if: steps.targets.outputs.count != '0'
+        run: |
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/roll-targets.json \
+            --date "$(date -u +%F)"
+
       - name: Run the analyst batch
         if: steps.targets.outputs.count != '0'
         env:
@@ -98,7 +105,8 @@ jobs:
             --bundle-dir /tmp/docket-publication \
             --batch "$BATCH_MANIFEST" \
             --allow-path records \
-            --allow-path scripts/docket_series.json
+            --allow-path scripts/docket_series.json \
+            --allow-path site/src/data/ledger-targets.generated.ts
 
       - name: Upload generated records and batch manifest
         if: steps.targets.outputs.count != '0'
@@ -151,6 +159,7 @@ jobs:
             --batch "$BATCH_MANIFEST" \
             --allow-path records \
             --allow-path scripts/docket_series.json \
+            --allow-path site/src/data/ledger-targets.generated.ts \
             --apply
 
       - name: Commit run records (before any gate — records are immutable artifacts)

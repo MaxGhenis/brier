@@ -12,6 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import docket_publication  # noqa: E402
+from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 from docket_publication import PublicationError  # noqa: E402
 
 
@@ -116,3 +117,43 @@ def test_scan_staged_rejects_secret(
 
     with pytest.raises(PublicationError, match="possible GitHub token"):
         docket_publication.scan_staged(argparse.Namespace())
+
+
+def test_validate_target_registration_rejects_snapshot_tampering(
+    tmp_path: pathlib.Path,
+) -> None:
+    contract = {
+        "series": "agency.test.rate",
+        "period": "2030-01",
+        "catalogSlug": "agency-test-rate-january-2030",
+        "dataPointId": "agency.test.rate.2030_01.first_print",
+        "unit": "percent",
+        "valueScale": 1.0,
+        "sourceBinding": {"adapter": "generic-url"},
+    }
+    snapshot = {
+        "schemaVersion": "thesis_target_registration_v1",
+        "targets": [contract],
+    }
+    content_hash = canonical_sha256(snapshot)
+    relative = pathlib.Path("records/targets") / f"2030-01-10-{content_hash}.json"
+    path = tmp_path / relative
+    path.parent.mkdir(parents=True)
+    path.write_bytes(canonical_bytes(snapshot) + b"\n")
+    target = {
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+        "dataPointId": contract["dataPointId"],
+        "targetUnit": contract["unit"],
+        "valueScale": contract["valueScale"],
+        "sourceBinding": contract["sourceBinding"],
+        "targetRegistrationPath": relative.as_posix(),
+        "targetContentHash": content_hash,
+    }
+
+    docket_publication.validate_target_registration(tmp_path, target)
+    snapshot["targets"][0]["unit"] = "ratio"
+    path.write_text(json.dumps(snapshot))
+    with pytest.raises(PublicationError, match="hash mismatch"):
+        docket_publication.validate_target_registration(tmp_path, target)

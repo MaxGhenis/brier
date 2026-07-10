@@ -27,6 +27,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import urllib.parse
 
 from thesis_log_client import load_thesis_log
 
@@ -37,17 +38,28 @@ CODEX = "codex"
 
 COUNTRIES = {"US", "UK", "CA", "AU", "EA", "JP", "BE"}
 UNITS = {
-    "count", "percent", "gbp_billions", "usd", "usd_billions", "usd_monthly",
-    "thousands", "millions", "per_1000_live_births", "ratio", "minutes",
-    "percent_growth", "index_points",
+    "count",
+    "percent",
+    "gbp_billions",
+    "usd",
+    "usd_billions",
+    "usd_monthly",
+    "thousands",
+    "millions",
+    "per_1000_live_births",
+    "ratio",
+    "minutes",
+    "percent_growth",
+    "index_points",
 }
 PERIOD_RE = re.compile(r"\d{4}-\d{2}|\d{4}-Q\d|week_\d{4}-\d{2}-\d{2}")
 SLUG_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 SERIES_RE = re.compile(r"^[a-z0-9_]+(\.[a-z0-9_]+)+$")
 
 
-def prompt(registry_series: list[str], sample_slugs: list[str],
-           count: int, focus: str | None) -> str:
+def prompt(
+    registry_series: list[str], sample_slugs: list[str], count: int, focus: str | None
+) -> str:
     focus_line = f"Focus areas requested: {focus}.\n" if focus else ""
     return f"""# Thesis docket prospecting
 
@@ -82,6 +94,10 @@ Output STRICT JSON only — an array of exactly {count} objects, no prose:
   "targetUnit": "one of: {", ".join(sorted(UNITS))}",
   "expectedReleaseDate": "YYYY-MM-DD",
   "resolutionSourceUrl": "the agency's release/table page",
+  "sourceSeriesId": "official series or dataset identifier",
+  "sourceField": "exact value field/row identifier",
+  "sourceTable": "exact official table, release, or dataset",
+  "transform": {{"operation": "identity or multiply", "factor": 1}},
   "rationale": "one sentence on why this series matters"
 }}]
 """
@@ -89,9 +105,23 @@ Output STRICT JSON only — an array of exactly {count} objects, no prose:
 
 def run_codex(text: str) -> str:
     completed = subprocess.run(
-        [CODEX, "--search", "exec", "--ignore-user-config", "-m", "gpt-5.5",
-         "-c", 'service_tier="fast"', "--sandbox", "read-only", "-"],
-        input=text, capture_output=True, text=True, timeout=600,
+        [
+            CODEX,
+            "--search",
+            "exec",
+            "--ignore-user-config",
+            "-m",
+            "gpt-5.5",
+            "-c",
+            'service_tier="fast"',
+            "--sandbox",
+            "read-only",
+            "-",
+        ],
+        input=text,
+        capture_output=True,
+        text=True,
+        timeout=600,
     )
     if completed.returncode != 0:
         raise RuntimeError(f"codex failed: {completed.stderr[-400:]}")
@@ -103,14 +133,35 @@ def extract_json(text: str) -> list[dict]:
     end = text.rfind("]")
     if start < 0 or end <= start:
         raise ValueError("no JSON array in codex output")
-    return json.loads(text[start:end + 1])
+    return json.loads(text[start : end + 1])
 
 
-GENERIC_TOKENS = {
-    "rate", "annual", "monthly", "weekly", "total", "index", "yoy", "mom",
-    "us", "uk", "euro", "area", "japan", "canada", "australia", "belgium",
-    "week", "prelim", "flash", "sa",
-} | set(m.lower() for m in calendar.month_name if m) | {str(y) for y in range(2024, 2032)}
+GENERIC_TOKENS = (
+    {
+        "rate",
+        "annual",
+        "monthly",
+        "weekly",
+        "total",
+        "index",
+        "yoy",
+        "mom",
+        "us",
+        "uk",
+        "euro",
+        "area",
+        "japan",
+        "canada",
+        "australia",
+        "belgium",
+        "week",
+        "prelim",
+        "flash",
+        "sa",
+    }
+    | set(m.lower() for m in calendar.month_name if m)
+    | {str(y) for y in range(2024, 2032)}
+)
 
 
 def near_duplicate(slug: str, existing: set[str]) -> str | None:
@@ -119,7 +170,9 @@ def near_duplicate(slug: str, existing: set[str]) -> str | None:
     if not tokens:
         return None
     for other in existing:
-        other_tokens = {t for t in other.split("-") if t not in GENERIC_TOKENS and not t.isdigit()}
+        other_tokens = {
+            t for t in other.split("-") if t not in GENERIC_TOKENS and not t.isdigit()
+        }
         if len(tokens & other_tokens) >= 2 or (
             len(tokens & other_tokens) == 1 and tokens <= other_tokens
         ):
@@ -172,6 +225,17 @@ def main() -> int:
                 problems.append("release outside (today, +75d]")
         except ValueError:
             problems.append("bad release date")
+        try:
+            source_host = urllib.parse.urlparse(
+                p.get("resolutionSourceUrl", "")
+            ).hostname
+        except ValueError:
+            source_host = None
+        if not source_host:
+            problems.append("bad resolution source URL")
+        for key in ("sourceSeriesId", "sourceField", "sourceTable"):
+            if not str(p.get(key) or "").strip():
+                problems.append(f"missing {key}")
         if problems:
             print(f"  reject {p.get('catalogSlug', '?')}: {'; '.join(problems)}")
             continue
@@ -181,13 +245,28 @@ def main() -> int:
             "catalogSlug": p["catalogSlug"],
             "country": p["country"],
             "targetUnit": p["targetUnit"],
+            "expectedReleaseDate": p["expectedReleaseDate"],
+            "resolutionSourceUrl": p["resolutionSourceUrl"],
+            "sourceSeriesId": p["sourceSeriesId"],
+            "sourceField": p["sourceField"],
+            "sourceTable": p["sourceTable"],
+            "transform": p.get("transform")
+            or {
+                "operation": "identity",
+                "factor": 1,
+            },
         }
         targets.append(target)
-        print(f"  prospect {p['catalogSlug']} ({p['series']} {p['period']}) — {p.get('rationale', '')[:90]}")
+        rationale = str(p.get("rationale", ""))[:90]
+        print(
+            f"  prospect {p['catalogSlug']} ({p['series']} {p['period']}) — {rationale}"
+        )
 
     print(f"{len(targets)} of {len(proposals)} proposals accepted")
     if args.out and not args.dry_run and targets:
-        pathlib.Path(args.out).write_text(json.dumps({"targets": targets}, indent=1) + "\n")
+        pathlib.Path(args.out).write_text(
+            json.dumps({"targets": targets}, indent=1) + "\n"
+        )
     return 0
 
 

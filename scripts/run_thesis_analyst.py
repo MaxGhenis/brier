@@ -45,6 +45,7 @@ import tempfile
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any
+from urllib.parse import urlparse
 
 from canonical_json import canonical_bytes, canonical_sha256
 
@@ -280,6 +281,7 @@ def materialize_run_distributions(
         distributions.append(distribution)
     return distributions[0] if len(distributions) == 1 else distributions
 
+
 # manifest.json is necessarily self-referential.  Its `manifest` artifact
 # entry hashes canonical JSON after removing (1) every manifest artifact entry
 # and (2) custodyRootSha256.  custody_root.json instead hashes the complete
@@ -443,6 +445,7 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
         "resolutionSourceUrl",
         "resolutionRule",
         "resolutionPolicy",
+        "sourceBinding",
         "conditional",
     ]
     lines = [
@@ -1765,6 +1768,18 @@ def target_context_validation_errors(
             errors.append(
                 f"{cell_key} {actual!r} does not match target context "
                 f"{context_key} {expected!r}"
+            )
+    binding = target_context.get("sourceBinding")
+    if isinstance(binding, dict) and binding.get("sourceUrl"):
+        expected_host = (urlparse(str(binding["sourceUrl"])).hostname or "").lower()
+        actual_host = (
+            urlparse(str(cell.get("resolutionSourceUrl") or "")).hostname or ""
+        ).lower()
+        if not expected_host or actual_host != expected_host:
+            errors.append(
+                "resolutionSourceUrl host "
+                f"{actual_host!r} does not match preregistered source binding "
+                f"host {expected_host!r}"
             )
     errors.extend(first_print_resolution_rule_errors(cell, target_context))
     return errors

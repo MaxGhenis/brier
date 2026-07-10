@@ -13,6 +13,8 @@ import subprocess
 import sys
 from typing import Any
 
+from canonical_json import canonical_sha256
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 SECRET_PATTERNS = {
@@ -193,6 +195,52 @@ def load_json(path: pathlib.Path, label: str) -> Any:
         raise PublicationError(f"invalid {label} {path}: {exc}") from exc
 
 
+def validate_target_registration(repo: pathlib.Path, target: dict[str, Any]) -> None:
+    path_value = target.get("targetRegistrationPath")
+    content_hash = target.get("targetContentHash")
+    if not path_value or not re.fullmatch(r"[0-9a-f]{64}", str(content_hash or "")):
+        raise PublicationError("batch target lacks a hashed registration snapshot")
+    relative = relative_repo_path(str(path_value))
+    if pathlib.PurePosixPath("records/targets") not in relative.parents:
+        raise PublicationError(
+            f"target registration is outside records/targets: {relative}"
+        )
+    snapshot = load_json(safe_join(repo, relative), "target registration")
+    if snapshot.get("schemaVersion") != "thesis_target_registration_v1":
+        raise PublicationError("unsupported target registration schema")
+    if canonical_sha256(snapshot) != content_hash or not relative.name.endswith(
+        f"-{content_hash}.json"
+    ):
+        raise PublicationError(f"target registration hash mismatch: {relative}")
+    contract = next(
+        (
+            row
+            for row in snapshot.get("targets", [])
+            if row.get("catalogSlug") == target.get("catalogSlug")
+        ),
+        None,
+    )
+    if not contract:
+        raise PublicationError(
+            f"target registration has no contract for {target.get('catalogSlug')}"
+        )
+    expected = {
+        "series": target.get("series"),
+        "period": target.get("period"),
+        "catalogSlug": target.get("catalogSlug"),
+        "dataPointId": target.get("dataPointId"),
+        "unit": target.get("targetUnit"),
+        "valueScale": target.get("valueScale"),
+        "sourceBinding": target.get("sourceBinding"),
+    }
+    for key, value in expected.items():
+        if contract.get(key) != value:
+            raise PublicationError(
+                f"target registration contract mismatch for {key}: "
+                f"snapshot={contract.get(key)!r}, batch={value!r}"
+            )
+
+
 def validate_cells(repo: pathlib.Path, batch_relative: str) -> None:
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
@@ -217,6 +265,10 @@ def validate_cells(repo: pathlib.Path, batch_relative: str) -> None:
             raise PublicationError(
                 f"passing result {index} lacks cells or manifest path"
             )
+        target = result.get("target")
+        if not isinstance(target, dict):
+            raise PublicationError(f"result {index} has no target context")
+        validate_target_registration(repo, target)
         if manifest_value:
             manifest_relative = relative_repo_path(str(manifest_value))
             if manifest_relative in referenced_manifests:
@@ -248,9 +300,6 @@ def validate_cells(repo: pathlib.Path, batch_relative: str) -> None:
                 f"cells payload is not an object list: {cells_relative}"
             )
 
-        target = result.get("target")
-        if not isinstance(target, dict):
-            raise PublicationError(f"result {index} has no target context")
         report = shared_validate_cells(
             cells,
             target_context=target,

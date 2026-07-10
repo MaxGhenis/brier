@@ -70,9 +70,7 @@ def test_runner_ladder_distribution_matches_strategy_builder():
     assert actual["transformVersion"] == "agent_cdf_v1"
 
 
-def test_median3_requires_exactly_three_distinct_custody_runs(
-    tmp_path, monkeypatch
-):
+def test_median3_requires_exactly_three_distinct_custody_runs(tmp_path, monkeypatch):
     monkeypatch.setattr(median_ensemble, "verify_run", lambda _run_dir: None)
 
     def rollout(index: int, custody_root: str | None = None):
@@ -99,9 +97,7 @@ def test_median3_requires_exactly_three_distinct_custody_runs(
     with pytest.raises(ValueError, match="exactly 3 constituent"):
         median_ensemble.validate_constituent_rollouts(valid[:2])
     with pytest.raises(ValueError, match="exactly 3 constituent"):
-        median_ensemble.validate_constituent_rollouts(
-            [*valid, rollout(4)]
-        )
+        median_ensemble.validate_constituent_rollouts([*valid, rollout(4)])
 
     duplicate = [rollout(5, "duplicate"), rollout(6, "duplicate"), rollout(7)]
     with pytest.raises(ValueError, match="3 distinct custody-verifiable"):
@@ -141,8 +137,7 @@ def test_comparison_run_preserves_median3_algorithm_metadata():
     run = comparison_run(cell, manifest, "fixture", 1)
 
     assert (
-        run["predictionRun"]["aggregationAlgorithmVersion"]
-        == "pointwise_median_cdf_v1"
+        run["predictionRun"]["aggregationAlgorithmVersion"] == "pointwise_median_cdf_v1"
     )
     assert run["predictionRun"]["constituentRuns"] == constituent_runs
 
@@ -366,6 +361,56 @@ def test_target_context_validation_rejects_drift(tmp_path):
     errors = manifest["validation"]["cells"][0]["errors"]
     assert any("resolutionDate" in error for error in errors)
     assert manifest["ok"] is False
+
+
+def test_target_context_validation_rejects_identity_unit_and_source_host_drift(
+    tmp_path,
+):
+    out_dir = tmp_path / "target-binding-run"
+    response_path = tmp_path / "response.json"
+    cell = review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    cell["slug"] = "canonical-ledger-slug"
+    cell["unit"] = "ratio"
+    cell["dataPointId"] = "wrong.series.2030_01.first_print"
+    cell["resolutionDate"] = "2030-02-15"
+    cell["resolutionSourceUrl"] = "https://revision.example.com/rate"
+    response_path.write_text(json.dumps(cell))
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.ledger_series",
+            "--period",
+            "2030-01",
+            "--response-file",
+            str(response_path),
+            "--target-context-json",
+            json.dumps(
+                {
+                    "catalogSlug": "canonical-ledger-slug",
+                    "targetUnit": "percent",
+                    "dataPointId": "test.ledger_series.2030_01.first_print",
+                    "sourceBinding": {"sourceUrl": "https://official.example.gov/rate"},
+                }
+            ),
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    errors = json.loads((out_dir / "manifest.json").read_text())["validation"]["cells"][
+        0
+    ]["errors"]
+    assert any("unit" in error and "target context" in error for error in errors)
+    assert any("dataPointId" in error for error in errors)
+    assert any("source binding host" in error for error in errors)
 
 
 def test_target_context_validation_rejects_first_print_grace_exception(tmp_path):
@@ -921,9 +966,7 @@ def test_comparison_generator_maps_and_scales_claims_record(tmp_path):
         json.dumps(
             [
                 {
-                    "slug": (
-                        "us-dol-initial-claims-sa-week-2026-06-13-first-print"
-                    ),
+                    "slug": ("us-dol-initial-claims-sa-week-2026-06-13-first-print"),
                     "pointEstimate": 225000,
                     "ciLow": 209000,
                     "ciHigh": 243000,

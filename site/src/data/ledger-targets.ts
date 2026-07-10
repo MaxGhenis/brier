@@ -1,6 +1,22 @@
 import type { CountryCode, ResolutionPolicy, Unit } from "./forecast-cells";
 import { GENERATED_FORECAST_TARGETS } from "./ledger-targets.generated";
 
+export const TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS = 7;
+
+export interface TargetSourceBinding {
+  adapter: "alfred-fred" | "generic-url";
+  sourceUrl: string;
+  sourceSeriesId: string;
+  field: string;
+  table: string;
+  transform: unknown;
+  releasePolicy: "first_print" | "advance_vintage";
+  expectedReleaseWindow: {
+    start: string;
+    end: string;
+  };
+}
+
 export interface TargetRegisteredLedgerEntry {
   kind: "target_registered";
   dataPointId: string;
@@ -17,6 +33,15 @@ export interface TargetRegisteredLedgerEntry {
   source: string;
   sourceUrl?: string;
   note: string;
+  /** Absent on legacy registrations, which are already published. */
+  registrationState?: "preregistered" | "published";
+  registeredAt?: string;
+  targetContentHash?: string;
+  series?: string;
+  period?: string;
+  catalogSlug?: string;
+  valueScale?: number;
+  sourceBinding?: TargetSourceBinding;
 }
 
 const OEWS_SOURCE =
@@ -745,4 +770,24 @@ export function requireLedgerTarget(
     throw new Error(`Missing Thesis target ledger entry for ${dataPointId}`);
   }
   return target;
+}
+
+export function targetRegistrationState(
+  target: TargetRegisteredLedgerEntry,
+): "preregistered" | "published" {
+  return target.registrationState ?? "published";
+}
+
+export function isPreregisteredTargetWithinOrphanGrace(
+  target: TargetRegisteredLedgerEntry,
+  now: Date = new Date(),
+): boolean {
+  if (targetRegistrationState(target) !== "preregistered") return false;
+  const registeredAt = Date.parse(target.registeredAt ?? "");
+  if (!Number.isFinite(registeredAt)) return false;
+  const age = now.getTime() - registeredAt;
+  return (
+    age >= 0 &&
+    age <= TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS * 24 * 60 * 60 * 1000
+  );
 }

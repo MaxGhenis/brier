@@ -46,6 +46,7 @@ import {
 import {
   THESIS_TARGET_LEDGER,
   getLedgerTargetByDataPointId,
+  isPreregisteredTargetWithinOrphanGrace,
   type TargetRegisteredLedgerEntry,
 } from "@/data/ledger-targets";
 import { findUncoveredLedgerObservationSeries } from "@/data/ledger-coverage";
@@ -1299,7 +1300,9 @@ describe("forecast catalog", () => {
       ),
     );
     const missingForecastTargets = THESIS_TARGET_LEDGER.filter(
-      (target) => !forecastDataPointIds.has(target.dataPointId),
+      (target) =>
+        !forecastDataPointIds.has(target.dataPointId) &&
+        !isPreregisteredTargetWithinOrphanGrace(target),
     );
 
     expect(missingForecastTargets).toEqual([]);

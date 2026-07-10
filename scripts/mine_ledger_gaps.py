@@ -41,8 +41,13 @@ LEDGER_URL = (
 
 MONTHS = [m.lower() for m in calendar.month_abbr]  # "", jan, feb, ...
 COUNTRY_BY_NAME = {
-    "united states": "US", "united kingdom": "UK", "canada": "CA",
-    "australia": "AU", "euro area": "EA", "japan": "JP", "belgium": "BE",
+    "united states": "US",
+    "united kingdom": "UK",
+    "canada": "CA",
+    "australia": "AU",
+    "euro area": "EA",
+    "japan": "JP",
+    "belgium": "BE",
 }
 
 
@@ -120,18 +125,23 @@ def main() -> int:
     parser.add_argument("--include-annual", action="store_true")
     args = parser.parse_args()
 
-    denied = {
-        (t["series"], t["period"])
-        for t in json.loads(DENYLIST.read_text())["targets"]
-    } if DENYLIST.exists() else set()
-    rows = [json.loads(l) for l in fetch(LEDGER_URL).splitlines() if l.strip()]
+    denied = (
+        {
+            (t["series"], t["period"])
+            for t in json.loads(DENYLIST.read_text())["targets"]
+        }
+        if DENYLIST.exists()
+        else set()
+    )
+    rows = [json.loads(line) for line in fetch(LEDGER_URL).splitlines() if line.strip()]
     log = load_thesis_log(LOG_URL)
     registry_series = {e["series"] for e in json.loads(REGISTRY.read_text())["series"]}
-    existing_slugs = {l["forecastSlug"] for l in log["resolutionLinks"]}
-    all_refs = {l.get("targetFactRef", "") for l in log["resolutionLinks"]}
+    existing_slugs = {link["forecastSlug"] for link in log["resolutionLinks"]}
+    all_refs = {link.get("targetFactRef", "") for link in log["resolutionLinks"]}
     pending_refs = {
-        l.get("targetFactRef", "")
-        for l in log["resolutionLinks"] if l.get("status") == "pending"
+        link.get("targetFactRef", "")
+        for link in log["resolutionLinks"]
+        if link.get("status") == "pending"
     }
 
     # Group ledger facts into families keyed by id-with-period-token-removed.
@@ -158,10 +168,14 @@ def main() -> int:
         series = family.replace(".{P}", "")
         series = re.sub(
             r"\.(first_print|original_submission|official_release|advance|final_first_print)$",
-            "", series)
+            "",
+            series,
+        )
         if series in registry_series:
             continue  # the roll loop owns it
-        if any(ref.startswith(series + ".") and ref in pending_refs for ref in pending_refs):
+        if any(
+            ref.startswith(series + ".") and ref in pending_refs for ref in pending_refs
+        ):
             continue  # a future cell already exists
         stepped = step(period)
         if not stepped:
@@ -173,7 +187,11 @@ def main() -> int:
         # earliest period that can still plausibly be pre-registered.
         if nxt["type"] == "month":
             today = dt.date.today()
-            floor_year, floor_month = (today.year, today.month - 1) if today.month > 1 else (today.year - 1, 12)
+            floor_year, floor_month = (
+                (today.year, today.month - 1)
+                if today.month > 1
+                else (today.year - 1, 12)
+            )
             floor_val = f"{floor_year}-{floor_month:02d}"
             while str(nxt["value"]) < floor_val:
                 nxt, token = step(nxt)
@@ -185,7 +203,7 @@ def main() -> int:
         slug = slug_for(series, nxt)
         if slug in existing_slugs:
             continue
-        unit = ((entry["row"].get("measure") or {}).get("unit"))
+        unit = (entry["row"].get("measure") or {}).get("unit")
         geo = ((entry["row"].get("geography") or {}).get("name") or "").lower()
         country = COUNTRY_BY_NAME.get(geo, "US")
         target = {
@@ -196,15 +214,48 @@ def main() -> int:
         }
         if unit:
             target["targetUnit"] = unit
+        source = entry["row"].get("source") or {}
+        measure = entry["row"].get("measure") or {}
+        source_url = source.get("url") or measure.get("concept_evidence_url")
+        if not source_url:
+            print(f"  skip {slug}: previous ledger fact has no source URL")
+            continue
+        target["resolutionSourceUrl"] = source_url
+        target["previousTarget"] = {
+            "period": batch_period(period),
+            "dataPointId": entry["row"]["source_record_id"],
+            "country": country,
+            "unit": unit,
+            "resolutionDate": entry["row"].get("observed_at"),
+            "resolutionSource": source.get("source_table")
+            or source.get("source_name")
+            or "Official release",
+            "resolutionSourceUrl": source_url,
+            "sourceBinding": {
+                "adapter": "generic-url",
+                "sourceUrl": source_url,
+                "sourceSeriesId": measure.get("source_concept") or series,
+                "field": (entry["row"].get("source_cell_keys") or [series])[0],
+                "table": source.get("source_table")
+                or source.get("source_file")
+                or source.get("source_name")
+                or "Official release",
+                "transform": {"operation": "identity", "factor": 1},
+                "releasePolicy": "first_print",
+            },
+        }
         candidates.append(target)
         print(f"  gap {slug} ({series} -> {batch_period(nxt)}, unit {unit})")
 
     targets = candidates[: args.max_targets]
     if len(candidates) > len(targets):
-        print(f"  capped: {len(candidates) - len(targets)} more gaps wait for the next run")
+        deferred = len(candidates) - len(targets)
+        print(f"  capped: {deferred} more gaps wait for the next run")
     print(f"{len(targets)} targets")
     if args.out and not args.dry_run and targets:
-        pathlib.Path(args.out).write_text(json.dumps({"targets": targets}, indent=1) + "\n")
+        pathlib.Path(args.out).write_text(
+            json.dumps({"targets": targets}, indent=1) + "\n"
+        )
     return 0
 
 

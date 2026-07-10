@@ -65,7 +65,9 @@ def slug_template(slug: str, period: str, cadence: str) -> str | None:
         return None
     m = re.fullmatch(r"(\d{4})-Q(\d)", period)
     if m and f"q{m.group(2)}" in slug and m.group(1) in slug:
-        return slug.replace(f"q{m.group(2)}", "q{quarter}").replace(m.group(1), "{year}")
+        return slug.replace(f"q{m.group(2)}", "q{quarter}").replace(
+            m.group(1), "{year}"
+        )
     return None
 
 
@@ -107,12 +109,14 @@ def main() -> int:
         cadence = cadence_of(period)
         template = slug_template(slug, period, cadence) if cadence else None
         if not template:
-            print(f"  cannot derive template for {series} ({slug}) — leaving on probation")
+            print(
+                f"  cannot derive template for {series} ({slug}) — leaving on probation"
+            )
             continue
         context = manifest.get("targetContext") or {}
         extras = {
             key: context[key]
-            for key in ("valueScale", "targetUnit", "country")
+            for key in ("valueScale", "targetUnit", "country", "sourceBinding")
             if key in context
         }
         entry = {"series": series, "cadence": cadence, "slug": template}

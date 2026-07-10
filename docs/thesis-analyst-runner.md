@@ -9,6 +9,14 @@ The runner exists to make agent-only public-data forecasts reproducible:
 prompt, command, stdout/stderr, raw response, normalized forecast, validation,
 manifest, and later score should remain linked.
 
+Scheduled docket runs preregister their target contracts before invoking this
+runner. `scripts/register_targets.py` fixes the data-point identity, unit,
+value scale, source adapter, source series/field/table, transform, release
+policy, and expected release window in a canonical-hashed
+`records/targets/*.json` snapshot. The normalized cell must retain the bound
+`dataPointId` and unit and use the bound source host; the analyst still writes
+the precise first-print rule within that binding.
+
 ## Subscription-backed Codex run
 
 Use the native Codex path for local GPT-family runs. It follows the same
