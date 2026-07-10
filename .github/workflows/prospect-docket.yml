@@ -1,10 +1,9 @@
 name: Prospect new series
 
-# The widening loop: an agent proposes brand-new series from official
-# release calendars, hard validation filters the proposals, and survivors
-# run through the same reviewed analyst pipeline as everything else. New
-# series stay on probation — adopt_proven_series.py graduates them into
-# the roll registry only after their first cell resolves and scores.
+# The widening loop: unprivileged agents propose targets, trusted code commits
+# immutable registrations before forecasting, and a separate privileged job
+# publishes only a validated data bundle. New series remain on probation until
+# adopt_proven_series.py observes a resolved and scored cell.
 
 on:
   schedule:
@@ -25,23 +24,19 @@ permissions:
   contents: read
 
 concurrency:
-  # One writer at a time across ALL docket loops (roll +
-  # prospect): both mutate the shared import list and target
-  # registry, and interleaved publishes drop cells (F13).
   group: docket-writers
   cancel-in-progress: false
 
 jobs:
-  generate:
+  propose:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     outputs:
-      count: ${{ steps.prospect.outputs.count }}
-      batch: ${{ steps.prospect.outputs.batch }}
+      proposals_artifact: ${{ steps.proposals.outputs.proposals_artifact }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -63,10 +58,9 @@ jobs:
           set -euo pipefail
           python3 scripts/mine_ledger_gaps.py \
             --max-targets "$MINE_MAX" \
-            --out /tmp/mined-targets.json || true
+            --out /tmp/mined-proposals.json || true
 
-      - name: Propose and validate candidates
-        id: prospect
+      - name: Propose candidates
         env:
           CODEX_COUNT: ${{ github.event.inputs.count || 2 }}
           FOCUS: ${{ github.event.inputs.focus }}
@@ -76,74 +70,262 @@ jobs:
             args=(
               python3 scripts/prospect_series.py
               --count "$CODEX_COUNT"
-              --out /tmp/codex-targets.json
+              --out /tmp/codex-proposals.json
             )
             if [ -n "$FOCUS" ]; then
               args+=(--focus "$FOCUS")
             fi
             "${args[@]}" || true
           fi
-          python3 - <<'PY'
-          import json, pathlib
-          targets, seen = [], set()
-          for path in ("/tmp/mined-targets.json", "/tmp/codex-targets.json"):
-              p = pathlib.Path(path)
-              if not p.exists():
-                  continue
-              for t in json.loads(p.read_text())["targets"]:
-                  if t["catalogSlug"] not in seen:
-                      seen.add(t["catalogSlug"])
-                      targets.append(t)
-          pathlib.Path("/tmp/prospect-targets.json").write_text(
-              json.dumps({"targets": targets}, indent=1) + "\n")
-          print(f"{len(targets)} combined targets")
-          PY
-          COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/prospect-targets.json'))['targets']))")
-          DAY=$(date -u +%F)
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-          echo "batch=records/thesis-analyst/batches/$DAY/prospect-r${GITHUB_RUN_NUMBER}.json" >> "$GITHUB_OUTPUT"
 
-      - name: Preregister targets before forecasting
-        if: steps.prospect.outputs.count != '0'
+      - name: Filter and combine proposals
+        id: proposals
         run: |
+          set -euo pipefail
+          python3 scripts/prospect_targets.py filter \
+            --input /tmp/mined-proposals.json \
+            --input /tmp/codex-proposals.json \
+            --out /tmp/prospect-proposals.json
+          echo "proposals_artifact=prospect-docket-proposals-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload untrusted proposals
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.proposals.outputs.proposals_artifact }}
+          path: /tmp/prospect-proposals.json
+          if-no-files-found: error
+          retention-days: 7
+
+  register:
+    needs: propose
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      count: ${{ steps.targets.outputs.count }}
+      batch: ${{ steps.targets.outputs.batch }}
+      source_sha: ${{ steps.sync.outputs.source_sha || steps.targets.outputs.base_sha }}
+      registration_commit: ${{ steps.sync.outputs.registration_commits }}
+      target_content_hash: ${{ steps.sync.outputs.target_content_hashes }}
+      registration_set_hash: ${{ steps.sync.outputs.registration_set_hash }}
+      registration_artifact: ${{ steps.targets.outputs.registration_artifact }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download untrusted proposals
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.propose.outputs.proposals_artifact }}
+          path: /tmp/untrusted-proposals
+
+      - name: Revalidate proposals with trusted code
+        id: targets
+        run: |
+          set -euo pipefail
+          INVENTORY=$(find /tmp/untrusted-proposals -mindepth 1 -maxdepth 1 -printf '%f\n')
+          test "$INVENTORY" = "prospect-proposals.json"
+          test -f /tmp/untrusted-proposals/prospect-proposals.json
+          test ! -L /tmp/untrusted-proposals/prospect-proposals.json
+          python3 scripts/prospect_targets.py validate \
+            --input /tmp/untrusted-proposals/prospect-proposals.json \
+            --targets-out /tmp/validated-prospect-targets.json
+          mkdir -p /tmp/registered-targets
+          install -m 0644 \
+            /tmp/validated-prospect-targets.json \
+            /tmp/registered-targets/prospect-targets.json
+          COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/validated-prospect-targets.json'))['targets']))")
+          DAY=$(date -u +%F)
+          {
+            echo "count=$COUNT"
+            echo "batch=records/thesis-analyst/batches/$DAY/prospect-${GITHUB_RUN_ID}-a${GITHUB_RUN_ATTEMPT}.json"
+            echo "base_sha=$(git rev-parse HEAD)"
+            echo "registration_artifact=prospect-docket-registration-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create immutable target registrations
+        if: steps.targets.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          REGISTERED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           python3 scripts/register_targets.py \
-            --targets-file /tmp/prospect-targets.json \
-            --date "$(date -u +%F)"
+            --targets-file /tmp/registered-targets/prospect-targets.json \
+            --date "${REGISTERED_AT%%T*}" \
+            --registered-at-utc "$REGISTERED_AT" \
+            --metadata-out /tmp/registration-before-commit.json
+
+      - name: Commit trusted preregistration
+        if: steps.targets.outputs.count != '0'
+        id: registration_commit
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-prospector"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/targets/ site/src/data/ledger-targets.generated.ts
+          if git diff --cached --quiet; then
+            echo "committed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/docket_publication.py scan-staged
+          git commit -m "Preregister prospect targets $(date -u +%F)"
+          echo "committed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Synchronize, push, and bind registration commits
+        if: steps.targets.outputs.count != '0'
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          pushed=0
+          for attempt in 1 2 3; do
+            echo "registration push attempt $attempt"
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "registration tree is dirty before rebase" >&2
+              exit 1
+            fi
+            git pull --rebase origin main
+            python3 scripts/prospect_targets.py validate \
+              --input /tmp/untrusted-proposals/prospect-proposals.json \
+              --targets-out /tmp/replayed-prospect-targets.json
+            cmp -s \
+              /tmp/validated-prospect-targets.json \
+              /tmp/replayed-prospect-targets.json
+            python3 scripts/verify_record_chain.py records
+            while IFS= read -r -d '' root; do
+              python3 scripts/verify_custody.py "$(dirname "$root")"
+            done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+            python3 scripts/register_targets.py \
+              --targets-file /tmp/registered-targets/prospect-targets.json \
+              --bind-registration-commits \
+              --head HEAD \
+              --metadata-out /tmp/registration-candidate.json
+            LOCAL=$(git rev-parse HEAD)
+            if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
+              REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+              if [ "$REMOTE" = "$LOCAL" ]; then
+                install -m 0644 \
+                  /tmp/registration-candidate.json /tmp/registration.json
+                pushed=1
+                break
+              fi
+            fi
+            sleep 2
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "registration push did not converge after 3 attempts" >&2
+            exit 1
+          fi
+          SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/registration.json'))['registrationSetHash'])")
+          COMMITS=$(python3 -c "import json;print(json.dumps(json.load(open('/tmp/registration.json'))['registrationCommits'],separators=(',',':')))")
+          HASHES=$(python3 -c "import json;print(json.dumps(json.load(open('/tmp/registration.json'))['targetContentHashes'],separators=(',',':')))")
+          {
+            echo "source_sha=$LOCAL"
+            echo "registration_set_hash=$SET_HASH"
+            echo "registration_commits=$COMMITS"
+            echo "target_content_hashes=$HASHES"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Stage privileged target artifact
+        if: steps.targets.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          install -m 0644 /tmp/registration.json /tmp/registered-targets/registration.json
+
+      - name: Upload privileged target artifact
+        if: steps.targets.outputs.count != '0'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.targets.outputs.registration_artifact }}
+          path: /tmp/registered-targets/
+          if-no-files-found: error
+          retention-days: 7
+
+  generate:
+    if: ${{ needs.register.result == 'success' && needs.register.outputs.count != '0' }}
+    needs: register
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: read
+    outputs:
+      publication_artifact: ${{ steps.bundle.outputs.publication_artifact }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.register.outputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download privileged target artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.register.outputs.registration_artifact }}
+          path: /tmp/trusted-registration
+
+      - name: Verify the registered source ref
+        env:
+          EXPECTED_SHA: ${{ needs.register.outputs.source_sha }}
+          EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/trusted-registration/prospect-targets.json \
+            --bind-registration-commits \
+            --head "$EXPECTED_SHA" \
+            --metadata-out /tmp/generate-registration-check.json
+          ACTUAL_SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/generate-registration-check.json'))['registrationSetHash'])")
+          test "$ACTUAL_SET_HASH" = "$EXPECTED_SET_HASH"
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install codex CLI
+        run: bun add -g @openai/codex@0.144.0
+
+      - name: Authenticate codex
+        run: printenv OPENAI_API_KEY | codex login --with-api-key
 
       - name: Run the analyst batch
-        if: steps.prospect.outputs.count != '0'
         env:
-          BATCH_MANIFEST: ${{ steps.prospect.outputs.batch }}
+          BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
         run: |
           set -euo pipefail
           python3 scripts/run_thesis_batch.py \
-            --targets-file /tmp/prospect-targets.json \
+            --targets-file /tmp/trusted-registration/prospect-targets.json \
             --timeout-seconds 540 \
             --out "$BATCH_MANIFEST" || true
+          # Failed runs remain immutable records; partial success is allowed.
 
-      - name: Stage the unprivileged publication bundle
-        if: steps.prospect.outputs.count != '0'
+      - name: Stage data-only publication bundle
+        id: bundle
         env:
-          BATCH_MANIFEST: ${{ steps.prospect.outputs.batch }}
+          BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
         run: |
           python3 scripts/docket_publication.py stage \
             --bundle-dir /tmp/docket-publication \
             --batch "$BATCH_MANIFEST" \
-            --allow-path records \
-            --allow-path site/src/data/ledger-targets.generated.ts
+            --trusted-targets /tmp/trusted-registration/prospect-targets.json
+          echo "publication_artifact=prospect-docket-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
 
-      - name: Upload generated records and batch manifest
-        if: steps.prospect.outputs.count != '0'
+      - name: Upload generated data bundle
         uses: actions/upload-artifact@v7
         with:
-          name: prospect-docket-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ${{ steps.bundle.outputs.publication_artifact }}
           path: /tmp/docket-publication/
           if-no-files-found: error
           retention-days: 7
 
   publish:
     if: ${{ always() }}
-    needs: generate
+    needs: [register, generate]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     permissions:
@@ -151,75 +333,86 @@ jobs:
       issues: write
       actions: write
     steps:
-      - name: Propagate generation failure
-        if: needs.generate.result != 'success'
+      - name: Propagate upstream failure
+        if: >-
+          needs.register.result != 'success' ||
+          (needs.register.outputs.count != '0' && needs.generate.result != 'success')
         run: |
-          echo "The unprivileged generation job failed" >&2
+          echo "The register or unprivileged generation job failed" >&2
           exit 1
 
       - uses: actions/checkout@v5
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         with:
           ref: main
+          fetch-depth: 0
           persist-credentials: false
 
       - uses: oven-sh/setup-bun@v2
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
 
-      - name: Download generated records and batch manifest
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+      - name: Download untrusted data bundle
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         uses: actions/download-artifact@v8
         with:
-          name: prospect-docket-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ${{ needs.generate.outputs.publication_artifact }}
           path: /tmp/docket-publication
 
-      - name: Validate and apply the publication bundle
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+      - name: Download privileged target artifact
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.register.outputs.registration_artifact }}
+          path: /tmp/trusted-registration
+
+      - name: Verify privileged target artifact and registration ancestry
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         env:
-          BATCH_MANIFEST: ${{ needs.generate.outputs.batch }}
+          EXPECTED_SET_HASH: ${{ needs.register.outputs.registration_set_hash }}
         run: |
+          set -euo pipefail
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/trusted-registration/prospect-targets.json \
+            --bind-registration-commits \
+            --head HEAD \
+            --metadata-out /tmp/publish-registration-check.json
+          ACTUAL_SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/publish-registration-check.json'))['registrationSetHash'])")
+          test "$ACTUAL_SET_HASH" = "$EXPECTED_SET_HASH"
+
+      - name: Validate then apply the data bundle
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
+        env:
+          BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
+        run: |
+          VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           python3 scripts/docket_publication.py validate \
             --bundle-dir /tmp/docket-publication \
             --batch "$BATCH_MANIFEST" \
-            --allow-path records \
-            --allow-path site/src/data/ledger-targets.generated.ts \
+            --trusted-targets /tmp/trusted-registration/prospect-targets.json \
+            --publish-validated-at-utc "$VALIDATED_AT" \
+            --allow-published-wave \
             --apply
 
-      - name: Commit run records (before any gate — records are immutable artifacts)
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+      - name: Verify complete record chain and custody graph
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         run: |
           set -euo pipefail
-          git config user.name "thesis-prospector"
-          git config user.email "recorder@thesisinstitute.org"
-          git add records/
-          python3 scripts/docket_publication.py scan-staged
-          git commit -m "Prospect run records $(date -u +%F) [skip ci]" || echo "no records"
+          python3 scripts/verify_record_chain.py records
+          while IFS= read -r -d '' root; do
+            python3 scripts/verify_custody.py "$(dirname "$root")"
+          done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
 
-      - name: Rebase run records
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
-        run: |
-          set -euo pipefail
-          git pull --rebase --autostash origin main
-
-      - name: Push run records
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
-          git -c credential.helper= -c credential.helper="$auth_helper" push origin main
-
-      - name: Publish passing cells
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
+      - name: Regenerate publication TypeScript with trusted code
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         id: publish
         env:
-          BATCH_MANIFEST: ${{ needs.generate.outputs.batch }}
+          BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
         run: |
           set -euo pipefail
-          DAY=$(date -u +%F)
+          DAY=$(basename "$(dirname "$BATCH_MANIFEST")")
+          WAVE_HASH=$(shasum -a 256 "$BATCH_MANIFEST" | awk '{print $1}')
           if python3 scripts/register_wave.py \
-              --name "prospect-$DAY-$(shasum -a 256 "$BATCH_MANIFEST" | cut -c1-8)" \
+              --name "auto-$DAY-$WAVE_HASH" \
               --batch "$BATCH_MANIFEST" \
               --allow-missing; then
             echo "published=1" >> "$GITHUB_OUTPUT"
@@ -232,64 +425,119 @@ jobs:
             fi
           fi
 
-      - name: Test site
+      - name: Test regenerated site
         if: steps.publish.outputs.published == '1'
         run: |
-          cd site
-          bun install
-          bun run test
-
-      - name: Commit publication
-        if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
-        id: commit
-        run: |
-          set -euo pipefail
-          git config user.name "thesis-prospector"
-          git config user.email "recorder@thesisinstitute.org"
-          git add records/ site/src/data 2>/dev/null || true
-          python3 scripts/docket_publication.py scan-staged
-          git commit -m "Prospect new docket series $(date -u +%F)" || {
-            echo "nothing to commit"
-            echo "committed=0" >> "$GITHUB_OUTPUT"
-            exit 0
-          }
-          echo "committed=1" >> "$GITHUB_OUTPUT"
-
-      - name: Rebase and retest publication
-        if: steps.commit.outputs.committed == '1'
-        timeout-minutes: 30
-        run: |
-          set -euo pipefail
-          git pull --rebase origin main
           cd site
           bun install --frozen-lockfile
           bun run test
           bun run build
 
-      - name: Push publication
-        if: steps.commit.outputs.committed == '1'
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Commit records and trusted generated publication
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
+        id: commit
         run: |
           set -euo pipefail
-          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
-          git -c credential.helper= -c credential.helper="$auth_helper" push origin main
+          git config user.name "thesis-prospector"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/thesis-analyst/ site/src/data 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "publication is already present at $(git rev-parse HEAD)"
+            echo "committed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/docket_publication.py scan-staged
+          git commit -m "Prospect new docket series $(date -u +%F)"
+          echo "committed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Rebase, reverify, and push once
+        if: steps.commit.outputs.committed == '1'
+        timeout-minutes: 30
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
+          PUBLISHED: ${{ steps.publish.outputs.published }}
+        run: |
+          set -euo pipefail
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          pushed=0
+          for attempt in 1 2 3; do
+            echo "publication push attempt $attempt"
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "publication tree is dirty before rebase" >&2
+              exit 1
+            fi
+            git pull --rebase origin main
+            DAY=$(basename "$(dirname "$BATCH_MANIFEST")")
+            WAVE_HASH=$(shasum -a 256 "$BATCH_MANIFEST" | awk '{print $1}')
+            WAVE_NAME="auto-$DAY-$WAVE_HASH"
+            if python3 scripts/register_wave.py \
+                --name "$WAVE_NAME" \
+                --batch "$BATCH_MANIFEST" \
+                --allow-missing; then
+              :
+            else
+              code=$?
+              if [ "$code" != "2" ]; then
+                exit "$code"
+              fi
+            fi
+            git diff --exit-code
+            git diff --cached --exit-code
+            VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            python3 scripts/docket_publication.py validate \
+              --bundle-dir /tmp/docket-publication \
+              --batch "$BATCH_MANIFEST" \
+              --trusted-targets /tmp/trusted-registration/prospect-targets.json \
+              --publish-validated-at-utc "$VALIDATED_AT" \
+              --allow-published-wave
+            python3 scripts/verify_record_chain.py records
+            while IFS= read -r -d '' root; do
+              python3 scripts/verify_custody.py "$(dirname "$root")"
+            done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+            if [ "$PUBLISHED" = "1" ]; then
+              (
+                cd site
+                bun install --frozen-lockfile
+                bun run test
+                bun run build
+              )
+            fi
+            LOCAL=$(git rev-parse HEAD)
+            if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
+              REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+              if [ "$REMOTE" = "$LOCAL" ]; then
+                pushed=1
+                break
+              fi
+            fi
+            sleep 2
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "publication push did not converge after 3 attempts" >&2
+            exit 1
+          fi
 
       - name: Stamp the record
-        if: steps.publish.outputs.published == '1'
+        if: >-
+          (steps.commit.outputs.committed == '1' || steps.commit.outputs.committed == '0')
         env:
           GH_TOKEN: ${{ github.token }}
           MANUAL_DEPLOY_HOOK_URL: ${{ secrets.MANUAL_DEPLOY_HOOK_URL }}
+          PUBLISHED: ${{ steps.publish.outputs.published }}
         run: |
+          set -euo pipefail
           SHA=$(git rev-parse HEAD)
+          if [ "$PUBLISHED" != "1" ]; then
+            gh workflow run record-forecasts.yml --ref main
+            exit 0
+          fi
           GOT=""
           for i in $(seq 1 24); do
             GOT=$(curl -sf https://app.thesisinstitute.org/build.json \
               | python3 -c 'import json,sys;print(json.load(sys.stdin).get("commit",""))' \
               2>/dev/null || true)
             [ "$GOT" = "$SHA" ] && break
-            # Halfway through, nudge a rebuild in case the push webhook was
-            # missed or an ignore-step/[skip ci] canceled the deployment.
             if [ "$i" = "12" ] && [ -n "$MANUAL_DEPLOY_HOOK_URL" ]; then
               curl -sf -X POST "$MANUAL_DEPLOY_HOOK_URL" > /dev/null || true
             fi

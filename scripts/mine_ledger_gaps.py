@@ -6,7 +6,7 @@ an official source with recorded provenance — the strongest possible
 evidence that a forecast cell on its NEXT period is resolvable. This script
 groups ledger facts into families (source_record_id minus its period
 token), skips families the roll registry already covers or that have a
-pending cell, and emits next-period batch targets for the rest.
+pending cell, and emits origin-tagged next-period proposals for the rest.
 
 Unlike the codex prospector, no fuzzy near-duplicate guard applies here:
 coverage is checked against exact fact refs, because the families are
@@ -28,6 +28,7 @@ import re
 import sys
 import urllib.request
 
+from prospect_targets import load_denylist, write_proposal_envelope
 from thesis_log_client import load_thesis_log
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -125,14 +126,7 @@ def main() -> int:
     parser.add_argument("--include-annual", action="store_true")
     args = parser.parse_args()
 
-    denied = (
-        {
-            (t["series"], t["period"])
-            for t in json.loads(DENYLIST.read_text())["targets"]
-        }
-        if DENYLIST.exists()
-        else set()
-    )
+    denied = load_denylist(DENYLIST)
     rows = [json.loads(line) for line in fetch(LEDGER_URL).splitlines() if line.strip()]
     log = load_thesis_log(LOG_URL)
     registry_series = {e["series"] for e in json.loads(REGISTRY.read_text())["series"]}
@@ -252,10 +246,8 @@ def main() -> int:
         deferred = len(candidates) - len(targets)
         print(f"  capped: {deferred} more gaps wait for the next run")
     print(f"{len(targets)} targets")
-    if args.out and not args.dry_run and targets:
-        pathlib.Path(args.out).write_text(
-            json.dumps({"targets": targets}, indent=1) + "\n"
-        )
+    if args.out and not args.dry_run:
+        write_proposal_envelope(pathlib.Path(args.out), "ledger_gap", targets)
     return 0
 
 

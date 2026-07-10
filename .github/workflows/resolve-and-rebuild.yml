@@ -109,7 +109,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
           git -c credential.helper= -c credential.helper="$auth_helper" push origin main
 
       - name: Rebuild the site
@@ -121,6 +121,7 @@ jobs:
           SHA=$(git rev-parse HEAD)
           GOT=""
           for i in $(seq 1 24); do
+            echo "deployment canary attempt $i"
             GOT=$(curl -sf https://app.thesisinstitute.org/build.json \
               | python3 -c 'import json,sys;print(json.load(sys.stdin).get("commit",""))' \
               2>/dev/null || true)
@@ -150,7 +151,7 @@ jobs:
           git config user.email "recorder@thesisinstitute.org"
           git add records/resolutions/latest.json
           git commit -m "Record deployed resolution ledger $LEDGER_SHA [skip ci]"
-          auth_helper='!f() { echo username=x-access-token; echo "password=$GH_TOKEN"; }; f'
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
           git -c credential.helper= -c credential.helper="$auth_helper" push origin main
 
       - name: Alert on failure

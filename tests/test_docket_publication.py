@@ -22,16 +22,11 @@ from register_targets import (  # noqa: E402
     registration_content_hash,
 )
 
-BATCH = pathlib.PurePosixPath(
-    "records/thesis-analyst/batches/2030-01-10/run.json"
-)
+BATCH = pathlib.PurePosixPath("records/thesis-analyst/batches/2030-01-10/run.json")
 RUN_PREFIX = pathlib.PurePosixPath(
-    "records/thesis-analyst/2030-01-10/"
-    "2030-01-10t12-00-00z-agency-test-rate"
+    "records/thesis-analyst/2030-01-10/2030-01-10t12-00-00z-agency-test-rate"
 )
-REGISTRATION = pathlib.PurePosixPath(
-    f"records/targets/2030-01-10-{'a' * 64}.json"
-)
+REGISTRATION = pathlib.PurePosixPath(f"records/targets/2030-01-10-{'a' * 64}.json")
 
 
 def git(repo: pathlib.Path, *args: str) -> None:
@@ -137,7 +132,6 @@ def test_stage_copies_only_invocation_scoped_delta(
             bundle_dir=str(bundle),
             batch=BATCH.as_posix(),
             trusted_targets=None,
-            allow_path=["records"],
         )
     )
 
@@ -155,9 +149,7 @@ def test_trusted_target_comparison_rejects_bool_for_number(
     trusted_target = {
         "catalogSlug": "agency-test-rate-january-2030",
         "valueScale": 1.0,
-        "sourceBinding": {
-            "transform": {"operation": "multiply", "factor": 1.0}
-        },
+        "sourceBinding": {"transform": {"operation": "multiply", "factor": 1.0}},
     }
     untrusted_target = json.loads(json.dumps(trusted_target))
     untrusted_target["sourceBinding"]["transform"]["factor"] = True
@@ -186,7 +178,7 @@ def test_load_bundle_rejects_uninventoried_file(tmp_path: pathlib.Path) -> None:
     extra.write_text("{}\n")
 
     with pytest.raises(PublicationError, match="inventory mismatch"):
-        docket_publication.load_bundle(bundle, BATCH.as_posix(), ["records"])
+        docket_publication.load_bundle(bundle, BATCH.as_posix())
 
 
 def test_repository_paths_reject_traversal_and_nested_symlinks(
@@ -250,8 +242,7 @@ def test_load_bundle_blocks_path_outside_exact_invocation_scope(
     checkout = initialize_checkout(tmp_path / "checkout")
     monkeypatch.setattr(docket_publication, "ROOT", checkout)
     other_run = pathlib.PurePosixPath(
-        "records/thesis-analyst/2030-01-10/"
-        "2030-01-10t12-00-00z-other-run/activity.log"
+        "records/thesis-analyst/2030-01-10/2030-01-10t12-00-00z-other-run/activity.log"
     )
     bundle = write_bundle(
         tmp_path,
@@ -456,9 +447,7 @@ def committed_registration(
         "targets": [contract],
     }
     content_hash = registration_content_hash(snapshot)
-    relative = pathlib.PurePosixPath(
-        f"records/targets/2030-01-10-{content_hash}.json"
-    )
+    relative = pathlib.PurePosixPath(f"records/targets/2030-01-10-{content_hash}.json")
     path = checkout.joinpath(*relative.parts)
     path.parent.mkdir(parents=True)
     path.write_bytes(canonical_bytes(snapshot) + b"\n")
@@ -576,4 +565,96 @@ def test_registration_timestamp_must_match_committer_time_after_rebase(
             target,
             run_started_at="2030-01-10T12:01:00Z",
             require_git_binding=True,
+        )
+
+
+def test_cell_seal_must_not_postdate_batch_result_finish(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    target = {
+        "series": "agency.test.rate",
+        "period": "2030-01",
+        "conditional": None,
+        "registrationCommit": "a" * 40,
+        "targetContentHash": "b" * 64,
+        "targetRegistrationPath": f"records/targets/2030-01-01-{'b' * 64}.json",
+        "registeredAtUtc": "2030-01-01T00:00:00Z",
+    }
+    manifest = {
+        "schemaVersion": "thesis_analyst_run_manifest_v1",
+        "createdAt": "2030-01-10T12:00:00Z",
+        "runStartedAt": "2030-01-10T12:00:00Z",
+        "series": target["series"],
+        "period": target["period"],
+        "conditional": None,
+        "targetContext": target,
+        **{
+            field: target[field]
+            for field in docket_publication.REGISTRATION_BINDING_FIELDS
+        },
+    }
+    result = {
+        "target": target,
+        "manifestPath": (RUN_PREFIX / "manifest.json").as_posix(),
+        "startedAt": "2030-01-10T11:59:59Z",
+        "finishedAt": "2030-01-10T12:00:10Z",
+    }
+    cell = {
+        "runStartedAt": "2030-01-10T12:00:00Z",
+        "runAt": "2030-01-10T12:00:11Z",
+        **{
+            field: target[field]
+            for field in docket_publication.REGISTRATION_BINDING_FIELDS
+        },
+    }
+    monkeypatch.setattr(
+        docket_publication,
+        "validate_target_registration",
+        lambda *_args, **_kwargs: {},
+    )
+
+    with pytest.raises(PublicationError, match="postdates batch result finish"):
+        docket_publication.validate_run_binding(
+            pathlib.Path("."),
+            result,
+            manifest,
+            [cell],
+            require_git_binding=True,
+        )
+
+
+@pytest.mark.parametrize(
+    ("publish_upper", "message"),
+    [
+        (None, "requires publishValidatedAtUtc"),
+        ("2030-01-10T12:01:59Z", "after privileged publication"),
+    ],
+)
+def test_privileged_publication_requires_and_enforces_upper_bound(
+    tmp_path: pathlib.Path,
+    publish_upper: str | None,
+    message: str,
+) -> None:
+    batch = tmp_path.joinpath(*BATCH.parts)
+    batch.parent.mkdir(parents=True)
+    batch.write_text(
+        json.dumps(
+            {
+                "schemaVersion": "thesis_batch_manifest_v1",
+                "promptMode": "fast",
+                "startedAt": "2030-01-10T12:00:00Z",
+                "finishedAt": "2030-01-10T12:02:00Z",
+                "targets": 0,
+                "results": [],
+            }
+        )
+        + "\n"
+    )
+
+    with pytest.raises(PublicationError, match=message):
+        docket_publication.validate_cells(
+            tmp_path,
+            BATCH.as_posix(),
+            require_git_binding=True,
+            publish_validated_at_utc=publish_upper,
         )

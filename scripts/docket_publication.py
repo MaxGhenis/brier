@@ -391,13 +391,8 @@ def stage(args: argparse.Namespace) -> None:
 def load_bundle(
     bundle: pathlib.Path,
     batch: str,
-    allowed: list[str] | None = None,
     trusted_targets: str | None = None,
 ) -> tuple[pathlib.Path, dict[str, Any]]:
-    # ``allowed`` remains a no-op compatibility parameter for the prospect
-    # workflow while it migrates. Caller-supplied prefixes are never security
-    # authority; scope is derived solely from the exact batch inventory.
-    del allowed
     bundle = bundle.resolve()
     repo = bundle / "repo"
     manifest_path = bundle / "bundle_manifest.json"
@@ -605,15 +600,17 @@ def validate_target_registration(
         )
     if not TARGET_REGISTRATION_RE.fullmatch(relative.as_posix()):
         raise PublicationError(f"invalid target registration path: {relative}")
-    # A normal roll reads the already-pushed snapshot from the publisher
-    # checkout. Prospect's legacy path may still carry a new data-only snapshot
-    # in the bundle until that workflow receives its own privileged register job.
+    # Privileged docket publishers read the already-pushed snapshot from their
+    # checkout. Non-binding validation can still inspect a bundle-local snapshot
+    # for offline tooling, but it cannot establish Git chronology.
     bundle_path = safe_join(repo, relative)
     committed_path = safe_join(ROOT, relative)
     source = (
         committed_path
         if require_git_binding
-        else bundle_path if bundle_path.is_file() else committed_path
+        else bundle_path
+        if bundle_path.is_file()
+        else committed_path
     )
     snapshot = load_json(source, "target registration")
     try:
@@ -749,9 +746,9 @@ def validate_run_binding(
     manifest_relative = relative_repo_path(str(result.get("manifestPath") or ""))
     run_dir_stamp = manifest_relative.parent.name[:20]
     try:
-        path_start = dt.datetime.strptime(
-            run_dir_stamp, "%Y-%m-%dt%H-%M-%Sz"
-        ).replace(tzinfo=dt.timezone.utc)
+        path_start = dt.datetime.strptime(run_dir_stamp, "%Y-%m-%dt%H-%M-%Sz").replace(
+            tzinfo=dt.timezone.utc
+        )
     except ValueError as exc:
         raise PublicationError(
             f"run directory lacks a canonical start timestamp: {manifest_relative}"
@@ -760,6 +757,8 @@ def validate_run_binding(
         raise PublicationError("run directory timestamp differs from runStartedAt")
     wrapper_start = parse_instant(result.get("startedAt"), "batch result startedAt")
     wrapper_finish = parse_instant(result.get("finishedAt"), "batch result finishedAt")
+    if wrapper_finish < wrapper_start:
+        raise PublicationError("batch result finishes before it starts")
     if wrapper_start > run_start or wrapper_finish < run_start:
         raise PublicationError("batch wrapper timestamps do not contain the run start")
     for field in REGISTRATION_BINDING_FIELDS:
@@ -776,8 +775,11 @@ def validate_run_binding(
     for cell in cells:
         if cell.get("runStartedAt") != run_started_at:
             raise PublicationError("cell runStartedAt differs from run manifest")
-        if parse_instant(cell.get("runAt"), "cell runAt") < run_start:
+        cell_run_at = parse_instant(cell.get("runAt"), "cell runAt")
+        if cell_run_at < run_start:
             raise PublicationError("cell seal time predates run start")
+        if cell_run_at > wrapper_finish:
+            raise PublicationError("cell seal time postdates batch result finish")
         for field in REGISTRATION_BINDING_FIELDS:
             if not canonical_equal(cell.get(field), target.get(field)):
                 raise PublicationError(f"cell registration binding mismatch: {field}")
@@ -789,6 +791,7 @@ def validate_cells(
     *,
     require_git_binding: bool = False,
     collision_exclusion: pathlib.Path | None = None,
+    publish_validated_at_utc: str | None = None,
 ) -> None:
     sys.path.insert(0, str(ROOT / "scripts"))
     try:
@@ -802,6 +805,23 @@ def validate_cells(
     if batch.get("schemaVersion") != "thesis_batch_manifest_v1":
         raise PublicationError("unsupported batch manifest schema")
     prompt_mode = str(batch.get("promptMode", "full"))
+    batch_started_at = parse_instant(batch.get("startedAt"), "batch startedAt")
+    batch_finished_at = parse_instant(batch.get("finishedAt"), "batch finishedAt")
+    if batch_finished_at < batch_started_at:
+        raise PublicationError("batch finishes before it starts")
+    publish_upper = (
+        parse_instant(publish_validated_at_utc, "publishValidatedAtUtc")
+        if publish_validated_at_utc
+        else None
+    )
+    if require_git_binding and publish_upper is None:
+        raise PublicationError(
+            "privileged target validation requires publishValidatedAtUtc"
+        )
+    if publish_upper is not None and batch_finished_at > publish_upper:
+        raise PublicationError(
+            "batch finishes after privileged publication validation"
+        )
     referenced_payloads: set[pathlib.PurePosixPath] = set()
     referenced_manifests: set[pathlib.PurePosixPath] = set()
 
@@ -816,6 +836,18 @@ def validate_cells(
         target = result.get("target")
         if not isinstance(target, dict):
             raise PublicationError(f"result {index} has no target context")
+        result_started_at = parse_instant(
+            result.get("startedAt"), f"batch result {index} startedAt"
+        )
+        result_finished_at = parse_instant(
+            result.get("finishedAt"), f"batch result {index} finishedAt"
+        )
+        if (
+            result_started_at < batch_started_at
+            or result_finished_at > batch_finished_at
+            or result_finished_at < result_started_at
+        ):
+            raise PublicationError(f"batch timestamps do not contain result {index}")
         if require_git_binding and not manifest_value:
             raise PublicationError(
                 f"result {index} lacks a registration-bound manifest"
@@ -933,7 +965,6 @@ def validate(args: argparse.Namespace) -> None:
     repo, manifest = load_bundle(
         bundle,
         args.batch,
-        args.allow_path,
         args.trusted_targets,
     )
     batch_relative = validate_batch_path(args.batch)
@@ -947,6 +978,7 @@ def validate(args: argparse.Namespace) -> None:
         args.batch,
         require_git_binding=bool(args.trusted_targets),
         collision_exclusion=collision_exclusion,
+        publish_validated_at_utc=args.publish_validated_at_utc,
     )
     if args.apply:
         apply_bundle(repo, manifest)
@@ -981,14 +1013,13 @@ def parse_args() -> argparse.Namespace:
     stage_parser.add_argument("--bundle-dir", required=True)
     stage_parser.add_argument("--batch", required=True)
     stage_parser.add_argument("--trusted-targets")
-    stage_parser.add_argument("--allow-path", action="append", default=[])
     stage_parser.set_defaults(func=stage)
 
     validate_parser = subparsers.add_parser("validate")
     validate_parser.add_argument("--bundle-dir", required=True)
     validate_parser.add_argument("--batch", required=True)
     validate_parser.add_argument("--trusted-targets")
-    validate_parser.add_argument("--allow-path", action="append", default=[])
+    validate_parser.add_argument("--publish-validated-at-utc")
     validate_parser.add_argument("--allow-published-wave", action="store_true")
     validate_parser.add_argument("--apply", action="store_true")
     validate_parser.set_defaults(func=validate)

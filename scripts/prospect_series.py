@@ -4,9 +4,10 @@
 The roll loop deepens existing series; this widens the docket. A codex call
 proposes candidate series from official statistical release calendars, hard
 validation filters the output (enums, duplicates, release window, period
-shapes), and survivors are emitted as a normal batch targets file. The
-analyst pipeline then researches each candidate independently — a proposal
-here is a lead, not a published cell.
+shapes), and survivors are emitted in the versioned prospect-proposal
+envelope. The privileged registrar independently replays validation before
+the analyst pipeline researches a candidate — a proposal here is a lead, not
+a published cell.
 
 New series do NOT enter the roll registry from this path. Adoption happens
 in scripts/adopt_proven_series.py only after a series' first cell resolves
@@ -20,15 +21,18 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import calendar
 import datetime as dt
 import json
 import pathlib
-import re
 import subprocess
 import sys
-import urllib.parse
 
+from prospect_targets import (
+    ALLOWED_COUNTRIES,
+    ALLOWED_UNITS,
+    validate_codex_raw_proposal,
+    write_proposal_envelope,
+)
 from thesis_log_client import load_thesis_log
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -36,25 +40,8 @@ REGISTRY = ROOT / "scripts" / "docket_series.json"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
 CODEX = "codex"
 
-COUNTRIES = {"US", "UK", "CA", "AU", "EA", "JP", "BE"}
-UNITS = {
-    "count",
-    "percent",
-    "gbp_billions",
-    "usd",
-    "usd_billions",
-    "usd_monthly",
-    "thousands",
-    "millions",
-    "per_1000_live_births",
-    "ratio",
-    "minutes",
-    "percent_growth",
-    "index_points",
-}
-PERIOD_RE = re.compile(r"\d{4}-\d{2}|\d{4}-Q\d|week_\d{4}-\d{2}-\d{2}")
-SLUG_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
-SERIES_RE = re.compile(r"^[a-z0-9_]+(\.[a-z0-9_]+)+$")
+COUNTRIES = ALLOWED_COUNTRIES
+UNITS = ALLOWED_UNITS
 
 
 def prompt(
@@ -133,51 +120,10 @@ def extract_json(text: str) -> list[dict]:
     end = text.rfind("]")
     if start < 0 or end <= start:
         raise ValueError("no JSON array in codex output")
-    return json.loads(text[start : end + 1])
-
-
-GENERIC_TOKENS = (
-    {
-        "rate",
-        "annual",
-        "monthly",
-        "weekly",
-        "total",
-        "index",
-        "yoy",
-        "mom",
-        "us",
-        "uk",
-        "euro",
-        "area",
-        "japan",
-        "canada",
-        "australia",
-        "belgium",
-        "week",
-        "prelim",
-        "flash",
-        "sa",
-    }
-    | set(m.lower() for m in calendar.month_name if m)
-    | {str(y) for y in range(2024, 2032)}
-)
-
-
-def near_duplicate(slug: str, existing: set[str]) -> str | None:
-    """An existing slug describing the same quantity in different words."""
-    tokens = {t for t in slug.split("-") if t not in GENERIC_TOKENS and not t.isdigit()}
-    if not tokens:
-        return None
-    for other in existing:
-        other_tokens = {
-            t for t in other.split("-") if t not in GENERIC_TOKENS and not t.isdigit()
-        }
-        if len(tokens & other_tokens) >= 2 or (
-            len(tokens & other_tokens) == 1 and tokens <= other_tokens
-        ):
-            return other
-    return None
+    payload = json.loads(text[start : end + 1])
+    if not isinstance(payload, list):
+        raise ValueError("codex output is not a JSON array")
+    return payload
 
 
 def main() -> int:
@@ -198,75 +144,29 @@ def main() -> int:
     proposals = extract_json(raw)
 
     today = dt.date.today()
-    horizon = today + dt.timedelta(days=75)
     targets = []
     for p in proposals:
-        problems = []
-        if not SERIES_RE.fullmatch(p.get("series", "")):
-            problems.append("bad series id")
-        if p.get("series") in registry_series:
-            problems.append("series already in registry")
-        if not PERIOD_RE.fullmatch(p.get("period", "")):
-            problems.append("bad period")
-        if not SLUG_RE.fullmatch(p.get("catalogSlug", "")):
-            problems.append("bad slug")
-        if p.get("catalogSlug") in existing_slugs:
-            problems.append("slug exists")
-        if p.get("country") not in COUNTRIES:
-            problems.append("bad country")
-        if p.get("targetUnit") not in UNITS:
-            problems.append("bad unit")
-        overlap = near_duplicate(p.get("catalogSlug", ""), existing_slugs)
-        if overlap:
-            problems.append(f"same quantity as existing {overlap}")
-        try:
-            release = dt.date.fromisoformat(p.get("expectedReleaseDate", ""))
-            if not (today < release <= horizon):
-                problems.append("release outside (today, +75d]")
-        except ValueError:
-            problems.append("bad release date")
-        try:
-            source_host = urllib.parse.urlparse(
-                p.get("resolutionSourceUrl", "")
-            ).hostname
-        except ValueError:
-            source_host = None
-        if not source_host:
-            problems.append("bad resolution source URL")
-        for key in ("sourceSeriesId", "sourceField", "sourceTable"):
-            if not str(p.get(key) or "").strip():
-                problems.append(f"missing {key}")
+        target, problems = validate_codex_raw_proposal(
+            p,
+            today=today,
+            existing_slugs=existing_slugs,
+            registry_series=set(registry_series),
+        )
         if problems:
-            print(f"  reject {p.get('catalogSlug', '?')}: {'; '.join(problems)}")
+            slug = p.get("catalogSlug", "?") if isinstance(p, dict) else "?"
+            print(f"  reject {slug}: {'; '.join(problems)}")
             continue
-        target = {
-            "series": p["series"],
-            "period": p["period"],
-            "catalogSlug": p["catalogSlug"],
-            "country": p["country"],
-            "targetUnit": p["targetUnit"],
-            "expectedReleaseDate": p["expectedReleaseDate"],
-            "resolutionSourceUrl": p["resolutionSourceUrl"],
-            "sourceSeriesId": p["sourceSeriesId"],
-            "sourceField": p["sourceField"],
-            "sourceTable": p["sourceTable"],
-            "transform": p.get("transform")
-            or {
-                "operation": "identity",
-                "factor": 1,
-            },
-        }
+        assert target is not None
         targets.append(target)
-        rationale = str(p.get("rationale", ""))[:90]
+        rationale = str(p.get("rationale", ""))[:90] if isinstance(p, dict) else ""
         print(
-            f"  prospect {p['catalogSlug']} ({p['series']} {p['period']}) — {rationale}"
+            f"  prospect {target['catalogSlug']} "
+            f"({target['series']} {target['period']}) — {rationale}"
         )
 
     print(f"{len(targets)} of {len(proposals)} proposals accepted")
-    if args.out and not args.dry_run and targets:
-        pathlib.Path(args.out).write_text(
-            json.dumps({"targets": targets}, indent=1) + "\n"
-        )
+    if args.out and not args.dry_run:
+        write_proposal_envelope(pathlib.Path(args.out), "codex", targets)
     return 0
 
 

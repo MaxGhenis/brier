@@ -316,10 +316,12 @@ jobs:
         env:
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
         run: |
+          VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           python3 scripts/docket_publication.py validate \
             --bundle-dir /tmp/docket-publication \
             --batch "$BATCH_MANIFEST" \
             --trusted-targets /tmp/trusted-registration/roll-targets.json \
+            --publish-validated-at-utc "$VALIDATED_AT" \
             --allow-published-wave \
             --apply
 
@@ -417,10 +419,12 @@ jobs:
             # deterministic output of the trusted generators at final HEAD.
             git diff --exit-code
             git diff --cached --exit-code
+            VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
             python3 scripts/docket_publication.py validate \
               --bundle-dir /tmp/docket-publication \
               --batch "$BATCH_MANIFEST" \
               --trusted-targets /tmp/trusted-registration/roll-targets.json \
+              --publish-validated-at-utc "$VALIDATED_AT" \
               --allow-published-wave
             python3 scripts/verify_record_chain.py records
             while IFS= read -r -d '' root; do
