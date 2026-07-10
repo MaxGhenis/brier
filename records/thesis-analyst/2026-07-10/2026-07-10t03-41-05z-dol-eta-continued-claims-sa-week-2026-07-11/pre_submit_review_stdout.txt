@@ -1,0 +1,22 @@
+{
+  "summary": "The draft is publishable after tightening the resolver citation and making the volatility calculation reproducible.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The resolver text is mostly correct, but the draft cites the future DOL release URL as source context before the release exists.",
+      "actionRequested": "Keep the target tied to the July 23, 2026 first-print DOL ETA release, but label the July 23 URL as the intended resolver URL or release placeholder rather than current evidence."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval method is stated, but the claimed recent weekly-change sigma of 0.022 million is not directly reproducible from the listed six rounded observations.",
+      "actionRequested": "Show the exact weekly changes or historical sample used for the 0.022 million sigma, or revise the sigma and interval calculation to match the displayed sample."
+    }
+  ],
+  "optionalSuggestions": [
+    "State explicitly that ALFRED/FRED is only a mirror/vintage mechanism and that the official DOL first print controls if there is any discrepancy.",
+    "Clarify whether the 2026-06-13 and 2026-06-20 inputs are first prints or revised values, since the forecast targets a first print.",
+    "The tail scenarios are acceptable, but could name approximate levels for a high-claims and low-claims path over the two missing weeks."
+  ]
+}
