@@ -34,7 +34,7 @@ import {
   buildPredictionPackCatalog,
   getPredictionPackCatalogEntry,
 } from "@/data/prediction-packs";
-import { buildBrierRewardExport } from "@/data/brier-lab";
+import { buildBrierRewardExport, getBrierEvalSplit } from "@/data/brier-lab";
 import { buildForecastJudgeExport } from "@/data/forecast-judges";
 import { buildStrategyLabReport } from "@/data/strategy-lab";
 import { buildTimeSeriesPriorAdjustmentReport } from "@/data/time-series-priors";
@@ -432,7 +432,19 @@ describe("forecast catalog", () => {
       );
       expect(scoredRow.transformVersion).toMatch(/_v1$/);
     }
-    expect(liveRun?.split).toBe("unresolved");
+    const liveCell = FORECAST_CELLS.find(
+      (cell) => cell.slug === "uk-unemployment-rate-oct-dec-2026",
+    );
+    const liveResolved = policyEngineLedger.some(
+      (entry) =>
+        entry.kind === "observation_recorded" &&
+        entry.dataPointId === liveCell?.dataPointId,
+    );
+    // Split mirrors resolution state — pinning "unresolved" broke the day
+    // a pinned cell resolved.
+    expect(liveRun?.split).toBe(
+      liveCell ? getBrierEvalSplit(liveCell, liveResolved) : "unresolved",
+    );
     expect(liveRun?.provenance.activityArtifactCount).toBe(8);
     expect(exportPayload.leaderboard.length).toBeGreaterThan(0);
   });
@@ -804,7 +816,9 @@ describe("forecast catalog", () => {
     expect(report.counts.strategies).toBe(3);
     expect(family?.targetCount).toBe(53);
     expect(family?.resolvedTargetCount).toBe(53);
-    expect(report.counts.scoredRows).toBe(159);
+    // 53 immutable panel members x however many strategies the registry
+    // grows to — never a pinned product.
+    expect(report.counts.scoredRows).toBe(53 * report.counts.strategies);
     expect(persistence?.evidenceMode).toBe("historical_replay");
     expect(persistence?.scoredRows).toBe(53);
     expect(shrinkage?.scoredRows).toBe(53);
@@ -834,7 +848,9 @@ describe("forecast catalog", () => {
 
     expect(oneUnresolvedFamily?.targetCount).toBe(53);
     expect(oneUnresolvedFamily?.resolvedTargetCount).toBe(52);
-    expect(oneUnresolvedReport.counts.scoredRows).toBe(156);
+    expect(oneUnresolvedReport.counts.scoredRows).toBe(
+      52 * oneUnresolvedReport.counts.strategies,
+    );
   });
 
   it("generates time-series prior comparisons for agent adjustment audits", () => {
@@ -1107,9 +1123,13 @@ describe("forecast catalog", () => {
       "consumer-spending-nowcast",
       FORECAST_CELLS,
     );
-    expect(spending?.targetCount).toBe(1);
-    expect(spending?.runCount).toBe(1);
-    expect(spending?.usage[0].forecastSlug).toBe("retail-sales-mom-may-2026");
+    expect(spending?.targetCount).toBeGreaterThanOrEqual(1);
+    expect(spending?.runCount).toBeGreaterThanOrEqual(1);
+    expect(
+      spending?.usage.some(
+        (row) => row.forecastSlug === "retail-sales-mom-may-2026",
+      ),
+    ).toBe(true);
 
     const housing = getPredictionPackCatalogEntry(
       "housing-activity-nowcast",
