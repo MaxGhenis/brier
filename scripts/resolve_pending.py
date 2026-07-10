@@ -675,12 +675,13 @@ def archive_response(
     series_id: str,
     vintage: str,
     raw: bytes,
+    extension: str = "csv",
 ) -> dict[str, Any]:
     """Write one deterministic gzip archive and return its hash reference."""
     raw_sha256 = hashlib.sha256(raw).hexdigest()
     compressed = gzip.compress(raw, mtime=0)
     gzip_sha256 = hashlib.sha256(compressed).hexdigest()
-    name = f"{series_id.lower()}-{vintage}-{raw_sha256[:16]}.csv.gz"
+    name = f"{series_id.lower()}-{vintage}-{raw_sha256[:16]}.{extension}.gz"
     path = run_dir / "responses" / name
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(compressed)
@@ -704,6 +705,7 @@ def attach_resolution_provenance(
     retrieved_at: str,
     ledger_repo_sha: str,
     target_hashes: dict[str, str],
+    extension: str = "csv",
 ) -> dict[str, Any]:
     output = {
         **row,
@@ -711,7 +713,11 @@ def attach_resolution_provenance(
         "sourceVintage": vintage,
         "retrievedAt": retrieved_at,
         "responseArchive": archive_response(
-            run_dir, series_id=series_id, vintage=vintage, raw=raw
+            run_dir,
+            series_id=series_id,
+            vintage=vintage,
+            raw=raw,
+            extension=extension,
         ),
     }
     target_hash = target_hashes.get(str(row["source_record_id"]))
@@ -740,6 +746,7 @@ def finalize_resolution_manifest(
     repository = ROOT.resolve()
     refs: list[dict[str, Any]] = []
     rooted: list[dict[str, Any]] = []
+    seen_paths: set[str] = set()
     for fact in manifest["facts"]:
         archive = fact["responseArchive"]
         path = repository / archive["path"]
@@ -751,6 +758,12 @@ def finalize_resolution_manifest(
             "bytes": archive["gzipBytes"],
             "createdAt": created_at,
         }
+        # Several facts can legitimately share one archived response (two
+        # dataPointId dialects of the same series resolve from the same
+        # vintage bytes); the inventory lists each archive exactly once.
+        if ref["path"] in seen_paths:
+            continue
+        seen_paths.add(ref["path"])
         refs.append(ref)
         rooted.append({**ref, "path": relative})
     manifest.update(
@@ -826,7 +839,7 @@ def main() -> int:
         if line.strip()
     }
 
-    fetched_rows: list[tuple[dict[str, Any], str, str, bytes, str]] = []
+    fetched_rows: list[tuple[dict[str, Any], str, str, bytes, str, str]] = []
     today = dt.date.today()
     for ref, week, kind, source_vintage in todo:
         if ref in existing_ids:
@@ -845,7 +858,7 @@ def main() -> int:
             continue
         row = claims_fact(ref, week, value, kind, release_day)
         fetched_rows.append(
-            (row, series_id, release_day.isoformat(), raw, retrieved_at)
+            (row, series_id, release_day.isoformat(), raw, retrieved_at, "csv")
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
@@ -878,6 +891,7 @@ def main() -> int:
             value = apply_transform(rows, spec, period_type, period)
             series_id = spec["fred"]
             source_file = "alfredgraph.csv"
+            extension = "csv"
         else:
             snapshot_url = A19_SNAPSHOT_URLS.get(period)
             if not snapshot_url:
@@ -901,6 +915,7 @@ def main() -> int:
             value = values.get(spec["a19_row"])
             series_id = f"cpseea19-{spec['a19_row']}"
             source_file = "cpseea19.htm (Wayback snapshot)"
+            extension = "html"
         if value is None or raw is None:
             print(f"  not yet published: {ref}")
             continue
@@ -915,7 +930,7 @@ def main() -> int:
             source_url, source_file,
         )
         fetched_rows.append(
-            (row, series_id, release_day.isoformat(), raw, retrieved_at)
+            (row, series_id, release_day.isoformat(), raw, retrieved_at, extension)
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
@@ -942,8 +957,9 @@ def main() -> int:
             retrieved_at=retrieved_at,
             ledger_repo_sha=ledger_repo_sha,
             target_hashes=target_hashes,
+            extension=extension,
         )
-        for row, series_id, vintage, raw, retrieved_at in fetched_rows
+        for row, series_id, vintage, raw, retrieved_at, extension in fetched_rows
     ]
 
     updated = (

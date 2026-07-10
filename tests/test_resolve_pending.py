@@ -221,3 +221,37 @@ def test_pending_adapter_refs_maps_and_gates_units() -> None:
     assert a19[1] == "a19" and a19[4] == "2026-06"
     # No adapter claims the international series yet.
     assert "statcan.cpi.allitems.yoy.2026-05" not in refs
+
+
+def test_manifest_dedupes_shared_response_archives(tmp_path) -> None:
+    original_root = resolve_pending.ROOT
+    resolve_pending.ROOT = tmp_path
+    try:
+        run_dir = tmp_path / "records" / "resolutions" / "run"
+        raw = b"date,value\n2026-05-01,1\n"
+        archive = resolve_pending.archive_response(
+            run_dir, series_id="PCEPILFE", vintage="2026-06-25", raw=raw
+        )
+        manifest = {
+            "schemaVersion": "thesis_resolution_run_v1",
+            "retrievedAt": "2026-07-10T12:00:00Z",
+            "ledgerRepo": "PolicyEngine/ledger",
+            "ledgerBranch": "test",
+            "ledgerRepoSha": "0" * 40,
+            "facts": [
+                {"dataPointId": "bea.pce.core_mom.may_2026.first_print",
+                 "sourceVintage": "2026-06-25", "retrievedAt": "t",
+                 "responseArchive": archive},
+                {"dataPointId": "us.bea.core_pce.mom_sa.2026-05",
+                 "sourceVintage": "2026-06-25", "retrievedAt": "t",
+                 "responseArchive": archive},
+            ],
+        }
+        sealed = resolve_pending.finalize_resolution_manifest(run_dir, manifest)
+        responses = [
+            ref for ref in sealed["artifacts"]
+            if ref["artifactType"] == "resolver_response"
+        ]
+        assert len(responses) == 1
+    finally:
+        resolve_pending.ROOT = original_root

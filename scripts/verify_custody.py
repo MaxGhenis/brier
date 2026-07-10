@@ -42,7 +42,11 @@ REVIEWED_STAGE_INVENTORY = {
     "revision_prompt.md": "revision_prompt",
 }
 RESOLVER_RESPONSE_RE = re.compile(
-    r"responses/(?:icsa|ccsa)-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}\.csv\.gz"
+    # One archived source response per fetched document: a lowercase series
+    # or page identifier, the first-print vintage date, and a content-hash
+    # prefix. CSV for ALFRED vintage fetches, HTML for archived source
+    # pages (e.g. the Wayback snapshot of BLS Table A-19).
+    r"responses/[a-z0-9._-]+-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}\.(?:csv|html)\.gz"
 )
 LEDGER_WITNESS_ARCHIVE_RE = re.compile(r"upstream/[a-z0-9][a-z0-9._-]*\.gz")
 RECORDER_REQUIRED_SURFACES = {
@@ -443,6 +447,7 @@ def _verify_resolver_v2(
             + ", ".join(invalid_entries)
         )
     manifest_responses: set[str] = set()
+    manifest_response_claims: dict[str, tuple] = {}
     for fact in facts:
         archive = fact.get("responseArchive") if isinstance(fact, dict) else None
         if not isinstance(archive, dict):
@@ -455,7 +460,21 @@ def _verify_resolver_v2(
                 f"declared={declared!r}, resolved={relative!r}"
             )
         if relative in manifest_responses:
-            raise CustodyError(f"duplicate resolver response archive: {relative}")
+            # Several facts may share one archived response (two dataPointId
+            # dialects of the same series resolve from the same vintage
+            # bytes) — but every reference must declare identical hashes.
+            prior = manifest_response_claims.get(relative)
+            claim = (
+                archive.get("sha256"),
+                archive.get("gzipSha256"),
+                archive.get("bytes"),
+                archive.get("gzipBytes"),
+            )
+            if prior != claim:
+                raise CustodyError(
+                    f"conflicting resolver response declarations: {relative}"
+                )
+            continue
         if archive.get("contentEncoding") != "gzip":
             raise CustodyError(f"resolver response is not declared gzip: {relative}")
         path = _safe_artifact_path(run_dir, relative)
@@ -473,6 +492,12 @@ def _verify_resolver_v2(
         if _sha256(raw) != archive.get("sha256") or len(raw) != archive.get("bytes"):
             raise CustodyError(f"resolver decompressed response mismatch: {relative}")
         manifest_responses.add(relative)
+        manifest_response_claims[relative] = (
+            archive.get("sha256"),
+            archive.get("gzipSha256"),
+            archive.get("bytes"),
+            archive.get("gzipBytes"),
+        )
     if rooted_responses != manifest_responses:
         raise CustodyError(
             "resolver response inventory mismatch: "
