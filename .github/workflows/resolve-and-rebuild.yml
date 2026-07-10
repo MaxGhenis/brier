@@ -32,9 +32,11 @@ jobs:
           GH_TOKEN: ${{ secrets.ARCH_DATA_TOKEN }}
         run: |
           set -euo pipefail
-          OUT=$(python3 scripts/resolve_pending.py)
-          echo "$OUT"
-          if echo "$OUT" | grep -q "^appended"; then
+          # Stream resolver output while capturing it: command substitution
+          # swallowed stdout whenever the resolver failed, hiding which
+          # cells resolved or deferred before the failure.
+          python3 scripts/resolve_pending.py 2>&1 | tee /tmp/resolve-out.log
+          if grep -q "^appended" /tmp/resolve-out.log; then
             echo "appended=1" >> "$GITHUB_OUTPUT"
           else
             echo "appended=0" >> "$GITHUB_OUTPUT"

@@ -1110,6 +1110,9 @@ def test_intl_fact_rows_carry_country_geography_and_concept() -> None:
         flash_spec["source_file"],
     )
     assert row["geography"]["id"] == "EA21"
+    # The euro area must use a level the ledger's arch fact schema admits
+    # (the append gate rejected "area"; regression for PolicyEngine/ledger#90).
+    assert row["geography"]["level"] == "region"
     # The print-kind suffix is stripped from the measure concept.
     assert row["measure"]["concept"] == (
         "eurostat.hicp.all_items_annual_rate.euro_area.june_2026"

@@ -438,7 +438,14 @@ INTL_GEOGRAPHY = {
     "CA": {"level": "country", "id": "CA", "vintage": "current", "name": "Canada"},
     "AU": {"level": "country", "id": "AU", "vintage": "current", "name": "Australia"},
     "JP": {"level": "country", "id": "JP", "vintage": "current", "name": "Japan"},
-    "EA": {"level": "area", "id": "EA21", "vintage": "current", "name": "Euro area"},
+    # "region" is the arch fact schema's level for supranational scopes
+    # (ALLOWED_GEOGRAPHY_LEVELS in PolicyEngine/ledger arch/core.py).
+    "EA": {
+        "level": "region",
+        "id": "EA21",
+        "vintage": "current",
+        "name": "Euro area",
+    },
 }
 
 STATCAN_WDS_RANGE = (
