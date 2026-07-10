@@ -5,6 +5,8 @@ import json
 import pathlib
 import sys
 
+import pytest
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -118,3 +120,41 @@ def test_claims_binding_is_data_driven_and_advance_vintage() -> None:
         "allowedHosts": ["alfred.stlouisfed.org"],
         "expectedReleaseWindow": {"start": "2030-01-08", "end": "2030-01-12"},
     }
+
+
+def test_publisher_contract_enforces_allowed_hosts_membership() -> None:
+    registration = {
+        "unit": "thousands",
+        "sourceBinding": {
+            "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA",
+            "allowedHosts": ["alfred.stlouisfed.org", "www.dol.gov"],
+        },
+    }
+    cell = {
+        "dataPointId": "us.dol.initial_claims.sa.week_2030-01-05",
+        "unit": "thousands",
+        "resolutionSourceUrl": "https://www.dol.gov/ui/data.pdf",
+    }
+    generate_ledger_targets.validate_preregistered_contract(cell, registration)
+
+    with pytest.raises(ValueError, match="not among the preregistered"):
+        generate_ledger_targets.validate_preregistered_contract(
+            dict(cell, resolutionSourceUrl="https://evil.example/data"),
+            registration,
+        )
+
+    legacy = {
+        "unit": "thousands",
+        "sourceBinding": {"sourceUrl": "https://alfred.stlouisfed.org/g.csv"},
+    }
+    generate_ledger_targets.validate_preregistered_contract(
+        dict(cell, resolutionSourceUrl="https://alfred.stlouisfed.org/g.csv"),
+        legacy,
+    )
+    with pytest.raises(ValueError, match="not among the preregistered"):
+        generate_ledger_targets.validate_preregistered_contract(cell, legacy)
+
+    with pytest.raises(ValueError, match="not among the preregistered"):
+        generate_ledger_targets.validate_preregistered_contract(
+            cell, {"unit": "thousands", "sourceBinding": {}}
+        )

@@ -120,16 +120,24 @@ def validate_preregistered_contract(cell: dict, registration: dict) -> None:
             f"{registration.get('unit')!r} for {cell.get('dataPointId')}"
         )
     binding = registration.get("sourceBinding") or {}
-    expected_host = (
+    allowed_hosts = {
+        str(host).strip().lower()
+        for host in (binding.get("allowedHosts") or [])
+        if str(host).strip()
+    }
+    source_host = (
         urlparse(str(binding.get("sourceUrl") or "")).hostname or ""
     ).lower()
+    if source_host:
+        allowed_hosts.add(source_host)
     actual_host = (
         urlparse(str(cell.get("resolutionSourceUrl") or "")).hostname or ""
     ).lower()
-    if not expected_host or actual_host != expected_host:
+    if not allowed_hosts or actual_host not in allowed_hosts:
         raise ValueError(
-            f"resolution source host {actual_host!r} does not match "
-            f"preregistration {expected_host!r} for {cell.get('dataPointId')}"
+            f"resolution source host {actual_host!r} is not among the "
+            f"preregistered source binding hosts {sorted(allowed_hosts)!r} "
+            f"for {cell.get('dataPointId')}"
         )
 
 
