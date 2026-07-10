@@ -1,0 +1,27 @@
+{
+  "summary": "Draft is mostly publication-ready, but it should align the resolver text exactly with the ledger and make the interval/update support more explicit.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft resolutionRule adds 'round the forecast cell to one decimal billion dollars,' which is not part of the canonical resolver and could confuse the observation rule.",
+      "actionRequested": "Replace the draft resolutionRule with the ledger resolver text exactly, keeping forecast rounding separate from resolution."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The move from the latest July print of 291.0 to a 270.0 median is directionally explained, but the tariff/customs, interest, mandatory outlay, and tax-policy adjustments are not quantified or tied to specific evidence.",
+      "actionRequested": "Add a compact sentence giving approximate adjustment sizes or explaining why the net update is about -21 billion from July 2025."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval is derived from the ladder, but the draft does not explicitly connect the 80% width to realized July volatility or a named uncertainty judgment.",
+      "actionRequested": "State either the realized dispersion of recent July prints or an explicit uncertainty rationale for why an 80% interval of 201.1 to 358.0 is appropriate."
+    }
+  ],
+  "optionalSuggestions": [
+    "Add the 2021 July value to historicalContext since it is used in reasoning.",
+    "Make sourceContext more specific by naming the CBO item or report used for tax-policy/outlay pressure."
+  ]
+}

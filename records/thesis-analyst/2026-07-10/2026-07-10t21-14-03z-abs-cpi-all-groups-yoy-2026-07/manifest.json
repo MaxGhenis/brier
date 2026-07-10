@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T21:14:03Z",
+  "runStartedAt": "2026-07-10T21:14:03Z",
+  "series": "abs.cpi.all_groups.yoy",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "australia-cpi-annual-rate-july-2026",
+    "comparisonTarget": true,
+    "country": "AU",
+    "dataPointId": "abs.cpi.all_groups.yoy.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-26",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the first ABS-published July 2026 Monthly Consumer Price Index Indicator All groups CPI annual movement, in percent, rounded to one decimal as printed by ABS. Use the original first print only; ignore later revisions, corrections, or quarterly-CPI replacement values. The registered ledger sourceBinding URL appears to point to the ABS Consumer Price Index, Australia, June 2026 page rather than the July 2026 Monthly CPI Indicator page; this forecast remains tied to dataPointId abs.cpi.all_groups.yoy.2026-07.first_print and documents that discrepancy rather than changing the target identity.",
+    "resolutionSource": "Australian Bureau of Statistics Monthly Consumer Price Index Indicator, Australia, July 2026 release",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/july-2026",
+    "series": "abs.cpi.all_groups.yoy",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.abs.gov.au"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-02",
+        "start": "2026-08-25"
+      },
+      "field": "abs.cpi.all_groups.yoy",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "abs.cpi.all_groups.yoy",
+      "sourceUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia/june-2026",
+      "table": "Australian Bureau of Statistics Consumer Price Index, Australia, June 2026 release",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+    "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530",
+  "targetRegistrationPath": "records/targets/2026-07-10-fc08c8b584fa0779c2421f4944d8c026e568b8990f2942968fad89cfb39c5530.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "ladder_v2",
+  "agent": {
+    "agent": "thesis.analyst.ladder_v2",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T21:14:03Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "2224fa346e16f6e14f74f3e9e01e3dba04f898a4011191851af2c82af0182cfd"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The point estimate moves from a 4.0% May persistence anchor to 4.3%, but the July fuel-excise/oil pass-through adjustment is asserted without a concrete magnitude or cited current evidence.",
+        "actionRequested": "Add a short quantified update bridge, e.g. how much of the +0.3pp central shift comes from fuel/oil, housing/rents, and sampling/noise, or explicitly state the adjustment is judgmental and why it is limited."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State that the threshold ladder represents the 10th-90th percentile 80% interval to make confidence semantics explicit."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If available in the trace, include one current public oil/fuel or policy datapoint supporting the upside fuel-risk driver."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the warning to make the +0.3pp upward update explicit and judgmental, with approximate component contributions; accepted the confidence-semantics suggestion by naming the ladder-derived 10th-90th percentile 80% interval. I did not add a new oil or policy datapoint because it was not in the public evidence available to the draft trace.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the warning to make the +0.3pp upward update explicit and judgmental, with approximate component contributions; accepted the confidence-semantics suggestion by naming the ladder-derived 10th-90th percentile 80% interval. I did not add a new oil or policy datapoint because it was not in the public evidence available to the draft trace.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the warning to make the +0.3pp upward update explicit and judgmental, with approximate component contributions; accepted the confidence-semantics suggestion by naming the ladder-derived 10th-90th percentile 80% interval. I did not add a new oil or policy datapoint because it was not in the public evidence available to the draft trace.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable with one warning: its upward update is directionally explained but should quantify or cite the July fuel/oil-policy adjustment more concretely."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/prompt.md",
+      "sha256": "7defca226e328eefaadbafcff27940e0b5a83f4fe682b90228a233dd179d1ea7",
+      "bytes": 11282,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_command.json",
+      "sha256": "ba86bd2cbf6a27543a0fff75ee804f65bcae84599401490d77402fcc62c324e7",
+      "bytes": 697,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "10551b0a42e5e16f31db90fe94fb0edd76f4f3bd4e95557ca35101a267ee29ba",
+      "bytes": 15872,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_codex_stderr.log",
+      "sha256": "5bd07a93b1592752658c2be5f2b057161ae6ecf2606ff86949916b8c0610e46c",
+      "bytes": 233,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_codex_events.jsonl",
+      "sha256": "de04a717b35915d65bc0606fdb81cf5b4424c2f7208c19f64d57a57d5903fa57",
+      "bytes": 15887,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_codex_last_message.txt",
+      "sha256": "75e5ea1697b98caf0bf1ec4c70a9f2f5bf317f7f2f0515310884dbff698d78b9",
+      "bytes": 6738,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_codex_trace.json",
+      "sha256": "55470ffc7863a473672d80c918ab7a0642b2c0fa147efdf4d103d380e5f28fec",
+      "bytes": 503,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_stdout.txt",
+      "sha256": "75e5ea1697b98caf0bf1ec4c70a9f2f5bf317f7f2f0515310884dbff698d78b9",
+      "bytes": 6738,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/draft_stderr.txt",
+      "sha256": "83a377fc2864a0260c98586c99e4e68f610ec95043d86742efb8a92befbf0459",
+      "bytes": 248,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_prompt.md",
+      "sha256": "f45968836341c2d2cc1c3bfa6dbb216313e2575bcd8df0bda7b367f0f1dae465",
+      "bytes": 10812,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_command.json",
+      "sha256": "99b11cfd2e356a2bd36b9d254b92ea750828a6e1c63b30d72433c660f257ea51",
+      "bytes": 693,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "dcee1002f865a4e03e8be88015ea62759ff1ea237a37e139d07012a0de680e97",
+      "bytes": 1373,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "d706d9c2edfcb69b4d5348e54d3c7622ac2ad7761b16b9821f3a93373664d14b",
+      "bytes": 233,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "b197ea152889567363f22117dea02af91b04700c8a0a3734aefce0eb122cc596",
+      "bytes": 1395,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "310e3c7db68a3ff31f5a84634981457362646e780b5a558c04e5a1330ade2c88",
+      "bytes": 1017,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "fc0bb21632cc8e0883b042e62907a9c8a9e8fac63459e538c61d88c4a79aea7d",
+      "bytes": 501,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "310e3c7db68a3ff31f5a84634981457362646e780b5a558c04e5a1330ade2c88",
+      "bytes": 1017,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "1234b02b153f1ff763219bfd122f12f13e26a3df4f2955ae173805e7bf001cc1",
+      "bytes": 248,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/revision_prompt.md",
+      "sha256": "61aa2791132fd9be7dad34797541d0f1608df893758e6f41c0882f85c585a260",
+      "bytes": 19973,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/command.json",
+      "sha256": "9479ea741052c7ffbe43939694eb88587bee53279c326b23a2d6777dc6ee41ba",
+      "bytes": 691,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/codex_stdout.jsonl",
+      "sha256": "02573be05ba815540b3d35dddbc8387f499271a970f6b59dda0293500a487a70",
+      "bytes": 7741,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/codex_stderr.log",
+      "sha256": "6ccdaf304ae9df9901d4dea7cc40ae39821d97a7805f1dc8c5e96af67daa3879",
+      "bytes": 233,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/codex_events.jsonl",
+      "sha256": "c521fd58b7c0ac96eedb46f928f0b8a3523108eae93db669a4ab4b3ef3a45249",
+      "bytes": 7763,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/codex_last_message.txt",
+      "sha256": "31d94e8dee2e06343123a47ef0a72a75646f4be5aee6551104cc7e4f475787c0",
+      "bytes": 7182,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/codex_trace.json",
+      "sha256": "dd0de1db50a757d703e61d8ca3f6d84ba32f5d21a02c31da908e804a8425d3e5",
+      "bytes": 501,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/stdout.txt",
+      "sha256": "31d94e8dee2e06343123a47ef0a72a75646f4be5aee6551104cc7e4f475787c0",
+      "bytes": 7182,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/stderr.txt",
+      "sha256": "c12f35fda6c7adf10631f3982ae6fbda1c176d1c9aaf56708564542b91807215",
+      "bytes": 248,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/raw_response.txt",
+      "sha256": "31d94e8dee2e06343123a47ef0a72a75646f4be5aee6551104cc7e4f475787c0",
+      "bytes": 7182,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/parsed_cells.json",
+      "sha256": "b3f51e52d9d330d0e9ef45d0385bf7c9921a034ccecfd16395b96f6a692d1663",
+      "bytes": 8320,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/normalized_cells.json",
+      "sha256": "853d05049f2e2aaf0a4c0efea6eea6a36e7c55c35026c9ed6f323b2eea8cd774",
+      "bytes": 25883,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/distribution.json",
+      "sha256": "5a537e7708594033231ee7e51ce585ade96a2facfc4e5b077f07a5dadd84dcc4",
+      "bytes": 13774,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/validation.json",
+      "sha256": "5b3a8b7f7d37456c98cc08eeedd9937ac48f7fe425c4f36f483bb1b3fecec611",
+      "bytes": 136,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/cells.with_activity.json",
+      "sha256": "2ec9358acf71e9a51e7a0aa8ad6ce8dcdef80066e490fa50a5efd6843c3f177c",
+      "bytes": 40597,
+      "createdAt": "2026-07-10T21:14:03Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-14-03z-abs-cpi-all-groups-yoy-2026-07/manifest.json",
+      "sha256": "de2ba26eb8f4f117c407f9a817ead69e1c862bbedfcb1b496c4d03b6dc877f4a",
+      "bytes": 15772,
+      "createdAt": "2026-07-10T21:14:03Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "australia-cpi-annual-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "cfff47af01dc86fca2cf6bdb719c7a53e33f4c4aba4e6cd83dbb5a6d06e8ca3b"
+}

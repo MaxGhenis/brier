@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T21:15:57Z",
+  "runStartedAt": "2026-07-10T21:15:57Z",
+  "series": "bea.disposable_personal_income.level",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bea-disposable-personal-income-level-june-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "bea.disposable_personal_income.level.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAtUtc": "2026-07-10T12:36:34Z",
+    "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+    "resolutionDate": "2026-07-30",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding.",
+    "resolutionSource": "ALFRED DSPI CSV source binding for BEA disposable personal income first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+    "series": "bea.disposable_personal_income.level",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-29",
+        "start": "2026-07-21"
+      },
+      "field": "DSPI",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "DSPI",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25",
+      "table": "Personal Income and Outlays, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+    "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "registrationCommit": "0d80683b051be25572f40ea4731fa5062af6d211",
+  "targetContentHash": "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3",
+  "targetRegistrationPath": "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json",
+  "registeredAtUtc": "2026-07-10T12:36:34Z",
+  "promptMode": "ladder_v2",
+  "agent": {
+    "agent": "thesis.analyst.ladder_v2",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T21:15:57Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "2c283e25c0be626bafa090f9c3c55022636805fd20d1191bb60e8c858362eacb"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add the BLS June 2026 Employment Situation source URL to sourceContext because payroll and earnings inputs materially affect the update."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tighten the interval sentence by naming the historical month-to-month change sample and saying the 80% ladder width is judgmentally wider/narrower than that volatility."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the +45, -20, and -50 adjustments are applied to the 23715 latest-level-plus-average-change prior, yielding about 23691 before rounding."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestions to add the BLS Employment Situation URL, clarify that the adjustment components apply to the 23715 latest-level-plus-average-change prior, and document that the ladder width is judgmentally wider than the Jan-May month-to-month volatility because of one-off transfer/proprietor-income uncertainty; no reviewer critique was rejected.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestions to add the BLS Employment Situation URL, clarify that the adjustment components apply to the 23715 latest-level-plus-average-change prior, and document that the ladder width is judgmentally wider than the Jan-May month-to-month volatility because of one-off transfer/proprietor-income uncertainty; no reviewer critique was rejected.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestions to add the BLS Employment Situation URL, clarify that the adjustment components apply to the 23715 latest-level-plus-average-change prior, and document that the ladder width is judgmentally wider than the Jan-May month-to-month volatility because of one-off transfer/proprietor-income uncertainty; no reviewer critique was rejected.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with minor evidence/interval documentation improvements; no blocking issue found."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/prompt.md",
+      "sha256": "9c513ebfa524c665ff250e7e55cdb2c972eb3829bfa83a32ad5ae048a3423852",
+      "bytes": 11247,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_command.json",
+      "sha256": "b9d30096cd1517cbe69fde354736b2212cd0d154d8bf0868e63b54b26e7f352d",
+      "bytes": 711,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "f5c4b310677089f43ba25d2b370dcbd12eeaa936aac24b3519f6b2e7f69085e3",
+      "bytes": 18572,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_codex_stderr.log",
+      "sha256": "deae788a7cc33bbd3f7c0fabb266ec196b2936c173effbe32727f198fb4a42d0",
+      "bytes": 233,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_codex_events.jsonl",
+      "sha256": "6908181f7e3b5a0a8f8ff490e66078827aa9e8a58dc16699fbb93a0f3807c563",
+      "bytes": 18512,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_codex_last_message.txt",
+      "sha256": "98c379fdcba84c083e7f08b9460424dd90d64bcab566d474f8b0a43b1c1e3bcd",
+      "bytes": 6540,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_codex_trace.json",
+      "sha256": "efcc1e9baa332035d0d3e3dd0e4f1e17d42748e69e0ec7f36c7215a8a720ed71",
+      "bytes": 507,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_stdout.txt",
+      "sha256": "98c379fdcba84c083e7f08b9460424dd90d64bcab566d474f8b0a43b1c1e3bcd",
+      "bytes": 6540,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/draft_stderr.txt",
+      "sha256": "a2b645c934dd71b0fa1c3e41ce1312a27107bc63006621e123d787855938ab10",
+      "bytes": 248,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_prompt.md",
+      "sha256": "282f449839027ac9d7b88af40a63d05ad5a143cea53c446fcb8fd6ff6910c11a",
+      "bytes": 10460,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_command.json",
+      "sha256": "1505ab9a51028ad2ee2765441cb6915ba216f9d7f0d98f7b049e6c601b54d2cd",
+      "bytes": 707,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "cffe3a9d5dc5ff0d9a4190950f52e07a769f1218439a5f7fce18cbfb0fac437c",
+      "bytes": 988,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "abda612e5a6825610a89e23f20bd510e43f9f74a92db85e8965355276f1212b5",
+      "bytes": 233,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "7d425edbc248b1d002cbc966470027e536e4d4b5273af955de8f2f71a97df51a",
+      "bytes": 1010,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "43f81448bfcc9ac8f833e90792952ac4d8ca1b05a1c2b0ccccdc0aa68e77b56f",
+      "bytes": 652,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "bb7a1bc46547bed96427ab67d8a018bc8feadb2370de58cc12acef37a5a5a956",
+      "bytes": 501,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "43f81448bfcc9ac8f833e90792952ac4d8ca1b05a1c2b0ccccdc0aa68e77b56f",
+      "bytes": 652,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "8af1b4388e6678eb67ddefc2ae335c706db0f2e9267f71ac5e4bc8b927c2331c",
+      "bytes": 248,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/revision_prompt.md",
+      "sha256": "ee0bd13a7abb7e5d645a2d9ea331d2800f3f5ed2685f06da0adc1db077f26cae",
+      "bytes": 19375,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/command.json",
+      "sha256": "056122167e0a5cabe9b04386236fb2f82744236c4426e501f573680fcf5fe271",
+      "bytes": 705,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/codex_stdout.jsonl",
+      "sha256": "cfb9ca0ecfb98d1956e4aaebe88f7164e5e6ed23421d5ca2a984c7d6e977d975",
+      "bytes": 7685,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/codex_stderr.log",
+      "sha256": "2e68aa53fb4ee1d4b8189228ae2e3fcc5469c5e5d53f68f07ed610a119d4b914",
+      "bytes": 233,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/codex_events.jsonl",
+      "sha256": "120ea54707c7713163b4b4de705c2ed420becce7c2ce025d8ef0df068ea034f2",
+      "bytes": 7707,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/codex_last_message.txt",
+      "sha256": "249841299d34561ebcd77fef31cf13203beb9057c063630f475635a636926076",
+      "bytes": 7114,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/codex_trace.json",
+      "sha256": "1c9041401ae4f5ac8114fc3fd49faa7ff7d7b12a9b9ad007a1320c51ad72b385",
+      "bytes": 501,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/stdout.txt",
+      "sha256": "249841299d34561ebcd77fef31cf13203beb9057c063630f475635a636926076",
+      "bytes": 7114,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/stderr.txt",
+      "sha256": "ad9e6b3a3f5be10e29fe70e189539fa1176a53511e8ba409e3c8db6d7400f205",
+      "bytes": 248,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/raw_response.txt",
+      "sha256": "249841299d34561ebcd77fef31cf13203beb9057c063630f475635a636926076",
+      "bytes": 7114,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/parsed_cells.json",
+      "sha256": "c750ba2e73540291873be9d581bb9ddc571bddd3d637ed39e52a5330fb008066",
+      "bytes": 8277,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/normalized_cells.json",
+      "sha256": "d9fb17849ce27eedfc19856c3011349330706f41234da29e6d71fa5ba1645626",
+      "bytes": 26928,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/distribution.json",
+      "sha256": "b1bf4b31e82d7976d6947eaf3b1f46a94228870b0ea45790e14e28df23726885",
+      "bytes": 14862,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/validation.json",
+      "sha256": "26210aea3430b80e8e2cc7563234a237b3f4050011991230aa2b7a1e00ba93ea",
+      "bytes": 147,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/cells.with_activity.json",
+      "sha256": "62fd07ba45df94caeeac3af7844ff11551a1e7b0f98ac6388c33980580283f5d",
+      "bytes": 41907,
+      "createdAt": "2026-07-10T21:15:57Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t21-15-57z-bea-disposable-personal-income-level-2026-06/manifest.json",
+      "sha256": "63c40070483daec56b46f316ebbabb51745f9deccb120e46549f91994d10b565",
+      "bytes": 15946,
+      "createdAt": "2026-07-10T21:15:57Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bea-disposable-personal-income-level-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "34a76c3d93c4def8ac0a70849c4c6da07ae20fd43ce55d61a130d86b1d331260"
+}
