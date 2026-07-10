@@ -25,6 +25,10 @@ on:
           - ladder
           - median3
           - both
+      codex_model:
+        description: "Codex model for the suite (empty = gpt-5.5 default)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -306,10 +310,13 @@ jobs:
 
       - name: Run the selected strategy suite
         id: suite
+        env:
+          CODEX_MODEL: ${{ github.event.inputs.codex_model || 'gpt-5.5' }}
         run: |
           set -euo pipefail
           python3 scripts/run_strategy_suite.py \
             --selection /tmp/trusted-selection/strategy-targets.json \
+            --model "$CODEX_MODEL" \
             --run-id "${{ steps.invocation.outputs.run_id }}" \
             --run-attempt "${{ steps.invocation.outputs.run_attempt }}"
           SUITE_MANIFEST=$(find records/thesis-analyst/strategy-suites \

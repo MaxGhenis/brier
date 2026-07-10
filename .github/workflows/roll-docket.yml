@@ -18,6 +18,9 @@ on:
       prompt_mode:
         description: "Analyst prompt mode: fast|full|ladder"
         default: "fast"
+      codex_model:
+        description: "Codex model for the analyst (empty = pipeline default)"
+        default: ""
 
 permissions:
   contents: read
@@ -227,6 +230,7 @@ jobs:
         env:
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
           PROMPT_MODE: ${{ github.event.inputs.prompt_mode || 'fast' }}
+          THESIS_CODEX_MODEL: ${{ github.event.inputs.codex_model || '' }}
         run: |
           set -euo pipefail
           python3 scripts/run_thesis_batch.py \
