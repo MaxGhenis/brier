@@ -247,10 +247,34 @@ def _validate_suite_shape(
     medians = lanes["median3"]
     if not isinstance(rollouts, list) or not isinstance(medians, list):
         raise StrategyPublicationError("suite rollout and median lanes must be lists")
+    expected_ladder_mode = str(
+        (selection.get("request") or {}).get("ladderPromptMode") or "ladder"
+    )
+    if expected_ladder_mode not in {"ladder", "ladder_v2"}:
+        raise StrategyPublicationError(
+            "trusted selection carries an unsupported ladder prompt mode"
+        )
     if suite_name in {"ladder", "both"}:
-        if not isinstance(ladder, dict) or set(ladder) != {"batchManifest"}:
+        # The lane may record its promptMode (suite runners do from
+        # ladder_v2 on); when recorded it must equal the TRUSTED selection's
+        # mode, and a non-default trusted mode requires the recording — a
+        # bare lane under a ladder_v2 selection means the runner ignored
+        # the requested contract.
+        if not isinstance(ladder, dict) or set(ladder) not in (
+            {"batchManifest"},
+            {"batchManifest", "promptMode"},
+        ):
             raise StrategyPublicationError(
                 "ladder suite lacks its exact batch manifest"
+            )
+        recorded_mode = ladder.get("promptMode")
+        if recorded_mode is not None and recorded_mode != expected_ladder_mode:
+            raise StrategyPublicationError(
+                "ladder lane prompt mode differs from trusted selection"
+            )
+        if recorded_mode is None and expected_ladder_mode != "ladder":
+            raise StrategyPublicationError(
+                "ladder lane does not record the trusted non-default prompt mode"
             )
         _require_invocation_batch(
             ladder["batchManifest"], selection, f"{invocation}-ladder.json"
@@ -498,7 +522,7 @@ def _validate_analyst_result(
             raise StrategyPublicationError(
                 "trusted validator disagrees with run status"
             )
-        if expected_ok and prompt_mode == "ladder":
+        if expected_ok and prompt_mode in {"ladder", "ladder_v2"}:
             review = manifest.get("preSubmitReview")
             if not isinstance(review, dict) or review.get("status") != "completed":
                 raise StrategyPublicationError(
@@ -726,6 +750,9 @@ def validate_tree(
     exact = {suite_relative}
     prefixes: set[pathlib.PurePosixPath] = set()
     finishes: list[dt.datetime] = []
+    expected_ladder_mode = str(
+        (selection.get("request") or {}).get("ladderPromptMode") or "ladder"
+    )
     if ladder:
         relative = _batch_relative(ladder["batchManifest"])
         exact.add(relative)
@@ -733,7 +760,7 @@ def validate_tree(
             repo,
             relative,
             targets_by_slug,
-            prompt_mode="ladder",
+            prompt_mode=expected_ladder_mode,
             lower=lower,
             upper=upper,
         )

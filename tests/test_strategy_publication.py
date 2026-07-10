@@ -410,3 +410,61 @@ def test_cell_resolver_equality_does_not_require_resolution_policy():
     cell["resolutionDate"] = "2030-02-16"
     with pytest.raises(publication.StrategyPublicationError, match="resolutionDate"):
         publication._resolver_equal(cell, trusted)
+
+
+def test_ladder_lane_prompt_mode_binds_to_trusted_selection(
+    tmp_path: pathlib.Path,
+) -> None:
+    selection_path = write_selection(tmp_path)
+    selection = json.loads(selection_path.read_text())
+    slug_map = {target()["catalogSlug"]: target()}
+
+    # A recorded lane mode that matches the trusted default passes shape.
+    suite = suite_payload(selection_path)
+    suite["lanes"]["ladder"]["promptMode"] = "ladder"
+    publication._validate_suite_shape(
+        suite, SUITE, selection, selection_path, slug_map
+    )
+
+    # A recorded mode differing from the trusted selection fails closed.
+    suite = suite_payload(selection_path)
+    suite["lanes"]["ladder"]["promptMode"] = "ladder_v2"
+    with pytest.raises(
+        publication.StrategyPublicationError,
+        match="differs from trusted selection",
+    ):
+        publication._validate_suite_shape(
+            suite, SUITE, selection, selection_path, slug_map
+        )
+
+    # A ladder_v2 selection demands the lane record its mode...
+    v2_selection = json.loads(selection_path.read_text())
+    v2_selection["request"]["ladderPromptMode"] = "ladder_v2"
+    v2_path = tmp_path / "selection-v2.json"
+    v2_path.write_text(json.dumps(v2_selection, indent=2) + "\n")
+    suite = suite_payload(v2_path)
+    with pytest.raises(
+        publication.StrategyPublicationError,
+        match="does not record the trusted non-default prompt mode",
+    ):
+        publication._validate_suite_shape(
+            suite, SUITE, v2_selection, v2_path, slug_map
+        )
+
+    # ...and passes once it does.
+    suite = suite_payload(v2_path)
+    suite["lanes"]["ladder"]["promptMode"] = "ladder_v2"
+    publication._validate_suite_shape(
+        suite, SUITE, v2_selection, v2_path, slug_map
+    )
+
+    # Unexpected extra lane keys stay rejected.
+    suite = suite_payload(selection_path)
+    suite["lanes"]["ladder"]["extra"] = True
+    with pytest.raises(
+        publication.StrategyPublicationError,
+        match="lacks its exact batch manifest",
+    ):
+        publication._validate_suite_shape(
+            suite, SUITE, selection, selection_path, slug_map
+        )
