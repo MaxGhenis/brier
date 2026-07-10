@@ -62,7 +62,7 @@ def latest_recorded_period(series: str) -> str | None:
             idx = name.find(marker)
             if idx < 0:
                 continue
-            period = name[idx + len(marker):].replace("week-", "week_")
+            period = name[idx + len(marker) :].replace("week-", "week_")
             # A shorter series name can match inside a longer one's dir
             # (eurostat.unemployment_rate vs ...unemployment_rate.belgium);
             # only accept strings that look like periods.
@@ -115,30 +115,51 @@ def not_too_far_ahead(period: str, cadence: str, today: dt.date) -> bool:
     return (int(m.group(1)), int(m.group(2))) <= (today.year, quarter)
 
 
-def live_slugs() -> set[str]:
+def live_catalog() -> tuple[set[str], dict[str, dict]]:
+    """Published slugs and their latest recorded target contract."""
     log = load_thesis_log(LOG_URL)
-    return {link["forecastSlug"] for link in log["resolutionLinks"]}
+    links = {
+        link["forecastSlug"]: link
+        for link in log["resolutionLinks"]
+        if link.get("forecastSlug")
+    }
+    forecasts: dict[str, dict] = {}
+    for entry in log.get("entries", []):
+        if entry.get("kind") != "prediction_recorded":
+            continue
+        slug = entry.get("forecastSlug")
+        if not slug or slug not in links:
+            continue
+        current = forecasts.get(slug)
+        if current is None or str(entry.get("recordedAt") or "") > str(
+            current.get("recordedAt") or ""
+        ):
+            forecasts[slug] = entry
+    for slug, link in links.items():
+        if slug in forecasts and link.get("targetFactRef"):
+            forecasts[slug]["dataPointId"] = link["targetFactRef"]
+    return set(links), forecasts
 
 
 def template_regex(template: str, cadence: str) -> re.Pattern[str]:
     """Invert a registry slug template into a period-extracting regex."""
     escaped = re.escape(template)
     if cadence == "weekly":
-        pattern = escaped.replace(
-            re.escape("{period}"), r"(?P<date>\d{4}-\d{2}-\d{2})"
-        )
+        pattern = escaped.replace(re.escape("{period}"), r"(?P<date>\d{4}-\d{2}-\d{2})")
     elif cadence == "monthly":
-        pattern = escaped.replace(
-            re.escape("{month}"), r"(?P<month>[a-z]+)"
-        ).replace(re.escape("{year}"), r"(?P<year>\d{4})")
+        pattern = escaped.replace(re.escape("{month}"), r"(?P<month>[a-z]+)").replace(
+            re.escape("{year}"), r"(?P<year>\d{4})"
+        )
     else:
-        pattern = escaped.replace(
-            re.escape("q{quarter}"), r"q(?P<quarter>\d)"
-        ).replace(re.escape("{year}"), r"(?P<year>\d{4})")
+        pattern = escaped.replace(re.escape("q{quarter}"), r"q(?P<quarter>\d)").replace(
+            re.escape("{year}"), r"(?P<year>\d{4})"
+        )
     return re.compile(f"^{pattern}$")
 
 
-def latest_published_period(entry: dict, catalog_slugs: set[str]) -> str | None:
+def latest_published_period(
+    entry: dict, catalog_slugs: set[str]
+) -> tuple[str, str] | None:
     """Latest period with a PUBLISHED cell in the live catalog.
 
     The docket cursor advances only past published work: a run that
@@ -147,21 +168,21 @@ def latest_published_period(entry: dict, catalog_slugs: set[str]) -> str | None:
     the public record (review finding F10).
     """
     pattern = template_regex(entry["slug"], entry["cadence"])
-    periods: list[str] = []
+    periods: list[tuple[str, str]] = []
     for slug in catalog_slugs:
         match = pattern.match(slug)
         if not match:
             continue
         if entry["cadence"] == "weekly":
-            periods.append(f"week_{match.group('date')}")
+            periods.append((f"week_{match.group('date')}", slug))
         elif entry["cadence"] == "monthly":
             month_name = match.group("month")
             if month_name not in MONTH_NAMES:
                 continue
             month = MONTH_NAMES.index(month_name)
-            periods.append(f"{match.group('year')}-{month:02d}")
+            periods.append((f"{match.group('year')}-{month:02d}", slug))
         else:
-            periods.append(f"{match.group('year')}-Q{match.group('quarter')}")
+            periods.append((f"{match.group('year')}-Q{match.group('quarter')}", slug))
     if not periods:
         return None
     return max(periods)
@@ -176,17 +197,18 @@ def main() -> int:
     args = parser.parse_args()
 
     registry = json.loads(REGISTRY.read_text())["series"]
-    existing = live_slugs()
+    existing, published_forecasts = live_catalog()
     today = dt.date.today()
 
     candidates: list[tuple[int, str, dict]] = []
     for entry in registry:
         if args.cadence and entry["cadence"] != args.cadence:
             continue
-        latest = latest_published_period(entry, existing)
-        if latest is None:
+        latest_result = latest_published_period(entry, existing)
+        if latest_result is None:
             print(f"  skip {entry['series']}: no published cell to step from")
             continue
+        latest, latest_slug = latest_result
         nxt = step_period(latest, entry["cadence"])
         attempted = latest_recorded_period(entry["series"])
         if attempted is not None and attempted.lower() > latest.lower():
@@ -205,6 +227,23 @@ def main() -> int:
             "catalogSlug": slug,
             **entry.get("extras", {}),
         }
+        previous = published_forecasts.get(latest_slug)
+        if previous:
+            target["previousTarget"] = {
+                key: previous[key]
+                for key in (
+                    "country",
+                    "unit",
+                    "dataPointId",
+                    "resolutionDate",
+                    "resolutionSource",
+                    "resolutionSourceUrl",
+                    "resolutionRule",
+                    "resolutionPolicy",
+                )
+                if previous.get(key) not in (None, "")
+            }
+            target["previousTarget"]["period"] = latest
         priority = 0 if entry["cadence"] == "weekly" else 1
         candidates.append((priority, nxt, target))
 

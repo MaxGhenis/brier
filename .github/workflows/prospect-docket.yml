@@ -103,6 +103,13 @@ jobs:
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           echo "batch=records/thesis-analyst/batches/$DAY/prospect-r${GITHUB_RUN_NUMBER}.json" >> "$GITHUB_OUTPUT"
 
+      - name: Preregister targets before forecasting
+        if: steps.prospect.outputs.count != '0'
+        run: |
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/prospect-targets.json \
+            --date "$(date -u +%F)"
+
       - name: Run the analyst batch
         if: steps.prospect.outputs.count != '0'
         env:
@@ -122,7 +129,8 @@ jobs:
           python3 scripts/docket_publication.py stage \
             --bundle-dir /tmp/docket-publication \
             --batch "$BATCH_MANIFEST" \
-            --allow-path records
+            --allow-path records \
+            --allow-path site/src/data/ledger-targets.generated.ts
 
       - name: Upload generated records and batch manifest
         if: steps.prospect.outputs.count != '0'
@@ -174,6 +182,7 @@ jobs:
             --bundle-dir /tmp/docket-publication \
             --batch "$BATCH_MANIFEST" \
             --allow-path records \
+            --allow-path site/src/data/ledger-targets.generated.ts \
             --apply
 
       - name: Commit run records (before any gate — records are immutable artifacts)
@@ -190,7 +199,7 @@ jobs:
         if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'
         run: |
           set -euo pipefail
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
 
       - name: Push run records
         if: needs.generate.result == 'success' && needs.generate.outputs.count != '0'

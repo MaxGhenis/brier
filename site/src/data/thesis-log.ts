@@ -74,6 +74,18 @@ export interface ObservationRecordedLedgerEntry extends ResolvedOutcome {
   unit: Unit;
   observedAt: string;
   sourceKind: LedgerSourceKind;
+  targetContentHash?: string;
+  ledgerRepoSha?: string;
+  sourceVintage?: string;
+  retrievedAt?: string;
+  responseArchive?: {
+    path: string;
+    sha256: string;
+    bytes: number;
+    gzipSha256: string;
+    gzipBytes: number;
+    contentEncoding: "gzip";
+  };
 }
 
 export interface PredictionRecordedLogEntry {
@@ -321,6 +333,18 @@ interface PolicyEngineAggregateFactRow {
     url?: string;
   };
   source_record_id: string;
+  targetContentHash?: string;
+  ledgerRepoSha?: string;
+  sourceVintage?: string;
+  retrievedAt?: string;
+  responseArchive?: {
+    path: string;
+    sha256: string;
+    bytes: number;
+    gzipSha256: string;
+    gzipBytes: number;
+    contentEncoding: "gzip";
+  };
 }
 
 let policyEngineLedgerPromise: Promise<PolicyEngineLedgerEntry[]> | null = null;
@@ -364,6 +388,11 @@ function mapPolicyEngineAggregateFactToObservation(
     source: formatLedgerSource(fact.source),
     sourceUrl: fact.source.url,
     note: fact.measure.concept_evidence_notes,
+    targetContentHash: fact.targetContentHash,
+    ledgerRepoSha: fact.ledgerRepoSha,
+    sourceVintage: fact.sourceVintage,
+    retrievedAt: fact.retrievedAt,
+    responseArchive: fact.responseArchive,
   };
 }
 
@@ -607,11 +636,16 @@ export function getResolvedObservationForForecast(
   );
   if (observations.length === 0) return undefined;
 
-  return [...observations].sort((a, b) =>
-    a.observedAt === b.observedAt
-      ? b.observationId.localeCompare(a.observationId)
-      : b.observedAt.localeCompare(a.observedAt),
-  )[0];
+  return [...observations].sort(compareFirstPrintObservations)[0];
+}
+
+function compareFirstPrintObservations(
+  left: ObservationRecordedLedgerEntry,
+  right: ObservationRecordedLedgerEntry,
+): number {
+  return left.observedAt === right.observedAt
+    ? left.observationId.localeCompare(right.observationId)
+    : left.observedAt.localeCompare(right.observedAt);
 }
 
 function buildPredictionResolvedLogEntry(
@@ -1035,7 +1069,8 @@ export function getObservationForId(
 ): ObservationRecordedLedgerEntry | undefined {
   return ledger
     .filter(isObservationRecordedLedgerEntry)
-    .find((entry) => entry.observationId === observationId);
+    .filter((entry) => entry.observationId === observationId)
+    .sort(compareFirstPrintObservations)[0];
 }
 
 export function getObservationsForDataPoint(
