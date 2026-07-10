@@ -1,0 +1,21 @@
+{
+  "summary": "The draft is publishable after tightening the model-prior explanation and strengthening the volatility basis for the interval.",
+  "requiredFixes": [
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft uses a four-observation persistence prior but does not explicitly state whether a broader time-series/model prior was used or ruled out.",
+      "actionRequested": "Add one sentence saying either that no longer-history time-series model was used and why, or include a simple longer historical prior for this exact MoM series."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is based on only four observations, mixing one year-ago value with recent months, so the realized-volatility basis is thin.",
+      "actionRequested": "Either compute dispersion from a longer BLS history for the same one-decimal MoM target or explicitly label the four-point sigma as a deliberately conservative/limited sample and justify why it is adequate."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the resolver text, keep the exact row wording but also mention that the value is in percent, one decimal, seasonally adjusted.",
+    "Clarify that the June 2026 nominal AHE evidence was already public as of runAt and is not part of the unresolved July target."
+  ]
+}

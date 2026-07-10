@@ -1,0 +1,1223 @@
+[
+  {
+    "slug": "australia-unemployment-rate-july-2026",
+    "country": "AU",
+    "type": "data",
+    "title": "Australia unemployment rate, July 2026",
+    "question": "What will the Australian Bureau of Statistics seasonally adjusted unemployment rate for Australia be for July 2026 in the first print of Labour Force, Australia?",
+    "unit": "percent",
+    "pointEstimate": 4.5,
+    "ciLow": 4.3,
+    "ciHigh": 4.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-20",
+    "resolutionSource": "Australian Bureau of Statistics Labour Force, Australia, July 2026",
+    "resolutionSourceUrl": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+    "resolutionRule": "Resolve to the ABS national seasonally adjusted unemployment rate, in percent, for reference period July 2026 as first published in Labour Force, Australia, July 2026. Use the first public print rounded to one decimal percent and ignore later revisions or corrections.",
+    "dataPointId": "abs.labour.unemployment_rate.australia.july_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "Feb 2026 seasonally adjusted unemployment rate",
+        "value": 4.3
+      },
+      {
+        "label": "Mar 2026 seasonally adjusted unemployment rate",
+        "value": 4.3
+      },
+      {
+        "label": "Apr 2026 seasonally adjusted unemployment rate",
+        "value": 4.5
+      },
+      {
+        "label": "May 2026 seasonally adjusted unemployment rate",
+        "value": 4.4
+      },
+      {
+        "label": "May 2026 trend unemployment rate",
+        "value": 4.4
+      }
+    ],
+    "drivers": [
+      "Latest ABS first-print unemployment rate was 4.4% in May 2026 after 4.5% in April",
+      "Trend unemployment rate had edged up to 4.4% by May 2026",
+      "May employment rose 40,300 and unemployed people fell 18,300, limiting near-term upside",
+      "July survey reference period runs 28 June to 11 July, so it was still partly in progress at run time on 2026-07-10",
+      "Monthly unemployment prints have recently moved by about 0.13 percentage points per month"
+    ],
+    "sourceContext": [
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/latest-release",
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia",
+      "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jul-2025"
+    ],
+    "runAt": "2026-07-10T04:43:56Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Australia July 2026 unemployment first-print forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The resolver is the ABS Labour Force, Australia national unemployment rate, seasonally adjusted variant, for July 2026. The relevant ABS graph table is the unemployment-rate table with columns Trend (%) and Seasonally adjusted (%); all anchors below use the seasonally adjusted national rate unless explicitly labelled trend."
+      },
+      {
+        "kind": "text",
+        "text": "Ledger check: the canonical sourceBinding.table label says Labour Force, Australia, June 2026, but the slug, dataPointId, expected release window, official schedule, and resolver identify the July 2026 first-print unemployment-rate target. I treat the table-month label as a ledger typo and keep the forecast tied to the July 2026 first print."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened ABS Labour Force, Australia latest release page for reference period, latest print, headline statistics, future release dates, and survey dates.",
+        "result": "Fetched latest release reference period May 2026, released 25/06/2026; seasonally adjusted unemployment rate 4.4%, down 0.1 ppts from April 2026 at 4.5%; unemployed people 671,300, down 18,300; employed people 14,738,800, up 40,300."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened ABS Labour Force, Australia all-releases page to verify the official release schedule for the target month.",
+        "result": "Fetched future release schedule: Labour Force, Australia, June 2026 release date 23/07/2026 11:30am AEST; July 2026 release date 20/08/2026 11:30am AEST; August 2026 release date 24/09/2026 11:30am AEST."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the ABS unemployment-rate history table on the latest Labour Force release page.",
+        "result": "Fetched recent seasonally adjusted unemployment-rate prints: Feb 2026 4.3%, Mar 2026 4.3%, Apr 2026 4.5%, May 2026 4.4%; also Sep 2025 4.5%, Oct 2025 4.3%, Nov 2025 4.3%, Dec 2025 4.1%, Jan 2026 4.1%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read ABS survey timing rows for the July 2026 Labour Force collection.",
+        "result": "Fetched July 2026 survey timing: reference week starts 28 June 2026 and ends 11 July 2026; enumeration starts 5 July 2026 and ends 25 July 2026; May 2026 collection ran 3 May to 16 May with enumeration 10 May to 30 May."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: for a short-horizon national unemployment-rate forecast, the base rate is persistence from the latest official seasonally adjusted ABS print, with recent monthly changes providing the dispersion. The latest level is 4.4%, the trend estimate is also 4.4%, and the recent sequence has more upward than downward drift from late 2025 into May 2026, so I center slightly above May rather than exactly at 4.4%."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = latest ABS seasonally adjusted unemployment rate of 4.4%; historical sample = rounded monthly ABS seasonally adjusted rates from Jun 2024 through May 2026, using successive changes for the level/rate series; adjustment components = +0.05 ppt level/momentum from trend rising to 4.4 and April-May staying high, +0.03 ppt two-month horizon drift, -0.02 ppt from May employment strength, net +0.06 ppt, giving 4.46 rounded to a 4.5% point. Monthly-change sigma from the 23 successive rounded changes is about 0.13 ppt; two-month horizon sigma = sqrt(2)*0.13 = 0.18, so sigma = 0.18 and 80% half-width = 1.28*0.18 = 0.23 ppt. Applying that to 4.46 gives 4.23 to 4.69, rounded to a one-decimal-compatible 4.3% to 4.7% interval."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a weak June print followed by July job losses or a participation rebound that would lift unemployment to 4.8% or higher and land above the interval. Downside risk is another strong employment month with lower participation that would push the first print to 4.2% or lower and land below the interval. Outside the interval would likely require two same-direction monthly surprises rather than ordinary one-month noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by explicitly flagging the June-vs-July ledger table-label discrepancy while preserving the July 2026 first-print target; accepted the timing clarification that the July reference week was still partly in progress at run time. Rejected adding a full volatility sample because the existing fetched history and sigma arithmetic are sufficient for this fast public-release record."
+      },
+      {
+        "kind": "forecast",
+        "point": 4.5,
+        "ciLow": 4.3,
+        "ciHigh": 4.7
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T04:42:06Z",
+    "runStartedAt": "2026-07-10T04:41:48Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 4.0,
+        "upper": 5.0
+      },
+      "points": [
+        {
+          "value": 4.0,
+          "probability": 0.0
+        },
+        {
+          "value": 4.005,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 4.01,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 4.015,
+          "probability": 0.005
+        },
+        {
+          "value": 4.02,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 4.025,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 4.03,
+          "probability": 0.01
+        },
+        {
+          "value": 4.035,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 4.04,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 4.045,
+          "probability": 0.015
+        },
+        {
+          "value": 4.05,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 4.055,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 4.06,
+          "probability": 0.02
+        },
+        {
+          "value": 4.065,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 4.07,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 4.075,
+          "probability": 0.025
+        },
+        {
+          "value": 4.08,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 4.085,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 4.09,
+          "probability": 0.03
+        },
+        {
+          "value": 4.095,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 4.1,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 4.105,
+          "probability": 0.035
+        },
+        {
+          "value": 4.11,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 4.115,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 4.12,
+          "probability": 0.04
+        },
+        {
+          "value": 4.125,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 4.13,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 4.135,
+          "probability": 0.045
+        },
+        {
+          "value": 4.14,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 4.145,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 4.15,
+          "probability": 0.05
+        },
+        {
+          "value": 4.155,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 4.16,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 4.165,
+          "probability": 0.055
+        },
+        {
+          "value": 4.17,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 4.175,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 4.18,
+          "probability": 0.06
+        },
+        {
+          "value": 4.185,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 4.19,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 4.195,
+          "probability": 0.065
+        },
+        {
+          "value": 4.2,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 4.205,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 4.21,
+          "probability": 0.07
+        },
+        {
+          "value": 4.215,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 4.22,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 4.225,
+          "probability": 0.075
+        },
+        {
+          "value": 4.23,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 4.235,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 4.24,
+          "probability": 0.08
+        },
+        {
+          "value": 4.245,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 4.25,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 4.255,
+          "probability": 0.085
+        },
+        {
+          "value": 4.26,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 4.265,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 4.27,
+          "probability": 0.09
+        },
+        {
+          "value": 4.275,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 4.28,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 4.285,
+          "probability": 0.095
+        },
+        {
+          "value": 4.29,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 4.295,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 4.3,
+          "probability": 0.1
+        },
+        {
+          "value": 4.305,
+          "probability": 0.11
+        },
+        {
+          "value": 4.31,
+          "probability": 0.12
+        },
+        {
+          "value": 4.315,
+          "probability": 0.13
+        },
+        {
+          "value": 4.32,
+          "probability": 0.14
+        },
+        {
+          "value": 4.325,
+          "probability": 0.15
+        },
+        {
+          "value": 4.33,
+          "probability": 0.16
+        },
+        {
+          "value": 4.335,
+          "probability": 0.17
+        },
+        {
+          "value": 4.34,
+          "probability": 0.18
+        },
+        {
+          "value": 4.345,
+          "probability": 0.19
+        },
+        {
+          "value": 4.35,
+          "probability": 0.2
+        },
+        {
+          "value": 4.355,
+          "probability": 0.21
+        },
+        {
+          "value": 4.36,
+          "probability": 0.22
+        },
+        {
+          "value": 4.365,
+          "probability": 0.23
+        },
+        {
+          "value": 4.37,
+          "probability": 0.24
+        },
+        {
+          "value": 4.375,
+          "probability": 0.25
+        },
+        {
+          "value": 4.38,
+          "probability": 0.26
+        },
+        {
+          "value": 4.385,
+          "probability": 0.27
+        },
+        {
+          "value": 4.39,
+          "probability": 0.28
+        },
+        {
+          "value": 4.395,
+          "probability": 0.29
+        },
+        {
+          "value": 4.4,
+          "probability": 0.3
+        },
+        {
+          "value": 4.405,
+          "probability": 0.31
+        },
+        {
+          "value": 4.41,
+          "probability": 0.32
+        },
+        {
+          "value": 4.415,
+          "probability": 0.33
+        },
+        {
+          "value": 4.42,
+          "probability": 0.34
+        },
+        {
+          "value": 4.425,
+          "probability": 0.35
+        },
+        {
+          "value": 4.43,
+          "probability": 0.36
+        },
+        {
+          "value": 4.435,
+          "probability": 0.37
+        },
+        {
+          "value": 4.44,
+          "probability": 0.38
+        },
+        {
+          "value": 4.445,
+          "probability": 0.39
+        },
+        {
+          "value": 4.45,
+          "probability": 0.4
+        },
+        {
+          "value": 4.455,
+          "probability": 0.41
+        },
+        {
+          "value": 4.46,
+          "probability": 0.42
+        },
+        {
+          "value": 4.465,
+          "probability": 0.43
+        },
+        {
+          "value": 4.47,
+          "probability": 0.44
+        },
+        {
+          "value": 4.475,
+          "probability": 0.45
+        },
+        {
+          "value": 4.48,
+          "probability": 0.46
+        },
+        {
+          "value": 4.485,
+          "probability": 0.47
+        },
+        {
+          "value": 4.49,
+          "probability": 0.48
+        },
+        {
+          "value": 4.495,
+          "probability": 0.49
+        },
+        {
+          "value": 4.5,
+          "probability": 0.5
+        },
+        {
+          "value": 4.505,
+          "probability": 0.51
+        },
+        {
+          "value": 4.51,
+          "probability": 0.52
+        },
+        {
+          "value": 4.515,
+          "probability": 0.53
+        },
+        {
+          "value": 4.52,
+          "probability": 0.54
+        },
+        {
+          "value": 4.525,
+          "probability": 0.55
+        },
+        {
+          "value": 4.53,
+          "probability": 0.56
+        },
+        {
+          "value": 4.535,
+          "probability": 0.57
+        },
+        {
+          "value": 4.54,
+          "probability": 0.58
+        },
+        {
+          "value": 4.545,
+          "probability": 0.59
+        },
+        {
+          "value": 4.55,
+          "probability": 0.6
+        },
+        {
+          "value": 4.555,
+          "probability": 0.61
+        },
+        {
+          "value": 4.56,
+          "probability": 0.62
+        },
+        {
+          "value": 4.565,
+          "probability": 0.63
+        },
+        {
+          "value": 4.57,
+          "probability": 0.64
+        },
+        {
+          "value": 4.575,
+          "probability": 0.65
+        },
+        {
+          "value": 4.58,
+          "probability": 0.66
+        },
+        {
+          "value": 4.585,
+          "probability": 0.67
+        },
+        {
+          "value": 4.59,
+          "probability": 0.68
+        },
+        {
+          "value": 4.595,
+          "probability": 0.69
+        },
+        {
+          "value": 4.6,
+          "probability": 0.7
+        },
+        {
+          "value": 4.605,
+          "probability": 0.71
+        },
+        {
+          "value": 4.61,
+          "probability": 0.72
+        },
+        {
+          "value": 4.615,
+          "probability": 0.73
+        },
+        {
+          "value": 4.62,
+          "probability": 0.74
+        },
+        {
+          "value": 4.625,
+          "probability": 0.75
+        },
+        {
+          "value": 4.63,
+          "probability": 0.76
+        },
+        {
+          "value": 4.635,
+          "probability": 0.77
+        },
+        {
+          "value": 4.64,
+          "probability": 0.78
+        },
+        {
+          "value": 4.645,
+          "probability": 0.79
+        },
+        {
+          "value": 4.65,
+          "probability": 0.8
+        },
+        {
+          "value": 4.655,
+          "probability": 0.81
+        },
+        {
+          "value": 4.66,
+          "probability": 0.82
+        },
+        {
+          "value": 4.665,
+          "probability": 0.83
+        },
+        {
+          "value": 4.67,
+          "probability": 0.84
+        },
+        {
+          "value": 4.675,
+          "probability": 0.85
+        },
+        {
+          "value": 4.68,
+          "probability": 0.86
+        },
+        {
+          "value": 4.685,
+          "probability": 0.87
+        },
+        {
+          "value": 4.69,
+          "probability": 0.88
+        },
+        {
+          "value": 4.695,
+          "probability": 0.89
+        },
+        {
+          "value": 4.7,
+          "probability": 0.9
+        },
+        {
+          "value": 4.705,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 4.71,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 4.715,
+          "probability": 0.905
+        },
+        {
+          "value": 4.72,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 4.725,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 4.73,
+          "probability": 0.91
+        },
+        {
+          "value": 4.735,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 4.74,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 4.745,
+          "probability": 0.915
+        },
+        {
+          "value": 4.75,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 4.755,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 4.76,
+          "probability": 0.92
+        },
+        {
+          "value": 4.765,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 4.77,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 4.775,
+          "probability": 0.925
+        },
+        {
+          "value": 4.78,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 4.785,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 4.79,
+          "probability": 0.93
+        },
+        {
+          "value": 4.795,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 4.8,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 4.805,
+          "probability": 0.935
+        },
+        {
+          "value": 4.81,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 4.815,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 4.82,
+          "probability": 0.94
+        },
+        {
+          "value": 4.825,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 4.83,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 4.835,
+          "probability": 0.945
+        },
+        {
+          "value": 4.84,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 4.845,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 4.85,
+          "probability": 0.95
+        },
+        {
+          "value": 4.855,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 4.86,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 4.865,
+          "probability": 0.955
+        },
+        {
+          "value": 4.87,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 4.875,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 4.88,
+          "probability": 0.96
+        },
+        {
+          "value": 4.885,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 4.89,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 4.895,
+          "probability": 0.965
+        },
+        {
+          "value": 4.9,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 4.905,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 4.91,
+          "probability": 0.97
+        },
+        {
+          "value": 4.915,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 4.92,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 4.925,
+          "probability": 0.975
+        },
+        {
+          "value": 4.93,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 4.935,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 4.94,
+          "probability": 0.98
+        },
+        {
+          "value": 4.945,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 4.95,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 4.955,
+          "probability": 0.985
+        },
+        {
+          "value": 4.96,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 4.965,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 4.97,
+          "probability": 0.99
+        },
+        {
+          "value": 4.975,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 4.98,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 4.985,
+          "probability": 0.995
+        },
+        {
+          "value": 4.99,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 4.995,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 5.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 4.5,
+        "median": 4.5,
+        "interval80": {
+          "lower": 4.3,
+          "upper": 4.7
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/prompt.md",
+        "sha256": "a8d408690cbd533bda01620aa1c7afdc197f26b6f3739e6d329028d4ef16e57e",
+        "bytes": 8527,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_command.json",
+        "sha256": "a5e051438e87184d5468c517f98cc8a062a93078ebb9ab0d78315da6691925e6",
+        "bytes": 681,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "a5dbf8c218a97125e2b90c612d39b652a54ea56f7627fdb32b5c459b1d963fd5",
+        "bytes": 14203,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_stderr.log",
+        "sha256": "d87d6f9310de8baee053d982617c5a5ab5582cc3c28ac49baff5947e302a842a",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_events.jsonl",
+        "sha256": "8ae5d5d87821a17ec20c86366047a667bc34b672447f4f34e63776cab253fec9",
+        "bytes": 14167,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_last_message.txt",
+        "sha256": "4ed8e1194ed297c82f5e246727d58324292861fa7deaad166ba9f82b28ea873d",
+        "bytes": 5917,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_codex_trace.json",
+        "sha256": "9325e3608bf0a27229b8717bcf6d62db6110bc313db8b36f7827930375ad1ac7",
+        "bytes": 508,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_stdout.txt",
+        "sha256": "4ed8e1194ed297c82f5e246727d58324292861fa7deaad166ba9f82b28ea873d",
+        "bytes": 5917,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_stderr.txt",
+        "sha256": "c02da6f65a38de6990a1bbe7cff9762bb4df77891d173a852d152c16ba28d359",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_prompt.md",
+        "sha256": "22b8df0bfc3d5381cd2080076deacd09f4eed358795f4bac14b1103af949145d",
+        "bytes": 8716,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_command.json",
+        "sha256": "09933dd7b37c87532c019928e57400e8a8e27ef30845ca4b724f983657ed5a54",
+        "bytes": 677,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "c49c9200936dfd1f2c3f4bd76e7087feacb634d804af943d410b6ca0e2f48338",
+        "bytes": 1243,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "c34bc05a61c1f07b3cb6ca883fbba5081a16f4618ddfece24c8076a88bcf0a37",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "22a961cd4b631f384471dc44b9c71665a0f6759bb66dad773f9a49e6373eb956",
+        "bytes": 1265,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "44e09800a5a3b14ef3705550789d4e0911352306b7c286e31be9b7c02ba33174",
+        "bytes": 893,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "ef5d23d725108f5eae8945fdd2e78be1e205a7b01803a58948204ed3671be2d8",
+        "bytes": 505,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "44e09800a5a3b14ef3705550789d4e0911352306b7c286e31be9b7c02ba33174",
+        "bytes": 893,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "13c0eb287dcb56feb92c629cf6d3b5b3d5684d4823f9014cc0b19968127e50b1",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/revision_prompt.md",
+        "sha256": "5790d22da8ff5ed2dea8674479b693d71c87bad07b0e20d4776c93c7bb9fdd39",
+        "bytes": 16273,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/command.json",
+        "sha256": "64ac93868f9de2f0d564c83cad717d7f7aab7333e7ea2636f1dfcea8fa546e6b",
+        "bytes": 675,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_stdout.jsonl",
+        "sha256": "4051a63c9384ff0fae25a3153eba9743265e2cc16b9989fb0547f30fdbf47882",
+        "bytes": 7303,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_stderr.log",
+        "sha256": "75cafb352cd8cb3c276afc99a47825e59dc7f2b69e3a2028943f61058d9f5894",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_events.jsonl",
+        "sha256": "cb215e42813c10fae4ad188935f349e9cf5fd387788eb94b349053a354b2f41e",
+        "bytes": 7325,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_last_message.txt",
+        "sha256": "49b8ca870144df02c7e3caf151aa5820fbf193052053f19e130135b8a09bbb01",
+        "bytes": 6749,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/codex_trace.json",
+        "sha256": "210db855e4ad5f05256cf24119395b8f692f73546b1a87b267a4d1492de9439c",
+        "bytes": 500,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/stdout.txt",
+        "sha256": "49b8ca870144df02c7e3caf151aa5820fbf193052053f19e130135b8a09bbb01",
+        "bytes": 6749,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/stderr.txt",
+        "sha256": "a61ce4a6abece846c6c88bf46276e350ab3e70883f9c229082fd3761d1beeb3d",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/raw_response.txt",
+        "sha256": "49b8ca870144df02c7e3caf151aa5820fbf193052053f19e130135b8a09bbb01",
+        "bytes": 6749,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/parsed_cells.json",
+        "sha256": "127461f7e20b1d0864eecd1db534b12c0fa8c830a3c9134a9e157f6c7ed73635",
+        "bytes": 7632,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/normalized_cells.json",
+        "sha256": "89548f2c7a511561e747697df7c08418a77754cb01b31f575ac80791cf0bd37c",
+        "bytes": 24388,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/distribution.json",
+        "sha256": "eab13e7a0d14ccd7a85b4a90702ac533fb013c318b09343692d86e3bdb595e54",
+        "bytes": 13338,
+        "createdAt": "2026-07-10T04:41:48Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/validation.json",
+        "sha256": "d992a16dab74b06a17a0cd445657f234aeced7707f83e5b2b4275384e72e08a6",
+        "bytes": 138,
+        "createdAt": "2026-07-10T04:41:48Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T04:41:48Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "2f0c5131321c2e9af6d91931f6b1fabf187bd63b4b6903ffd3ab650642c400c5"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-41-48z-abs-labour-unemployment-rate-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "Canonical sourceBinding.table says \"Labour Force, Australia, June 2026\" while the target, dataPointId, release schedule, and draft resolver all point to July 2026 first print.",
+          "actionRequested": "Add a brief reasoning note that the ledger table label appears to be a month typo and that the forecast remains tied to the July 2026 first-print unemployment-rate target."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that the July reference week was still in progress at run time on 2026-07-10, so the outcome was only partly fixed rather than fully observed."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "If space allows, show or cite the full Jun 2024-May 2026 monthly-change sample behind the 0.13 ppt volatility estimate."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by explicitly flagging the June-vs-July ledger table-label discrepancy while preserving the July 2026 first-print target; accepted the timing clarification that the July reference week was still partly in progress at run time. Rejected adding a full volatility sample because the existing fetched history and sigma arithmetic are sufficient for this fast public-release record.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by explicitly flagging the June-vs-July ledger table-label discrepancy while preserving the July 2026 first-print target; accepted the timing clarification that the July reference week was still partly in progress at run time. Rejected adding a full volatility sample because the existing fetched history and sigma arithmetic are sufficient for this fast public-release record.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by explicitly flagging the June-vs-July ledger table-label discrepancy while preserving the July 2026 first-print target; accepted the timing clarification that the July reference week was still partly in progress at run time. Rejected adding a full volatility sample because the existing fetched history and sigma arithmetic are sufficient for this fast public-release record.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publication-ready, but it should explicitly flag the ledger/sourceBinding table-month discrepancy before publication."
+    }
+  }
+]

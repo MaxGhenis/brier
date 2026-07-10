@@ -1,0 +1,117 @@
+[
+  {
+    "slug": "us-real-avg-hourly-earnings-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US real average hourly earnings MoM, July 2026",
+    "question": "What will BLS first print as the July 2026 over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, seasonally adjusted, in Real Earnings Table A-1?",
+    "unit": "percent",
+    "pointEstimate": -0.1,
+    "ciLow": -0.7,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+    "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 print for July 2026, row 'Real average hourly earnings' under 'OVER-THE-MONTH PERCENT CHANGE' for all employees on private nonfarm payrolls, seasonally adjusted. Use the one-decimal percent value published in the initial August 12, 2026 release and ignore later revisions.",
+    "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 first/current BLS table print",
+        "value": -0.1
+      },
+      {
+        "label": "April 2026 BLS table value",
+        "value": -0.5
+      },
+      {
+        "label": "March 2026 BLS table value",
+        "value": -0.6
+      },
+      {
+        "label": "May 2025 BLS table value",
+        "value": 0.4
+      }
+    ],
+    "drivers": [
+      "July nominal average hourly earnings likely near recent 0.3 percent pace",
+      "July CPI-U monthly inflation likely still firm but less energy-spike-heavy than May",
+      "Real earnings MoM is approximately nominal hourly earnings growth minus CPI-U inflation",
+      "Recent real hourly earnings prints are negative because CPI inflation has outpaced wage gains"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/realer.htm",
+      "https://www.bls.gov/news.release/realer.t01.htm",
+      "https://www.bls.gov/news.release/empsit.t19.htm",
+      "https://www.bls.gov/news.release/cpi.t01.htm",
+      "https://fred.stlouisfed.org/series/CES0500000003"
+    ],
+    "runAt": "2026-07-10T04:30:50Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for July 2026 BLS real average hourly earnings MoM"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the BLS Real Earnings Table A-1 seasonally adjusted all-employees private nonfarm payrolls real average hourly earnings over-the-month percent change, in percent and rounded to one decimal, not production-worker earnings, not weekly earnings, and not a later revised database value."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS Schedule of Releases for Real Earnings.",
+        "result": "Fetched official release date: reference month July 2026 is scheduled for Aug. 12, 2026 at 08:30 AM; June 2026 is scheduled for Jul. 14, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS Real Earnings Table A-1 current table.",
+        "result": "Fetched target-series recent values: real average hourly earnings MoM percent changes were May 2025 0.4, March 2026 -0.6, April 2026 -0.5, and May 2026 -0.1; May 2026 real average hourly earnings level was $11.24, CPI-U was 333.979, and average hourly earnings were $37.53."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS Employment Situation Table B-3 for nominal hourly earnings.",
+        "result": "Fetched nominal average hourly earnings for total private: April 2026 $37.41, May 2026 $37.51, June 2026 $37.64; June 2026 average weekly earnings were $1,291.05, and this June evidence was public before the July real-earnings target resolves."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened BLS CPI Table 1 for all-items CPI-U and components.",
+        "result": "Fetched CPI-U all-items seasonally adjusted percent changes: February to March 2026 0.9, March to April 2026 0.6, April to May 2026 0.5; May 2026 core CPI was 0.2 and energy was 3.9."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Opened FRED mirror page for BLS series CES0500000003 to cross-check recent nominal hourly earnings history.",
+        "result": "Fetched mirror values sourced to BLS: June 2026 37.64, May 2026 37.51, April 2026 37.41, March 2026 37.35, February 2026 37.27; page updated Jul. 2, 2026 at 8:33 AM CDT."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: for this change/flow target, the latest official Real Earnings table gives a small recent reference class of MoM real hourly earnings values [0.4, -0.6, -0.5, -0.1]. Its mean is about -0.2 percent, and the newest print improved from -0.5 to -0.1 as wage growth partly offset CPI pressure."
+      },
+      {
+        "kind": "text",
+        "text": "Component view: July nominal hourly earnings has a stable recent anchor around 0.3 percent because May and June nominal AHE each rose about 0.3 percent. CPI is the swing factor: May all-items CPI was 0.5 percent with energy up 3.9 percent, while core was only 0.2 percent, so a July CPI print around 0.35 to 0.40 percent would imply roughly flat to slightly negative real hourly earnings."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the recent official BLS Table A-1 real-AHE MoM reference class [0.4, -0.6, -0.5, -0.1], mean = -0.2. No longer-history time-series model was used because this fast run only fetched the current official table for the exact first-print-style Table A-1 target; the four-point sigma is therefore a deliberately limited but conservative recent-regime dispersion estimate that includes both current negative prints and the prior-year positive print. Adjustment components are +0.1 for steadier nominal AHE near 0.3, +0.0 for still-firm CPI after the May energy shock, giving point = -0.1. Interval method uses sample dispersion of the fetched change values themselves: sigma = 0.45, so 80% half-width is about 1.28*sigma = 0.58; point -0.1 plus/minus 0.58 gives -0.68 to 0.48, rounded to -0.7 to 0.5."
+      },
+      {
+        "kind": "text",
+        "text": "Risks: upside risk is a soft July CPI print near 0.0 to 0.1 with wages still near 0.3, which would land above the interval if real earnings printed above 0.5. Downside risk is another gasoline or tariff-driven CPI jump near 0.9 with wages near 0.2, which would land below the interval. An outside the interval result would most likely require a large energy-price move or an unusual composition-driven wage print."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer fixes by clarifying that no longer-history model was used in this fast run, labeling the four-observation sigma as a deliberately limited recent-regime estimate, and tightening resolver wording to specify percent, one decimal, and seasonally adjusted; no forecast number changed."
+      },
+      {
+        "kind": "forecast",
+        "point": -0.1,
+        "ciLow": -0.7,
+        "ciHigh": 0.5
+      }
+    ]
+  }
+]

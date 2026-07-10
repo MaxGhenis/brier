@@ -1,0 +1,27 @@
+{
+  "summary": "Publishable after warnings are addressed: the forecast is coherent and well traced, but the resolver URL and size of the policy adjustment need tightening.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "resolutionSourceUrl points to the current PDF rather than the canonical ledger sourceUrl for the SNAP data tables page.",
+      "actionRequested": "Use the canonical FNS SNAP data tables page as the resolver URL, and keep the PDF/table name in the resolver text if needed."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "the -1.1 million policy-mechanism adjustment is material but only loosely tied to cited evidence and implementation timing by May 2026.",
+      "actionRequested": "Add one sentence connecting the adjustment to concrete policy effective dates, affected groups, or explain why the CBO decade-scale estimate justifies a spring-2026 movement of this size."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "the compact step has the right ingredients, but the base-rate prior appears after several evidence/tool notes rather than clearly before inside-view updates.",
+      "actionRequested": "Reorder or relabel the compact step so the persistence/base-rate prior is stated first, followed by the policy and reporting adjustments."
+    }
+  ],
+  "optionalSuggestions": [
+    "State explicitly that the 37.15-39.25 interval is an 80% interval to match confidence.",
+    "Clarify whether the target table is expected to print raw persons or thousands, while preserving the existing conversion rule for either case."
+  ]
+}

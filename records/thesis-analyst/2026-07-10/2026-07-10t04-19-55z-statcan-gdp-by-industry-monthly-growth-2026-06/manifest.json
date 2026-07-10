@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T04:19:55Z",
+  "series": "statcan.gdp_by_industry.monthly_growth",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "canada-monthly-gdp-growth-june-2026",
+    "dataPointId": "statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-06.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T00:00:00Z",
+    "registrationState": "preregistered",
+    "series": "statcan.gdp_by_industry.monthly_growth",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www150.statcan.gc.ca"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-04",
+        "start": "2026-08-27"
+      },
+      "field": "statcan.gdp_by_industry.monthly_growth",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "statcan.gdp_by_industry.monthly_growth",
+      "sourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043401",
+      "table": "Statistics Canada The Daily release and Table 36-10-0434-01",
+      "transform": {
+        "factor": 1.0,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279",
+    "targetRegistrationPath": "records/targets/2026-07-10-e4d03ea8e19f087e9b0fa5aa3d9d383f37dec65bd1f08792d781e21a09cd6279.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1.0
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T04:19:55Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "13bee7d475ee648f96ebaf2196fba26c57882bd49737d5f2ad02afbdfad1e5be"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The stated 8-point base-rate sample includes the 2026-05 advance estimate, then the update also adds a positive adjustment for the same May advance/services momentum, which could read as partial double-counting rather than a clean prior-before-update structure.",
+        "actionRequested": "Clarify whether the May advance is part of the prior sample or an inside-view update; preferably state an official-history prior excluding the May advance, then apply the May advance as an update, or explicitly say the update is only for information not already captured by the sample."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver text as written; it matches the ledger slug, unit, dataPointId, first-print rule, and August 28, 2026 release date."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval method is acceptable, but note that the realized-volatility sample is small if you want to make the uncertainty caveat explicit."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The Table 36-10-0434-02 aside is useful but slightly distracting; ensure it cannot be read as changing the canonical Table 36-10-0434-01 resolver."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer warning by separating the official-history base-rate prior from the May advance update, kept the first-print resolver and August 28, 2026 release date unchanged, and kept the interval while adding a small-sample caveat.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning by separating the official-history base-rate prior from the May advance update, kept the first-print resolver and August 28, 2026 release date unchanged, and kept the interval while adding a small-sample caveat.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning by separating the official-history base-rate prior from the May advance update, kept the first-print resolver and August 28, 2026 release date unchanged, and kept the interval while adding a small-sample caveat.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning by separating the official-history base-rate prior from the May advance update, kept the first-print resolver and August 28, 2026 release date unchanged, and kept the interval while adding a small-sample caveat.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready aside from a minor clarity issue around separating the prior from the May advance update."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/prompt.md",
+      "sha256": "c002c8eabe5cdf808bf69719d8651d21fe901d4d8fa8983b073ead23231cc2bb",
+      "bytes": 8541,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_command.json",
+      "sha256": "85ac6f1c2929a86539a970afe54c968471d8cab6e32c4c7054e401dba2de7b74",
+      "bytes": 691,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "c74188530784266d48c3d8e28ce11c5768d9602ab9982c25eea8746a0333284e",
+      "bytes": 15005,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_codex_stderr.log",
+      "sha256": "b0b5e3e381a0c8433fe630a2daf7394d2c4d0ab09f9dd3b139835f4dc8d063c9",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_codex_events.jsonl",
+      "sha256": "465b12bc951079763e5754dc9973d6b5d10d16d76293060cf0722d9799d3b717",
+      "bytes": 14948,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_codex_last_message.txt",
+      "sha256": "f26e7d00c7360ba90301de9030af55b808a4e3fb37efedc85fe25ad4e4808586",
+      "bytes": 5547,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_codex_trace.json",
+      "sha256": "76853a7fb2b34758c164c3dc37a0f8168acb61022dd6596fa33611cad4af6c8a",
+      "bytes": 508,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_stdout.txt",
+      "sha256": "f26e7d00c7360ba90301de9030af55b808a4e3fb37efedc85fe25ad4e4808586",
+      "bytes": 5547,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/draft_stderr.txt",
+      "sha256": "1caad1473c91fd448c2eea59d2d19fffbfb0092c2517042855965b8df46cdabb",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_prompt.md",
+      "sha256": "3acb870e4d3b4bb340ae36ed24ac5e156c0cb556f9554aaf559ba5ca9c44abda",
+      "bytes": 8364,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_command.json",
+      "sha256": "7f8425ec0ff72944af6d1d6fd2f80fcf86172e0c3e2f85bbfa5317b48a72bf9e",
+      "bytes": 687,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "08e5a621f9d67278ae2dbfe93f91dc2065fb938a01dcaf5b81fca96b96f77d96",
+      "bytes": 1668,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "dc9ed21777a9bbd5d51a277feed49b686d0a4195c4c97926ecae773b109fe440",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "ff18c5e8640f02802f148aef5d5f4bdb884584618119a09902dcb21da33fd5a6",
+      "bytes": 1690,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "d02738ae1e141e389b57b129799d0add6c0a51ad4245ee54d5c382fa56e39946",
+      "bytes": 1309,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "8ee33bdf1259571515860678822d5d2ee3bf66daac1b75c6883b7d105bcd9f1b",
+      "bytes": 501,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "d02738ae1e141e389b57b129799d0add6c0a51ad4245ee54d5c382fa56e39946",
+      "bytes": 1309,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "31881d19f0ff55a95040c071d729e407979aaf20e73f5767005fbf9949ee75f9",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/revision_prompt.md",
+      "sha256": "6e15243044681a12801e366220540098e11a6d16f099427e7fa6739cc13f46c9",
+      "bytes": 16333,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/command.json",
+      "sha256": "af02ffda69baf9b31b95a3f9998616b388fbc657cfbe71b6a8b4c8a86888c33f",
+      "bytes": 685,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/codex_stdout.jsonl",
+      "sha256": "80b76f8cdf927d6b04986d93838635a95422b8801ae0d6c520744d9c8ed032aa",
+      "bytes": 6416,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/codex_stderr.log",
+      "sha256": "d33ea3926cd515d6f8ef84b07cfdc71d858fe00f33a4c5a2e30e473d2606c09e",
+      "bytes": 233,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/codex_events.jsonl",
+      "sha256": "8e94bae4a0de8ea415424614fa75dda8dd9c0a0a9319d6773167f6caae0198b3",
+      "bytes": 6438,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/codex_last_message.txt",
+      "sha256": "8f56ba4fc207c497d8d68f047d80e97b6f90b952dfc9cd9085dd1946ad93c996",
+      "bytes": 5840,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/codex_trace.json",
+      "sha256": "5cdc9fe7acb7baac6f9feb0b5f2021664c70bfe54fa24b3c95418bc140a0ba24",
+      "bytes": 506,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/stdout.txt",
+      "sha256": "8f56ba4fc207c497d8d68f047d80e97b6f90b952dfc9cd9085dd1946ad93c996",
+      "bytes": 5840,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/stderr.txt",
+      "sha256": "07d1473679690f548cda5ff2f17658c5681824eb5959bb0211e9bd92e5d0a48d",
+      "bytes": 248,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/raw_response.txt",
+      "sha256": "8f56ba4fc207c497d8d68f047d80e97b6f90b952dfc9cd9085dd1946ad93c996",
+      "bytes": 5840,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/parsed_cells.json",
+      "sha256": "4b4ebab72de089522016939f94895349a1c27aede82029e67b65184ad399d683",
+      "bytes": 6812,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/normalized_cells.json",
+      "sha256": "f69b4a0b622b6ffc9ca5d2c88a11943619d36e8e2b549b8c346099f3523940b9",
+      "bytes": 23815,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/distribution.json",
+      "sha256": "147354468c69841a673241ca01c44e7515cff42cbdd769421fcf6f84d84335b8",
+      "bytes": 13585,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/validation.json",
+      "sha256": "f33b477d08fa61615419f9ccf976c6692cc8aff92fea216882fd5576f7772bfd",
+      "bytes": 136,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/cells.with_activity.json",
+      "sha256": "b0d31cef8f2530e96c948f2ebfe35ff72b211da73a91b38c9d131a8f7a7b6747",
+      "bytes": 39659,
+      "createdAt": "2026-07-10T04:19:55Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-19-55z-statcan-gdp-by-industry-monthly-growth-2026-06/manifest.json",
+      "sha256": "a014fb8480069d31bc68b15ce2a1c5d43739c6b10539322d457d03984b4f65ef",
+      "bytes": 15411,
+      "createdAt": "2026-07-10T04:19:55Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "canada-monthly-gdp-growth-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "9d9a6ad6ae7ed45a9b7b04d57e47c0e5a88284056e8856afcdd6ea210bc2b48a"
+}

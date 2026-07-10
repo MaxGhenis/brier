@@ -1,0 +1,1218 @@
+[
+  {
+    "slug": "jolts-quits-rate-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US JOLTS Quits Rate, July 2026",
+    "question": "What will the BLS JOLTS total nonfarm quits rate, seasonally adjusted, be for July 2026 in the first print?",
+    "unit": "percent",
+    "pointEstimate": 1.9,
+    "ciLow": 1.72,
+    "ciHigh": 2.08,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-01",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Job Openings and Labor Turnover Survey Table 4",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/jolts.t04.htm",
+    "resolutionRule": "Resolve to the first-print July 2026 seasonally adjusted Total quits rate in BLS JOLTS Table 4, in percent/rate units as published to one decimal place; ignore later revisions or annual benchmark updates.",
+    "dataPointId": "bls.jolts.quits_rate.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 preliminary",
+        "value": 1.9
+      },
+      {
+        "label": "Apr 2026",
+        "value": 1.9
+      },
+      {
+        "label": "Mar 2026",
+        "value": 2
+      },
+      {
+        "label": "Feb 2026",
+        "value": 1.9
+      },
+      {
+        "label": "Jan 2026",
+        "value": 2
+      },
+      {
+        "label": "May 2025",
+        "value": 2.1
+      }
+    ],
+    "drivers": [
+      "Recent quits rate flat at 1.9-2.0 percent",
+      "Job openings rate firmer at 4.6 percent but hires rate steady at 3.3 percent",
+      "Two-month May-to-July forecast horizon adds modest uncertainty",
+      "Labor-market churn remains below 2021-2022 highs"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/news.release/jolts.t04.htm",
+      "https://www.bls.gov/schedule/news_release/jolts.htm",
+      "https://fred.stlouisfed.org/series/JTSQUR",
+      "https://www.bls.gov/news.release/jolts.t01.htm",
+      "https://www.bls.gov/news.release/jolts.t02.htm"
+    ],
+    "runAt": "2026-07-10T04:29:12Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "July 2026 BLS JOLTS total nonfarm quits-rate forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the BLS Job Openings and Labor Turnover Survey Table 4 Total quits rate, seasonally adjusted, for July 2026, first print only. The BLS JOLTS release schedule lists reference month July 2026 for release on Sep. 01, 2026 at 10:00 AM, so I set resolutionDate to 2026-09-01 rather than inferring from cadence; later revisions or annual benchmark updates do not change this first-print target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS JOLTS Table 4, quits levels and rates by industry and region, seasonally adjusted, current May 2026 release.",
+        "result": "Fetched Total quits rates: May 2025 2.1, Feb 2026 1.9, Mar 2026 2.0, Apr 2026 1.9, May 2026 preliminary 1.9; Total quits levels were 3,287k, 3,046k, 3,160k, 3,043k, and 3,065k respectively."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.history_mirror",
+        "call": "Check FRED JTSQUR mirror for the same BLS-sourced seasonally adjusted total nonfarm quits-rate series.",
+        "result": "Fetched JTSQUR recent observations: Jan 2026 2.0, Feb 2026 1.9, Mar 2026 2.0, Apr 2026 1.9, May 2026 1.9; FRED says units are Rate, seasonally adjusted, monthly, source U.S. Bureau of Labor Statistics, updated Jun 30, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read BLS JOLTS Tables 1 and 2 for adjacent labor-demand indicators from the same release vintage.",
+        "result": "Fetched Total job openings rates: May 2025 4.4, Feb 2026 4.2, Mar 2026 4.2, Apr 2026 4.6, May 2026 4.6; Total hires rates: May 2025 3.4, Feb 2026 3.1, Mar 2026 3.5, Apr 2026 3.3."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for this level/rate series I use recent same-variant BLS seasonally adjusted Total quits-rate values as the base rate, because the target is also SA Total first print. The latest official rate is 1.9, and the contiguous Jan-May 2026 values are 2.0, 1.9, 2.0, 1.9, 1.9, with no evidence in the fetched data of a break away from roughly 2.0."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = latest same-series BLS/FRED value, 1.9; this is the time-series model prior, with no separate fitted model. Historical sample = contiguous monthly SA Total quits rates Jan-May 2026: 2.0, 1.9, 2.0, 1.9, 1.9. Adjustment components: level 0.00 from latest 1.9, momentum 0.00 from Apr-to-May change 0.0, openings/hires mix +0.02 because openings rate is firm at 4.6 while hires is flat at 3.3, rounded back to the one-decimal first-print center of 1.9. For interval, successive monthly changes are -0.1, +0.1, -0.1, 0.0; one-month sample sigma = 0.10, so May-to-July two-month horizon sigma = 0.10*sqrt(2) = 0.14, and 80% half-width = 1.28*0.14 = 0.18. Final implied bounds: 1.90 - 0.18 = 1.72 and 1.90 + 0.18 = 2.08."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: July could land above the interval if the firmer openings rate translates into materially stronger quits in leisure/hospitality or retail, or if June data, not yet available at run time, jumps above 2.1. Downside risk: it would land below the interval if labor-market caution suppresses voluntary quits and total quits slip toward 1.7 or less. Outside the interval is mainly a regime-change case rather than normal one-month noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the interval critique by switching the volatility calculation to the contiguous Jan-May 2026 monthly sample and scaling it for the two-month May-to-July forecast horizon; accepted the clarification that persistence is the time-series prior and that the BLS schedule currently lists Sep. 01, 2026 at 10:00 AM for the July 2026 release."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.9,
+        "ciLow": 1.72,
+        "ciHigh": 2.08
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T04:27:20Z",
+    "runStartedAt": "2026-07-10T04:27:09Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 1.45,
+        "upper": 2.35
+      },
+      "points": [
+        {
+          "value": 1.45,
+          "probability": 0.0
+        },
+        {
+          "value": 1.4545,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 1.459,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 1.4635,
+          "probability": 0.005
+        },
+        {
+          "value": 1.468,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 1.4725,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 1.477,
+          "probability": 0.01
+        },
+        {
+          "value": 1.4815,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 1.486,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 1.4905,
+          "probability": 0.015
+        },
+        {
+          "value": 1.495,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 1.4995,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 1.504,
+          "probability": 0.02
+        },
+        {
+          "value": 1.5085,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 1.513,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 1.5175,
+          "probability": 0.025
+        },
+        {
+          "value": 1.522,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 1.5265,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 1.531,
+          "probability": 0.03
+        },
+        {
+          "value": 1.5355,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 1.54,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 1.5445,
+          "probability": 0.035
+        },
+        {
+          "value": 1.549,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 1.5535,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 1.558,
+          "probability": 0.04
+        },
+        {
+          "value": 1.5625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 1.567,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 1.5715,
+          "probability": 0.045
+        },
+        {
+          "value": 1.576,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 1.5805,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 1.585,
+          "probability": 0.05
+        },
+        {
+          "value": 1.5895,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 1.594,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 1.5985,
+          "probability": 0.055
+        },
+        {
+          "value": 1.603,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 1.6075,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 1.612,
+          "probability": 0.06
+        },
+        {
+          "value": 1.6165,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 1.621,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 1.6255,
+          "probability": 0.065
+        },
+        {
+          "value": 1.63,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 1.6345,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 1.639,
+          "probability": 0.07
+        },
+        {
+          "value": 1.6435,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 1.648,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 1.6525,
+          "probability": 0.075
+        },
+        {
+          "value": 1.657,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 1.6615,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 1.666,
+          "probability": 0.08
+        },
+        {
+          "value": 1.6705,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 1.675,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 1.6795,
+          "probability": 0.085
+        },
+        {
+          "value": 1.684,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 1.6885,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 1.693,
+          "probability": 0.09
+        },
+        {
+          "value": 1.6975,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 1.702,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 1.7065,
+          "probability": 0.095
+        },
+        {
+          "value": 1.711,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 1.7155,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 1.72,
+          "probability": 0.1
+        },
+        {
+          "value": 1.7245,
+          "probability": 0.11
+        },
+        {
+          "value": 1.729,
+          "probability": 0.12
+        },
+        {
+          "value": 1.7335,
+          "probability": 0.13
+        },
+        {
+          "value": 1.738,
+          "probability": 0.14
+        },
+        {
+          "value": 1.7425,
+          "probability": 0.15
+        },
+        {
+          "value": 1.747,
+          "probability": 0.16
+        },
+        {
+          "value": 1.7515,
+          "probability": 0.17
+        },
+        {
+          "value": 1.756,
+          "probability": 0.18
+        },
+        {
+          "value": 1.7605,
+          "probability": 0.19
+        },
+        {
+          "value": 1.765,
+          "probability": 0.2
+        },
+        {
+          "value": 1.7695,
+          "probability": 0.21
+        },
+        {
+          "value": 1.774,
+          "probability": 0.22
+        },
+        {
+          "value": 1.7785,
+          "probability": 0.23
+        },
+        {
+          "value": 1.783,
+          "probability": 0.24
+        },
+        {
+          "value": 1.7875,
+          "probability": 0.25
+        },
+        {
+          "value": 1.792,
+          "probability": 0.26
+        },
+        {
+          "value": 1.7965,
+          "probability": 0.27
+        },
+        {
+          "value": 1.801,
+          "probability": 0.28
+        },
+        {
+          "value": 1.8055,
+          "probability": 0.29
+        },
+        {
+          "value": 1.81,
+          "probability": 0.3
+        },
+        {
+          "value": 1.8145,
+          "probability": 0.31
+        },
+        {
+          "value": 1.819,
+          "probability": 0.32
+        },
+        {
+          "value": 1.8235,
+          "probability": 0.33
+        },
+        {
+          "value": 1.828,
+          "probability": 0.34
+        },
+        {
+          "value": 1.8325,
+          "probability": 0.35
+        },
+        {
+          "value": 1.837,
+          "probability": 0.36
+        },
+        {
+          "value": 1.8415,
+          "probability": 0.37
+        },
+        {
+          "value": 1.846,
+          "probability": 0.38
+        },
+        {
+          "value": 1.8505,
+          "probability": 0.39
+        },
+        {
+          "value": 1.855,
+          "probability": 0.4
+        },
+        {
+          "value": 1.8595,
+          "probability": 0.41
+        },
+        {
+          "value": 1.864,
+          "probability": 0.42
+        },
+        {
+          "value": 1.8685,
+          "probability": 0.43
+        },
+        {
+          "value": 1.873,
+          "probability": 0.44
+        },
+        {
+          "value": 1.8775,
+          "probability": 0.45
+        },
+        {
+          "value": 1.882,
+          "probability": 0.46
+        },
+        {
+          "value": 1.8865,
+          "probability": 0.47
+        },
+        {
+          "value": 1.891,
+          "probability": 0.48
+        },
+        {
+          "value": 1.8955,
+          "probability": 0.49
+        },
+        {
+          "value": 1.9,
+          "probability": 0.5
+        },
+        {
+          "value": 1.9045,
+          "probability": 0.51
+        },
+        {
+          "value": 1.909,
+          "probability": 0.52
+        },
+        {
+          "value": 1.9135,
+          "probability": 0.53
+        },
+        {
+          "value": 1.918,
+          "probability": 0.54
+        },
+        {
+          "value": 1.9225,
+          "probability": 0.55
+        },
+        {
+          "value": 1.927,
+          "probability": 0.56
+        },
+        {
+          "value": 1.9315,
+          "probability": 0.57
+        },
+        {
+          "value": 1.936,
+          "probability": 0.58
+        },
+        {
+          "value": 1.9405,
+          "probability": 0.59
+        },
+        {
+          "value": 1.945,
+          "probability": 0.6
+        },
+        {
+          "value": 1.9495,
+          "probability": 0.61
+        },
+        {
+          "value": 1.954,
+          "probability": 0.62
+        },
+        {
+          "value": 1.9585,
+          "probability": 0.63
+        },
+        {
+          "value": 1.963,
+          "probability": 0.64
+        },
+        {
+          "value": 1.9675,
+          "probability": 0.65
+        },
+        {
+          "value": 1.972,
+          "probability": 0.66
+        },
+        {
+          "value": 1.9765,
+          "probability": 0.67
+        },
+        {
+          "value": 1.981,
+          "probability": 0.68
+        },
+        {
+          "value": 1.9855,
+          "probability": 0.69
+        },
+        {
+          "value": 1.99,
+          "probability": 0.7
+        },
+        {
+          "value": 1.9945,
+          "probability": 0.71
+        },
+        {
+          "value": 1.999,
+          "probability": 0.72
+        },
+        {
+          "value": 2.0035,
+          "probability": 0.73
+        },
+        {
+          "value": 2.008,
+          "probability": 0.74
+        },
+        {
+          "value": 2.0125,
+          "probability": 0.75
+        },
+        {
+          "value": 2.017,
+          "probability": 0.76
+        },
+        {
+          "value": 2.0215,
+          "probability": 0.77
+        },
+        {
+          "value": 2.026,
+          "probability": 0.78
+        },
+        {
+          "value": 2.0305,
+          "probability": 0.79
+        },
+        {
+          "value": 2.035,
+          "probability": 0.8
+        },
+        {
+          "value": 2.0395,
+          "probability": 0.81
+        },
+        {
+          "value": 2.044,
+          "probability": 0.82
+        },
+        {
+          "value": 2.0485,
+          "probability": 0.83
+        },
+        {
+          "value": 2.053,
+          "probability": 0.84
+        },
+        {
+          "value": 2.0575,
+          "probability": 0.85
+        },
+        {
+          "value": 2.062,
+          "probability": 0.86
+        },
+        {
+          "value": 2.0665,
+          "probability": 0.87
+        },
+        {
+          "value": 2.071,
+          "probability": 0.88
+        },
+        {
+          "value": 2.0755,
+          "probability": 0.89
+        },
+        {
+          "value": 2.08,
+          "probability": 0.9
+        },
+        {
+          "value": 2.0845,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 2.089,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 2.0935,
+          "probability": 0.905
+        },
+        {
+          "value": 2.098,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 2.1025,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 2.107,
+          "probability": 0.91
+        },
+        {
+          "value": 2.1115,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 2.116,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 2.1205,
+          "probability": 0.915
+        },
+        {
+          "value": 2.125,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 2.1295,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 2.134,
+          "probability": 0.92
+        },
+        {
+          "value": 2.1385,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 2.143,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 2.1475,
+          "probability": 0.925
+        },
+        {
+          "value": 2.152,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 2.1565,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 2.161,
+          "probability": 0.93
+        },
+        {
+          "value": 2.1655,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 2.17,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 2.1745,
+          "probability": 0.935
+        },
+        {
+          "value": 2.179,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 2.1835,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 2.188,
+          "probability": 0.94
+        },
+        {
+          "value": 2.1925,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 2.197,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 2.2015,
+          "probability": 0.945
+        },
+        {
+          "value": 2.206,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 2.2105,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 2.215,
+          "probability": 0.95
+        },
+        {
+          "value": 2.2195,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 2.224,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 2.2285,
+          "probability": 0.955
+        },
+        {
+          "value": 2.233,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 2.2375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 2.242,
+          "probability": 0.96
+        },
+        {
+          "value": 2.2465,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 2.251,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 2.2555,
+          "probability": 0.965
+        },
+        {
+          "value": 2.26,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 2.2645,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 2.269,
+          "probability": 0.97
+        },
+        {
+          "value": 2.2735,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 2.278,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 2.2825,
+          "probability": 0.975
+        },
+        {
+          "value": 2.287,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 2.2915,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 2.296,
+          "probability": 0.98
+        },
+        {
+          "value": 2.3005,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 2.305,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 2.3095,
+          "probability": 0.985
+        },
+        {
+          "value": 2.314,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 2.3185,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 2.323,
+          "probability": 0.99
+        },
+        {
+          "value": 2.3275,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 2.332,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 2.3365,
+          "probability": 0.995
+        },
+        {
+          "value": 2.341,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 2.3455,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 2.35,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 1.9,
+        "median": 1.9,
+        "interval80": {
+          "lower": 1.72,
+          "upper": 2.08
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/prompt.md",
+        "sha256": "650c0538ee3ed5cedbdc39800ebeead6dd73bc99d3bc6bdb6caa8e81c5179db3",
+        "bytes": 8540,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_command.json",
+        "sha256": "beec3c9f9de3deb7615825898e0b5be84292fd444ffa2084f963e12005b22283",
+        "bytes": 673,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "ba2ca5048dc301edd18dac7a91ba36cbe7abd29c99cb2d4b5d77934737d02d3a",
+        "bytes": 11380,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_stderr.log",
+        "sha256": "f9a4d80769b02a2b856c0b892e649109f4e108363928624ed217da2c9f55172d",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_events.jsonl",
+        "sha256": "f5ae3d96c1ac496abcb05b8c2854ae94dd1a8e3f10cc0057445b2f4c651cf728",
+        "bytes": 11340,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_last_message.txt",
+        "sha256": "6d47b235dec97e548a7ddc3a2c43d46fe4d19bdc78d15aeaf1f2c2ef37f3f1d7",
+        "bytes": 4656,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_codex_trace.json",
+        "sha256": "d1e93690bf33ea6e76a83803b78d72476eda3c951806d3856ace34eba119e1d1",
+        "bytes": 508,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_stdout.txt",
+        "sha256": "6d47b235dec97e548a7ddc3a2c43d46fe4d19bdc78d15aeaf1f2c2ef37f3f1d7",
+        "bytes": 4656,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_stderr.txt",
+        "sha256": "406e8907fec559f3a1b6f7ce3b2d815d2da43951553a0230df283e5e2c6c69b3",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_prompt.md",
+        "sha256": "591de39a23ea70afcecc2ff6771fff722d4ec8361fddfb7e9ea5665ccb369600",
+        "bytes": 7349,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_command.json",
+        "sha256": "658e562263f00bfa032ab1b4fd4e0c30e446ee5715993fc8962b44448ac19c7b",
+        "bytes": 669,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "082a11e68a45f8b4d118611a841b8fec19161d659dd74a8e7ed3282882f8f07f",
+        "bytes": 2628,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "a545b88b5182900454a557e6e4983c1d8184dffd12631d016a9f14e901071e1b",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "0d91bd30bf5f3bc0be6e2fb12ad81bc848acd4d957755252b5229a3e241da6df",
+        "bytes": 2656,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "4c6da9e01a48f2271d1951050f73e5a90c2c8613e2505f622dce8f7ff8deea42",
+        "bytes": 1097,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "078be9ab1cafc01bf0eeae80c4c6503b1000df613ee24682a40ac5dcd6e90b70",
+        "bytes": 502,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "4c6da9e01a48f2271d1951050f73e5a90c2c8613e2505f622dce8f7ff8deea42",
+        "bytes": 1097,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "afab143417eaf0202aba484eb600cdb11345716565958afa14252ba9aa4be594",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/revision_prompt.md",
+        "sha256": "9f49ca06d320e8538faca4a31422d6610b24e0dd63fb24a73f1c7988fa662987",
+        "bytes": 15229,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/command.json",
+        "sha256": "db32ab818c0e3d64e8333befb7dc8bda47d0144e35354c37a7a8c95e4d474aad",
+        "bytes": 667,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_stdout.jsonl",
+        "sha256": "ee6ac9d9a3641d851d5574a3ab0cdf52483fc8e13b4b10f012c769fdc9289a5c",
+        "bytes": 5846,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_stderr.log",
+        "sha256": "0fe6d2db8b2f1a0553af2c1923baeb4d9ce786f33b4f8540150e27b7e57e4419",
+        "bytes": 233,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_events.jsonl",
+        "sha256": "c3b36825d55d06ccd1597496e792565fd50cc6c60bb672f2e3e1de758bbdbb8a",
+        "bytes": 5868,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_last_message.txt",
+        "sha256": "6c82981c33b33c1d0fcbb07f176966512d6596857b29bc8eaac0373d39d69dc6",
+        "bytes": 5307,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/codex_trace.json",
+        "sha256": "2a16e0921b6ea653e672d47708cca74b703b1d9b9a85c39706577277fa257cc1",
+        "bytes": 501,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/stdout.txt",
+        "sha256": "6c82981c33b33c1d0fcbb07f176966512d6596857b29bc8eaac0373d39d69dc6",
+        "bytes": 5307,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/stderr.txt",
+        "sha256": "4b8e07989737a6119a707127233636c9cd7d2b6f7188a5de09855630cfd6b6a1",
+        "bytes": 248,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/raw_response.txt",
+        "sha256": "6c82981c33b33c1d0fcbb07f176966512d6596857b29bc8eaac0373d39d69dc6",
+        "bytes": 5307,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/parsed_cells.json",
+        "sha256": "a1cf67f76ab6165df80c32b4e901f5ace5f5bc683d9ecc7dfd12fc32ae86a88b",
+        "bytes": 6143,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/normalized_cells.json",
+        "sha256": "fe3f955ebc744a5c5681101375b06a17f1881e40a46930898488be24fe11d2f4",
+        "bytes": 23103,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/distribution.json",
+        "sha256": "4692224a865e7d6eb536c6529358b0d24f659dc66753093a59a10dd981bfa96d",
+        "bytes": 13542,
+        "createdAt": "2026-07-10T04:27:09Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/validation.json",
+        "sha256": "745441ca80bfa5f08887aba33515ec68d60ef370b52842b9b393502768003ac4",
+        "bytes": 127,
+        "createdAt": "2026-07-10T04:27:09Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T04:27:09Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "0f766bedefc8eaaa0734921dbfcee3d3dba408bf80d64dafba723edd38ee3d18"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t04-27-09z-bls-jolts-quits-rate-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval uses only four changes, including a May 2025 to February 2026 gap treated like a one-month move, and does not adjust for the May-to-July forecast horizon.",
+          "actionRequested": "Recompute or justify the interval using a contiguous monthly realized-volatility sample, or explicitly state why the sparse/non-contiguous sample and one-step half-width are adequate for July 2026."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Mention that the BLS schedule currently lists July 2026 JOLTS for September 1, 2026 at 10:00 AM and that later schedule changes should not alter the first-print target unless the official release date changes before publication."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the persistence prior is being used as the time-series model prior, since no separate model is estimated."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval critique by switching the volatility calculation to the contiguous Jan-May 2026 monthly sample and scaling it for the two-month May-to-July forecast horizon; accepted the clarification that persistence is the time-series prior and that the BLS schedule currently lists Sep. 01, 2026 at 10:00 AM for the July 2026 release.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval critique by switching the volatility calculation to the contiguous Jan-May 2026 monthly sample and scaling it for the two-month May-to-July forecast horizon; accepted the clarification that persistence is the time-series prior and that the BLS schedule currently lists Sep. 01, 2026 at 10:00 AM for the July 2026 release.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval critique by switching the volatility calculation to the contiguous Jan-May 2026 monthly sample and scaling it for the two-month May-to-July forecast horizon; accepted the clarification that persistence is the time-series prior and that the BLS schedule currently lists Sep. 01, 2026 at 10:00 AM for the July 2026 release.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Publishable after tightening the uncertainty justification; the resolver, first-print rule, date, unit, and JSON fields are otherwise coherent with the ledger target."
+    }
+  }
+]

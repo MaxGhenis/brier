@@ -1,0 +1,125 @@
+[
+  {
+    "slug": "canada-monthly-gdp-growth-june-2026",
+    "country": "CA",
+    "type": "data",
+    "title": "Canada Monthly GDP Growth, June 2026",
+    "question": "What will Statistics Canada first report for real gross domestic product by industry, all industries, seasonally adjusted monthly percent change, June 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.1,
+    "ciLow": -0.2,
+    "ciHigh": 0.4,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-28",
+    "resolutionSource": "Statistics Canada The Daily release and Table 36-10-0434-01",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043401",
+    "resolutionRule": "Resolve to the first Statistics Canada print for June 2026 real GDP by industry, all industries, seasonally adjusted monthly change, as published in The Daily and Table 36-10-0434-01. Use the first-published monthly percent change rounded to one decimal percentage point; ignore later revisions.",
+    "dataPointId": "statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 advance estimate",
+        "value": 0.1
+      },
+      {
+        "label": "2026-04 official",
+        "value": 0.5
+      },
+      {
+        "label": "2026-03 official",
+        "value": -0.1
+      },
+      {
+        "label": "2026-02 official",
+        "value": 0.2
+      },
+      {
+        "label": "2026-01 official",
+        "value": 0.1
+      },
+      {
+        "label": "2025-12 official",
+        "value": 0.2
+      },
+      {
+        "label": "2025-11 official",
+        "value": 0
+      },
+      {
+        "label": "2025-10 official",
+        "value": -0.3
+      }
+    ],
+    "drivers": [
+      "May advance GDP was modestly positive at 0.1%",
+      "April official GDP rebound was 0.5% after March -0.1%",
+      "May goods exports rose 0.9% but real export volumes were essentially unchanged",
+      "Services and finance/real estate momentum partly offset goods-sector volatility",
+      "Energy and mining swings keep one-month dispersion wide"
+    ],
+    "sourceContext": [
+      "https://www150.statcan.gc.ca/release-diffusion/2026-eng.pdf",
+      "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=3610043401",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260630/dq260630a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260529/dq260529b-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260430/dq260430a-eng.htm",
+      "https://www150.statcan.gc.ca/n1/daily-quotidien/260707/dq260707a-eng.htm"
+    ],
+    "runAt": "2026-07-10T04:20:18Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Canada June 2026 Monthly GDP Growth Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: target is Statistics Canada's real gross domestic product by industry for all industries, seasonally adjusted, monthly percent change for June 2026, first print. The ledger points to Table 36-10-0434-01; I keep that canonical resolver unchanged and resolve on the first print only."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada 2026-2027 major economic release calendar for Gross domestic product by industry",
+        "result": "Fetched release calendar shows Gross domestic product by industry: April 2026 released June 30, 2026; May 2026 scheduled July 31, 2026; June 2026 scheduled August 28, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada Daily release for GDP by industry, April 2026",
+        "result": "Fetched latest official GDP print: April 2026 real GDP by industry monthly change was +0.5%; March 2026 was -0.1%; advance information indicated May 2026 increased +0.1%; 14 of 20 sectors grew in April."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada Daily releases for prior GDP by industry months",
+        "result": "Fetched recent same-variant history: March 2026 -0.1%, February 2026 +0.2%, January 2026 +0.1%, December 2025 +0.2%, November 2025 0.0%, October 2025 -0.3% monthly change."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Statistics Canada Daily release for Canadian international merchandise trade, May 2026",
+        "result": "Fetched May 2026 trade context: exports +0.9% to $77.1 billion, imports -0.2% to $72.9 billion, goods surplus $4.2 billion, real total export volumes essentially unchanged, real total import volumes +0.4%."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for this flow/change target I use recent same-variant monthly GDP changes themselves, not level changes. The official-history prior excludes the May 2026 advance and uses October 2025 through April 2026: -0.3, 0.0, 0.2, 0.1, 0.2, -0.1, 0.5, giving a base rate mean of 0.086% before the May advance and other current-release adjustments."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence/reference-class prior is the 7-point recent same-variant official monthly GDP sample (-0.3, 0.0, 0.2, 0.1, 0.2, -0.1, 0.5), mean = 0.086. Adjustment components: +0.02 from the separately treated May advance of +0.1 and related services momentum, -0.01 for April's one-off rebound risk fading, +0.00 for trade because nominal exports rose but real export volumes were essentially unchanged. Final point rounds to 0.1. Interval method uses realized dispersion of the values themselves: sigma = 0.255, half-width = 1.28*sigma = 0.326, so 0.1 +/- about 0.3 gives an 80% interval of -0.2 to 0.4 after one-decimal rounding; the sample is small, so I do not narrow the band."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: June would land above the interval if mining/oil output and manufacturing both rebound again while services continue growing around April-May rates. Downside risk: June would land below the interval if energy maintenance, tariffs-sensitive manufacturing, or wholesale/retail weakness turn the May advance into a short-lived bounce. Outside the interval likely requires a broad goods-sector shock rather than normal monthly noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer warning by separating the official-history base-rate prior from the May advance update, kept the first-print resolver and August 28, 2026 release date unchanged, and kept the interval while adding a small-sample caveat."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.1,
+        "ciLow": -0.2,
+        "ciHigh": 0.4
+      }
+    ]
+  }
+]
