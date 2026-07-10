@@ -1457,3 +1457,67 @@ def test_pin_comparison_contract_pins_resolver_but_not_units() -> None:
     pin_comparison_contract(unpinned, {**context, "comparisonTarget": False})
     pin_comparison_contract(unpinned, None)
     assert unpinned == {"slug": "model-slug", "resolutionRule": "model words"}
+
+
+def _find_negative_zeros(value, path="$"):
+    import math
+
+    hits = []
+    if isinstance(value, float):
+        if value == 0.0 and math.copysign(1.0, value) < 0:
+            hits.append(path)
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            hits.extend(_find_negative_zeros(item, f"{path}.{key}"))
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            hits.extend(_find_negative_zeros(item, f"{path}[{index}]"))
+    return hits
+
+
+def test_signed_zeros_never_reach_sealed_artifacts(tmp_path: Path) -> None:
+    # An agent may legitimately forecast "-0.0" (zero approached from below).
+    # Python's json keeps the sign while JSON.stringify drops it, so a signed
+    # zero anywhere in a sealed record splits the Python-written sidecars from
+    # the regenerated TS surfaces. The intake normalizer must scrub it.
+    from normalize_spawn_json import scrub_signed_zeros
+
+    payload = {
+        "pointEstimate": -0.0,
+        "ciLow": -0.1,
+        "ciHigh": 0.1,
+        "thresholdLadder": {
+            "thresholds": [-0.1, -0.0, 0.1],
+            "cumulativeProbabilities": [0.1, 0.5, 0.9],
+        },
+        "historicalContext": [{"label": "May 2026", "value": -0.0}],
+        "count": 30,
+    }
+    scrubbed = scrub_signed_zeros(payload)
+    assert _find_negative_zeros(scrubbed) == []
+    # Ints and ordinary floats pass through untouched.
+    assert scrubbed["count"] == 30 and isinstance(scrubbed["count"], int)
+    assert scrubbed["ciLow"] == -0.1
+
+    cell = {
+        "pointEstimate": -0.0,
+        "ciLow": -0.1,
+        "ciHigh": 0.1,
+    }
+    interval = analyst_runner.interval_distribution(cell)
+    assert _find_negative_zeros(interval) == []
+
+    ladder_cell = {
+        **cell,
+        "thresholdLadder": {
+            "thresholds": [-0.2, -0.0, 0.2],
+            "cumulativeProbabilities": [0.1, 0.5, 0.9],
+        },
+    }
+    ladder = analyst_runner.ladder_distribution(ladder_cell)
+    assert ladder is not None
+    assert _find_negative_zeros(ladder) == []
+
+    assert json.dumps(analyst_runner.round_distribution_number(-0.0)) == "0.0"
+    assert analyst_runner.unsign_zero(240) == 240
+    assert isinstance(analyst_runner.unsign_zero(240), int)

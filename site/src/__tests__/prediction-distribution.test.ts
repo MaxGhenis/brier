@@ -139,3 +139,29 @@ describe("numeric CDF validation", () => {
     );
   });
 });
+
+describe("signed-zero normalization", () => {
+  it("never emits IEEE -0 anywhere in a built distribution", async () => {
+    const { buildNumericCdfFromInterval } = await import(
+      "@/data/prediction-distribution"
+    );
+    // An agent may forecast "-0.0"; JSON.parse preserves the sign while
+    // JSON.stringify drops it, so a signed zero splits serialized surfaces
+    // from in-memory values. The builder must normalize to +0 (the Python
+    // port does the same).
+    const built = buildNumericCdfFromInterval({
+      pointEstimate: -0,
+      ciLow: -0.1,
+      ciHigh: 0.1,
+    });
+    expect(Object.is(built.summary.pointEstimate, -0)).toBe(false);
+    expect(built.summary.pointEstimate).toBe(0);
+    expect(Object.is(built.summary.median, -0)).toBe(false);
+    for (const point of built.points) {
+      expect(Object.is(point.value, -0)).toBe(false);
+      expect(Object.is(point.probability, -0)).toBe(false);
+    }
+    expect(Object.is(built.support.lower, -0)).toBe(false);
+    expect(Object.is(built.support.upper, -0)).toBe(false);
+  });
+});

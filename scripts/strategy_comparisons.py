@@ -48,6 +48,7 @@ from thesis_records_to_comparisons import (  # noqa: E402
     effective_scale,
     repo_path,
     scaled,
+    unsign_zero,
 )
 
 
@@ -123,8 +124,8 @@ def cdf_points_from_knots(
         value = upper if index == POINT_COUNT - 1 else lower + step * index
         points.append(
             {
-                "value": round(value, 10),
-                "probability": round(cdf_at(value), 10),
+                "value": round(value, 10) + 0.0,
+                "probability": round(cdf_at(value), 10) + 0.0,
             }
         )
     return points
@@ -177,9 +178,12 @@ def ladder_distribution(
         },
         "points": points,
         "summary": {
-            "pointEstimate": point,
-            "median": point,
-            "interval80": {"lower": ci_low, "upper": ci_high},
+            "pointEstimate": unsign_zero(point),
+            "median": unsign_zero(point),
+            "interval80": {
+                "lower": unsign_zero(ci_low),
+                "upper": unsign_zero(ci_high),
+            },
         },
         "provenance": "agent_reported",
     }

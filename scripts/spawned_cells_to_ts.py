@@ -309,7 +309,9 @@ def to_forecast_cell(cell: dict) -> dict:
 
 
 def load_cells(path: pathlib.Path) -> list[dict]:
-    cells = json.loads(path.read_text())
+    from normalize_spawn_json import scrub_signed_zeros
+
+    cells = scrub_signed_zeros(json.loads(path.read_text()))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
     manifest_path = path.parent / "manifest.json"

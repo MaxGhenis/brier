@@ -95,8 +95,24 @@ def to_number(value):
         return None
 
 
+def scrub_signed_zeros(value):
+    """Recursively map IEEE -0.0 to +0.0 across a parsed JSON payload.
+
+    Python's json keeps the sign ("-0.0") while JavaScript's JSON.stringify
+    drops it ("0"), so a signed zero anywhere in a sealed cell splits the
+    Python-written sidecars from the regenerated TS surfaces.
+    """
+    if isinstance(value, float):
+        return value + 0.0
+    if isinstance(value, dict):
+        return {key: scrub_signed_zeros(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [scrub_signed_zeros(item) for item in value]
+    return value
+
+
 def main() -> int:
-    cells = json.load(open(sys.argv[1]))
+    cells = scrub_signed_zeros(json.load(open(sys.argv[1])))
     for c in cells:
         c["reasoning"] = norm_steps(c)
         c["sourceContext"] = [

@@ -79,6 +79,15 @@ def scaled(value: int | float, scale: int | float) -> int | float:
     return round(output, 6)
 
 
+def unsign_zero(value):
+    """Map float -0.0 to +0.0 without touching ints or other types.
+
+    Python's json keeps the sign ("-0.0") while JSON.stringify drops it, so
+    a signed zero splits Python-written records from regenerated TS surfaces.
+    """
+    return value + 0.0 if isinstance(value, float) else value
+
+
 def effective_scale(
     cell: dict[str, Any],
     scale: int | float,

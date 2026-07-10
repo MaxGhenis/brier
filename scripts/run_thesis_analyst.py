@@ -111,7 +111,14 @@ def write_artifact(
 
 def round_distribution_number(value: float) -> float:
     """Match JavaScript Number(value.toPrecision(12))."""
-    return float(format(value, ".12g"))
+    # + 0.0 unifies IEEE signed zeros: Python's json keeps "-0.0" while
+    # JSON.stringify drops the sign, so -0 must never reach a sealed record.
+    return float(format(value, ".12g")) + 0.0
+
+
+def unsign_zero(value: Any) -> Any:
+    """Map float -0.0 to +0.0 without touching ints or other types."""
+    return value + 0.0 if isinstance(value, float) else value
 
 
 def coalesce_cdf_knots(
@@ -197,11 +204,11 @@ def interval_distribution(cell: dict[str, Any]) -> dict[str, Any]:
         },
         "points": points,
         "summary": {
-            "pointEstimate": cell["pointEstimate"],
-            "median": cell["pointEstimate"],
+            "pointEstimate": unsign_zero(cell["pointEstimate"]),
+            "median": unsign_zero(cell["pointEstimate"]),
             "interval80": {
-                "lower": cell["ciLow"],
-                "upper": cell["ciHigh"],
+                "lower": unsign_zero(cell["ciLow"]),
+                "upper": unsign_zero(cell["ciHigh"]),
             },
         },
         "provenance": "interval_seeded",
@@ -251,8 +258,9 @@ def ladder_distribution(cell: dict[str, Any]) -> dict[str, Any] | None:
         )
         points.append(
             {
-                "value": round(value, 10),
-                "probability": round(interpolate_cdf_probability(value, knots), 10),
+                "value": round(value, 10) + 0.0,
+                "probability": round(interpolate_cdf_probability(value, knots), 10)
+                + 0.0,
             }
         )
 
@@ -265,11 +273,11 @@ def ladder_distribution(cell: dict[str, Any]) -> dict[str, Any] | None:
         },
         "points": points,
         "summary": {
-            "pointEstimate": cell["pointEstimate"],
-            "median": cell["pointEstimate"],
+            "pointEstimate": unsign_zero(cell["pointEstimate"]),
+            "median": unsign_zero(cell["pointEstimate"]),
             "interval80": {
-                "lower": cell["ciLow"],
-                "upper": cell["ciHigh"],
+                "lower": unsign_zero(cell["ciLow"]),
+                "upper": unsign_zero(cell["ciHigh"]),
             },
         },
         "provenance": "agent_reported",

@@ -94,11 +94,11 @@ export function buildNumericCdfFromInterval({
     },
     points,
     summary: {
-      pointEstimate,
-      median: pointEstimate,
+      pointEstimate: pointEstimate + 0,
+      median: pointEstimate + 0,
       interval80: {
-        lower: ciLow,
-        upper: ciHigh,
+        lower: ciLow + 0,
+        upper: ciHigh + 0,
       },
     },
     provenance,
@@ -301,5 +301,7 @@ function coalesceCdfKnots(rawKnots: NumericCdfPoint[]): NumericCdfPoint[] {
 }
 
 function roundDistributionNumber(value: number): number {
-  return Number(value.toPrecision(12));
+  // + 0 unifies IEEE signed zeros so the TS and Python ports emit identical
+  // records: Python's json keeps "-0.0" while JSON.stringify drops the sign.
+  return Number(value.toPrecision(12)) + 0;
 }
