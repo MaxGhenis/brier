@@ -477,32 +477,41 @@ snapshot. `scripts/verify_record_chain.py` rejects missing blocks, missing
 predecessors, forks, orphans, hash changes, unenumerated legacy digests, and
 head drift.
 
-After the digest is final, the recorder asks FreeTSA for an RFC 3161 token over
-the digest bytes. It stores `digest-<runId>.tsr` and a sibling witness JSON. A
-TSA outage never suppresses the record, but it must produce an explicit
-`status: unavailable` marker and reason.
+After the digest is final, `scripts/witness_snapshot.py` asks every TSA in the
+newest active trust bundle for an RFC 3161 token over the same digest bytes.
+New tokens use anchor-qualified paths such as
+`digest-<runId>.freetsa-root-2016.tsr` and
+`digest-<runId>.digicert-trusted-root-g4.tsr`. The v2 witness marker records
+exactly one available-or-unavailable outcome per active-bundle anchor. Either
+verified token makes the snapshot witnessed; both are preferred. If both
+requests fail, the record remains in the chain with an explicit top-level
+`status: unavailable`, per-anchor reasons, and no claimed token evidence.
 
-A third party verifies an available token against the immutable, code-approved
-bundle `records/trust/tsa-anchors-v1.json` and its independently pinned CA,
-never against a CA supplied beside the token. The token sidecars remain
-archival evidence only:
+A third party verifies every claimed token against its immutable,
+code-approved bundle and independently pinned CA, never against a CA supplied
+beside the token. The complete verifier is the authoritative check:
 
 ```bash
 sha256sum records/YYYY-MM-DD/digest-RUN.json
-openssl ts -reply -in records/YYYY-MM-DD/digest-RUN.tsr -text
-openssl ts -verify \
-  -data records/YYYY-MM-DD/digest-RUN.json \
-  -in records/YYYY-MM-DD/digest-RUN.tsr \
-  -CAfile records/trust/freetsa-root-2016.pem
+jq '{status,trustBundleId,anchorOutcomes,supplementalOutcomes}' \
+  records/YYYY-MM-DD/digest-RUN.witness.json
+python3 scripts/verify_record_chain.py records
 ```
 
-The first command's value must equal `digestSha256` in the witness JSON; the
-last command must report `Verification: OK`. `scripts/verify_record_chain.py`
-also requires a SHA-256 message imprint, pins the TSA signer identity and
-policy OID, extracts signed `genTime`, rejects any time after now or
-impossibly before a creation claim, and validates the certificate chain at
-`genTime`. A future TSA bundle must first be approved in verifier code and then
-introduced by a snapshot witnessed under an already active bundle.
+The first command's value must equal `digestSha256` in the witness JSON.
+`scripts/verify_record_chain.py` requires a SHA-256 message imprint, verifies
+every listed token rather than accepting the first valid one, pins each TSA's
+root and signer identities and policy OID, extracts each signed `genTime`,
+rejects any time after now or impossibly before a creation claim, and validates
+each certificate chain at its own `genTime`. One invalid claimed token rejects
+the complete marker even when another token verifies. Downloaded certificate
+sidecars, if retained for archival context, are never trust input.
+
+A future TSA bundle must first be approved in verifier code and then introduced
+by a snapshot witnessed under an already active bundle. During a transition,
+new-authority attempts are recorded as non-authorizing supplemental outcomes;
+the old-bundle token must make the transition available before replay activates
+the new bundle. Subsequent snapshots must use the highest active bundle.
 `scripts/witnessed_timeline.py` publishes only run roots and registrations
 reached by an available pinned witness; an unavailable witness never becomes
 a claimed publication time. Root rows also expose custody inventory version,

@@ -20,7 +20,12 @@ from verify_custody import (
     verify_recorder_snapshot,
     verify_run,
 )
-from verify_record_chain import logical_path, verify_records
+from verify_record_chain import (
+    ChainVerification,
+    logical_path,
+    trust_bundle_updates_for_snapshot,
+    verify_chain,
+)
 
 SURFACES = {
     "log": ("log.json", "https://app.thesisinstitute.org/log.json"),
@@ -70,6 +75,14 @@ def exclusive_json_write(path: Path, value: Any) -> None:
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
     with os.fdopen(descriptor, "wb") as stream:
         stream.write(data)
+
+
+def add_trust_bundle_updates(
+    payload: dict[str, Any], verification: ChainVerification
+) -> None:
+    updates = trust_bundle_updates_for_snapshot(verification)
+    if updates:
+        payload["trustBundleUpdates"] = updates
 
 
 def current_artifact_commitments(records: Path) -> dict[str, list[dict[str, Any]]]:
@@ -186,8 +199,8 @@ def main() -> int:
             f"missing={sorted(set(RECORDER_REQUIRED_LIVE) - live_names)}, "
             f"extra={sorted(live_names - set(RECORDER_REQUIRED_LIVE))}"
         )
-    ordered = verify_records(args.records)
-    previous = ordered[-1]
+    verification = verify_chain(args.records)
+    previous = verification.ordered[-1]
     day = args.recorded_at[:10]
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
         raise SystemExit("recorded-at must begin with an ISO UTC date")
@@ -303,6 +316,7 @@ def main() -> int:
         "resolutions": resolved,
         "artifactCommitments": current_artifact_commitments(args.records),
     }
+    add_trust_bundle_updates(payload, verification)
     exclusive_json_write(digest_path, payload)
     verify_recorder_snapshot(digest_path)
 

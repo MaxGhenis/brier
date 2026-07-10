@@ -10,7 +10,7 @@ import re
 import subprocess
 import sys
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -31,7 +31,16 @@ CODE_PINNED_TRUST_BUNDLES: dict[str, dict[str, Any]] = {
         "canonicalJsonSha256": (
             "9930588eb27ba631446416cf0d2bdac80785e73cf1d32e1d2ed70b0bb49f3d39"
         ),
-    }
+    },
+    "records/trust/tsa-anchors-v2.json": {
+        "bundleId": "tsa-anchors-v2",
+        "path": "records/trust/tsa-anchors-v2.json",
+        "sha256": "b8ece84adcc354f413f10f1b3999ac99679196b9391d76a9967369047b7d7716",
+        "size": 1916,
+        "canonicalJsonSha256": (
+            "036737fdd779f5add77b79262d9967e4bac450ff3ab7132eb929dbf893a4c396"
+        ),
+    },
 }
 CODE_PINNED_TSA_IDENTITIES = {
     "tsa-anchors-v1": {
@@ -43,7 +52,25 @@ CODE_PINNED_TSA_IDENTITIES = {
                 "fa02bd555e3e483d62b4e70be6218692068d2b0b0a7525db58dcbf2901cdb072"
             },
         }
-    }
+    },
+    "tsa-anchors-v2": {
+        "freetsa-root-2016": {
+            "rootSpkiSha256": (
+                "52c54ba340885605314daa1857c8763b94087d05c636092938d4e2d1818e99b5"
+            ),
+            "signerSpkiSha256": {
+                "fa02bd555e3e483d62b4e70be6218692068d2b0b0a7525db58dcbf2901cdb072"
+            },
+        },
+        "digicert-trusted-root-g4": {
+            "rootSpkiSha256": (
+                "59df317bfa9f4f0ab7ca514d7772296aa2c765b87664d08b96e57399e364729c"
+            ),
+            "signerSpkiSha256": {
+                "7abda95ed7301ac94bded350babc319903d0b4f16c4e7e39346dba5f9e992b72"
+            },
+        },
+    },
 }
 CODE_PINNED_GENESIS_ENUMERATIONS: dict[str, dict[str, Any]] = {
     "records/GENESIS_RECORDS.json": {
@@ -65,9 +92,26 @@ class ChainError(ValueError):
 
 
 @dataclass(frozen=True)
+class TokenEvidence:
+    anchor_id: str
+    trust_bundle_id: str
+    trust_bundle_path: str
+    token_path: str
+    token_sha256: str
+    policy_oid: str
+    imprint_algorithm_oid: str
+    gen_time: str
+    tsa_subject: str
+    tsa_certificate_sha256: str
+    tsa_spki_sha256: str
+
+
+@dataclass(frozen=True)
 class WitnessEvidence:
     status: str
     digest_sha256: str
+    tokens: tuple[TokenEvidence, ...] = ()
+    supplemental_tokens: tuple[TokenEvidence, ...] = ()
     anchor_id: str | None = None
     trust_bundle_id: str | None = None
     trust_bundle_path: str | None = None
@@ -84,6 +128,8 @@ class ChainVerification:
     ordered: tuple[Path, ...]
     witnesses: dict[Path, WitnessEvidence]
     enumeration_cutover: Path | None
+    active_trust_bundles: dict[str, dict[str, Any]] = field(default_factory=dict)
+    pending_trust_bundle_updates: tuple[dict[str, Any], ...] = ()
 
 
 def sha256_file(path: Path) -> str:
@@ -420,6 +466,23 @@ def _load_trust_bundle(
     anchors = payload.get("anchors")
     if not isinstance(anchors, list) or not anchors:
         raise ChainError("TSA trust bundle must contain at least one anchor")
+    anchor_ids: set[str] = set()
+    endpoints: set[str] = set()
+    for anchor in anchors:
+        if not isinstance(anchor, dict):
+            raise ChainError("TSA trust bundle anchor is not an object")
+        anchor_id = anchor.get("id")
+        endpoint = anchor.get("endpoint")
+        if not isinstance(anchor_id, str) or not anchor_id:
+            raise ChainError("TSA trust bundle anchor lacks an ID")
+        if not isinstance(endpoint, str) or not endpoint:
+            raise ChainError(f"TSA anchor {anchor_id!r} lacks an endpoint")
+        if anchor_id in anchor_ids:
+            raise ChainError(f"duplicate TSA anchor ID in trust bundle: {anchor_id}")
+        if endpoint in endpoints:
+            raise ChainError(f"duplicate TSA endpoint in trust bundle: {endpoint}")
+        anchor_ids.add(anchor_id)
+        endpoints.add(endpoint)
     actual_reference = _trust_bundle_reference(records, path, payload)
     if reference != actual_reference:
         raise ChainError(
@@ -444,7 +507,7 @@ def _bootstrap_trust_bundles(
 def _trust_bundle_updates(
     records: Path, payload: dict[str, Any]
 ) -> list[dict[str, Any]]:
-    updates = payload.get("trustBundleUpdates") or []
+    updates = payload.get("trustBundleUpdates", [])
     if not isinstance(updates, list):
         raise ChainError("snapshot trustBundleUpdates must be a list")
     validated: list[dict[str, Any]] = []
@@ -471,6 +534,38 @@ def _activate_trust_bundles(
             )
         active[path] = reference
         ids[bundle_id] = path
+
+
+def trust_bundle_updates_for_snapshot(
+    verification: ChainVerification,
+) -> list[dict[str, Any]]:
+    """Return code-pinned bundles not already active or replay-pending."""
+
+    introduced = set(verification.active_trust_bundles)
+    introduced.update(
+        str(reference["path"])
+        for reference in verification.pending_trust_bundle_updates
+    )
+    return [
+        dict(reference)
+        for path, reference in CODE_PINNED_TRUST_BUNDLES.items()
+        if path not in introduced
+    ]
+
+
+def preferred_active_trust_bundle(
+    active: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Select the highest immutable bundle version already authorized."""
+
+    candidates: list[tuple[int, dict[str, Any]]] = []
+    for path, reference in active.items():
+        match = re.fullmatch(r"records/trust/tsa-anchors-v([1-9][0-9]*)\.json", path)
+        if match:
+            candidates.append((int(match.group(1)), reference))
+    if not candidates:
+        raise ChainError("verified chain has no active versioned TSA trust bundle")
+    return dict(max(candidates, key=lambda item: item[0])[1])
 
 
 def _select_anchor(
@@ -536,56 +631,67 @@ def _select_anchor(
     return anchor
 
 
-def verify_witness(
-    path: Path,
+def _bundle_for_claim(
+    records: Path,
+    claim: dict[str, Any],
+    trusted_bundles: dict[str, dict[str, Any]],
     *,
-    records: Path | None = None,
-    now: datetime | None = None,
-    trusted_bundles: dict[str, dict[str, Any]] | None = None,
-) -> WitnessEvidence:
-    records = (records or path.parents[1]).resolve()
-    digest_sha = sha256_file(path)
-    witness_path = path.with_suffix(".witness.json")
-    if not witness_path.is_file():
-        raise ChainError(f"missing explicit witness marker for {path}")
-    witness = load_json(witness_path)
-    if witness.get("schemaVersion") != "thesis_rfc3161_witness_v1":
-        raise ChainError(f"unsupported witness schema for {path}")
-    if witness.get("digestSha256") != digest_sha:
-        raise ChainError(
-            f"witness digest mismatch for {path}: expected {digest_sha}, "
-            f"got {witness.get('digestSha256')}"
-        )
-    status = witness.get("status")
-    if status not in {"available", "unavailable"}:
-        raise ChainError(f"invalid witness status for {path}: {status!r}")
-    if status == "unavailable":
-        if not witness.get("reason"):
-            raise ChainError(f"unavailable witness lacks a reason for {path}")
-        return WitnessEvidence(status=status, digest_sha256=digest_sha)
+    active_required: bool,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    bundle_path = claim.get("trustBundlePath")
+    if not isinstance(bundle_path, str):
+        raise ChainError("witness lacks a TSA trust-bundle path")
+    if active_required:
+        bundle_reference = trusted_bundles.get(bundle_path)
+        if bundle_reference is None:
+            raise ChainError(
+                f"witness selects an untrusted TSA bundle: {bundle_path!r}"
+            )
+    else:
+        bundle_reference = CODE_PINNED_TRUST_BUNDLES.get(bundle_path)
+        if bundle_reference is None:
+            raise ChainError(
+                f"witness selects a bundle absent from verifier code pins: "
+                f"{bundle_path!r}"
+            )
+    if claim.get("trustBundleSha256") != bundle_reference.get("sha256"):
+        raise ChainError("witness TSA trust-bundle hash mismatch")
+    _trust_path, trust = _load_trust_bundle(records, bundle_reference)
+    if claim.get("trustBundleId") != trust.get("bundleId"):
+        raise ChainError("witness TSA trust-bundle ID mismatch")
+    return bundle_reference, trust
 
-    token_path = physical_path(records, str(witness.get("tokenPath", "")))
+
+def verify_timestamp_token(
+    path: Path,
+    token_claim: dict[str, Any],
+    bundle_reference: dict[str, Any],
+    *,
+    records: Path,
+    now: datetime | None = None,
+) -> TokenEvidence:
+    """Verify one claimed RFC 3161 token against one code-pinned anchor."""
+
+    bundle_path = str(bundle_reference["path"])
+    expected_bundle_claims = {
+        "trustBundleId": bundle_reference["bundleId"],
+        "trustBundlePath": bundle_path,
+        "trustBundleSha256": bundle_reference["sha256"],
+    }
+    for key, expected in expected_bundle_claims.items():
+        if token_claim.get(key) != expected:
+            raise ChainError(f"timestamp token {key} does not match its bundle pin")
+    _trust_path, trust = _load_trust_bundle(records, bundle_reference)
+    anchor = _select_anchor(records, token_claim, trust)
+    token_logical = token_claim.get("tokenPath")
+    if not isinstance(token_logical, str):
+        raise ChainError("witness token lacks tokenPath")
+    token_path = physical_path(records, token_logical)
     if not token_path.is_file() or token_path.is_symlink():
         raise ChainError(f"witness token is missing for {path}: {token_path}")
-    if sha256_file(token_path) != witness.get("tokenSha256"):
+    token_sha256 = sha256_file(token_path)
+    if token_sha256 != token_claim.get("tokenSha256"):
         raise ChainError(f"witness token hash mismatch for {path}")
-
-    if trusted_bundles is None:
-        genesis = load_json(records / "CHAIN_GENESIS.json")
-        trusted_bundles = _bootstrap_trust_bundles(records, genesis, required=True)
-    bundle_path = witness.get("trustBundlePath")
-    bundle_sha = witness.get("trustBundleSha256")
-    if not isinstance(bundle_path, str) or bundle_path not in trusted_bundles:
-        raise ChainError(
-            f"witness selects an untrusted TSA bundle for {path}: {bundle_path!r}"
-        )
-    bundle_reference = trusted_bundles[bundle_path]
-    if bundle_sha != bundle_reference.get("sha256"):
-        raise ChainError(f"witness TSA trust-bundle hash mismatch for {path}")
-    _trust_path, trust = _load_trust_bundle(records, bundle_reference)
-    if witness.get("trustBundleId") != trust.get("bundleId"):
-        raise ChainError(f"witness TSA trust-bundle ID mismatch for {path}")
-    anchor = _select_anchor(records, witness, trust)
     root_path = physical_path(records, str(anchor["rootCertificate"]["path"]))
 
     with tempfile.TemporaryDirectory(prefix="thesis-tsa-") as temporary:
@@ -722,17 +828,17 @@ def verify_witness(
         "tsaSignerSpkiSha256": signer_identity["spkiSha256"],
     }
     for key, actual in declared.items():
-        if key in witness and witness[key] != actual:
+        if key in token_claim and token_claim[key] != actual:
             raise ChainError(
                 f"witness {key} mismatch for {path}: expected {actual}, "
-                f"got {witness[key]}"
+                f"got {token_claim[key]}"
             )
-    return WitnessEvidence(
-        status=status,
-        digest_sha256=digest_sha,
+    return TokenEvidence(
         anchor_id=str(anchor["id"]),
         trust_bundle_id=str(trust["bundleId"]),
         trust_bundle_path=bundle_path,
+        token_path=token_logical,
+        token_sha256=token_sha256,
         policy_oid=policy_oid,
         imprint_algorithm_oid=imprint_algorithm_oid,
         gen_time=_format_utc(gen_time),
@@ -740,6 +846,316 @@ def verify_witness(
         tsa_certificate_sha256=signer_identity["certificateSha256"],
         tsa_spki_sha256=signer_identity["spkiSha256"],
     )
+
+
+_TOKEN_EVIDENCE_FIELDS = {
+    "tokenPath",
+    "tokenSha256",
+    "tsaPolicyOid",
+    "tsaImprintAlgorithmOid",
+    "tsaGenTime",
+    "tsaSignerCertificateSha256",
+    "tsaSignerSpkiSha256",
+}
+
+
+def _unavailable_outcome(outcome: dict[str, Any], *, label: str) -> None:
+    reason = outcome.get("reason")
+    if not isinstance(reason, str) or not reason:
+        raise ChainError(f"{label} unavailable outcome lacks a reason")
+    forbidden = sorted(_TOKEN_EVIDENCE_FIELDS.intersection(outcome))
+    if forbidden:
+        raise ChainError(
+            f"{label} unavailable outcome contains token evidence: {forbidden}"
+        )
+
+
+def _summarize_witness(
+    *,
+    status: str,
+    digest_sha256: str,
+    tokens: list[TokenEvidence],
+    supplemental_tokens: list[TokenEvidence] | None = None,
+) -> WitnessEvidence:
+    if not tokens:
+        return WitnessEvidence(
+            status=status,
+            digest_sha256=digest_sha256,
+            supplemental_tokens=tuple(supplemental_tokens or ()),
+        )
+    earliest = min(
+        tokens,
+        key=lambda token: (
+            _parse_rfc3339(token.gen_time, "token genTime"),
+            token.anchor_id,
+        ),
+    )
+    return WitnessEvidence(
+        status=status,
+        digest_sha256=digest_sha256,
+        tokens=tuple(tokens),
+        supplemental_tokens=tuple(supplemental_tokens or ()),
+        anchor_id=earliest.anchor_id,
+        trust_bundle_id=earliest.trust_bundle_id,
+        trust_bundle_path=earliest.trust_bundle_path,
+        policy_oid=earliest.policy_oid,
+        imprint_algorithm_oid=earliest.imprint_algorithm_oid,
+        gen_time=earliest.gen_time,
+        tsa_subject=earliest.tsa_subject,
+        tsa_certificate_sha256=earliest.tsa_certificate_sha256,
+        tsa_spki_sha256=earliest.tsa_spki_sha256,
+    )
+
+
+def _v1_witness_evidence(
+    path: Path,
+    witness: dict[str, Any],
+    *,
+    records: Path,
+    digest_sha256: str,
+    trusted_bundles: dict[str, dict[str, Any]],
+    now: datetime | None,
+) -> WitnessEvidence:
+    status = witness.get("status")
+    if status not in {"available", "unavailable"}:
+        raise ChainError(f"invalid witness status for {path}: {status!r}")
+    if status == "unavailable":
+        if not witness.get("reason"):
+            raise ChainError(f"unavailable witness lacks a reason for {path}")
+        return WitnessEvidence(status=status, digest_sha256=digest_sha256)
+    bundle_reference, _trust = _bundle_for_claim(
+        records, witness, trusted_bundles, active_required=True
+    )
+    token = verify_timestamp_token(
+        path,
+        witness,
+        bundle_reference,
+        records=records,
+        now=now,
+    )
+    return _summarize_witness(
+        status=status,
+        digest_sha256=digest_sha256,
+        tokens=[token],
+    )
+
+
+def _active_anchor_ids(
+    records: Path, trusted_bundles: dict[str, dict[str, Any]]
+) -> set[str]:
+    active: set[str] = set()
+    for reference in trusted_bundles.values():
+        _path, trust = _load_trust_bundle(records, reference)
+        active.update(str(anchor["id"]) for anchor in trust["anchors"])
+    return active
+
+
+def _supplemental_candidates(
+    records: Path,
+    trusted_bundles: dict[str, dict[str, Any]],
+    transition_bundle_updates: list[dict[str, Any]],
+) -> dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any]]]:
+    active_ids = _active_anchor_ids(records, trusted_bundles)
+    candidates: dict[tuple[str, str], tuple[dict[str, Any], dict[str, Any]]] = {}
+    for reference in transition_bundle_updates:
+        bundle_path = str(reference["path"])
+        if bundle_path in trusted_bundles:
+            continue
+        _path, trust = _load_trust_bundle(records, reference)
+        for anchor in trust["anchors"]:
+            anchor_id = str(anchor["id"])
+            if anchor_id not in active_ids:
+                candidates[(bundle_path, anchor_id)] = (reference, anchor)
+    return candidates
+
+
+def _v2_witness_evidence(
+    path: Path,
+    witness: dict[str, Any],
+    *,
+    records: Path,
+    digest_sha256: str,
+    trusted_bundles: dict[str, dict[str, Any]],
+    transition_bundle_updates: list[dict[str, Any]],
+    now: datetime | None,
+) -> WitnessEvidence:
+    status = witness.get("status")
+    if status not in {"available", "unavailable"}:
+        raise ChainError(f"invalid witness status for {path}: {status!r}")
+    preferred = preferred_active_trust_bundle(trusted_bundles)
+    if witness.get("trustBundlePath") != preferred["path"]:
+        raise ChainError(
+            "multi-token witness does not use the newest active TSA trust bundle"
+        )
+    bundle_reference, trust = _bundle_for_claim(
+        records, witness, trusted_bundles, active_required=True
+    )
+    outcomes = witness.get("anchorOutcomes")
+    if not isinstance(outcomes, list):
+        raise ChainError("multi-token witness anchorOutcomes must be a list")
+    expected_anchor_ids = {str(anchor["id"]) for anchor in trust["anchors"]}
+    seen_anchor_ids: set[str] = set()
+    tokens: list[TokenEvidence] = []
+    for outcome in outcomes:
+        if not isinstance(outcome, dict):
+            raise ChainError("multi-token witness outcome is not an object")
+        anchor = _select_anchor(records, outcome, trust)
+        anchor_id = str(anchor["id"])
+        if anchor_id in seen_anchor_ids:
+            raise ChainError(f"duplicate TSA anchor outcome: {anchor_id}")
+        seen_anchor_ids.add(anchor_id)
+        outcome_status = outcome.get("status")
+        if outcome_status == "available":
+            claim = {**witness, **outcome}
+            tokens.append(
+                verify_timestamp_token(
+                    path,
+                    claim,
+                    bundle_reference,
+                    records=records,
+                    now=now,
+                )
+            )
+        elif outcome_status == "unavailable":
+            _unavailable_outcome(outcome, label=f"TSA anchor {anchor_id}")
+        else:
+            raise ChainError(
+                f"invalid TSA anchor outcome status for {anchor_id}: {outcome_status!r}"
+            )
+    if seen_anchor_ids != expected_anchor_ids:
+        raise ChainError(
+            "multi-token witness anchor outcome mismatch: "
+            f"missing={sorted(expected_anchor_ids - seen_anchor_ids)}, "
+            f"extra={sorted(seen_anchor_ids - expected_anchor_ids)}"
+        )
+
+    candidates = _supplemental_candidates(
+        records, trusted_bundles, transition_bundle_updates
+    )
+    supplemental = witness.get("supplementalOutcomes", [])
+    if not isinstance(supplemental, list):
+        raise ChainError("multi-token witness supplementalOutcomes must be a list")
+    seen_supplemental: set[tuple[str, str]] = set()
+    supplemental_tokens: list[TokenEvidence] = []
+    for outcome in supplemental:
+        if not isinstance(outcome, dict):
+            raise ChainError("supplemental TSA outcome is not an object")
+        if outcome.get("role") != "pending_trust_bundle":
+            raise ChainError("supplemental TSA outcome has the wrong role")
+        bundle_path = outcome.get("trustBundlePath")
+        anchor_id = outcome.get("tsaAnchorId")
+        key = (str(bundle_path), str(anchor_id))
+        if key in seen_supplemental:
+            raise ChainError(f"duplicate supplemental TSA outcome: {key}")
+        seen_supplemental.add(key)
+        candidate = candidates.get(key)
+        if candidate is None:
+            raise ChainError(
+                "supplemental TSA outcome is not introduced by a pending "
+                f"trust transition: {key}"
+            )
+        reference, trust_anchor = candidate
+        _reference, pending_trust = _bundle_for_claim(
+            records, outcome, trusted_bundles, active_required=False
+        )
+        selected = _select_anchor(records, outcome, pending_trust)
+        if selected != trust_anchor:
+            raise ChainError(f"supplemental TSA anchor mismatch: {key}")
+        outcome_status = outcome.get("status")
+        if outcome_status == "available":
+            supplemental_tokens.append(
+                verify_timestamp_token(
+                    path,
+                    outcome,
+                    reference,
+                    records=records,
+                    now=now,
+                )
+            )
+        elif outcome_status == "unavailable":
+            _unavailable_outcome(outcome, label=f"supplemental TSA anchor {anchor_id}")
+        else:
+            raise ChainError(
+                f"invalid supplemental TSA outcome status: {outcome_status!r}"
+            )
+    if seen_supplemental != set(candidates):
+        raise ChainError(
+            "supplemental TSA outcome mismatch: "
+            f"missing={sorted(set(candidates) - seen_supplemental)}, "
+            f"extra={sorted(seen_supplemental - set(candidates))}"
+        )
+
+    expected_status = "available" if tokens else "unavailable"
+    if status != expected_status:
+        raise ChainError(
+            f"multi-token witness status {status!r} disagrees with verified "
+            f"token evidence {expected_status!r}"
+        )
+    if status == "unavailable" and not witness.get("reason"):
+        raise ChainError(f"unavailable witness lacks a reason for {path}")
+    return _summarize_witness(
+        status=status,
+        digest_sha256=digest_sha256,
+        tokens=tokens,
+        supplemental_tokens=supplemental_tokens,
+    )
+
+
+def verify_witness(
+    path: Path,
+    *,
+    records: Path | None = None,
+    now: datetime | None = None,
+    trusted_bundles: dict[str, dict[str, Any]] | None = None,
+    transition_bundle_updates: list[dict[str, Any]] | None = None,
+) -> WitnessEvidence:
+    records = (records or path.parents[1]).resolve()
+    digest_sha = sha256_file(path)
+    witness_path = path.with_suffix(".witness.json")
+    if not witness_path.is_file():
+        raise ChainError(f"missing explicit witness marker for {path}")
+    witness = load_json(witness_path)
+    if witness.get("digestSha256") != digest_sha:
+        raise ChainError(
+            f"witness digest mismatch for {path}: expected {digest_sha}, "
+            f"got {witness.get('digestSha256')}"
+        )
+    if trusted_bundles is None:
+        genesis = load_json(records / "CHAIN_GENESIS.json")
+        trusted_bundles = _bootstrap_trust_bundles(records, genesis, required=True)
+    if transition_bundle_updates is None:
+        transition_bundle_updates = _trust_bundle_updates(records, load_json(path))
+    schema = witness.get("schemaVersion")
+    if schema == "thesis_rfc3161_witness_v1":
+        preferred = (
+            preferred_active_trust_bundle(trusted_bundles) if trusted_bundles else None
+        )
+        if transition_bundle_updates or (
+            preferred is not None and preferred["bundleId"] != "tsa-anchors-v1"
+        ):
+            raise ChainError(
+                "legacy witness schema cannot cover a TSA trust transition "
+                "or a chain with v2 active"
+            )
+        return _v1_witness_evidence(
+            path,
+            witness,
+            records=records,
+            digest_sha256=digest_sha,
+            trusted_bundles=trusted_bundles,
+            now=now,
+        )
+    if schema == "thesis_rfc3161_witness_v2":
+        return _v2_witness_evidence(
+            path,
+            witness,
+            records=records,
+            digest_sha256=digest_sha,
+            trusted_bundles=trusted_bundles,
+            transition_bundle_updates=transition_bundle_updates,
+            now=now,
+        )
+    raise ChainError(f"unsupported witness schema for {path}")
 
 
 def _verify_enumeration_against_git(
@@ -952,8 +1368,10 @@ def verify_chain(
     now: datetime | None = None,
     allow_pre_enumeration: bool = False,
     bootstrap_trust_bundle: dict[str, Any] | None = None,
+    pending_snapshot: Path | None = None,
 ) -> ChainVerification:
     records = records.resolve()
+    pending_snapshot = pending_snapshot.resolve() if pending_snapshot else None
     genesis_path = records / "CHAIN_GENESIS.json"
     if not genesis_path.is_file():
         raise ChainError(f"missing chain genesis: {genesis_path}")
@@ -1061,6 +1479,16 @@ def verify_chain(
                 logical_path(records, path) for path in sorted(snapshot_set - visited)
             )
         )
+    verified_order = ordered
+    if pending_snapshot is not None:
+        if pending_snapshot != ordered[-1] or len(ordered) < 2:
+            raise ChainError(
+                "pending snapshot must be the unique uncommitted chain tail"
+            )
+        if pending_snapshot.with_suffix(".witness.json").exists():
+            raise ChainError("pending snapshot already has a witness marker")
+        _trust_bundle_updates(records, payloads[pending_snapshot])
+        verified_order = ordered[:-1]
 
     commitment_snapshots = [
         path for path in ordered if "genesisCommitments" in payloads[path]
@@ -1092,15 +1520,17 @@ def verify_chain(
         )
     pending_updates: list[dict[str, Any]] = []
     witnesses: dict[Path, WitnessEvidence] = {}
-    for path in ordered:
+    for path in verified_order:
+        current_updates = _trust_bundle_updates(records, payloads[path])
         evidence = verify_witness(
             path,
             records=records,
             now=now,
             trusted_bundles=active_bundles,
+            transition_bundle_updates=[*pending_updates, *current_updates],
         )
         witnesses[path] = evidence
-        pending_updates.extend(_trust_bundle_updates(records, payloads[path]))
+        pending_updates.extend(current_updates)
         # A trust-set transition becomes authoritative only after an external
         # witness made with an already-active bundle covers the transition.
         # Therefore a snapshot can never bootstrap the bundle used by its own
@@ -1159,8 +1589,8 @@ def verify_chain(
         raise ChainError(
             f"unsupported chain head schema: {head.get('schemaVersion')!r}"
         )
-    expected_head_path = logical_path(records, ordered[-1])
-    expected_head_sha = sha256_file(ordered[-1])
+    expected_head_path = logical_path(records, verified_order[-1])
+    expected_head_sha = sha256_file(verified_order[-1])
     if head.get("snapshotPath") != expected_head_path:
         raise ChainError(
             f"chain head path mismatch: expected {expected_head_path}, "
@@ -1172,9 +1602,15 @@ def verify_chain(
             f"got {head.get('snapshotSha256')}"
         )
     return ChainVerification(
-        ordered=tuple(ordered),
+        ordered=tuple(verified_order),
         witnesses=witnesses,
         enumeration_cutover=cutover_path,
+        active_trust_bundles={
+            path: dict(reference) for path, reference in active_bundles.items()
+        },
+        pending_trust_bundle_updates=tuple(
+            dict(reference) for reference in pending_updates
+        ),
     )
 
 
@@ -1208,14 +1644,27 @@ def main() -> int:
         if evidence.status == "available"
     ]
     for path, evidence in available:
+        anchors = ",".join(token.anchor_id for token in evidence.tokens)
+        policies = ",".join(token.policy_oid for token in evidence.tokens)
         print(
             "witness OK: "
             f"{logical_path(records.resolve(), path)} genTime={evidence.gen_time} "
-            f"policy={evidence.policy_oid} anchor={evidence.anchor_id}"
+            f"policies={policies} anchors={anchors}"
         )
+    active_bundle_ids = sorted(
+        str(reference["bundleId"])
+        for reference in verification.active_trust_bundles.values()
+    )
+    pending_bundle_ids = sorted(
+        str(reference["bundleId"])
+        for reference in verification.pending_trust_bundle_updates
+    )
     print(
         f"chain OK: {len(verification.ordered)} snapshot(s), "
-        f"availableWitnesses={len(available)}, head={verification.ordered[-1]}"
+        f"availableWitnesses={len(available)}, "
+        f"activeTrustBundles={active_bundle_ids}, "
+        f"pendingTrustBundles={pending_bundle_ids}, "
+        f"head={verification.ordered[-1]}"
     )
     return 0
 

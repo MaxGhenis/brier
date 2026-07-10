@@ -71,6 +71,12 @@ def test_recorder_requires_exact_expected_sha_and_pinned_deployments() -> None:
         )
 
 
+def test_recorder_workflow_uses_the_multi_tsa_witness_writer() -> None:
+    workflow = (ROOT / ".github/workflows/record-forecasts.yml").read_text()
+    assert "python3 scripts/witness_snapshot.py" in workflow
+    assert "thesis_rfc3161_witness_v1" not in workflow
+
+
 def write_json(path: pathlib.Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2) + "\n")
@@ -429,14 +435,14 @@ def test_witness_rejects_self_consistent_unapproved_trust_bundle(
     trust_dir = records / "trust"
     trust_dir.mkdir(parents=True)
     source = ROOT / "records/trust/tsa-anchors-v1.json"
-    rogue_path = trust_dir / "tsa-anchors-v2.json"
+    rogue_path = trust_dir / "tsa-anchors-v99.json"
     rogue_path.write_bytes(source.read_bytes())
     rogue_payload = json.loads(rogue_path.read_text())
-    rogue_payload["bundleId"] = "tsa-anchors-v2"
+    rogue_payload["bundleId"] = "tsa-anchors-v99"
     rogue_path.write_bytes(canonical_bytes(rogue_payload) + b"\n")
     rogue_ref = {
-        "bundleId": "tsa-anchors-v2",
-        "path": "records/trust/tsa-anchors-v2.json",
+        "bundleId": "tsa-anchors-v99",
+        "path": "records/trust/tsa-anchors-v99.json",
         "sha256": hashlib.sha256(rogue_path.read_bytes()).hexdigest(),
         "size": rogue_path.stat().st_size,
         "canonicalJsonSha256": canonical_sha256(rogue_payload),
@@ -471,12 +477,37 @@ def test_witness_rejects_self_consistent_unapproved_trust_bundle(
         verify_witness(snapshot, records=records)
 
 
+def test_code_pinned_v2_bundle_loads_both_independent_anchors() -> None:
+    reference = record_chain.CODE_PINNED_TRUST_BUNDLES[
+        "records/trust/tsa-anchors-v2.json"
+    ]
+    _path, bundle = record_chain._load_trust_bundle(ROOT / "records", reference)
+    assert [anchor["id"] for anchor in bundle["anchors"]] == [
+        "freetsa-root-2016",
+        "digicert-trusted-root-g4",
+    ]
+    assert (
+        bundle["anchors"][0]
+        == json.loads((ROOT / "records/trust/tsa-anchors-v1.json").read_text())[
+            "anchors"
+        ][0]
+    )
+    assert bundle["anchors"][1]["allowedPolicyOids"] == ["2.16.840.1.114412.7.1"]
+    for anchor in bundle["anchors"]:
+        assert (
+            record_chain._select_anchor(
+                ROOT / "records",
+                {"tsaAnchorId": anchor["id"], "tsa": anchor["endpoint"]},
+                bundle,
+            )
+            == anchor
+        )
+
+
 def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
     # Real tokens are always in the past, so the actual clock is the right
     # verification time; a frozen instant broke on every new recording.
-    verification = verify_chain(
-        ROOT / "records", now=datetime.now(timezone.utc)
-    )
+    verification = verify_chain(ROOT / "records", now=datetime.now(timezone.utc))
     # The chain PREFIX is immutable history; the tail grows with each
     # recorded wave.
     assert [path.name for path in verification.ordered][:5] == [
@@ -499,17 +530,27 @@ def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
         "2026-07-10T04:29:34Z",
     ]
     assert gen_times == sorted(gen_times)
-    assert {evidence.policy_oid for evidence in available} == {"1.2.3.4.1"}
-    assert {evidence.imprint_algorithm_oid for evidence in available} == {
+    historical = available[:4]
+    assert {evidence.policy_oid for evidence in historical} == {"1.2.3.4.1"}
+    assert {evidence.imprint_algorithm_oid for evidence in historical} == {
         "2.16.840.1.101.3.4.2.1"
     }
-    assert {evidence.trust_bundle_id for evidence in available} == {"tsa-anchors-v1"}
-    assert {evidence.anchor_id for evidence in available} == {"freetsa-root-2016"}
-    assert {evidence.tsa_spki_sha256 for evidence in available} == {
+    assert {evidence.trust_bundle_id for evidence in historical} == {"tsa-anchors-v1"}
+    assert {evidence.anchor_id for evidence in historical} == {"freetsa-root-2016"}
+    assert {evidence.tsa_spki_sha256 for evidence in historical} == {
         "fa02bd555e3e483d62b4e70be6218692068d2b0b0a7525db58dcbf2901cdb072"
     }
+    assert all(evidence.tokens for evidence in available)
+    assert all(
+        token.trust_bundle_path in record_chain.CODE_PINNED_TRUST_BUNDLES
+        for evidence in available
+        for token in evidence.tokens
+    )
     # The genesis-enumeration cutover carries its external witness now.
-    assert verification.witnesses[verification.ordered[-1]].status == "available"
+    assert verification.enumeration_cutover is not None
+    assert (
+        verification.witnesses[verification.enumeration_cutover].status == "available"
+    )
 
 
 def test_token_time_rejects_future_and_impossibly_early_values() -> None:
@@ -833,6 +874,11 @@ def test_writer_shaped_recorder_v2_inventory_verifies(
             "runMode": "recorder",
             "runId": run_id,
             "recordedAt": "2030-01-01T00:00:00Z",
+            "trustBundleUpdates": [
+                record_chain.CODE_PINNED_TRUST_BUNDLES[
+                    "records/trust/tsa-anchors-v2.json"
+                ]
+            ],
             "surfaces": surfaces,
             "logChunks": {
                 "runs:0": {
@@ -853,9 +899,9 @@ def test_writer_shaped_recorder_v2_inventory_verifies(
     misplaced = body_dir / "junk/runs-0.json.gz"
     misplaced.parent.mkdir(parents=True)
     original.rename(misplaced)
-    payload["logChunks"]["runs:0"]["archivePath"] = (
-        f"records/2030-01-01/bodies-{run_id}/junk/runs-0.json.gz"
-    )
+    payload["logChunks"]["runs:0"][
+        "archivePath"
+    ] = f"records/2030-01-01/bodies-{run_id}/junk/runs-0.json.gz"
     write_json(snapshot, payload)
     with pytest.raises(CustodyError, match="archive path mismatch"):
         verify_recorder_snapshot(snapshot)

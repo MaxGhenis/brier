@@ -1,8 +1,8 @@
 name: Record forecasts
 
 # Per-invocation immutable snapshot of every published forecast surface.  Each
-# digest links the immediately preceding invocation and receives an independent
-# RFC 3161 witness when the public TSA is available.
+# digest links the immediately preceding invocation and requests independently
+# anchored RFC 3161 witnesses from every active public TSA.
 
 on:
   schedule:
@@ -185,104 +185,13 @@ jobs:
           DIGEST=$("${snapshot_args[@]}")
           echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
 
-      - name: Obtain independent RFC 3161 witness
+      - name: Obtain independent RFC 3161 witnesses
         run: |
           set -euo pipefail
           DIGEST="${{ steps.snapshot.outputs.digest }}"
-          TOKEN="${DIGEST%.json}.tsr"
-          WITNESS="${DIGEST%.json}.witness.json"
-          TSA_CA="${DIGEST%.json}.tsa-ca.pem"
-          TSA_CERT="${DIGEST%.json}.tsa.crt"
-          QUERY=$(mktemp)
-          EMPTY_CA=$(mktemp -d)
-          GEN_TIME=""
-          openssl ts -query -data "$DIGEST" -sha256 -cert -out "$QUERY"
-          # Trust decisions use ONLY the committed pinned root; the sibling
-          # CA/signer downloads below are archival context, never trust input
-          # (lane B: a token-adjacent CA must not be able to vouch for its
-          # own token). Verification mirrors verify_record_chain.py exactly.
-          if curl -sSf -m 45 \
-              -H "Content-Type: application/timestamp-query" \
-              --data-binary "@$QUERY" https://freetsa.org/tsr -o "$TOKEN" \
-              && openssl ts -verify -config /dev/null -data "$DIGEST" \
-                   -in "$TOKEN" \
-                   -CAfile records/trust/freetsa-root-2016.pem \
-                   -CApath "$EMPTY_CA"; then
-            STATUS=available
-            REASON=""
-            GEN_TIME=$(openssl ts -reply -in "$TOKEN" -text 2>/dev/null \
-              | sed -n 's/^Time stamp: //p')
-            curl -sSf -m 45 https://freetsa.org/files/cacert.pem -o "$TSA_CA" || true
-            curl -sSf -m 45 https://freetsa.org/files/tsa.crt -o "$TSA_CERT" || true
-          else
-            rm -f "$TOKEN" "$TSA_CA" "$TSA_CERT"
-            STATUS=unavailable
-            REASON="FreeTSA request or pinned-root RFC 3161 verification failed"
-          fi
-          python3 - "$DIGEST" "$TOKEN" "$WITNESS" "$TSA_CA" "$TSA_CERT" "$STATUS" "$REASON" "$GEN_TIME" <<'PY'
-          import datetime as dt
-          import hashlib, json, pathlib, sys
-          digest = pathlib.Path(sys.argv[1])
-          token = pathlib.Path(sys.argv[2])
-          witness = pathlib.Path(sys.argv[3])
-          tsa_ca = pathlib.Path(sys.argv[4])
-          tsa_cert = pathlib.Path(sys.argv[5])
-          status = sys.argv[6]
-          reason = sys.argv[7]
-          gen_time_raw = sys.argv[8]
-          bundle_path = pathlib.Path("records/trust/tsa-anchors-v1.json")
-          bundle = json.loads(bundle_path.read_text())
-          anchor = bundle["anchors"][0]
-          signer = anchor["allowedSigners"][0]
-          payload = {
-              "schemaVersion": "thesis_rfc3161_witness_v1",
-              "status": status,
-              "digestSha256": hashlib.sha256(digest.read_bytes()).hexdigest(),
-              "tsa": anchor["endpoint"],
-              "tsaAnchorId": anchor["id"],
-              "trustBundleId": bundle["bundleId"],
-              "trustBundlePath": str(bundle_path),
-              "trustBundleSha256": hashlib.sha256(
-                  bundle_path.read_bytes()
-              ).hexdigest(),
-          }
-          if status == "available":
-              parsed = dt.datetime.strptime(gen_time_raw, "%b %d %H:%M:%S %Y GMT")
-              payload["tsaPolicyOid"] = anchor["allowedPolicyOids"][0]
-              payload["tsaImprintAlgorithmOid"] = anchor[
-                  "allowedImprintAlgorithmOids"
-              ][0]
-              payload["tsaGenTime"] = parsed.strftime("%Y-%m-%dT%H:%M:%SZ")
-              payload["tsaSignerCertificateSha256"] = signer["certificateSha256"]
-              payload["tsaSignerSpkiSha256"] = signer["spkiSha256"]
-              payload["tokenPath"] = str(token)
-              payload["tokenSha256"] = hashlib.sha256(token.read_bytes()).hexdigest()
-              # Archival context only — never trust input.
-              if tsa_ca.exists():
-                  payload["caCertificatePath"] = str(tsa_ca)
-                  payload["caCertificateSha256"] = hashlib.sha256(
-                      tsa_ca.read_bytes()
-                  ).hexdigest()
-              if tsa_cert.exists():
-                  payload["tsaCertificatePath"] = str(tsa_cert)
-                  payload["tsaCertificateSha256"] = hashlib.sha256(
-                      tsa_cert.read_bytes()
-                  ).hexdigest()
-          else:
-              payload["reason"] = reason
-          witness.write_text(json.dumps(payload, indent=2) + "\n")
-          pathlib.Path("records/CHAIN_HEAD.json").write_text(
-              json.dumps(
-                  {
-                      "schemaVersion": "thesis_record_chain_head_v1",
-                      "snapshotPath": str(digest),
-                      "snapshotSha256": payload["digestSha256"],
-                  },
-                  indent=2,
-              )
-              + "\n"
-          )
-          PY
+          python3 scripts/witness_snapshot.py \
+            --records records \
+            --digest "$DIGEST"
 
       - name: Verify record chain
         run: python3 scripts/verify_record_chain.py records

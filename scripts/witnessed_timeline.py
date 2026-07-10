@@ -19,6 +19,7 @@ from verify_custody import CustodyError, verify_run
 from verify_record_chain import (
     ChainError,
     ChainVerification,
+    WitnessEvidence,
     logical_path,
     physical_path,
     verify_chain,
@@ -52,6 +53,18 @@ class ProofCandidate:
         }
 
 
+def _verified_witness_time(evidence: WitnessEvidence) -> str | None:
+    candidates = [token.gen_time for token in evidence.tokens]
+    if evidence.gen_time:
+        candidates.append(evidence.gen_time)
+    if not candidates:
+        return None
+    return min(
+        candidates,
+        key=lambda value: datetime.fromisoformat(value.replace("Z", "+00:00")),
+    )
+
+
 def _safe_logical(value: str) -> PurePosixPath:
     if not value or "\\" in value:
         raise TimelineError(f"invalid logical path: {value!r}")
@@ -74,7 +87,8 @@ def _winner(
     for witness_index in range(snapshot_index, len(verification.ordered)):
         digest = verification.ordered[witness_index]
         evidence = verification.witnesses[digest]
-        if evidence.status != "available" or not evidence.gen_time:
+        witness_time = _verified_witness_time(evidence)
+        if evidence.status != "available" or not witness_time:
             continue
         coverage = (
             "transitive"
@@ -83,9 +97,9 @@ def _winner(
         )
         candidates.append(
             ProofCandidate(
-                earliest_witnessed_at=evidence.gen_time,
+                earliest_witnessed_at=witness_time,
                 witness_digest=logical_path(records, digest),
-                tsa_gen_time=evidence.gen_time,
+                tsa_gen_time=witness_time,
                 coverage=coverage,
             )
         )
@@ -158,9 +172,7 @@ def _validate_registration(
         except RegistrationError:
             pass
         if canonical_hash not in accepted:
-            raise TimelineError(
-                f"registration canonical SHA-256 mismatch: {logical}"
-            )
+            raise TimelineError(f"registration canonical SHA-256 mismatch: {logical}")
 
 
 def _registration_from_manifest(
