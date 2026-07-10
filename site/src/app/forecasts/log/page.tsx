@@ -601,7 +601,7 @@ function ScoreExtremesTable({
                     </div>
                   </td>
                   <td className="py-3 pr-4 align-top text-[var(--theme-text)]">
-                    {formatCompactNumber(score.normalizedCrps)}
+                    {formatNullableScore(score.normalizedCrps)}
                   </td>
                   <td className="py-3 pr-4 align-top text-[var(--theme-text)]">
                     {formatSignedValue(score.signedError, score.unit)}
@@ -823,7 +823,7 @@ function ScoreRow({
         {formatSignedValue(score.signedError, score.unit)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
-        {formatCompactNumber(score.normalizedCrps)}
+        {formatNullableScore(score.normalizedCrps)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {formatCompactNumber(score.crps)}
@@ -858,11 +858,16 @@ function buildScoreboard(
   scores: ResolvedForecastScore[],
   forecasts: ForecastCell[],
 ): Scoreboard {
-  const scoresByNormalizedCrps = [...scores].sort((left, right) => {
-    const crpsDelta = left.normalizedCrps - right.normalizedCrps;
-    if (crpsDelta !== 0) return crpsDelta;
-    return left.absoluteError - right.absoluteError;
-  });
+  const scoresByNormalizedCrps = scores
+    .filter(
+      (score): score is ResolvedForecastScore & { normalizedCrps: number } =>
+        score.normalizedCrps !== null,
+    )
+    .sort((left, right) => {
+      const crpsDelta = left.normalizedCrps - right.normalizedCrps;
+      if (crpsDelta !== 0) return crpsDelta;
+      return left.absoluteError - right.absoluteError;
+    });
 
   return {
     overall: summarizeScores(scores),
@@ -970,11 +975,17 @@ function buildScoreboardGroups({
 function summarizeScores(scores: ResolvedForecastScore[]): ScoreboardSummary {
   return {
     scored: scores.length,
-    meanNormalizedCrps: mean(scores.map((score) => score.normalizedCrps)),
+    meanNormalizedCrps: mean(
+      scores
+        .map((score) => score.normalizedCrps)
+        .filter((value): value is number => value !== null),
+    ),
     meanCrps: mean(scores.map((score) => score.crps)),
     meanAbsoluteError: mean(scores.map((score) => score.absoluteError)),
     meanNormalizedAbsoluteError: mean(
-      scores.map((score) => score.normalizedAbsoluteError),
+      scores
+        .map((score) => score.normalizedAbsoluteError)
+        .filter((value): value is number => value !== null),
     ),
     intervalCoverage:
       scores.length === 0

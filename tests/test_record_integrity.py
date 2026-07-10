@@ -11,9 +11,39 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from canonical_json import canonical_stringify  # noqa: E402
+from record_forecast_snapshot import validate_deployment_identity  # noqa: E402
 from run_thesis_analyst import finalize_manifest, write_artifact  # noqa: E402
 from verify_custody import CustodyError, verify_run  # noqa: E402
 from verify_record_chain import ChainError, verify_records  # noqa: E402
+
+
+def deployment_build(commit: str, deployment: str) -> dict[str, str]:
+    return {"commit": commit, "deploymentUrl": deployment}
+
+
+def test_recorder_requires_exact_expected_sha_and_pinned_deployments() -> None:
+    commit = "a" * 40
+    site_deployment = "brier-abc123.vercel.app"
+    api_deployment = "thesis-api-def456.vercel.app"
+    kwargs = {
+        "site_build": deployment_build(commit, site_deployment),
+        "api_build": deployment_build("b" * 40, api_deployment),
+        "site_deployment_url": f"https://{site_deployment}",
+        "api_deployment_url": f"https://{api_deployment}",
+        "expected_sha": commit,
+        "ancestry_distance": 0,
+    }
+    validate_deployment_identity(**kwargs)
+
+    with pytest.raises(ValueError, match="does not exactly match"):
+        validate_deployment_identity(**{**kwargs, "expected_sha": "c" * 40})
+    with pytest.raises(ValueError, match="site build deploymentUrl"):
+        validate_deployment_identity(
+            **{
+                **kwargs,
+                "site_deployment_url": "https://another.vercel.app",
+            }
+        )
 
 
 def write_json(path: pathlib.Path, value: object) -> None:

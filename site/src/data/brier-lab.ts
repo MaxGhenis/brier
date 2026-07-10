@@ -55,6 +55,10 @@ export interface BrierRewardRow {
       crps: number | null;
       normalizedCrps: number | null;
       absoluteError: number | null;
+      normalizedAbsoluteError: number | null;
+      sharpness: number | null;
+      normalizationScale: number | null;
+      normalizationScaleSource: "ledger_dispersion" | "target_primary_width" | "unavailable" | null;
       interval80Covered: boolean | null;
     };
   };
@@ -367,11 +371,18 @@ function buildRewardRow({
     horizonDaysAtRun: getHorizonDaysAtRun(run.predictionRun?.runAt, forecast),
     reward: {
       objective: "minimize_normalized_crps",
-      value: score ? -score.normalizedCrps : null,
+      value:
+        score?.normalizedCrps === null || score?.normalizedCrps === undefined
+          ? null
+          : -score.normalizedCrps,
       components: {
         crps: score?.crps ?? null,
         normalizedCrps: score?.normalizedCrps ?? null,
         absoluteError: score?.absoluteError ?? null,
+        normalizedAbsoluteError: score?.normalizedAbsoluteError ?? null,
+        sharpness: score?.sharpness ?? null,
+        normalizationScale: score?.normalizationScale ?? null,
+        normalizationScaleSource: score?.normalizationScaleSource ?? null,
         interval80Covered: score?.interval80Covered ?? null,
       },
     },
@@ -432,7 +443,12 @@ export function buildBrierAgentLeaderboard(
   return [...groups.entries()]
     .map(([key, group]) => {
       const [agent, model] = key.split("\u0000");
-      const scoredRows = group.filter((row) => row.reward.value !== null);
+      const rawScoredRows = group.filter(
+        (row) => row.reward.components.crps !== null,
+      );
+      const scoredRows = group.filter(
+        (row) => row.reward.components.normalizedCrps !== null,
+      );
       const artifactRows = group.filter(
         (row) => row.provenance.activityArtifactCount > 0,
       );
@@ -454,12 +470,12 @@ export function buildBrierAgentLeaderboard(
             .filter(isNumber),
         ),
         unpairedMeanAbsoluteError: mean(
-          scoredRows
+          rawScoredRows
             .map((row) => row.reward.components.absoluteError)
             .filter(isNumber),
         ),
         unpairedInterval80Coverage: mean(
-          scoredRows
+          rawScoredRows
             .map((row) => row.reward.components.interval80Covered)
             .filter((value): value is boolean => typeof value === "boolean")
             .map((covered) => (covered ? 1 : 0)),

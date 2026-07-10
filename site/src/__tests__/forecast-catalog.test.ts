@@ -284,8 +284,19 @@ describe("forecast catalog", () => {
     );
     expect(logData.scores[0].observedValue).toEqual(expect.any(Number));
     expect(logData.scores[0].interval80.width).toBeGreaterThan(0);
-    expect(logData.scores[0].normalizedCrps).toBeGreaterThanOrEqual(0);
-    expect(logData.scores[0].normalizedAbsoluteError).toBeGreaterThanOrEqual(0);
+    expect(logData.scores[0].crps).toBeGreaterThanOrEqual(0);
+    expect(logData.scores[0].normalizationScaleSource).toMatch(
+      /^(ledger_dispersion|target_primary_width|unavailable)$/,
+    );
+    if (logData.scores[0].normalizationScaleSource === "unavailable") {
+      expect(logData.scores[0].normalizedCrps).toBeNull();
+      expect(logData.scores[0].normalizedAbsoluteError).toBeNull();
+    } else {
+      expect(logData.scores[0].normalizedCrps).toBeGreaterThanOrEqual(0);
+      expect(logData.scores[0].normalizedAbsoluteError).toBeGreaterThanOrEqual(
+        0,
+      );
+    }
     expect(logData.scores[0].packMode).toBeTruthy();
     expect(exportPayload.judgeResults.schemaVersion).toBe(
       "thesis_forecast_judges_summary_v1",
@@ -365,7 +376,9 @@ describe("forecast catalog", () => {
     expect(exportPayload.counts.runs).toBe(runs.length);
     expect(exportPayload.counts.traceJudgedRuns).toBe(runs.length);
     expect(exportPayload.counts.postResolutionJudgeRows).toBe(
-      exportPayload.counts.scoredRuns,
+      exportPayload.rewardRows.filter(
+        (row) => row.reward.components.crps !== null,
+      ).length,
     );
     expect(exportPayload.counts.preSubmitReviewedRuns).toBe(
       exportPayload.rewardRows.filter((row) => row.preSubmitReview.reviewed)
@@ -380,20 +393,22 @@ describe("forecast catalog", () => {
     ]);
     expect(exportPayload.judgePolicy.rewardEligible).toBe(false);
     expect(exportPayload.judgeResults.policy.rewardEligible).toBe(false);
-    expect(scoredRow?.reward.value).toBeLessThanOrEqual(0);
-    expect(scoredRow?.reward.components.normalizedCrps).toBeGreaterThanOrEqual(
-      0,
-    );
-    expect(scoredRow?.auxiliaryJudges.rewardEligible).toBe(false);
-    expect(scoredRow?.auxiliaryJudges.traceQualityScore).toEqual(
-      expect.any(Number),
-    );
-    expect(scoredRow?.preSubmitReview.status).toBe("not_requested");
-    expect(scoredRow?.preSubmitReview.reviewed).toBe(false);
-    expect(scoredRow?.distributionProvenance).toMatch(
-      /^(agent_reported|interval_seeded)$/,
-    );
-    expect(scoredRow?.transformVersion).toMatch(/_v1$/);
+    if (scoredRow) {
+      expect(scoredRow.reward.value).toBeLessThanOrEqual(0);
+      expect(scoredRow.reward.components.normalizedCrps).toBeGreaterThanOrEqual(
+        0,
+      );
+      expect(scoredRow.auxiliaryJudges.rewardEligible).toBe(false);
+      expect(scoredRow.auxiliaryJudges.traceQualityScore).toEqual(
+        expect.any(Number),
+      );
+      expect(scoredRow.preSubmitReview.status).toBe("not_requested");
+      expect(scoredRow.preSubmitReview.reviewed).toBe(false);
+      expect(scoredRow.distributionProvenance).toMatch(
+        /^(agent_reported|interval_seeded)$/,
+      );
+      expect(scoredRow.transformVersion).toMatch(/_v1$/);
+    }
     expect(liveRun?.split).toBe("unresolved");
     expect(liveRun?.provenance.activityArtifactCount).toBe(8);
     expect(exportPayload.leaderboard.length).toBeGreaterThan(0);
@@ -424,7 +439,7 @@ describe("forecast catalog", () => {
     expect(exportPayload.postResolution).toHaveLength(scores.length);
     expect(exportPayload.calibration.counts.judgedRuns).toBe(runs.length);
     expect(exportPayload.calibration.counts.scoredJudgedRuns).toBe(
-      scores.length,
+      scores.filter((score) => score.normalizationScale !== null).length,
     );
     expect(exportPayload.calibration.counts.pairwiseComparisons).toBe(
       exportPayload.pairwise.length,
@@ -735,7 +750,10 @@ describe("forecast catalog", () => {
   });
 
   it("scores the Strategy Lab against replayable SNAP baselines", () => {
-    const report = buildStrategyLabReport(resolvedForecastCells);
+    const report = buildStrategyLabReport(
+      resolvedForecastCells,
+      policyEngineLedger,
+    );
     const family = report.families.find(
       (candidate) => candidate.familyId === "snap_payment_error_fy2025_panel",
     );
@@ -762,9 +780,12 @@ describe("forecast catalog", () => {
     expect(persistence?.meanAbsoluteError).toBeGreaterThan(0);
     expect(agent?.meanAbsoluteErrorVsPersistence).toBeGreaterThan(0);
     expect(
-      family?.largestAgentNcrpsMissesVsPersistence[0]
-        ?.agentMinusPersistenceNormalizedCrps,
-    ).toBeGreaterThan(0);
+      report.scoreRows.every(
+        (row) =>
+          (row.normalizationScaleSource === "unavailable") ===
+          (row.normalizedCrps === null),
+      ),
+    ).toBe(true);
 
     const oneUnresolvedReport = buildStrategyLabReport(
       resolvedForecastCells.map((forecast) =>
@@ -772,6 +793,7 @@ describe("forecast catalog", () => {
           ? { ...forecast, resolvedOutcome: undefined }
           : forecast,
       ),
+      policyEngineLedger,
     );
     const oneUnresolvedFamily = oneUnresolvedReport.families.find(
       (candidate) => candidate.familyId === "snap_payment_error_fy2025_panel",
@@ -2197,7 +2219,7 @@ describe("forecast catalog", () => {
       expect(score?.runId).toMatch(/^run\./);
       expect(score?.resolutionEventId).toMatch(/^resolution_event\./);
       expect(score?.scoreId).toMatch(/^score\.run\./);
-      expect(score?.scoringRule).toBe("numeric_cdf_crps_v2_target_scale");
+      expect(score?.scoringRule).toBe("numeric_cdf_crps_v3_ledger_scale");
       expect(score?.distributionProvenance).toMatch(
         /^(agent_reported|interval_seeded)$/,
       );
@@ -2206,9 +2228,14 @@ describe("forecast catalog", () => {
       expect(score?.unit).toBe(expected.unit);
       expect(score?.interval80.width).toBeGreaterThan(0);
       expect(score?.absoluteError).toBeGreaterThanOrEqual(0);
-      expect(score?.normalizedAbsoluteError).toBeGreaterThanOrEqual(0);
       expect(score?.crps).toBeGreaterThanOrEqual(0);
-      expect(score?.normalizedCrps).toBeGreaterThanOrEqual(0);
+      if (score?.normalizationScaleSource === "unavailable") {
+        expect(score.normalizedAbsoluteError).toBeNull();
+        expect(score.normalizedCrps).toBeNull();
+      } else {
+        expect(score?.normalizedAbsoluteError).toBeGreaterThanOrEqual(0);
+        expect(score?.normalizedCrps).toBeGreaterThanOrEqual(0);
+      }
       expect(score?.probabilityIntegralTransform).toBeGreaterThanOrEqual(0);
       expect(score?.probabilityIntegralTransform).toBeLessThanOrEqual(1);
       expect(score?.packMode).toBeTruthy();

@@ -22,6 +22,10 @@ SURFACES = {
     "targets": ("targets.json", "https://app.thesisinstitute.org/targets.json"),
     "reward": ("reward.json", "https://app.thesisinstitute.org/brier/reward.json"),
     "build": ("build.json", "https://app.thesisinstitute.org/build.json"),
+    "apiBuild": (
+        "api-build.json",
+        "https://api.thesisinstitute.org/build.json",
+    ),
     "ledgerCommitApi": (
         "ledger-commit.json",
         "https://api.github.com/repos/PolicyEngine/arch-data/commits/"
@@ -62,6 +66,38 @@ def exclusive_json_write(path: Path, value: Any) -> None:
         stream.write(data)
 
 
+def validate_deployment_identity(
+    *,
+    site_build: dict[str, Any],
+    api_build: dict[str, Any],
+    site_deployment_url: str,
+    api_deployment_url: str,
+    expected_sha: str | None,
+    ancestry_distance: int,
+) -> None:
+    if ancestry_distance < 0:
+        raise ValueError("deployment ancestry distance must be non-negative")
+    if expected_sha and not re.fullmatch(r"[0-9a-fA-F]{40}", expected_sha):
+        raise ValueError("expected SHA must be a full commit SHA")
+    deployment_pattern = re.compile(r"https://[A-Za-z0-9-]+\.vercel\.app")
+    if not deployment_pattern.fullmatch(site_deployment_url):
+        raise ValueError("site deployment URL must be an immutable Vercel URL")
+    if not deployment_pattern.fullmatch(api_deployment_url):
+        raise ValueError("API deployment URL must be an immutable Vercel URL")
+    for label, build in (("site", site_build), ("API", api_build)):
+        if not re.fullmatch(r"[0-9a-fA-F]{40}", str(build.get("commit") or "")):
+            raise ValueError(f"{label} build commit must be a full commit SHA")
+    if expected_sha and site_build.get("commit") != expected_sha:
+        raise ValueError(
+            "site build commit does not exactly match expected SHA: "
+            f"{site_build.get('commit')} != {expected_sha}"
+        )
+    if f"https://{site_build.get('deploymentUrl')}" != site_deployment_url:
+        raise ValueError("site build deploymentUrl does not match pinned URL")
+    if f"https://{api_build.get('deploymentUrl')}" != api_deployment_url:
+        raise ValueError("API build deploymentUrl does not match pinned URL")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--records", type=Path, default=Path("records"))
@@ -70,12 +106,29 @@ def main() -> int:
     parser.add_argument("--recorded-at", required=True)
     parser.add_argument("--repo-sha", required=True)
     parser.add_argument("--ledger-sha", required=True)
+    parser.add_argument("--site-deployment-url", required=True)
+    parser.add_argument("--api-deployment-url", required=True)
+    parser.add_argument("--deployment-ancestry-distance", type=int, required=True)
+    parser.add_argument("--expected-sha")
     args = parser.parse_args()
 
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", args.run_id):
         raise SystemExit(
             "run-id may contain only letters, digits, dot, underscore, dash"
         )
+    try:
+        build_payload = json.loads((args.source_dir / "build.json").read_text())
+        api_build_payload = json.loads((args.source_dir / "api-build.json").read_text())
+        validate_deployment_identity(
+            site_build=build_payload,
+            api_build=api_build_payload,
+            site_deployment_url=args.site_deployment_url,
+            api_deployment_url=args.api_deployment_url,
+            expected_sha=args.expected_sha,
+            ancestry_distance=args.deployment_ancestry_distance,
+        )
+    except (OSError, json.JSONDecodeError, ValueError) as error:
+        raise SystemExit(str(error)) from error
     ordered = verify_records(args.records)
     previous = ordered[-1]
     day = args.recorded_at[:10]
@@ -95,6 +148,12 @@ def main() -> int:
         record = archive_body(source, destination)
         record["archivePath"] = str(destination.resolve().relative_to(repo_root))
         record["url"] = url
+        if name == "ledgerCommitApi":
+            record["fetchedUrl"] = url
+        elif name == "apiBuild":
+            record["fetchedUrl"] = f"{args.api_deployment_url.rstrip('/')}/build.json"
+        else:
+            record["fetchedUrl"] = f"{args.site_deployment_url.rstrip('/')}/{filename}"
         surface_records[name] = record
 
     log_chunk_records: dict[str, Any] = {}
@@ -112,6 +171,10 @@ def main() -> int:
                 record["url"] = urllib.parse.urljoin(
                     "https://app.thesisinstitute.org/log.json", reference["url"]
                 )
+                record["fetchedUrl"] = urllib.parse.urljoin(
+                    f"{args.site_deployment_url.rstrip('/')}/log.json",
+                    reference["url"],
+                )
                 record["manifestSha256"] = reference["sha256"]
                 log_chunk_records[f"{collection}:{reference['index']}"] = record
 
@@ -122,6 +185,9 @@ def main() -> int:
             destination = body_dir / "live" / f"{source.name}.gz"
             record = archive_body(source, destination)
             record["archivePath"] = str(destination.resolve().relative_to(repo_root))
+            record["fetchedUrl"] = (
+                f"{args.api_deployment_url.rstrip('/')}/forecasts/{source.stem}/stream"
+            )
             live_records[source.stem] = record
 
     log = load_thesis_log_from_directory(args.source_dir)
@@ -132,7 +198,6 @@ def main() -> int:
     resolved = [
         entry for entry in entries if entry.get("kind") == "prediction_resolved"
     ]
-    build_payload = json.loads((args.source_dir / "build.json").read_text())
     payload = {
         "schemaVersion": "thesis_record_snapshot_v2",
         "snapshotKind": "recorder_run",
@@ -144,6 +209,12 @@ def main() -> int:
         },
         "dependencies": {
             "recorderRepositoryCommit": args.repo_sha,
+            "liveDeploymentCommit": build_payload.get("commit"),
+            "forecastApiDeploymentCommit": api_build_payload.get("commit"),
+            "expectedDeploymentCommit": args.expected_sha,
+            "deploymentAncestryDistance": args.deployment_ancestry_distance,
+            "siteDeploymentUrl": args.site_deployment_url,
+            "forecastApiDeploymentUrl": args.api_deployment_url,
             "ledgerRepository": "PolicyEngine/arch-data",
             "ledgerBranch": "codex/thesis-ledger-facts",
             "ledgerBranchCommit": args.ledger_sha,

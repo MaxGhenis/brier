@@ -11,7 +11,10 @@ import {
   type DistributionProvenance,
   type NumericCdfDistribution,
 } from "./prediction-distribution";
-import { targetNormalizationScale } from "./thesis-log";
+import {
+  targetNormalizationScale,
+  type PolicyEngineLedgerEntry,
+} from "./thesis-log";
 
 export type ForecastStrategyKind = "deterministic_baseline" | "agent_forward";
 
@@ -52,8 +55,10 @@ export interface StrategyScoreRow {
   };
   signedError: number;
   absoluteError: number;
-  normalizedCrps: number;
-  normalizedAbsoluteError: number;
+  normalizationScale: number | null;
+  normalizationScaleSource: "ledger_dispersion" | "target_primary_width" | "unavailable";
+  normalizedCrps: number | null;
+  normalizedAbsoluteError: number | null;
   interval80Covered: boolean;
   crps: number;
   probabilityIntegralTransform: number;
@@ -146,6 +151,7 @@ interface ScoreInput {
   ciHigh: number;
   run?: ForecastRunEntry;
   distribution?: NumericCdfDistribution;
+  ledger: PolicyEngineLedgerEntry[];
 }
 
 const SNAP_PAYMENT_ERROR_FY2025_FAMILY_ID = "snap_payment_error_fy2025_panel";
@@ -189,8 +195,9 @@ export const STRATEGY_REGISTRY: ForecastStrategy[] = [
 
 export function buildStrategyLabReport(
   forecasts: ForecastCell[],
+  ledger: PolicyEngineLedgerEntry[],
 ): StrategyLabReport {
-  const families = [buildSnapPaymentErrorFy2025Family(forecasts)];
+  const families = [buildSnapPaymentErrorFy2025Family(forecasts, ledger)];
   const scoreRows = families.flatMap((family) => family.rows);
   const summaries = summarizeStrategies(scoreRows);
 
@@ -214,6 +221,7 @@ export function buildStrategyLabReport(
 
 function buildSnapPaymentErrorFy2025Family(
   forecasts: ForecastCell[],
+  ledger: PolicyEngineLedgerEntry[],
 ): StrategyFamilyReport {
   const candidates = getSnapPaymentErrorFy2025Candidates(forecasts);
   const members = candidates.filter(isResolvedSnapPanelMember);
@@ -229,6 +237,7 @@ function buildSnapPaymentErrorFy2025Family(
       deltaMedian,
       deltaP10,
       deltaP90,
+      ledger,
     }),
   );
   const summaries = summarizeStrategies(rows);
@@ -265,11 +274,13 @@ function buildSnapPaymentErrorStrategyRows({
   deltaMedian,
   deltaP10,
   deltaP90,
+  ledger,
 }: {
   member: SnapPanelMember;
   deltaMedian: number;
   deltaP10: number;
   deltaP90: number;
+  ledger: PolicyEngineLedgerEntry[];
 }): StrategyScoreRow[] {
   const persistenceStrategy = requireStrategy(PERSISTENCE_STRATEGY_ID);
   const panelShrinkageStrategy = requireStrategy(PANEL_SHRINKAGE_STRATEGY_ID);
@@ -288,6 +299,7 @@ function buildSnapPaymentErrorStrategyRows({
       member,
       pointEstimate: member.fy2024,
       ...buildPanelDeltaInterval(member.fy2024, deltaP10, deltaP90),
+      ledger,
     }),
     scoreStrategyPrediction({
       familyId: SNAP_PAYMENT_ERROR_FY2025_FAMILY_ID,
@@ -299,6 +311,7 @@ function buildSnapPaymentErrorStrategyRows({
         deltaP10,
         deltaP90,
       ),
+      ledger,
     }),
   ];
 
@@ -313,6 +326,7 @@ function buildSnapPaymentErrorStrategyRows({
         ciHigh: primaryRun.ciHigh,
         run: primaryRun,
         distribution: primaryRun.predictionDistribution,
+        ledger,
       }),
     );
   }
@@ -329,14 +343,14 @@ function scoreStrategyPrediction({
   ciHigh,
   run,
   distribution,
+  ledger,
 }: ScoreInput): StrategyScoreRow {
   const intervalLow = Math.min(ciLow, pointEstimate);
   const intervalHigh = Math.max(ciHigh, pointEstimate);
   const interval80Width = Math.abs(intervalHigh - intervalLow);
-  // Every strategy in the family shares the member target's scale, so a
-  // strategy cannot improve its normalized score by widening its own
-  // interval (cross-review X9; same semantics as headline scoring v2).
-  const targetScale = targetNormalizationScale(member.forecast).scale;
+  // Every strategy in the family shares the member target's pre-registration
+  // ledger scale. No strategy output or historicalContext can change it.
+  const normalization = targetNormalizationScale(member.forecast, ledger);
   const predictionDistribution =
     distribution ??
     buildNumericCdfFromInterval({
@@ -349,7 +363,6 @@ function scoreStrategyPrediction({
     member.actual,
   );
   const signedError = member.actual - pointEstimate;
-  const denominator = targetScale > 0 ? targetScale : 1;
 
   return {
     scoreId: `strategy_score.${familyId}.${strategy.strategyId}.${member.forecast.slug}`,
@@ -377,8 +390,16 @@ function scoreStrategyPrediction({
     },
     signedError,
     absoluteError: Math.abs(signedError),
-    normalizedCrps: distributionScore.crps / denominator,
-    normalizedAbsoluteError: Math.abs(signedError) / denominator,
+    normalizationScale: normalization.scale,
+    normalizationScaleSource: normalization.source,
+    normalizedCrps:
+      normalization.scale === null
+        ? null
+        : distributionScore.crps / normalization.scale,
+    normalizedAbsoluteError:
+      normalization.scale === null
+        ? null
+        : Math.abs(signedError) / normalization.scale,
     interval80Covered:
       intervalLow <= member.actual && member.actual <= intervalHigh,
     ...distributionScore,
@@ -478,10 +499,14 @@ function summarizeStrategies(rows: StrategyScoreRow[]): StrategySummaryRow[] {
       ),
       meanSignedError: meanOrNull(strategyRows.map((row) => row.signedError)),
       meanNormalizedCrps: meanOrNull(
-        strategyRows.map((row) => row.normalizedCrps),
+        strategyRows
+          .map((row) => row.normalizedCrps)
+          .filter((value): value is number => value !== null),
       ),
       meanNormalizedAbsoluteError: meanOrNull(
-        strategyRows.map((row) => row.normalizedAbsoluteError),
+        strategyRows
+          .map((row) => row.normalizedAbsoluteError)
+          .filter((value): value is number => value !== null),
       ),
       interval80Coverage: meanOrNull(
         strategyRows.map((row) => (row.interval80Covered ? 1 : 0)),
@@ -493,9 +518,10 @@ function summarizeStrategies(rows: StrategyScoreRow[]): StrategySummaryRow[] {
         ),
       ),
       meanNormalizedCrpsVsPersistence: meanOrNull(
-        pairedRows.map(
-          ({ row, persistenceRow }) =>
-            row.normalizedCrps - persistenceRow.normalizedCrps,
+        pairedRows.flatMap(({ row, persistenceRow }) =>
+          row.normalizedCrps === null || persistenceRow.normalizedCrps === null
+            ? []
+            : [row.normalizedCrps - persistenceRow.normalizedCrps],
         ),
       ),
     };
@@ -515,7 +541,12 @@ function buildAgentNcrpsMissesVsPersistence(
     .filter((row) => row.strategyId === BRIER_PRIMARY_STRATEGY_ID)
     .flatMap((agentRow) => {
       const persistenceRow = persistenceByForecast.get(agentRow.forecastSlug);
-      if (!persistenceRow) return [];
+      if (
+        !persistenceRow ||
+        agentRow.normalizedCrps === null ||
+        persistenceRow.normalizedCrps === null
+      )
+        return [];
       return [
         {
           forecastSlug: agentRow.forecastSlug,

@@ -330,7 +330,7 @@ describe("target architecture hashing", () => {
     expect(originalEvent.payloadHash).toMatch(FULL_DIGEST);
     expect(changedEvent.payloadHash).not.toBe(originalEvent.payloadHash);
     expect(originalScore?.scoreId).toContain(
-      "numeric_cdf_crps_v2_target_scale",
+      "numeric_cdf_crps_v3_ledger_scale",
     );
     expect(originalScore?.scoreId).toMatch(/\.[0-9a-f]{16}$/);
     expect(changedScore?.scoreId).not.toBe(originalScore?.scoreId);
@@ -354,9 +354,16 @@ describe("target architecture hashing", () => {
     const payload = {
       runId: "run.test",
       resolutionEventId: "resolution_event.test",
-      scoringRule: "numeric_cdf_crps_v2_target_scale" as const,
+      scoringRule: "numeric_cdf_crps_v3_ledger_scale" as const,
       forecastOutput: { pointEstimate: 1 },
       outcome: { observedValue: 1 },
+      normalizationScale: 1,
+      normalizationScaleSource: "ledger_dispersion",
+      normalizationScaleCutoff: "2026-06-01T00:00:00Z",
+      normalizationScaleObservationCount: 3,
+      observedAt: "2026-07-01T00:00:00Z",
+      chronology: "verified",
+      chronologyPolicy: "test",
     };
 
     expect(
