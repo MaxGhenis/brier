@@ -24,6 +24,7 @@ from strategy_comparisons import (  # noqa: E402
     ladder_distribution as comparison_ladder_distribution,
 )
 from thesis_records_to_comparisons import comparison_run  # noqa: E402
+from verify_custody import verify_run  # noqa: E402
 
 
 def test_interval_distribution_matches_typescript_fixture():
@@ -495,6 +496,80 @@ def test_fast_mock_run_records_prompt_mode(tmp_path):
     assert manifest["promptMode"] == "fast"
     assert "You may inspect the local repository/workspace when useful" in prompt
     assert "Do not modify files" in prompt
+
+
+def test_command_start_failure_is_sealed_as_complete_failed_trace(tmp_path):
+    out_dir = tmp_path / "command-start-failure"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.start_failure",
+            "--period",
+            "2030-01",
+            "--command",
+            "/definitely/not/a/command",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "Traceback" not in result.stderr
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    command = json.loads((out_dir / "command.json").read_text())
+    verification = verify_run(out_dir)
+    assert command["returnCode"] == 127
+    assert manifest["error"]["phase"] == "parse"
+    assert verification.inventory_status == "complete"
+    assert verification.run_succeeded is False
+    assert verification.headline_eligible is False
+
+
+def test_reviewer_start_failure_is_sealed_and_labeled_failed(tmp_path):
+    out_dir = tmp_path / "review-start-failure"
+    forecaster = tmp_path / "forecaster.py"
+    forecaster.write_text(
+        "import json, sys\n"
+        "_prompt = sys.stdin.read()\n"
+        f"print(json.dumps({review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)!r}))\n"
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.review_start_failure",
+            "--period",
+            "2030-01",
+            "--command",
+            f"{shlex.quote(sys.executable)} {shlex.quote(str(forecaster))}",
+            "--pre-submit-review-command",
+            "/definitely/not/a/reviewer",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 1
+    assert "Traceback" not in result.stderr
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    reviewer = json.loads((out_dir / "pre_submit_review_command.json").read_text())
+    verification = verify_run(out_dir)
+    assert reviewer["returnCode"] == 127
+    assert manifest["preSubmitReview"]["status"] == "review_failed"
+    assert verification.inventory_status == "complete"
+    assert verification.run_succeeded is False
+    assert verification.headline_eligible is False
 
 
 def test_command_run_can_capture_pre_submit_review_loop(tmp_path):

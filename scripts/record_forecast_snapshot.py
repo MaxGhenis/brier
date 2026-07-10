@@ -13,7 +13,13 @@ import urllib.parse
 from pathlib import Path
 from typing import Any
 
+from canonical_json import canonical_sha256
 from thesis_log_client import load_thesis_log_from_directory
+from verify_custody import (
+    RECORDER_REQUIRED_LIVE,
+    verify_recorder_snapshot,
+    verify_run,
+)
 from verify_record_chain import logical_path, verify_records
 
 SURFACES = {
@@ -64,6 +70,45 @@ def exclusive_json_write(path: Path, value: Any) -> None:
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
     with os.fdopen(descriptor, "wb") as stream:
         stream.write(data)
+
+
+def current_artifact_commitments(records: Path) -> dict[str, list[dict[str, Any]]]:
+    records = records.resolve()
+    repository = records.parent
+    custody_roots: list[dict[str, Any]] = []
+    for root_path in sorted(records.glob("**/custody_root.json")):
+        run_dir = root_path.parent
+        result = verify_run(run_dir)
+        manifest_path = run_dir / "manifest.json"
+        custody_roots.append(
+            {
+                "runDirectory": run_dir.relative_to(repository).as_posix(),
+                "custodyRootPath": root_path.relative_to(repository).as_posix(),
+                "custodyRootSha256": result.custody_root_sha256,
+                "custodyRootFileSha256": sha256(root_path.read_bytes()),
+                "custodyRootSize": root_path.stat().st_size,
+                "custodyInventoryVersion": result.custody_inventory_version,
+                "manifestPath": manifest_path.relative_to(repository).as_posix(),
+                "manifestSha256": sha256(manifest_path.read_bytes()),
+                "manifestSize": manifest_path.stat().st_size,
+            }
+        )
+    registration_snapshots: list[dict[str, Any]] = []
+    for path in sorted((records / "targets").glob("*.json")):
+        raw = path.read_bytes()
+        payload = json.loads(raw)
+        registration_snapshots.append(
+            {
+                "path": path.relative_to(repository).as_posix(),
+                "sha256": sha256(raw),
+                "size": len(raw),
+                "canonicalJsonSha256": canonical_sha256(payload),
+            }
+        )
+    return {
+        "custodyRoots": custody_roots,
+        "registrationSnapshots": registration_snapshots,
+    }
 
 
 def validate_deployment_identity(
@@ -129,6 +174,18 @@ def main() -> int:
         )
     except (OSError, json.JSONDecodeError, ValueError) as error:
         raise SystemExit(str(error)) from error
+    live_source = args.source_dir / "live"
+    live_names = (
+        {path.stem for path in live_source.glob("*.json")}
+        if live_source.is_dir()
+        else set()
+    )
+    if live_names != set(RECORDER_REQUIRED_LIVE):
+        raise SystemExit(
+            "source live forecast inventory differs from recorder custody v2: "
+            f"missing={sorted(set(RECORDER_REQUIRED_LIVE) - live_names)}, "
+            f"extra={sorted(live_names - set(RECORDER_REQUIRED_LIVE))}"
+        )
     ordered = verify_records(args.records)
     previous = ordered[-1]
     day = args.recorded_at[:10]
@@ -161,7 +218,12 @@ def main() -> int:
     if log_manifest.get("schemaVersion") == "thesis_log_v3":
         for collection, collection_manifest in log_manifest["collections"].items():
             for reference in collection_manifest["chunks"]:
-                relative = Path(reference["url"].lstrip("/"))
+                expected_url = f"/log/{collection}/{reference['index']}.json"
+                if reference.get("url") != expected_url:
+                    raise SystemExit(
+                        f"invalid {collection} log chunk URL: {reference.get('url')!r}"
+                    )
+                relative = Path(expected_url.lstrip("/"))
                 source = args.source_dir / relative
                 destination = body_dir / Path(f"{relative}.gz")
                 record = archive_body(source, destination)
@@ -179,7 +241,6 @@ def main() -> int:
                 log_chunk_records[f"{collection}:{reference['index']}"] = record
 
     live_records: dict[str, Any] = {}
-    live_source = args.source_dir / "live"
     if live_source.is_dir():
         for source in sorted(live_source.glob("*.json")):
             destination = body_dir / "live" / f"{source.name}.gz"
@@ -201,6 +262,8 @@ def main() -> int:
     payload = {
         "schemaVersion": "thesis_record_snapshot_v2",
         "snapshotKind": "recorder_run",
+        "custodyInventoryVersion": 2,
+        "runMode": "recorder",
         "runId": args.run_id,
         "recordedAt": args.recorded_at,
         "chain": {
@@ -238,8 +301,10 @@ def main() -> int:
             for entry in recorded
         ],
         "resolutions": resolved,
+        "artifactCommitments": current_artifact_commitments(args.records),
     }
     exclusive_json_write(digest_path, payload)
+    verify_recorder_snapshot(digest_path)
 
     index_path = day_dir / "index.json"
     snapshots = sorted(

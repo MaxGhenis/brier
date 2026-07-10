@@ -10,6 +10,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import resolve_pending  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
+from verify_custody import verify_run  # noqa: E402
 
 
 def test_archives_raw_response_and_attaches_append_provenance(
@@ -53,6 +54,31 @@ def test_archives_raw_response_and_attaches_append_provenance(
     assert gzip.decompress((tmp_path / archive["path"]).read_bytes()) == raw
     assert len(archive["sha256"]) == 64
     assert len(archive["gzipSha256"]) == 64
+
+    manifest = resolve_pending.finalize_resolution_manifest(
+        run_dir,
+        {
+            "schemaVersion": "thesis_resolution_run_v1",
+            "retrievedAt": enriched["retrievedAt"],
+            "ledgerRepo": "PolicyEngine/ledger",
+            "ledgerBranch": "facts",
+            "ledgerRepoSha": enriched["ledgerRepoSha"],
+            "facts": [
+                {
+                    "dataPointId": data_point_id,
+                    "sourceVintage": enriched["sourceVintage"],
+                    "retrievedAt": enriched["retrievedAt"],
+                    "targetContentHash": enriched["targetContentHash"],
+                    "responseArchive": archive,
+                }
+            ],
+        },
+    )
+    result = verify_run(run_dir)
+    assert manifest["custodyInventoryVersion"] == 2
+    assert result.run_mode == "resolver"
+    assert result.inventory_status == "complete"
+    assert result.headline_eligible is False
 
 
 def test_pending_claims_uses_recorded_release_date_not_a_fixed_offset() -> None:

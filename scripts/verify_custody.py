@@ -1,33 +1,162 @@
 #!/usr/bin/env python3
-"""Verify a thesis.analyst run's exact bytes and canonical custody root."""
+"""Verify versioned, complete artifact custody for Thesis run modes."""
 
 from __future__ import annotations
 
 import copy
+import gzip
 import hashlib
 import json
+import re
+import stat
 import sys
-from pathlib import Path
+from dataclasses import dataclass
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from canonical_json import canonical_bytes, canonical_sha256
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+INVENTORY_VERSION = 2
+INVENTORY_STATUS_COMPLETE = "complete"
+INVENTORY_STATUS_LEGACY = "legacy-incomplete"
+
+ANALYST_COMPLETED_INVENTORY = {
+    "prompt.md": "prompt",
+    "raw_response.txt": "raw_response",
+    "parsed_cells.json": "parsed_cell",
+    "normalized_cells.json": "normalized_cell",
+    "distribution.json": "run_distribution",
+    "validation.json": "validation_report",
+    "cells.with_activity.json": "cells_with_activity",
+}
+CODEX_STAGE_INVENTORY = {
+    "codex_stdout.jsonl": "codex_stdout_jsonl",
+    "codex_stderr.log": "codex_stderr_log",
+    "codex_events.jsonl": "codex_events_jsonl",
+    "codex_last_message.txt": "codex_last_message",
+    "codex_trace.json": "codex_trace",
+}
+REVIEWED_STAGE_INVENTORY = {
+    "pre_submit_review_prompt.md": "review_prompt",
+    "revision_prompt.md": "revision_prompt",
+}
+RESOLVER_RESPONSE_RE = re.compile(
+    r"responses/(?:icsa|ccsa)-\d{4}-\d{2}-\d{2}-[0-9a-f]{16}\.csv\.gz"
+)
+RECORDER_REQUIRED_SURFACES = {
+    "log": "log.json.gz",
+    "ledger": "ledger.json.gz",
+    "targets": "targets.json.gz",
+    "reward": "reward.json.gz",
+    "build": "build.json.gz",
+    "apiBuild": "api-build.json.gz",
+    "ledgerCommitApi": "ledger-commit.json.gz",
+}
+RECORDER_REQUIRED_LIVE = {
+    "spm-child-poverty-2025": "live/spm-child-poverty-2025.json.gz",
+    "cpi-u-annual-2026": "live/cpi-u-annual-2026.json.gz",
+    "ctc-expansion-cost-ty2026": "live/ctc-expansion-cost-ty2026.json.gz",
+    "ctc-current-law-outlays-ty2026": "live/ctc-current-law-outlays-ty2026.json.gz",
+}
 
 
 class CustodyError(ValueError):
     pass
 
 
+@dataclass(frozen=True)
+class CustodyVerification:
+    run_mode: str
+    custody_inventory_version: int
+    inventory_status: str
+    custody_root_sha256: str
+    artifact_count: int
+    run_succeeded: bool
+
+    @property
+    def headline_eligible(self) -> bool:
+        return (
+            self.run_mode == "analyst"
+            and self.inventory_status == INVENTORY_STATUS_COMPLETE
+            and self.run_succeeded
+        )
+
+
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _safe_artifact_path(run_dir: Path, relative: str) -> Path:
-    path = (run_dir / relative).resolve()
+def _load_object(path: Path) -> dict[str, Any]:
     try:
-        path.relative_to(run_dir.resolve())
+        value = json.loads(path.read_bytes())
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CustodyError(f"invalid JSON in {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise CustodyError(f"JSON record must be an object: {path}")
+    return value
+
+
+def _safe_relative(value: str) -> PurePosixPath:
+    if not value or "\\" in value:
+        raise CustodyError(f"invalid artifact path: {value!r}")
+    path = PurePosixPath(value)
+    if path.is_absolute() or ".." in path.parts or "." in path.parts:
+        raise CustodyError(f"unsafe artifact path: {value!r}")
+    if path.as_posix() != value:
+        raise CustodyError(f"non-normalized artifact path: {value!r}")
+    return path
+
+
+def _safe_artifact_path(run_dir: Path, relative: str) -> Path:
+    logical = _safe_relative(relative)
+    path = run_dir.joinpath(*logical.parts)
+    try:
+        path.resolve().relative_to(run_dir.resolve())
     except ValueError as exc:
         raise CustodyError(f"artifact path escapes run directory: {relative}") from exc
     return path
+
+
+def _manifest_relative(run_dir: Path, value: str, *, legacy: bool) -> str:
+    segments = value.split("/")
+    if (
+        not value
+        or "\\" in value
+        or value.endswith("/")
+        or any(segment in {".", ".."} for segment in segments)
+        or any(not segment for segment in segments[1:])
+    ):
+        raise CustodyError(f"unsafe manifest artifact path: {value!r}")
+    source = Path(value)
+    candidates = []
+    if source.is_absolute():
+        candidates.append(source)
+    else:
+        candidates.extend([Path.cwd() / source, REPOSITORY_ROOT / source])
+        candidates.extend(
+            ancestor.parent / source
+            for ancestor in run_dir.parents
+            if ancestor.name == "records"
+        )
+        if not source.parts or source.parts[0] != "records":
+            candidates.append(run_dir / source)
+    for candidate in candidates:
+        try:
+            relative = candidate.resolve().relative_to(run_dir.resolve())
+        except ValueError:
+            continue
+        return _safe_relative(relative.as_posix()).as_posix()
+    if legacy:
+        for index, part in enumerate(source.parts):
+            if part != run_dir.name or index + 1 >= len(source.parts):
+                continue
+            relative = PurePosixPath(*source.parts[index + 1 :])
+            candidate = run_dir.joinpath(*relative.parts)
+            if candidate.exists():
+                return _safe_relative(relative.as_posix()).as_posix()
+        return _safe_relative(source.name).as_posix()
+    raise CustodyError(f"manifest artifact path does not resolve inside run: {value!r}")
 
 
 def _self_hash_payload(manifest: dict[str, Any]) -> dict[str, Any]:
@@ -41,7 +170,317 @@ def _self_hash_payload(manifest: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
-def verify_run(run_dir: Path) -> None:
+def _regular_files(root: Path) -> set[str]:
+    discovered: set[str] = set()
+    for path in root.rglob("*"):
+        mode = path.lstat().st_mode
+        relative = path.relative_to(root).as_posix()
+        if stat.S_ISDIR(mode):
+            continue
+        if not stat.S_ISREG(mode) or path.is_symlink():
+            raise CustodyError(f"run contains a symlink or special file: {relative}")
+        discovered.add(relative)
+    return discovered
+
+
+def _required(entries: list[dict[str, Any]], required: dict[str, str]) -> None:
+    actual = {(str(entry["path"]), str(entry["artifactType"])) for entry in entries}
+    absent = [
+        f"{path} ({artifact_type})"
+        for path, artifact_type in required.items()
+        if (path, artifact_type) not in actual
+    ]
+    if absent:
+        raise CustodyError(
+            "run is missing required inventory artifacts: " + ", ".join(absent)
+        )
+
+
+def _command_backend(run_dir: Path, prefix: str = "") -> str:
+    command = _load_object(run_dir / f"{prefix}command.json")
+    backend = command.get("backend")
+    if backend not in {"codex", "external_command", "response_file", "mock"}:
+        raise CustodyError(f"v2 analyst command.json has invalid backend: {backend!r}")
+    return str(backend)
+
+
+def _prefixed(inventory: dict[str, str], prefix: str) -> dict[str, str]:
+    return {
+        f"{prefix}{path}": artifact_type for path, artifact_type in inventory.items()
+    }
+
+
+def _require_invocation_stage(
+    run_dir: Path,
+    entries: list[dict[str, Any]],
+    *,
+    prefix: str,
+    stdout_artifact_type: str,
+) -> set[str]:
+    base = {
+        f"{prefix}command.json": "command",
+        f"{prefix}stdout.txt": stdout_artifact_type,
+        f"{prefix}stderr.txt": "stderr",
+    }
+    _required(entries, base)
+    codex = _prefixed(CODEX_STAGE_INVENTORY, prefix)
+    paths = {str(entry["path"]) for entry in entries}
+    if _command_backend(run_dir, prefix) == "codex":
+        _required(entries, codex)
+        return {*base, *codex}
+    unexpected_codex = sorted(paths & set(codex))
+    if unexpected_codex:
+        raise CustodyError(
+            "non-Codex invocation contains Codex trace artifacts: "
+            + ", ".join(unexpected_codex)
+        )
+    return set(base)
+
+
+def _verify_invocation_stages(
+    run_dir: Path,
+    manifest: dict[str, Any],
+    entries: list[dict[str, Any]],
+) -> set[str]:
+    paths = {str(entry["path"]) for entry in entries}
+    stage_suffixes = {
+        "command.json",
+        "stdout.txt",
+        "stderr.txt",
+        *CODEX_STAGE_INVENTORY,
+    }
+
+    def has_stage(prefix: str) -> bool:
+        return any(f"{prefix}{suffix}" in paths for suffix in stage_suffixes)
+
+    has_draft = has_stage("draft_")
+    has_review = has_stage("pre_submit_review_")
+    has_final = has_stage("")
+    if not any((has_draft, has_review, has_final)):
+        raise CustodyError("analyst inventory contains no invocation stage")
+    if has_review and not has_draft:
+        raise CustodyError("reviewed inventory has reviewer stage without draft")
+    if has_draft and has_final and not has_review:
+        raise CustodyError("reviewed inventory has final stage without reviewer")
+    allowed: set[str] = set()
+    if has_draft:
+        allowed.update(
+            _require_invocation_stage(
+                run_dir,
+                entries,
+                prefix="draft_",
+                stdout_artifact_type="draft_forecast",
+            )
+        )
+    if has_review:
+        _required(entries, {"pre_submit_review_prompt.md": "review_prompt"})
+        allowed.add("pre_submit_review_prompt.md")
+        allowed.update(
+            _require_invocation_stage(
+                run_dir,
+                entries,
+                prefix="pre_submit_review_",
+                stdout_artifact_type="pre_submit_review",
+            )
+        )
+    if has_final:
+        allowed.update(
+            _require_invocation_stage(
+                run_dir,
+                entries,
+                prefix="",
+                stdout_artifact_type="stdout",
+            )
+        )
+    if has_review and has_final:
+        _required(entries, {"revision_prompt.md": "revision_prompt"})
+        allowed.add("revision_prompt.md")
+    if "pre_submit_review_prompt.md" in paths and not has_review:
+        raise CustodyError("review prompt exists without a reviewer invocation")
+    if "revision_prompt.md" in paths and not (has_review and has_final):
+        raise CustodyError(
+            "revision prompt exists without review and final invocations"
+        )
+    review = manifest.get("preSubmitReview")
+    if isinstance(review, dict):
+        status = review.get("status")
+        expected = {
+            "draft_failed": (True, False, False),
+            "review_failed": (True, True, False),
+            "revision_failed": (True, True, True),
+            "completed": (True, True, True),
+        }.get(status)
+        if expected is None:
+            raise CustodyError(f"unknown pre-submit review status: {status!r}")
+        if (has_draft, has_review, has_final) != expected:
+            raise CustodyError(
+                f"pre-submit review stages disagree with status {status!r}"
+            )
+        if status in {"revision_failed", "completed"}:
+            _required(entries, REVIEWED_STAGE_INVENTORY)
+    # Parse-failure manifests are sealed before compact review metadata is
+    # built; when metadata is absent, the rooted stage filenames are the
+    # authoritative record of how far the invocation progressed.
+    return allowed
+
+
+def _verify_cells_activity(
+    run_dir: Path, manifest_entries: list[dict[str, Any]], entries: list[dict[str, Any]]
+) -> None:
+    cells_path = run_dir / "cells.with_activity.json"
+    try:
+        cells = json.loads(cells_path.read_bytes())
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CustodyError(f"invalid cells.with_activity.json: {exc}") from exc
+    if not isinstance(cells, list) or not cells:
+        raise CustodyError("cells.with_activity.json must be a nonempty list")
+    expected = [
+        ref
+        for ref in manifest_entries
+        if ref.get("artifactType") not in {"cells_with_activity", "manifest"}
+    ]
+    for index, cell in enumerate(cells):
+        if not isinstance(cell, dict) or cell.get("activityLog") != expected:
+            raise CustodyError(
+                f"cells.with_activity.json cell {index} does not expose the "
+                "complete rooted activity prefix"
+            )
+    entry_paths = {str(entry["path"]) for entry in entries}
+    if "cells.with_activity.json" not in entry_paths:
+        raise CustodyError("cells.with_activity.json is not in the custody root")
+
+
+def _verify_analyst_v2(
+    run_dir: Path,
+    manifest: dict[str, Any],
+    manifest_entries: list[dict[str, Any]],
+    entries: list[dict[str, Any]],
+) -> None:
+    if manifest.get("schemaVersion") != "thesis_analyst_run_manifest_v1":
+        raise CustodyError("analyst custody mode has the wrong manifest schema")
+    parse_failed = (
+        isinstance(manifest.get("error"), dict)
+        and manifest["error"].get("phase") == "parse"
+    )
+    if parse_failed:
+        base = {
+            "prompt.md": "prompt",
+            "raw_response.txt": "raw_response",
+            "error.json": "error",
+        }
+        _required(entries, base)
+        forbidden = {
+            "parsed_cells.json",
+            "normalized_cells.json",
+            "distribution.json",
+            "validation.json",
+            "cells.with_activity.json",
+        }
+        present = {str(entry["path"]) for entry in entries}
+        if forbidden & present:
+            raise CustodyError("parse-failure inventory contains post-parse artifacts")
+        allowed = {*base, *_verify_invocation_stages(run_dir, manifest, entries)}
+        unexpected = sorted(present - allowed)
+        if unexpected:
+            raise CustodyError(
+                "parse-failure inventory contains unexpected artifacts: "
+                + ", ".join(unexpected)
+            )
+        return
+
+    if manifest.get("validation") is None:
+        raise CustodyError(
+            "analyst v2 run is neither parse-failed nor validation-complete"
+        )
+    _required(entries, ANALYST_COMPLETED_INVENTORY)
+    allowed = {
+        *ANALYST_COMPLETED_INVENTORY,
+        *_verify_invocation_stages(run_dir, manifest, entries),
+    }
+    review = manifest.get("preSubmitReview")
+    if isinstance(review, dict) and review.get("status") == "completed":
+        _required(entries, REVIEWED_STAGE_INVENTORY)
+    if (
+        manifest.get("ok")
+        and isinstance(review, dict)
+        and review.get("status") != "completed"
+    ):
+        raise CustodyError(
+            "successful reviewed analyst run lacks a completed review inventory"
+        )
+    unexpected = sorted({str(entry["path"]) for entry in entries} - allowed)
+    if unexpected:
+        raise CustodyError(
+            "completed analyst inventory contains unexpected artifacts: "
+            + ", ".join(unexpected)
+        )
+    _verify_cells_activity(run_dir, manifest_entries, entries)
+
+
+def _verify_resolver_v2(
+    run_dir: Path, manifest: dict[str, Any], entries: list[dict[str, Any]]
+) -> None:
+    if manifest.get("schemaVersion") != "thesis_resolution_run_v1":
+        raise CustodyError("resolver custody mode has the wrong manifest schema")
+    facts = manifest.get("facts")
+    if not isinstance(facts, list) or not facts:
+        raise CustodyError("resolver inventory requires at least one fact")
+    rooted_responses = {
+        str(entry["path"])
+        for entry in entries
+        if RESOLVER_RESPONSE_RE.fullmatch(str(entry["path"]))
+    }
+    invalid_entries = [
+        f"{entry['artifactType']}:{entry['path']}"
+        for entry in entries
+        if entry["artifactType"] != "resolver_response"
+        or not RESOLVER_RESPONSE_RE.fullmatch(str(entry["path"]))
+    ]
+    if invalid_entries:
+        raise CustodyError(
+            "resolver inventory contains non-response artifacts: "
+            + ", ".join(invalid_entries)
+        )
+    manifest_responses: set[str] = set()
+    for fact in facts:
+        archive = fact.get("responseArchive") if isinstance(fact, dict) else None
+        if not isinstance(archive, dict):
+            raise CustodyError("resolver fact lacks responseArchive")
+        declared = str(archive.get("path", ""))
+        relative = _manifest_relative(run_dir, declared, legacy=False)
+        if not RESOLVER_RESPONSE_RE.fullmatch(relative):
+            raise CustodyError(
+                "invalid resolver response archive path: "
+                f"declared={declared!r}, resolved={relative!r}"
+            )
+        if relative in manifest_responses:
+            raise CustodyError(f"duplicate resolver response archive: {relative}")
+        if archive.get("contentEncoding") != "gzip":
+            raise CustodyError(f"resolver response is not declared gzip: {relative}")
+        path = _safe_artifact_path(run_dir, relative)
+        compressed = path.read_bytes()
+        if _sha256(compressed) != archive.get("gzipSha256") or len(
+            compressed
+        ) != archive.get("gzipBytes"):
+            raise CustodyError(f"resolver compressed response mismatch: {relative}")
+        try:
+            raw = gzip.decompress(compressed)
+        except (OSError, EOFError) as exc:
+            raise CustodyError(
+                f"invalid resolver gzip response {relative}: {exc}"
+            ) from exc
+        if _sha256(raw) != archive.get("sha256") or len(raw) != archive.get("bytes"):
+            raise CustodyError(f"resolver decompressed response mismatch: {relative}")
+        manifest_responses.add(relative)
+    if rooted_responses != manifest_responses:
+        raise CustodyError(
+            "resolver response inventory mismatch: "
+            f"rooted={sorted(rooted_responses)}, "
+            f"manifest={sorted(manifest_responses)}"
+        )
+
+
+def verify_run(run_dir: Path) -> CustodyVerification:
     run_dir = run_dir.resolve()
     root_path = run_dir / "custody_root.json"
     manifest_path = run_dir / "manifest.json"
@@ -49,39 +488,71 @@ def verify_run(run_dir: Path) -> None:
         raise CustodyError(f"missing custody root: {root_path}")
     if not manifest_path.is_file():
         raise CustodyError(f"missing manifest: {manifest_path}")
-
-    try:
-        custody = json.loads(root_path.read_bytes())
-    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-        raise CustodyError(f"invalid JSON in {root_path}: {exc}") from exc
-    try:
-        manifest = json.loads(manifest_path.read_bytes())
-    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
-        raise CustodyError(f"invalid JSON in {manifest_path}: {exc}") from exc
-
+    custody = _load_object(root_path)
+    manifest = _load_object(manifest_path)
     if custody.get("schemaVersion") != "thesis_custody_root_v1":
         raise CustodyError(
             f"unsupported custody schema: {custody.get('schemaVersion')!r}"
         )
 
+    custody_version = custody.get("custodyInventoryVersion")
+    manifest_version = manifest.get("custodyInventoryVersion")
+    legacy = custody_version is None and manifest_version is None
+    if legacy:
+        version = 1
+        run_mode = (
+            "analyst"
+            if manifest.get("schemaVersion") == "thesis_analyst_run_manifest_v1"
+            else "unknown"
+        )
+    else:
+        if (
+            custody_version != INVENTORY_VERSION
+            or manifest_version != INVENTORY_VERSION
+        ):
+            raise CustodyError(
+                "custody inventory version mismatch: "
+                f"root={custody_version!r}, manifest={manifest_version!r}"
+            )
+        version = INVENTORY_VERSION
+        run_mode = str(custody.get("runMode"))
+        if run_mode != manifest.get("runMode") or run_mode not in {
+            "analyst",
+            "resolver",
+            "derived_ensemble",
+        }:
+            raise CustodyError(
+                "custody run mode mismatch: "
+                f"root={run_mode!r}, manifest={manifest.get('runMode')!r}"
+            )
+
     entries = custody.get("artifacts")
     if not isinstance(entries, list):
         raise CustodyError("custody_root.json artifacts must be a list")
-    seen: set[tuple[str, str]] = set()
+    seen_identities: set[tuple[str, str]] = set()
+    seen_paths: set[str] = set()
+    normalized_entries: list[dict[str, Any]] = []
     for entry in entries:
         if not isinstance(entry, dict):
             raise CustodyError("custody artifact entry is not an object")
         artifact_type = str(entry.get("artifactType"))
-        relative = str(entry.get("path"))
-        identity = (artifact_type, relative)
-        if identity in seen:
+        relative = _safe_relative(str(entry.get("path"))).as_posix()
+        if relative in {"manifest.json", "custody_root.json"}:
             raise CustodyError(
-                f"duplicate custody artifact: {artifact_type} {relative}"
+                f"control file appears as ordinary custody artifact: {relative}"
             )
-        seen.add(identity)
+        identity = (artifact_type, relative)
+        if identity in seen_identities or relative in seen_paths:
+            raise CustodyError(
+                f"duplicate custody artifact path: {artifact_type} {relative}"
+            )
+        seen_identities.add(identity)
+        seen_paths.add(relative)
         path = _safe_artifact_path(run_dir, relative)
-        if not path.is_file():
-            raise CustodyError(f"missing artifact {artifact_type}: {relative}")
+        if not path.is_file() or path.is_symlink():
+            raise CustodyError(
+                f"missing or non-regular artifact {artifact_type}: {relative}"
+            )
         raw = path.read_bytes()
         actual_sha = _sha256(raw)
         if actual_sha != entry.get("sha256"):
@@ -94,6 +565,10 @@ def verify_run(run_dir: Path) -> None:
                 f"byte-count mismatch for {artifact_type} {relative}: "
                 f"expected {entry.get('bytes')}, got {len(raw)}"
             )
+        if not legacy and path.suffix == ".json" and "canonicalJsonSha256" not in entry:
+            raise CustodyError(
+                f"v2 JSON custody artifact lacks canonical hash: {relative}"
+            )
         if "canonicalJsonSha256" in entry:
             try:
                 value = json.loads(raw)
@@ -104,30 +579,78 @@ def verify_run(run_dir: Path) -> None:
             actual_canonical = canonical_sha256(value)
             if actual_canonical != entry["canonicalJsonSha256"]:
                 raise CustodyError(
-                    f"canonical JSON SHA-256 mismatch for {artifact_type} "
-                    f"{relative}: expected {entry['canonicalJsonSha256']}, "
+                    "canonical JSON SHA-256 mismatch for "
+                    f"{artifact_type} {relative}: "
+                    f"expected {entry['canonicalJsonSha256']}, "
                     f"got {actual_canonical}"
                 )
-
-    referenced = {
-        (str(ref.get("artifactType")), Path(str(ref.get("path"))).name)
-        for ref in manifest.get("artifacts", [])
-        if ref.get("artifactType") != "manifest"
-    }
-    if seen != referenced:
-        missing = sorted(referenced - seen)
-        extra = sorted(seen - referenced)
-        raise CustodyError(
-            f"custody artifact coverage mismatch: missing={missing}, extra={extra}"
+        normalized_entries.append(
+            {**entry, "artifactType": artifact_type, "path": relative}
         )
 
-    if manifest.get("ok"):
-        required = {"prompt", "command", "normalized_cell", "cells_with_activity"}
-        present = {artifact_type for artifact_type, _ in seen}
-        absent = sorted(required - present)
+    manifest_entries = manifest.get("artifacts")
+    if not isinstance(manifest_entries, list):
+        raise CustodyError("manifest artifacts must be a list")
+    normalized_manifest: list[tuple[str, str]] = []
+    normalized_manifest_refs: list[dict[str, Any]] = []
+    manifest_paths: set[str] = set()
+    for ref in manifest_entries:
+        if not isinstance(ref, dict):
+            raise CustodyError("manifest artifact entry is not an object")
+        artifact_type = str(ref.get("artifactType"))
+        relative = _manifest_relative(run_dir, str(ref.get("path")), legacy=legacy)
+        if relative in manifest_paths:
+            raise CustodyError(
+                f"manifest references an artifact path more than once: {relative}"
+            )
+        manifest_paths.add(relative)
+        normalized_manifest.append((artifact_type, relative))
+        normalized_manifest_refs.append(
+            {**ref, "artifactType": artifact_type, "path": relative}
+        )
+    rooted_order = [
+        (str(entry["artifactType"]), str(entry["path"])) for entry in normalized_entries
+    ]
+    referenced_without_manifest = [
+        item for item in normalized_manifest if item[0] != "manifest"
+    ]
+    if legacy:
+        if set(rooted_order) != set(referenced_without_manifest):
+            raise CustodyError(
+                "custody artifact coverage mismatch: "
+                f"rooted={sorted(rooted_order)}, "
+                f"referenced={sorted(referenced_without_manifest)}"
+            )
+    elif rooted_order != referenced_without_manifest:
+        raise CustodyError(
+            "v2 custody artifacts must match manifest artifacts one-to-one and in order"
+        )
+    if not legacy:
+        nonself_refs = [
+            ref for ref in normalized_manifest_refs if ref["artifactType"] != "manifest"
+        ]
+        for ref, entry in zip(nonself_refs, normalized_entries):
+            for field in ("sha256", "bytes"):
+                if ref.get(field) != entry.get(field):
+                    raise CustodyError(
+                        "manifest/custody integrity mismatch for "
+                        f"{entry['path']} field {field}: "
+                        f"manifest={ref.get(field)!r}, custody={entry.get(field)!r}"
+                    )
+            if "canonicalJsonSha256" in ref and ref["canonicalJsonSha256"] != entry.get(
+                "canonicalJsonSha256"
+            ):
+                raise CustodyError(
+                    f"manifest/custody canonical JSON mismatch for {entry['path']}"
+                )
+
+    if legacy and manifest.get("ok"):
+        required_types = {"prompt", "command", "normalized_cell", "cells_with_activity"}
+        present_types = {artifact_type for artifact_type, _ in rooted_order}
+        absent = sorted(required_types - present_types)
         if absent:
             raise CustodyError(
-                "successful run is missing required custody artifact types: "
+                "successful legacy run is missing required custody artifact types: "
                 + ", ".join(absent)
             )
 
@@ -141,48 +664,283 @@ def verify_run(run_dir: Path) -> None:
             f"{manifest_commitment.get('canonicalJsonSha256')}, "
             f"got {actual_manifest_sha}"
         )
-
     self_refs = [
-        ref
-        for ref in manifest.get("artifacts", [])
-        if ref.get("artifactType") == "manifest"
+        ref for ref in manifest_entries if ref.get("artifactType") == "manifest"
     ]
     if len(self_refs) != 1:
         raise CustodyError(
-            "manifest must contain exactly one self artifact entry, got "
-            f"{len(self_refs)}"
+            "manifest must contain exactly one self artifact entry, "
+            f"got {len(self_refs)}"
         )
+    if (
+        _manifest_relative(run_dir, str(self_refs[0].get("path")), legacy=legacy)
+        != "manifest.json"
+    ):
+        raise CustodyError("manifest self artifact does not point to manifest.json")
     self_bytes = canonical_bytes(_self_hash_payload(manifest))
     self_sha = _sha256(self_bytes)
     if self_sha != self_refs[0].get("sha256"):
         raise CustodyError(
-            "manifest self-entry SHA-256 mismatch: expected "
-            f"{self_refs[0].get('sha256')}, got {self_sha}"
+            "manifest self-entry SHA-256 mismatch: "
+            f"expected {self_refs[0].get('sha256')}, got {self_sha}"
         )
     if len(self_bytes) != self_refs[0].get("bytes"):
         raise CustodyError(
-            "manifest self-entry byte-count mismatch: expected "
-            f"{self_refs[0].get('bytes')}, got {len(self_bytes)}"
+            "manifest self-entry byte-count mismatch: "
+            f"expected {self_refs[0].get('bytes')}, got {len(self_bytes)}"
         )
-
     actual_root_sha = canonical_sha256(custody)
     if actual_root_sha != manifest.get("custodyRootSha256"):
         raise CustodyError(
-            "custody root SHA-256 mismatch: expected "
-            f"{manifest.get('custodyRootSha256')}, got {actual_root_sha}"
+            "custody root SHA-256 mismatch: "
+            f"expected {manifest.get('custodyRootSha256')}, got {actual_root_sha}"
         )
+
+    if not legacy:
+        discovered = _regular_files(run_dir)
+        expected_files = {*manifest_paths, "custody_root.json"}
+        if discovered != expected_files:
+            raise CustodyError(
+                "v2 run directory inventory mismatch: "
+                f"unreferenced={sorted(discovered - expected_files)}, "
+                f"missing={sorted(expected_files - discovered)}"
+            )
+        if run_mode == "analyst":
+            _verify_analyst_v2(run_dir, manifest, manifest_entries, normalized_entries)
+        elif run_mode == "resolver":
+            _verify_resolver_v2(run_dir, manifest, normalized_entries)
+        else:
+            raise CustodyError(
+                "derived ensembles do not yet have a complete v2 custody inventory"
+            )
+
+    return CustodyVerification(
+        run_mode=run_mode,
+        custody_inventory_version=version,
+        inventory_status=INVENTORY_STATUS_LEGACY
+        if legacy
+        else INVENTORY_STATUS_COMPLETE,
+        custody_root_sha256=actual_root_sha,
+        artifact_count=len(entries),
+        run_succeeded=(
+            run_mode == "analyst"
+            and manifest.get("ok") is True
+            and isinstance(manifest.get("validation"), dict)
+            and manifest["validation"].get("ok") is True
+        ),
+    )
+
+
+def _recorder_archive(
+    records_root: Path, record: dict[str, Any], expected_body_root: Path
+) -> tuple[str, Any]:
+    logical = str(record.get("archivePath", ""))
+    if not logical.startswith("records/"):
+        raise CustodyError(f"recorder archive path is not logical: {logical!r}")
+    relative = _safe_relative(logical).parts[1:]
+    path = records_root.joinpath(*relative)
+    try:
+        body_relative = (
+            path.resolve().relative_to(expected_body_root.resolve()).as_posix()
+        )
+    except ValueError as exc:
+        raise CustodyError(
+            f"recorder archive escapes its body directory: {logical}"
+        ) from exc
+    if not path.is_file() or path.is_symlink():
+        raise CustodyError(f"recorder archive is missing: {logical}")
+    compressed = path.read_bytes()
+    if _sha256(compressed) != record.get("archiveSha256") or len(
+        compressed
+    ) != record.get("archiveBytes"):
+        raise CustodyError(f"recorder compressed archive mismatch: {logical}")
+    try:
+        raw = gzip.decompress(compressed)
+        payload = json.loads(raw)
+    except (OSError, EOFError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CustodyError(
+            f"invalid recorder JSON gzip archive {logical}: {exc}"
+        ) from exc
+    if _sha256(raw) != record.get("sha256") or len(raw) != record.get("bytes"):
+        raise CustodyError(f"recorder decompressed archive mismatch: {logical}")
+    return body_relative, payload
+
+
+def verify_recorder_snapshot(snapshot_path: Path) -> CustodyVerification:
+    snapshot_path = snapshot_path.resolve()
+    payload = _load_object(snapshot_path)
+    if (
+        payload.get("schemaVersion") != "thesis_record_snapshot_v2"
+        or payload.get("snapshotKind") != "recorder_run"
+    ):
+        raise CustodyError("file is not a recorder snapshot")
+    version = payload.get("custodyInventoryVersion")
+    legacy = version is None
+    if not legacy and (
+        version != INVENTORY_VERSION or payload.get("runMode") != "recorder"
+    ):
+        raise CustodyError("unsupported recorder custody inventory version or mode")
+    records_root = snapshot_path.parents[1]
+    run_id = str(payload.get("runId", ""))
+    body_root = snapshot_path.parent / f"bodies-{run_id}"
+    referenced: set[str] = set()
+    surfaces = payload.get("surfaces")
+    if not isinstance(surfaces, dict):
+        raise CustodyError("recorder snapshot lacks surfaces")
+    if not legacy:
+        missing_surfaces = sorted(set(RECORDER_REQUIRED_SURFACES) - set(surfaces))
+        if missing_surfaces:
+            raise CustodyError(
+                "recorder is missing required surfaces: " + ", ".join(missing_surfaces)
+            )
+    surface_payloads: dict[str, Any] = {}
+    for key, record in surfaces.items():
+        if not isinstance(record, dict):
+            raise CustodyError(f"recorder surface {key} is not an object")
+        relative, archive_payload = _recorder_archive(records_root, record, body_root)
+        surface_payloads[str(key)] = archive_payload
+        if not legacy and RECORDER_REQUIRED_SURFACES.get(str(key)) != relative:
+            raise CustodyError(
+                f"recorder surface {key} has unexpected archive path {relative}"
+            )
+        if relative in referenced:
+            raise CustodyError(f"duplicate recorder archive path: {relative}")
+        referenced.add(relative)
+    live = payload.get("liveForecasts") or {}
+    if not isinstance(live, dict):
+        raise CustodyError("recorder liveForecasts must be an object")
+    if not legacy and set(live) != set(RECORDER_REQUIRED_LIVE):
+        raise CustodyError(
+            "recorder live forecast inventory is not the required exact set"
+        )
+    for key, record in live.items():
+        relative, _archive_payload = _recorder_archive(records_root, record, body_root)
+        if not legacy and RECORDER_REQUIRED_LIVE.get(str(key)) != relative:
+            raise CustodyError(
+                f"recorder live forecast {key} has unexpected archive path {relative}"
+            )
+        if relative in referenced:
+            raise CustodyError(f"duplicate recorder archive path: {relative}")
+        referenced.add(relative)
+    chunks = payload.get("logChunks") or {}
+    if not isinstance(chunks, dict):
+        raise CustodyError("recorder logChunks must be an object")
+    chunk_payloads: dict[str, Any] = {}
+    chunk_relatives: dict[str, str] = {}
+    for key, record in chunks.items():
+        relative, archive_payload = _recorder_archive(records_root, record, body_root)
+        chunk_payloads[str(key)] = archive_payload
+        chunk_relatives[str(key)] = relative
+        if relative in referenced:
+            raise CustodyError(f"duplicate recorder archive path: {relative}")
+        referenced.add(relative)
+    if not legacy:
+        log_manifest = surface_payloads["log"]
+        if log_manifest.get("schemaVersion") == "thesis_log_v3":
+            expected_chunks: dict[str, dict[str, Any]] = {}
+            collections = log_manifest.get("collections")
+            if not isinstance(collections, dict):
+                raise CustodyError("recorder v3 log manifest lacks collections")
+            for collection, collection_manifest in collections.items():
+                references = (
+                    collection_manifest.get("chunks")
+                    if isinstance(collection_manifest, dict)
+                    else None
+                )
+                if not isinstance(references, list):
+                    raise CustodyError(
+                        f"recorder v3 log collection {collection} lacks chunks"
+                    )
+                for expected_index, reference in enumerate(references):
+                    if (
+                        not isinstance(reference, dict)
+                        or reference.get("index") != expected_index
+                    ):
+                        raise CustodyError(
+                            f"recorder v3 {collection} chunk indexes are invalid"
+                        )
+                    expected_chunks[f"{collection}:{expected_index}"] = reference
+            if set(chunks) != set(expected_chunks):
+                raise CustodyError(
+                    "recorder v3 log chunk inventory differs from its manifest"
+                )
+            for key, reference in expected_chunks.items():
+                record = chunks[key]
+                chunk = chunk_payloads[key]
+                expected_collection, expected_index_text = key.split(":", 1)
+                expected_index = int(expected_index_text)
+                expected_url = f"/log/{expected_collection}/{expected_index}.json"
+                if reference.get("url") != expected_url:
+                    raise CustodyError(
+                        f"recorder v3 chunk {key} has invalid manifest URL"
+                    )
+                expected_relative = f"{expected_url.lstrip('/')}.gz"
+                if chunk_relatives[key] != expected_relative:
+                    raise CustodyError(
+                        f"recorder v3 chunk {key} archive path mismatch: "
+                        f"expected {expected_relative}, got {chunk_relatives[key]}"
+                    )
+                if record.get("manifestSha256") != reference.get("sha256"):
+                    raise CustodyError(
+                        f"recorder v3 chunk {key} manifest hash link mismatch"
+                    )
+                expected_fields = {
+                    "schemaVersion": "thesis_log_chunk_v1",
+                    "logSchemaVersion": "thesis_log_v3",
+                    "collection": expected_collection,
+                    "chunkIndex": expected_index,
+                    "count": reference.get("count"),
+                }
+                if any(
+                    chunk.get(name) != value for name, value in expected_fields.items()
+                ):
+                    raise CustodyError(f"recorder v3 chunk {key} metadata mismatch")
+                if len(chunk.get("rows", [])) != reference.get("count"):
+                    raise CustodyError(f"recorder v3 chunk {key} row count mismatch")
+                if canonical_sha256(chunk) != reference.get("sha256"):
+                    raise CustodyError(
+                        f"recorder v3 chunk {key} canonical hash mismatch"
+                    )
+        elif chunks:
+            raise CustodyError("non-v3 recorder log unexpectedly has log chunks")
+        discovered = _regular_files(body_root)
+        if discovered != referenced:
+            raise CustodyError(
+                "recorder body inventory mismatch: "
+                f"unreferenced={sorted(discovered - referenced)}, "
+                f"missing={sorted(referenced - discovered)}"
+            )
+    return CustodyVerification(
+        run_mode="recorder",
+        custody_inventory_version=1 if legacy else INVENTORY_VERSION,
+        inventory_status=INVENTORY_STATUS_LEGACY
+        if legacy
+        else INVENTORY_STATUS_COMPLETE,
+        custody_root_sha256=_sha256(snapshot_path.read_bytes()),
+        artifact_count=len(referenced) + 1,
+        run_succeeded=False,
+    )
 
 
 def main() -> int:
     if len(sys.argv) != 2:
-        print("usage: verify_custody.py <run-dir>", file=sys.stderr)
+        print(
+            "usage: verify_custody.py <run-dir|recorder-digest.json>", file=sys.stderr
+        )
         return 2
+    target = Path(sys.argv[1])
     try:
-        verify_run(Path(sys.argv[1]))
+        result = (
+            verify_run(target) if target.is_dir() else verify_recorder_snapshot(target)
+        )
     except CustodyError as exc:
         print(f"CUSTODY BROKEN: {exc}", file=sys.stderr)
         return 1
-    print(f"custody OK: {sys.argv[1]}")
+    print(
+        f"custody OK: {target} mode={result.run_mode} "
+        f"inventory=v{result.custody_inventory_version} "
+        f"status={result.inventory_status} artifacts={result.artifact_count}"
+    )
     return 0
 
 
