@@ -396,11 +396,958 @@ MONTH_NUMBERS = {
     )
 }
 
+# ---------------------------------------------------------------------------
+# International native-source adapters (2026-07-10). ALFRED has no vintage
+# coverage for these series, so each adapter binds the official national
+# source the cells' resolver rules name. Every mapping below reproduced the
+# cells' OWN recorded historicalContext anchors before being added, and the
+# same anchor set is re-verified at fetch time (`anchors` on each spec) so a
+# wrong series, wrong unit, or upstream restructuring fails closed instead
+# of resolving a wrong fact. Where a recorded anchor and the official record
+# disagreed, the official release-day artifact adjudicated; the evidence is
+# documented inline per source.
+#
+# First-print discipline per source (anchors are FIRST prints; live APIs
+# serve revised values on backfills):
+#   - Sources whose published series are not revised (StatCan CPI, ABS
+#     monthly CPI original, e-Stat CPI indexes) resolve from the current
+#     value fetched between releases: that value IS the first print when
+#     captured before the next release (the exact response bytes plus
+#     retrievedAt are archived, so the vintage claim is auditable).
+#   - Revision-prone series (LFS-style surveys, monthly GDP, EI counts)
+#     additionally carry `first_print_window_days`: they resolve only while
+#     the fetch instant is provably inside the window between the naming
+#     release and the next one; after that the first print is no longer
+#     retrievable from the live endpoint and the cell defers loudly.
+#   - Series whose first prints are replaced on the SAME endpoint within
+#     days (Eurostat retail benchmark revisions, ABS Building Approvals'
+#     two-releases-per-month cycle) resolve only from immutable Wayback
+#     snapshots of the month's own release page, pinned per period like
+#     A19_SNAPSHOT_URLS. Eurostat HICP flash additionally requires the
+#     target period to still carry its provisional/estimated status flag,
+#     so a post-final fetch can never masquerade as the flash print.
+INTL_USER_AGENT = "Mozilla/5.0 (compatible; thesis-resolver/1.0; +https://app.thesisinstitute.org)"
+
+US_GEOGRAPHY = {
+    "level": "country",
+    "id": "0100000US",
+    "vintage": "current",
+    "name": "United States",
+}
+INTL_GEOGRAPHY = {
+    "CA": {"level": "country", "id": "CA", "vintage": "current", "name": "Canada"},
+    "AU": {"level": "country", "id": "AU", "vintage": "current", "name": "Australia"},
+    "JP": {"level": "country", "id": "JP", "vintage": "current", "name": "Japan"},
+    "EA": {"level": "area", "id": "EA21", "vintage": "current", "name": "Euro area"},
+}
+
+STATCAN_WDS_RANGE = (
+    "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange"
+    "?vectorIds={vector}&startRefPeriod={start}&endReferencePeriod={end}"
+)
+ABS_DATA_URL = (
+    "https://data.api.abs.gov.au/rest/data/{flow}/{key}"
+    "?lastNObservations={last_n}&format=jsondata"
+)
+EUROSTAT_DATA_URL = (
+    "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/{dataset}/{key}"
+    "?format=JSON&startPeriod={start}"
+)
+
+# Cells whose recorded historicalContext contradicts the official series are
+# never auto-resolved, even after their release date: resolving them would
+# grade a target whose own registration evidence is unreliable. Each entry
+# documents the contradiction; clearing one requires a human/analyst pass.
+INTL_RESOLUTION_HOLDS = {
+    "statjp.cpi.tokyo_all_items_annual_rate.july_2026.preliminary": (
+        "the July-wave run recorded Tokyo anchors 2.9/2.9/3.5/3.4/3.4 "
+        "(Feb-Jun 2026), but the official 2020-base Tokyo ku-area series "
+        "prints 1.5/1.4/1.5/1.4/1.7 (Statistics Bureau kubu.pdf published "
+        "2026-06-26 and e-Stat table 1-2); the recorded context appears to "
+        "be a different vintage/series and must be reviewed before this "
+        "cell may resolve"
+    ),
+}
+
+# Pinned immutable snapshots per data month, one URL list per period tried
+# in order (same custody model as A19_SNAPSHOT_URLS: web.archive.org serves
+# exact bytes and independently timestamps them).
+#
+# Eurostat retail trade (euro area, volume, MoM SCA): the live sts_trtu_m /
+# ei_isrr_m endpoints already serve benchmark-revised back months (Feb/Mar/
+# Apr 2026 first prints 0.3/-0.1/-0.4 now read -0.4/0.8/-0.3), so only the
+# release-day page witnesses the first print. Verified 2026-07-10: the
+# 2026-06-04 release page headlines April at -0.4 (exact anchor match) and
+# itself shows March already revised to 0.8, matching today's API; the
+# 2026-07-06 release-day snapshot headlines May at +0.2, which the API
+# still serves unrevised.
+EUROSTAT_RETAIL_SNAPSHOT_URLS: dict[str, list[str]] = {
+    "2026-05": [
+        "https://web.archive.org/web/20260706201910/"
+        "https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/4-06072026-bp",
+    ],
+}
+
+# ABS Building Approvals (total dwellings, MoM % SA): the national SA
+# series is not carried by the ABS Data API (BA_GCCSA serves Original
+# only), and since May 2026 each month gets a first release then an update
+# ~7 days later on the same page slug, so first prints must come from the
+# release-day snapshot. Verified 2026-07-10: the apr-2026 page (released
+# 2026-06-02) says "Total dwellings approved fell 3.4%, to 16,710" (exact
+# anchor match) and the may-2026 release-day snapshot (2026-07-01, before
+# the 7/08 update) says "Total dwellings approved fell 1.1% to 17,019".
+ABS_BA_SNAPSHOT_URLS: dict[str, list[str]] = {
+    "2026-05": [
+        "https://web.archive.org/web/20260701030516/"
+        "https://www.abs.gov.au/statistics/industry/building-and-construction/"
+        "building-approvals-australia/may-2026",
+    ],
+}
+
+# Statistics Bureau of Japan artifacts, pinned per period. The Tokyo ku-area
+# CPI preliminary exists in machine-readable form only as the e-Stat table
+# 1-2 workbook; each release mints a new immutable statInfId, so the pinned
+# URL is itself a vintage artifact (keyless download, no e-Stat appId
+# required). The LFS and household-spending pages are the release pages
+# themselves; the parser refuses any artifact whose own printed reference
+# month differs from the target period, so a rolled-over live page can
+# never resolve an older cell (the trailing Wayback URL keeps the period
+# resolvable after rollover).
+JP_TOKYO_CPI_XLSX_URLS: dict[str, list[str]] = {
+    "2026-06": [
+        "https://www.e-stat.go.jp/stat-search/file-download"
+        "?statInfId=000040461676&fileKind=0",
+        "https://web.archive.org/web/20260710/https://www.e-stat.go.jp/stat-search/"
+        "file-download?statInfId=000040461676&fileKind=0",
+    ],
+}
+JP_LFS_LIVE_URLS = [
+    "https://www.stat.go.jp/data/roudou/sokuhou/tsuki/index.html",
+]
+JP_LFS_PAGE_URLS: dict[str, list[str]] = {
+    "2026-05": [
+        "https://web.archive.org/web/20260710/https://www.stat.go.jp/data/roudou/"
+        "sokuhou/tsuki/index.html",
+    ],
+}
+JP_KAKEI_LIVE_URLS = [
+    "https://www.stat.go.jp/data/kakei/sokuhou/tsuki/index.html",
+]
+JP_KAKEI_PAGE_URLS: dict[str, list[str]] = {
+    "2026-05": [
+        "https://web.archive.org/web/20260710/https://www.stat.go.jp/data/kakei/"
+        "sokuhou/tsuki/index.html",
+    ],
+}
+
+# One spec per dataPointId stem; dataPointId dialects of the same fact share
+# a spec dict (and therefore one cached fetch and one archived response).
+# `anchors` are the cells' recorded first prints re-checked at fetch time;
+# `anchor_tolerance` encodes each source's documented revision behavior.
+_STATCAN_CPI_SPEC = {
+    "kind": "statcan",
+    "series_id": "statcan-v41690973",
+    "source_file": "getDataFromVectorByReferencePeriodRange (WDS JSON)",
+    "extension": "json",
+    "vector": 41690973,
+    "product": "18-10-0004-01",
+    "transform": "yoy_from_index",
+    "round": 1,
+    "unit": "percent",
+    "label": "Canada CPI all-items, 12-month change (NSA)",
+    "source_name": "statcan",
+    "source_table": "Consumer Price Index, Table 18-10-0004-01 (all-items, Canada)",
+    "concept_authority": "statcan",
+    "source_concept": "v41690973",
+    "country": "CA",
+    # StatCan CPI indexes are not revised after publication (corrections
+    # only), and the published 12-month change is computed from rounded
+    # index values — verified 2026-07-10: computed YoY reproduced all six
+    # recorded anchors exactly (Nov25 2.2, Dec25 2.4, Jan 2.3, Feb 1.8,
+    # Mar 2.4, Apr 2.8). May 2026 was released 2026-06-22 on the updated
+    # basket (weights effective 2026-06-15), which chain-links within the
+    # same index series.
+    "anchors": {"2026-01": 2.3, "2026-02": 1.8, "2026-03": 2.4, "2026-04": 2.8},
+    "anchor_tolerance": 0.1,
+}
+_STATCAN_GDP_SPEC = {
+    "kind": "statcan",
+    "series_id": "statcan-v65201210",
+    "source_file": "getDataFromVectorByReferencePeriodRange (WDS JSON)",
+    "extension": "json",
+    "vector": 65201210,
+    "product": "36-10-0434-01",
+    "transform": "mom_pct",
+    "round": 1,
+    "unit": "percent_growth",
+    "label": "Canada real GDP by industry, all industries, MoM change (SA)",
+    "source_name": "statcan",
+    "source_table": (
+        "GDP by industry, Table 36-10-0434-01 (all industries, chained "
+        "2017 dollars, SA at annual rates)"
+    ),
+    "concept_authority": "statcan",
+    "source_concept": "v65201210",
+    "country": "CA",
+    # Monthly GDP levels are revised at each release, moving back-month MoM
+    # changes by ~0.1pp per step (recorded first prints Nov25 0.0, Dec25
+    # 0.2, Jan 0.1 currently read 0.1, 0.1, -0.0). The three most recent
+    # published months reproduced their recorded first prints exactly on
+    # 2026-07-10 (Feb 0.2, Mar -0.1, Apr 0.5); the tolerance absorbs one
+    # revision step while still refusing transform mistakes (April YoY
+    # would read ~1.5, a 1.0pp miss).
+    "anchors": {"2026-02": 0.2, "2026-03": -0.1, "2026-04": 0.5},
+    "anchor_tolerance": 0.25,
+    # The next monthly GDP release (~31 days later) revises the target
+    # month itself, so the first print is only retrievable live until then.
+    "first_print_window_days": 24,
+}
+_STATCAN_EI_SPEC = {
+    "kind": "statcan",
+    "series_id": "statcan-v64549350",
+    "source_file": "getDataFromVectorByReferencePeriodRange (WDS JSON)",
+    "extension": "json",
+    "vector": 64549350,
+    "product": "14-10-0011-01",
+    "transform": "level",
+    "scale": 0.001,
+    "round": 2,
+    "unit": "thousands",
+    "label": "Canada EI regular beneficiaries (SA)",
+    "source_name": "statcan",
+    "source_table": (
+        "Employment insurance beneficiaries, Table 14-10-0011-01 "
+        "(regular benefits, Canada, SA)"
+    ),
+    "concept_authority": "statcan",
+    "source_concept": "v64549350",
+    "country": "CA",
+    "entity": {"name": "person", "role": "ei_beneficiary"},
+    # EI counts are administrative and re-seasonally-adjusted each release:
+    # the latest month held exactly (Apr 544.44 recorded = 544.44 today),
+    # the prior month drifted 0.56k in one release (Mar first print 548.0
+    # -> 547.44), and February drifted ~8k over three releases, so only
+    # the two freshest anchors are checked, at a tolerance wide enough for
+    # documented SA refits but far below any wrong-series miss.
+    "anchors": {"2026-03": 548.0, "2026-04": 544.44},
+    "anchor_tolerance": 2.5,
+    "first_print_window_days": 24,
+}
+_ABS_CPI_SPEC = {
+    "kind": "abs",
+    "series_id": "abs-cpi-allgroups-yoy",
+    "source_file": "ABS Data API SDMX-JSON",
+    "extension": "json",
+    "flow": "CPI",
+    "key": "3.10001.10.50.M",
+    "transform": "level",
+    "round": 1,
+    "unit": "percent",
+    "label": "Australia monthly CPI, all groups, annual change",
+    "source_name": "abs",
+    "source_table": (
+        "Monthly Consumer Price Index (complete monthly CPI, dataflow CPI: "
+        "annual change, all groups, original, weighted average of eight "
+        "capital cities)"
+    ),
+    "concept_authority": "abs",
+    "source_concept": "CPI/3.10001.10.50.M",
+    "country": "AU",
+    # Australia moved from the CPI_M indicator (final observation 2025-09)
+    # to the complete monthly CPI published under dataflow CPI with
+    # FREQ=M; the recorded anchors match the complete CPI exactly and
+    # differ from the retired indicator (2025-09: 3.6 vs 3.5), so the
+    # cells' series is the complete CPI. Original-series annual rates are
+    # not revised; verified 2026-07-10 with six exact anchor matches
+    # (Nov25 3.4, Dec25 3.8, Jan 3.8, Feb 3.7, Mar 4.6, Apr 4.2).
+    "anchors": {"2026-02": 3.7, "2026-03": 4.6, "2026-04": 4.2},
+    "anchor_tolerance": 0.1,
+}
+_ABS_UR_SPEC = {
+    "kind": "abs",
+    "series_id": "abs-lf-unemployment-rate",
+    "source_file": "ABS Data API SDMX-JSON",
+    "extension": "json",
+    "flow": "LF",
+    "key": "M13.3.1599.20.AUS.M",
+    "transform": "level",
+    "round": 1,
+    "unit": "percent",
+    "label": "Australia unemployment rate (SA)",
+    "source_name": "abs",
+    "source_table": (
+        "Labour Force, Australia (dataflow LF: unemployment rate, persons, "
+        "total age, seasonally adjusted, Australia)"
+    ),
+    "concept_authority": "abs",
+    "source_concept": "LF/M13.3.1599.20.AUS.M",
+    "country": "AU",
+    # The Data API serves unrounded rates; rounding to one decimal (as ABS
+    # headlines) reproduced every recorded first print on 2026-07-10
+    # (Mar 4.278->4.3, Apr 4.481->4.5, May 4.356->4.4, the May release-day
+    # page confirming "decreased by 0.1ppts to 4.4%"). SA rates revise by
+    # ~0.1pp at later releases, hence the window and tolerance.
+    "anchors": {"2026-03": 4.3, "2026-04": 4.5},
+    "anchor_tolerance": 0.15,
+    "first_print_window_days": 18,
+}
+_ABS_EMP_SPEC = {
+    "kind": "abs",
+    "series_id": "abs-lf-employed-persons",
+    "source_file": "ABS Data API SDMX-JSON",
+    "extension": "json",
+    "flow": "LF",
+    "key": "M3.3.1599.20.AUS.M",
+    "transform": "mom_diff",
+    "round": 1,
+    "unit": "thousands",
+    "label": "Australia employment change (SA)",
+    "source_name": "abs",
+    "source_table": (
+        "Labour Force, Australia (dataflow LF: employed persons, seasonally "
+        "adjusted, Australia; month-over-month change)"
+    ),
+    "concept_authority": "abs",
+    "source_concept": "LF/M3.3.1599.20.AUS.M",
+    "country": "AU",
+    "entity": {"name": "person", "role": "employed"},
+    # ABS headlines the SA change against the prior month AS REVISED IN THE
+    # SAME RELEASE, so the first print equals the level diff only at the
+    # release's own vintage (the 2026-06-25 release page prints 14,698,500
+    # -> 14,738,800 = +40,300, matching the live diff on 2026-07-10).
+    # Historical level anchors are useless here — LFS rebenchmarks moved
+    # the recorded April level (14,737.4) to 14,698.5 in one release — so
+    # the anchor pins the latest release's own level, and the window keeps
+    # the fetch inside the vintage that headlined the target change.
+    "anchor_transform": "raw_level",
+    "anchors": {"2026-05": 14738.8},
+    "anchor_tolerance": 60.0,
+    "first_print_window_days": 18,
+}
+_ABS_BA_SPEC = {
+    "kind": "abs_ba_release",
+    "series_id": "abs-building-approvals-release",
+    "source_file": "building-approvals-australia release page (Wayback snapshot)",
+    "extension": "html",
+    "snapshots": ABS_BA_SNAPSHOT_URLS,
+    "unit": "percent_growth",
+    "label": "Australia building approvals, total dwellings, MoM change (SA)",
+    "source_name": "abs",
+    "source_table": "Building Approvals, Australia (release page, key statistics)",
+    "concept_authority": "abs",
+    "source_concept": "building-approvals-australia release page",
+    "country": "AU",
+    "anchors": {},
+    "anchor_tolerance": 0.0,
+}
+_STATJP_TOKYO_SPEC = {
+    "kind": "estat_xlsx",
+    "series_id": "estat-tokyo-cpi-table1-2",
+    "source_file": "e-Stat table 1-2 workbook (Tokyo ku-area, release vintage)",
+    "extension": "xlsx",
+    "snapshots": JP_TOKYO_CPI_XLSX_URLS,
+    "transform": "yoy_from_index",
+    "round": 1,
+    "unit": "percent",
+    "label": "Japan Tokyo ku-area CPI all items, annual change (preliminary)",
+    "source_name": "stat_jp",
+    "source_table": (
+        "2020-base CPI, Tokyo ku-area mid-month preliminary, e-Stat table "
+        "1-2 (all items index)"
+    ),
+    "concept_authority": "stat_jp",
+    "source_concept": "e-Stat statInfId 000040461676 (series 0001, all items)",
+    "country": "JP",
+    # The Statistics Bureau publishes the Tokyo preliminary YoY only in the
+    # release PDF (CID-encoded, not machine-readable) and the e-Stat table
+    # workbook; YoY computed from the workbook's rounded index reproduces
+    # every published rate (kubu.pdf, 2026-06-26: Jan 1.5, Feb 1.5, Mar
+    # 1.4, Apr 1.5, May 1.4, Jun 1.7), including both anchors this cell's
+    # origin wave recorded (Apr 1.5, May 1.4). CPI indexes are unrevised;
+    # the pinned statInfId is itself an immutable release vintage.
+    "anchors": {"2026-04": 1.5, "2026-05": 1.4},
+    "anchor_tolerance": 0.1,
+}
+_STATJP_LFS_SPEC = {
+    "kind": "jp_lfs_page",
+    "series_id": "statjp-lfs-monthly-page",
+    "source_file": "stat.go.jp LFS monthly summary page",
+    "extension": "html",
+    "snapshots": JP_LFS_PAGE_URLS,
+    "unit": "percent",
+    "label": "Japan unemployment rate (SA)",
+    "source_name": "stat_jp",
+    "source_table": "Labour Force Survey, monthly summary page (SA rate table)",
+    "concept_authority": "stat_jp",
+    "source_concept": "stat.go.jp roudou sokuhou monthly page",
+    "country": "JP",
+    # The release page's own SA table carries the recent months, so one
+    # fetch both anchors and resolves; verified 2026-07-10 against the
+    # 2026-06-30 release (Feb 2.6, Mar 2.7, Apr 2.5 exact; May prints
+    # 2.5). A misaligned parse fails the anchor check rather than
+    # resolving a neighboring month.
+    "anchors": {"2026-02": 2.6, "2026-03": 2.7, "2026-04": 2.5},
+    "anchor_tolerance": 0.05,
+}
+_STATJP_KAKEI_SPEC = {
+    "kind": "jp_kakei_page",
+    "series_id": "statjp-kakei-monthly-page",
+    "source_file": "stat.go.jp kakei monthly summary page",
+    "extension": "html",
+    "snapshots": JP_KAKEI_PAGE_URLS,
+    "unit": "percent_growth",
+    "label": (
+        "Japan household spending, real YoY change "
+        "(two-or-more-person households)"
+    ),
+    "source_name": "stat_jp",
+    "source_table": (
+        "Family Income and Expenditure Survey, monthly summary page "
+        "(two-or-more-person households, real consumption expenditure)"
+    ),
+    "concept_authority": "stat_jp",
+    "source_concept": "stat.go.jp kakei sokuhou monthly page",
+    "country": "JP",
+    # Kakei YoY figures are not revised across monthly releases (Feb -1.8
+    # identical across the 2026-04, 2026-05-12 and 2026-07-07 vintages).
+    # The cell's recorded March anchor (-0.5) is refuted by the official
+    # record — the 2026-05-12 release printed March at -2.9 (Wayback
+    # 2026-05-20 capture) and it still reads -2.9 today — so March is a
+    # transcription error in the origin wave and is excluded; February and
+    # April verify the row/column alignment instead.
+    "anchors": {"2026-02": -1.8, "2026-04": -0.5},
+    "anchor_tolerance": 0.05,
+}
+_EUROSTAT_HICP_SPEC = {
+    "kind": "eurostat",
+    "series_id": "eurostat-prc-hicp-minr-ea",
+    "source_file": "Eurostat dissemination API JSON-stat",
+    "extension": "json",
+    "dataset": "prc_hicp_minr",
+    "key": "M.RCH_A.TOTAL.EA21",
+    "require_flag": True,
+    "unit": "percent",
+    "label": "Euro area HICP all-items flash estimate, annual rate",
+    "source_name": "eurostat",
+    "source_table": (
+        "HICP (ECOICOP ver.2) monthly rates, prc_hicp_minr (all-items "
+        "annual rate, euro area)"
+    ),
+    "concept_authority": "eurostat",
+    "source_concept": "prc_hicp_minr/M.RCH_A.TOTAL.EA21",
+    "country": "EA",
+    # Eurostat loads the euro-area flash into prc_hicp_minr on release
+    # morning flagged as an estimate; finals (~2 weeks later) replace the
+    # value and drop the flag, so `require_flag` refuses any fetch that
+    # can no longer see the flash vintage. Verified 2026-07-10: seven
+    # exact anchor matches (Nov25 2.1 ... May26 3.2) and 2026-06 = 2.8
+    # still flagged, matching the 2026-07-01 release headline "Euro area
+    # annual inflation down to 2.8%". The pre-2026 dataset (prc_hicp_manr)
+    # was frozen at 2025-12 by the ECOICOP-2 migration.
+    "anchors": {"2026-03": 2.6, "2026-04": 3.0, "2026-05": 3.2},
+    "anchor_tolerance": 0.1,
+}
+_EUROSTAT_UNEMP_SPEC = {
+    "kind": "eurostat",
+    "series_id": "eurostat-une-rt-m-ea",
+    "source_file": "Eurostat dissemination API JSON-stat",
+    "extension": "json",
+    "dataset": "une_rt_m",
+    "key": "M.SA.TOTAL.PC_ACT.T.EA21",
+    "require_flag": False,
+    "unit": "percent",
+    "label": "Euro area unemployment rate (SA)",
+    "source_name": "eurostat",
+    "source_table": "Unemployment by sex and age, une_rt_m (euro area, SA, total)",
+    "concept_authority": "eurostat",
+    "source_concept": "une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21",
+    "country": "EA",
+    # une_rt_m updates only on its monthly release day and revises back
+    # months by <=0.2pp (ei_lm_m_vtg carries the documented vintages).
+    # Verified 2026-07-10: the four freshest recorded first prints match
+    # exactly (Feb 6.4, Mar 6.3, Apr 6.2, May 6.2; dataset updated
+    # 2026-07-02, the May release day). An older recorded January anchor
+    # (6.1) now reads 6.3 — documented revision drift, excluded.
+    "anchors": {"2026-03": 6.3, "2026-04": 6.2},
+    "anchor_tolerance": 0.2,
+    "first_print_window_days": 21,
+}
+_EUROSTAT_RETAIL_SPEC = {
+    "kind": "eurostat_release",
+    "series_id": "eurostat-retail-trade-release",
+    "source_file": "Euro indicators news release page (Wayback snapshot)",
+    "extension": "html",
+    "snapshots": EUROSTAT_RETAIL_SNAPSHOT_URLS,
+    "unit": "percent_growth",
+    "label": "Euro area retail trade volume, MoM change (SCA)",
+    "source_name": "eurostat",
+    "source_table": "Euro indicators news release, volume of retail trade",
+    "concept_authority": "eurostat",
+    "source_concept": "products-euro-indicators release page (euro area headline)",
+    "country": "EA",
+    "anchors": {},
+    "anchor_tolerance": 0.0,
+}
+
+INTL_ADAPTERS: dict[str, dict[str, Any]] = {
+    # Canada (two CPI dataPointId dialects name the same fact)
+    "statcan.cpi.all_items_annual_rate.canada": _STATCAN_CPI_SPEC,
+    "statcan.cpi.allitems.yoy": _STATCAN_CPI_SPEC,
+    "statcan.gdp_by_industry.monthly_growth": _STATCAN_GDP_SPEC,
+    "statcan.36-10-0434-01.all_industries.month_to_month_percent_change": (
+        _STATCAN_GDP_SPEC
+    ),
+    "statcan.employment_insurance.regular_beneficiaries.canada": _STATCAN_EI_SPEC,
+    # Australia (three CPI dialects: recorded wave, live-comparison, docket)
+    "abs.cpi.all_groups_annual_rate.australia": _ABS_CPI_SPEC,
+    "abs.cpi_indicator.allgroups.yoy": _ABS_CPI_SPEC,
+    "abs.cpi.all_groups.yoy": _ABS_CPI_SPEC,
+    "abs.labour.unemployment_rate.australia": _ABS_UR_SPEC,
+    "abs.labour.employment_change.australia": _ABS_EMP_SPEC,
+    "abs.building_approvals.total_dwellings_mom.australia": _ABS_BA_SPEC,
+    # Japan
+    "statjp.cpi.tokyo_all_items_annual_rate": _STATJP_TOKYO_SPEC,
+    "statjp.lfs.unemployment_rate.japan": _STATJP_LFS_SPEC,
+    "statjp.household_spending.real_yoy.two_or_more_person_households": (
+        _STATJP_KAKEI_SPEC
+    ),
+    # Euro area (two flash HICP dialects name the same fact)
+    "eurostat.hicp.all_items_annual_rate.euro_area": _EUROSTAT_HICP_SPEC,
+    "eurostat.ea.hicp.flash.yoy": _EUROSTAT_HICP_SPEC,
+    "eurostat.unemployment_rate.euro_area": _EUROSTAT_UNEMP_SPEC,
+    "eurostat.retail_trade.volume_mom.euro_area": _EUROSTAT_RETAIL_SPEC,
+}
+
+
+def http_get(url: str, timeout: int = 120) -> tuple[bytes, str]:
+    """Fetch raw bytes with the resolver UA; returns (bytes, retrievedAt)."""
+    request = urllib.request.Request(url, headers={"User-Agent": INTL_USER_AGENT})
+    retrieved_at = utc_now()
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read(), retrieved_at
+
+
+def fetch_first(urls: list[str]) -> tuple[bytes, str, str]:
+    """Try pinned URLs in order; returns (bytes, url, retrievedAt)."""
+    last_error: Exception | None = None
+    for url in urls:
+        try:
+            raw, retrieved_at = http_get(url)
+            return raw, url, retrieved_at
+        except Exception as exc:  # noqa: BLE001 - next pin is the fallback
+            last_error = exc
+    raise RuntimeError(f"all pinned URLs failed (last: {last_error})")
+
+
+def statcan_series(vector: int) -> tuple[dict[str, float], bytes, str, str]:
+    """StatCan WDS values keyed YYYY-MM (range covers YoY-12 + anchors)."""
+    today = dt.date.today()
+    url = STATCAN_WDS_RANGE.format(
+        vector=vector,
+        start=f"{today.year - 3}-01-01",
+        end=today.isoformat(),
+    )
+    raw, retrieved_at = http_get(url)
+    payload = json.loads(raw.decode())
+    if not payload or payload[0].get("status") != "SUCCESS":
+        raise ValueError(f"WDS status not SUCCESS for vector {vector}")
+    points = payload[0]["object"]["vectorDataPoint"]
+    series = {
+        str(p["refPer"])[:7]: float(p["value"])
+        for p in points
+        if p.get("value") is not None
+    }
+    return series, raw, url, retrieved_at
+
+
+def abs_series(flow: str, key: str) -> tuple[dict[str, float], bytes, str, str]:
+    """ABS Data API (SDMX-JSON 2.0) single-series values keyed YYYY-MM."""
+    url = ABS_DATA_URL.format(flow=flow, key=key, last_n=30)
+    raw, retrieved_at = http_get(url)
+    payload = json.loads(raw.decode())
+    data = payload["data"]
+    structure = data["structures"][0]
+    times = [
+        v["id"]
+        for dim in structure["dimensions"]["observation"]
+        if dim["id"] == "TIME_PERIOD"
+        for v in dim["values"]
+    ]
+    all_series = data["dataSets"][0]["series"]
+    if len(all_series) != 1:
+        raise ValueError(f"ABS key {flow}/{key} matched {len(all_series)} series")
+    observations = next(iter(all_series.values()))["observations"]
+    series = {
+        times[int(index)]: float(values[0])
+        for index, values in observations.items()
+        if values and values[0] is not None
+    }
+    return series, raw, url, retrieved_at
+
+
+def eurostat_series(
+    dataset: str, key: str
+) -> tuple[dict[str, float], dict[str, str], bytes, str, str]:
+    """Eurostat JSON-stat values + per-period status flags, keyed YYYY-MM."""
+    today = dt.date.today()
+    url = EUROSTAT_DATA_URL.format(
+        dataset=dataset, key=key, start=f"{today.year - 2}-{today.month:02d}"
+    )
+    raw, retrieved_at = http_get(url)
+    payload = json.loads(raw.decode())
+    if "dimension" not in payload:
+        raise ValueError(f"eurostat {dataset}/{key}: {str(payload)[:160]}")
+    index_to_period = {
+        v: k for k, v in payload["dimension"]["time"]["category"]["index"].items()
+    }
+    series = {
+        index_to_period[int(flat)]: float(value)
+        for flat, value in payload["value"].items()
+    }
+    status = payload.get("status")
+    flags: dict[str, str] = {}
+    if isinstance(status, dict):
+        flags = {
+            index_to_period[int(flat)]: str(flag)
+            for flat, flag in status.items()
+            if int(flat) in index_to_period
+        }
+    return series, flags, raw, url, retrieved_at
+
+
+def estat_xlsx_index_series(raw: bytes) -> dict[str, float]:
+    """All-items index by YYYY-MM from an e-Stat CPI table 1-x workbook.
+
+    Cells map by column letter (recent rows are sparse, so document order
+    lies); the all-items column is the one whose header row carries item
+    code 0001.
+    """
+    import zipfile
+    from xml.etree import ElementTree
+
+    ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    archive = zipfile.ZipFile(io.BytesIO(raw))
+    shared: list[str] = []
+    for item in ElementTree.fromstring(
+        archive.read("xl/sharedStrings.xml")
+    ).iter(f"{ns}si"):
+        shared.append("".join(t.text or "" for t in item.iter(f"{ns}t")))
+    rows: list[dict[str, str]] = []
+    for row in ElementTree.fromstring(
+        archive.read("xl/worksheets/sheet1.xml")
+    ).iter(f"{ns}row"):
+        cells: dict[str, str] = {}
+        for cell in row.iter(f"{ns}c"):
+            value = cell.find(f"{ns}v")
+            column = re.match(r"([A-Z]+)", cell.get("r", ""))
+            if value is None or column is None:
+                continue
+            cells[column.group(1)] = (
+                shared[int(value.text)] if cell.get("t") == "s" else value.text
+            )
+        rows.append(cells)
+    code_row = next(r for r in rows if any(v == "0001" for v in r.values()))
+    items_column = next(c for c, v in code_row.items() if v == "0001")
+    series: dict[str, float] = {}
+    for row in rows:
+        month = next(
+            (
+                v.strip()
+                for v in row.values()
+                if isinstance(v, str) and re.fullmatch(r"(19|20)\d{4}\s*", v)
+            ),
+            None,
+        )
+        if month and items_column in row:
+            try:
+                series[f"{month[:4]}-{month[4:6]}"] = float(row[items_column])
+            except ValueError:
+                continue
+    return series
+
+
+def decode_jp(raw: bytes) -> str:
+    for encoding in ("shift_jis", "cp932", "utf-8"):
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("shift_jis", errors="replace")
+
+
+def _jp_month_labels(text: str) -> list[str]:
+    """YYYY-MM labels for a stat.go.jp monthly table header segment.
+
+    Headers run like '2026年2月 3月 4月 5月': bare months inherit the last
+    seen year.
+    """
+    labels: list[str] = []
+    year = None
+    for match in re.finditer(r"(\d{4})年(\d{1,2})月|(?<![年\d])(\d{1,2})月", text):
+        if match.group(1):
+            year = int(match.group(1))
+            labels.append(f"{year}-{int(match.group(2)):02d}")
+        elif year is not None:
+            labels.append(f"{year}-{int(match.group(3)):02d}")
+    return labels
+
+
+def jp_lfs_unemployment_series(raw: bytes) -> dict[str, float]:
+    """SA unemployment rates by month from the LFS monthly summary page."""
+    text = re.sub(r"<[^>]+>", " ", decode_jp(raw))
+    text = text.replace("&nbsp;", " ").replace("&#160;", " ")
+    text = re.sub(r"[\s　]+", " ", text)
+    segment = re.search(
+        r"月次（季節調整値）(.{0,240}?)完全失業率((?:\s*[\d.]+%)+)", text
+    )
+    if not segment:
+        raise ValueError("LFS page: SA table not found")
+    labels = _jp_month_labels(segment.group(1))
+    values = [float(v) for v in re.findall(r"([\d.]+)%", segment.group(2))]
+    # The value row leads with calendar-year averages (one per bare year
+    # label); the monthly values are the trailing ones matching the month
+    # labels.
+    if len(values) < len(labels):
+        raise ValueError("LFS page: fewer rate values than month labels")
+    return dict(zip(labels, values[len(values) - len(labels) :]))
+
+
+def jp_kakei_real_yoy_series(raw: bytes) -> dict[str, float]:
+    """Real YoY spending changes (two-or-more-person households) by month."""
+    text = re.sub(r"<[^>]+>", "|", decode_jp(raw))
+    text = text.replace("&nbsp;", " ").replace("&#160;", " ")
+    text = re.sub(r"[ \t　]+", " ", text)
+    flat = re.sub(r"[|\s]+", " ", text)
+    header = re.search(r"月次（前年同月比(.{0,200}?)【二人以上の世帯】", flat)
+    if not header:
+        raise ValueError("kakei page: monthly header not found")
+    labels = _jp_month_labels(header.group(1))
+    row = re.search(
+        r"【二人以上の世帯】\s*消費支出（実質）(.*?)(?:≪|実収入|【単身世帯】)",
+        flat,
+    )
+    if not row:
+        raise ValueError("kakei page: real consumption row not found")
+    # YoY values are the bare numbers; bracketed 【..】 values are the MoM
+    # SA series and are dropped. ▲ marks negatives.
+    yoy: list[float] = []
+    for token in re.finditer(r"(【[^】]*】)|(▲?\d+(?:\.\d+)?)", row.group(1)):
+        if token.group(1):
+            continue
+        yoy.append(float(token.group(2).replace("▲", "-")))
+    # The row leads with calendar-year averages; monthly values trail.
+    if len(yoy) < len(labels):
+        raise ValueError("kakei page: fewer YoY values than month labels")
+    return dict(zip(labels, yoy[len(yoy) - len(labels) :]))
+
+
+def jp_page_reference_period(raw: bytes) -> str | None:
+    """The page's own printed reference month ('2026年(令和8年)5月分')."""
+    text = re.sub(r"[\s　]+", "", decode_jp(raw))
+    match = re.search(r"(\d{4})年（令和\d+年）(\d{1,2})月分", text)
+    if not match:
+        return None
+    return f"{match.group(1)}-{int(match.group(2)):02d}"
+
+
+MONTH_NAMES = {number: name.capitalize() for name, number in MONTH_NUMBERS.items()}
+
+
+def eurostat_retail_headline(raw: bytes, period: str) -> float | None:
+    """Signed euro-area MoM % from a retail-trade release page snapshot."""
+    text = re.sub(r"<[^>]+>", " ", raw.decode("utf-8", errors="replace"))
+    text = re.sub(r"(&nbsp;|&#160;|\s)+", " ", text)
+    month_label = f"{MONTH_NAMES[int(period[5:7])]} {period[:4]}"
+    match = re.search(
+        rf"In {month_label}, compared with [A-Za-z]+ \d{{4}},? the seasonally "
+        rf"adjusted retail trade volume (increased|decreased) by ([\d.]+)% "
+        rf"in the euro area",
+        text,
+    )
+    if not match:
+        return None
+    value = float(match.group(2))
+    return value if match.group(1) == "increased" else -value
+
+
+def abs_ba_headline(raw: bytes, period: str) -> float | None:
+    """Signed SA total-dwellings MoM % from an ABS approvals release page."""
+    text = re.sub(r"<[^>]+>", " ", raw.decode("utf-8", errors="replace"))
+    text = re.sub(r"(&nbsp;|&#160;|\s)+", " ", text)
+    month_label = f"{MONTH_NAMES[int(period[5:7])]} {period[:4]}"
+    match = re.search(
+        rf"The {month_label} seasonally adjusted estimate:?\s*Total dwellings "
+        rf"approved (rose|fell) ([\d.]+)%",
+        text,
+    )
+    if not match:
+        return None
+    value = float(match.group(2))
+    return value if match.group(1) == "rose" else -value
+
+
+def intl_transformed_value(
+    spec: dict[str, Any], series: dict[str, float], period: str
+) -> float | None:
+    """Apply the spec's transform at `period` over a YYYY-MM keyed series."""
+    transform = spec.get("transform", "level")
+    if period not in series:
+        return None
+    if transform == "level":
+        value = series[period]
+    elif transform == "mom_diff":
+        prior = prior_period_date(period, "month")
+        if prior not in series:
+            return None
+        value = series[period] - series[prior]
+    elif transform == "mom_pct":
+        prior = prior_period_date(period, "month")
+        if prior not in series or not series[prior]:
+            return None
+        value = (series[period] / series[prior] - 1) * 100
+    elif transform == "yoy_from_index":
+        prior = f"{int(period[:4]) - 1}-{period[5:7]}"
+        if prior not in series or not series[prior]:
+            return None
+        value = (series[period] / series[prior] - 1) * 100
+    else:
+        raise ValueError(f"unknown intl transform {transform!r}")
+    value *= spec.get("scale", 1)
+    digits = spec.get("round")
+    if digits is not None:
+        value = round(value, digits)
+    return round(value, 4)
+
+
+def intl_anchor_failures(
+    spec: dict[str, Any], series: dict[str, float]
+) -> list[str]:
+    """Anchor periods whose recorded first prints the fetch cannot reproduce.
+
+    Failing closed here is the core safety property: a candidate series that
+    cannot reproduce the cell's own recorded history must never resolve it.
+    """
+    failures = []
+    for anchor_period, expected in (spec.get("anchors") or {}).items():
+        if spec.get("anchor_transform") == "raw_level":
+            # Anchors stated on the fetched series itself (used where the
+            # published headline is a same-release diff whose historical
+            # values are not stable enough to anchor on).
+            actual = series.get(anchor_period)
+        else:
+            actual = intl_transformed_value(spec, series, anchor_period)
+        if actual is None or abs(actual - expected) > spec["anchor_tolerance"]:
+            failures.append(f"{anchor_period}: expected {expected}, got {actual}")
+    return failures
+
+
+def flash_vintage_missing(
+    spec: dict[str, Any], flags: dict[str, str], period: str
+) -> bool:
+    """True when a flash-print spec can no longer see the flash vintage.
+
+    Eurostat drops the provisional/estimated flag when finals replace the
+    flash value on the same endpoint; resolving past that point would record
+    the final as if it were the flash first print.
+    """
+    return bool(spec.get("require_flag")) and period not in flags
+
+
+def intl_fetch(
+    spec: dict[str, Any],
+    period: str,
+    cache: dict[Any, tuple],
+) -> tuple[dict[str, float], dict[str, str], bytes, str, str]:
+    """Fetch + parse one adapter artifact, cached so dialects share bytes.
+
+    Returns (series keyed YYYY-MM, status flags, raw bytes, url,
+    retrievedAt). For single-print page artifacts the series carries just
+    the periods the page itself prints.
+    """
+    kind = spec["kind"]
+    if kind == "statcan":
+        cache_key = ("statcan", spec["vector"])
+        if cache_key not in cache:
+            series, raw, url, retrieved_at = statcan_series(spec["vector"])
+            cache[cache_key] = (series, {}, raw, url, retrieved_at)
+    elif kind == "abs":
+        cache_key = ("abs", spec["flow"], spec["key"])
+        if cache_key not in cache:
+            series, raw, url, retrieved_at = abs_series(spec["flow"], spec["key"])
+            cache[cache_key] = (series, {}, raw, url, retrieved_at)
+    elif kind == "eurostat":
+        cache_key = ("eurostat", spec["dataset"], spec["key"])
+        if cache_key not in cache:
+            series, flags, raw, url, retrieved_at = eurostat_series(
+                spec["dataset"], spec["key"]
+            )
+            cache[cache_key] = (series, flags, raw, url, retrieved_at)
+    elif kind in ("estat_xlsx", "jp_lfs_page", "jp_kakei_page",
+                  "eurostat_release", "abs_ba_release"):
+        # JP release pages replace their content monthly with no interim
+        # revision, so the live page is tried first (this is how future
+        # months resolve on release day without a new pin) and the parse's
+        # own reference-month check rejects a rolled-over or stale page.
+        # Snapshot-only kinds (approvals' two-release cycle, retail's
+        # numbered release slugs) resolve exclusively from pinned URLs.
+        urls = list(spec.get("live_urls") or []) + list(
+            spec["snapshots"].get(period) or []
+        )
+        if not urls:
+            raise LookupError(f"no pinned artifact registered for {period}")
+        cache_key = (kind, spec["series_id"], period)
+        if cache_key not in cache:
+            failures: list[str] = []
+            for url in urls:
+                try:
+                    raw, retrieved_at = http_get(url)
+                    if kind == "estat_xlsx":
+                        series = estat_xlsx_index_series(raw)
+                        # The workbook is one release vintage; its newest
+                        # month must be the target, else wrong vintage.
+                        if not series or max(series) != period:
+                            raise ValueError(
+                                f"workbook's latest month is not {period}"
+                            )
+                    elif kind in ("jp_lfs_page", "jp_kakei_page"):
+                        reference = jp_page_reference_period(raw)
+                        if reference != period:
+                            raise ValueError(
+                                f"page reference month {reference} is not "
+                                f"the target {period}"
+                            )
+                        series = (
+                            jp_lfs_unemployment_series(raw)
+                            if kind == "jp_lfs_page"
+                            else jp_kakei_real_yoy_series(raw)
+                        )
+                    elif kind == "eurostat_release":
+                        value = eurostat_retail_headline(raw, period)
+                        series = {} if value is None else {period: value}
+                    else:
+                        value = abs_ba_headline(raw, period)
+                        series = {} if value is None else {period: value}
+                    cache[cache_key] = (series, {}, raw, url, retrieved_at)
+                    break
+                except Exception as exc:  # noqa: BLE001 - try the next pin
+                    failures.append(f"{url}: {exc}")
+            if cache_key not in cache:
+                raise ValueError(
+                    "no pinned artifact parsed cleanly: " + "; ".join(failures)
+                )
+    else:
+        raise ValueError(f"unknown intl adapter kind {kind!r}")
+    return cache[cache_key]
+
 
 def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     """(period_type, YYYY-MM) parsed from a dataPointId's period tail."""
     tail = ref[len(stem) + 1 :]
-    tail = re.sub(r"\.(first_print|advance|second|third)_?(estimate)?$", "", tail)
+    tail = re.sub(
+        r"\.(first_print|advance|second|third|flash|preliminary)_?(estimate)?$",
+        "",
+        tail,
+    )
     m = re.fullmatch(r"([a-z]+)_(\d{4})", tail)
     if m and m.group(1) in MONTH_NUMBERS:
         return "month", f"{m.group(2)}-{MONTH_NUMBERS[m.group(1)]:02d}"
@@ -485,17 +1432,10 @@ def generic_fact(
         "observed_at": release_day.isoformat(),
         "period": {"type": period_type, "value": period},
         "domain": spec.get("domain", "economy"),
-        "geography": {
-            "level": "country",
-            "id": "0100000US",
-            "vintage": "current",
-            "name": "United States",
-        },
+        "geography": INTL_GEOGRAPHY.get(spec.get("country", ""), US_GEOGRAPHY),
         "entity": spec.get("entity", {"name": "economy", "role": "aggregate"}),
         "measure": {
-            "concept": ref.rsplit(".", 1)[0]
-            if ref.endswith("first_print")
-            else ref,
+            "concept": re.sub(r"\.(first_print|flash|preliminary)$", "", ref),
             "unit": spec["unit"],
             "source_concept": spec.get("fred", spec.get("source_concept", "")),
             "concept_relation": "source_label",
@@ -746,6 +1686,29 @@ def pending_adapter_refs(
         forecast = forecasts.get(link.get("forecastSlug")) or {}
         release_date = str(forecast.get("resolutionDate") or "")
         if not release_date:
+            continue
+        intl_stem = next(
+            (
+                stem
+                for stem in INTL_ADAPTERS
+                if ref.startswith(stem + ".")
+            ),
+            None,
+        )
+        if intl_stem:
+            parsed = parse_ref_period(ref, intl_stem)
+            if parsed and parsed[0] == "month":
+                out.append(
+                    (
+                        ref,
+                        "intl",
+                        INTL_ADAPTERS[intl_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
             continue
         if ref.startswith(A19_STEM + "."):
             occupation = ref[len(A19_STEM) + 1 :].split(".")[0]
@@ -1410,14 +2373,17 @@ def main() -> int:
         )
         print(f"  resolve {ref} -> {row['value']} {row['measure']['unit']}")
 
-    # Generic adapters: ALFRED vintage series, BLS API series, and A-19
-    # snapshot rows. FRED fetches are cached per (series, vintage); BLS
-    # fetches per (series, year range); A-19 snapshots per month.
+    # Generic adapters: ALFRED vintage series, BLS API series, A-19
+    # snapshot rows, and the international native-source adapters. FRED
+    # fetches are cached per (series, vintage); BLS fetches per (series,
+    # year range); A-19 snapshots per month; international artifacts per
+    # source key so dataPointId dialects share one archived response.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
     bls_cache: dict[
         tuple[str, int, int], tuple[dict, bytes | None, str, str]
     ] = {}
     a19_cache: dict[str, tuple[dict[str, float], bytes | None, str, str]] = {}
+    intl_cache: dict[Any, tuple] = {}
     for ref, kind, spec, period_type, period, source_vintage, forecast in (
         adapter_todo
     ):
@@ -1435,7 +2401,50 @@ def main() -> int:
                 f"adapter={spec['unit']!r}"
             )
             continue
-        if kind == "alfred":
+        if kind == "intl":
+            hold_reason = INTL_RESOLUTION_HOLDS.get(ref)
+            if hold_reason:
+                print(f"  ON HOLD (not resolving): {ref} — {hold_reason}")
+                continue
+            window = spec.get("first_print_window_days")
+            if window is not None and today > release_day + dt.timedelta(
+                days=window
+            ):
+                print(
+                    f"  FIRST-PRINT WINDOW ELAPSED (deferring, needs a "
+                    f"pinned vintage): {ref} released {release_day}, "
+                    f"window {window}d"
+                )
+                continue
+            try:
+                series, flags, raw, source_url, retrieved_at = intl_fetch(
+                    spec, period, intl_cache
+                )
+            except LookupError as exc:
+                print(f"  {exc}: {ref}")
+                continue
+            except Exception as exc:  # noqa: BLE001 - defer, don't crash run
+                print(f"  fetch/parse failed (deferring): {ref} — {exc}")
+                continue
+            anchor_failures = intl_anchor_failures(spec, series)
+            if anchor_failures:
+                print(
+                    f"  ANCHOR MISMATCH (refusing, wrong series/vintage?): "
+                    f"{ref} — {'; '.join(anchor_failures)}"
+                )
+                continue
+            if flash_vintage_missing(spec, flags, period):
+                print(
+                    f"  FLASH VINTAGE NO LONGER SERVED (deferring): {ref} — "
+                    f"{period} carries no provisional flag, finals likely "
+                    f"published"
+                )
+                continue
+            value = intl_transformed_value(spec, series, period)
+            series_id = spec["series_id"]
+            source_file = spec["source_file"]
+            extension = spec["extension"]
+        elif kind == "alfred":
             cache_key = (spec["fred"], release_day.isoformat())
             if cache_key not in alfred_cache:
                 alfred_cache[cache_key] = fred_vintage_series(*cache_key)
