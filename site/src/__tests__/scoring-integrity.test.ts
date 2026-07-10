@@ -607,6 +607,27 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     expect(evaluation.exclusion?.detail).toContain("pinned ledger state");
   });
 
+  it("keeps the backfill gate armed after a target is published (Sol C1)", () => {
+    // Publication must not drop the pin: a published target that retains its
+    // ledgerPinLineCount still rejects an observation from inside the state.
+    const published: TargetRegisteredLedgerEntry = {
+      ...registered,
+      registrationState: "published",
+    };
+    const inside = evaluateResolvedForecastRun(cell, run(), [
+      published,
+      boundFact({ acceptedSequence: 50 }),
+    ]);
+    expect(inside.exclusion?.reason).toBe("contract_violation");
+    expect(inside.exclusion?.detail).toContain("pinned ledger state");
+    // A print accepted after the pin still grades.
+    const after = evaluateResolvedForecastRun(cell, run(), [
+      published,
+      boundFact({}),
+    ]);
+    expect(after.score?.contractBinding).toBe("contract_bound");
+  });
+
   it("keeps grading quarantined legacy rows, flagged legacy_unbound", () => {
     const evaluation = evaluateResolvedForecastRun(cell, run(), [
       registered,

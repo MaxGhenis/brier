@@ -458,3 +458,96 @@ def test_publisher_contract_enforces_allowed_hosts_membership() -> None:
         generate_ledger_targets.validate_preregistered_contract(
             cell, {"unit": "thousands", "sourceBinding": {}}
         )
+
+
+def _pin_binding() -> dict:
+    return {
+        "repo": "PolicyEngine/ledger",
+        "branch": "codex/thesis-ledger-facts",
+        "sha": "a" * 40,
+        "jsonlSha256": "b" * 64,
+        "lineCount": 128,
+    }
+
+
+def test_pin_binding_rejects_a_boolean_line_count() -> None:
+    # bool subclasses int; a truthy lineCount would render ledgerPinLineCount:
+    # true and skip the site's typeof-number N5 gate (Sol C6).
+    with pytest.raises(register_targets.RegistrationError, match="lineCount"):
+        register_targets.validate_ledger_pin_binding(
+            {**_pin_binding(), "lineCount": True}
+        )
+
+
+def test_published_matcher_requires_the_pinned_ledger_state() -> None:
+    # A v3 published block that dropped its pin must NOT be accepted by a retry
+    # (Sol C1): the matcher requires the pin the registration commits.
+    contract = {
+        "dataPointId": "test.series.2030",
+        "country": "US",
+        "unit": "percent",
+        "series": "test.series",
+        "period": "2030",
+        "catalogSlug": "test-series-2030",
+        "valueScale": 1,
+        "sourceBinding": {
+            "adapter": "generic-url",
+            "sourceUrl": "https://data.example.gov/x",
+            "sourceSeriesId": "x",
+            "field": "x",
+            "table": "T",
+            "transform": {"operation": "multiply", "factor": 1},
+            "releasePolicy": "first_print",
+            "expectedReleaseWindow": {"start": "2030-02-01", "end": "2030-02-15"},
+        },
+    }
+    registration = {
+        "contract": contract,
+        "registeredAtUtc": "2030-01-10T14:00:00Z",
+        "targetContentHash": "c" * 64,
+        "snapshot": {"ledgerPin": _pin_binding()},
+    }
+    entry = register_targets._entry_for(
+        contract, "c" * 64, "2030-01-10T14:00:00Z", _pin_binding()
+    )
+    entry["registrationState"] = "published"
+
+    with_pin = register_targets.ts_literal(entry)
+    assert register_targets._published_block_matches_registration(
+        with_pin, registration
+    )
+
+    dropped = {k: v for k, v in entry.items() if not k.startswith("ledgerPin")}
+    without_pin = register_targets.ts_literal(dropped)
+    assert not register_targets._published_block_matches_registration(
+        without_pin, registration
+    )
+
+
+def test_finalized_target_retains_the_ledger_pin() -> None:
+    # generate_ledger_targets.entry_for must carry the pin into the published
+    # target so the site's N5 gate stays armed (Sol C1).
+    cell = {
+        "dataPointId": "test.series.2030",
+        "unit": "percent",
+        "country": "US",
+        "resolutionDate": "2030-02-15",
+        "resolutionSource": "Agency",
+        "resolutionSourceUrl": "https://data.example.gov/x",
+        "resolutionRule": "First print.",
+        "title": "Test series",
+    }
+    registration = {
+        "registeredAt": "2030-01-10T14:00:00Z",
+        "targetContentHash": "c" * 64,
+        "series": "test.series",
+        "period": "2030",
+        "catalogSlug": "test-series-2030",
+        "valueScale": 1,
+        "sourceBinding": {"adapter": "generic-url"},
+        "ledgerPinSha": "a" * 40,
+        "ledgerPinLineCount": 128,
+    }
+    published = generate_ledger_targets.entry_for(cell, registration)
+    assert published["ledgerPinSha"] == "a" * 40
+    assert published["ledgerPinLineCount"] == 128

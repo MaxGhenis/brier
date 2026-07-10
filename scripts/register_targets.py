@@ -114,7 +114,10 @@ def validate_ledger_pin_binding(pin: Any) -> dict[str, Any]:
         raise RegistrationError(f"ledgerPin sha is not a commit SHA: {pin['sha']!r}")
     if not re.fullmatch(r"[0-9a-f]{64}", str(pin["jsonlSha256"])):
         raise RegistrationError("ledgerPin jsonlSha256 is not a SHA-256 digest")
-    if not isinstance(pin["lineCount"], int) or pin["lineCount"] < 0:
+    # bool subclasses int, and a boolean lineCount renders ledgerPinLineCount:
+    # true, which the site's typeof-number N5 gate then skips. Require an exact
+    # int so the backfill boundary can never be disabled by a truthy value.
+    if type(pin["lineCount"]) is not int or pin["lineCount"] < 0:
         raise RegistrationError("ledgerPin lineCount must be a non-negative int")
     if not pin["repo"] or not pin["branch"]:
         raise RegistrationError("ledgerPin repo/branch must be non-empty")
@@ -563,6 +566,12 @@ def _published_block_matches_registration(
         "valueScale": contract["valueScale"],
         "sourceBinding": contract["sourceBinding"],
     }
+    # A v3 registration's published block must retain its pinned ledger state,
+    # or a retry could accept a published block that dropped the N5 boundary.
+    pin = registration["snapshot"].get("ledgerPin")
+    if isinstance(pin, dict):
+        expected["ledgerPinSha"] = pin["sha"]
+        expected["ledgerPinLineCount"] = pin["lineCount"]
     return all(
         canonical_bytes(_block_value(block, key)) == canonical_bytes(value)
         for key, value in expected.items()

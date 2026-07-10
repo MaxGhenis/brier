@@ -67,6 +67,12 @@ def entry_for(cell: dict, registration: dict | None = None) -> dict:
                     "catalogSlug",
                     "valueScale",
                     "sourceBinding",
+                    # The pinned ledger state must survive publication, or the
+                    # site's N5 backfill gate (which fires only when
+                    # ledgerPinLineCount is a number) silently skips the
+                    # published target and a backfilled print could grade it.
+                    "ledgerPinSha",
+                    "ledgerPinLineCount",
                 )
                 if key in registration
             }

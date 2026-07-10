@@ -8341,5 +8341,7 @@ export const GENERATED_FORECAST_TARGETS = [
     valueScale: 1,
     sourceBinding: {"adapter": "generic-url", "allowedHosts": ["alfred.stlouisfed.org"], "expectedReleaseWindow": {"end": "2026-07-29", "start": "2026-07-21"}, "field": "DSPI", "releasePolicy": "first_print", "sourceSeriesId": "DSPI", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25", "table": "Personal Income and Outlays, Table 1", "transform": {"factor": 1, "operation": "identity"}},
     registrationState: "published",
+    ledgerPinSha: "324382b862b3cdfa3fef073c98fd70bf6f71b57e",
+    ledgerPinLineCount: 128,
   },
 ] satisfies TargetRegisteredLedgerEntry[];
