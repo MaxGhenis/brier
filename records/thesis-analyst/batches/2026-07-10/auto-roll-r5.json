@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-07-10T02:43:10Z",
+  "finishedAt": "2026-07-10T02:47:21Z",
+  "promptMode": "fast",
+  "timeoutSeconds": 540,
+  "targets": 2,
+  "ok": 0,
+  "failed": 2,
+  "results": [
+    {
+      "target": {
+        "catalogSlug": "initial-claims-week-2026-07-11",
+        "dataPointId": "us.dol.initial_claims.sa.week_2026-07-11",
+        "period": "week_2026-07-11",
+        "registeredAt": "2026-07-10T00:00:00Z",
+        "registrationState": "preregistered",
+        "series": "us.dol.initial_claims.sa",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "expectedReleaseWindow": {
+            "end": "2026-07-18",
+            "start": "2026-07-14"
+          },
+          "field": "ICSA",
+          "releasePolicy": "advance_vintage",
+          "sourceSeriesId": "ICSA",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA",
+          "table": "ALFRED graph CSV",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "09d6503fb3df3c9558a931c76397ff7d483e8130956a1c5b2f3cc041ddcb13da",
+        "targetRegistrationPath": "records/targets/2026-07-10-09d6503fb3df3c9558a931c76397ff7d483e8130956a1c5b2f3cc041ddcb13da.json",
+        "targetUnit": "thousands",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-07-10T02:43:10Z",
+      "finishedAt": "2026-07-10T02:45:18Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t02-43-10z-us-dol-initial-claims-sa-week-2026-07-11/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t02-43-10z-us-dol-initial-claims-sa-week-2026-07-11/cells.with_activity.json",
+      "stdoutTail": "26-07-10T02:43:10Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-43-10z-us-dol-initial-claims-sa-week-2026-07-11/distribution.json\",\n      \"sha256\": \"6eb16f9ea07345ef41bd08035f372d9370dab128696fbdd56b37d4f0d24adfc7\",\n      \"bytes\": 13704,\n      \"createdAt\": \"2026-07-10T02:43:10Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-43-10z-us-dol-initial-claims-sa-week-2026-07-11/validation.json\",\n      \"sha256\": \"33bfe991da6bfbf594057c8597cd12e9d808d7cbbce3c2144fe6b3b28e13acc4\",\n      \"bytes\": 265,\n      \"createdAt\": \"2026-07-10T02:43:10Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-43-10z-us-dol-initial-claims-sa-week-2026-07-11/cells.with_activity.json\",\n      \"sha256\": \"db293c4a4e86b7a9d08f0b4dacb9e8c4dcddfe3fad721f9ab1f213cbf9d54c61\",\n      \"bytes\": 42504,\n      \"createdAt\": \"2026-07-10T02:43:10Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-43-10z-us-dol-initial-claims-sa-week-2026-07-11/manifest.json\",\n      \"sha256\": \"33e757512c3f7472144d25b33a743ef3aa542d5c528dcb7b937ad4c5e8333172\",\n      \"bytes\": 16664,\n      \"createdAt\": \"2026-07-10T02:43:10Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"initial-claims-week-2026-07-11\",\n        \"ok\": false,\n        \"errors\": [\n          \"resolutionSourceUrl host 'oui.doleta.gov' does not match preregistered source binding host 'alfred.stlouisfed.org'\"\n        ]\n      }\n    ]\n  },\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"9a91ffc1861e06fb670ac6e92f1e5daa065d71047f0b1e1cc3bdbafcc8609c78\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "resolutionSourceUrl host 'oui.doleta.gov' does not match preregistered source binding host 'alfred.stlouisfed.org'"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "continued-claims-week-2026-07-11",
+        "dataPointId": "dol.eta.continued_claims.sa.week_2026-07-11.first_print",
+        "period": "week_2026-07-11",
+        "registeredAt": "2026-07-10T00:00:00Z",
+        "registrationState": "preregistered",
+        "series": "dol.eta.continued_claims.sa",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "expectedReleaseWindow": {
+            "end": "2026-07-25",
+            "start": "2026-07-21"
+          },
+          "field": "CCSA",
+          "releasePolicy": "advance_vintage",
+          "sourceSeriesId": "CCSA",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA",
+          "table": "ALFRED graph CSV",
+          "transform": {
+            "factor": 1e-06,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "09d6503fb3df3c9558a931c76397ff7d483e8130956a1c5b2f3cc041ddcb13da",
+        "targetRegistrationPath": "records/targets/2026-07-10-09d6503fb3df3c9558a931c76397ff7d483e8130956a1c5b2f3cc041ddcb13da.json",
+        "targetUnit": "millions",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-07-10T02:45:18Z",
+      "finishedAt": "2026-07-10T02:47:21Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-10/2026-07-10t02-45-19z-dol-eta-continued-claims-sa-week-2026-07-11/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t02-45-19z-dol-eta-continued-claims-sa-week-2026-07-11/cells.with_activity.json",
+      "stdoutTail": ":45:19Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-45-19z-dol-eta-continued-claims-sa-week-2026-07-11/distribution.json\",\n      \"sha256\": \"f15d215152080a498310bff82615851b63c7d3dae2927f6ba859fa847b52120a\",\n      \"bytes\": 13748,\n      \"createdAt\": \"2026-07-10T02:45:19Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-45-19z-dol-eta-continued-claims-sa-week-2026-07-11/validation.json\",\n      \"sha256\": \"3ea0ef7763a5d0012af9b3339f00797a326d519dad1aed06d0f9ec651dc27e07\",\n      \"bytes\": 264,\n      \"createdAt\": \"2026-07-10T02:45:19Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-45-19z-dol-eta-continued-claims-sa-week-2026-07-11/cells.with_activity.json\",\n      \"sha256\": \"9c16495494c94f91cd7d73ff7bac99aabd7e7037557fc1168afb41e3f0c836f6\",\n      \"bytes\": 39562,\n      \"createdAt\": \"2026-07-10T02:45:19Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-10/2026-07-10t02-45-19z-dol-eta-continued-claims-sa-week-2026-07-11/manifest.json\",\n      \"sha256\": \"1bc882fe3e0138ef8f9ab97f277111ec9527f88a3b49595580c7c93c1c152f3c\",\n      \"bytes\": 14672,\n      \"createdAt\": \"2026-07-10T02:45:19Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"continued-claims-week-2026-07-11\",\n        \"ok\": false,\n        \"errors\": [\n          \"resolutionSourceUrl host 'www.dol.gov' does not match preregistered source binding host 'alfred.stlouisfed.org'\"\n        ]\n      }\n    ]\n  },\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"85a1618aa6d696d5832e8a7e1e1fa33cf8e4cf911d431938f8f05c01511fe2d5\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "resolutionSourceUrl host 'www.dol.gov' does not match preregistered source binding host 'alfred.stlouisfed.org'"
+      ]
+    }
+  ]
+}

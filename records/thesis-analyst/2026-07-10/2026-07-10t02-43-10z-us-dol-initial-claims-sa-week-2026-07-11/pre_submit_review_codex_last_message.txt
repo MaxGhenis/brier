@@ -1,0 +1,22 @@
+{
+  "summary": "Draft is substantively coherent, but the resolver/source does not match the canonical ledger binding and should be reconciled before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft resolves directly to a DOL ETA newsroom/PDF first print, while the canonical ledger binding names the ALFRED/FRED ICSA graph CSV with advance_vintage policy and transform factor 0.001.",
+      "actionRequested": "Align the JSON resolver fields with the ledger contract, or explicitly state in reasoning that the ledger sourceBinding appears inconsistent with the official-source rule while keeping the same slug/unit/dataPointId target."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The resolutionSourceUrl is a future-specific DOL newsroom URL that may not be stable or guaranteed before publication.",
+      "actionRequested": "Use the canonical source URL or a stable DOL claims archive/source URL unless the exact future release URL is already officially confirmed."
+    }
+  ],
+  "optionalSuggestions": [
+    "The prior/update/interval section is strong; consider making clear whether the 26-week volatility sample uses first prints or latest revised values.",
+    "The tails are concrete and target-tied; no replacement forecast is needed.",
+    "Check that confidence 0.8 exactly corresponds to the stated 80% interval in downstream schema expectations."
+  ]
+}
