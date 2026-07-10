@@ -1,0 +1,369 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T03:15:13Z",
+  "series": "us.dol.initial_claims.sa",
+  "period": "week_2026-07-11",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "initial-claims-week-2026-07-11",
+    "dataPointId": "us.dol.initial_claims.sa.week_2026-07-11",
+    "period": "week_2026-07-11",
+    "registeredAt": "2026-07-10T00:00:00Z",
+    "registrationState": "preregistered",
+    "series": "us.dol.initial_claims.sa",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org",
+        "www.dol.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-18",
+        "start": "2026-07-14"
+      },
+      "field": "ICSA",
+      "releasePolicy": "advance_vintage",
+      "sourceSeriesId": "ICSA",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ICSA",
+      "table": "ALFRED graph CSV",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "6ae54e1d0cfa93b1751e7ea2f13d556c78ee00e0bd159f6e8d1d4c5fca03f5fe",
+    "targetRegistrationPath": "records/targets/2026-07-10-6ae54e1d0cfa93b1751e7ea2f13d556c78ee00e0bd159f6e8d1d4c5fca03f5fe.json",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T03:15:13Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d1cf550f59da9d7f6364ec26b290b6f4cb817585736d37f2aa4e63034739b3f3"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The draft resolves from the DOL first-print release, while the ledger sourceBinding names the ALFRED-FRED ICSA CSV with an advance-vintage policy and DOL as an allowed host.",
+        "actionRequested": "Clarify in reasoning that the DOL first-print release is the authoritative first-print source and that ALFRED/FRED is only a bound adapter or mirror for the same ICSA value, not a later-revision resolver."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that 216, 204, and 228 are all in thousands to remove any residual unit ambiguity."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval method is good; consider naming it as an approximately 80% interval since confidence is 0.8."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification that DOL is the authoritative first-print source while ALFRED/FRED is only the bound ICSA mirror, and accepted explicit unit and approximately 80% interval wording; no critique item was rejected.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification that DOL is the authoritative first-print source while ALFRED/FRED is only the bound ICSA mirror, and accepted explicit unit and approximately 80% interval wording; no critique item was rejected.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification that DOL is the authoritative first-print source while ALFRED/FRED is only the bound ICSA mirror, and accepted explicit unit and approximately 80% interval wording; no critique item was rejected.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable with one minor source-binding clarification: its resolver is precise, prior/update/interval are explicit, and point/interval/JSON fields are coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/prompt.md",
+      "sha256": "bdbbe3bfe36feba9ab551bb61fa50f21a565a9a138b4a5e9b57bdfc0d89f9f3d",
+      "bytes": 8508,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_command.json",
+      "sha256": "4e7a29d37bc2379c169767b970fb6012db2eb7dbb1f4e03b3571a3db74903dda",
+      "bytes": 685,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_codex_stdout.jsonl",
+      "sha256": "4bfc2a7d789cc0a727fe4aad240fa9390b2d1d15dfe147d3fb705c8ba372ffbd",
+      "bytes": 12286,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_codex_stderr.log",
+      "sha256": "d6b021680baa74a42c965e25221c89d5c15113e3af906cf9948418f05604090f",
+      "bytes": 233,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_codex_events.jsonl",
+      "sha256": "4def6af60e725180d0d9d64c102a787ba6f50f45012d06e5490f6191c01e9dda",
+      "bytes": 12277,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_codex_last_message.txt",
+      "sha256": "e5ad173da5282e1ea6a185e531c61276dd9c9ae627a3adc7b619df787a2d41e7",
+      "bytes": 6456,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_codex_trace.json",
+      "sha256": "129d8fd466bdd457d7c1ea98cdb373afdcad78af459e7a206c3606220ff53eb3",
+      "bytes": 507,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_stdout.txt",
+      "sha256": "e5ad173da5282e1ea6a185e531c61276dd9c9ae627a3adc7b619df787a2d41e7",
+      "bytes": 6456,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/draft_stderr.txt",
+      "sha256": "a7682af0c07f414b846ef3407b043f52f91b20226262958490d43cee55d887f2",
+      "bytes": 248,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_prompt.md",
+      "sha256": "efb9b6c48e0b86cda11250f4e275520cf218b96b05173437e9d6d72557042a3b",
+      "bytes": 9117,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_command.json",
+      "sha256": "06f00c6542388a5952422698f7379dd86b6acce2e9e1c7befc00ca232375fa45",
+      "bytes": 681,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "79c8e9fecdfe305c4aa1bce1c765df74eb4a2af4abe2ce65c7720f00808507cf",
+      "bytes": 1241,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_codex_stderr.log",
+      "sha256": "7b4bc43fccd998c0749d364b9ea9ae61ad9f68d79549fc3d7f596ffd815fe3a7",
+      "bytes": 233,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_codex_events.jsonl",
+      "sha256": "0d4f4c3a1fc25c4152460c1574aa2e240f20b43df154f3b0b1a4c8fbfabf5f56",
+      "bytes": 1263,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_codex_last_message.txt",
+      "sha256": "5e9587a285fad87f7b1f05dbf2dee8c3289ec4b3fa5c16b5887369545b028a6e",
+      "bytes": 899,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_codex_trace.json",
+      "sha256": "34eb335090f127ce5e80ba3263bd2b0c8e9c9dc1df0ffb51d68660f87f5c49b5",
+      "bytes": 501,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_stdout.txt",
+      "sha256": "5e9587a285fad87f7b1f05dbf2dee8c3289ec4b3fa5c16b5887369545b028a6e",
+      "bytes": 899,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/pre_submit_review_stderr.txt",
+      "sha256": "98ca8eeaac5fa4a914b8c2cf57f4044dc24141972010c51fe5f3efa471ffe38e",
+      "bytes": 248,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/revision_prompt.md",
+      "sha256": "666bdbd97607e4186a28f28a7ee6394cbb6ee5587d15bae7a671c2b47935eefc",
+      "bytes": 16799,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/command.json",
+      "sha256": "7c26016a6e2d7ef6caee44d846a9f7d0acfa869062cb470d3bbc3eba85281ce0",
+      "bytes": 679,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/codex_stdout.jsonl",
+      "sha256": "2b7cee3ca9e4610ff1cffecadd2addd8b3978ac750453d77ec0c422e642a55cd",
+      "bytes": 7518,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/codex_stderr.log",
+      "sha256": "dd2405717e90a38ba8693279c298cb457e8209012f32bc258bc3ba95cf08ef93",
+      "bytes": 233,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/codex_events.jsonl",
+      "sha256": "59d1c1bcfcb850035b2ab0f4a935e78a8a75629f88ce2dc134f7769e13b6a5d1",
+      "bytes": 7540,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/codex_last_message.txt",
+      "sha256": "633228bb025144d513571b587278adae1775b71ef3901c0057bdc4744ffb9827",
+      "bytes": 6943,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/codex_trace.json",
+      "sha256": "4d20ee7c10b6de172501e0386e88767e6e6be7d406c8ab1fc179fbd2a4de53ca",
+      "bytes": 505,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/stdout.txt",
+      "sha256": "633228bb025144d513571b587278adae1775b71ef3901c0057bdc4744ffb9827",
+      "bytes": 6943,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/stderr.txt",
+      "sha256": "c5f35456599d24a0c0c420deee53deb62e4cbe86cc510b5768b46a76f79fdc0a",
+      "bytes": 248,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/raw_response.txt",
+      "sha256": "633228bb025144d513571b587278adae1775b71ef3901c0057bdc4744ffb9827",
+      "bytes": 6943,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/parsed_cells.json",
+      "sha256": "71719bb590732d3d183de621864f1b2c6619c055d287f14de0e9bb33f9895e2d",
+      "bytes": 7901,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/normalized_cells.json",
+      "sha256": "f39982f16f4ec3218cca36fb1b4d71e0c75910c82bf519b80b111e5c4891f7dd",
+      "bytes": 24773,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/distribution.json",
+      "sha256": "69014d34be39117b431766406ece59f2b1461c8ec07ac18ff54954373745a4bf",
+      "bytes": 13454,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/validation.json",
+      "sha256": "853ab8b4b47e8995918cdbd6ae98ca31819dca221e32485ec6151d04839cd80f",
+      "bytes": 131,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/cells.with_activity.json",
+      "sha256": "a1e30210f4458ce1074ec10958386e14e888fb315bd66a214bff39b96b23bd5a",
+      "bytes": 39446,
+      "createdAt": "2026-07-10T03:15:13Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t03-15-13z-us-dol-initial-claims-sa-week-2026-07-11/manifest.json",
+      "sha256": "f458d791ef55d08be66d11f3bd6cb8e1ebb3af5eb386815d633a9133c3c069be",
+      "bytes": 14198,
+      "createdAt": "2026-07-10T03:15:13Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "initial-claims-week-2026-07-11",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "a6482ae144fda9188c0a520dc98ba11cc2d8e6cc36cb8e58f3e375a8f356cfda"
+}
