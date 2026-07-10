@@ -71,21 +71,28 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh_retry() {
+          gh_fetch() {
+            # Truncate the output file on every attempt: a request that dies
+            # mid-body must never leave partial bytes for the next attempt
+            # to append to (the content-hash gate caught exactly that).
+            local out=$1
+            shift
             local attempt
             for attempt in 1 2 3 4 5; do
-              if "$@"; then return 0; fi
+              if "$@" > "$out"; then return 0; fi
               echo "transient gh failure (attempt $attempt): $*" >&2
               sleep 3
             done
             return 1
           }
-          REPO_SHA=$(gh_retry gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha)
-          BLOB_SHA=$(gh_retry gh api \
-            "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA" --jq .sha)
-          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
-            "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA" \
-            > /tmp/official-observations.jsonl
+          gh_fetch /tmp/gh-scalar gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha
+          REPO_SHA=$(cat /tmp/gh-scalar)
+          gh_fetch /tmp/gh-scalar gh api \
+            "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA" --jq .sha
+          BLOB_SHA=$(cat /tmp/gh-scalar)
+          gh_fetch /tmp/official-observations.jsonl \
+            gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$REPO_SHA"
           echo "blob_sha=$BLOB_SHA" >> "$GITHUB_OUTPUT"
           echo "repository_sha=$REPO_SHA" >> "$GITHUB_OUTPUT"
 
@@ -219,23 +226,30 @@ jobs:
               print(f"{key}={evidence[key]}")
           PY
           source /tmp/selection-ledger-env
-          gh_retry() {
+          gh_fetch() {
+            # Truncate the output file on every attempt: a request that dies
+            # mid-body must never leave partial bytes for the next attempt
+            # to append to (the content-hash gate caught exactly that).
+            local out=$1
+            shift
             local attempt
             for attempt in 1 2 3 4 5; do
-              if "$@"; then return 0; fi
+              if "$@" > "$out"; then return 0; fi
               echo "transient gh failure (attempt $attempt): $*" >&2
               sleep 3
             done
             return 1
           }
-          test "$(gh_retry gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
-          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
-            "repos/$repository/contents/$path?ref=$repositoryCommit" \
-            > /tmp/pinned-ledger.jsonl
-          latest_sha=$(gh_retry gh api "repos/$repository/commits/$branch" --jq .sha)
-          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
-            "repos/$repository/contents/$path?ref=$latest_sha" \
-            > /tmp/latest-ledger.jsonl
+          gh_fetch /tmp/gh-scalar gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha
+          test "$(cat /tmp/gh-scalar)" = "$blobSha"
+          gh_fetch /tmp/pinned-ledger.jsonl \
+            gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$repositoryCommit"
+          gh_fetch /tmp/gh-scalar gh api "repos/$repository/commits/$branch" --jq .sha
+          latest_sha=$(cat /tmp/gh-scalar)
+          gh_fetch /tmp/latest-ledger.jsonl \
+            gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$latest_sha"
 
       - name: Independently verify the target set and open state
         env:
@@ -445,23 +459,30 @@ jobs:
               print(f"{key}={evidence[key]}")
           PY
           source /tmp/selection-ledger-env
-          gh_retry() {
+          gh_fetch() {
+            # Truncate the output file on every attempt: a request that dies
+            # mid-body must never leave partial bytes for the next attempt
+            # to append to (the content-hash gate caught exactly that).
+            local out=$1
+            shift
             local attempt
             for attempt in 1 2 3 4 5; do
-              if "$@"; then return 0; fi
+              if "$@" > "$out"; then return 0; fi
               echo "transient gh failure (attempt $attempt): $*" >&2
               sleep 3
             done
             return 1
           }
-          test "$(gh_retry gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha)" = "$blobSha"
-          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
-            "repos/$repository/contents/$path?ref=$repositoryCommit" \
-            > /tmp/pinned-ledger.jsonl
-          latest_sha=$(gh_retry gh api "repos/$repository/commits/$branch" --jq .sha)
-          gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
-            "repos/$repository/contents/$path?ref=$latest_sha" \
-            > /tmp/latest-ledger.jsonl
+          gh_fetch /tmp/gh-scalar gh api "repos/$repository/contents/$path?ref=$repositoryCommit" --jq .sha
+          test "$(cat /tmp/gh-scalar)" = "$blobSha"
+          gh_fetch /tmp/pinned-ledger.jsonl \
+            gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$repositoryCommit"
+          gh_fetch /tmp/gh-scalar gh api "repos/$repository/commits/$branch" --jq .sha
+          latest_sha=$(cat /tmp/gh-scalar)
+          gh_fetch /tmp/latest-ledger.jsonl \
+            gh api -H "Accept: application/vnd.github.raw+json" \
+            "repos/$repository/contents/$path?ref=$latest_sha"
 
       - name: Reverify the exact selected source and current open state
         if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
@@ -569,10 +590,15 @@ jobs:
         run: |
           set -euo pipefail
           auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
-          gh_retry() {
+          gh_fetch() {
+            # Truncate the output file on every attempt: a request that dies
+            # mid-body must never leave partial bytes for the next attempt
+            # to append to (the content-hash gate caught exactly that).
+            local out=$1
+            shift
             local attempt
             for attempt in 1 2 3 4 5; do
-              if "$@"; then return 0; fi
+              if "$@" > "$out"; then return 0; fi
               echo "transient gh failure (attempt $attempt): $*" >&2
               sleep 3
             done
@@ -584,11 +610,11 @@ jobs:
             test -z "$(git status --porcelain)"
             git pull --rebase origin main
             git merge-base --is-ancestor "$SOURCE_SHA" HEAD
-            gh_retry gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha \
-              > /tmp/latest-ledger-sha
-            gh_retry gh api -H "Accept: application/vnd.github.raw+json" \
-              "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$(cat /tmp/latest-ledger-sha)" \
-              > /tmp/latest-ledger.jsonl
+            gh_fetch /tmp/latest-ledger-sha \
+              gh api "repos/$LEDGER_REPOSITORY/commits/$LEDGER_BRANCH" --jq .sha
+            gh_fetch /tmp/latest-ledger.jsonl \
+              gh api -H "Accept: application/vnd.github.raw+json" \
+              "repos/$LEDGER_REPOSITORY/contents/$LEDGER_PATH?ref=$(cat /tmp/latest-ledger-sha)"
             python3 scripts/strategy_targets.py ensure-open \
               --selection /tmp/trusted-selection/strategy-targets.json \
               --ledger-jsonl /tmp/latest-ledger.jsonl \
