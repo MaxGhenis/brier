@@ -524,30 +524,101 @@ def _entry_for(
     }
 
 
+def _generated_entries(source: str) -> list[str]:
+    """Extract top-level generated array objects without assuming formatting."""
+
+    marker = re.search(r"\bGENERATED_FORECAST_TARGETS\s*=\s*\[", source)
+    if marker is None:
+        return []
+
+    entries: list[str] = []
+    index = marker.end()
+    while index < len(source):
+        if source.startswith("//", index):
+            newline = source.find("\n", index + 2)
+            index = len(source) if newline < 0 else newline + 1
+            continue
+        if source.startswith("/*", index):
+            closer = source.find("*/", index + 2)
+            if closer < 0:
+                return []
+            index = closer + 2
+            continue
+        if source[index] == "]":
+            break
+        if source[index] != "{":
+            index += 1
+            continue
+
+        line_start = source.rfind("\n", marker.end(), index) + 1
+        entry_start = (
+            line_start if not source[line_start:index].strip() else index
+        )
+        depth = 1
+        cursor = index + 1
+        quote: str | None = None
+        escaped = False
+        while cursor < len(source) and depth:
+            char = source[cursor]
+            if quote is not None:
+                if escaped:
+                    escaped = False
+                elif char == "\\":
+                    escaped = True
+                elif char == quote:
+                    quote = None
+                cursor += 1
+                continue
+            if source.startswith("//", cursor):
+                newline = source.find("\n", cursor + 2)
+                cursor = len(source) if newline < 0 else newline + 1
+                continue
+            if source.startswith("/*", cursor):
+                closer = source.find("*/", cursor + 2)
+                if closer < 0:
+                    return []
+                cursor = closer + 2
+                continue
+            if char in {'"', "'", "`"}:
+                quote = char
+            elif char == "{":
+                depth += 1
+            elif char == "}":
+                depth -= 1
+            cursor += 1
+        if depth:
+            return []
+        while cursor < len(source) and source[cursor] in " \t":
+            cursor += 1
+        if cursor < len(source) and source[cursor] == ",":
+            cursor += 1
+        entries.append(source[entry_start:cursor])
+        index = cursor
+    return entries
+
+
+def _generated_blocks(source: str, data_point_id: str) -> list[str]:
+    return [
+        block
+        for block in _generated_entries(source)
+        if _block_value(block, "dataPointId") == data_point_id
+    ]
+
+
 def _generated_block(source: str, data_point_id: str) -> str | None:
-    id_pattern = rf'dataPointId:\s*\n?\s*"{re.escape(data_point_id)}"'
-    return next(
-        (
-            match.group(0)
-            for match in re.finditer(
-                r"^  \{\n(?:(?!^  \},$)[\s\S])*?^  \},$",
-                source,
-                re.MULTILINE,
-            )
-            if re.search(id_pattern, match.group(0))
-        ),
-        None,
-    )
+    return next(iter(_generated_blocks(source, data_point_id)), None)
 
 
 def _block_value(block: str, key: str) -> Any:
-    match = re.search(rf"^    {re.escape(key)}: (.*),$", block, re.MULTILINE)
-    if not match:
-        return None
-    try:
-        return json.loads(match.group(1))
-    except json.JSONDecodeError:
-        return None
+    key_pattern = re.escape(key)
+    pattern = rf'(?:^|[{{,])\s*(?:{key_pattern}|"{key_pattern}")\s*:\s*'
+    for match in re.finditer(pattern, block, re.MULTILINE):
+        try:
+            value, _ = json.JSONDecoder().raw_decode(block, match.end())
+        except json.JSONDecodeError:
+            continue
+        return value
+    return None
 
 
 def _published_block_matches_registration(
@@ -578,13 +649,140 @@ def _published_block_matches_registration(
     )
 
 
+def _may_supersede(
+    existing_block: str,
+    registration: dict[str, Any],
+    *,
+    head_commit: str,
+    source: str,
+) -> bool:
+    """Authenticate and strictly tighten one unpublished preregistration."""
+
+    try:
+        data_point_id = registration["contract"]["dataPointId"]
+        working_blocks = _generated_blocks(source, data_point_id)
+        if len(working_blocks) != 1 or working_blocks[0] != existing_block:
+            return False
+
+        generated_relpath = GENERATED_TARGETS.relative_to(ROOT).as_posix()
+        committed_source = _git_output(
+            "show", f"{head_commit}:{generated_relpath}"
+        )
+        committed_blocks = _generated_blocks(committed_source, data_point_id)
+        if len(committed_blocks) != 1 or committed_blocks[0] != existing_block:
+            return False
+        if _block_value(existing_block, "registrationState") != "preregistered":
+            return False
+
+        content_hash = _block_value(existing_block, "targetContentHash")
+        if not isinstance(content_hash, str) or not re.fullmatch(
+            r"[0-9a-f]{64}", content_hash
+        ):
+            return False
+        targets_root = ROOT / "records" / "targets"
+        snapshot_paths = sorted(targets_root.glob(f"*-{content_hash}.json"))
+        if len(snapshot_paths) != 1:
+            return False
+        snapshot_path = snapshot_paths[0]
+        if not snapshot_path.is_file() or snapshot_path.is_symlink():
+            return False
+        snapshot_relpath = snapshot_path.relative_to(ROOT).as_posix()
+        if not re.fullmatch(
+            rf"records/targets/\d{{4}}-\d{{2}}-\d{{2}}-{content_hash}\.json",
+            snapshot_relpath,
+        ):
+            return False
+
+        introducing_commits = _git_output(
+            "log",
+            head_commit,
+            "--diff-filter=A",
+            "--format=%H",
+            "--",
+            snapshot_relpath,
+        ).splitlines()
+        if len(introducing_commits) != 1:
+            return False
+        introducing_commit = introducing_commits[0]
+        _git_output(
+            "merge-base", "--is-ancestor", introducing_commit, head_commit
+        )
+        committed_snapshot_bytes = subprocess.check_output(
+            ["git", "show", f"{introducing_commit}:{snapshot_relpath}"],
+            cwd=ROOT,
+            stderr=subprocess.PIPE,
+        )
+        if committed_snapshot_bytes != snapshot_path.read_bytes():
+            return False
+        authenticated_snapshot = _load_snapshot(snapshot_path)
+        if (
+            registration_content_hash(authenticated_snapshot) != content_hash
+            or len(authenticated_snapshot["targets"]) != 1
+        ):
+            return False
+        old_contract = authenticated_snapshot["targets"][0]
+        authenticated_block = ts_literal(
+            _entry_for(
+                old_contract,
+                content_hash,
+                authenticated_snapshot["registeredAtUtc"],
+                authenticated_snapshot.get("ledgerPin"),
+            )
+        )
+        if authenticated_block != existing_block:
+            return False
+
+        if authenticated_snapshot["schemaVersion"] == V2_REGISTRATION_SCHEMA:
+            cutover_commit = V3_REGISTRATION_CUTOVER_COMMIT
+            _git_output("cat-file", "-e", f"{cutover_commit}^{{commit}}")
+            if introducing_commit == cutover_commit:
+                return False
+            _git_output(
+                "merge-base", "--is-ancestor", introducing_commit, cutover_commit
+            )
+
+        if canonical_bytes(old_contract) != canonical_bytes(
+            registration["contract"]
+        ):
+            return False
+        if parse_utc_instant(registration["registeredAtUtc"]) <= parse_utc_instant(
+            authenticated_snapshot["registeredAtUtc"]
+        ):
+            return False
+
+        new_pin = registration["snapshot"].get("ledgerPin")
+        if not isinstance(new_pin, dict):
+            return False
+        new_pin = validate_ledger_pin_binding(new_pin)
+        old_pin = authenticated_snapshot.get("ledgerPin")
+        if old_pin is not None:
+            old_pin = validate_ledger_pin_binding(old_pin)
+            if (
+                new_pin["repo"] != old_pin["repo"]
+                or new_pin["branch"] != old_pin["branch"]
+                or new_pin["lineCount"] < old_pin["lineCount"]
+                or (
+                    new_pin["lineCount"] == old_pin["lineCount"]
+                    and new_pin["jsonlSha256"] != old_pin["jsonlSha256"]
+                )
+            ):
+                return False
+        return True
+    except Exception:
+        return False
+
+
 def render_generated_targets(
-    registrations: list[dict[str, Any]], *, allow_published: bool = False
+    registrations: list[dict[str, Any]],
+    *,
+    allow_published: bool = False,
+    allow_supersede: bool = False,
 ) -> str:
     """Validate existing preregistrations and render only genuinely new ones."""
 
     source = GENERATED_TARGETS.read_text()
     blocks = []
+    head_commit: str | None = None
     for registration in registrations:
         contract = registration["contract"]
         content_hash = registration["targetContentHash"]
@@ -606,6 +804,32 @@ def render_generated_targets(
                 existing_block, registration
             ):
                 continue
+            if allow_supersede:
+                try:
+                    if head_commit is None:
+                        head_commit = _git_output("rev-parse", "HEAD^{commit}")
+                except Exception:
+                    head_commit = ""
+                if head_commit and _may_supersede(
+                    existing_block,
+                    registration,
+                    head_commit=head_commit,
+                    source=source,
+                ):
+                    entry_count = len(_generated_entries(source))
+                    source = source.replace(existing_block, expected_block, 1)
+                    if _generated_blocks(source, data_point_id) != [
+                        expected_block
+                    ] or len(_generated_entries(source)) != entry_count:
+                        # A raw byte replacement can be misdirected by block
+                        # bytes sitting outside the parsed array (for example
+                        # inside a comment); refuse rather than emit a file
+                        # whose parsed state disagrees with the supersession.
+                        raise RegistrationError(
+                            "supersession did not replace the generated "
+                            f"target block for {data_point_id}"
+                        )
+                    continue
             raise RegistrationError(
                 "existing generated target is not the exact immutable "
                 f"preregistration for {data_point_id}"
@@ -769,7 +993,9 @@ def register(
         _plan_registration(contract, registration_date, registered_at_utc, ledger_pin)
         for contract in contracts
     ]
-    generated_source = render_generated_targets(registrations, allow_published=True)
+    generated_source = render_generated_targets(
+        registrations, allow_published=True, allow_supersede=True
+    )
 
     for registration in registrations:
         if not registration["existing"]:
