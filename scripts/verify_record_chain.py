@@ -659,6 +659,11 @@ def verify_witness(
             "SSL_CERT_FILE": "/dev/null",
         }
         verification_time = str(int(gen_time.timestamp()))
+        # No -CAstore here: OpenSSL loads default trust locations only when
+        # NO CA option is given, so the pinned -CAfile plus an empty -CApath
+        # already excludes them — and ubuntu's OpenSSL 3.0 rejects the
+        # "file:/dev/null" store URI outright (live-caught 2026-07-10 in the
+        # register job; macOS OpenSSL accepted it).
         _run_openssl(
             [
                 "ts",
@@ -673,8 +678,6 @@ def verify_witness(
                 str(root_path),
                 "-CApath",
                 str(empty_ca_dir),
-                "-CAstore",
-                "file:/dev/null",
                 "-attime",
                 verification_time,
             ],
