@@ -1,0 +1,390 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T06:00:40Z",
+  "runStartedAt": "2026-07-10T06:00:40Z",
+  "series": "ons.hmrc.paye_payrolled_employees",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ons-hmrc-paye-payrolled-employees-june-2026",
+    "country": "UK",
+    "dataPointId": "ons.hmrc.paye_payrolled_employees.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T05:58:27Z",
+    "registeredAtUtc": "2026-07-10T05:58:27Z",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/june2026",
+    "series": "ons.hmrc.paye_payrolled_employees",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-22",
+        "start": "2026-07-14"
+      },
+      "field": "official_release:ons_hmrc:paye:2026-05:payrolled_employees",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ons.hmrc.paye_payrolled_employees",
+      "sourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/bulletins/earningsandemploymentfrompayasyouearnrealtimeinformationuk/june2026",
+      "table": "Earnings and employment from Pay As You Earn Real Time Information, UK: June 2026",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "7098e22567178b5a76d97e9c124dd2dfb9868c2750d780f361151cc9bd7ae37e",
+    "targetRegistrationPath": "records/targets/2026-07-10-7098e22567178b5a76d97e9c124dd2dfb9868c2750d780f361151cc9bd7ae37e.json",
+    "targetUnit": "millions",
+    "valueScale": 1
+  },
+  "targetContentHash": "7098e22567178b5a76d97e9c124dd2dfb9868c2750d780f361151cc9bd7ae37e",
+  "targetRegistrationPath": "records/targets/2026-07-10-7098e22567178b5a76d97e9c124dd2dfb9868c2750d780f361151cc9bd7ae37e.json",
+  "registeredAtUtc": "2026-07-10T05:58:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T06:00:40Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "2f4e4133349a6a5218cbc16e08f8106075a0c4bb043041bf6a90427538d635d9"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The model prior is effectively a persistence-plus-three-month momentum rule, but it does not explicitly say whether a broader time-series model was considered or ruled out.",
+        "actionRequested": "Add one sentence that either labels the persistence/momentum calculation as the chosen time-series prior or states why no broader model was used."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval uses only three recent monthly changes for sigma, which is a very small realized-volatility sample even though it is widened for flash uncertainty.",
+        "actionRequested": "Either justify the three-observation volatility sample as intentionally local to the current labour-market regime or add a broader historical volatility anchor if available."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State explicitly that the JSON `resolutionDate` of 2026-07-21 is the expected first-print publication date despite the retained ledger URL discrepancy."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The upside/downside tails are useful; tying them to approximate monthly changes in thousands would make them easier to audit."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer warnings by explicitly labeling the persistence-plus-momentum calculation as the chosen local time-series prior, justifying the three-observation volatility sample as regime-local, clarifying that 2026-07-21 is the expected first-print publication date, and expressing the tail scenarios in approximate thousands.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer warnings by explicitly labeling the persistence-plus-momentum calculation as the chosen local time-series prior, justifying the three-observation volatility sample as regime-local, clarifying that 2026-07-21 is the expected first-print publication date, and expressing the tail scenarios in approximate thousands.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warnings by explicitly labeling the persistence-plus-momentum calculation as the chosen local time-series prior, justifying the three-observation volatility sample as regime-local, clarifying that 2026-07-21 is the expected first-print publication date, and expressing the tail scenarios in approximate thousands.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warnings by explicitly labeling the persistence-plus-momentum calculation as the chosen local time-series prior, justifying the three-observation volatility sample as regime-local, clarifying that 2026-07-21 is the expected first-print publication date, and expressing the tail scenarios in approximate thousands.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with minor warnings: it handles the ledger/source discrepancy transparently and keeps units, point, interval, and first-print rule coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/prompt.md",
+      "sha256": "cb7f859917563fe10b8e32cc14119af30b209c48308b842f1cf93a6c0595dd24",
+      "bytes": 9143,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_command.json",
+      "sha256": "41570918637d652a67095e46de126ae91df50e9aab2c134112fdaf537b5896d3",
+      "bytes": 708,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "85ea9006cda764f1125254c6ea74bada245d60892bb9b77d000bbca31bfb8082",
+      "bytes": 17113,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_stderr.log",
+      "sha256": "c1b9622dfc66d002faff6b4d04ea300f46693590fca118676f398f3b53372ba9",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_events.jsonl",
+      "sha256": "b95deb4126f100bbe342fd9f39994cadda6e7af8f475e54e965b29111fe3b2bc",
+      "bytes": 17044,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_last_message.txt",
+      "sha256": "0b460a31d4f70d36459ace81c479a69905b28063de83d27cb8c724f2655e541c",
+      "bytes": 6409,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_codex_trace.json",
+      "sha256": "688be275574b5b35e912de1f6c797deed3ee1f122d6f0ae6897213939e5e9bcb",
+      "bytes": 508,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_stdout.txt",
+      "sha256": "0b460a31d4f70d36459ace81c479a69905b28063de83d27cb8c724f2655e541c",
+      "bytes": 6409,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/draft_stderr.txt",
+      "sha256": "a9591718a4c851982d1844adc8a05465489969bc5ec05458d926c3d401f33a87",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_prompt.md",
+      "sha256": "e287320bd9895e5dbc09a459b50036705ebea3b424a75f6ad0889c9e34d4d845",
+      "bytes": 9780,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_command.json",
+      "sha256": "43ba4c6d9e5f92cb5eea199fa99418509cf5fc71b2df4501f8d34b721229f3bf",
+      "bytes": 704,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "1aa8f8fdb6a4e79864c55ad3b86a59f197213cdb9e594de74f259875d00a0939",
+      "bytes": 1676,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "2dd2116d232f3d6155e7a63fddb1ef4a4968cbfaa18c62d9383588598412fac5",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "097b38d0189ed20ec299a5ade8b35423b0d3c187f5049b4845e2dee6f25803ba",
+      "bytes": 1698,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "3af8b258572440d3257319b24ac27257286568e98fb280d6874b1501a5079d5e",
+      "bytes": 1314,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "d5c472146bbaa582caca88df3397bbbbdc794fed68d334cc3ae01a19c9079c1a",
+      "bytes": 505,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "3af8b258572440d3257319b24ac27257286568e98fb280d6874b1501a5079d5e",
+      "bytes": 1314,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "d58717e1f33a0505d9f5d9e47ec280d7b6e4df4f653741277a08a08ab5ce28c8",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/revision_prompt.md",
+      "sha256": "6db00eb2e28e85d49861aa2f7abb1adc196a57054f6337474c442749820ddce3",
+      "bytes": 17802,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/command.json",
+      "sha256": "85f99b5e2ef187472d62afdc4fbad10fc5e63f311d9ad90cf0beaf9e03c2c74d",
+      "bytes": 702,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/codex_stdout.jsonl",
+      "sha256": "8b306d7510150dc0f2a5ac49ea9b1a2b69722b65dc996fbaebcd0ed255c5f79e",
+      "bytes": 7758,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/codex_stderr.log",
+      "sha256": "a26c9fece50f3a29a3fed176b5c255e1f66940dce1cf70db022ef87caed37a11",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/codex_events.jsonl",
+      "sha256": "d02a066ab89b17a263fb105d22804eb9004c7aa31539d830df9c9f17f8def590",
+      "bytes": 7780,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/codex_last_message.txt",
+      "sha256": "eb0586597da49eddee8a0cbe283201c4dda919d064fa0dc0a4c07e6c8296fd28",
+      "bytes": 7197,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/codex_trace.json",
+      "sha256": "f4e2b38f7ce193ec0acf022e7d7827767a0fc9d3745506c3f82b2a482b1ca29a",
+      "bytes": 505,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/stdout.txt",
+      "sha256": "eb0586597da49eddee8a0cbe283201c4dda919d064fa0dc0a4c07e6c8296fd28",
+      "bytes": 7197,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/stderr.txt",
+      "sha256": "eecf77067f7696ff731e81a19553993d024bcb7a02ba286afcc1f1ddaca1f0e6",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/raw_response.txt",
+      "sha256": "eb0586597da49eddee8a0cbe283201c4dda919d064fa0dc0a4c07e6c8296fd28",
+      "bytes": 7197,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/parsed_cells.json",
+      "sha256": "0ff1cd5a8c1c1589dc2ee73de45909412412c2dffa70d051018bfde4c15295b5",
+      "bytes": 8087,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/normalized_cells.json",
+      "sha256": "8668fd581fccf221c7309bdb40640c35d1afc534adfee2950aefb34279becb1c",
+      "bytes": 25867,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/distribution.json",
+      "sha256": "c00927063ee811197746df1b68fc9f07c5dcc38d692222b1ef157f91e6f8f13a",
+      "bytes": 14092,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/validation.json",
+      "sha256": "71ab0081b474ef15e302355e80f9abf07ff1e35b3653ebc613c599df8f501919",
+      "bytes": 144,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/cells.with_activity.json",
+      "sha256": "a5e719d3bd82478ad1343b89994a5d0285fc5b4b11898ae7c8b88ad3d6999d6e",
+      "bytes": 41927,
+      "createdAt": "2026-07-10T06:00:40Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-00-40z-ons-hmrc-paye-payrolled-employees-2026-06/manifest.json",
+      "sha256": "84704836a8ed781d7947a61f8defc20e6f944e745f2b54048da81077985f4350",
+      "bytes": 16286,
+      "createdAt": "2026-07-10T06:00:40Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "ons-hmrc-paye-payrolled-employees-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "42ae848c76b1fc806c7deb25e7382017871880c697c946c6c0e205e8edd23fea"
+}

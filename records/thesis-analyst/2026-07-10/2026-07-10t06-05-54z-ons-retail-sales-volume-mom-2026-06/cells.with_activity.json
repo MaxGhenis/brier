@@ -1,0 +1,1267 @@
+[
+  {
+    "slug": "ons-retail-sales-volume-mom-june-2026",
+    "country": "UK",
+    "type": "data",
+    "title": "ONS retail sales volume m/m, June 2026",
+    "question": "ONS Retail Sales Index, Great Britain, all retailing quantity bought volume, seasonally adjusted month-on-month percentage growth for June 2026, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.2,
+    "ciLow": -1.2,
+    "ciHigh": 1.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-24",
+    "resolutionSource": "Office for National Statistics Retail sales, Great Britain: June 2026",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/releases/retailsalesgreatbritainjune2026",
+    "resolutionRule": "Resolve to the first ONS-published estimate of seasonally adjusted all-retailing quantity bought retail sales volume month-on-month percentage growth for June 2026 in Retail sales, Great Britain: June 2026 or its linked Retail Sales Index time-series dataset. Use the first official print released on 24 July 2026 at 7:00am UK time; do not use later revisions. Values are percentage growth rates, recorded to the ONS published precision. The registered ledger source URL and sourceBinding appear to point to the May 2026 bulletin/field, and the ledger country field says US; this forecast remains tied to the June 2026 slug and dataPointId, but the publication metadata should be corrected because the exact public resolver is the ONS June 2026 Great Britain release page.",
+    "dataPointId": "ons.retail_sales.volume_mom.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 m/m first estimate in latest ONS bulletin",
+        "value": 1.2
+      },
+      {
+        "label": "April 2026 m/m revised in May bulletin",
+        "value": -1
+      },
+      {
+        "label": "March 2026 m/m revised in May bulletin",
+        "value": 0.7
+      },
+      {
+        "label": "February 2026 m/m revised in March bulletin",
+        "value": -0.6
+      },
+      {
+        "label": "January 2026 m/m revised in March bulletin",
+        "value": 1.8
+      },
+      {
+        "label": "December 2025 m/m reported in January 2026 bulletin",
+        "value": 0.4
+      }
+    ],
+    "drivers": [
+      "May 2026 strength creates mean-reversion risk for June",
+      "Hot weather and promotions supported non-store and department-store volumes in May",
+      "Fuel-stockpiling reversal made April unusually weak and May partly rebound-driven",
+      "Seasonally adjusted all-retailing volumes are volatile month to month",
+      "ONS annual seasonal-adjustment improvements scheduled with the June release add first-print uncertainty"
+    ],
+    "sourceContext": [
+      "https://www.ons.gov.uk/releases/retailsalesgreatbritainjune2026",
+      "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/bulletins/retailsales/may2026",
+      "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/bulletins/retailsales/april2026",
+      "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/bulletins/retailsales/march2026",
+      "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/bulletins/retailsales/february2026",
+      "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/datasets/retailsales"
+    ],
+    "runAt": "2026-07-10T06:08:34Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 ONS retail sales volume m/m forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: forecast the ONS Retail Sales Index all-retailing quantity bought volume, Great Britain, seasonally adjusted monthly percentage change for June 2026, first print. The public ledger registration appears internally inconsistent because the country is listed as US and the source URL/sourceBinding point to May 2026, while the question, slug, and dataPointId are for the ONS June 2026 Great Britain release."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS upcoming release page for Retail Sales; Great Britain: June 2026.",
+        "result": "ONS release page states Retail Sales; Great Britain: June 2026 release date is 24 July 2026 at 7:00am and describes it as a first estimate of retail sales in volume and value terms, seasonally and non-seasonally adjusted."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS Retail sales, Great Britain: May 2026 bulletin for latest all-retailing volume monthly growth and source variant.",
+        "result": "Latest bulletin released 19 June 2026 says retail sales volumes rose 1.2% in May 2026, following a fall of 1.0% in April 2026 and a rise of 0.7% in March 2026; three-month growth to May was 0.4%, year-on-year growth was 3.2%, survey response rate was 57.0%, and turnover coverage was 85.0%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the ONS March, February, January, and December retail-sales bulletins for recent official monthly reference points.",
+        "result": "ONS March 2026 bulletin reported March 2026 up 0.7%, February 2026 down 0.6%, and January 2026 up 1.8%; ONS January 2026 bulletin reported December 2025 up 0.4%; ONS December 2025 bulletin reported November 2025 down 0.1% and October 2025 down 0.8%."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: the recent official same-variant reference class is the seasonally adjusted all-retailing volume monthly growth rate itself, not value sales, online-only sales, or non-seasonally adjusted volumes. The last six fetched values used for the base rate are 0.4, 1.8, -0.6, 0.7, -1.0, and 1.2, averaging about 0.42 percentage points."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the ONS dataset and quality notes for variant and first-print context.",
+        "result": "Retail Sales Index time series dataset ID DRSI was released 19 June 2026 with next release 24 July 2026; the May bulletin says seasonal adjustment uses X-13ARIMA-SEATS, the June release will implement annual seasonal-adjustment improvements on 24 July 2026, and May 2026 response metrics were 57.0% returned forms and 85.0% turnover coverage."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence/base-rate prior is the six-month official same-variant mean, (0.4 + 1.8 - 0.6 + 0.7 - 1.0 + 1.2) / 6 = 0.42. Adjustment components: -0.30 for payback after May's 1.2% weather/promotion rebound and earlier fuel volatility, +0.10 for continued warm-weather support to summer and non-store demand, yielding 0.22 and rounded to 0.2. Interval method uses realized dispersion of monthly change values themselves for this change/flow target, with a short current-regime sample chosen to reflect recent volatility: sample sigma = 1.06 from [0.4, 1.8, -0.6, 0.7, -1.0, 1.2]; central 80% half-width is roughly 1.28*sigma = 1.36, rounded to 1.4, so 0.2 +/- 1.4 gives -1.2 to 1.6."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a June heatwave, outdoor-goods demand, department-store strength, or online/non-store strength that keeps momentum near May's pace and would land above the interval if growth exceeds 1.6%. Downside risk is consumer caution, reversal of May promotion pull-forward, fuel weakness, or a non-food setback that would land below the interval if growth is less than -1.2%."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.2,
+        "ciLow": -1.2,
+        "ciHigh": 1.6
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T06:06:10Z",
+    "runStartedAt": "2026-07-10T06:05:54Z",
+    "targetContentHash": "c06ec0e3a9bd14e9983b654f0fce440dc106ef4863d6a5d7624e3ebfa0f49893",
+    "targetRegistrationPath": "records/targets/2026-07-10-c06ec0e3a9bd14e9983b654f0fce440dc106ef4863d6a5d7624e3ebfa0f49893.json",
+    "registeredAtUtc": "2026-07-10T05:58:27Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -3.3,
+        "upper": 3.7
+      },
+      "points": [
+        {
+          "value": -3.3,
+          "probability": 0.0
+        },
+        {
+          "value": -3.265,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -3.23,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -3.195,
+          "probability": 0.005
+        },
+        {
+          "value": -3.16,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -3.125,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -3.09,
+          "probability": 0.01
+        },
+        {
+          "value": -3.055,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -3.02,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -2.985,
+          "probability": 0.015
+        },
+        {
+          "value": -2.95,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -2.915,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -2.88,
+          "probability": 0.02
+        },
+        {
+          "value": -2.845,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -2.81,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -2.775,
+          "probability": 0.025
+        },
+        {
+          "value": -2.74,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -2.705,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -2.67,
+          "probability": 0.03
+        },
+        {
+          "value": -2.635,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -2.6,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -2.565,
+          "probability": 0.035
+        },
+        {
+          "value": -2.53,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -2.495,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -2.46,
+          "probability": 0.04
+        },
+        {
+          "value": -2.425,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -2.39,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -2.355,
+          "probability": 0.045
+        },
+        {
+          "value": -2.32,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -2.285,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -2.25,
+          "probability": 0.05
+        },
+        {
+          "value": -2.215,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -2.18,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -2.145,
+          "probability": 0.055
+        },
+        {
+          "value": -2.11,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -2.075,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -2.04,
+          "probability": 0.06
+        },
+        {
+          "value": -2.005,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -1.97,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -1.935,
+          "probability": 0.065
+        },
+        {
+          "value": -1.9,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -1.865,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -1.83,
+          "probability": 0.07
+        },
+        {
+          "value": -1.795,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -1.76,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -1.725,
+          "probability": 0.075
+        },
+        {
+          "value": -1.69,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -1.655,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -1.62,
+          "probability": 0.08
+        },
+        {
+          "value": -1.585,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -1.55,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -1.515,
+          "probability": 0.085
+        },
+        {
+          "value": -1.48,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -1.445,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -1.41,
+          "probability": 0.09
+        },
+        {
+          "value": -1.375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -1.34,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -1.305,
+          "probability": 0.095
+        },
+        {
+          "value": -1.27,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -1.235,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -1.2,
+          "probability": 0.1
+        },
+        {
+          "value": -1.165,
+          "probability": 0.11
+        },
+        {
+          "value": -1.13,
+          "probability": 0.12
+        },
+        {
+          "value": -1.095,
+          "probability": 0.13
+        },
+        {
+          "value": -1.06,
+          "probability": 0.14
+        },
+        {
+          "value": -1.025,
+          "probability": 0.15
+        },
+        {
+          "value": -0.99,
+          "probability": 0.16
+        },
+        {
+          "value": -0.955,
+          "probability": 0.17
+        },
+        {
+          "value": -0.92,
+          "probability": 0.18
+        },
+        {
+          "value": -0.885,
+          "probability": 0.19
+        },
+        {
+          "value": -0.85,
+          "probability": 0.2
+        },
+        {
+          "value": -0.815,
+          "probability": 0.21
+        },
+        {
+          "value": -0.78,
+          "probability": 0.22
+        },
+        {
+          "value": -0.745,
+          "probability": 0.23
+        },
+        {
+          "value": -0.71,
+          "probability": 0.24
+        },
+        {
+          "value": -0.675,
+          "probability": 0.25
+        },
+        {
+          "value": -0.64,
+          "probability": 0.26
+        },
+        {
+          "value": -0.605,
+          "probability": 0.27
+        },
+        {
+          "value": -0.57,
+          "probability": 0.28
+        },
+        {
+          "value": -0.535,
+          "probability": 0.29
+        },
+        {
+          "value": -0.5,
+          "probability": 0.3
+        },
+        {
+          "value": -0.465,
+          "probability": 0.31
+        },
+        {
+          "value": -0.43,
+          "probability": 0.32
+        },
+        {
+          "value": -0.395,
+          "probability": 0.33
+        },
+        {
+          "value": -0.36,
+          "probability": 0.34
+        },
+        {
+          "value": -0.325,
+          "probability": 0.35
+        },
+        {
+          "value": -0.29,
+          "probability": 0.36
+        },
+        {
+          "value": -0.255,
+          "probability": 0.37
+        },
+        {
+          "value": -0.22,
+          "probability": 0.38
+        },
+        {
+          "value": -0.185,
+          "probability": 0.39
+        },
+        {
+          "value": -0.15,
+          "probability": 0.4
+        },
+        {
+          "value": -0.115,
+          "probability": 0.41
+        },
+        {
+          "value": -0.08,
+          "probability": 0.42
+        },
+        {
+          "value": -0.045,
+          "probability": 0.43
+        },
+        {
+          "value": -0.01,
+          "probability": 0.44
+        },
+        {
+          "value": 0.025,
+          "probability": 0.45
+        },
+        {
+          "value": 0.06,
+          "probability": 0.46
+        },
+        {
+          "value": 0.095,
+          "probability": 0.47
+        },
+        {
+          "value": 0.13,
+          "probability": 0.48
+        },
+        {
+          "value": 0.165,
+          "probability": 0.49
+        },
+        {
+          "value": 0.2,
+          "probability": 0.5
+        },
+        {
+          "value": 0.235,
+          "probability": 0.51
+        },
+        {
+          "value": 0.27,
+          "probability": 0.52
+        },
+        {
+          "value": 0.305,
+          "probability": 0.53
+        },
+        {
+          "value": 0.34,
+          "probability": 0.54
+        },
+        {
+          "value": 0.375,
+          "probability": 0.55
+        },
+        {
+          "value": 0.41,
+          "probability": 0.56
+        },
+        {
+          "value": 0.445,
+          "probability": 0.57
+        },
+        {
+          "value": 0.48,
+          "probability": 0.58
+        },
+        {
+          "value": 0.515,
+          "probability": 0.59
+        },
+        {
+          "value": 0.55,
+          "probability": 0.6
+        },
+        {
+          "value": 0.585,
+          "probability": 0.61
+        },
+        {
+          "value": 0.62,
+          "probability": 0.62
+        },
+        {
+          "value": 0.655,
+          "probability": 0.63
+        },
+        {
+          "value": 0.69,
+          "probability": 0.64
+        },
+        {
+          "value": 0.725,
+          "probability": 0.65
+        },
+        {
+          "value": 0.76,
+          "probability": 0.66
+        },
+        {
+          "value": 0.795,
+          "probability": 0.67
+        },
+        {
+          "value": 0.83,
+          "probability": 0.68
+        },
+        {
+          "value": 0.865,
+          "probability": 0.69
+        },
+        {
+          "value": 0.9,
+          "probability": 0.7
+        },
+        {
+          "value": 0.935,
+          "probability": 0.71
+        },
+        {
+          "value": 0.97,
+          "probability": 0.72
+        },
+        {
+          "value": 1.005,
+          "probability": 0.73
+        },
+        {
+          "value": 1.04,
+          "probability": 0.74
+        },
+        {
+          "value": 1.075,
+          "probability": 0.75
+        },
+        {
+          "value": 1.11,
+          "probability": 0.76
+        },
+        {
+          "value": 1.145,
+          "probability": 0.77
+        },
+        {
+          "value": 1.18,
+          "probability": 0.78
+        },
+        {
+          "value": 1.215,
+          "probability": 0.79
+        },
+        {
+          "value": 1.25,
+          "probability": 0.8
+        },
+        {
+          "value": 1.285,
+          "probability": 0.81
+        },
+        {
+          "value": 1.32,
+          "probability": 0.82
+        },
+        {
+          "value": 1.355,
+          "probability": 0.83
+        },
+        {
+          "value": 1.39,
+          "probability": 0.84
+        },
+        {
+          "value": 1.425,
+          "probability": 0.85
+        },
+        {
+          "value": 1.46,
+          "probability": 0.86
+        },
+        {
+          "value": 1.495,
+          "probability": 0.87
+        },
+        {
+          "value": 1.53,
+          "probability": 0.88
+        },
+        {
+          "value": 1.565,
+          "probability": 0.89
+        },
+        {
+          "value": 1.6,
+          "probability": 0.9
+        },
+        {
+          "value": 1.635,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 1.67,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 1.705,
+          "probability": 0.905
+        },
+        {
+          "value": 1.74,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 1.775,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 1.81,
+          "probability": 0.91
+        },
+        {
+          "value": 1.845,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 1.88,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 1.915,
+          "probability": 0.915
+        },
+        {
+          "value": 1.95,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 1.985,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 2.02,
+          "probability": 0.92
+        },
+        {
+          "value": 2.055,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 2.09,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 2.125,
+          "probability": 0.925
+        },
+        {
+          "value": 2.16,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 2.195,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 2.23,
+          "probability": 0.93
+        },
+        {
+          "value": 2.265,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 2.3,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 2.335,
+          "probability": 0.935
+        },
+        {
+          "value": 2.37,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 2.405,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 2.44,
+          "probability": 0.94
+        },
+        {
+          "value": 2.475,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 2.51,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 2.545,
+          "probability": 0.945
+        },
+        {
+          "value": 2.58,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 2.615,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 2.65,
+          "probability": 0.95
+        },
+        {
+          "value": 2.685,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 2.72,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 2.755,
+          "probability": 0.955
+        },
+        {
+          "value": 2.79,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 2.825,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 2.86,
+          "probability": 0.96
+        },
+        {
+          "value": 2.895,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 2.93,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 2.965,
+          "probability": 0.965
+        },
+        {
+          "value": 3.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 3.035,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 3.07,
+          "probability": 0.97
+        },
+        {
+          "value": 3.105,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 3.14,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 3.175,
+          "probability": 0.975
+        },
+        {
+          "value": 3.21,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 3.245,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 3.28,
+          "probability": 0.98
+        },
+        {
+          "value": 3.315,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 3.35,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 3.385,
+          "probability": 0.985
+        },
+        {
+          "value": 3.42,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 3.455,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 3.49,
+          "probability": 0.99
+        },
+        {
+          "value": 3.525,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 3.56,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 3.595,
+          "probability": 0.995
+        },
+        {
+          "value": 3.63,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 3.665,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 3.7,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 0.2,
+        "median": 0.2,
+        "interval80": {
+          "lower": -1.2,
+          "upper": 1.6
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/prompt.md",
+        "sha256": "77b10570c2bda3454309928ab358b6befd3bf1ae7f99aa3d6d58ec5ddf3c1378",
+        "bytes": 8933,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_command.json",
+        "sha256": "f80ac511ee7382e23e3f05abc57840ae18d851e8f7a50fccc520b114a14834fa",
+        "bytes": 702,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "3d57ee7c4aece341160c3890f51113acf42fcd3a9b4f055f0f5b59ef952f1e78",
+        "bytes": 16241,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_stderr.log",
+        "sha256": "0a52a65dc8e26bcc05cc82fbbf4a453f6841e9e97f0ebd6f9af755688bd08c2d",
+        "bytes": 233,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_events.jsonl",
+        "sha256": "239bbc1f155f42598c2d67c8586da084bf1961729f3393b456d8d95e62dc13f6",
+        "bytes": 16206,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_last_message.txt",
+        "sha256": "ff46f1ec4e69ef0338368e9348df0a2994ec69f104e30c473420802a06138b21",
+        "bytes": 6577,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_trace.json",
+        "sha256": "6b5f9c5a0df7665558b3f45e8cbbe7e80c9445035f189c763fd3647277646861",
+        "bytes": 508,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_stdout.txt",
+        "sha256": "ff46f1ec4e69ef0338368e9348df0a2994ec69f104e30c473420802a06138b21",
+        "bytes": 6577,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_stderr.txt",
+        "sha256": "2a2323c9241909ae4c9b4af4ca58f55eff9b1949a169a322d95c377c0cffc05a",
+        "bytes": 248,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_prompt.md",
+        "sha256": "0177d388a690ce0a6f2050660d1134f5d46383bd54c3ff3f00c63f77e98bcb3c",
+        "bytes": 9738,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_command.json",
+        "sha256": "f1767de46eb596b52ee32bc4fe3e212fef5fba8a879febe7202184240fb0dc8b",
+        "bytes": 698,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "34c0aca9ae971dcb08d3091b1f875fdb5642e51ced48a7ba31a12641fb0f1ed7",
+        "bytes": 2839,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "df1a0e568d39fcca39c3fd189558d737b2f0bc872982c071db105ee1c07c5881",
+        "bytes": 233,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "5f7dc7b767696eaab0756785948d6618ce09cd3fa8c6cfa061f70990d15b91dd",
+        "bytes": 2855,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "182d6e75fc5b67eb44560ce51e31aaad68bcd1a6e351a47ca19dfd5ede57ede4",
+        "bytes": 2036,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "1aed23cda917dfcafbca72f982844d313498491c133ee634cfbbc92af0d176fe",
+        "bytes": 506,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "182d6e75fc5b67eb44560ce51e31aaad68bcd1a6e351a47ca19dfd5ede57ede4",
+        "bytes": 2036,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "36281be1766288450d8392c839b1d254f19d6804fc16b13daf77949dee414344",
+        "bytes": 248,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/revision_prompt.md",
+        "sha256": "cd76dce48a68d774f02a3dbfc6f3443c94919eec4b36e5c99fdab6c52e38f68a",
+        "bytes": 18482,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/command.json",
+        "sha256": "43cfa293fa12916ee0eaa902d44509bb4464f2e4ef97ecfead5a780c0886e541",
+        "bytes": 696,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_stdout.jsonl",
+        "sha256": "b359e521a64228dd317b4ca0d43ddc3013f563810300236638818dd593dea421",
+        "bytes": 7825,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_stderr.log",
+        "sha256": "58ed790d6aed9517f404ce54a1549d01f6f8c1efd94b44cd392db61640a65457",
+        "bytes": 233,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_events.jsonl",
+        "sha256": "f7a055d56e16510249e0d191cdae5a277106c56560af143e6957e8f425384ef6",
+        "bytes": 7847,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_last_message.txt",
+        "sha256": "5df81b8c224e554eab785c18ee749f8ad9600fbebcff0767f48049b2c554ca18",
+        "bytes": 7266,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_trace.json",
+        "sha256": "b26949339de3aeab44f1f634ee0e4d15f93933d1ecc642d07c81caf502042bf8",
+        "bytes": 501,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/stdout.txt",
+        "sha256": "5df81b8c224e554eab785c18ee749f8ad9600fbebcff0767f48049b2c554ca18",
+        "bytes": 7266,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/stderr.txt",
+        "sha256": "35d02f93495d21b65408812012dac35b1d00d74424b1eb7b187232b70eb993dc",
+        "bytes": 248,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/raw_response.txt",
+        "sha256": "5df81b8c224e554eab785c18ee749f8ad9600fbebcff0767f48049b2c554ca18",
+        "bytes": 7266,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/parsed_cells.json",
+        "sha256": "6f73ee8f98655a03abd5ae47a4c8e8d45c31c189fd4c463a1bdd473614a02240",
+        "bytes": 8170,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/normalized_cells.json",
+        "sha256": "10bcc6eb1dde9bcc1e147671c3fec36a28f916cad37f70346daaa8c0cf7bd86b",
+        "bytes": 25293,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/distribution.json",
+        "sha256": "6e34edb128b0251dbb615e1d315b6cd9f0f4b8c102386168a0a11079e78cf034",
+        "bytes": 13435,
+        "createdAt": "2026-07-10T06:05:54Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/validation.json",
+        "sha256": "f8530f69f4b7836717c67fc4a07c520bc920a310ba3d8b2c0831f64ab647a3e2",
+        "bytes": 213,
+        "createdAt": "2026-07-10T06:05:54Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T06:05:54Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "ca1a0774b9224e49cac65e53b80b076e99d5b71a4dbee823ac3e8f568263fbf4"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft uses the correct ONS June 2026 release page and 24 July 2026 first-print date, but the canonical ledger sourceBinding points to the May 2026 bulletin and field official_release:ons:retail_sales:2026-05:volume_mom.",
+          "actionRequested": "Keep slug and dataPointId tied to June 2026, but explicitly flag the ledger resolver/sourceBinding as erroneous and ensure publication metadata does not silently imply that the May 2026 bulletin resolves the June 2026 value."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The draft country field is UK while the canonical ledger country field is US; the reasoning notes this discrepancy, but the JSON field no longer matches the ledger contract.",
+          "actionRequested": "Either align the emitted country field with the target contract while noting the ledger country error in reasoning, or document that the catalog metadata should be corrected before publication."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "One historicalContext label says 'December 2025 m/m in December bulletin', while the reasoning says December 2025 was reported in the January 2026 bulletin.",
+          "actionRequested": "Correct the historicalContext label so the cited month and bulletin timing are consistent."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the 80% interval is intended as central 80% and say so directly."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The six-month volatility basis is acceptable but thin; add a short note that the narrow sample was chosen for current-regime relevance."
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The tail scenarios are concrete enough, but could name which retail components would drive an upside or downside miss."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable in method and coherence terms, with one blocking metadata/source-binding issue caused by the ledger mismatch that must be made explicit in final fields."
+    }
+  }
+]

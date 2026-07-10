@@ -1,0 +1,364 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T06:03:13Z",
+  "runStartedAt": "2026-07-10T06:03:13Z",
+  "series": "ons.pusf.j5ii.public_sector_net_borrowing_ex_banks",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-june-2026",
+    "country": "UK",
+    "dataPointId": "ons.pusf.j5ii.public_sector_net_borrowing_ex_banks.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T05:58:27Z",
+    "registeredAtUtc": "2026-07-10T05:58:27Z",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/economy/governmentpublicsectorandtaxes/publicsectorfinance/bulletins/publicsectorfinances/may2026",
+    "series": "ons.pusf.j5ii.public_sector_net_borrowing_ex_banks",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-23",
+        "start": "2026-07-15"
+      },
+      "field": "official_release:ons:public_sector_finances:2026-05:j5ii",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ons.pusf.j5ii",
+      "sourceUrl": "https://www.ons.gov.uk/economy/governmentpublicsectorandtaxes/publicsectorfinance/bulletins/publicsectorfinances/may2026",
+      "table": "Public sector finances, UK: May 2026",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "d5d0a8776dcdb7739f0aa1d0a24ecbdecf6cbbe3593a2c616a571c1f091ec4e8",
+    "targetRegistrationPath": "records/targets/2026-07-10-d5d0a8776dcdb7739f0aa1d0a24ecbdecf6cbbe3593a2c616a571c1f091ec4e8.json",
+    "targetUnit": "gbp_billions",
+    "valueScale": 1
+  },
+  "targetContentHash": "d5d0a8776dcdb7739f0aa1d0a24ecbdecf6cbbe3593a2c616a571c1f091ec4e8",
+  "targetRegistrationPath": "records/targets/2026-07-10-d5d0a8776dcdb7739f0aa1d0a24ecbdecf6cbbe3593a2c616a571c1f091ec4e8.json",
+  "registeredAtUtc": "2026-07-10T05:58:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T06:03:13Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "0208194c02f4eb0a766ef702c737864d2a38cd247f3634e3eb9a0678fb4fafa4"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add the exact ONS next-release wording or release-calendar citation beside the 2026-07-21 resolution date if available."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify in one phrase that the 2025 value differs between first print and current revised time-series, since both appear in the reasoning."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarity fixes by making the 21 July 2026 next-release grounding explicit in the May 2026 ONS lookup and by clarifying that the June 2025 first print and current revised J5II time-series value differ because of revisions; no required critique items were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the optional clarity fixes by making the 21 July 2026 next-release grounding explicit in the May 2026 ONS lookup and by clarifying that the June 2025 first print and current revised J5II time-series value differ because of revisions; no required critique items were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; it identifies the registered resolver discrepancy, states a same-month/persistence prior, justifies the upward adjustment, and keeps point/interval/JSON fields coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/prompt.md",
+      "sha256": "e9ed38f879d678b1bc6d6290a732b6ea51701865ad0ee3cfa0d717201a0beba9",
+      "bytes": 9045,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_command.json",
+      "sha256": "d3c981090cdb58f898c3387fe696275fc5879dc4f5dcf94b761b9012debafbaf",
+      "bytes": 725,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "311b4df3662f6c922d802dd44f32a976d77f5f812ad2163647ef9be617449832",
+      "bytes": 14675,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_stderr.log",
+      "sha256": "827031f06eb397cd0b266774345b184efe22d18ff42f4470f42c662c7f946d75",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_events.jsonl",
+      "sha256": "03eac3d80c8a3381f29c8242d165ba3e5efc64efc7a07f2298ed8fbb9d936145",
+      "bytes": 14633,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_last_message.txt",
+      "sha256": "e97f9258d917210f5042e7dad0b6db413f7071aebd0d3ab8b53e52aa3ea9be97",
+      "bytes": 6538,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_codex_trace.json",
+      "sha256": "c022a74d634a73d002058ceb02a33c69c5fb0f495c3c924a8d7c405d93615e40",
+      "bytes": 508,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_stdout.txt",
+      "sha256": "e97f9258d917210f5042e7dad0b6db413f7071aebd0d3ab8b53e52aa3ea9be97",
+      "bytes": 6538,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/draft_stderr.txt",
+      "sha256": "4be8426b6a4a88488659af697de95bd604f37aa7e65b1c848ae697fb931a4f58",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_prompt.md",
+      "sha256": "6a3daa492d08b3e0401a935e49b792909112fbc20558d9f59a532305af5387a0",
+      "bytes": 9811,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_command.json",
+      "sha256": "b175c391871fd835dbe2d116e6bc55ec45a7658f727a9ff1521962115c836f74",
+      "bytes": 721,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "c51eccd8e82cdb232831413d0ff91d0a452d639df64b3808550480c15866d50f",
+      "bytes": 865,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "3cc78396bbd648cd5a6caee162f86fc5528fd96aa26a854c346988ddb54b7728",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "4322ea70e57a9cfad7890c2765a394565036064a32e2883c3bff3b77688e9c15",
+      "bytes": 887,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "05975d9db4dfaedd1640c108afe0ed8b81dba08653fbb8b1bcad87717466ad1e",
+      "bytes": 535,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "b93fd7d8cbc7da36ddfa2ea24f4847510eda411fabcd37645a7590bcf430bd94",
+      "bytes": 505,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "05975d9db4dfaedd1640c108afe0ed8b81dba08653fbb8b1bcad87717466ad1e",
+      "bytes": 535,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "263c8111b11b716abf86988c73d46761c56d107bc667dfbeff5a2b27c85ff666",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/revision_prompt.md",
+      "sha256": "fddac0ae8a7909d4828c2ba98669d6c9b5f88bffa440b42cfbc978b78bcc3804",
+      "bytes": 17054,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/command.json",
+      "sha256": "f70b1081c93ce4a5caf519c9482e80fc31ea428ef5718a9da4ba1c4e13bfd9b9",
+      "bytes": 719,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_stdout.jsonl",
+      "sha256": "728bf0d1e8cfc3a504d9834a068bb610fe43a1d2e28edd7970c899de8b977c95",
+      "bytes": 7658,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_stderr.log",
+      "sha256": "e98ae6b7df753cb33ae2cdd8bf5bb7b121136ac6ec52d43b89ae8277128bfdfc",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_events.jsonl",
+      "sha256": "be7d733017edaf3267ad4c6ae08a83fe93cb0cb91107d23de73e8ccf8b857790",
+      "bytes": 7688,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_last_message.txt",
+      "sha256": "03692519ebf88ffc43b32ee4b52fd50a7afa53d150b11c2876bbc7944c5f8423",
+      "bytes": 7110,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/codex_trace.json",
+      "sha256": "81493817af69b742c5eea8bf185c3643daae0669416de7539b011f9b4c1f755e",
+      "bytes": 500,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/stdout.txt",
+      "sha256": "03692519ebf88ffc43b32ee4b52fd50a7afa53d150b11c2876bbc7944c5f8423",
+      "bytes": 7110,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/stderr.txt",
+      "sha256": "c73e992e4c85377fe16d3a912d66c164b75ac1107b167838991d2e4d7978c44d",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/raw_response.txt",
+      "sha256": "03692519ebf88ffc43b32ee4b52fd50a7afa53d150b11c2876bbc7944c5f8423",
+      "bytes": 7110,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/parsed_cells.json",
+      "sha256": "752b4d57484e1201f1349a85805e84fe16b80e58e6fb93efcb47090132fd0813",
+      "bytes": 7974,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/normalized_cells.json",
+      "sha256": "8f6dd117a4fcfdda089aba1fb59601d7addf548c5cd207fe4dd141509906802b",
+      "bytes": 25130,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/distribution.json",
+      "sha256": "74acceee17ef31876f55d369342804c8a1da19fc40c006c90262f47e4a217d8c",
+      "bytes": 13468,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/validation.json",
+      "sha256": "9efc621a1ec0c97b70f7640fd87e74383e5eabdc2137110b01e712721f5e3017",
+      "bytes": 161,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/cells.with_activity.json",
+      "sha256": "7c4e6b848488057e14458f3c9fbd0df37d7b35fd9c0876cb569acd3d9c2506a0",
+      "bytes": 39649,
+      "createdAt": "2026-07-10T06:03:13Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-03-13z-ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-2026-06/manifest.json",
+      "sha256": "de151eede41e2ae78a75c957cb0675213e856febf15db8fde95fac4a2e835445",
+      "bytes": 15003,
+      "createdAt": "2026-07-10T06:03:13Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "ons-pusf-j5ii-public-sector-net-borrowing-ex-banks-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "57e1f9a22308e93feb98ab52132fdacdc89585b4b4df9fcfd98d5555bdb8c28e"
+}

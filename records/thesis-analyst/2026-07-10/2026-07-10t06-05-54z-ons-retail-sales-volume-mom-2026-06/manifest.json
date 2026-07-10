@@ -1,0 +1,417 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T06:05:54Z",
+  "runStartedAt": "2026-07-10T06:05:54Z",
+  "series": "ons.retail_sales.volume_mom",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ons-retail-sales-volume-mom-june-2026",
+    "country": "US",
+    "dataPointId": "ons.retail_sales.volume_mom.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T05:58:27Z",
+    "registeredAtUtc": "2026-07-10T05:58:27Z",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/bulletins/retailsales/may2026",
+    "series": "ons.retail_sales.volume_mom",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-23",
+        "start": "2026-07-15"
+      },
+      "field": "official_release:ons:retail_sales:2026-05:volume_mom",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ons.retail_sales.volume_mom",
+      "sourceUrl": "https://www.ons.gov.uk/businessindustryandtrade/retailindustry/bulletins/retailsales/may2026",
+      "table": "Retail sales, Great Britain: May 2026",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "c06ec0e3a9bd14e9983b654f0fce440dc106ef4863d6a5d7624e3ebfa0f49893",
+    "targetRegistrationPath": "records/targets/2026-07-10-c06ec0e3a9bd14e9983b654f0fce440dc106ef4863d6a5d7624e3ebfa0f49893.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "targetContentHash": "c06ec0e3a9bd14e9983b654f0fce440dc106ef4863d6a5d7624e3ebfa0f49893",
+  "targetRegistrationPath": "records/targets/2026-07-10-c06ec0e3a9bd14e9983b654f0fce440dc106ef4863d6a5d7624e3ebfa0f49893.json",
+  "registeredAtUtc": "2026-07-10T05:58:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T06:05:54Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "ca1a0774b9224e49cac65e53b80b076e99d5b71a4dbee823ac3e8f568263fbf4"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft uses the correct ONS June 2026 release page and 24 July 2026 first-print date, but the canonical ledger sourceBinding points to the May 2026 bulletin and field official_release:ons:retail_sales:2026-05:volume_mom.",
+        "actionRequested": "Keep slug and dataPointId tied to June 2026, but explicitly flag the ledger resolver/sourceBinding as erroneous and ensure publication metadata does not silently imply that the May 2026 bulletin resolves the June 2026 value."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The draft country field is UK while the canonical ledger country field is US; the reasoning notes this discrepancy, but the JSON field no longer matches the ledger contract.",
+        "actionRequested": "Either align the emitted country field with the target contract while noting the ledger country error in reasoning, or document that the catalog metadata should be corrected before publication."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "One historicalContext label says 'December 2025 m/m in December bulletin', while the reasoning says December 2025 was reported in the January 2026 bulletin.",
+        "actionRequested": "Correct the historicalContext label so the cited month and bulletin timing are consistent."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the 80% interval is intended as central 80% and say so directly."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The six-month volatility basis is acceptable but thin; add a short note that the narrow sample was chosen for current-regime relevance."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The tail scenarios are concrete enough, but could name which retail components would drive an upside or downside miss."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to explicitly flag the erroneous May 2026 ledger sourceBinding and not imply that May resolves June; corrected the December 2025 historical-context label; clarified that the 80% interval is central and based on a thin current-regime sample. I kept country as UK because the public ONS Great Britain target is a UK series, while noting that the catalog metadata should be corrected before publication.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable in method and coherence terms, with one blocking metadata/source-binding issue caused by the ledger mismatch that must be made explicit in final fields."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/prompt.md",
+      "sha256": "77b10570c2bda3454309928ab358b6befd3bf1ae7f99aa3d6d58ec5ddf3c1378",
+      "bytes": 8933,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_command.json",
+      "sha256": "f80ac511ee7382e23e3f05abc57840ae18d851e8f7a50fccc520b114a14834fa",
+      "bytes": 702,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "3d57ee7c4aece341160c3890f51113acf42fcd3a9b4f055f0f5b59ef952f1e78",
+      "bytes": 16241,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_stderr.log",
+      "sha256": "0a52a65dc8e26bcc05cc82fbbf4a453f6841e9e97f0ebd6f9af755688bd08c2d",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_events.jsonl",
+      "sha256": "239bbc1f155f42598c2d67c8586da084bf1961729f3393b456d8d95e62dc13f6",
+      "bytes": 16206,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_last_message.txt",
+      "sha256": "ff46f1ec4e69ef0338368e9348df0a2994ec69f104e30c473420802a06138b21",
+      "bytes": 6577,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_codex_trace.json",
+      "sha256": "6b5f9c5a0df7665558b3f45e8cbbe7e80c9445035f189c763fd3647277646861",
+      "bytes": 508,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_stdout.txt",
+      "sha256": "ff46f1ec4e69ef0338368e9348df0a2994ec69f104e30c473420802a06138b21",
+      "bytes": 6577,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/draft_stderr.txt",
+      "sha256": "2a2323c9241909ae4c9b4af4ca58f55eff9b1949a169a322d95c377c0cffc05a",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_prompt.md",
+      "sha256": "0177d388a690ce0a6f2050660d1134f5d46383bd54c3ff3f00c63f77e98bcb3c",
+      "bytes": 9738,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_command.json",
+      "sha256": "f1767de46eb596b52ee32bc4fe3e212fef5fba8a879febe7202184240fb0dc8b",
+      "bytes": 698,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "34c0aca9ae971dcb08d3091b1f875fdb5642e51ced48a7ba31a12641fb0f1ed7",
+      "bytes": 2839,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "df1a0e568d39fcca39c3fd189558d737b2f0bc872982c071db105ee1c07c5881",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "5f7dc7b767696eaab0756785948d6618ce09cd3fa8c6cfa061f70990d15b91dd",
+      "bytes": 2855,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "182d6e75fc5b67eb44560ce51e31aaad68bcd1a6e351a47ca19dfd5ede57ede4",
+      "bytes": 2036,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "1aed23cda917dfcafbca72f982844d313498491c133ee634cfbbc92af0d176fe",
+      "bytes": 506,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "182d6e75fc5b67eb44560ce51e31aaad68bcd1a6e351a47ca19dfd5ede57ede4",
+      "bytes": 2036,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "36281be1766288450d8392c839b1d254f19d6804fc16b13daf77949dee414344",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/revision_prompt.md",
+      "sha256": "cd76dce48a68d774f02a3dbfc6f3443c94919eec4b36e5c99fdab6c52e38f68a",
+      "bytes": 18482,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/command.json",
+      "sha256": "43cfa293fa12916ee0eaa902d44509bb4464f2e4ef97ecfead5a780c0886e541",
+      "bytes": 696,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_stdout.jsonl",
+      "sha256": "b359e521a64228dd317b4ca0d43ddc3013f563810300236638818dd593dea421",
+      "bytes": 7825,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_stderr.log",
+      "sha256": "58ed790d6aed9517f404ce54a1549d01f6f8c1efd94b44cd392db61640a65457",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_events.jsonl",
+      "sha256": "f7a055d56e16510249e0d191cdae5a277106c56560af143e6957e8f425384ef6",
+      "bytes": 7847,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_last_message.txt",
+      "sha256": "5df81b8c224e554eab785c18ee749f8ad9600fbebcff0767f48049b2c554ca18",
+      "bytes": 7266,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/codex_trace.json",
+      "sha256": "b26949339de3aeab44f1f634ee0e4d15f93933d1ecc642d07c81caf502042bf8",
+      "bytes": 501,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/stdout.txt",
+      "sha256": "5df81b8c224e554eab785c18ee749f8ad9600fbebcff0767f48049b2c554ca18",
+      "bytes": 7266,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/stderr.txt",
+      "sha256": "35d02f93495d21b65408812012dac35b1d00d74424b1eb7b187232b70eb993dc",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/raw_response.txt",
+      "sha256": "5df81b8c224e554eab785c18ee749f8ad9600fbebcff0767f48049b2c554ca18",
+      "bytes": 7266,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/parsed_cells.json",
+      "sha256": "6f73ee8f98655a03abd5ae47a4c8e8d45c31c189fd4c463a1bdd473614a02240",
+      "bytes": 8170,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/normalized_cells.json",
+      "sha256": "10bcc6eb1dde9bcc1e147671c3fec36a28f916cad37f70346daaa8c0cf7bd86b",
+      "bytes": 25293,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/distribution.json",
+      "sha256": "6e34edb128b0251dbb615e1d315b6cd9f0f4b8c102386168a0a11079e78cf034",
+      "bytes": 13435,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/validation.json",
+      "sha256": "f8530f69f4b7836717c67fc4a07c520bc920a310ba3d8b2c0831f64ab647a3e2",
+      "bytes": 213,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/cells.with_activity.json",
+      "sha256": "3ba2b67de76866f7ac2f04fb32f3967cd10f667af198137829fd1a1d394d6044",
+      "bytes": 43537,
+      "createdAt": "2026-07-10T06:05:54Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-05-54z-ons-retail-sales-volume-mom-2026-06/manifest.json",
+      "sha256": "65ca91322e44f4a2c2f48b060324bbce3f78310c5e38d63dd1181d7c1d87f14c",
+      "bytes": 18022,
+      "createdAt": "2026-07-10T06:05:54Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "ons-retail-sales-volume-mom-june-2026",
+        "ok": false,
+        "errors": [
+          "country 'UK' does not match target context country 'US'"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "4a84c6a6ec9003bcd6beda795838e9b589ac8cc4777e5792064c02bc3588dcd4"
+}

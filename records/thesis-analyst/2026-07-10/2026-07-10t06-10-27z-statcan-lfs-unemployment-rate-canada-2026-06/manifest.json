@@ -1,0 +1,417 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T06:10:27Z",
+  "runStartedAt": "2026-07-10T06:10:27Z",
+  "series": "statcan.lfs.unemployment_rate.canada",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "statcan-lfs-unemployment-rate-canada-june-2026",
+    "country": "CA",
+    "dataPointId": "statcan.lfs.unemployment_rate.canada.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T05:58:27Z",
+    "registeredAtUtc": "2026-07-10T05:58:27Z",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+    "series": "statcan.lfs.unemployment_rate.canada",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www150.statcan.gc.ca"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-09",
+        "start": "2026-07-01"
+      },
+      "field": "official_release:statcan:dq260605a:unemployment_rate",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "statcan.lfs.unemployment_rate",
+      "sourceUrl": "https://www150.statcan.gc.ca/n1/daily-quotidien/260605/dq260605a-eng.htm",
+      "table": "Labour Force Survey, May 2026",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "1dc4bca9a92ad6b923c9155ad1d3fa905989007a4818cd6a1316820bf70ea0a8",
+    "targetRegistrationPath": "records/targets/2026-07-10-1dc4bca9a92ad6b923c9155ad1d3fa905989007a4818cd6a1316820bf70ea0a8.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "targetContentHash": "1dc4bca9a92ad6b923c9155ad1d3fa905989007a4818cd6a1316820bf70ea0a8",
+  "targetRegistrationPath": "records/targets/2026-07-10-1dc4bca9a92ad6b923c9155ad1d3fa905989007a4818cd6a1316820bf70ea0a8.json",
+  "registeredAtUtc": "2026-07-10T05:58:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T06:10:27Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "927a2d7619743cc54df396a48452ef76c9c5c6ca2904e5e3837dedb0e6063a01"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The canonical resolver URL/table points to dq260605a and 'Labour Force Survey, May 2026' while the target is June 2026; the draft notes this, but the published target would still resolve against the wrong first-print page.",
+        "actionRequested": "Keep this forecast tied to the same dataPointId, but register or document a target correction path before publication: June 2026 LFS should resolve to the official June 2026 first-print release, with the ledger discrepancy preserved in reasoning."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The draft keeps resolutionDate as 2026-07-09 even while its own cited official schedule says the June 2026 LFS release date is 2026-07-10.",
+        "actionRequested": "Clarify in the forecast metadata or publication notes that 2026-07-09 is a ledger-supplied field and that the official schedule discrepancy is known, rather than presenting 2026-07-09 as the verified release date."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "leakage",
+        "summary": "runAt is 2026-07-10T06:10:42Z, which is after the ledger resolutionDate of 2026-07-09, even though it appears before the official July 10 LFS release time.",
+        "actionRequested": "Add a short no-leakage note that the run used only information available before the official June 2026 release and did not use the June outcome."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The prior/update/interval step is strong; keep the sigma sample and rounded implied bounds."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider naming the normal interval assumption as approximate because the historical sample is only five monthly changes."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios are concrete, but could be slightly more target-specific by tying participation and employment shocks directly to unemployment-rate arithmetic."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted resolver/date critiques by documenting the target correction path and explicitly treating 2026-07-09 and dq260605a as ledger-supplied discrepant fields, while keeping the required dataPointId and target binding. Accepted the no-leakage critique: this run used only pre-release public evidence and did not use the June 2026 outcome. Kept the sigma-based interval and added that the normal interval is approximate because the sample has five monthly changes.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted resolver/date critiques by documenting the target correction path and explicitly treating 2026-07-09 and dq260605a as ledger-supplied discrepant fields, while keeping the required dataPointId and target binding. Accepted the no-leakage critique: this run used only pre-release public evidence and did not use the June 2026 outcome. Kept the sigma-based interval and added that the normal interval is approximate because the sample has five monthly changes.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted resolver/date critiques by documenting the target correction path and explicitly treating 2026-07-09 and dq260605a as ledger-supplied discrepant fields, while keeping the required dataPointId and target binding. Accepted the no-leakage critique: this run used only pre-release public evidence and did not use the June 2026 outcome. Kept the sigma-based interval and added that the normal interval is approximate because the sample has five monthly changes.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted resolver/date critiques by documenting the target correction path and explicitly treating 2026-07-09 and dq260605a as ledger-supplied discrepant fields, while keeping the required dataPointId and target binding. Accepted the no-leakage critique: this run used only pre-release public evidence and did not use the June 2026 outcome. Kept the sigma-based interval and added that the normal interval is approximate because the sample has five monthly changes.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted resolver/date critiques by documenting the target correction path and explicitly treating 2026-07-09 and dq260605a as ledger-supplied discrepant fields, while keeping the required dataPointId and target binding. Accepted the no-leakage critique: this run used only pre-release public evidence and did not use the June 2026 outcome. Kept the sigma-based interval and added that the normal interval is approximate because the sample has five monthly changes.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted resolver/date critiques by documenting the target correction path and explicitly treating 2026-07-09 and dq260605a as ledger-supplied discrepant fields, while keeping the required dataPointId and target binding. Accepted the no-leakage critique: this run used only pre-release public evidence and did not use the June 2026 outcome. Kept the sigma-based interval and added that the normal interval is approximate because the sample has five monthly changes.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is methodologically coherent, but publication should be blocked until the target ledger resolver/date/source mismatch for June 2026 is handled explicitly at the target level."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/prompt.md",
+      "sha256": "38928a8a06ae07525dab80555a8cf5b86a4f31a72f42800a2a4781167b1de9e1",
+      "bytes": 8865,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_command.json",
+      "sha256": "b3230f712337fab45b80e9d3f856806934497538c62ebf5f56fe5bdb0267ece2",
+      "bytes": 711,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "88c4dbaa7be69a24ec9378ec67b03a1f38bae9b75f25d8e4652ec33cce23bc47",
+      "bytes": 12189,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_stderr.log",
+      "sha256": "2af5fb8a99acca485918fdce3e29f96e1890c16156d310783bc1f6c2a34f8520",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_events.jsonl",
+      "sha256": "a2606b232b5fe6e027900bb85bba7094980e637f14b554f720c7f8c91299bedc",
+      "bytes": 12186,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_last_message.txt",
+      "sha256": "8697c2bbfd1df2afb85385fe9811fd89c8a4c4bf547d803f22ffbe547351d5fe",
+      "bytes": 6834,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_codex_trace.json",
+      "sha256": "9dadfb6a7295d6cb6b1ca6c80ebf25969209c73d0bfc82bf661983f4374561c5",
+      "bytes": 503,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_stdout.txt",
+      "sha256": "8697c2bbfd1df2afb85385fe9811fd89c8a4c4bf547d803f22ffbe547351d5fe",
+      "bytes": 6834,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/draft_stderr.txt",
+      "sha256": "64b4c7b1efaacbbf0b72fd8d246552b4e52b705eeb2ff05244367e0a0d86e0db",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_prompt.md",
+      "sha256": "93d1dc863513cd8ed69c065b15cdd744f58220edabaabf9a24cf9f475eac31b1",
+      "bytes": 9975,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_command.json",
+      "sha256": "1c76ef4a3c3d367ad1554d26b4a5cfd684f4c62d3b8936bd1bd1d28fd656653f",
+      "bytes": 707,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "675ecbb0c527c3f8a6bd5d9bec15495b0837dbeb784b1aa3dfcb64225a376dac",
+      "bytes": 2544,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "8c3058ebd8089ff0f7ab93672c61afb18c73e9625e357f0fae9306f03900bbec",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "341e53f3d9622680edba5854bc390fd17189cc5fc36ba742ae2b24e1b45f0b8b",
+      "bytes": 2566,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "e4896eae907cb92803bc3df3c5c0b77fdc1ed23360774c86d547cd4869925379",
+      "bytes": 2136,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "632b4b8efc790943d84f92bd564557e90e67970fabcb2295da500a1f5fc73935",
+      "bytes": 506,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "e4896eae907cb92803bc3df3c5c0b77fdc1ed23360774c86d547cd4869925379",
+      "bytes": 2136,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "97fbf0c26b32f6e4b0ad6e4b07a244e3fb29dd5207e5cb67ddba3c707c8f2c3f",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/revision_prompt.md",
+      "sha256": "f70b851d1a54353a835f936a4e1fba3f307ea9a44b7b71fb84942d859caa4c2a",
+      "bytes": 18771,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/command.json",
+      "sha256": "a2ce7120e837636563776655a2611b9d257c00fb3bdf8b9af6c0676b21c4c36b",
+      "bytes": 705,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/codex_stdout.jsonl",
+      "sha256": "23078438786f90ed08eb1dc94b81c803b4b5711ec6795464acdafe33f3829244",
+      "bytes": 8213,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/codex_stderr.log",
+      "sha256": "72437ba0e41563df892b1829c616a6f0ceeab5f11929ccc4b9ca15ec05387eb9",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/codex_events.jsonl",
+      "sha256": "56382e7686d6ea342972c49abd09fbc0b72a51aa77862c6f11692786a7175cea",
+      "bytes": 8235,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/codex_last_message.txt",
+      "sha256": "a98297231960aa21786e8fc295706b3b31aad5ca0fce0f51809a4dc5c56ebb20",
+      "bytes": 7636,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/codex_trace.json",
+      "sha256": "fe6afc4b64b087c0a9b1836194064a6a4de24c7bb5ed4419b8b554d2faf97077",
+      "bytes": 501,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/stdout.txt",
+      "sha256": "a98297231960aa21786e8fc295706b3b31aad5ca0fce0f51809a4dc5c56ebb20",
+      "bytes": 7636,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/stderr.txt",
+      "sha256": "14083eb0a1501d640575f7a4ee30bb3159795589822352b86c762a04436dd682",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/raw_response.txt",
+      "sha256": "a98297231960aa21786e8fc295706b3b31aad5ca0fce0f51809a4dc5c56ebb20",
+      "bytes": 7636,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/parsed_cells.json",
+      "sha256": "bcb6253f7ada5671730c7d1c21e3116c1f2f40a94e66ff820e38acf8c9cd0ce4",
+      "bytes": 8601,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/normalized_cells.json",
+      "sha256": "22f5254ad3a9bd540e259f89e2257d2a02c86944f406eb85bef6e02b79316a8d",
+      "bytes": 26481,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/distribution.json",
+      "sha256": "64a0469bf539cf2955078c34f360ee51bf87dbea45a593809a9612e2b9506dd2",
+      "bytes": 14192,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/validation.json",
+      "sha256": "2ffe8afdc0f596722d2b11739a32500cc07ab6fe92259ba1fbfd38f8d8e1f75f",
+      "bytes": 264,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/cells.with_activity.json",
+      "sha256": "a139152aad93f0dfd6b99a161af726fedaa30723240cb04376adea8ea3b75ad2",
+      "bytes": 45400,
+      "createdAt": "2026-07-10T06:10:27Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-10-27z-statcan-lfs-unemployment-rate-canada-2026-06/manifest.json",
+      "sha256": "6b397a452db479b1574a0120411435775a585afbd71cdce7891e73924c04c11d",
+      "bytes": 18750,
+      "createdAt": "2026-07-10T06:10:27Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "statcan-lfs-unemployment-rate-canada-june-2026",
+        "ok": false,
+        "errors": [
+          "resolutionDate 2026-07-09 is not after runAt 2026-07-10 \u2014 target already published (leakage)"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "9c40b62677993805c0ea54526eacb6529d04d35f6b7fc9afc10523da4c911a16"
+}

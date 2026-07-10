@@ -1,0 +1,385 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T06:12:26Z",
+  "runStartedAt": "2026-07-10T06:12:26Z",
+  "series": "census.new_residential_sales.new_single_family_houses_sold_saar",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-new-home-sales-saar-june-2026",
+    "country": "US",
+    "dataPointId": "census.new_residential_sales.new_single_family_houses_sold_saar.2026_06.first_print",
+    "expectedReleaseDate": "2026-07-24",
+    "period": "2026-06",
+    "registeredAt": "2026-07-10T05:58:27Z",
+    "registeredAtUtc": "2026-07-10T05:58:27Z",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.census.gov/construction/nrs/current/index.html",
+    "series": "census.new_residential_sales.new_single_family_houses_sold_saar",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.census.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-24",
+        "start": "2026-07-24"
+      },
+      "field": "Sales of new single-family houses, United States, seasonally-adjusted annual rate",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "RESSALES.SOLD.TOTAL.US.SAAR",
+      "sourceUrl": "https://www.census.gov/construction/nrs/current/index.html",
+      "table": "Monthly New Residential Sales, Table 1: New Houses Sold and For Sale",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "Sales of new single-family houses, United States, seasonally-adjusted annual rate",
+    "sourceSeriesId": "RESSALES.SOLD.TOTAL.US.SAAR",
+    "sourceTable": "Monthly New Residential Sales, Table 1: New Houses Sold and For Sale",
+    "targetContentHash": "ac8614c86d2fa983f323f64f18c92df648f3ed58f35faa09e85b571954df9ae8",
+    "targetRegistrationPath": "records/targets/2026-07-10-ac8614c86d2fa983f323f64f18c92df648f3ed58f35faa09e85b571954df9ae8.json",
+    "targetUnit": "thousands",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "targetContentHash": "ac8614c86d2fa983f323f64f18c92df648f3ed58f35faa09e85b571954df9ae8",
+  "targetRegistrationPath": "records/targets/2026-07-10-ac8614c86d2fa983f323f64f18c92df648f3ed58f35faa09e85b571954df9ae8.json",
+  "registeredAtUtc": "2026-07-10T05:58:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T06:12:26Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "6c9cc9c41d7ae484865a3ebb887a6a25766feba1ec2fb59158bede29429e15c9"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is based on Jan-May 2026 changes only, giving just four deltas and likely under-supporting realized volatility for this noisy series.",
+        "actionRequested": "Either expand the volatility sample to a longer same-series monthly history or explicitly state that the short-sample sigma is a rough uncertainty proxy and justify why the 525-655 bounds remain appropriate."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether recent historical values from FRED are latest-vintage/revised history while the target resolves to the Census first print."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver wording aligned with the ledger by emphasizing the Census Table 1 first public June 2026 SAAR value in thousands."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval critique by explicitly labeling the four-delta sigma as a rough proxy and justifying the retained 525-655 bounds; accepted the resolver clarification by emphasizing Census Table 1 first public June 2026 SAAR value in thousands; accepted the source-grounding caveat that FRED history may be latest-vintage while the target resolves to Census first print.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by explicitly labeling the four-delta sigma as a rough proxy and justifying the retained 525-655 bounds; accepted the resolver clarification by emphasizing Census Table 1 first public June 2026 SAAR value in thousands; accepted the source-grounding caveat that FRED history may be latest-vintage while the target resolves to Census first print.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval critique by explicitly labeling the four-delta sigma as a rough proxy and justifying the retained 525-655 bounds; accepted the resolver clarification by emphasizing Census Table 1 first public June 2026 SAAR value in thousands; accepted the source-grounding caveat that FRED history may be latest-vintage while the target resolves to Census first print.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable on resolver, units, prior/update structure, and coherence, but the interval support is thin because it estimates 80% uncertainty from only four recent month-to-month changes."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/prompt.md",
+      "sha256": "0612b7cb0b6849c1ae4020b025024f22de441e456b2d129141f501bf763f381a",
+      "bytes": 9189,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_command.json",
+      "sha256": "67c137d81cc919b69e3c4c9bfa19ec9138bfad203dd3f073e5dcd792c81681d7",
+      "bytes": 738,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "b7578f17a2f3423af493f9ac94fe896c1def4029f92e1af32a5d613704c6f324",
+      "bytes": 16090,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_codex_stderr.log",
+      "sha256": "78b9fb6e98d26173ee7d8d901480394349cd5dd09373806644598b811c364774",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_codex_events.jsonl",
+      "sha256": "2d67e6ff844d34d1a673202889aea483217a7b47efdec9de2c89951ccb8c7b26",
+      "bytes": 16056,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_codex_last_message.txt",
+      "sha256": "5c51e70446e16ca0725dca1742003fdcc6c316b085ba600673c8e8dd75830df9",
+      "bytes": 6274,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_codex_trace.json",
+      "sha256": "38916e3e5a9da4146344c821d449eea22a5e877c2f231be14bb6046115b339e2",
+      "bytes": 507,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_stdout.txt",
+      "sha256": "5c51e70446e16ca0725dca1742003fdcc6c316b085ba600673c8e8dd75830df9",
+      "bytes": 6274,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/draft_stderr.txt",
+      "sha256": "c4781c703c33c56cb4a0fd0b598f5943370074e40d37592cd15364671dbb0aa1",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_prompt.md",
+      "sha256": "4488400e48436af7cb3666dddf59117f8098b506e39846deb8ab9e3cfe786d0c",
+      "bytes": 9487,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_command.json",
+      "sha256": "276e57894cf27d26f4fec28a29901f38bfcfdd41ff681ff2e56d93fb4c70bb0c",
+      "bytes": 734,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "9f9bf05a5b1ee57a1bd5b562f5526856f708d2cc3d5b3b4277e70bddd35c19a5",
+      "bytes": 1395,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "915a6065c83ff226d7c02ec36825e6953e84da8e04896dbb79ed2f6f7d2c5acc",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "8d9a953133c1691b2680eff19eb095e1984bd880a6a93633daf2fceee55fd76a",
+      "bytes": 1417,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "ef768697cd77f126a7eb99ea4bc4734c4409e2ae5c03691a6d487a2faec0208e",
+      "bytes": 1039,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "9500f64886dac94cce4b2574731e4ce8c18cc23442d5e582d0b22d8368f045da",
+      "bytes": 501,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "ef768697cd77f126a7eb99ea4bc4734c4409e2ae5c03691a6d487a2faec0208e",
+      "bytes": 1039,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "ab8cc130072ae41cafcc3e6c77411e81b8c84cc4083032161cada98e46e41e81",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/revision_prompt.md",
+      "sha256": "44a757ba5e65d2c412fb868e95073ca50194d462d66a795282b4788e954f3806",
+      "bytes": 17438,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/command.json",
+      "sha256": "17aff7699cea5d2c9f55848c8091a52be49ed16fa94a75b30c7b0aedf95dbeab",
+      "bytes": 732,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/codex_stdout.jsonl",
+      "sha256": "dbdcde431bbaf072da12445df82c6f6ca0308c88300d29e743bc42e515c15ed0",
+      "bytes": 7921,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/codex_stderr.log",
+      "sha256": "a8d85f4064a760c6cd2f9121c25411f213c18c89086cad7f3261f1f660a92b4f",
+      "bytes": 233,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/codex_events.jsonl",
+      "sha256": "bd4c815131226564fc0b9f6534a480516e49c4f5a78a0f06b18cb5dfc56862c7",
+      "bytes": 7943,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/codex_last_message.txt",
+      "sha256": "a013483eb6e617154c2acee3050692976a335ed4aabb326e3c3b7a8c8cd25903",
+      "bytes": 7334,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/codex_trace.json",
+      "sha256": "9474f7b6445db16284a7e0f5349a3a270bb37d2b1c1974f225ae85fc35877ede",
+      "bytes": 505,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/stdout.txt",
+      "sha256": "a013483eb6e617154c2acee3050692976a335ed4aabb326e3c3b7a8c8cd25903",
+      "bytes": 7334,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/stderr.txt",
+      "sha256": "27fb9dfaf4b0bcda6a57ceb20e086eaa9c8c83a44b06aa291d2f68c3d10a3846",
+      "bytes": 248,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/raw_response.txt",
+      "sha256": "a013483eb6e617154c2acee3050692976a335ed4aabb326e3c3b7a8c8cd25903",
+      "bytes": 7334,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/parsed_cells.json",
+      "sha256": "c6f32a771160d143231a1bfb297af31fb8992cc751d4718d164ed9d92481e11e",
+      "bytes": 8319,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/normalized_cells.json",
+      "sha256": "e52b3d78dae7fb6e1a98867535f8af1ea423f69d63159c9e66c25d8cf71a8542",
+      "bytes": 25711,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/distribution.json",
+      "sha256": "6a5399c4c4af3d870bafedd7e99357877f3a8536c0b3ec9a8d4c912ff1d2c1cb",
+      "bytes": 13704,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/validation.json",
+      "sha256": "bee26e7ea9a864f123990ec75e57585140fedf11989b1270aec31cace40bc4ad",
+      "bytes": 133,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/cells.with_activity.json",
+      "sha256": "339643542cfd1af7d3e350b72b93303481d148b7c410b8e1c0d6d1050e68ec70",
+      "bytes": 41972,
+      "createdAt": "2026-07-10T06:12:26Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t06-12-26z-census-new-residential-sales-new-single-family-houses-sold-saar-2026-06/manifest.json",
+      "sha256": "3368ca27ff00ea06c0cf1e8857a3b13561c2a14e3c3ac6044247cfc4c813d49c",
+      "bytes": 16865,
+      "createdAt": "2026-07-10T06:12:26Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-new-home-sales-saar-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "295cdaa1199621fd5c291b5f3509bc01bf784598f465aa299590926df3a68f59"
+}

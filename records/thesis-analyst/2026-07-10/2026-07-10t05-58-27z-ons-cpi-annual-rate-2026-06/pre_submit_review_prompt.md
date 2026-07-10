@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: ons.cpi.annual_rate
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "ons-cpi-annual-rate-june-2026"
+- country: "UK"
+- targetUnit: "percent"
+- dataPointId: "ons.cpi.annual_rate.june_2026.first_print"
+- resolutionSourceUrl: "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/may2026"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www.ons.gov.uk"], "expectedReleaseWindow": {"end": "2026-07-21", "start": "2026-07-13"}, "field": "official_release:ons:cpi:2026-05:cpi_annual_rate", "releasePolicy": "first_print", "sourceSeriesId": "ons.cpi.annual_rate", "sourceUrl": "https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/may2026", "table": "Consumer price inflation, UK: May 2026", "transform": {"factor": 1, "operation": "identity"}}
+- targetRegistrationPath: "records/targets/2026-07-10-4b43796ec16bef4a5646e73b93a73d7b4eadfde3cbf2968f078cfb42a59154f0.json"
+- targetContentHash: "4b43796ec16bef4a5646e73b93a73d7b4eadfde3cbf2968f078cfb42a59154f0"
+- registeredAtUtc: "2026-07-10T05:58:27Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+cdd0f6a2076587770ea768f363cc3d8f77857e14f197696f184dbccbd7f842cc
+
+# Draft forecast response
+{"slug":"ons-cpi-annual-rate-june-2026","country":"UK","type":"data","title":"UK CPI Annual Rate, June 2026","question":"What will the ONS Consumer Prices Index (CPI) all-items 12-month annual rate for the UK be for June 2026, not seasonally adjusted, in the first print?","unit":"percent","pointEstimate":2.9,"ciLow":2.5,"ciHigh":3.3,"confidence":0.8,"resolutionDate":"2026-07-22","resolutionSource":"Office for National Statistics, Consumer price inflation, UK: June 2026","resolutionSourceUrl":"https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/june2026","resolutionRule":"Resolve to the first ONS-published CPI all-items 12-month rate for June 2026 in Table 1 of Consumer price inflation, UK: June 2026, in percent rounded to one decimal place. Use the first print only; ignore later revisions, corrections, or time-series updates unless ONS replaces the first bulletin before the normal publication time. The ledger supplied a May 2026 bulletin URL and a 2026-05 field, which appears inconsistent with the June 2026 dataPointId; this forecast keeps the same target identity but uses the June 2026 first-print bulletin as the substantive resolver.","dataPointId":"ons.cpi.annual_rate.june_2026.first_print","historicalContext":[{"label":"2026 May CPI annual rate","value":2.8},{"label":"2026 April CPI annual rate","value":2.8},{"label":"2026 March CPI annual rate","value":3.3},{"label":"2026 February CPI annual rate","value":3.0},{"label":"2025 June CPI annual rate","value":3.6}],"drivers":["May CPI annual rate held at 2.8% after April's fall","June 2025 base month had CPI index 138.9 and 0.3% monthly inflation","May 2026 CPI index was 142.4, so a normal June monthly rise implies about 2.8% to 3.0% annual inflation","services inflation rose to 3.7% and transport inflation to 6.8%, adding upside pressure","food, household services, and goods inflation were easing, limiting the upside"],"sourceContext":["https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/may2026","https://www.ons.gov.uk/economy/inflationandpriceindices/bulletins/consumerpriceinflation/april2026","https://www.ons.gov.uk/releasecalendar"],"runAt":"2026-07-10T05:59:22Z","reasoning":[{"kind":"heading","text":"UK CPI June 2026 First-Print Forecast"},{"kind":"text","text":"Framing and exact resolver: target is the ONS Consumer Prices Index all-items 12-month annual rate for June 2026, the non-seasonally-adjusted CPI headline rate shown in Table 1 of the first Consumer price inflation, UK: June 2026 bulletin. The ONS May 2026 bulletin says the next release is 22 July 2026, so I use 2026-07-22 as the verified resolution date. The supplied ledger URL points to May 2026 and the sourceBinding field says 2026-05; that is a concrete ledger inconsistency for a June 2026 target, so I keep slug/dataPointId target identity and note the discrepancy rather than changing the target concept."},{"kind":"tool","tool":"official.lookup","call":"Opened ONS Consumer price inflation, UK: May 2026 and read release metadata plus Table 1.","result":"Fetched ONS numbers: release date 17 June 2026; next release 22 July 2026; May 2026 CPI index 142.4; May 2026 CPI 12-month rate 2.8%; May 2026 CPI 1-month rate 0.2%; April 2026 CPI 12-month rate 2.8%."},{"kind":"tool","tool":"official.lookup","call":"Read ONS May 2026 Table 1 recent CPI annual-rate history for the same CPI variant.","result":"Fetched same-variant CPI annual rates: May 2025 3.4%, Jun 2025 3.6%, Jul 2025 3.8%, Aug 2025 3.8%, Sep 2025 3.8%, Oct 2025 3.6%, Nov 2025 3.2%, Dec 2025 3.4%, Jan 2026 3.0%, Feb 2026 3.0%, Mar 2026 3.3%, Apr 2026 2.8%, May 2026 2.8%."},{"kind":"tool","tool":"official.lookup","call":"Read ONS May 2026 CPI component table and commentary for current-release pressure points.","result":"Fetched ONS component numbers: May 2026 CPI services annual rate 3.7%, CPI goods annual rate 2.0%, core CPI 2.6%, transport 6.8%, food and non-alcoholic beverages 2.2%, motor fuels 24.6%, petrol 157.4 pence per litre."},{"kind":"tool","tool":"official.lookup","call":"Opened ONS Consumer price inflation, UK: April 2026 to cross-check prior month dynamics and base effects.","result":"Fetched ONS April numbers: April 2026 CPI annual rate 2.8%, March 2026 CPI annual rate 3.3%, April 2026 CPI monthly rate 0.7%, April 2025 CPI monthly rate 1.2%, April 2026 CPI index 142.1, June 2025 CPI index 138.9."},{"kind":"text","text":"Base rate/reference class: for one-month-ahead forecasts of this exact ONS CPI annual-rate series, the strongest base rate is persistence plus recent monthly changes. The latest three headline CPI annual rates were 3.3%, 2.8%, and 2.8%, averaging 2.97% if using March-May but 2.87% if downweighting March's pre-April energy-price-cap step. Since the June 2025 base month already had a 0.3% monthly CPI rise, June 2026 needs a monthly rise materially above 0.3% to push the annual rate above 2.9%."},{"kind":"math","text":"Prior/update/interval: persistence prior is 2.8% from the latest ONS first-print headline, with a reference class of 12 successive monthly changes in the same CPI annual-rate series from May 2025 to May 2026: +0.2, +0.2, 0.0, 0.0, -0.2, -0.4, +0.2, -0.4, 0.0, +0.3, -0.5, 0.0 percentage points. The sample standard deviation of those changes is sigma = 0.27, so an 80% normal half-width is roughly 1.28*sigma = 0.35 percentage points. Level/index arithmetic: May 2026 CPI index 142.4 divided by June 2025 CPI index 138.9 gives 2.52% before June's monthly change; adding a plausible +0.3% to +0.4% June monthly move implies about 2.8% to 2.9%. I add +0.1 point for services/transport pressure and Middle East fuel pass-through, giving a 2.9% point estimate; I round the interval outward to 2.5% to 3.3% for one-decimal first-print risk."},{"kind":"text","text":"Current-release adjustment: the level effect from April's energy-price-cap fall has already entered the annual rate, while May's headline was unchanged at 2.8%. Transport and services are the main upside mechanism, but goods, food, and household-services easing keep the central forecast below 3.0% unless June air fares, fuel, or package holidays are unusually strong."},{"kind":"text","text":"Counter-considerations: upside risk is a renewed fuel and air-fare jump after the Middle East shock, which would land above the interval if June monthly CPI exceeded about 0.75%. Downside risk is another broad goods and food disinflation month plus falling domestic energy/fuel prices, which would land below the interval if the June monthly CPI index fell or rose by less than about -0.05% after rounding. Outside the interval would most likely require a large transport-energy surprise or an unusually broad retail discounting month."},{"kind":"forecast","point":2.9,"ciLow":2.5,"ciHigh":3.3}]}
