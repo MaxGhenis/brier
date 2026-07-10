@@ -1,8 +1,15 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  buildScoreId,
   classifyScoreChronology,
+  evaluateResolvedForecastRun,
+  loadPolicyEngineLedger,
   scoreResolvedForecastRun,
+  scoreResolvedForecasts,
   targetNormalizationScale,
+  withResolvedOutcomes,
   type ObservationRecordedLedgerEntry,
   type PolicyEngineLedgerEntry,
 } from "@/data/thesis-log";
@@ -13,6 +20,7 @@ import {
 } from "@/data/prediction-specs";
 import { buildBrierRewardExport } from "@/data/brier-lab";
 import {
+  FORECAST_CELLS,
   getForecastRunEntries,
   type ForecastCell,
 } from "@/data/forecast-cells";
@@ -200,18 +208,15 @@ describe("target normalization scale", () => {
     const run = getForecastRunEntries(baseCell)[0];
     const score = scoreResolvedForecastRun(baseCell, run, ledger);
     expect(score?.crps).toEqual(expect.any(Number));
-    // Young-ledger targets fall back to the frozen primary width — a
-    // fixed, later-run-immune denominator — rather than dropping out.
-    expect(score?.normalizationScaleSource).toBe("target_primary_width");
-    expect(score?.normalizationScale).toBeCloseTo(
-      Math.abs(baseCell.ciHigh - baseCell.ciLow) / 2.5631,
-      6,
-    );
-    // With the frozen-primary-width tier the normalized metrics exist
-    // and are computed against the shared target denominator.
-    expect(score?.normalizedCrps).toEqual(expect.any(Number));
-    expect(score?.normalizedAbsoluteError).toEqual(expect.any(Number));
-    expect(score?.sharpness).toBeCloseTo(2.5631, 3);
+    // Young-ledger targets have NO independent scale. Nothing a forecast
+    // authors may stand in as denominator (re-audit X2: the frozen
+    // primary-width fallback let a wider interval shrink its own
+    // normalized error), so the scale is simply unavailable.
+    expect(score?.normalizationScaleSource).toBe("unavailable");
+    expect(score?.normalizationScale).toBeNull();
+    expect(score?.normalizedCrps).toBeNull();
+    expect(score?.normalizedAbsoluteError).toBeNull();
+    expect(score?.sharpness).toBeNull();
 
     const specs = buildPredictionSpecs([baseCell]);
     const runs = buildRecordedPredictionRunRecords([baseCell], specs);
@@ -224,14 +229,217 @@ describe("target normalization scale", () => {
     const primary = reward.rewardRows.find(
       (row) => row.runVariantId === "primary",
     );
+    // Raw CRPS publishes; normalized reward does not exist without an
+    // independent scale.
     expect(primary?.reward.components.crps).toEqual(expect.any(Number));
-    // Frozen-primary-width scores participate in rewards; only a truly
-    // unavailable scale (no interval either) is excluded.
-    expect(primary?.reward.components.normalizedCrps).toEqual(
+    expect(primary?.reward.components.normalizedCrps).toBeNull();
+    expect(primary?.reward.value).toBeNull();
+    expect(primary?.scoreEligibility).toBe("scored_verified");
+    expect(reward.counts.scoredRuns).toBe(0);
+    // Primary plus its F9 persistence baseline both carry raw scores, so
+    // the scale-free paired comparison still works.
+    expect(reward.counts.rawScoredRuns).toBe(2);
+    expect(reward.pairedComparison.pairedTargets).toBe(1);
+    expect(reward.pairedComparison.crpsRatioGeomean).toEqual(
       expect.any(Number),
     );
-    expect(primary?.reward.value).toEqual(expect.any(Number));
-    // Primary plus its F9 persistence baseline both score.
-    expect(reward.counts.scoredRuns).toBe(2);
+  });
+});
+
+describe("chronology parser is host-timezone independent (X4 residual)", () => {
+  it("compares timezone-less timestamps at day granularity only", () => {
+    // Same written day, no offset on the run time: sub-day order is
+    // unknowable without trusting the build host's timezone.
+    expect(
+      classifyScoreChronology(
+        "2026-07-01T02:00:00",
+        "2026-07-01T12:30:00Z",
+      ),
+    ).toBe("unverified");
+    // Strictly earlier written day still verifies.
+    expect(
+      classifyScoreChronology(
+        "2026-06-30T23:00:00",
+        "2026-07-01T12:30:00Z",
+      ),
+    ).toBe("verified");
+  });
+
+  it("supports date-only run seals at day granularity", () => {
+    expect(classifyScoreChronology("2026-06-28", "2026-07-01T00:00:00Z")).toBe(
+      "verified",
+    );
+    expect(classifyScoreChronology("2026-07-01", "2026-07-01T23:00:00Z")).toBe(
+      "unverified",
+    );
+    expect(classifyScoreChronology("2026-07-02", "2026-07-01T23:00:00Z")).toBe(
+      "violated",
+    );
+  });
+});
+
+describe("resolution contract gate (N6)", () => {
+  const cell: ForecastCell = {
+    slug: "contract-cell",
+    country: "US",
+    type: "data",
+    title: "Contract test",
+    question: "?",
+    unit: "thousands",
+    pointEstimate: 220,
+    ciLow: 200,
+    ciHigh: 240,
+    confidence: 0.8,
+    resolutionDate: "2026-08-01",
+    resolutionSource: "Test",
+    resolutionRule: "Test",
+    dataPointId: "test.contract.series.2026",
+    historicalContext: [],
+    drivers: [],
+    predictionRun: {
+      kind: "recorded-agent-run",
+      runAt: "2026-04-11T00:00:00Z",
+      agent: "test.agent",
+      model: "test-model",
+      sourceContext: [],
+    },
+    reasoning: [{ kind: "forecast", point: 220, ciLow: 200, ciHigh: 240 }],
+  };
+  const registered: TargetRegisteredLedgerEntry = {
+    kind: "target_registered",
+    dataPointId: cell.dataPointId!,
+    observationId: `obs.${cell.dataPointId}`,
+    country: "US",
+    periodLabel: "2026",
+    unit: "thousands",
+    resolutionDate: cell.resolutionDate,
+    resolutionSource: "Test",
+    resolutionRule: "Test",
+    resolutionPolicy: "first_print",
+    sourceKind: "official_release",
+    source: "Test",
+    note: "fixture",
+    registeredAt: "2026-04-10T00:00:00Z",
+  };
+  const fact = (
+    overrides: Partial<ObservationRecordedLedgerEntry>,
+  ): ObservationRecordedLedgerEntry => ({
+    kind: "observation_recorded",
+    observationId: `obs.${cell.dataPointId}`,
+    dataPointId: cell.dataPointId!,
+    periodLabel: "2026",
+    unit: "thousands",
+    value: 225,
+    observedAt: "2026-07-20T12:00:00Z",
+    resolvedAt: "2026-07-20T12:00:00Z",
+    sourceKind: "official_release",
+    source: "Test",
+    ...overrides,
+  });
+
+  it("refuses to score a fact whose unit contradicts the contract", () => {
+    const run = getForecastRunEntries(cell)[0];
+    const evaluation = evaluateResolvedForecastRun(cell, run, [
+      registered,
+      fact({ unit: "millions" as ObservationRecordedLedgerEntry["unit"] }),
+    ]);
+    expect(evaluation.score).toBeUndefined();
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("millions");
+  });
+
+  it("scores a contract-conforming fact", () => {
+    const run = getForecastRunEntries(cell)[0];
+    const evaluation = evaluateResolvedForecastRun(cell, run, [
+      registered,
+      fact({}),
+    ]);
+    expect(evaluation.score?.crps).toEqual(expect.any(Number));
+    expect(evaluation.exclusion).toBeUndefined();
+  });
+
+  it("selects the first print by parsed instant, not string order", () => {
+    // +05:00 noon is 07:00Z — EARLIER than 08:00Z despite sorting later
+    // lexically. The parsed-instant rule must pick it.
+    const later = fact({
+      observationId: `obs.${cell.dataPointId}.a`,
+      value: 300,
+      observedAt: "2026-07-20T08:00:00Z",
+    });
+    const earlier = fact({
+      observationId: `obs.${cell.dataPointId}.b`,
+      value: 225,
+      observedAt: "2026-07-20T12:00:00+05:00",
+    });
+    const run = getForecastRunEntries(cell)[0];
+    const evaluation = evaluateResolvedForecastRun(cell, run, [
+      registered,
+      later,
+      earlier,
+    ]);
+    expect(evaluation.score?.observedValue).toBe(225);
+  });
+});
+
+describe("Supabase projection compatibility (N10)", () => {
+  it("emits only sources the migration CHECK admits, with matching null shape", async () => {
+    const migration = readFileSync(
+      join(__dirname, "../../supabase/migrations/20260709_ledger_normalization_scale.sql"),
+      "utf8",
+    );
+    expect(migration).toContain("'ledger_dispersion'");
+    expect(migration).toContain("'unavailable'");
+    expect(migration).not.toContain("target_primary_width");
+
+    const ledger = await loadPolicyEngineLedger();
+    const prepared = withResolvedOutcomes(FORECAST_CELLS, ledger);
+    const scores = scoreResolvedForecasts(prepared, ledger);
+    expect(scores.length).toBeGreaterThan(0);
+    for (const score of scores) {
+      // Mirrors scores_normalization_availability_check exactly: the
+      // TypeScript projection must be row-for-row ingestible.
+      expect(["ledger_dispersion", "unavailable"]).toContain(
+        score.normalizationScaleSource,
+      );
+      if (score.normalizationScaleSource === "ledger_dispersion") {
+        expect(score.normalizationScale).toEqual(expect.any(Number));
+        expect(score.normalizedCrps).toEqual(expect.any(Number));
+        expect(score.normalizedAbsoluteError).toEqual(expect.any(Number));
+        expect(score.sharpness).toEqual(expect.any(Number));
+      } else {
+        expect(score.normalizationScale).toBeNull();
+        expect(score.normalizedCrps).toBeNull();
+        expect(score.normalizedAbsoluteError).toBeNull();
+        expect(score.sharpness).toBeNull();
+      }
+    }
+  }, 60_000);
+});
+
+describe("condition identity in score IDs (N7)", () => {
+  it("changes the score ID when the gating premise differs", () => {
+    const payload = {
+      runId: "run.test",
+      resolutionEventId: "resolution_event.test",
+      scoringRule: "numeric_cdf_crps_v3_ledger_scale" as const,
+      transformVersion: "interval_anchor_v1",
+      forecastOutput: { pointEstimate: 1 },
+      outcome: { observedValue: 1 },
+      normalizationScale: 1,
+      normalizationScaleSource: "ledger_dispersion",
+      normalizationScaleCutoff: "2026-06-01T00:00:00Z",
+      normalizationScaleObservationCount: 3,
+      observedAt: "2026-07-01T00:00:00Z",
+      chronology: "verified",
+      chronologyPolicy: "test",
+      conditionId: "cond.a",
+      conditionStatus: "satisfied",
+    };
+    expect(buildScoreId(payload)).not.toBe(
+      buildScoreId({ ...payload, conditionId: "cond.b" }),
+    );
+    expect(buildScoreId(payload)).not.toBe(
+      buildScoreId({ ...payload, conditionStatus: "failed" }),
+    );
   });
 });

@@ -169,7 +169,9 @@ export default async function BrierLabPage() {
                   <th className="py-3 pr-5 font-medium">agent</th>
                   <th className="py-3 pr-5 font-medium">model</th>
                   <th className="py-3 pr-5 font-medium">runs</th>
-                  <th className="py-3 pr-5 font-medium">paired skill</th>
+                  <th className="py-3 pr-5 font-medium">
+                    CRPS ratio vs persistence
+                  </th>
                   <th className="py-3 pr-5 font-medium">win rate</th>
                   <th className="py-3 pr-5 font-medium">unpaired reward</th>
                   <th className="py-3 pr-5 font-medium">unpaired nCRPS</th>
@@ -280,7 +282,7 @@ function LeaderboardRow({ row }: { row: BrierAgentLeaderboardRow }) {
         {row.scoredRuns.toLocaleString()} / {row.totalRuns.toLocaleString()}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
-        {formatMaybe(row.meanPairedSkill)}
+        {formatMaybe(row.pairedCrpsRatioGeomean)}
       </td>
       <td className="py-4 pr-5 align-top text-[var(--theme-text)]">
         {formatPercent(row.pairedWinRate)}

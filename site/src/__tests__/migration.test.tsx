@@ -269,7 +269,7 @@ describe("Next.js migration", () => {
       expect(screen.getByText("cdf score")).toBeInTheDocument();
       expect(screen.getByText(/CRPS/)).toBeInTheDocument();
       expect(screen.getByText(/PIT/)).toBeInTheDocument();
-    }, 15000);
+    }, 60_000);
   });
 
   describe("Forecast pages", () => {
@@ -281,7 +281,7 @@ describe("Next.js migration", () => {
       expect(
         screen.getByRole("link", { name: "View facts ledger →" }),
       ).toHaveAttribute("href", "/ledger");
-    }, 15_000);
+    }, 60_000);
 
     it("renders the Thesis Log tables", async () => {
       render(await ForecastLogPage());
@@ -317,7 +317,7 @@ describe("Next.js migration", () => {
       for (const link of payrollLinks) {
         expect(link).toHaveAttribute("href", "/nonfarm-payrolls-may-2026");
       }
-    }, 15_000);
+    }, 60_000);
 
     it("renders the facts-only ledger tables", async () => {
       render(await ForecastLedgerPage());

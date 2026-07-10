@@ -370,7 +370,7 @@ describe("forecast catalog", () => {
       ),
     );
 
-    expect(exportPayload.schemaVersion).toBe("brier_reward_export_v1");
+    expect(exportPayload.schemaVersion).toBe("brier_reward_export_v2");
     expect(exportPayload.mission.objective).toBe("maximize_forecast_accuracy");
     expect(exportPayload.mission.reward).toBe("negative_normalized_crps");
     expect(exportPayload.counts.runs).toBe(runs.length);
@@ -767,7 +767,8 @@ describe("forecast catalog", () => {
       (summary) => summary.strategyId === "agent.brier.primary",
     );
 
-    expect(report.schemaVersion).toBe("brier_strategy_lab_v1");
+    expect(report.schemaVersion).toBe("brier_strategy_lab_v2");
+    expect(report.evaluationMode).toBe("retrospective_reconstruction");
     expect(report.counts.strategies).toBe(3);
     expect(family?.targetCount).toBe(53);
     expect(family?.resolvedTargetCount).toBe(53);

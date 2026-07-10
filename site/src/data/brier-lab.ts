@@ -20,8 +20,11 @@ import type {
 import {
   buildPredictionRecordedLogEntries,
   buildResolvedPredictionLogEntries,
+  evaluateResolvedForecastRun,
+  getResolutionForForecast,
   scoreResolvedForecasts,
   withResolvedOutcomes,
+  type ForecastRunScoreEvaluation,
 } from "./thesis-log";
 import { getForecastRunEntries } from "./forecast-cells";
 import {
@@ -32,6 +35,19 @@ import { PERSISTENCE_BASELINE_AGENT } from "./time-series-priors";
 
 export type BrierEvalSplit = "train" | "validation" | "test" | "unresolved";
 
+// Why a row does or doesn't carry a reward-eligible score. Only
+// "scored_verified" earns reward. Every "excluded_*" reason describes a
+// RESOLVED target whose run an integrity gate kept out — those rows must
+// never masquerade as "unresolved" (re-audit X9).
+export type BrierScoreEligibility =
+  | "scored_verified"
+  | "excluded_chronology_unverified"
+  | "excluded_chronology_violated"
+  | "excluded_condition_not_satisfied"
+  | "excluded_contract_violation"
+  | "excluded_missing_distribution"
+  | "unresolved";
+
 export interface BrierRewardRow {
   schemaVersion: "brier_reward_row_v1";
   runId: string;
@@ -39,6 +55,7 @@ export interface BrierRewardRow {
   specId: string;
   dataPointId?: string;
   split: BrierEvalSplit;
+  scoreEligibility: BrierScoreEligibility;
   agent?: string;
   model?: string;
   runLabel: string;
@@ -58,7 +75,7 @@ export interface BrierRewardRow {
       normalizedAbsoluteError: number | null;
       sharpness: number | null;
       normalizationScale: number | null;
-      normalizationScaleSource: "ledger_dispersion" | "target_primary_width" | "unavailable" | null;
+      normalizationScaleSource: "ledger_dispersion" | "unavailable" | null;
       interval80Covered: boolean | null;
     };
   };
@@ -101,7 +118,12 @@ export interface BrierAgentLeaderboardRow {
   unpairedMeanAbsoluteError: number | null;
   unpairedInterval80Coverage: number | null;
   pairedTargets: number;
-  meanPairedSkill: number | null;
+  // Geometric mean of per-target raw CRPS ratios (agent / paired
+  // persistence baseline). Scale-free by construction: the baseline is
+  // ledger-derived and shares the target's units and outcome, so no
+  // normalization denominator — and nothing any forecast authors — can
+  // move the statistic (re-audit X2/N5). Below 1 beats persistence.
+  pairedCrpsRatioGeomean: number | null;
   pairedWinRate: number | null;
   activityArtifactCoverage: number;
 }
@@ -121,12 +143,17 @@ export interface BrierBaselineCoverageRow {
 
 export interface BrierPairedComparisonSummary {
   pairedTargets: number;
-  meanAgentMinusBaselineNormalizedCrps: number | null;
+  // Geometric mean of per-target raw CRPS ratios (primary agent run /
+  // paired persistence baseline); below 1 beats persistence. Pairs where
+  // either side's CRPS is exactly zero cannot form a ratio and are
+  // reported separately (they still count in the win rate).
+  crpsRatioGeomean: number | null;
   agentWinRate: number | null;
+  zeroCrpsPairs: number;
 }
 
 export interface BrierRewardExport {
-  schemaVersion: "brier_reward_export_v1";
+  schemaVersion: "brier_reward_export_v2";
   generatedAt: string;
   mission: {
     agent: "Brier";
@@ -138,6 +165,7 @@ export interface BrierRewardExport {
     specs: number;
     runs: number;
     scoredRuns: number;
+    rawScoredRuns: number;
     unresolvedRuns: number;
     agents: number;
     traceJudgedRuns: number;
@@ -210,13 +238,13 @@ export function buildBrierRewardExport({
   const postResolutionJudgeByRunId = new Map(
     judgeResults.postResolution.map((judge) => [judge.runId, judge]),
   );
-  const scoreByRunId = new Map(scores.map((score) => [score.runId, score]));
   const specByPredictionId = new Map(
     specs.map((spec) => [spec.predictionId, spec]),
   );
   const runByRunId = new Map(preparedRuns.map((run) => [run.runId, run]));
   const rewardRows = preparedForecasts.flatMap((forecast) => {
     const spec = specByPredictionId.get(forecast.slug);
+    const resolved = Boolean(getResolutionForForecast(forecast, ledger));
     return getForecastRunEntries(forecast).map((run) => {
       const runId = buildRecordedPredictionRunId(
         forecast,
@@ -224,15 +252,22 @@ export function buildBrierRewardExport({
         run.variantId,
         run,
       );
-      const score = scoreByRunId.get(runId);
+      const evaluation = evaluateResolvedForecastRun(forecast, run, ledger);
+      const scoreEligibility = rewardEligibilityFor(evaluation, resolved);
+      const score =
+        scoreEligibility === "scored_verified" ? evaluation.score : undefined;
       const runRecord = runByRunId.get(runId);
-      const split = getBrierEvalSplit(forecast, score);
+      // Splits describe RESOLUTION state; integrity exclusions are the
+      // scoreEligibility field's job (re-audit X9: resolved-but-excluded
+      // rows previously landed in "unresolved").
+      const split = getBrierEvalSplit(forecast, resolved);
       return buildRewardRow({
         forecast,
         run,
         runId,
         spec,
         score,
+        scoreEligibility,
         runRecord,
         split,
         traceJudge: traceJudgeByRunId.get(runId),
@@ -265,7 +300,7 @@ export function buildBrierRewardExport({
   });
 
   return {
-    schemaVersion: "brier_reward_export_v1",
+    schemaVersion: "brier_reward_export_v2",
     generatedAt,
     mission: {
       agent: "Brier",
@@ -283,6 +318,9 @@ export function buildBrierRewardExport({
       specs: specs.length,
       runs: rewardRows.length,
       scoredRuns: rewardRows.filter((row) => row.reward.value !== null).length,
+      rawScoredRuns: rewardRows.filter(
+        (row) => row.reward.components.crps !== null,
+      ).length,
       unresolvedRuns: rewardRows.filter((row) => row.split === "unresolved")
         .length,
       agents: leaderboard.length,
@@ -322,12 +360,40 @@ export function buildBrierRewardExport({
 
 export function getBrierEvalSplit(
   forecast: ForecastCell,
-  score?: ResolvedForecastScore,
+  resolved: boolean,
 ): BrierEvalSplit {
-  if (!score) return "unresolved";
+  if (!resolved) return "unresolved";
   if (forecast.resolutionDate < "2026-07-01") return "train";
   if (forecast.resolutionDate < "2027-01-01") return "validation";
   return "test";
+}
+
+function rewardEligibilityFor(
+  evaluation: ForecastRunScoreEvaluation,
+  resolved: boolean,
+): BrierScoreEligibility {
+  if (evaluation.score) {
+    switch (evaluation.score.chronology) {
+      case "verified":
+        return "scored_verified";
+      case "violated":
+        return "excluded_chronology_violated";
+      default:
+        return "excluded_chronology_unverified";
+    }
+  }
+  switch (evaluation.exclusion?.reason) {
+    case "condition_not_satisfied":
+      return "excluded_condition_not_satisfied";
+    case "contract_violation":
+      return "excluded_contract_violation";
+    case "missing_distribution":
+      // A run with no distribution can't score either way; the primary
+      // fact about an unresolved target is still that it's unresolved.
+      return resolved ? "excluded_missing_distribution" : "unresolved";
+    default:
+      return "unresolved";
+  }
 }
 
 function buildRewardRow({
@@ -336,6 +402,7 @@ function buildRewardRow({
   runId,
   spec,
   score,
+  scoreEligibility,
   runRecord,
   split,
   traceJudge,
@@ -346,6 +413,7 @@ function buildRewardRow({
   runId: string;
   spec?: PredictionSpec;
   score?: ResolvedForecastScore;
+  scoreEligibility: BrierScoreEligibility;
   runRecord?: PredictionRunRecord;
   split: BrierEvalSplit;
   traceJudge?: ForecastJudgeExport["traceQuality"][number];
@@ -358,6 +426,7 @@ function buildRewardRow({
     specId: spec?.specId ?? `spec.${forecast.slug}`,
     dataPointId: forecast.dataPointId,
     split,
+    scoreEligibility,
     agent: run.predictionRun?.agent,
     model: run.predictionRun?.model,
     runLabel: run.label,
@@ -454,12 +523,16 @@ export function buildBrierAgentLeaderboard(
       );
       const paired =
         agent === PERSISTENCE_BASELINE_AGENT
-          ? { pairedTargets: 0, meanPairedSkill: null, pairedWinRate: null }
-          : pairedSkillForRows(scoredRows, rows);
+          ? {
+              pairedTargets: 0,
+              pairedCrpsRatioGeomean: null,
+              pairedWinRate: null,
+            }
+          : pairedCrpsRatiosForRows(rawScoredRows, rows).stats;
       return {
         agent,
         model: model || undefined,
-        scoredRuns: scoredRows.length,
+        scoredRuns: rawScoredRows.length,
         totalRuns: group.length,
         unpairedMeanReward: mean(
           scoredRows.map((row) => row.reward.value).filter(isNumber),
@@ -486,9 +559,11 @@ export function buildBrierAgentLeaderboard(
       };
     })
     .sort((left, right) => {
-      const leftSkill = left.meanPairedSkill ?? Number.POSITIVE_INFINITY;
-      const rightSkill = right.meanPairedSkill ?? Number.POSITIVE_INFINITY;
-      if (leftSkill !== rightSkill) return leftSkill - rightSkill;
+      const leftRatio =
+        left.pairedCrpsRatioGeomean ?? Number.POSITIVE_INFINITY;
+      const rightRatio =
+        right.pairedCrpsRatioGeomean ?? Number.POSITIVE_INFINITY;
+      if (leftRatio !== rightRatio) return leftRatio - rightRatio;
       const leftReward = left.unpairedMeanReward ?? Number.NEGATIVE_INFINITY;
       const rightReward = right.unpairedMeanReward ?? Number.NEGATIVE_INFINITY;
       if (leftReward !== rightReward) return rightReward - leftReward;
@@ -496,47 +571,61 @@ export function buildBrierAgentLeaderboard(
     });
 }
 
-function pairedSkillForRows(
+// The headline agent-vs-baseline statistic is a per-target RAW CRPS ratio
+// against the paired ledger persistence baseline. Both sides score the
+// same outcome in the same units, so the target's scale cancels: no
+// normalization denominator exists for a forecast to game (re-audit X2
+// killed the forecast-width fallback; N5 demanded a scale no forecast
+// controls). Geometric mean is the right aggregate for ratios; the win
+// rate counts strictly-better pairs.
+function pairedCrpsRatiosForRows(
   agentRows: BrierRewardRow[],
   allRows: BrierRewardRow[],
 ) {
-  const baselineRows = allRows.filter(
-    (row) =>
-      row.agent === PERSISTENCE_BASELINE_AGENT && row.reward.value !== null,
-  );
-  const baselineByTarget = new Map(
-    baselineRows.map((row) => [
-      row.predictionId,
-      row.reward.components.normalizedCrps,
-    ]),
-  );
+  const baselineByTarget = new Map<string, number>();
+  for (const row of allRows) {
+    const crps = row.reward.components.crps;
+    if (row.agent === PERSISTENCE_BASELINE_AGENT && crps !== null) {
+      baselineByTarget.set(row.predictionId, crps);
+    }
+  }
   const agentScoresByTarget = new Map<string, number[]>();
   for (const row of agentRows) {
-    const score = row.reward.components.normalizedCrps;
-    if (score === null || !baselineByTarget.has(row.predictionId)) continue;
+    const crps = row.reward.components.crps;
+    if (crps === null || !baselineByTarget.has(row.predictionId)) continue;
     agentScoresByTarget.set(row.predictionId, [
       ...(agentScoresByTarget.get(row.predictionId) ?? []),
-      score,
+      crps,
     ]);
   }
-  const deltas = [...agentScoresByTarget].flatMap(
-    ([predictionId, agentScores]) => {
-      const baselineScore = baselineByTarget.get(predictionId);
-      const agentScore = mean(agentScores);
-      return baselineScore === null ||
-        baselineScore === undefined ||
-        agentScore === null
-        ? []
-        : [agentScore - baselineScore];
-    },
-  );
+  let wins = 0;
+  let zeroCrpsPairs = 0;
+  const logRatios: number[] = [];
+  for (const [predictionId, agentScores] of agentScoresByTarget) {
+    const baselineCrps = baselineByTarget.get(predictionId);
+    const agentCrps = mean(agentScores);
+    if (baselineCrps === undefined || agentCrps === null) continue;
+    if (agentCrps < baselineCrps) wins += 1;
+    if (agentCrps > 0 && baselineCrps > 0) {
+      logRatios.push(Math.log(agentCrps / baselineCrps));
+    } else {
+      zeroCrpsPairs += 1;
+    }
+  }
+  const pairedTargets = agentScoresByTarget.size;
   return {
-    pairedTargets: deltas.length,
-    meanPairedSkill: mean(deltas),
-    pairedWinRate:
-      deltas.length === 0
-        ? null
-        : deltas.filter((delta) => delta < 0).length / deltas.length,
+    stats: {
+      pairedTargets,
+      pairedCrpsRatioGeomean:
+        logRatios.length === 0
+          ? null
+          : Math.exp(
+              logRatios.reduce((total, value) => total + value, 0) /
+                logRatios.length,
+            ),
+      pairedWinRate: pairedTargets === 0 ? null : wins / pairedTargets,
+    },
+    zeroCrpsPairs,
   };
 }
 
@@ -544,11 +633,12 @@ export function summarizePairedComparison(
   agentRows: BrierRewardRow[],
   baselineRows: BrierRewardRow[],
 ): BrierPairedComparisonSummary {
-  const paired = pairedSkillForRows(agentRows, baselineRows);
+  const paired = pairedCrpsRatiosForRows(agentRows, baselineRows);
   return {
-    pairedTargets: paired.pairedTargets,
-    meanAgentMinusBaselineNormalizedCrps: paired.meanPairedSkill,
-    agentWinRate: paired.pairedWinRate,
+    pairedTargets: paired.stats.pairedTargets,
+    crpsRatioGeomean: paired.stats.pairedCrpsRatioGeomean,
+    agentWinRate: paired.stats.pairedWinRate,
+    zeroCrpsPairs: paired.zeroCrpsPairs,
   };
 }
 

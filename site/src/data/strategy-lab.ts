@@ -115,7 +115,14 @@ export interface StrategyFamilyReport {
 }
 
 export interface StrategyLabReport {
-  schemaVersion: "brier_strategy_lab_v1";
+  schemaVersion: "brier_strategy_lab_v2";
+  // The lab replays strategy formulas over already-resolved outcomes.
+  // Except for the recorded agent runs it quotes, its rows are
+  // retrospective reconstructions: they carry no chronology verification
+  // and must never enter headline calibration, rewards, or leaderboards
+  // (re-audit X9).
+  evaluationMode: "retrospective_reconstruction";
+  evaluationPolicy: string;
   registry: ForecastStrategy[];
   counts: {
     strategies: number;
@@ -202,7 +209,12 @@ export function buildStrategyLabReport(
   const summaries = summarizeStrategies(scoreRows);
 
   return {
-    schemaVersion: "brier_strategy_lab_v1",
+    schemaVersion: "brier_strategy_lab_v2",
+    evaluationMode: "retrospective_reconstruction",
+    evaluationPolicy:
+      "Strategy rows are replayed over resolved outcomes to compare " +
+      "formulas; they are not chronology-verified forward forecasts and " +
+      "are excluded from headline calibration, rewards, and leaderboards.",
     registry: STRATEGY_REGISTRY,
     counts: {
       strategies: STRATEGY_REGISTRY.length,

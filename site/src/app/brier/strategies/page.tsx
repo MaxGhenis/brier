@@ -77,7 +77,10 @@ export default async function StrategyLabPage() {
             agent run on resolved target panels. The first slice is SNAP FY2025
             state payment error rates: every baseline uses only FY2023 and
             FY2024 values, while the agent row is the immutable published
-            forecast.
+            forecast. Everything here is a retrospective reconstruction —
+            strategy rows are replayed over outcomes that already resolved,
+            carry no chronology verification, and never enter headline
+            calibration, rewards, or leaderboards.
           </p>
         </section>
 

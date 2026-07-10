@@ -12,6 +12,7 @@ import type {
 } from "./forecast-cells";
 import { getForecastRunEntries } from "./forecast-cells";
 import {
+  conditionForCell,
   conditionStatusFor,
   isConditionGated,
   type ConditionStatus,
@@ -149,8 +150,10 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   transformVersion: string;
   chronology: "verified" | "unverified" | "violated";
   observedAt: string;
+  conditionId: string | null;
+  conditionStatus: ConditionStatus | "unregistered" | null;
   normalizationScale: number | null;
-  normalizationScaleSource: "ledger_dispersion" | "target_primary_width" | "unavailable";
+  normalizationScaleSource: "ledger_dispersion" | "unavailable";
   normalizationScaleCutoff: string | null;
   normalizationScaleObservationCount: number;
   sharpness: number | null;
@@ -642,13 +645,23 @@ export function getResolvedObservationForForecast(
   return [...observations].sort(compareFirstPrintObservations)[0];
 }
 
+// First print = earliest observed INSTANT, not earliest string: lexical
+// ordering lets a later print with a different UTC offset sort first
+// (re-audit N6). Unparseable timestamps sort last; ties break on the
+// observation ID for determinism.
 function compareFirstPrintObservations(
   left: ObservationRecordedLedgerEntry,
   right: ObservationRecordedLedgerEntry,
 ): number {
-  return left.observedAt === right.observedAt
-    ? left.observationId.localeCompare(right.observationId)
-    : left.observedAt.localeCompare(right.observedAt);
+  const leftInstant = Date.parse(left.observedAt);
+  const rightInstant = Date.parse(right.observedAt);
+  const leftParses = Number.isFinite(leftInstant);
+  const rightParses = Number.isFinite(rightInstant);
+  if (leftParses && rightParses && leftInstant !== rightInstant) {
+    return leftInstant - rightInstant;
+  }
+  if (leftParses !== rightParses) return leftParses ? -1 : 1;
+  return left.observationId.localeCompare(right.observationId);
 }
 
 function buildPredictionResolvedLogEntry(
@@ -1129,63 +1142,86 @@ export function scoreResolvedForecast(
 export type ScoreChronology = "verified" | "unverified" | "violated";
 
 // Bump when chronology semantics change; participates in score IDs (X3).
-export const CHRONOLOGY_POLICY_VERSION = "chronology_v2_day_granularity";
+export const CHRONOLOGY_POLICY_VERSION = "chronology_v3_explicit_instants";
 
 const SEEDED_RUN_INSTANT = Date.parse(SEEDED_RUN_RECORDED_AT);
 
-function hasTimeComponent(timestamp: string): boolean {
-  return timestamp.includes("T");
+const DAY_PREFIX = /^\d{4}-\d{2}-\d{2}/;
+const EXPLICIT_TIMEZONE = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+function dayOf(timestamp: string): string | null {
+  const match = DAY_PREFIX.exec(timestamp.trim());
+  return match ? match[0] : null;
 }
 
-function utcDateOf(instant: number): string {
-  return new Date(instant).toISOString().slice(0, 10);
+// A timestamp supports sub-day ordering only when the string pins both a
+// clock time and an explicit UTC offset. Anything looser is compared at
+// day granularity on the written date itself, so a verdict can never
+// depend on the build host's timezone (re-audit X4 residual: timezone-less
+// strings parse as local time under Date.parse).
+function explicitInstantOf(timestamp: string): number | null {
+  const trimmed = timestamp.trim();
+  if (!trimmed.includes("T") || !EXPLICIT_TIMEZONE.test(trimmed)) return null;
+  const parsed = Date.parse(trimmed);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 export function classifyScoreChronology(
   runAt: string | undefined,
   observedAt: string | undefined,
 ): ScoreChronology {
-  if (!runAt) return "unverified";
-  const runTime = Date.parse(runAt);
-  const observedTime = observedAt ? Date.parse(observedAt) : Number.NaN;
-  if (!Number.isFinite(runTime) || !Number.isFinite(observedTime)) {
-    return "unverified";
-  }
+  if (!runAt || !observedAt) return "unverified";
+  const runDay = dayOf(runAt);
+  const observedDay = dayOf(observedAt);
+  if (!runDay || !observedDay) return "unverified";
+  const runInstant = explicitInstantOf(runAt);
   // The legacy seeded placeholder is unverifiable in ANY spelling of the
   // same instant, not just the canonical string (cross-review X4).
-  if (runTime === SEEDED_RUN_INSTANT) return "unverified";
-  if (observedAt && !hasTimeComponent(observedAt)) {
-    // Date-only observations carry no release instant, so same-day
-    // ordering is unknowable in either direction across timezones
-    // (X4). Chronology then resolves at day granularity: strictly
-    // earlier UTC dates verify, strictly later violate, same day is
-    // unverifiable.
-    const runDate = utcDateOf(runTime);
-    const observedDate = observedAt.slice(0, 10);
-    if (runDate < observedDate) return "verified";
-    if (runDate > observedDate) return "violated";
+  if (runInstant !== null && runInstant === SEEDED_RUN_INSTANT) {
     return "unverified";
   }
-  return runTime < observedTime ? "verified" : "violated";
+  const observedInstant = explicitInstantOf(observedAt);
+  if (runInstant !== null && observedInstant !== null) {
+    return runInstant < observedInstant ? "verified" : "violated";
+  }
+  // Day granularity: strictly earlier written UTC dates verify, strictly
+  // later violate, and same-day ordering is unknowable in either
+  // direction, so it never enters the headline.
+  if (runDay < observedDay) return "verified";
+  if (runDay > observedDay) return "violated";
+  return "unverified";
 }
 
 export interface TargetNormalizationScale {
   scale: number | null;
-  source: "ledger_dispersion" | "target_primary_width" | "unavailable";
+  source: "ledger_dispersion" | "unavailable";
   cutoff: string | null;
   observationCount: number;
 }
 
 // The denominator is frozen per dataPointId from observations that were in
 // the public ledger before target registration. Legacy registrations have no
-// timestamp, so their primary run seal is the cutoff. Forecast-authored
-// history and forecast intervals are deliberately never inputs (X2).
+// timestamp, so their primary run seal is the cutoff. No forecast output —
+// history, intervals, anything an agent authors — is ever an input: when the
+// ledger lacks three pre-cutoff observations the scale is simply
+// unavailable, raw CRPS still publishes, and the score stays out of
+// normalized aggregates (re-audit X2: a forecast-derived fallback let a
+// wider primary interval shrink its own normalized error).
 export function targetNormalizationScale(
   forecast: ForecastCell,
   ledger: PolicyEngineLedgerEntry[],
 ): TargetNormalizationScale {
+  const unavailable = (
+    cutoff: string | null,
+    observationCount: number,
+  ): TargetNormalizationScale => ({
+    scale: null,
+    source: "unavailable",
+    cutoff,
+    observationCount,
+  });
   if (!forecast.dataPointId) {
-    return frozenPrimaryWidthScale(forecast, null, 0);
+    return unavailable(null, 0);
   }
   const target = ledger.find(
     (entry): entry is TargetRegisteredLedgerEntry =>
@@ -1203,12 +1239,12 @@ export function targetNormalizationScale(
         ? primaryRunAt
         : null;
   if (!cutoff) {
-    return frozenPrimaryWidthScale(forecast, null, 0);
+    return unavailable(null, 0);
   }
 
   const history = ledgerHistoryAtCutoff(forecast, ledger, cutoff);
   if (history.length < 3) {
-    return frozenPrimaryWidthScale(forecast, cutoff, history.length);
+    return unavailable(cutoff, history.length);
   }
   const values = history.map((entry) => entry.value);
   const diffs = values.slice(1).map((value, index) => value - values[index]);
@@ -1218,7 +1254,7 @@ export function targetNormalizationScale(
     (diffs.length - 1);
   const scale = Math.sqrt(variance);
   if (!Number.isFinite(scale) || scale <= 0) {
-    return frozenPrimaryWidthScale(forecast, cutoff, history.length);
+    return unavailable(cutoff, history.length);
   }
   return {
     scale,
@@ -1228,29 +1264,60 @@ export function targetNormalizationScale(
   };
 }
 
-// The fact ledger is young: many series lack three pre-cutoff official
-// observations. Until they accumulate, the fallback scale is the
-// PRIMARY run's implied sigma, frozen for the target and shared by
-// every run and strategy on it — later runs cannot move it by widening
-// (X2's exploit was later-authored history), and within-target
-// comparisons (paired skill, strategy families) stay fair. The source
-// label lets consumers segment or discount cross-target aggregates.
-function frozenPrimaryWidthScale(
+// Why a run earned no score. "unresolved" is the only reason that implies
+// nothing happened yet; every other reason describes a RESOLVED target whose
+// run is excluded by an integrity gate, and consumers must label it that
+// way rather than folding it into "unresolved" (re-audit X9).
+export type ScoreExclusionReason =
+  | "unresolved"
+  | "condition_not_satisfied"
+  | "missing_distribution"
+  | "contract_violation";
+
+export interface ForecastRunScoreEvaluation {
+  score?: ResolvedForecastScore;
+  exclusion?: { reason: ScoreExclusionReason; detail?: string };
+}
+
+// A resolution fact must satisfy the target's registered contract before it
+// can grade anything: matching units and, when both sides carry one, the
+// same registered target content hash (re-audit N6: a wrong-unit fact from
+// an unrelated source scored a reproduced target).
+export function getResolutionContractViolation(
   forecast: ForecastCell,
-  cutoff: string | null,
-  observationCount: number,
-): TargetNormalizationScale {
-  const primaryWidth = Math.abs(forecast.ciHigh - forecast.ciLow);
-  const implied = primaryWidth / 2.5631;
-  if (!Number.isFinite(implied) || implied <= 0) {
-    return { scale: null, source: "unavailable", cutoff, observationCount };
+  observation: ObservationRecordedLedgerEntry,
+  ledger: PolicyEngineLedgerEntry[],
+): string | null {
+  if (observation.unit !== forecast.unit) {
+    return (
+      `observation unit ${JSON.stringify(observation.unit)} does not match ` +
+      `the forecast contract unit ${JSON.stringify(forecast.unit)}`
+    );
   }
-  return {
-    scale: implied,
-    source: "target_primary_width",
-    cutoff,
-    observationCount,
-  };
+  const target = ledger.find(
+    (entry): entry is TargetRegisteredLedgerEntry =>
+      entry.kind === "target_registered" &&
+      entry.dataPointId === forecast.dataPointId,
+  );
+  if (!target) return null;
+  if (observation.unit !== target.unit) {
+    return (
+      `observation unit ${JSON.stringify(observation.unit)} does not match ` +
+      `the registered target unit ${JSON.stringify(target.unit)}`
+    );
+  }
+  if (
+    observation.targetContentHash &&
+    target.targetContentHash &&
+    observation.targetContentHash !== target.targetContentHash
+  ) {
+    return (
+      "observation was recorded against target contract " +
+      `${observation.targetContentHash.slice(0, 16)}… but the registered ` +
+      `contract is ${target.targetContentHash.slice(0, 16)}…`
+    );
+  }
+  return null;
 }
 
 export function scoreResolvedForecastRun(
@@ -1259,19 +1326,52 @@ export function scoreResolvedForecastRun(
   ledger: PolicyEngineLedgerEntry[],
   conditionOverrides?: Map<string, ConditionStatus>,
 ): ResolvedForecastScore | undefined {
+  return evaluateResolvedForecastRun(forecast, run, ledger, conditionOverrides)
+    .score;
+}
+
+export function evaluateResolvedForecastRun(
+  forecast: ForecastCell,
+  run: ForecastRunEntry,
+  ledger: PolicyEngineLedgerEntry[],
+  conditionOverrides?: Map<string, ConditionStatus>,
+): ForecastRunScoreEvaluation {
   // A conditional branch is graded only when its registered condition
   // actually occurred: both branches of a pair resolve against the same
   // official print, and scoring the counterfactual branch would grade a
   // hypothesis whose premise never happened (review finding F6).
-  if (isConditionGated(forecast)) {
-    const gate = conditionStatusFor(forecast, conditionOverrides);
-    if (gate !== "satisfied") return undefined;
+  const condition = conditionForCell(forecast);
+  const conditionStatus = isConditionGated(forecast)
+    ? conditionStatusFor(forecast, conditionOverrides)
+    : null;
+  if (isConditionGated(forecast) && conditionStatus !== "satisfied") {
+    return {
+      exclusion: {
+        reason: "condition_not_satisfied",
+        detail: condition
+          ? `${condition.conditionId} is ${conditionStatus ?? "unregistered"}`
+          : "condition is not registered",
+      },
+    };
   }
   const resolution = getResolutionForForecast(forecast, ledger);
-  if (!resolution || !run.predictionDistribution) return undefined;
+  if (!resolution) return { exclusion: { reason: "unresolved" } };
+  if (!run.predictionDistribution) {
+    return { exclusion: { reason: "missing_distribution" } };
+  }
 
   const observation = getObservationForId(resolution.observationId, ledger);
-  if (!observation) return undefined;
+  if (!observation) return { exclusion: { reason: "unresolved" } };
+  const contractViolation = getResolutionContractViolation(
+    forecast,
+    observation,
+    ledger,
+  );
+  if (contractViolation) {
+    return {
+      exclusion: { reason: "contract_violation", detail: contractViolation },
+    };
+  }
 
   const distributionScore = scoreNumericCdfDistribution(
     run.predictionDistribution,
@@ -1297,7 +1397,7 @@ export function scoreResolvedForecastRun(
     observation.observedAt,
   );
 
-  return {
+  const score: ResolvedForecastScore = {
     scoreId: buildScoreId({
       runId,
       resolutionEventId,
@@ -1320,6 +1420,11 @@ export function scoreResolvedForecastRun(
       observedAt: observation.observedAt,
       chronology,
       chronologyPolicy: CHRONOLOGY_POLICY_VERSION,
+      // A conditional branch's meaning includes WHICH premise gated it and
+      // the premise's resolved status: rebinding the cell to a different
+      // registered condition must change the score identity (re-audit N7).
+      conditionId: condition?.conditionId ?? null,
+      conditionStatus,
     }),
     runId,
     runLabel: run.label,
@@ -1335,6 +1440,8 @@ export function scoreResolvedForecastRun(
     transformVersion,
     chronology,
     observedAt: observation.observedAt,
+    conditionId: condition?.conditionId ?? null,
+    conditionStatus,
     ledgerFactRef: observation.dataPointId,
     forecastSlug: forecast.slug,
     dataPointId: resolution.dataPointId,
@@ -1369,6 +1476,7 @@ export function scoreResolvedForecastRun(
       run.ciLow <= observation.value && observation.value <= run.ciHigh,
     ...distributionScore,
   };
+  return { score };
 }
 
 export function scoreResolvedForecasts(
@@ -1451,6 +1559,11 @@ export function buildScoreId(payload: {
   observedAt: string;
   chronology: string;
   chronologyPolicy: string;
+  // The gating premise and its resolved status are part of what the score
+  // MEANS: rebinding a branch to another condition, or the same condition
+  // resolving differently, must produce a different score ID (N7).
+  conditionId: string | null;
+  conditionStatus: string | null;
 }) {
   const payloadDigest = sha256Hex(payload);
   return `score.${payload.runId}.${payload.resolutionEventId}.${payload.scoringRule}.${payloadDigest.slice(0, 16)}`;

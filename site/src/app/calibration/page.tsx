@@ -73,9 +73,9 @@ export default async function CalibrationPage() {
       : null;
 
   const leaderboard = [...rewardExport.leaderboard].sort((left, right) => {
-    if (left.meanPairedSkill === null) return 1;
-    if (right.meanPairedSkill === null) return -1;
-    return left.meanPairedSkill - right.meanPairedSkill;
+    if (left.pairedCrpsRatioGeomean === null) return 1;
+    if (right.pairedCrpsRatioGeomean === null) return -1;
+    return left.pairedCrpsRatioGeomean - right.pairedCrpsRatioGeomean;
   });
 
   const cellBySlug = new Map(forecasts.map((cell) => [cell.slug, cell]));
@@ -124,15 +124,18 @@ export default async function CalibrationPage() {
           className="mt-3 max-w-[640px] text-[0.85rem] leading-[1.6]"
           style={{ color: "var(--theme-text-muted)" }}
         >
-          Scoring methodology v3 (2026-07-09): headline numbers count only
-          chronology-verified scores — the run&rsquo;s recorded time provably
-          precedes the observation — and CRPS is normalized only by same-series
-          ledger dispersion frozen at target registration (or the primary seal
-          for legacy targets). Scores with fewer than three pre-cutoff ledger
-          observations publish raw CRPS but are excluded from normalized means,
-          rewards, leaderboards, and paired skill. Legacy runs without
-          verifiable timestamps stay published in{" "}
-          <a href="/log.json">log.json</a>, flagged, outside the headline.
+          Scoring methodology v4 (2026-07-10): headline numbers count only
+          chronology-verified scores — the run&rsquo;s recorded time precedes
+          the observation, with sub-day ordering trusted only for explicit
+          UTC-offset timestamps. CRPS is normalized only by same-series ledger
+          dispersion frozen at target registration; scores without three
+          pre-cutoff ledger observations publish raw CRPS and stay out of
+          normalized means and rewards. The agent-versus-persistence headline
+          is a per-target RAW CRPS ratio against the paired ledger baseline,
+          which needs no scale at all — nothing a forecast authors can move
+          its denominator. Legacy runs without verifiable timestamps stay
+          published in <a href="/log.json">log.json</a>, flagged, outside the
+          headline.
         </p>
 
         <section className="mt-10 grid grid-cols-4 gap-4 max-md:grid-cols-2">
@@ -157,14 +160,14 @@ export default async function CalibrationPage() {
               }× target scale.`,
             },
             {
-              label: "Paired skill vs persistence",
-              value: formatCrps(
-                rewardExport.pairedComparison
-                  .meanAgentMinusBaselineNormalizedCrps,
-              ),
+              label: "CRPS ratio vs persistence",
+              value:
+                rewardExport.pairedComparison.crpsRatioGeomean === null
+                  ? "—"
+                  : rewardExport.pairedComparison.crpsRatioGeomean.toFixed(2),
               detail:
                 rewardExport.pairedComparison.pairedTargets > 0
-                  ? `Agent nCRPS minus baseline nCRPS on ${rewardExport.pairedComparison.pairedTargets} matched targets; ${formatCoverage(rewardExport.pairedComparison.agentWinRate)} agent win rate`
+                  ? `Geometric mean of per-target raw CRPS ratios (agent / paired persistence baseline) on ${rewardExport.pairedComparison.pairedTargets} matched targets; below 1 beats persistence. ${formatCoverage(rewardExport.pairedComparison.agentWinRate)} agent win rate.`
                   : "No ledger-backed baseline pairs scored yet",
             },
           ].map((stat) => (
@@ -231,7 +234,7 @@ export default async function CalibrationPage() {
                     Scored / total runs
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
-                    Mean paired skill
+                    CRPS ratio vs persistence
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
                     Paired win rate
@@ -295,7 +298,9 @@ export default async function CalibrationPage() {
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"
                         style={{ color: "var(--theme-text)" }}
                       >
-                        {formatCrps(row.meanPairedSkill)}
+                        {row.pairedCrpsRatioGeomean === null
+                          ? "—"
+                          : row.pairedCrpsRatioGeomean.toFixed(2)}
                       </td>
                       <td
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"

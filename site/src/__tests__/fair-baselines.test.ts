@@ -152,14 +152,14 @@ describe("fair ledger-backed baselines", () => {
     ).toBe(true);
   });
 
-  it("computes target-paired skill and win rate", () => {
-    const row = (predictionId: string, normalizedCrps: number, agent: string) =>
+  it("computes scale-free paired CRPS ratios and win rate", () => {
+    const row = (predictionId: string, crps: number, agent: string) =>
       ({
         predictionId,
         agent,
         reward: {
-          value: -normalizedCrps,
-          components: { normalizedCrps },
+          value: null,
+          components: { crps },
         },
       }) as BrierRewardRow;
     const summary = summarizePairedComparison(
@@ -171,7 +171,33 @@ describe("fair ledger-backed baselines", () => {
     );
 
     expect(summary.pairedTargets).toBe(2);
-    expect(summary.meanAgentMinusBaselineNormalizedCrps).toBeCloseTo(0.1);
+    // Geometric mean of 0.3/0.4 and 0.5/0.2: sqrt(0.75 * 2.5).
+    expect(summary.crpsRatioGeomean).toBeCloseTo(Math.sqrt(0.75 * 2.5), 8);
     expect(summary.agentWinRate).toBe(0.5);
+    expect(summary.zeroCrpsPairs).toBe(0);
+  });
+
+  it("keeps zero-CRPS pairs out of the ratio but in the win rate", () => {
+    const row = (predictionId: string, crps: number, agent: string) =>
+      ({
+        predictionId,
+        agent,
+        reward: {
+          value: null,
+          components: { crps },
+        },
+      }) as BrierRewardRow;
+    const summary = summarizePairedComparison(
+      [row("a", 0, "agent"), row("b", 0.5, "agent")],
+      [
+        row("a", 0.4, PERSISTENCE_BASELINE_AGENT),
+        row("b", 0.25, PERSISTENCE_BASELINE_AGENT),
+      ],
+    );
+
+    expect(summary.pairedTargets).toBe(2);
+    expect(summary.crpsRatioGeomean).toBeCloseTo(2, 8);
+    expect(summary.agentWinRate).toBe(0.5);
+    expect(summary.zeroCrpsPairs).toBe(1);
   });
 });
