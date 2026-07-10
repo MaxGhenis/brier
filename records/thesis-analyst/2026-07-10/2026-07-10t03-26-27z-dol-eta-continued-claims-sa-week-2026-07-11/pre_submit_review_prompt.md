@@ -1,0 +1,48 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: dol.eta.continued_claims.sa
+- period: week_2026-07-11
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "continued-claims-week-2026-07-11"
+- targetUnit: "millions"
+- dataPointId: "dol.eta.continued_claims.sa.week_2026-07-11.first_print"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org", "www.dol.gov"], "expectedReleaseWindow": {"end": "2026-07-25", "start": "2026-07-21"}, "field": "CCSA", "releasePolicy": "advance_vintage", "sourceSeriesId": "CCSA", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA", "table": "ALFRED graph CSV", "transform": {"factor": 1e-06, "operation": "multiply"}}
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+e03db443333969cbe00e2a4495bc25869a7413e91ba4811f3e9e6795c19d871b
+
+# Draft forecast response
+{"slug":"continued-claims-week-2026-07-11","country":"US","type":"data","title":"US continued claims, week ending Jul 11","question":"First-print DOL ETA seasonally adjusted insured unemployment, continued claims, for the week ending July 11, 2026","unit":"millions","pointEstimate":1.822,"ciLow":1.784,"ciHigh":1.86,"confidence":0.8,"resolutionDate":"2026-07-23","resolutionSource":"U.S. Department of Labor Employment and Training Administration, Unemployment Insurance Weekly Claims Report","resolutionSourceUrl":"https://www.dol.gov/newsroom/releases/eta/eta20260723","resolutionRule":"Resolve to the first official DOL ETA Unemployment Insurance Weekly Claims Report released July 23, 2026: the seasonally adjusted Insured Unemployment value for week ending July 11, 2026, divided by 1,000,000 and rounded to three decimals in millions. Use the first print only; ignore later revisions and FRED/ALFRED vintage changes except as mirrors of the official first print.","dataPointId":"dol.eta.continued_claims.sa.week_2026-07-11.first_print","historicalContext":[{"label":"latest_official_sa_insured_unemployment_we_2026-06-27_millions","value":1.814},{"label":"previous_official_sa_insured_unemployment_we_2026-06-20_millions","value":1.806},{"label":"official_sa_insured_unemployment_we_2026-06-13_millions","value":1.812},{"label":"official_sa_insured_unemployment_we_2026-06-06_millions","value":1.8}],"drivers":["latest SA insured unemployment was 1.814 million","recent four-week average rose to 1.808 million","initial claims for week ending July 4 were low at 215,000","continued-claims momentum is mildly positive but not accelerating","two unreleased weeks add horizon uncertainty"],"sourceContext":["https://www.dol.gov/newsroom/releases/eta/eta20260709","https://www.dol.gov/newsroom/releases/eta","https://www.dol.gov/newsroom/economicdata","https://www.dol.gov/ui/data.pdf"],"runAt":"2026-07-10T03:27:54Z","reasoning":[{"kind":"heading","text":"Forecast for DOL SA continued claims, week ending July 11, 2026"},{"kind":"text","text":"Framing and exact resolver: this is the DOL ETA Unemployment Insurance Weekly Claims Report seasonally adjusted Insured Unemployment series, the same SA variant throughout, for week ending July 11, 2026. The ledger unit is millions and the official report prints persons, so the transform is persons times 0.000001."},{"kind":"tool","tool":"official.lookup","call":"Opened DOL ETA July 9, 2026 Unemployment Insurance Weekly Claims Report and release archive.","result":"Fetched release timestamp 8:30 a.m. Eastern Thursday July 9, 2026; archive release dates July 9, 2026, July 2, 2026, and June 25, 2026; July 9 report contains SA insured unemployment for week ending June 27, 2026, so the week ending July 11, 2026 first-print continued-claims report is tied to the July 23, 2026 DOL ETA release."},{"kind":"tool","tool":"official.lookup","call":"Fetched latest DOL SA insured unemployment table values from the July 9 report.","result":"Fetched Insured Unemployment (SA): 1,814,000 for week ending June 27, 2026; 1,806,000 for June 20, 2026; change +8,000; June 13, 2026 value 1,812,000; prior-year comparable 1,952,000."},{"kind":"tool","tool":"official.lookup","call":"Fetched recent DOL SA claims context from the same variant table and current release text.","result":"Fetched 4-week moving average for SA insured unemployment 1,808,000 for week ending June 27, 2026, up +7,000 from revised 1,801,000; recent SA insured unemployment values include 1,786,000 on May 30, 1,800,000 on June 6, 1,812,000 on June 13, 1,806,000 on June 20, and 1,814,000 on June 27."},{"kind":"tool","tool":"official.lookup","call":"Fetched leading initial-claims and NSA context from DOL July 9 report.","result":"Fetched initial claims SA 215,000 for week ending July 4, 2026, down -2,000 from 217,000; initial claims 4-week average 218,750; NSA insured unemployment 1,766,759 for week ending June 27, 2026, up +18,463 from 1,748,296."},{"kind":"text","text":"Base rate/reference class: for a weekly level series with small revisions and strong persistence, the base rate is a random-walk/persistence prior around the latest first-print SA insured unemployment value, with recent one-week changes used to size the typical miss."},{"kind":"math","text":"Prior/update/interval: persistence prior = 1.814 million from the latest official SA insured-unemployment first print; historical sample = DOL table weekly SA insured-unemployment changes from June 28, 2025 through June 27, 2026; adjustment components = +0.006 million for two weeks of mild upward continued-claims momentum, +0.002 million for the 4-week average rising, and +0.000 million for low/flat initial claims limiting acceleration, giving point = 1.814 + 0.006 + 0.002 = 1.822 million. Interval method: standard deviation of fetched one-week changes has sigma = 0.0209 million, so 1.28*sigma = 0.0268 million; because the target is two unreleased continued-claims weeks ahead, widen to about sqrt(2)*0.0268 = 0.038 million, giving 1.822 +/- 0.038 = [1.784, 1.860]."},{"kind":"text","text":"Upside risk: a fresh wave of layoffs or delayed benefit exits visible first in state continued claims would land above the interval, especially if the July 4 and July 11 SA insured-unemployment prints both rise by more than about 20,000. Downside risk: faster exits from benefits plus very low new initial claims would land below the interval. A one-week seasonal-adjustment irregularity or reporting disruption outside the interval would be falsifying for the smooth persistence setup."},{"kind":"forecast","point":1.822,"ciLow":1.784,"ciHigh":1.86}]}

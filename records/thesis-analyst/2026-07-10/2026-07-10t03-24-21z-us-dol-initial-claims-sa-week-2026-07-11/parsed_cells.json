@@ -1,0 +1,115 @@
+[
+  {
+    "slug": "initial-claims-week-2026-07-11",
+    "country": "US",
+    "type": "data",
+    "title": "US Initial Claims, Week Ending Jul 11",
+    "question": "What will the U.S. Department of Labor Employment and Training Administration report as the advance seasonally adjusted initial claims for unemployment insurance for the week ending July 11, 2026, in the first print?",
+    "unit": "thousands",
+    "pointEstimate": 218,
+    "ciLow": 204,
+    "ciHigh": 232,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-16",
+    "resolutionSource": "U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims Report",
+    "resolutionSourceUrl": "https://www.dol.gov/newsroom/releases/eta/eta20260716",
+    "resolutionRule": "Resolve to the first published advance seasonally adjusted initial claims figure for the week ending July 11, 2026 in the U.S. Department of Labor Employment and Training Administration Unemployment Insurance Weekly Claims Report released on July 16, 2026. Convert persons to thousands by dividing by 1,000. Use the first print only; ignore later revisions, benchmark updates, and ALFRED/FRED vintage changes after the release. ALFRED may be used only as the mirrored mechanical retrieval mechanism for the advance vintage; DOL is the official first-print source.",
+    "dataPointId": "us.dol.initial_claims.sa.week_2026-07-11",
+    "historicalContext": [
+      {
+        "label": "week ending 2026-07-04 advance initial claims SA",
+        "value": 215
+      },
+      {
+        "label": "week ending 2026-06-27 revised initial claims SA",
+        "value": 217
+      },
+      {
+        "label": "week ending 2026-07-04 four-week moving average SA",
+        "value": 218.75
+      },
+      {
+        "label": "week ending 2026-07-04 initial claims NSA",
+        "value": 224.583
+      },
+      {
+        "label": "comparable week 2025 initial claims NSA",
+        "value": 241.361
+      }
+    ],
+    "drivers": [
+      "Recent SA level has held near 215 thousand for three reported weeks",
+      "Four-week SA average is 218.75 thousand and falling",
+      "Unadjusted claims rose less than seasonal factors expected in the latest release",
+      "Holiday-week seasonal adjustment around early July can add first-print noise",
+      "Continuing claims remain elevated but not sharply accelerating"
+    ],
+    "sourceContext": [
+      "https://www.dol.gov/newsroom/releases/eta/eta20260709",
+      "https://www.dol.gov/newsroom/releases/eta",
+      "https://oui.doleta.gov/unemploy/claims.asp",
+      "https://www.dol.gov/newsroom/economicdata"
+    ],
+    "runAt": "2026-07-10T03:25:11Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US initial claims SA forecast for week ending July 11, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is DOL ETA Unemployment Insurance Weekly Claims, series ICSA / advance seasonally adjusted initial claims, for the week ending July 11, 2026. The ledger unit is thousands and the first-print resolver is the July 16, 2026 DOL release; FRED/ALFRED may mirror history and support mechanical retrieval, but the official DOL release is the resolution source."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened DOL ETA release archive for recent Unemployment Insurance Weekly Claims Reports and release timing.",
+        "result": "Fetched official archive entries: July 9, 2026 release for week ending July 4 had initial claims SA 215,000; July 2, 2026 release for week ending June 27 had initial claims SA 215,000 before revision; June 25, 2026 release for week ending June 20 had initial claims SA 215,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the July 9, 2026 DOL Unemployment Insurance Weekly Claims Report PDF.",
+        "result": "Fetched latest official first-print/revised values: week ending July 4 advance initial claims SA 215,000; previous week revised level 217,000; 4-week moving average 218,750; prior-year comparable initial claims SA 228,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read DOL July 9 release table for unadjusted and continuing-claims context.",
+        "result": "Fetched latest NSA and continuing context: initial claims NSA 224,583 for week ending July 4 versus 214,616 prior week and 241,361 one year earlier; insured unemployment SA 1,814,000 for week ending June 27."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked DOL economic data and OUI pages for publication channel and data currency.",
+        "result": "Fetched DOL publication context: the OUI weekly claims data page was updated July 9, 2026; DOL economic data page identifies ETA as publisher of the Unemployment Insurance Weekly Claims Report; the latest release was embargoed until 8:30 a.m. Eastern on Thursday, July 9, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Variant discipline: every target anchor above is for regular state-program initial claims, seasonally adjusted where the target says SA. NSA figures are used only as a holiday/seasonal-adjustment diagnostic, not as the target level."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: the recent official-source reference class is weekly first-print/revised SA initial claims around the current level. The latest reported sequence is roughly 189, 200, 211, 209, 215, 225, 229, 226, 215, 217, and 215 thousand across late April through July 4, with the last three target-consistent readings clustered at 215-217 thousand and a 218.75 thousand four-week average."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior uses the latest official SA level of 215 thousand and the 4-week average of 218.75 thousand; historical sample is the latest official weekly SA sequence from late April through July 4: 189, 200, 211, 209, 215, 225, 229, 226, 215, 217, and 215 thousand. Adjustment components are +2 thousand toward the 4-week average, +1 thousand for mild mean reversion after several sub-220 readings, and 0 thousand for no clear layoff shock. Point = 215 + 2 + 1 = 218 thousand. For interval width, compute successive weekly changes on that fetched SA history; including the April 25 holiday drop gives sigma = 11.0 thousand, so 1.28*sigma = 14.1 thousand. Rounding to whole thousands gives an 80% interval of 218 +/- 14 = 204 to 232 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a sharper post-holiday or auto-related claims rise that would land above the interval, especially if large states reverse the latest NSA shortfall. Downside risk is another benign seasonal adjustment print near 200 thousand. A genuine outside the interval downside would require the SA first print to fall below 204 thousand, which would be a larger move than the recent non-holiday changes."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted both optional suggestions by clarifying that the interval sigma comes from the cited recent weekly SA-change sequence and by stating that DOL is the official first-print source while ALFRED is only a mirrored mechanical retrieval mechanism."
+      },
+      {
+        "kind": "forecast",
+        "point": 218,
+        "ciLow": 204,
+        "ciHigh": 232
+      }
+    ]
+  }
+]
