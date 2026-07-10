@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from importlib.util import find_spec
@@ -88,6 +89,12 @@ def test_candidate_set_can_emit_persistence_without_optional_extras():
 
 
 def test_time_series_model_script_outputs_candidate_json():
+    # The script imports brier from the repo root; keep that importable even
+    # when the suite runs without the package installed (uv --no-project).
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(ROOT), *filter(None, [env.get("PYTHONPATH")])]
+    )
     result = subprocess.run(
         [
             sys.executable,
@@ -109,6 +116,7 @@ def test_time_series_model_script_outputs_candidate_json():
         capture_output=True,
         text=True,
         check=True,
+        env=env,
     )
 
     payload = json.loads(result.stdout)

@@ -60,7 +60,11 @@ jobs:
   python-tests:
     runs-on: ubuntu-latest
     steps:
+      # Full history: the chain verifier binds the genesis enumeration to its
+      # source commit's Git tree, which a depth-1 checkout does not contain.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -75,7 +79,10 @@ jobs:
   wave-reproducibility:
     runs-on: ubuntu-latest
     steps:
+      # Full history for the same genesis-enumeration Git binding as above.
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - name: Verify immutable record chain
         run: python3 scripts/verify_record_chain.py records
