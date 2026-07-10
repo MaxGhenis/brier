@@ -8,6 +8,7 @@ import {
 } from "@/data/prediction-specs";
 import { buildBrierRewardExport } from "@/data/brier-lab";
 import {
+  hasVerifiedClaimedChronology,
   loadPolicyEngineLedger,
   scoreResolvedForecasts,
   withResolvedOutcomes,
@@ -41,16 +42,28 @@ export default async function CalibrationPage() {
     ledger,
   });
   const allScores = scoreResolvedForecasts(forecasts, ledger);
-  // The headline track record is chronology-verified scores only: the run's
-  // recorded time provably precedes the observation. Everything else stays
-  // published below the fold, outside the official numbers.
-  const scores = allScores.filter((score) => score.chronology === "verified");
+  // The headline track record is witness-verified scores only: the run's
+  // sealed custody root was externally witnessed in the public record chain
+  // before the observation. Claimed-time-only chronology — however
+  // plausible the recorded timestamps — stays published below the fold and
+  // in log.json, flagged, outside the official numbers.
+  const scores = allScores.filter(
+    (score) => score.chronology === "witness_verified",
+  );
+  const claimedOnlyCount = allScores.filter(
+    (score) => score.chronology === "claimed_time_verified",
+  ).length;
   const provisionalCount = allScores.filter(
     (score) => score.chronology === "unverified",
   ).length;
   const violatedCount = allScores.filter(
     (score) => score.chronology === "violated",
   ).length;
+  // Published verified-chronology scores across both tiers, for the
+  // resolutions table below the headline cards.
+  const publishedScores = allScores.filter((score) =>
+    hasVerifiedClaimedChronology(score.chronology),
+  );
 
   const covered = scores.filter((score) => score.interval80Covered).length;
   const coverage = scores.length > 0 ? covered / scores.length : null;
@@ -79,7 +92,7 @@ export default async function CalibrationPage() {
   });
 
   const cellBySlug = new Map(forecasts.map((cell) => [cell.slug, cell]));
-  const recentScores = [...scores]
+  const recentScores = [...publishedScores]
     .sort((left, right) => {
       const a = cellBySlug.get(left.forecastSlug)?.resolutionDate ?? "";
       const b = cellBySlug.get(right.forecastSlug)?.resolutionDate ?? "";
@@ -124,18 +137,28 @@ export default async function CalibrationPage() {
           className="mt-3 max-w-[640px] text-[0.85rem] leading-[1.6]"
           style={{ color: "var(--theme-text-muted)" }}
         >
-          Scoring methodology v4 (2026-07-10): headline numbers count only
-          chronology-verified scores — the run&rsquo;s recorded time precedes
-          the observation, with sub-day ordering trusted only for explicit
-          UTC-offset timestamps. CRPS is normalized only by same-series ledger
+          Scoring methodology v5 (2026-07-10): headline numbers count only
+          witness-verified scores. A run enters the headline when its sealed
+          custody root was externally witnessed — an RFC 3161 timestamp in
+          the{" "}
+          <a href="https://github.com/MaxGhenis/brier/blob/main/records/witnessed-timeline.json">
+            witnessed chronology
+          </a>{" "}
+          extracted from the public record chain — before the observation,
+          its custody inventory is complete and headline-eligible, and its
+          recorded run time precedes the observation (sub-day ordering
+          trusted only for explicit UTC-offset timestamps). A claimed
+          timestamp alone never enters the headline: scores whose chronology
+          rests on claimed times stay published in{" "}
+          <a href="/log.json">log.json</a>, flagged claimed-time-verified,
+          outside the official numbers, alongside unverified and violated
+          legacy runs. CRPS is normalized only by same-series ledger
           dispersion frozen at target registration; scores without three
           pre-cutoff ledger observations publish raw CRPS and stay out of
           normalized means and rewards. The agent-versus-persistence headline
           is a per-target RAW CRPS ratio against the paired ledger baseline,
           which needs no scale at all — nothing a forecast authors can move
-          its denominator. Legacy runs without verifiable timestamps stay
-          published in <a href="/log.json">log.json</a>, flagged, outside the
-          headline.
+          its denominator.
         </p>
 
         <section className="mt-10 grid grid-cols-4 gap-4 max-md:grid-cols-2">
@@ -143,19 +166,19 @@ export default async function CalibrationPage() {
             {
               label: "Scored forecasts",
               value: String(scores.length),
-              detail: `chronology-verified; ${(
+              detail: `witness-verified; ${claimedOnlyCount.toLocaleString()} claimed-time-only and ${(
                 provisionalCount + violatedCount
-              ).toLocaleString()} legacy scores excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} runs awaiting resolution`,
+              ).toLocaleString()} unverified or violated scores excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} runs awaiting resolution`,
             },
             {
               label: "80% interval coverage",
               value: formatCoverage(coverage),
-              detail: `${covered} of ${scores.length} observed inside the stated interval`,
+              detail: `${covered} of ${scores.length} witness-verified observed inside the stated interval`,
             },
             {
               label: "Unpaired mean normalized CRPS",
               value: formatCrps(meanNormalizedCrps),
-              detail: `Lower is better; ${normalizedScores.length} of ${scores.length} chronology-verified scores have a ledger scale. Mean sharpness ${
+              detail: `Lower is better; ${normalizedScores.length} of ${scores.length} witness-verified scores have a ledger scale. Mean sharpness ${
                 meanSharpness === null ? "—" : meanSharpness.toFixed(2)
               }× target scale.`,
             },
@@ -217,7 +240,10 @@ export default async function CalibrationPage() {
             Unpaired means remain visible for context. The persistence baseline
             forecasts every target as its last official print with a
             realized-volatility interval — an agent earns its place by beating
-            it. Rows with few scored runs are noisy; read them accordingly.
+            it. Agent rows score here only when witness-verified; the
+            deterministic baseline is a replayable function of pre-cutoff
+            ledger data and needs no witness of its own. Rows with few scored
+            runs are noisy; read them accordingly.
           </p>
           <div
             className="mt-5 overflow-x-auto rounded-[14px] border"
@@ -393,6 +419,15 @@ export default async function CalibrationPage() {
           >
             Latest resolutions
           </h2>
+          <p
+            className="mt-2 max-w-[640px] text-[0.88rem] leading-[1.6]"
+            style={{ color: "var(--theme-text-muted)" }}
+          >
+            Both published chronology tiers appear here. Only rows marked
+            witnessed — custody root externally witnessed before the
+            observation — count toward the headline numbers above; claimed
+            rows rest on recorded timestamps alone.
+          </p>
           <div
             className="mt-5 overflow-x-auto rounded-[14px] border"
             style={{ borderColor: "var(--theme-border)" }}
@@ -413,6 +448,9 @@ export default async function CalibrationPage() {
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
                     Elicitation
+                  </th>
+                  <th className="px-4 py-3 text-right font-normal">
+                    Chronology
                   </th>
                   <th className="px-4 py-3 text-right font-normal">
                     Normalized CRPS
@@ -467,6 +505,19 @@ export default async function CalibrationPage() {
                         style={{ color: "var(--theme-text-muted)" }}
                       >
                         {score.distributionProvenance.replace("_", " ")}
+                      </td>
+                      <td
+                        className="px-4 py-3 text-right [font-family:var(--font-mono)] text-[0.68rem] uppercase"
+                        style={{
+                          color:
+                            score.chronology === "witness_verified"
+                              ? "var(--theme-text)"
+                              : "var(--theme-text-muted)",
+                        }}
+                      >
+                        {score.chronology === "witness_verified"
+                          ? "witnessed"
+                          : "claimed"}
                       </td>
                       <td
                         className="px-4 py-3 text-right [font-family:var(--font-mono)]"

@@ -10,6 +10,7 @@ import {
   buildLedgerPersistenceBaseline,
 } from "@/data/time-series-priors";
 import {
+  hasVerifiedClaimedChronology,
   scoreResolvedForecasts,
   withResolvedOutcomes,
   type ObservationRecordedLedgerEntry,
@@ -142,8 +143,11 @@ describe("fair ledger-backed baselines", () => {
       [forecast("completely-unselected-agent")],
       fixtureLedger(),
     );
+    // The fixture run carries no custody root, so its chronology tops out
+    // at claimed-time-verified — exactly the tier that still earns a paired
+    // persistence baseline on cell pages.
     const scores = scoreResolvedForecasts(enriched, fixtureLedger()).filter(
-      (score) => score.chronology === "verified",
+      (score) => hasVerifiedClaimedChronology(score.chronology),
     );
 
     expect(enriched[0].persistenceBaseline?.status).toBe("available");

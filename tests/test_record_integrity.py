@@ -999,6 +999,12 @@ def test_current_witnessed_timeline_does_not_backdate_unwitnessed_roots() -> Non
     assert (ROOT / "records/witnessed-timeline.json").read_bytes() == (
         canonical_bytes(timeline) + b"\n"
     )
+    # The site's publication-proof chronology tier (re-audit N1) joins
+    # against a bundled copy of the custody-root rows; a stale bundle would
+    # silently misclassify witnessed runs as unproven.
+    assert (
+        ROOT / "site/src/data/witnessed-timeline.generated.ts"
+    ).read_bytes() == timeline_module.render_site_timeline_module(timeline)
     verification = verify_chain(ROOT / "records")
     available_digests = {
         f"records/{path.relative_to(ROOT / 'records').as_posix()}"

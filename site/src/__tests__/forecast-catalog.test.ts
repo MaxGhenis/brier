@@ -244,7 +244,11 @@ describe("forecast catalog", () => {
     expect(exportPayload.counts.resolutionEvents).toBe(
       exportPayload.counts.resolutions,
     );
-    expect(exportPayload.counts.scored).toBeGreaterThan(0);
+    // The headline scored count admits only witness-verified runs, so it
+    // can legitimately be zero until witnessed custody-era cells resolve;
+    // legacy scores live in the claimed-time tier.
+    expect(exportPayload.counts.scored).toBeGreaterThanOrEqual(0);
+    expect(exportPayload.counts.scoredClaimedTimeChronology).toBeGreaterThan(0);
     expect(exportPayload.counts.pendingResolution).toBe(resolutionQueue.length);
     expect(exportPayload.counts.preSubmitReviews).toBe(
       logData.runs.filter((run) => run.preSubmitReview).length,
@@ -252,15 +256,23 @@ describe("forecast catalog", () => {
     expect(exportPayload.counts.judgeTraceEvals).toBe(expectedRunCount);
     expect(exportPayload.counts.judgePairwiseEvals).toBeGreaterThan(0);
     // Judges evaluate every scored run; the headline `scored` count is the
-    // chronology-verified subset of them.
+    // witness-verified subset of them.
     expect(exportPayload.counts.judgePostResolutionEvals).toBe(
       exportPayload.counts.scored +
+        exportPayload.counts.scoredClaimedTimeChronology +
         exportPayload.counts.scoredUnverifiedChronology +
         exportPayload.counts.scoredViolatedChronology,
     );
     expect(
-      logData.scores.filter((score) => score.chronology === "verified").length,
+      logData.scores.filter(
+        (score) => score.chronology === "witness_verified",
+      ).length,
     ).toBe(exportPayload.counts.scored);
+    expect(
+      logData.scores.filter(
+        (score) => score.chronology === "claimed_time_verified",
+      ).length,
+    ).toBe(exportPayload.counts.scoredClaimedTimeChronology);
     expect(logData.entries.some(isObservationRecordedLedgerEntry)).toBe(false);
     expect(logData.entries.length).toBeGreaterThan(FORECAST_CELLS.length);
     expect(logData.specs).toHaveLength(exportPayload.counts.specs);
@@ -280,6 +292,7 @@ describe("forecast catalog", () => {
     );
     expect(logData.scores).toHaveLength(
       exportPayload.counts.scored +
+        exportPayload.counts.scoredClaimedTimeChronology +
         exportPayload.counts.scoredUnverifiedChronology +
         exportPayload.counts.scoredViolatedChronology,
     );
@@ -376,9 +389,18 @@ describe("forecast catalog", () => {
     expect(exportPayload.mission.reward).toBe("negative_normalized_crps");
     expect(exportPayload.counts.runs).toBe(runs.length);
     expect(exportPayload.counts.traceJudgedRuns).toBe(runs.length);
+    // Judges are auxiliary diagnostics over the published
+    // verified-chronology population (claimed-time or better): one
+    // post-resolution row per such score. Reward components attach only to
+    // witness-verified runs and the deterministic paired baseline, so the
+    // judged population is broader than the reward-carrying one (N1).
     expect(exportPayload.counts.postResolutionJudgeRows).toBe(
-      exportPayload.rewardRows.filter(
-        (row) => row.reward.components.crps !== null,
+      exportPayload.rewardRows.filter((row) =>
+        [
+          "scored_witness_verified",
+          "scored_deterministic_baseline",
+          "excluded_chronology_claimed_only",
+        ].includes(row.scoreEligibility),
       ).length,
     );
     expect(exportPayload.counts.preSubmitReviewedRuns).toBe(

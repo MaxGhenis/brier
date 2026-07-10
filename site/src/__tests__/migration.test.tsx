@@ -370,6 +370,7 @@ describe("Next.js migration", () => {
       expect(body.collections.runs.count).toBe(body.counts.runs);
       expect(body.collections.scores.count).toBe(
         body.counts.scored +
+          body.counts.scoredClaimedTimeChronology +
           body.counts.scoredUnverifiedChronology +
           body.counts.scoredViolatedChronology,
       );

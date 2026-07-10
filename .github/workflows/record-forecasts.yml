@@ -287,12 +287,18 @@ jobs:
       - name: Verify record chain
         run: python3 scripts/verify_record_chain.py records
 
+      # The committed timeline (and its site bundle, which gates the
+      # headline chronology tier) must include every witness this run just
+      # obtained; regenerating here keeps them in lockstep with the chain.
+      - name: Regenerate witnessed timeline
+        run: python3 scripts/witnessed_timeline.py
+
       - name: Commit snapshot
         run: |
           set -euo pipefail
           git config user.name "thesis-recorder"
           git config user.email "recorder@thesisinstitute.org"
-          git add records/
+          git add records/ site/src/data/witnessed-timeline.generated.ts
           git commit -m "Record forecast surfaces $(date -u +%F) [skip ci]" || echo "nothing new to commit"
           git push origin main
 

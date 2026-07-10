@@ -17,6 +17,7 @@ import {
   type ForecastJudgeCalibrationDisagreement,
 } from "@/data/forecast-judges";
 import {
+  hasVerifiedClaimedChronology,
   loadPolicyEngineLedger,
   scoreResolvedForecasts,
   withResolvedOutcomes,
@@ -43,8 +44,10 @@ export default async function StrategyLabPage() {
   const forecasts = withResolvedOutcomes(FORECAST_CELLS, ledger);
   const report = buildStrategyLabReport(forecasts, ledger);
   const priorReport = buildTimeSeriesPriorAdjustmentReport(forecasts);
-  const scores = scoreResolvedForecasts(forecasts, ledger).filter(
-    (score) => score.chronology === "verified",
+  // Judge diagnostics read the published verified-chronology population
+  // (claimed-time or better); they are process evals, never headline.
+  const scores = scoreResolvedForecasts(forecasts, ledger).filter((score) =>
+    hasVerifiedClaimedChronology(score.chronology),
   );
   const judgeReport = buildForecastJudgeExport({ forecasts, scores });
   const family = report.families[0];

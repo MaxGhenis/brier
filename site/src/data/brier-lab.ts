@@ -22,6 +22,7 @@ import {
   buildResolvedPredictionLogEntries,
   evaluateResolvedForecastRun,
   getResolutionForForecast,
+  hasVerifiedClaimedChronology,
   scoreResolvedForecasts,
   withResolvedOutcomes,
   type ForecastRunScoreEvaluation,
@@ -36,17 +37,30 @@ import { PERSISTENCE_BASELINE_AGENT } from "./time-series-priors";
 export type BrierEvalSplit = "train" | "validation" | "test" | "unresolved";
 
 // Why a row does or doesn't carry a reward-eligible score. Only
-// "scored_verified" earns reward. Every "excluded_*" reason describes a
-// RESOLVED target whose run an integrity gate kept out — those rows must
-// never masquerade as "unresolved" (re-audit X9).
+// "scored_witness_verified" earns reward: the run's custody root was
+// externally witnessed before the observation (re-audit N1 — a claimed
+// timestamp is testimony, not proof). "scored_deterministic_baseline" rows
+// are the paired persistence baseline: replayable pure functions of
+// pre-cutoff ledger data, so they carry score components for the scale-free
+// paired comparison without a witness of their own.
+// "excluded_chronology_claimed_only" is the legacy tier — claimed run time
+// precedes the observation but no external witness proves publication.
+// Every "excluded_*" reason describes a RESOLVED target whose run an
+// integrity gate kept out — those rows must never masquerade as
+// "unresolved" (re-audit X9).
 export type BrierScoreEligibility =
-  | "scored_verified"
+  | "scored_witness_verified"
+  | "scored_deterministic_baseline"
+  | "excluded_chronology_claimed_only"
   | "excluded_chronology_unverified"
   | "excluded_chronology_violated"
   | "excluded_condition_not_satisfied"
   | "excluded_contract_violation"
   | "excluded_missing_distribution"
   | "unresolved";
+
+const SCORE_CARRYING_ELIGIBILITIES: ReadonlySet<BrierScoreEligibility> =
+  new Set(["scored_witness_verified", "scored_deterministic_baseline"]);
 
 export interface BrierRewardRow {
   schemaVersion: "brier_reward_row_v1";
@@ -223,10 +237,12 @@ export function buildBrierRewardExport({
     suppliedRunsById.set(run.runId, run);
   }
   const preparedRuns = [...suppliedRunsById.values()];
-  // Rewards and leaderboards draw only on chronology-verified scores; a
-  // run that cannot prove it predates the observation earns nothing.
+  // Judges are auxiliary process diagnostics (never reward), so they read
+  // the published verified-chronology population — claimed-time or better.
+  // Reward and leaderboard rows tighten further: score components attach
+  // only to witness-verified runs and the deterministic paired baseline.
   const scores = scoreResolvedForecasts(preparedForecasts, ledger).filter(
-    (score) => score.chronology === "verified",
+    (score) => hasVerifiedClaimedChronology(score.chronology),
   );
   const judgeResults = buildForecastJudgeExport({
     forecasts: preparedForecasts,
@@ -253,9 +269,14 @@ export function buildBrierRewardExport({
         run,
       );
       const evaluation = evaluateResolvedForecastRun(forecast, run, ledger);
-      const scoreEligibility = rewardEligibilityFor(evaluation, resolved);
-      const score =
-        scoreEligibility === "scored_verified" ? evaluation.score : undefined;
+      const scoreEligibility = rewardEligibilityFor(
+        evaluation,
+        resolved,
+        run.predictionRun?.agent,
+      );
+      const score = SCORE_CARRYING_ELIGIBILITIES.has(scoreEligibility)
+        ? evaluation.score
+        : undefined;
       const runRecord = runByRunId.get(runId);
       // Splits describe RESOLUTION state; integrity exclusions are the
       // scoreEligibility field's job (re-audit X9: resolved-but-excluded
@@ -371,11 +392,19 @@ export function getBrierEvalSplit(
 function rewardEligibilityFor(
   evaluation: ForecastRunScoreEvaluation,
   resolved: boolean,
+  agent: string | undefined,
 ): BrierScoreEligibility {
   if (evaluation.score) {
     switch (evaluation.score.chronology) {
-      case "verified":
-        return "scored_verified";
+      case "witness_verified":
+        return "scored_witness_verified";
+      case "claimed_time_verified":
+        // The persistence baseline is a replayable pure function of
+        // pre-cutoff ledger data — it has no custody root to witness, and
+        // it only ever pairs against a witness-verified agent row.
+        return agent === PERSISTENCE_BASELINE_AGENT
+          ? "scored_deterministic_baseline"
+          : "excluded_chronology_claimed_only";
       case "violated":
         return "excluded_chronology_violated";
       default:
@@ -706,7 +735,7 @@ export function summarizeBrierCoverage({
   const recorded = buildPredictionRecordedLogEntries(forecasts);
   const resolved = buildResolvedPredictionLogEntries(forecasts, ledger);
   const scored = scoreResolvedForecasts(forecasts, ledger).filter(
-    (score) => score.chronology === "verified",
+    (score) => hasVerifiedClaimedChronology(score.chronology),
   );
   return {
     recordedRuns: recorded.length,

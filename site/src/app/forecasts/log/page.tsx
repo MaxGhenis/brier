@@ -17,6 +17,7 @@ import {
 import {
   buildThesisLog,
   buildResolutionQueue,
+  hasVerifiedClaimedChronology,
   isPredictionRecordedLogEntry,
   isPredictionResolvedLogEntry,
   loadPolicyEngineLedger,
@@ -81,8 +82,12 @@ export default async function ThesisLogPage() {
     (entry): entry is PredictionResolvedLogEntry =>
       isPredictionResolvedLogEntry(entry),
   );
-  const scores = scoreResolvedForecasts(forecasts, ledger).filter(
-    (score) => score.chronology === "verified",
+  // The log is the transparency surface: its scoreboard shows every
+  // published verified-chronology score (witness-verified and
+  // claimed-time-verified). The headline track on /calibration and the
+  // machine-readable counts.scored admit only the witness-verified tier.
+  const scores = scoreResolvedForecasts(forecasts, ledger).filter((score) =>
+    hasVerifiedClaimedChronology(score.chronology),
   );
   const resolutionQueue = buildResolutionQueue(forecasts, ledger);
   const visibleResolutionQueue = resolutionQueue.slice(0, 12);

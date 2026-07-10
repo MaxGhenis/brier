@@ -52,6 +52,17 @@ import {
   ledgerHistoryAtCutoff,
   TIME_SERIES_PRIOR_VARIANT_ID,
 } from "./time-series-priors";
+import {
+  classifyPublicationProof,
+  dayOf,
+  explicitInstantOf,
+  type ScoreChronologyProof,
+} from "./witnessed-timeline";
+export {
+  classifyPublicationProof,
+  type PublicationProofStatus,
+  type ScoreChronologyProof,
+} from "./witnessed-timeline";
 
 export type PolicyEngineLedgerEntry =
   | TargetRegisteredLedgerEntry
@@ -148,7 +159,8 @@ export interface ResolvedForecastScore extends NumericCdfScore {
   scoringRule: "numeric_cdf_crps_v3_ledger_scale";
   distributionProvenance: DistributionProvenance;
   transformVersion: string;
-  chronology: "verified" | "unverified" | "violated";
+  chronology: ScoreChronology;
+  chronologyProof: ScoreChronologyProof;
   observedAt: string;
   conditionId: string | null;
   conditionStatus: ConditionStatus | "unregistered" | null;
@@ -273,6 +285,7 @@ export interface ThesisLogExport {
     runs: number;
     resolutions: number;
     scored: number;
+    scoredClaimedTimeChronology: number;
     scoredUnverifiedChronology: number;
     scoredViolatedChronology: number;
     resolutionLinks: number;
@@ -961,11 +974,18 @@ export function buildThesisLogData(
       specs: specs.length,
       runs: runs.length,
       resolutions: entries.filter(isPredictionResolvedLogEntry).length,
-      // Headline scored count = chronology-verified only. Unverified
-      // (no trustworthy run time) and violated (run time at/after the
-      // observation) scores stay in `scores` for transparency but are
-      // outside the official track record.
-      scored: scores.filter((score) => score.chronology === "verified").length,
+      // Headline scored count = witness-verified only: the run's custody
+      // root was externally witnessed before the observation. Claimed-time
+      // chronology (recorded run time precedes the observation but no
+      // external witness proves it), unverified (no trustworthy run time),
+      // and violated (run time at/after the observation) scores stay in
+      // `scores` for transparency but are outside the official track record.
+      scored: scores.filter(
+        (score) => score.chronology === "witness_verified",
+      ).length,
+      scoredClaimedTimeChronology: scores.filter(
+        (score) => score.chronology === "claimed_time_verified",
+      ).length,
       scoredUnverifiedChronology: scores.filter(
         (score) => score.chronology === "unverified",
       ).length,
@@ -1134,42 +1154,42 @@ export function scoreResolvedForecast(
   return scoreResolvedForecastRun(forecast, primaryRun, ledger);
 }
 
-// A score enters the headline track record only when the run's recorded
-// time verifiably precedes the observation. Runs with no usable run time
-// (including the legacy seeded placeholder) are "unverified"; runs whose
-// recorded time is at or after the observation are "violated". Both stay
-// published for transparency but never count toward headline calibration.
-export type ScoreChronology = "verified" | "unverified" | "violated";
+// The headline track record requires PROOF of publication order, not
+// testimony (re-audit N1). Tiers, strongest first:
+//   "witness_verified"     — the run's claimed time precedes the observation
+//                            AND its sealed custody root was externally
+//                            witnessed (RFC 3161, complete inventory,
+//                            verifier-side headline eligible) before the
+//                            observation. Only this tier is headline.
+//   "claimed_time_verified" — the recorded run time precedes the observation
+//                            but no external witness proves the run existed
+//                            before the outcome. Published, flagged, outside
+//                            the headline (all legacy scores live here).
+//   "unverified"           — no usable run time (including the legacy seeded
+//                            placeholder), or same-day ambiguity.
+//   "violated"             — the recorded time is at/after the observation.
+// External proof upgrades a claimed-time-verified score; it never rescues an
+// unverified or violated one.
+export type ClaimedScoreChronology =
+  | "claimed_time_verified"
+  | "unverified"
+  | "violated";
+
+export type ScoreChronology = "witness_verified" | ClaimedScoreChronology;
 
 // Bump when chronology semantics change; participates in score IDs (X3).
-export const CHRONOLOGY_POLICY_VERSION = "chronology_v3_explicit_instants";
+export const CHRONOLOGY_POLICY_VERSION = "chronology_v4_witnessed_publication";
 
 const SEEDED_RUN_INSTANT = Date.parse(SEEDED_RUN_RECORDED_AT);
 
-const DAY_PREFIX = /^\d{4}-\d{2}-\d{2}/;
-const EXPLICIT_TIMEZONE = /(?:Z|[+-]\d{2}:?\d{2})$/i;
-
-function dayOf(timestamp: string): string | null {
-  const match = DAY_PREFIX.exec(timestamp.trim());
-  return match ? match[0] : null;
-}
-
-// A timestamp supports sub-day ordering only when the string pins both a
-// clock time and an explicit UTC offset. Anything looser is compared at
-// day granularity on the written date itself, so a verdict can never
-// depend on the build host's timezone (re-audit X4 residual: timezone-less
-// strings parse as local time under Date.parse).
-function explicitInstantOf(timestamp: string): number | null {
-  const trimmed = timestamp.trim();
-  if (!trimmed.includes("T") || !EXPLICIT_TIMEZONE.test(trimmed)) return null;
-  const parsed = Date.parse(trimmed);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
+// Claimed-time tier only: compares the timestamps the run and the ledger
+// assert about themselves. Publication proof is a separate tier consumed
+// from the witnessed timeline (classifyPublicationProof) and composed by
+// composeScoreChronology.
 export function classifyScoreChronology(
   runAt: string | undefined,
   observedAt: string | undefined,
-): ScoreChronology {
+): ClaimedScoreChronology {
   if (!runAt || !observedAt) return "unverified";
   const runDay = dayOf(runAt);
   const observedDay = dayOf(observedAt);
@@ -1182,14 +1202,41 @@ export function classifyScoreChronology(
   }
   const observedInstant = explicitInstantOf(observedAt);
   if (runInstant !== null && observedInstant !== null) {
-    return runInstant < observedInstant ? "verified" : "violated";
+    return runInstant < observedInstant
+      ? "claimed_time_verified"
+      : "violated";
   }
   // Day granularity: strictly earlier written UTC dates verify, strictly
   // later violate, and same-day ordering is unknowable in either
   // direction, so it never enters the headline.
-  if (runDay < observedDay) return "verified";
+  if (runDay < observedDay) return "claimed_time_verified";
   if (runDay > observedDay) return "violated";
   return "unverified";
+}
+
+export function composeScoreChronology(
+  claimed: ClaimedScoreChronology,
+  proof: ScoreChronologyProof,
+): ScoreChronology {
+  return claimed === "claimed_time_verified" && proof.status === "witnessed"
+    ? "witness_verified"
+    : claimed;
+}
+
+// Published-but-flagged tiers: everything the claimed-time gate admits.
+// Cell pages, the log scoreboard, and judge diagnostics draw on this
+// population; the headline (calibration cards, counts.scored, rewards)
+// requires isHeadlineChronology.
+export function hasVerifiedClaimedChronology(
+  chronology: ScoreChronology,
+): boolean {
+  return (
+    chronology === "witness_verified" || chronology === "claimed_time_verified"
+  );
+}
+
+export function isHeadlineChronology(chronology: ScoreChronology): boolean {
+  return chronology === "witness_verified";
 }
 
 export interface TargetNormalizationScale {
@@ -1392,9 +1439,13 @@ export function evaluateResolvedForecastRun(
   );
   const interval80Width = Math.abs(run.ciHigh - run.ciLow);
   const normalization = targetNormalizationScale(forecast, ledger);
-  const chronology = classifyScoreChronology(
-    run.predictionRun?.runAt,
+  const chronologyProof = classifyPublicationProof(
+    run.predictionRun?.custodyRootSha256,
     observation.observedAt,
+  );
+  const chronology = composeScoreChronology(
+    classifyScoreChronology(run.predictionRun?.runAt, observation.observedAt),
+    chronologyProof,
   );
 
   const score: ResolvedForecastScore = {
@@ -1439,6 +1490,7 @@ export function evaluateResolvedForecastRun(
     distributionProvenance,
     transformVersion,
     chronology,
+    chronologyProof,
     observedAt: observation.observedAt,
     conditionId: condition?.conditionId ?? null,
     conditionStatus,
@@ -1509,7 +1561,15 @@ export function withResolvedOutcome(
   const primaryScore = primaryRun
     ? scoreResolvedForecastRun(resolvedForecast, primaryRun, ledger)
     : undefined;
-  if (!primaryScore || primaryScore.chronology !== "verified") {
+  // The paired persistence baseline attaches for any claimed-time-or-better
+  // primary so legacy cell pages keep their comparison, but the baseline is
+  // itself a deterministic reconstruction: pairs only reach the HEADLINE
+  // statistic when the agent side is witness-verified (brier-lab attaches
+  // score components to witness-verified rows only).
+  if (
+    !primaryScore ||
+    !hasVerifiedClaimedChronology(primaryScore.chronology)
+  ) {
     return resolvedForecast;
   }
 

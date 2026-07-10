@@ -25,6 +25,7 @@ import {
   type ForecastCell,
 } from "@/data/forecast-cells";
 import type { TargetRegisteredLedgerEntry } from "@/data/ledger-targets";
+import { WITNESSED_CUSTODY_ROOTS } from "@/data/witnessed-timeline";
 
 // The two scoring-integrity invariants: a score enters the headline only
 // when its run provably predates the observation, and its CRPS denominator
@@ -33,9 +34,12 @@ import type { TargetRegisteredLedgerEntry } from "@/data/ledger-targets";
 describe("chronology gate", () => {
   const observedAt = "2026-07-01T12:30:00Z";
 
-  it("verifies runs recorded strictly before the observation", () => {
+  it("claimed-time-verifies runs recorded strictly before the observation", () => {
+    // The claimed-time classifier can never award the headline tier by
+    // itself: witness_verified additionally requires publication proof
+    // from the witnessed timeline (re-audit N1).
     expect(classifyScoreChronology("2026-06-28T09:00:00Z", observedAt)).toBe(
-      "verified",
+      "claimed_time_verified",
     );
   });
 
@@ -70,9 +74,9 @@ describe("chronology gate", () => {
   });
 
   it("resolves date-only observations at day granularity (X4)", () => {
-    // Strictly earlier UTC date: verified.
+    // Strictly earlier UTC date: claimed-time verified.
     expect(classifyScoreChronology("2026-06-28T09:00:00Z", "2026-07-01")).toBe(
-      "verified",
+      "claimed_time_verified",
     );
     // Same UTC date: sub-day ordering unknowable in either direction.
     expect(classifyScoreChronology("2026-07-01T02:00:00Z", "2026-07-01")).toBe(
@@ -89,6 +93,22 @@ describe("chronology gate", () => {
 });
 
 describe("target normalization scale", () => {
+  // Any real custody root the public chain witnessed with a complete,
+  // headline-eligible inventory before the fixture outcome below. The
+  // fixture run carries it so normalization and pairing mechanics are
+  // exercised at the witness-verified headline tier.
+  const witnessedRootSha256 = Object.entries(WITNESSED_CUSTODY_ROOTS).find(
+    ([, entry]) =>
+      entry.inventoryStatus === "complete" &&
+      entry.headlineEligible &&
+      entry.earliestWitnessedAt < "2026-08-01T00:00:00Z",
+  )?.[0];
+  if (!witnessedRootSha256) {
+    throw new Error(
+      "expected a witnessed, headline-eligible custody root in the timeline",
+    );
+  }
+
   const baseCell: ForecastCell = {
     slug: "test-cell",
     country: "US",
@@ -112,6 +132,7 @@ describe("target normalization scale", () => {
       agent: "test.agent",
       model: "test-model",
       sourceContext: [],
+      custodyRootSha256: witnessedRootSha256,
     },
     reasoning: [{ kind: "forecast", point: 2, ciLow: 1, ciHigh: 3 }],
   };
@@ -158,7 +179,9 @@ describe("target normalization scale", () => {
     observation("2023", 14, "2026-03-01T00:00:00Z"),
     observation("2024", 12, "2026-04-01T00:00:00Z"),
   ];
-  const outcome = observation("2025", 3, "2026-05-01T00:00:00Z");
+  // Observed AFTER the custody root's external witness so publication
+  // proof holds for the fixture score.
+  const outcome = observation("2025", 3, "2026-08-01T12:00:00Z");
 
   it("derives the correct scale from pre-registration ledger dispersion", () => {
     const ledger: PolicyEngineLedgerEntry[] = [
@@ -234,7 +257,7 @@ describe("target normalization scale", () => {
     expect(primary?.reward.components.crps).toEqual(expect.any(Number));
     expect(primary?.reward.components.normalizedCrps).toBeNull();
     expect(primary?.reward.value).toBeNull();
-    expect(primary?.scoreEligibility).toBe("scored_verified");
+    expect(primary?.scoreEligibility).toBe("scored_witness_verified");
     expect(reward.counts.scoredRuns).toBe(0);
     // Primary plus its F9 persistence baseline both carry raw scores, so
     // the scale-free paired comparison still works.
@@ -256,18 +279,18 @@ describe("chronology parser is host-timezone independent (X4 residual)", () => {
         "2026-07-01T12:30:00Z",
       ),
     ).toBe("unverified");
-    // Strictly earlier written day still verifies.
+    // Strictly earlier written day still verifies at the claimed tier.
     expect(
       classifyScoreChronology(
         "2026-06-30T23:00:00",
         "2026-07-01T12:30:00Z",
       ),
-    ).toBe("verified");
+    ).toBe("claimed_time_verified");
   });
 
   it("supports date-only run seals at day granularity", () => {
     expect(classifyScoreChronology("2026-06-28", "2026-07-01T00:00:00Z")).toBe(
-      "verified",
+      "claimed_time_verified",
     );
     expect(classifyScoreChronology("2026-07-01", "2026-07-01T23:00:00Z")).toBe(
       "unverified",
@@ -430,7 +453,7 @@ describe("condition identity in score IDs (N7)", () => {
       normalizationScaleCutoff: "2026-06-01T00:00:00Z",
       normalizationScaleObservationCount: 3,
       observedAt: "2026-07-01T00:00:00Z",
-      chronology: "verified",
+      chronology: "witness_verified",
       chronologyPolicy: "test",
       conditionId: "cond.a",
       conditionStatus: "satisfied",
