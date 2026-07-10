@@ -327,3 +327,110 @@ def test_assertion_version_changes_when_the_value_changes() -> None:
 
     assert original["id"].startswith("av1:")
     assert original["id"] != corrected["id"]
+
+
+def _proposal_api_stub(gate_conclusion: str, calls: list[list[str]]):
+    import base64 as _base64
+    import json as _json
+
+    payload = _json.dumps(
+        {"source_record_id": "test.series.2030", "value": 1}
+    )
+
+    def fake_run(command, **_kwargs):
+        calls.append(command)
+        joined = " ".join(command)
+        if "/git/refs" in joined and "-X POST" in joined:
+            return SimpleNamespace(returncode=0, stdout="{}", stderr="")
+        if "/contents/" in joined and "-X PUT" in joined:
+            return SimpleNamespace(
+                returncode=0,
+                stdout=_json.dumps({"commit": {"sha": "h" * 40}}),
+                stderr="",
+            )
+        if joined.endswith("/pulls") and "-X POST" in joined:
+            return SimpleNamespace(
+                returncode=0, stdout=_json.dumps({"number": 7}), stderr=""
+            )
+        if "/check-runs" in joined:
+            return SimpleNamespace(
+                returncode=0,
+                stdout=_json.dumps(
+                    {
+                        "check_runs": [
+                            {
+                                "name": "Append gate",
+                                "status": "completed",
+                                "conclusion": gate_conclusion,
+                            }
+                        ]
+                    }
+                ),
+                stderr="",
+            )
+        if "/merge" in joined:
+            return SimpleNamespace(returncode=0, stdout="{}", stderr="")
+        if "-X DELETE" in joined:
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+        if "/commits/" in joined:
+            return SimpleNamespace(returncode=0, stdout="m" * 40 + "\n", stderr="")
+        if "/contents/" in joined:
+            return SimpleNamespace(
+                returncode=0,
+                stdout=_json.dumps(
+                    {
+                        "content": _base64.b64encode(
+                            (payload + "\n").encode()
+                        ).decode()
+                    }
+                ),
+                stderr="",
+            )
+        raise AssertionError(f"unexpected gh call: {joined}")
+
+    return fake_run, payload
+
+
+def test_append_proposal_merges_only_after_the_gate_passes(monkeypatch) -> None:
+    calls: list[list[str]] = []
+    fake_run, payload = _proposal_api_stub("success", calls)
+    monkeypatch.setattr(resolve_pending.subprocess, "run", fake_run)
+
+    merged = resolve_pending.propose_ledger_append(
+        "PolicyEngine/ledger",
+        "codex/thesis-ledger-facts",
+        "ledger/official_observations.jsonl",
+        payload + "\n",
+        "blob-sha",
+        "b" * 40,
+        1,
+        poll_seconds=0,
+        poll_attempts=1,
+    )
+
+    assert merged == "m" * 40
+    assert any("/merge" in " ".join(c) for c in calls)
+
+
+def test_append_proposal_refuses_to_merge_on_gate_failure(monkeypatch) -> None:
+    calls: list[list[str]] = []
+    fake_run, payload = _proposal_api_stub("failure", calls)
+    monkeypatch.setattr(resolve_pending.subprocess, "run", fake_run)
+
+    try:
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            payload + "\n",
+            "blob-sha",
+            "b" * 40,
+            1,
+            poll_seconds=0,
+            poll_attempts=1,
+        )
+    except RuntimeError as error:
+        assert "append gate did not pass" in str(error)
+    else:
+        raise AssertionError("gate failure did not block the merge")
+    assert not any("/merge" in " ".join(c) for c in calls)

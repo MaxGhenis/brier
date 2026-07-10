@@ -35,6 +35,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import time
 import urllib.request
 from typing import Any
 
@@ -612,25 +613,139 @@ def ledger_state(repo: str, branch: str, path: str) -> tuple[str, str, str]:
     return base64.b64decode(payload["content"]).decode(), payload["sha"], repo_sha
 
 
-def push_ledger(
-    repo: str, branch: str, path: str, content: str, sha: str, added: int
-) -> None:
-    import base64
-
-    body = {
-        "message": f"Record {added} first-print observation(s) via resolve_pending.py",
-        "content": base64.b64encode(content.encode()).decode(),
-        "sha": sha,
-        "branch": branch,
-    }
+def _gh_api(*args: str, input_body: dict[str, Any] | None = None) -> str:
+    command = ["gh", "api", *args]
     completed = subprocess.run(
-        ["gh", "api", "-X", "PUT", f"repos/{repo}/contents/{path}", "--input", "-"],
-        input=json.dumps(body),
+        command,
+        input=json.dumps(input_body) if input_body is not None else None,
         capture_output=True,
         text=True,
     )
     if completed.returncode != 0:
-        raise RuntimeError(f"ledger push failed: {completed.stderr.strip()[:500]}")
+        raise RuntimeError(
+            f"gh api {' '.join(args)} failed: {completed.stderr.strip()[:500]}"
+        )
+    return completed.stdout
+
+
+def propose_ledger_append(
+    repo: str,
+    branch: str,
+    path: str,
+    content: str,
+    blob_sha: str,
+    base_sha: str,
+    added: int,
+    *,
+    poll_seconds: int = 20,
+    poll_attempts: int = 30,
+) -> str:
+    """Append through a reviewed proposal, never by writing the branch.
+
+    The accepted branch only advances through a pull request whose append
+    gate (schema, immutable prefix, append-only diff, contract bindings,
+    supersede semantics) has passed. The proposal branches from the exact
+    state the rows were built against; a merge without a passing gate, or
+    with no gate at all, fails closed and leaves the proposal open for
+    humans (review finding 5).
+    """
+    import base64
+
+    stamp = utc_now().lower().replace(":", "-").replace("t", "-")
+    proposal = f"thesis-facts-append/{stamp}"
+    _gh_api(
+        "-X",
+        "POST",
+        f"repos/{repo}/git/refs",
+        input_body={"ref": f"refs/heads/{proposal}", "sha": base_sha},
+    )
+    message = f"Record {added} first-print observation(s) via resolve_pending.py"
+    put_response = json.loads(
+        _gh_api(
+            "-X",
+            "PUT",
+            f"repos/{repo}/contents/{path}",
+            input_body={
+                "message": message,
+                "content": base64.b64encode(content.encode()).decode(),
+                "sha": blob_sha,
+                "branch": proposal,
+            },
+        )
+    )
+    head_sha = str(put_response["commit"]["sha"])
+    pr = json.loads(
+        _gh_api(
+            "-X",
+            "POST",
+            f"repos/{repo}/pulls",
+            input_body={
+                "title": message,
+                "head": proposal,
+                "base": branch,
+                "body": (
+                    f"Automated append proposal from resolve_pending.py: "
+                    f"{added} first-print observation(s) built against "
+                    f"{base_sha}. Merges only after the thesis-facts append "
+                    "gate passes."
+                ),
+            },
+        )
+    )
+    pr_number = int(pr["number"])
+
+    gate_passed = False
+    for _ in range(poll_attempts):
+        runs = json.loads(
+            _gh_api(f"repos/{repo}/commits/{head_sha}/check-runs")
+        ).get("check_runs", [])
+        gate_runs = [run for run in runs if run.get("name") == "Append gate"]
+        if gate_runs and all(
+            run.get("status") == "completed" for run in gate_runs
+        ):
+            if all(run.get("conclusion") == "success" for run in gate_runs):
+                gate_passed = True
+            break
+        time.sleep(poll_seconds)
+    if not gate_passed:
+        raise RuntimeError(
+            f"append gate did not pass for {repo}#{pr_number}; leaving the "
+            "proposal open for review instead of merging unreviewed rows"
+        )
+
+    _gh_api(
+        "-X",
+        "PUT",
+        f"repos/{repo}/pulls/{pr_number}/merge",
+        input_body={"merge_method": "rebase"},
+    )
+    _gh_api("-X", "DELETE", f"repos/{repo}/git/refs/heads/{proposal}")
+
+    merged_sha = _gh_api(
+        f"repos/{repo}/commits/{branch}", "--jq", ".sha"
+    ).strip()
+    merged_lines = _fetch_branch_lines(repo, merged_sha, path)
+    expected_lines = [line for line in content.split("\n") if line.strip()]
+    if merged_lines[: len(expected_lines)] != expected_lines:
+        raise RuntimeError(
+            "merged ledger does not extend the proposed append; investigate "
+            f"{repo}@{merged_sha} before trusting new resolutions"
+        )
+    return merged_sha
+
+
+def _fetch_branch_lines(repo: str, ref: str, path: str) -> list[str]:
+    import base64
+
+    payload = json.loads(
+        _gh_api(
+            f"repos/{repo}/contents/{path}?ref={ref}",
+            "--jq",
+            "{content: .content}",
+        )
+    )
+    text = base64.b64decode(payload["content"]).decode()
+    return [line for line in text.split("\n") if line.strip()]
 
 
 def registration_contracts(
@@ -1061,17 +1176,19 @@ def main() -> int:
             ],
         },
     )
-    push_ledger(
+    merged_sha = propose_ledger_append(
         args.ledger_repo,
         args.ledger_branch,
         args.ledger_path,
         updated,
         sha,
+        ledger_repo_sha,
         len(new_rows),
     )
     print(
         f"appended {len(new_rows)} observation(s) to "
-        f"{args.ledger_repo}@{args.ledger_branch}:{args.ledger_path}"
+        f"{args.ledger_repo}@{args.ledger_branch}:{args.ledger_path} "
+        f"via reviewed proposal (merged at {merged_sha})"
     )
     return 0
 
