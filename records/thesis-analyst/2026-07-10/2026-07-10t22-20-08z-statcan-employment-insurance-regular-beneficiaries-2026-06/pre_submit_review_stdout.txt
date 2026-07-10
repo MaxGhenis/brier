@@ -1,0 +1,21 @@
+{
+  "summary": "The forecast is largely publication-ready, but it needs an explicit model-prior statement and correction of the conflicting May 2026 source-binding metadata.",
+  "requiredFixes": [
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The reasoning uses a persistence prior but does not explicitly use or rule out a time-series/model prior.",
+      "actionRequested": "State whether a time-series or other model prior was considered and rejected, or explain how it would alter the persistence estimate."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The sourceBinding table description incorrectly refers to the May 2026 release while the target is June 2026.",
+      "actionRequested": "Correct the ledger sourceBinding metadata to identify the June 2026 release, while retaining the canonical June target, first-print rule, and resolution date."
+    }
+  ],
+  "optionalSuggestions": [
+    "Describe the December-to-April movement as a decline rather than a correction unless an actual table revision is documented.",
+    "Briefly quantify recent monthly volatility to support the ladder interval's scale."
+  ]
+}

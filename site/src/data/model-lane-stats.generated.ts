@@ -53,6 +53,12 @@ export const MODEL_LANE_STATS: ModelLaneStat[] = [
   },
   {
     "model": "gpt-5.6-luna",
+    "lane": "ladder_v2",
+    "attempted": 6,
+    "passed": 5
+  },
+  {
+    "model": "gpt-5.6-luna",
     "lane": "median3",
     "attempted": 6,
     "passed": 1

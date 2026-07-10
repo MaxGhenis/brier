@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T22:22:43Z",
+  "runStartedAt": "2026-07-10T22:22:43Z",
+  "series": "fns.wic.total_participation",
+  "period": "2026-05",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "wic-participation-may-2026",
+    "comparisonTarget": true,
+    "country": "US",
+    "dataPointId": "fns.wic.total_participation.2026-05.first_print",
+    "period": "2026-05",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-14",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the national WIC Total Participants value for May 2026 in the first official USDA FNS WIC monthly program-data posting or latest-month table that first includes May 2026. The expected displayed FNS monthly table value is a whole participant count, as in 6,894,610 for May 2025; convert that displayed person count to millions by dividing by 1,000,000 and round to 0.001 million for the cell. If the ledger adapter instead extracts an intermediate value expressed in thousands of participants, its listed factor 0.001 produces the same final unit of millions. Use the first posted May 2026 value only; ignore later preliminary/final revisions or annual-summary revisions.",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+    "series": "fns.wic.total_participation",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.fns.usda.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-15",
+        "start": "2026-08-07"
+      },
+      "field": "fns.wic.total_participation",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "fns.wic.total_participation",
+      "sourceUrl": "https://www.fns.usda.gov/pd/wic-program",
+      "table": "Official agency release",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+    "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9",
+  "targetRegistrationPath": "records/targets/2026-07-10-d9f0f26436f4322b04c9deeec1745f166dd46dbeec72d9ec676b1e2cf86ae6a9.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "ladder_v2",
+  "agent": {
+    "agent": "thesis.analyst.ladder_v2",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-luna",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T22:22:43Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.6-luna",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f41f57b8f9a0c63a3f9af8c1a4e093085445d86445828dbcf0c53def608ac6f8"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 6.814\u20137.055 million interval is derived from a threshold ladder, but the ladder width is not tied to realized historical volatility or quantified first-print uncertainty.",
+        "actionRequested": "State the historical dispersion or an explicit uncertainty calibration supporting the ladder and explain why it implies these 10th and 90th percentile bounds."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify why the upward May trend and July 2025 observation outweigh the lower November 2025 observation in the update."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Include the November 2025 observation in historicalContext for consistency with the reasoning trace."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique by adding quantified May and recent-month dispersion and explaining why the ladder is wider than ordinary monthly volatility; accepted the consistency suggestion by adding November 2025 to historicalContext and clarifying its moderating role.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique by adding quantified May and recent-month dispersion and explaining why the ladder is wider than ordinary monthly volatility; accepted the consistency suggestion by adding November 2025 to historicalContext and clarifying its moderating role.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique by adding quantified May and recent-month dispersion and explaining why the ladder is wider than ordinary monthly volatility; accepted the consistency suggestion by adding November 2025 to historicalContext and clarifying its moderating role.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready overall, with one material weakness: the interval is not quantitatively anchored to realized volatility or an explicit uncertainty estimate."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/prompt.md",
+      "sha256": "63b5071f47ba9db650de78217132d81d4758f445b4850e1c7c6ea5458a1ee46e",
+      "bytes": 11229,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_command.json",
+      "sha256": "93087c415d3596db89cc5c7777b4b6cd1908593c3cb9c2f1cc133d1f7dc99c0d",
+      "bytes": 707,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_codex_stdout.jsonl",
+      "sha256": "efb8e0ed64a6187ad8d50ef3b871bd35ac67dc522754d729f4f862a0a38cf9ed",
+      "bytes": 8890,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_codex_stderr.log",
+      "sha256": "6ce2d2ad0951d12b1d2eadaec6308c7fed6c681cd7a05958f8d96800c733b00d",
+      "bytes": 233,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_codex_events.jsonl",
+      "sha256": "7b46b0eccb406be7b444f625ff0e25ecd07e05284f0a7b35760b7f1e7eafd830",
+      "bytes": 8879,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_codex_last_message.txt",
+      "sha256": "f63a0b88fb7f1d95c1709175bbdc025bb7e600dbfc2a5bf2830bf3a64f8d8fcc",
+      "bytes": 5458,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_codex_trace.json",
+      "sha256": "56c626a9a2e3facd3dd890809333d1dc47754a26ac831854bc7c71b4d2cf7a70",
+      "bytes": 514,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_stdout.txt",
+      "sha256": "f63a0b88fb7f1d95c1709175bbdc025bb7e600dbfc2a5bf2830bf3a64f8d8fcc",
+      "bytes": 5458,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/draft_stderr.txt",
+      "sha256": "8ca2f21a33b9c51d87a04348bd5839a126355b5d706bef36008c1d86b119e187",
+      "bytes": 248,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_prompt.md",
+      "sha256": "ddb23dac20bf58e6c3ae04913f3a32c1aac29bcc274d395c2f2557f1f6a99134",
+      "bytes": 9339,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_command.json",
+      "sha256": "909f512dcd1a80e6e7ab2aef4b126842b5914e22b44314edc6fd23f0939c2d73",
+      "bytes": 703,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "b78a8f412d1d62e4ace39c8522ce9ed6f0342c0423f204ace4b935202e195db3",
+      "bytes": 1208,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_codex_stderr.log",
+      "sha256": "c69a35f90573c6ad6c63d7b0c90bf0243a4454018ac44de10a249559986eb099",
+      "bytes": 233,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_codex_events.jsonl",
+      "sha256": "1e7f58463a2582d5475accbbaeced667cbefceace72831c54b269f722285f139",
+      "bytes": 1233,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_codex_last_message.txt",
+      "sha256": "5595c1fa40d31fc0cc4a31902d61cc5bb3e668980f301b1cb6ef2d68fa2d5d1a",
+      "bytes": 866,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_codex_trace.json",
+      "sha256": "f19b68acff6d785ab76c75b9bd85d228978d1ada5634ee9d2ca36ccf6f4789b2",
+      "bytes": 506,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_stdout.txt",
+      "sha256": "5595c1fa40d31fc0cc4a31902d61cc5bb3e668980f301b1cb6ef2d68fa2d5d1a",
+      "bytes": 866,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/pre_submit_review_stderr.txt",
+      "sha256": "c3ac6ac0ab8a42323c937add38d8ef329c93056bbbc2070994d801e8092b72d2",
+      "bytes": 248,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/revision_prompt.md",
+      "sha256": "6517a2f3509ab6041ed2f28d39ee538b54cd97f4741983dfc8c4e76f71f29d66",
+      "bytes": 18489,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/command.json",
+      "sha256": "7b394828e425cdf15dc1a6922d8c0767686c483cdb69a9bb425165270531fcb6",
+      "bytes": 701,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/codex_stdout.jsonl",
+      "sha256": "ada7bc90a5252b86028e50ec47a8d2829689ad064f62c2cdb7366c1adf25772c",
+      "bytes": 7215,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/codex_stderr.log",
+      "sha256": "fc3cc347cf1bd42afe860f6eba6d1f6fc81e9e6ee51943e1b5a271ee306348c2",
+      "bytes": 233,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/codex_events.jsonl",
+      "sha256": "ff0d7ada393d330457d75c207c12d05bebec3fffb0818ea09e2c71d7a32c4a75",
+      "bytes": 7251,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/codex_last_message.txt",
+      "sha256": "f02c07e5894712ef23acdb4e5333bde29f632ec16f0ec33cb30dd8932b27b520",
+      "bytes": 6359,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/codex_trace.json",
+      "sha256": "14f0190c09a567064e198b0d250c78798b6c18fd56f4d6bbf90f42614e5c7936",
+      "bytes": 510,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/stdout.txt",
+      "sha256": "f02c07e5894712ef23acdb4e5333bde29f632ec16f0ec33cb30dd8932b27b520",
+      "bytes": 6359,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/stderr.txt",
+      "sha256": "b0286c0c1cdfee64404df788a60942e4630a99cdbfdb318ec91db81ddd98d30c",
+      "bytes": 248,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/raw_response.txt",
+      "sha256": "f02c07e5894712ef23acdb4e5333bde29f632ec16f0ec33cb30dd8932b27b520",
+      "bytes": 6359,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/parsed_cells.json",
+      "sha256": "ea9c779ee239e8d0f9126dfc002fbaec0015e84fd9fae5a139507d8ebf69bfed",
+      "bytes": 7694,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/normalized_cells.json",
+      "sha256": "9f6051ee157c42c3b5d9e4912213877f63c716fd9d542480ee58fd35c90e1994",
+      "bytes": 26154,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/distribution.json",
+      "sha256": "3cccf3d1a8269b666f2923a69b9a584e6c428f82847ace25f17e34b1aa9359c6",
+      "bytes": 14386,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/validation.json",
+      "sha256": "dc31521bbc6d28c50d60119c83ed2def1564aab7f6f220ba90c5409b59820b0b",
+      "bytes": 127,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/cells.with_activity.json",
+      "sha256": "5227c302e63abf6dfb4b2405f45076d5634cb52ab91675d93be4daaab48a2344",
+      "bytes": 40730,
+      "createdAt": "2026-07-10T22:22:43Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-43z-fns-wic-total-participation-2026-05/manifest.json",
+      "sha256": "ef4009629e7eeb1b11d52de701c8990ee50f756f324750c404cbd41371697b9b",
+      "bytes": 15446,
+      "createdAt": "2026-07-10T22:22:43Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "wic-participation-may-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "517afd0a843a83a0758bbc019c6a352e716ba7b0dad676da3ca90f8074a91635"
+}

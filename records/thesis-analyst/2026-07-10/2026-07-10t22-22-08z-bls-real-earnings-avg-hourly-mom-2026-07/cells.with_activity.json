@@ -1,0 +1,1259 @@
+[
+  {
+    "slug": "us-real-avg-hourly-earnings-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Real Average Hourly Earnings MoM \u2014 July 2026",
+    "question": "What will the first-print July 2026 seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls be in BLS Real Earnings Table A-1?",
+    "unit": "percent",
+    "pointEstimate": -0.1,
+    "ciLow": -0.7,
+    "ciHigh": 0.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Real Earnings Table A-1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/realer.t01.htm",
+    "resolutionRule": "Resolve to the first BLS Real Earnings Table A-1 value for July 2026, seasonally adjusted over-the-month percent change in real average hourly earnings for all employees on private nonfarm payrolls, as first printed on the official release page; use the one-decimal percent value shown by BLS and do not revise for later updates.",
+    "dataPointId": "bls.real_earnings.avg_hourly_mom.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-01",
+        "value": 0.3
+      },
+      {
+        "label": "2026-02",
+        "value": 0.1
+      },
+      {
+        "label": "2026-03",
+        "value": -0.6
+      },
+      {
+        "label": "2026-04",
+        "value": -0.5
+      },
+      {
+        "label": "2026-05",
+        "value": -0.1
+      }
+    ],
+    "drivers": [
+      "moderating nominal wage growth",
+      "CPI-U deflator volatility",
+      "recent negative real-earnings momentum",
+      "seasonal-adjustment noise"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/news.release/realer.t01.htm",
+      "https://www.bls.gov/news.release/archives/realer_04102026.htm",
+      "https://www.bls.gov/schedule/2026/08_sched_list.htm",
+      "https://www.bls.gov/schedule/2026/07_sched_list.htm"
+    ],
+    "runAt": "2026-07-10T22:22:43Z",
+    "thresholdLadder": {
+      "thresholds": [
+        -1,
+        -0.7,
+        -0.5,
+        -0.3,
+        -0.1,
+        0,
+        0.1,
+        0.3,
+        0.5,
+        0.7,
+        1
+      ],
+      "cumulativeProbabilities": [
+        0.05,
+        0.1,
+        0.2,
+        0.32,
+        0.46,
+        0.56,
+        0.68,
+        0.8,
+        0.89,
+        0.95,
+        0.98
+      ]
+    },
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US real average hourly earnings, July 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the BLS CES series bls.real_earnings.avg_hourly_mom, specifically Table A-1 for all employees on private nonfarm payrolls, seasonally adjusted, and resolved at the first official July 2026 print without later revisions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS official release calendar lookup for the target release date",
+        "result": "The BLS August 2026 release schedule lists Real Earnings for July 2026 at 08:30 a.m. ET on August 12, 2026, verifying the resolution date rather than inferring it from cadence."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS Real Earnings Table A-1 recent-series lookup",
+        "result": "The official Table A-1 page reports the recent seasonally adjusted over-the-month real average hourly earnings changes as March 2026 -0.6 percent, April 2026 -0.5 percent, and May 2026 -0.1 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS archived Real Earnings history lookup",
+        "result": "The official March 2026 archive reports January 2026 at 0.3 percent and February 2026 at 0.1 percent for the same Table A-1 seasonally adjusted series."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is the five fetched 2026 observations: 0.3, 0.1, -0.6, -0.5, and -0.1 percent. Their median is -0.1 percent, with four of five values between -0.6 and 0.3."
+      },
+      {
+        "kind": "text",
+        "text": "The explicit model prior is a persistence time-series prior centered on the recent five-observation median, -0.1 percent. I do not use a richer autoregressive or structural model because the fetched sample is short and monthly real-earnings prints contain substantial deflator and seasonal-adjustment noise."
+      },
+      {
+        "kind": "text",
+        "text": "The exact variant is the gross all-employee, private nonfarm payrolls, seasonally adjusted real average hourly earnings series in BLS Table A-1, deflated with CPI-U; no production-and-nonsupervisory, NSA, weekly-earnings, or revised-vintage values are mixed in."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: The persistence model prior is -0.1 percent. Recent negative momentum and CPI-U volatility are acknowledged, but no dated current evidence in the fetched release history warrants moving the point estimate from that prior. The fetched reference class anchors the ladder span from -0.6 to 0.3 percent; the ladder's interpolated 10th and 90th percentiles produce the 80% interval from -0.7 to 0.5 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Ladder: P(X <= -1) = 0.05; P(X <= -0.7) = 0.1; P(X <= -0.5) = 0.2; P(X <= -0.3) = 0.32; P(X <= -0.1) = 0.46; P(X <= 0) = 0.56; P(X <= 0.1) = 0.68; P(X <= 0.3) = 0.8; P(X <= 0.5) = 0.89; P(X <= 0.7) = 0.95; P(X <= 1) = 0.98. Linear interpolation gives 10th percentile at -0.7, median at -0.06, and 90th percentile at 0.53; rounding to BLS one-decimal print precision gives 10th percentile at -0.7, median at -0.1, and 90th percentile at 0.5."
+      },
+      {
+        "kind": "text",
+        "text": "Downside risk is renewed CPI acceleration with nominal pay below trend, which would land below the interval; upside risk is softer CPI alongside firm nominal wage growth, which would land above the interval. An unusually large seasonal-adjustment change or release-month data shock would be outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the critique by explicitly naming the persistence time-series prior, explaining why no richer model is used, and stating that current fetched evidence does not warrant moving the point from the prior; clarified that the bounds are ladder-interpolated percentiles."
+      },
+      {
+        "kind": "forecast",
+        "point": -0.1,
+        "ciLow": -0.7,
+        "ciHigh": 0.5
+      }
+    ],
+    "agentReportedRunAt": "2026-07-10T22:22:19Z",
+    "runStartedAt": "2026-07-10T22:22:08Z",
+    "promptMode": "ladder_v2",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "targetContentHash": "8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334",
+    "targetRegistrationPath": "records/targets/2026-07-10-8662209989befa5925d38419a847521e7a1076b91048aef177ca79c7544f4334.json",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -1.6,
+        "upper": 1.4
+      },
+      "points": [
+        {
+          "value": -1.6,
+          "probability": 0.0
+        },
+        {
+          "value": -1.585,
+          "probability": 0.00125
+        },
+        {
+          "value": -1.57,
+          "probability": 0.0025
+        },
+        {
+          "value": -1.555,
+          "probability": 0.00375
+        },
+        {
+          "value": -1.54,
+          "probability": 0.005
+        },
+        {
+          "value": -1.525,
+          "probability": 0.00625
+        },
+        {
+          "value": -1.51,
+          "probability": 0.0075
+        },
+        {
+          "value": -1.495,
+          "probability": 0.00875
+        },
+        {
+          "value": -1.48,
+          "probability": 0.01
+        },
+        {
+          "value": -1.465,
+          "probability": 0.01125
+        },
+        {
+          "value": -1.45,
+          "probability": 0.0125
+        },
+        {
+          "value": -1.435,
+          "probability": 0.01375
+        },
+        {
+          "value": -1.42,
+          "probability": 0.015
+        },
+        {
+          "value": -1.405,
+          "probability": 0.01625
+        },
+        {
+          "value": -1.39,
+          "probability": 0.0175
+        },
+        {
+          "value": -1.375,
+          "probability": 0.01875
+        },
+        {
+          "value": -1.36,
+          "probability": 0.02
+        },
+        {
+          "value": -1.345,
+          "probability": 0.02125
+        },
+        {
+          "value": -1.33,
+          "probability": 0.0225
+        },
+        {
+          "value": -1.315,
+          "probability": 0.02375
+        },
+        {
+          "value": -1.3,
+          "probability": 0.025
+        },
+        {
+          "value": -1.285,
+          "probability": 0.02625
+        },
+        {
+          "value": -1.27,
+          "probability": 0.0275
+        },
+        {
+          "value": -1.255,
+          "probability": 0.02875
+        },
+        {
+          "value": -1.24,
+          "probability": 0.03
+        },
+        {
+          "value": -1.225,
+          "probability": 0.03125
+        },
+        {
+          "value": -1.21,
+          "probability": 0.0325
+        },
+        {
+          "value": -1.195,
+          "probability": 0.03375
+        },
+        {
+          "value": -1.18,
+          "probability": 0.035
+        },
+        {
+          "value": -1.165,
+          "probability": 0.03625
+        },
+        {
+          "value": -1.15,
+          "probability": 0.0375
+        },
+        {
+          "value": -1.135,
+          "probability": 0.03875
+        },
+        {
+          "value": -1.12,
+          "probability": 0.04
+        },
+        {
+          "value": -1.105,
+          "probability": 0.04125
+        },
+        {
+          "value": -1.09,
+          "probability": 0.0425
+        },
+        {
+          "value": -1.075,
+          "probability": 0.04375
+        },
+        {
+          "value": -1.06,
+          "probability": 0.045
+        },
+        {
+          "value": -1.045,
+          "probability": 0.04625
+        },
+        {
+          "value": -1.03,
+          "probability": 0.0475
+        },
+        {
+          "value": -1.015,
+          "probability": 0.04875
+        },
+        {
+          "value": -1.0,
+          "probability": 0.05
+        },
+        {
+          "value": -0.985,
+          "probability": 0.0525
+        },
+        {
+          "value": -0.97,
+          "probability": 0.055
+        },
+        {
+          "value": -0.955,
+          "probability": 0.0575
+        },
+        {
+          "value": -0.94,
+          "probability": 0.06
+        },
+        {
+          "value": -0.925,
+          "probability": 0.0625
+        },
+        {
+          "value": -0.91,
+          "probability": 0.065
+        },
+        {
+          "value": -0.895,
+          "probability": 0.0675
+        },
+        {
+          "value": -0.88,
+          "probability": 0.07
+        },
+        {
+          "value": -0.865,
+          "probability": 0.0725
+        },
+        {
+          "value": -0.85,
+          "probability": 0.075
+        },
+        {
+          "value": -0.835,
+          "probability": 0.0775
+        },
+        {
+          "value": -0.82,
+          "probability": 0.08
+        },
+        {
+          "value": -0.805,
+          "probability": 0.0825
+        },
+        {
+          "value": -0.79,
+          "probability": 0.085
+        },
+        {
+          "value": -0.775,
+          "probability": 0.0875
+        },
+        {
+          "value": -0.76,
+          "probability": 0.09
+        },
+        {
+          "value": -0.745,
+          "probability": 0.0925
+        },
+        {
+          "value": -0.73,
+          "probability": 0.095
+        },
+        {
+          "value": -0.715,
+          "probability": 0.0975
+        },
+        {
+          "value": -0.7,
+          "probability": 0.1
+        },
+        {
+          "value": -0.685,
+          "probability": 0.1075
+        },
+        {
+          "value": -0.67,
+          "probability": 0.115
+        },
+        {
+          "value": -0.655,
+          "probability": 0.1225
+        },
+        {
+          "value": -0.64,
+          "probability": 0.13
+        },
+        {
+          "value": -0.625,
+          "probability": 0.1375
+        },
+        {
+          "value": -0.61,
+          "probability": 0.145
+        },
+        {
+          "value": -0.595,
+          "probability": 0.1525
+        },
+        {
+          "value": -0.58,
+          "probability": 0.16
+        },
+        {
+          "value": -0.565,
+          "probability": 0.1675
+        },
+        {
+          "value": -0.55,
+          "probability": 0.175
+        },
+        {
+          "value": -0.535,
+          "probability": 0.1825
+        },
+        {
+          "value": -0.52,
+          "probability": 0.19
+        },
+        {
+          "value": -0.505,
+          "probability": 0.1975
+        },
+        {
+          "value": -0.49,
+          "probability": 0.206
+        },
+        {
+          "value": -0.475,
+          "probability": 0.215
+        },
+        {
+          "value": -0.46,
+          "probability": 0.224
+        },
+        {
+          "value": -0.445,
+          "probability": 0.233
+        },
+        {
+          "value": -0.43,
+          "probability": 0.242
+        },
+        {
+          "value": -0.415,
+          "probability": 0.251
+        },
+        {
+          "value": -0.4,
+          "probability": 0.26
+        },
+        {
+          "value": -0.385,
+          "probability": 0.269
+        },
+        {
+          "value": -0.37,
+          "probability": 0.278
+        },
+        {
+          "value": -0.355,
+          "probability": 0.287
+        },
+        {
+          "value": -0.34,
+          "probability": 0.296
+        },
+        {
+          "value": -0.325,
+          "probability": 0.305
+        },
+        {
+          "value": -0.31,
+          "probability": 0.314
+        },
+        {
+          "value": -0.295,
+          "probability": 0.3235
+        },
+        {
+          "value": -0.28,
+          "probability": 0.334
+        },
+        {
+          "value": -0.265,
+          "probability": 0.3445
+        },
+        {
+          "value": -0.25,
+          "probability": 0.355
+        },
+        {
+          "value": -0.235,
+          "probability": 0.3655
+        },
+        {
+          "value": -0.22,
+          "probability": 0.376
+        },
+        {
+          "value": -0.205,
+          "probability": 0.3865
+        },
+        {
+          "value": -0.19,
+          "probability": 0.397
+        },
+        {
+          "value": -0.175,
+          "probability": 0.4075
+        },
+        {
+          "value": -0.16,
+          "probability": 0.418
+        },
+        {
+          "value": -0.145,
+          "probability": 0.4285
+        },
+        {
+          "value": -0.13,
+          "probability": 0.439
+        },
+        {
+          "value": -0.115,
+          "probability": 0.4495
+        },
+        {
+          "value": -0.1,
+          "probability": 0.46
+        },
+        {
+          "value": -0.085,
+          "probability": 0.475
+        },
+        {
+          "value": -0.07,
+          "probability": 0.49
+        },
+        {
+          "value": -0.055,
+          "probability": 0.505
+        },
+        {
+          "value": -0.04,
+          "probability": 0.52
+        },
+        {
+          "value": -0.025,
+          "probability": 0.535
+        },
+        {
+          "value": -0.01,
+          "probability": 0.55
+        },
+        {
+          "value": 0.005,
+          "probability": 0.566
+        },
+        {
+          "value": 0.02,
+          "probability": 0.584
+        },
+        {
+          "value": 0.035,
+          "probability": 0.602
+        },
+        {
+          "value": 0.05,
+          "probability": 0.62
+        },
+        {
+          "value": 0.065,
+          "probability": 0.638
+        },
+        {
+          "value": 0.08,
+          "probability": 0.656
+        },
+        {
+          "value": 0.095,
+          "probability": 0.674
+        },
+        {
+          "value": 0.11,
+          "probability": 0.686
+        },
+        {
+          "value": 0.125,
+          "probability": 0.695
+        },
+        {
+          "value": 0.14,
+          "probability": 0.704
+        },
+        {
+          "value": 0.155,
+          "probability": 0.713
+        },
+        {
+          "value": 0.17,
+          "probability": 0.722
+        },
+        {
+          "value": 0.185,
+          "probability": 0.731
+        },
+        {
+          "value": 0.2,
+          "probability": 0.74
+        },
+        {
+          "value": 0.215,
+          "probability": 0.749
+        },
+        {
+          "value": 0.23,
+          "probability": 0.758
+        },
+        {
+          "value": 0.245,
+          "probability": 0.767
+        },
+        {
+          "value": 0.26,
+          "probability": 0.776
+        },
+        {
+          "value": 0.275,
+          "probability": 0.785
+        },
+        {
+          "value": 0.29,
+          "probability": 0.794
+        },
+        {
+          "value": 0.305,
+          "probability": 0.80225
+        },
+        {
+          "value": 0.32,
+          "probability": 0.809
+        },
+        {
+          "value": 0.335,
+          "probability": 0.81575
+        },
+        {
+          "value": 0.35,
+          "probability": 0.8225
+        },
+        {
+          "value": 0.365,
+          "probability": 0.82925
+        },
+        {
+          "value": 0.38,
+          "probability": 0.836
+        },
+        {
+          "value": 0.395,
+          "probability": 0.84275
+        },
+        {
+          "value": 0.41,
+          "probability": 0.8495
+        },
+        {
+          "value": 0.425,
+          "probability": 0.85625
+        },
+        {
+          "value": 0.44,
+          "probability": 0.863
+        },
+        {
+          "value": 0.455,
+          "probability": 0.86975
+        },
+        {
+          "value": 0.47,
+          "probability": 0.8765
+        },
+        {
+          "value": 0.485,
+          "probability": 0.88325
+        },
+        {
+          "value": 0.5,
+          "probability": 0.89
+        },
+        {
+          "value": 0.515,
+          "probability": 0.8945
+        },
+        {
+          "value": 0.53,
+          "probability": 0.899
+        },
+        {
+          "value": 0.545,
+          "probability": 0.9035
+        },
+        {
+          "value": 0.56,
+          "probability": 0.908
+        },
+        {
+          "value": 0.575,
+          "probability": 0.9125
+        },
+        {
+          "value": 0.59,
+          "probability": 0.917
+        },
+        {
+          "value": 0.605,
+          "probability": 0.9215
+        },
+        {
+          "value": 0.62,
+          "probability": 0.926
+        },
+        {
+          "value": 0.635,
+          "probability": 0.9305
+        },
+        {
+          "value": 0.65,
+          "probability": 0.935
+        },
+        {
+          "value": 0.665,
+          "probability": 0.9395
+        },
+        {
+          "value": 0.68,
+          "probability": 0.944
+        },
+        {
+          "value": 0.695,
+          "probability": 0.9485
+        },
+        {
+          "value": 0.71,
+          "probability": 0.951
+        },
+        {
+          "value": 0.725,
+          "probability": 0.9525
+        },
+        {
+          "value": 0.74,
+          "probability": 0.954
+        },
+        {
+          "value": 0.755,
+          "probability": 0.9555
+        },
+        {
+          "value": 0.77,
+          "probability": 0.957
+        },
+        {
+          "value": 0.785,
+          "probability": 0.9585
+        },
+        {
+          "value": 0.8,
+          "probability": 0.96
+        },
+        {
+          "value": 0.815,
+          "probability": 0.9615
+        },
+        {
+          "value": 0.83,
+          "probability": 0.963
+        },
+        {
+          "value": 0.845,
+          "probability": 0.9645
+        },
+        {
+          "value": 0.86,
+          "probability": 0.966
+        },
+        {
+          "value": 0.875,
+          "probability": 0.9675
+        },
+        {
+          "value": 0.89,
+          "probability": 0.969
+        },
+        {
+          "value": 0.905,
+          "probability": 0.9705
+        },
+        {
+          "value": 0.92,
+          "probability": 0.972
+        },
+        {
+          "value": 0.935,
+          "probability": 0.9735
+        },
+        {
+          "value": 0.95,
+          "probability": 0.975
+        },
+        {
+          "value": 0.965,
+          "probability": 0.9765
+        },
+        {
+          "value": 0.98,
+          "probability": 0.978
+        },
+        {
+          "value": 0.995,
+          "probability": 0.9795
+        },
+        {
+          "value": 1.01,
+          "probability": 0.9805
+        },
+        {
+          "value": 1.025,
+          "probability": 0.98125
+        },
+        {
+          "value": 1.04,
+          "probability": 0.982
+        },
+        {
+          "value": 1.055,
+          "probability": 0.98275
+        },
+        {
+          "value": 1.07,
+          "probability": 0.9835
+        },
+        {
+          "value": 1.085,
+          "probability": 0.98425
+        },
+        {
+          "value": 1.1,
+          "probability": 0.985
+        },
+        {
+          "value": 1.115,
+          "probability": 0.98575
+        },
+        {
+          "value": 1.13,
+          "probability": 0.9865
+        },
+        {
+          "value": 1.145,
+          "probability": 0.98725
+        },
+        {
+          "value": 1.16,
+          "probability": 0.988
+        },
+        {
+          "value": 1.175,
+          "probability": 0.98875
+        },
+        {
+          "value": 1.19,
+          "probability": 0.9895
+        },
+        {
+          "value": 1.205,
+          "probability": 0.99025
+        },
+        {
+          "value": 1.22,
+          "probability": 0.991
+        },
+        {
+          "value": 1.235,
+          "probability": 0.99175
+        },
+        {
+          "value": 1.25,
+          "probability": 0.9925
+        },
+        {
+          "value": 1.265,
+          "probability": 0.99325
+        },
+        {
+          "value": 1.28,
+          "probability": 0.994
+        },
+        {
+          "value": 1.295,
+          "probability": 0.99475
+        },
+        {
+          "value": 1.31,
+          "probability": 0.9955
+        },
+        {
+          "value": 1.325,
+          "probability": 0.99625
+        },
+        {
+          "value": 1.34,
+          "probability": 0.997
+        },
+        {
+          "value": 1.355,
+          "probability": 0.99775
+        },
+        {
+          "value": 1.37,
+          "probability": 0.9985
+        },
+        {
+          "value": 1.385,
+          "probability": 0.99925
+        },
+        {
+          "value": 1.4,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": -0.1,
+        "median": -0.1,
+        "interval80": {
+          "lower": -0.7,
+          "upper": 0.5
+        }
+      },
+      "provenance": "agent_reported",
+      "transformVersion": "agent_cdf_v1"
+    },
+    "model": "gpt-5.6-luna",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/prompt.md",
+        "sha256": "a1a8ebf69a502af791531d4acf3951d2590434e388824b33ad85e75800da812b",
+        "bytes": 10961,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_command.json",
+        "sha256": "2f57a914229a5984b7676ed548a9285aa298c82a5313ed39b8fb0ca2fba6ee48",
+        "bytes": 712,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "9cff5c7adfa34cc8e4cf4dee7e515e2a407f2b8ea9c4fe90f1e25b601fcd6da2",
+        "bytes": 6954,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_stderr.log",
+        "sha256": "ab06cccf8f0539965254290d3e0b39a8c76063038961d8181baadebe11716a00",
+        "bytes": 233,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_events.jsonl",
+        "sha256": "9f8bb29bb296ae5af075351acba128ea44eb27a496ec7056f4a11c4b5e78c2ae",
+        "bytes": 6978,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_last_message.txt",
+        "sha256": "bdb111532412c8e8368715f3ffbfa3efb949364b384ba86f703063f1a7d4cb86",
+        "bytes": 4764,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_codex_trace.json",
+        "sha256": "a0d38952f43a3df95768259e9802ef6edfdfa1adf5bc81d8fe04b1c369b459c6",
+        "bytes": 513,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_stdout.txt",
+        "sha256": "bdb111532412c8e8368715f3ffbfa3efb949364b384ba86f703063f1a7d4cb86",
+        "bytes": 4764,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_stderr.txt",
+        "sha256": "9b8c699deb4b48e6f74d350f5cd80a5f5ef197d4d2c1456c878665bbd44f73c2",
+        "bytes": 248,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_prompt.md",
+        "sha256": "289f83c93e0e5e36391f7e4abe1eedd118a413a8ede331d3e5d9cc12a3ef2f49",
+        "bytes": 8398,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_command.json",
+        "sha256": "400315a5b71a13f87122ea2ef20f03722fc7f54aa20b9028a9e2b9e831df86ed",
+        "bytes": 708,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "12acc00cdec692adae1b8d2adce266a0e01c1484d975c5399f6b07c196ddf9d7",
+        "bytes": 1476,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "b4d1db32c599d5efe411f48415e91c8a68bb9eb91c1c70d2d530a54e52a82caf",
+        "bytes": 233,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "3f4712716da85aa0e2978b3f2143273c86f0f52dd648b7466a5aa6ff97404204",
+        "bytes": 1498,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "fc085475c54f4dbb038f04400c7da9a087ab09ef0fd822130b84fbbe8f00e046",
+        "bytes": 1120,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "da9af6b13dab11e5188193b90073861eaa5c1e06a37ac0749f2a05aa21c9aeab",
+        "bytes": 506,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "fc085475c54f4dbb038f04400c7da9a087ab09ef0fd822130b84fbbe8f00e046",
+        "bytes": 1120,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "2075ebb31c860e97ba7fb7d3717e27dd4bd63645427df7d8d47b08a2f8b92452",
+        "bytes": 248,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/revision_prompt.md",
+        "sha256": "61ea1931a2f00ff159790ca841e5be72001e6b30d569dbfb3e910eb3c191fb5c",
+        "bytes": 17781,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/command.json",
+        "sha256": "0350d5afc9757eb58347f250423b34c1623dbf860a37baf671cb69a610153fd9",
+        "bytes": 706,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/codex_stdout.jsonl",
+        "sha256": "b2b23be802ecfd647b298589ba34511445b37a8a4d7c12f0e52d1a8603c9d086",
+        "bytes": 6034,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/codex_stderr.log",
+        "sha256": "10a42a054b32e3f60b342b6d4ccf4f17d25a8872a860969a803f822289ea792d",
+        "bytes": 233,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/codex_events.jsonl",
+        "sha256": "28799ec6cb21f498a5c703b57d30b85c7aa3afa2b02d60ae21ac8f9e29837203",
+        "bytes": 6059,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/codex_last_message.txt",
+        "sha256": "6daf2635ebdeaaafafbb8cca47f73713701cf612f27470a4e140df2eca03710e",
+        "bytes": 5473,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/codex_trace.json",
+        "sha256": "cc756b6c6ffa8d955cc9279a4eb5778246604f8626356eeac58cbe89c578937e",
+        "bytes": 506,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/stdout.txt",
+        "sha256": "6daf2635ebdeaaafafbb8cca47f73713701cf612f27470a4e140df2eca03710e",
+        "bytes": 5473,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/stderr.txt",
+        "sha256": "9fb2e3b5b8e96793b7b06e08780d1ca1eec50a4ed8c5a9924c7353de9b573ee0",
+        "bytes": 248,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/raw_response.txt",
+        "sha256": "6daf2635ebdeaaafafbb8cca47f73713701cf612f27470a4e140df2eca03710e",
+        "bytes": 5473,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/parsed_cells.json",
+        "sha256": "de46821b7f289cf5e874e87e0aa67e17dd114d05a8279e5cbc934f332afd60f3",
+        "bytes": 6612,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/normalized_cells.json",
+        "sha256": "fd06e056ec5a2f5ff748b6ecf261d402a3d1dcbb163fdf4ab9bfbda773067fca",
+        "bytes": 23305,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/distribution.json",
+        "sha256": "ba5e2f28216b2eb7d6b8bb54a1d87b6503344b6be297f481804e2f12a439cbc9",
+        "bytes": 12904,
+        "createdAt": "2026-07-10T22:22:08Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/validation.json",
+        "sha256": "920ec2d5507e2a98bece860c23bb401c59952c981916cdb40755a22090184a9e",
+        "bytes": 142,
+        "createdAt": "2026-07-10T22:22:08Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-10T22:22:08Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.6-luna",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "ee9511a47784fead58e8f8a170d2251cc5ec9cecd8d696844087e6d2b5dafdf6"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-22-08z-bls-real-earnings-avg-hourly-mom-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The persistence prior is stated, but no explicit time-series/model prior or ruled-out alternative is identified.",
+          "actionRequested": "Name the persistence or other time-series prior explicitly as the model prior and briefly state why no richer model is used."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "update",
+          "summary": "The draft mentions moderating nominal wages and CPI-U volatility without citing current observations, while the point remains at the prior median.",
+          "actionRequested": "Either state explicitly that current evidence does not warrant movement from the prior, or cite dated nominal-wage/CPI evidence and quantify its adjustment."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that the -0.7 to 0.5 bounds are the interpolated 10th and 90th percentiles from the threshold ladder, rather than implying they are directly realized-volatility bounds."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: Accepted the critique by explicitly naming the persistence time-series prior, explaining why no richer model is used, and stating that current fetched evidence does not warrant moving the point from the prior; clarified that the bounds are ladder-interpolated percentiles.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: Accepted the critique by explicitly naming the persistence time-series prior, explaining why no richer model is used, and stating that current fetched evidence does not warrant moving the point from the prior; clarified that the bounds are ladder-interpolated percentiles.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: Accepted the critique by explicitly naming the persistence time-series prior, explaining why no richer model is used, and stating that current fetched evidence does not warrant moving the point from the prior; clarified that the bounds are ladder-interpolated percentiles.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The forecast is publication-ready in resolver, target coherence, traceability, and ladder structure, with minor gaps in explicit model-prior framing and evidence for the stated update."
+    }
+  }
+]

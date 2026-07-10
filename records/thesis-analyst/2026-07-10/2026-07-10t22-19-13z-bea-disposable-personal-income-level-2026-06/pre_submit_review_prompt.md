@@ -1,0 +1,58 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bea.disposable_personal_income.level
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "bea-disposable-personal-income-level-june-2026"
+- country: "US"
+- targetUnit: "usd_billions"
+- dataPointId: "bea.disposable_personal_income.level.june_2026.first_print"
+- resolutionDate: "2026-07-30"
+- resolutionSource: "ALFRED DSPI CSV source binding for BEA disposable personal income first print"
+- resolutionSourceUrl: "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25"
+- resolutionRule: "Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to the BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is the Personal Income and Outlays first release; the supplied ALFRED vintage_date appears to correspond to the prior May 2026 print, so this discrepancy is noted but the forecast remains tied to the retained ledger binding."
+- resolutionPolicy: "first_print"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["alfred.stlouisfed.org"], "expectedReleaseWindow": {"end": "2026-07-29", "start": "2026-07-21"}, "field": "DSPI", "releasePolicy": "first_print", "sourceSeriesId": "DSPI", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25", "table": "Personal Income and Outlays, Table 1", "transform": {"factor": 1, "operation": "identity"}}
+- targetRegistrationPath: "records/targets/2026-07-10-123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3.json"
+- targetContentHash: "123ce8782db84a3d7daf502c09b752d32f0756b451f512b2661b632666c8caf3"
+- registrationCommit: "0d80683b051be25572f40ea4731fa5062af6d211"
+- registeredAtUtc: "2026-07-10T12:36:34Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+9c513ebfa524c665ff250e7e55cdb2c972eb3829bfa83a32ad5ae048a3423852
+
+# Draft forecast response
+{"slug":"bea-disposable-personal-income-level-june-2026","country":"US","type":"data","title":"U.S. Disposable Personal Income, June 2026","question":"BEA disposable personal income, June 2026, current dollars, seasonally adjusted annual rate, first print","unit":"usd_billions","pointEstimate":23850,"ciLow":23616.7,"ciHigh":24110,"confidence":0.8,"resolutionDate":"2026-07-30","resolutionSource":"BEA Personal Income and Outlays, June 2026 first release","resolutionSourceUrl":"https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25","resolutionRule":"Resolve through the canonical ledger generic-url binding at the supplied ALFRED DSPI CSV URL, field DSPI, with first_print policy, to BEA disposable personal income series DSPI / account code A067RC for June 2026, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Ignore later revisions. BEA provenance is Personal Income and Outlays, and the supplied vintage_date appears to correspond to the prior May 2026 print; the forecast remains tied to the retained ledger binding.","dataPointId":"bea.disposable_personal_income.level.june_2026.first_print","historicalContext":[{"label":"January 2026","value":23395.9},{"label":"February 2026","value":23382.4},{"label":"March 2026","value":23510.4},{"label":"April 2026","value":23486.9},{"label":"May 2026","value":23651.7}],"drivers":["Recent nominal DPI momentum","Compensation and transfer-income growth","Monthly tax and benefit timing","Seasonally adjusted annual-rate measurement"],"sourceContext":["https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026","https://fred.stlouisfed.org/series/DSPI","https://www.bea.gov/news/schedule/","https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DSPI&vintage_date=2026-06-25"],"runAt":"2026-07-10T22:19:31Z","thresholdLadder":{"thresholds":[23550,23650,23750,23850,23950,24050,24150],"cumulativeProbabilities":[0.06,0.12,0.28,0.5,0.68,0.84,0.94]},"reasoning":[{"kind":"heading","text":"Forecast of June 2026 current-dollar disposable personal income"},{"kind":"text","text":"The target is the first BEA print for current-dollar disposable personal income, series DSPI and BEA account code A067RC, reported in billions of dollars at a seasonally adjusted annual rate. It is not real DPI, not a monthly flow in unannualized dollars, and not a later revised observation."},{"kind":"tool","tool":"official.lookup","call":"BEA release schedule lookup for the exact June 2026 Personal Income and Outlays release date","result":"BEA's official schedule lists Personal Income and Outlays, June 2026, for July 30, 2026 at 8:30 a.m.; the May release also states the next release is July 30, 2026."},{"kind":"tool","tool":"official.lookup","call":"FRED history mirror lookup for DSPI, sourced from BEA","result":"Fetched DSPI levels were January 2026 23,395.9, February 2026 23,382.4, March 2026 23,510.4, April 2026 23,486.9, and May 2026 23,651.7 billion dollars, seasonally adjusted annual rate."},{"kind":"tool","tool":"official.lookup","call":"BEA May 2026 release lookup for current-dollar DPI changes and components","result":"BEA reported May 2026 current-dollar DPI up $164.9 billion, or 0.7 percent; personal income rose $181.6 billion, and the increase primarily reflected farm proprietors' income and compensation."},{"kind":"tool","tool":"official.lookup","call":"BEA June 2025 release lookup for the same seasonal month and variant","result":"BEA's June 2025 first release reported current-dollar DPI up $61.0 billion, or 0.3 percent, with the increase primarily reflecting government social benefits and compensation."},{"kind":"text","text":"The base rate is a persistence-and-momentum prior anchored on the latest official DSPI level of 23,651.7 and the recent five-month sequence. The May jump was unusually strong relative to April, while the June 2025 same-month reference was a moderate 0.3 percent increase. Compensation supports continued nominal growth, but tax timing, transfers, and the May farm-proprietor payment make a repeat of the full May increase less likely."},{"kind":"text","text":"The applicable variant is current-dollar, seasonally adjusted annual rate DPI in BEA Table 2.6, not real or not-seasonally-adjusted DPI. The point forecast allows a moderate June increase from May while discounting one-off May support; annual-update revisions are irrelevant to this first-print resolution rule."},{"kind":"text","text":"Prior/update/interval: a persistence prior from the January-May 2026 DSPI history, updated for May's 164.9-billion increase, compensation momentum, the June 2025 61.0-billion same-month increase, and uncertain tax/transfer timing. The threshold ladder is widened around these fetched reference-class values, with 23,651.7 anchoring the lower-middle span and 23,486.9-23,510.4 anchoring the recent downside cluster; linear interpolation implies final bounds of 23,616.7 to 24,110.0."},{"kind":"math","text":"Ladder: P(X <= 23550) = 0.06; P(X <= 23650) = 0.12; P(X <= 23750) = 0.28; P(X <= 23850) = 0.50; P(X <= 23950) = 0.68; P(X <= 24050) = 0.84; P(X <= 24150) = 0.94. Linear interpolation gives 10th percentile at 23616.7, median at 23850, and 90th percentile at 24110.0; rounded to one decimal where applicable, the published point and 80% interval are 23850, 23616.7, and 24110."},{"kind":"text","text":"Downside risk is a return toward the April-February cluster if tax withholding or benefit timing reverses part of May's increase. Upside risk is continued compensation strength plus another transfer or proprietors' income effect. A release below 23616.7 or above 24110 would land outside the interval, especially if an unanticipated policy payment or source-data correction dominates ordinary monthly momentum."},{"kind":"forecast","point":23850,"ciLow":23616.7,"ciHigh":24110}]}

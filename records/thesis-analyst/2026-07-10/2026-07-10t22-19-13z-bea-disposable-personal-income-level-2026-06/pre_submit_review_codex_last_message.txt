@@ -1,0 +1,27 @@
+{
+  "summary": "The forecast is broadly coherent and well traced, but it needs a more explicit uncertainty basis and a clearer justification for the sizable June increase.",
+  "requiredFixes": [
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval is attributed to a widened threshold ladder and qualitative timing uncertainty, without realized-volatility calculations or a quantified uncertainty method.",
+      "actionRequested": "State the historical volatility or explicit uncertainty calibration used to select the ladder width, including how it supports the 23,616.7–24,110.0 bounds."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The 23,850 point forecast is 198.3 billion above May, exceeding May's reported 164.9-billion increase, but the evidence does not quantitatively justify that larger move.",
+      "actionRequested": "Add a concise numerical bridge from the May level to 23,850, identifying the expected contributions from compensation, transfers, tax timing, and reversal or persistence of May's farm-income effect."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft's resolutionSource label says BEA Personal Income and Outlays, while the canonical ledger resolver is the ALFRED DSPI CSV generic-url binding.",
+      "actionRequested": "Use the canonical ledger resolutionSource wording exactly, while retaining BEA as provenance and preserving the stated vintage-date discrepancy."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify why the point estimate is above the recent May-to-June seasonal reference despite discounting the May one-off effect.",
+    "Keep the FRED URL explicitly labeled as a history mirror rather than a resolution source."
+  ]
+}

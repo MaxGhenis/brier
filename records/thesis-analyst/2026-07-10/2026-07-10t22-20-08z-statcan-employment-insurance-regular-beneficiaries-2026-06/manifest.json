@@ -1,0 +1,395 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-10T22:20:08Z",
+  "runStartedAt": "2026-07-10T22:20:08Z",
+  "series": "statcan.employment_insurance.regular_beneficiaries",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "canada-ei-regular-beneficiaries-june-2026",
+    "comparisonTarget": true,
+    "country": "CA",
+    "dataPointId": "statcan.employment_insurance.regular_beneficiaries.canada.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAtUtc": "2026-07-10T05:03:56Z",
+    "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+    "resolutionDate": "2026-08-20",
+    "resolutionPolicy": "first_print",
+    "resolutionRule": "Resolve to the first Statistics Canada publication for June 2026 regular Employment Insurance beneficiaries for Canada, seasonally adjusted, beneficiary detail total, sex total, age group total, from Table 14-10-0011-01 or the same first-print The Daily release. Convert persons to thousands by multiplying by 0.001. Use the first print only; ignore later revisions or table corrections unless the first-print rule itself is changed by Statistics Canada before release.",
+    "resolutionSource": "Statistics Canada Table 14-10-0011-01 and The Daily Employment Insurance release",
+    "resolutionSourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+    "series": "statcan.employment_insurance.regular_beneficiaries",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www150.statcan.gc.ca"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-27",
+        "start": "2026-08-19"
+      },
+      "field": "statcan.employment_insurance.regular_beneficiaries",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "statcan.employment_insurance.regular_beneficiaries",
+      "sourceUrl": "https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101",
+      "table": "Statistics Canada Employment Insurance Statistics, Table 14-10-0011-01 and The Daily release for May 2026",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+    "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "f2738042716881427217caa9c3c13aa4ca8783e5",
+  "targetContentHash": "2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b",
+  "targetRegistrationPath": "records/targets/2026-07-10-2071f24c9311aaa43cd5bf3d2af243438c9d0aa1124763f0d51d599364e0d06b.json",
+  "registeredAtUtc": "2026-07-10T05:03:56Z",
+  "promptMode": "ladder_v2",
+  "agent": {
+    "agent": "thesis.analyst.ladder_v2",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-luna",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-10T22:20:08Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.6-luna",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "44307a8c038578187ff1484c5e0d42369398ed73a6820d4d3790eecf2cfd0b9c"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The reasoning uses a persistence prior but does not explicitly use or rule out a time-series/model prior.",
+        "actionRequested": "State whether a time-series or other model prior was considered and rejected, or explain how it would alter the persistence estimate."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The sourceBinding table description incorrectly refers to the May 2026 release while the target is June 2026.",
+        "actionRequested": "Correct the ledger sourceBinding metadata to identify the June 2026 release, while retaining the canonical June target, first-print rule, and resolution date."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Describe the December-to-April movement as a decline rather than a correction unless an actual table revision is documented."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Briefly quantify recent monthly volatility to support the ladder interval's scale."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the request for an explicit persistence-versus-time-series prior comparison, corrected the source-binding description to June 2026, and changed 'correction' to 'decline'; the ladder and forecast remain coherent with the fetched reference class.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the request for an explicit persistence-versus-time-series prior comparison, corrected the source-binding description to June 2026, and changed 'correction' to 'decline'; the ladder and forecast remain coherent with the fetched reference class.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the request for an explicit persistence-versus-time-series prior comparison, corrected the source-binding description to June 2026, and changed 'correction' to 'decline'; the ladder and forecast remain coherent with the fetched reference class.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the request for an explicit persistence-versus-time-series prior comparison, corrected the source-binding description to June 2026, and changed 'correction' to 'decline'; the ladder and forecast remain coherent with the fetched reference class.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The forecast is largely publication-ready, but it needs an explicit model-prior statement and correction of the conflicting May 2026 source-binding metadata."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/prompt.md",
+      "sha256": "af40066e19803db6294008112435a93cf29920294ed9fe536ca494b8a7c0a22a",
+      "bytes": 11183,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_command.json",
+      "sha256": "e5046fbf809e125891bd059b2d197e4c3bc33e43a15f1dd372e7f1c4b9763e52",
+      "bytes": 730,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "5eedcc1327ccda079a9db8278477961b51ded9993628a8aea99f7fd656e3199d",
+      "bytes": 10755,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_stderr.log",
+      "sha256": "a4477d9b57876319b1347d9c1f34b8df6bd97d1c5aa77e88f29586a589e82e83",
+      "bytes": 233,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_events.jsonl",
+      "sha256": "5deafefe67c269283c1aa724b1a72b508246d795d286b2b9909764a960c5a62b",
+      "bytes": 10749,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_last_message.txt",
+      "sha256": "94d4f6d55f88bffc8c5550ced167d7fe2e8229aeaaf6311743d9215cea0ab8f7",
+      "bytes": 6664,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_codex_trace.json",
+      "sha256": "b726eda3b90555d33ba6c096049bc9039ab894905d5a6b51d6c857e68d82f93a",
+      "bytes": 514,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_stdout.txt",
+      "sha256": "94d4f6d55f88bffc8c5550ced167d7fe2e8229aeaaf6311743d9215cea0ab8f7",
+      "bytes": 6664,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/draft_stderr.txt",
+      "sha256": "6934e25dc2fe09572574a2ec296f0e90006464a8512b8133c7d2b214a5eff547",
+      "bytes": 248,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_prompt.md",
+      "sha256": "7c31ad4350f44cfff432483da421a12aa3a8e479b0db591eec4300a387f0d6d9",
+      "bytes": 10643,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_command.json",
+      "sha256": "f0a46c198b84640ca3706f2b4cd3f3a1846ff784be36d2cdb6e99cf0b102f314",
+      "bytes": 726,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "958e506479b12dc02a107e9f7f0a079295ae940b1137cea3350bd5c8ac08d441",
+      "bytes": 1587,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "9ce66ff19e8fbf58890ddb81854e3a6fd3b9697d9b5f46475abf486d35a02c00",
+      "bytes": 233,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "0007122ecf494671c86205cc399a433d363482f7690968cdbe0083ce1a7ab643",
+      "bytes": 1609,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "72c671437c19030da2ed379982f31c5d8f1ea22cb8ed1be66495e3e14fc8706b",
+      "bytes": 1208,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "246d6a898fd0d285314db0a1caeb8178ad7977acecad2f96f68d71630ea1c6f4",
+      "bytes": 507,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "72c671437c19030da2ed379982f31c5d8f1ea22cb8ed1be66495e3e14fc8706b",
+      "bytes": 1208,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "9374d3f569ed88c656c5dfdfa2af3feae1bcde51fde90a6b65872216284c7449",
+      "bytes": 248,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/revision_prompt.md",
+      "sha256": "9a22493d97551944fee5b71fa71f1f172d83a82965a5323807f0f0f1edc17e80",
+      "bytes": 19991,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/command.json",
+      "sha256": "06019d6db7403c2e2d32da4295dcbc08d78278da882f70e4c162ba93dee44bdd",
+      "bytes": 724,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_stdout.jsonl",
+      "sha256": "47521a309d72558e847e8dca477a048004ca6ece9766babb1341ee254037d024",
+      "bytes": 8160,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_stderr.log",
+      "sha256": "c7a82e01b7df71159f95f19f4be3a013fed0850374774fa07d533f0d1d0ab75b",
+      "bytes": 233,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_events.jsonl",
+      "sha256": "f25cbdf439d5c8294af72959ea4c6e5a6f29d87c04898d3f1098c3703549b6d9",
+      "bytes": 8182,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_last_message.txt",
+      "sha256": "08e13589b7d6f8b0c58a351d8a83521dc6dda5f0430899bd4ad3776a60a81a2b",
+      "bytes": 7489,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/codex_trace.json",
+      "sha256": "f1bbb45053e6806c005a3e0ccfa1dc3709faf4128e55c95a08279597123a7709",
+      "bytes": 510,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/stdout.txt",
+      "sha256": "08e13589b7d6f8b0c58a351d8a83521dc6dda5f0430899bd4ad3776a60a81a2b",
+      "bytes": 7489,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/stderr.txt",
+      "sha256": "887dbee95561c48b1dcc28371d16d38eeeebc1b54421fcb5f9661c3e58c1dbec",
+      "bytes": 248,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/raw_response.txt",
+      "sha256": "08e13589b7d6f8b0c58a351d8a83521dc6dda5f0430899bd4ad3776a60a81a2b",
+      "bytes": 7489,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/parsed_cells.json",
+      "sha256": "729cd2b72937db6d6daa2159058cee660f26af32b06518ed290ad49593aea319",
+      "bytes": 9070,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/normalized_cells.json",
+      "sha256": "966c824acba3e00baa92b001763888cf76aa3879319dbbc371b1fb4fda414f75",
+      "bytes": 27286,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/distribution.json",
+      "sha256": "92a35c546dbf43eabcdcf0f6898c6acc2e04179b822dddc5a7836c1f494c8ce6",
+      "bytes": 14417,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/validation.json",
+      "sha256": "a05a567f741290a0fa4fc2abf0e9cd90adf3e24889c1b4e2b433c121d36aed61",
+      "bytes": 142,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/cells.with_activity.json",
+      "sha256": "52a680feba9b175b1d36639a785441580027716a9847d787ce3cdb347e171336",
+      "bytes": 43406,
+      "createdAt": "2026-07-10T22:20:08Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-10/2026-07-10t22-20-08z-statcan-employment-insurance-regular-beneficiaries-2026-06/manifest.json",
+      "sha256": "7ba9bde2148250bdb8f875ac3c9c749c0d742b513cc5beafbb999884e838659a",
+      "bytes": 17031,
+      "createdAt": "2026-07-10T22:20:08Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "canada-ei-regular-beneficiaries-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "d4a763e6fef093d7b91c869c363caf2c28d4a2ce54b78fa5e3eb1d31b8145d3c"
+}
