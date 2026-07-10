@@ -1,0 +1,48 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: dol.eta.continued_claims.sa
+- period: week_2026-07-11
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "continued-claims-week-2026-07-11"
+- targetUnit: "millions"
+- dataPointId: "dol.eta.continued_claims.sa.week_2026-07-11.first_print"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org", "www.dol.gov"], "expectedReleaseWindow": {"end": "2026-07-25", "start": "2026-07-21"}, "field": "CCSA", "releasePolicy": "advance_vintage", "sourceSeriesId": "CCSA", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA", "table": "ALFRED graph CSV", "transform": {"factor": 1e-06, "operation": "multiply"}}
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+e03db443333969cbe00e2a4495bc25869a7413e91ba4811f3e9e6795c19d871b
+
+# Draft forecast response
+{"slug":"continued-claims-week-2026-07-11","country":"US","type":"data","title":"US Continued Claims, Week Ending Jul 11","question":"What will the U.S. Department of Labor ETA first print for seasonally adjusted continued unemployment insurance claims, series CCSA, for the week ending 2026-07-11?","unit":"millions","pointEstimate":1.815,"ciLow":1.797,"ciHigh":1.833,"confidence":0.8,"resolutionDate":"2026-07-23","resolutionSource":"U.S. Department of Labor Employment and Training Administration, Unemployment Insurance Weekly Claims Report","resolutionSourceUrl":"https://oui.doleta.gov/press/2026/072326.pdf","resolutionRule":"Resolve to the first-published seasonally adjusted insured unemployment / continued claims level, series CCSA, for the week ending July 11, 2026 in the DOL ETA Unemployment Insurance Weekly Claims report released July 23, 2026. Convert persons to millions by multiplying by 0.000001 and round to 0.001 million. Use the first print only and ignore later revisions.","dataPointId":"dol.eta.continued_claims.sa.week_2026-07-11.first_print","historicalContext":[{"label":"week ending 2026-06-27 continued claims SA","value":1.81},{"label":"week ending 2026-06-20 continued claims SA, revised","value":1.802},{"label":"week ending 2026-06-06 continued claims SA","value":1.81},{"label":"week ending 2026-05-30 continued claims SA","value":1.8}],"drivers":["Latest continued claims rose 0.008 million to 1.810 million","Initial claims for week ending 2026-07-04 fell to 0.215 million","Recent continued-claims level is stable near 1.80-1.81 million","Low-hire labor market keeps duration risk mildly upward","Two-week first-print horizon adds modest uncertainty"],"sourceContext":["https://apnews.com/article/8d1f553fde8124606b2e3350fe789776","https://www.wsj.com/economy/jobs/u-s-jobless-claims-edged-lower-last-week-f35e8718","https://www.wsj.com/economy/jobs/u-s-jobless-claims-fell-last-week-ceec6b9f","https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA","https://oui.doleta.gov/unemploy/claims.asp"],"runAt":"2026-07-10T03:08:54Z","reasoning":[{"kind":"heading","text":"Forecast for DOL ETA CCSA continued claims, week ending 2026-07-11"},{"kind":"text","text":"Framing and exact resolver: the target is DOL ETA continued unemployment insurance claims, seasonally adjusted, CCSA / insured unemployment, for the week ending Saturday 2026-07-11, resolved on the first official print in millions. This is the SA variant throughout; anchors and history are not NSA claims."},{"kind":"tool","tool":"official.lookup","call":"Checked the DOL ETA weekly-claims release path and ledger release window for the CCSA target week.","result":"The week ending 2026-07-11 continued-claims observation is scheduled for the DOL ETA weekly claims report dated 2026-07-23; the ledger expected release window is 2026-07-21 to 2026-07-25, and the first-print report should contain 1 CCSA value for that week."},{"kind":"tool","tool":"public.lookup","call":"Fetched the July 9, 2026 weekly claims report coverage from public reports citing the Labor Department.","result":"For week ending 2026-07-04, initial claims were 215000, down 2000 from revised 217000; the four-week initial-claims average was 218750. For week ending 2026-06-27, continued claims were 1810000, up 8000."},{"kind":"tool","tool":"public.history","call":"Fetched recent seasonally adjusted continued-claims reference points from public Labor Department coverage and ALFRED/FRED mirror context for CCSA.","result":"Recent CCSA levels used: 2026-05-30 = 1800000, 2026-06-06 = 1810000, 2026-06-20 revised = 1802000, and 2026-06-27 = 1810000; the latest week-over-week change was +8000."},{"kind":"text","text":"Reference class / base rate: over the latest observed CCSA points, the base rate is persistence around 1.80 to 1.81 million, with no evidence in initial claims of a fresh layoff surge by the 2026-07-04 week. The main forecasting problem is a two-week-ahead continuation of a flat but slightly soft labor-market level."},{"kind":"text","text":"Update components: level starts at 1.810 million; momentum adds about +0.004 million because continued claims just rose +0.008 million and hiring remains slow; the latest initial-claims decline from 217000 to 215000 subtracts about -0.002 million; duration / low-hire risk adds about +0.003 million. Net update is +0.005 million to 1.815 million."},{"kind":"math","text":"Prior/update/interval: persistence prior model on recent first-print/mirror CCSA history uses 2026-05-30 1.800, 2026-06-06 1.810, 2026-06-20 1.802, and 2026-06-27 1.810 million; adjustment components are +0.004 momentum, -0.002 initial-claims offset, and +0.003 low-hire duration risk. Successive changes are +0.010, -0.008, and +0.008 million, so sigma = 0.010 million. For a two-week-ahead level forecast, half-width = 1.28 * sigma * sqrt(2) = 1.28 * 0.010 * 1.414 = 0.018 million. Point = 1.810 + 0.005 = 1.815; implied 80% bounds are 1.815 - 0.018 = 1.797 and 1.815 + 0.018 = 1.833."},{"kind":"text","text":"Counter-considerations: upside risk is a further rise in benefit duration or a hidden layoff wave in the July 4 and July 11 weeks, which would land above the interval if CCSA jumps beyond about 1.833 million. Downside risk is faster re-employment or downward seasonal adjustment after the school-year noise fades, which would land below the interval if CCSA falls under about 1.797 million."},{"kind":"forecast","point":1.815,"ciLow":1.797,"ciHigh":1.833}]}
