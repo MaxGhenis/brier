@@ -53,6 +53,33 @@ export function ForecastViz({
   const span = max - min || 1;
 
   const pct = (v: number) => ((v - min) / span) * 100;
+  // Labels sit at the true axis position of the value they name. The domain
+  // is wider than the interval whenever history extends past it, so pinning
+  // labels to the edges misplaced them relative to the markers.
+  const labelPct = (v: number) => Math.min(94, Math.max(6, pct(v)));
+
+  const axisLabels = (textSize: string) => (
+    <div className={`relative mt-1 h-4 w-full [font-family:var(--font-mono)] ${textSize} text-[var(--theme-text-dim)]`}>
+      <span
+        className="absolute -translate-x-1/2"
+        style={{ left: `${labelPct(ciLow)}%` }}
+      >
+        {formatValue(ciLow, unit)}
+      </span>
+      <span
+        className="absolute -translate-x-1/2 font-medium text-[var(--color-accent)]"
+        style={{ left: `${labelPct(point)}%` }}
+      >
+        {formatValue(point, unit)}
+      </span>
+      <span
+        className="absolute -translate-x-1/2"
+        style={{ left: `${labelPct(ciHigh)}%` }}
+      >
+        {formatValue(ciHigh, unit)}
+      </span>
+    </div>
+  );
 
   if (size === "compact") {
     return (
@@ -70,13 +97,7 @@ export function ForecastViz({
             style={{ left: `${pct(point)}%` }}
           />
         </div>
-        <div className="mt-1 flex justify-between [font-family:var(--font-mono)] text-[0.62rem] text-[var(--theme-text-dim)]">
-          <span>{formatValue(ciLow, unit)}</span>
-          <span className="text-[var(--color-accent)] font-medium">
-            {formatValue(point, unit)}
-          </span>
-          <span>{formatValue(ciHigh, unit)}</span>
-        </div>
+        {axisLabels("text-[0.62rem]")}
       </div>
     );
   }
@@ -153,13 +174,7 @@ export function ForecastViz({
           />
         ))}
       </div>
-      <div className="mt-2 flex justify-between [font-family:var(--font-mono)] text-[0.7rem] text-[var(--theme-text-dim)]">
-        <span>{formatValue(ciLow, unit)}</span>
-        <span className="text-[var(--color-accent)] font-medium">
-          {formatValue(point, unit)}
-        </span>
-        <span>{formatValue(ciHigh, unit)}</span>
-      </div>
+      {axisLabels("text-[0.7rem]")}
       {history && history.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 [font-family:var(--font-mono)] text-[0.65rem] text-[var(--theme-text-dim)]">
           <span className="text-[var(--theme-text-muted)]">history:</span>
@@ -373,8 +388,19 @@ export function ForecastTrend({
 
         {actual && (
           <g>
+            {/* What actually happened, continuing the history line into the
+                target period at the same x as the forecast it grades. */}
+            <line
+              x1={x(history.length - 1)}
+              y1={y(history.at(-1)?.value ?? actual.value)}
+              x2={targetX}
+              y2={y(actual.value)}
+              stroke="var(--color-horizon-600)"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
             <circle
-              cx={targetX + 18}
+              cx={targetX}
               cy={y(actual.value)}
               r="5"
               fill="var(--color-horizon-600)"
@@ -382,8 +408,9 @@ export function ForecastTrend({
               strokeWidth="2"
             />
             <text
-              x={targetX + 28}
-              y={y(actual.value) + 4}
+              x={targetX - 12}
+              y={y(actual.value) + (y(actual.value) < targetY ? -8 : 14)}
+              textAnchor="end"
               className="[font-family:var(--font-mono)] text-[11px] fill-[var(--color-horizon-700)]"
             >
               actual {formatValue(actual.value, unit)}

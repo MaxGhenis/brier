@@ -255,10 +255,7 @@ export function ForecastRuntime({
                 ciHigh={displayedForecast.ciHigh}
                 unit={forecastCell.unit}
                 history={forecastCell.historicalContext}
-                targetLabel={formatShortDate(
-                  forecastCell.resolvedOutcome?.resolvedAt ??
-                    forecastCell.resolutionDate,
-                )}
+                targetLabel={targetPeriodLabel(forecastCell)}
                 actual={
                   forecastCell.resolvedOutcome
                     ? {
@@ -1759,6 +1756,17 @@ function formatShortFullDate(iso: string): string {
     year: "numeric",
     timeZone: "UTC",
   });
+}
+
+function targetPeriodLabel(cell: ForecastCell): string {
+  // Label the forecast by the PERIOD it grades, not the date it resolves:
+  // a fiscal-year cell reads "FY 2025", never the June-after publication
+  // month. Monthly and weekly cells keep the resolution-date fallback.
+  const fiscalYear = /fy[_ -]?(\d{4})/i.exec(cell.dataPointId ?? "");
+  if (fiscalYear) return `FY ${fiscalYear[1]}`;
+  return formatShortDate(
+    cell.resolvedOutcome?.resolvedAt ?? cell.resolutionDate,
+  );
 }
 
 function formatShortDate(iso: string): string {
