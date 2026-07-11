@@ -10,6 +10,7 @@ import json
 import re
 import stat
 import sys
+import urllib.parse
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -65,6 +66,21 @@ RESOLVER_RESPONSE_RE = re.compile(
     r"\.(?:csv|html|json|xlsx)\.gz"
 )
 LEDGER_WITNESS_ARCHIVE_RE = re.compile(r"upstream/[a-z0-9][a-z0-9._-]*\.gz")
+ARCHIVE_NAME_RE = re.compile(r"[a-z0-9][a-z0-9._-]*\Z")
+GIT_SHA_RE = re.compile(r"[0-9a-f]{40}\Z")
+SHA256_RE = re.compile(r"[0-9a-f]{64}\Z")
+LEDGER_WITNESS_V1 = "thesis_ledger_witness_run_v1"
+LEDGER_WITNESS_V2 = "thesis_ledger_witness_run_v2"
+LEDGER_RELEASE_ARCHIVE_V1 = "thesis_ledger_release_archive_v1"
+LEDGER_REPO = "PolicyEngine/ledger"
+LEDGER_BRANCH = "codex/thesis-ledger-facts"
+LEDGER_JSONL_PATH = "ledger/official_observations.jsonl"
+LEDGER_RELEASE_DIRECTORY = "releases/manifests"
+LEDGER_RELEASE_TREE_ROLES = {
+    "commit": "ledger_commit_tree_api",
+    "releases": "ledger_releases_tree_api",
+    "manifests": "ledger_release_manifests_tree_api",
+}
 RECORDER_REQUIRED_SURFACES = {
     "log": "log.json.gz",
     "ledger": "ledger.json.gz",
@@ -106,6 +122,103 @@ class CustodyVerification:
 
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _git_blob_sha(data: bytes) -> str:
+    header = f"blob {len(data)}\0".encode("ascii")
+    return hashlib.sha1(header + data, usedforsecurity=False).hexdigest()
+
+
+def _json_bytes_object(raw: bytes, label: str) -> dict[str, Any]:
+    try:
+        value = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        raise CustodyError(f"{label} is not valid JSON: {exc}") from exc
+    if not isinstance(value, dict):
+        raise CustodyError(f"{label} must be a JSON object")
+    return value
+
+
+def _exact_object(value: Any, expected: set[str], label: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise CustodyError(f"{label} must be an object")
+    actual = set(value)
+    if actual != expected:
+        raise CustodyError(
+            f"{label} keys mismatch: missing={sorted(expected - actual)}, "
+            f"unknown={sorted(actual - expected)}"
+        )
+    return value
+
+
+def _git_sha(value: Any, label: str) -> str:
+    if not isinstance(value, str) or GIT_SHA_RE.fullmatch(value) is None:
+        raise CustodyError(f"{label} must be a 40-character lowercase Git SHA")
+    return value
+
+
+def _sha256_value(value: Any, label: str) -> str:
+    if not isinstance(value, str) or SHA256_RE.fullmatch(value) is None:
+        raise CustodyError(f"{label} must be a lowercase SHA-256 digest")
+    return value
+
+
+def _optional_git_sha(value: Any, label: str) -> str | None:
+    if value is None:
+        return None
+    return _git_sha(value, label)
+
+
+def _tree_entries_from_archive(
+    raw: bytes, expected_sha: str, label: str
+) -> dict[str, dict[str, str]]:
+    payload = _json_bytes_object(raw, label)
+    actual_sha = _git_sha(payload.get("sha"), f"{label} SHA")
+    if actual_sha != expected_sha:
+        raise CustodyError(
+            f"{label} identifies tree {actual_sha}, expected {expected_sha}"
+        )
+    if payload.get("truncated") is not False:
+        raise CustodyError(f"{label} is truncated or lacks a completeness flag")
+    raw_entries = payload.get("tree")
+    if not isinstance(raw_entries, list):
+        raise CustodyError(f"{label} lacks a tree entry list")
+    entries: dict[str, dict[str, str]] = {}
+    for number, raw_entry in enumerate(raw_entries, start=1):
+        if not isinstance(raw_entry, dict):
+            raise CustodyError(f"{label} entry {number} is not an object")
+        path = raw_entry.get("path")
+        if not isinstance(path, str) or not path or path in {".", ".."} or "/" in path:
+            raise CustodyError(
+                f"{label} entry {number} is not a direct child: {path!r}"
+            )
+        if path in entries:
+            raise CustodyError(f"{label} contains duplicate path {path!r}")
+        object_type = raw_entry.get("type")
+        mode = raw_entry.get("mode")
+        if not isinstance(object_type, str) or not isinstance(mode, str):
+            raise CustodyError(f"{label} entry {path!r} lacks type or mode")
+        entries[path] = {
+            "path": path,
+            "mode": mode,
+            "type": object_type,
+            "sha": _git_sha(raw_entry.get("sha"), f"{label} entry {path!r} SHA"),
+        }
+    body = bytearray()
+    for entry in entries.values():
+        path = entry["path"]
+        if "\0" in path:
+            raise CustodyError(f"{label} contains a NUL path")
+        mode = entry["mode"].lstrip("0") or "0"
+        body.extend(f"{mode} {path}\0".encode("utf-8"))
+        body.extend(bytes.fromhex(entry["sha"]))
+    header = f"tree {len(body)}\0".encode("ascii")
+    computed_sha = hashlib.sha1(header + body, usedforsecurity=False).hexdigest()
+    if computed_sha != expected_sha:
+        raise CustodyError(
+            f"{label} entries hash to Git tree {computed_sha}, expected {expected_sha}"
+        )
+    return entries
 
 
 def _load_object(path: Path) -> dict[str, Any]:
@@ -548,11 +661,348 @@ def _verify_resolver_v2(
         )
 
 
+def _named_ledger_archive(
+    archives_by_name: dict[str, tuple[dict[str, Any], bytes, str]],
+    name: str,
+    role: str,
+    label: str,
+) -> tuple[dict[str, Any], bytes, str]:
+    archived = archives_by_name.get(name)
+    if archived is None:
+        raise CustodyError(f"{label} archive {name!r} is missing")
+    record, _raw, _relative = archived
+    if record.get("role") != role:
+        raise CustodyError(
+            f"{label} archive {name!r} has role {record.get('role')!r}, "
+            f"expected {role!r}"
+        )
+    return archived
+
+
+def _require_ledger_tree_url(
+    record: dict[str, Any], tree_sha: str, label: str
+) -> None:
+    expected = f"https://api.github.com/repos/{LEDGER_REPO}/git/trees/{tree_sha}"
+    if record.get("url") != expected:
+        raise CustodyError(f"{label} URL is not the exact immutable Git-tree URL")
+
+
+def _verify_ledger_release_archive(
+    manifest: dict[str, Any],
+    archives_by_name: dict[str, tuple[dict[str, Any], bytes, str]],
+    archives_by_role: dict[str, list[tuple[dict[str, Any], bytes, str]]],
+) -> None:
+    release_archive = _exact_object(
+        manifest.get("releaseArchive"),
+        {
+            "schemaVersion",
+            "directory",
+            "commitTreeSha",
+            "releasesTreeSha",
+            "manifestsTreeSha",
+            "treeArchiveNames",
+            "fileCount",
+            "files",
+        },
+        "ledger releaseArchive",
+    )
+    if release_archive["schemaVersion"] != LEDGER_RELEASE_ARCHIVE_V1:
+        raise CustodyError(
+            "ledger releaseArchive has unsupported schema "
+            f"{release_archive['schemaVersion']!r}"
+        )
+    if release_archive["directory"] != LEDGER_RELEASE_DIRECTORY:
+        raise CustodyError(
+            f"ledger releaseArchive directory must be {LEDGER_RELEASE_DIRECTORY!r}"
+        )
+
+    commit_tree_sha = _git_sha(
+        release_archive["commitTreeSha"], "releaseArchive commitTreeSha"
+    )
+    releases_tree_sha = _optional_git_sha(
+        release_archive["releasesTreeSha"], "releaseArchive releasesTreeSha"
+    )
+    manifests_tree_sha = _optional_git_sha(
+        release_archive["manifestsTreeSha"], "releaseArchive manifestsTreeSha"
+    )
+    tree_names = _exact_object(
+        release_archive["treeArchiveNames"],
+        {"commit", "releases", "manifests"},
+        "releaseArchive treeArchiveNames",
+    )
+    for key, value in tree_names.items():
+        if value is not None and (
+            not isinstance(value, str) or ARCHIVE_NAME_RE.fullmatch(value) is None
+        ):
+            raise CustodyError(
+                f"releaseArchive treeArchiveNames.{key} is not a safe archive name"
+            )
+    if not isinstance(tree_names["commit"], str):
+        raise CustodyError("releaseArchive must name its commit-tree archive")
+
+    branch_candidates = archives_by_role.get("ledger_branch_commit_api", [])
+    if len(branch_candidates) != 1:
+        raise CustodyError("ledger releaseArchive lacks one branch commit archive")
+    branch_commit = _json_bytes_object(
+        branch_candidates[0][1], "ledger branch commit archive"
+    )
+    commit = branch_commit.get("commit")
+    commit_tree = commit.get("tree") if isinstance(commit, dict) else None
+    claimed_commit_tree_sha = _git_sha(
+        commit_tree.get("sha") if isinstance(commit_tree, dict) else None,
+        "ledger branch commit tree SHA",
+    )
+    if claimed_commit_tree_sha != commit_tree_sha:
+        raise CustodyError(
+            "releaseArchive commitTreeSha does not match the archived branch commit"
+        )
+
+    expected_tree_counts = {
+        LEDGER_RELEASE_TREE_ROLES["commit"]: 1,
+        LEDGER_RELEASE_TREE_ROLES["releases"]: int(releases_tree_sha is not None),
+        LEDGER_RELEASE_TREE_ROLES["manifests"]: int(manifests_tree_sha is not None),
+    }
+    for role, expected_count in expected_tree_counts.items():
+        actual_count = len(archives_by_role.get(role, []))
+        if actual_count != expected_count:
+            raise CustodyError(
+                f"ledger releaseArchive role {role!r} count is {actual_count}, "
+                f"expected {expected_count}"
+            )
+
+    commit_record, commit_tree_raw, _ = _named_ledger_archive(
+        archives_by_name,
+        tree_names["commit"],
+        LEDGER_RELEASE_TREE_ROLES["commit"],
+        "commit tree",
+    )
+    if commit_record.get("gitTreeSha") != commit_tree_sha:
+        raise CustodyError("commit-tree archive metadata SHA mismatch")
+    _require_ledger_tree_url(commit_record, commit_tree_sha, "commit-tree archive")
+    commit_entries = _tree_entries_from_archive(
+        commit_tree_raw, commit_tree_sha, "archived commit tree"
+    )
+
+    releases_entry = commit_entries.get("releases")
+    releases_entries: dict[str, dict[str, str]] = {}
+    if releases_tree_sha is None:
+        if releases_entry is not None:
+            raise CustodyError(
+                "releaseArchive omits the releases tree present in the commit tree"
+            )
+        if tree_names["releases"] is not None:
+            raise CustodyError("releaseArchive names a nonexistent releases tree")
+    else:
+        if (
+            releases_entry is None
+            or releases_entry["type"] != "tree"
+            or releases_entry["mode"] != "040000"
+            or releases_entry["sha"] != releases_tree_sha
+        ):
+            raise CustodyError(
+                "releaseArchive releasesTreeSha is not the commit tree's releases child"
+            )
+        if not isinstance(tree_names["releases"], str):
+            raise CustodyError("releaseArchive omits the releases-tree archive name")
+        releases_record, releases_raw, _ = _named_ledger_archive(
+            archives_by_name,
+            tree_names["releases"],
+            LEDGER_RELEASE_TREE_ROLES["releases"],
+            "releases tree",
+        )
+        if releases_record.get("gitTreeSha") != releases_tree_sha:
+            raise CustodyError("releases-tree archive metadata SHA mismatch")
+        _require_ledger_tree_url(
+            releases_record,
+            releases_tree_sha,
+            "releases-tree archive",
+        )
+        releases_entries = _tree_entries_from_archive(
+            releases_raw, releases_tree_sha, "archived releases tree"
+        )
+
+    manifests_entry = releases_entries.get("manifests")
+    manifest_entries: dict[str, dict[str, str]] = {}
+    if manifests_tree_sha is None:
+        if manifests_entry is not None:
+            raise CustodyError(
+                "releaseArchive omits the manifests tree present in releases"
+            )
+        if tree_names["manifests"] is not None:
+            raise CustodyError("releaseArchive names a nonexistent manifests tree")
+    else:
+        if releases_tree_sha is None:
+            raise CustodyError("releaseArchive has manifests without a releases tree")
+        if (
+            manifests_entry is None
+            or manifests_entry["type"] != "tree"
+            or manifests_entry["mode"] != "040000"
+            or manifests_entry["sha"] != manifests_tree_sha
+        ):
+            raise CustodyError(
+                "releaseArchive manifestsTreeSha is not the releases tree's "
+                "manifests child"
+            )
+        if not isinstance(tree_names["manifests"], str):
+            raise CustodyError("releaseArchive omits the manifests-tree archive name")
+        manifests_record, manifests_raw, _ = _named_ledger_archive(
+            archives_by_name,
+            tree_names["manifests"],
+            LEDGER_RELEASE_TREE_ROLES["manifests"],
+            "release manifests tree",
+        )
+        if manifests_record.get("gitTreeSha") != manifests_tree_sha:
+            raise CustodyError("manifests-tree archive metadata SHA mismatch")
+        _require_ledger_tree_url(
+            manifests_record,
+            manifests_tree_sha,
+            "manifests-tree archive",
+        )
+        manifest_entries = _tree_entries_from_archive(
+            manifests_raw, manifests_tree_sha, "archived release manifests tree"
+        )
+
+    raw_files = release_archive["files"]
+    file_count = release_archive["fileCount"]
+    if type(file_count) is not int or file_count < 0:
+        raise CustodyError("releaseArchive fileCount must be a non-negative integer")
+    if not isinstance(raw_files, list) or len(raw_files) != file_count:
+        raise CustodyError("releaseArchive files do not match fileCount")
+
+    files_by_basename: dict[str, dict[str, Any]] = {}
+    archive_names: set[str] = set()
+    paths: list[str] = []
+    for number, raw_file in enumerate(raw_files, start=1):
+        file_record = _exact_object(
+            raw_file,
+            {"path", "gitBlobSha", "sha256", "bytes", "archiveName"},
+            f"releaseArchive file {number}",
+        )
+        source_path = file_record["path"]
+        if not isinstance(source_path, str):
+            raise CustodyError(f"releaseArchive file {number} path must be a string")
+        source = PurePosixPath(source_path)
+        expected_source_path = f"{LEDGER_RELEASE_DIRECTORY}/{source.name}"
+        if (
+            source_path != expected_source_path
+            or "\\" in source_path
+            or "\x00" in source_path
+            or source.name in {"", ".", ".."}
+        ):
+            raise CustodyError(
+                f"releaseArchive file {number} is not a canonical direct "
+                "manifest child"
+            )
+        basename = source.name
+        if basename in files_by_basename:
+            raise CustodyError(f"duplicate releaseArchive file {source_path!r}")
+        _git_sha(
+            file_record["gitBlobSha"],
+            f"releaseArchive file {source_path} Git SHA",
+        )
+        _sha256_value(
+            file_record["sha256"],
+            f"releaseArchive file {source_path} SHA-256",
+        )
+        if type(file_record["bytes"]) is not int or file_record["bytes"] < 0:
+            raise CustodyError(
+                f"releaseArchive file {source_path} bytes must be non-negative"
+            )
+        archive_name = file_record["archiveName"]
+        if (
+            not isinstance(archive_name, str)
+            or ARCHIVE_NAME_RE.fullmatch(archive_name) is None
+            or archive_name in archive_names
+        ):
+            raise CustodyError(
+                f"releaseArchive file {source_path} has an invalid archiveName"
+            )
+        archive_names.add(archive_name)
+        files_by_basename[basename] = file_record
+        paths.append(source_path)
+    if paths != sorted(paths):
+        raise CustodyError("releaseArchive files must be sorted by source path")
+    if set(files_by_basename) != set(manifest_entries):
+        raise CustodyError(
+            "releaseArchive file inventory does not equal the manifests Git tree"
+        )
+
+    branch_sha = str(manifest.get("ledgerBranchSha", ""))
+    repo = str(manifest.get("ledgerRepo", ""))
+    for basename, entry in manifest_entries.items():
+        if entry["type"] != "blob" or entry["mode"] not in {"100644", "100755"}:
+            raise CustodyError(
+                f"release manifests tree entry {basename!r} is not a regular blob"
+            )
+        file_record = files_by_basename[basename]
+        source_path = file_record["path"]
+        if file_record["gitBlobSha"] != entry["sha"]:
+            raise CustodyError(
+                f"releaseArchive Git blob SHA mismatch for {source_path}"
+            )
+        archive_name = file_record["archiveName"]
+        upstream_record, raw, _ = _named_ledger_archive(
+            archives_by_name,
+            archive_name,
+            "ledger_release_file",
+            f"release file {source_path}",
+        )
+        if (
+            upstream_record.get("sourcePath") != source_path
+            or upstream_record.get("gitBlobSha") != entry["sha"]
+        ):
+            raise CustodyError(
+                f"release file archive metadata mismatch for {source_path}"
+            )
+        expected_url = (
+            f"https://raw.githubusercontent.com/{repo}/{branch_sha}/"
+            f"{urllib.parse.quote(source_path, safe='/')}"
+        )
+        if upstream_record.get("url") != expected_url:
+            raise CustodyError(
+                f"release file URL is not pinned to the branch SHA: {source_path}"
+            )
+        if (
+            _git_blob_sha(raw) != entry["sha"]
+            or _sha256(raw) != file_record["sha256"]
+            or len(raw) != file_record["bytes"]
+        ):
+            raise CustodyError(f"release file bytes mismatch for {source_path}")
+
+    actual_release_archives = {
+        str(record.get("name"))
+        for record, _raw, _relative in archives_by_role.get("ledger_release_file", [])
+    }
+    if actual_release_archives != archive_names:
+        raise CustodyError(
+            "ledger release file archives do not equal releaseArchive inventory"
+        )
+
+
 def _verify_ledger_witness_v2(
     run_dir: Path, manifest: dict[str, Any], entries: list[dict[str, Any]]
 ) -> None:
-    if manifest.get("schemaVersion") != "thesis_ledger_witness_run_v1":
+    schema_version = manifest.get("schemaVersion")
+    if schema_version not in {LEDGER_WITNESS_V1, LEDGER_WITNESS_V2}:
         raise CustodyError("ledger witness custody mode has the wrong manifest schema")
+    if schema_version == LEDGER_WITNESS_V2 and "releaseArchive" not in manifest:
+        raise CustodyError("ledger witness v2 manifest lacks releaseArchive")
+    if schema_version == LEDGER_WITNESS_V2:
+        if manifest.get("ledgerRepo") != LEDGER_REPO:
+            raise CustodyError(
+                f"ledger witness v2 repo must be exactly {LEDGER_REPO!r}"
+            )
+        if manifest.get("ledgerBranch") != LEDGER_BRANCH:
+            raise CustodyError(
+                f"ledger witness v2 branch must be exactly {LEDGER_BRANCH!r}"
+            )
+        branch_sha = _git_sha(
+            manifest.get("ledgerBranchSha"), "ledger witness branch SHA"
+        )
+        main_sha = _git_sha(manifest.get("ledgerMainSha"), "ledger witness main SHA")
+    else:
+        branch_sha = str(manifest.get("ledgerBranchSha", ""))
+        main_sha = str(manifest.get("ledgerMainSha", ""))
     upstream = manifest.get("upstream")
     if not isinstance(upstream, list) or not upstream:
         raise CustodyError("ledger witness inventory requires an upstream archive")
@@ -574,8 +1024,8 @@ def _verify_ledger_witness_v2(
     manifest_archives: set[str] = set()
     observations_witnessed = False
     roles_seen: dict[str, int] = {}
-    branch_sha = str(manifest.get("ledgerBranchSha", ""))
-    main_sha = str(manifest.get("ledgerMainSha", ""))
+    archives_by_name: dict[str, tuple[dict[str, Any], bytes, str]] = {}
+    archives_by_role: dict[str, list[tuple[dict[str, Any], bytes, str]]] = {}
     for record in upstream:
         archive = record.get("archive") if isinstance(record, dict) else None
         if not isinstance(archive, dict):
@@ -611,19 +1061,57 @@ def _verify_ledger_witness_v2(
             raise CustodyError(
                 f"ledger witness decompressed archive mismatch: {relative}"
             )
+        name = record.get("name")
+        if (
+            not isinstance(name, str)
+            or ARCHIVE_NAME_RE.fullmatch(name) is None
+            or name in archives_by_name
+        ):
+            raise CustodyError(
+                f"invalid or duplicate ledger witness archive name: {name!r}"
+            )
         role = str(record.get("role", ""))
         roles_seen[role] = roles_seen.get(role, 0) + 1
+        archived = (record, raw, relative)
+        archives_by_name[name] = archived
+        archives_by_role.setdefault(role, []).append(archived)
         # The archived commit-API responses must actually identify the SHAs
         # the manifest claims, and the observations archive must be the file
         # at the branch SHA — otherwise a witness can hash an internally
         # consistent but contradictory bundle (finding 11).
         if role == "ledger_branch_commit_api":
             _require_commit_response(raw, branch_sha, relative)
+            if schema_version == LEDGER_WITNESS_V2 and record.get("url") != (
+                f"https://api.github.com/repos/{LEDGER_REPO}/commits/{branch_sha}"
+            ):
+                raise CustodyError(
+                    "ledger witness branch-commit URL is not the exact "
+                    "immutable API URL"
+                )
         elif role == "ledger_main_commit_api":
             _require_commit_response(raw, main_sha, relative)
+            if schema_version == LEDGER_WITNESS_V2 and record.get("url") != (
+                f"https://api.github.com/repos/{LEDGER_REPO}/commits/{main_sha}"
+            ):
+                raise CustodyError(
+                    "ledger witness main-commit URL is not the exact immutable API URL"
+                )
         elif role == "official_observations_jsonl":
             url = str(record.get("url", ""))
-            if branch_sha and branch_sha not in url:
+            expected_url = (
+                f"https://raw.githubusercontent.com/{LEDGER_REPO}/{branch_sha}/"
+                f"{LEDGER_JSONL_PATH}"
+            )
+            if schema_version == LEDGER_WITNESS_V2 and url != expected_url:
+                raise CustodyError(
+                    "ledger witness observations URL is not the exact immutable URL: "
+                    f"{url!r}"
+                )
+            if (
+                schema_version != LEDGER_WITNESS_V2
+                and branch_sha
+                and branch_sha not in url
+            ):
                 raise CustodyError(
                     "ledger witness observations URL does not pin the branch "
                     f"SHA {branch_sha}: {url!r}"
@@ -631,6 +1119,15 @@ def _verify_ledger_witness_v2(
         if record.get("role") == "official_observations_jsonl":
             observations_witnessed = True
             lines = [line for line in raw.decode("utf-8").splitlines() if line.strip()]
+            if type(jsonl_claim.get("bytes")) is not int or jsonl_claim["bytes"] < 0:
+                raise CustodyError(
+                    "ledger witness jsonl bytes must be a non-negative integer"
+                )
+            if len(raw) != jsonl_claim["bytes"]:
+                raise CustodyError(
+                    "ledger witness jsonl byte count mismatch: "
+                    f"expected {jsonl_claim['bytes']}, got {len(raw)}"
+                )
             if len(lines) != jsonl_claim.get("lineCount"):
                 raise CustodyError(
                     "ledger witness jsonl line count mismatch: "
@@ -647,8 +1144,8 @@ def _verify_ledger_witness_v2(
                         f"ledger witness jsonl line {number} is invalid: {exc}"
                     ) from exc
                 record_id = (
-                row.get("source_record_id") if isinstance(row, dict) else None
-            )
+                    row.get("source_record_id") if isinstance(row, dict) else None
+                )
                 if not record_id:
                     raise CustodyError(
                         f"ledger witness jsonl line {number} lacks source_record_id"
@@ -680,6 +1177,12 @@ def _verify_ledger_witness_v2(
             "ledger witness archive inventory mismatch: "
             f"rooted={sorted(rooted_archives)}, "
             f"manifest={sorted(manifest_archives)}"
+        )
+    if schema_version == LEDGER_WITNESS_V2 or "releaseArchive" in manifest:
+        _verify_ledger_release_archive(
+            manifest,
+            archives_by_name,
+            archives_by_role,
         )
 
 
@@ -792,9 +1295,7 @@ def _verify_derived_ensemble_v2(
     ):
         raise CustodyError("derived manifest target identity mismatch")
     if (
-        _manifest_relative(
-            run_dir, str(manifest.get("cellsPath") or ""), legacy=False
-        )
+        _manifest_relative(run_dir, str(manifest.get("cellsPath") or ""), legacy=False)
         != "cells.with_activity.json"
     ):
         raise CustodyError("derived manifest cellsPath is outside its run")

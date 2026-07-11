@@ -1,8 +1,17 @@
 from __future__ import annotations
 
+import datetime as dt
+import hashlib
 import json
 import pathlib
+import re
+import shutil
+import subprocess
 import sys
+from dataclasses import dataclass
+from types import SimpleNamespace
+from typing import Any
+from urllib.parse import unquote
 
 import pytest
 
@@ -11,11 +20,426 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import pin_ledger  # noqa: E402
 import register_targets  # noqa: E402
+from canonical_json import canonical_bytes  # noqa: E402
+from ledger_release_chain import (  # noqa: E402
+    manifest_filename,
+    verify_release_chain,
+)
 from register_targets import (  # noqa: E402
     RegistrationError,
     registration_content_hash,
     validate_ledger_pin_binding,
 )
+
+TSA_FIXTURE = ROOT / "tests" / "fixtures" / "release_tsa"
+
+
+@dataclass(frozen=True)
+class ReleaseRepo:
+    repo: pathlib.Path
+    tsa: pathlib.Path
+    base: str
+    genesis: str
+    release_one: str
+    head: str
+
+
+def _run(command: list[str], *, cwd: pathlib.Path) -> str:
+    return subprocess.check_output(command, cwd=cwd, text=True).strip()
+
+
+def _git(repo: pathlib.Path, *arguments: str) -> str:
+    return _run(["git", *arguments], cwd=repo)
+
+
+def _git_bytes(repo: pathlib.Path, *arguments: str) -> bytes:
+    return subprocess.check_output(["git", *arguments], cwd=repo)
+
+
+def _commit(repo: pathlib.Path, message: str) -> str:
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", message)
+    return _git(repo, "rev-parse", "HEAD")
+
+
+def _row_bytes(identity: str) -> bytes:
+    return json.dumps(
+        {"source_record_id": identity, "value": identity},
+        separators=(",", ":"),
+    ).encode() + b"\n"
+
+
+def _created_at() -> str:
+    value = dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=1)
+    return value.isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def _mint_receipt(
+    manifest: pathlib.Path,
+    receipt: pathlib.Path,
+    *,
+    tsa: pathlib.Path,
+    signer: str,
+) -> None:
+    request = tsa / f"{signer}-{manifest.stem}.tsq"
+    subprocess.run(
+        [
+            "openssl",
+            "ts",
+            "-query",
+            "-data",
+            str(manifest),
+            "-sha256",
+            "-cert",
+            "-out",
+            str(request),
+        ],
+        cwd=tsa,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        [
+            "openssl",
+            "ts",
+            "-reply",
+            "-config",
+            "openssl-ts.cnf",
+            "-queryfile",
+            str(request),
+            "-out",
+            str(receipt),
+        ],
+        cwd=tsa / signer,
+        check=True,
+        capture_output=True,
+    )
+
+
+def _write_release(
+    repo: pathlib.Path,
+    tsa: pathlib.Path,
+    *,
+    index: int,
+    previous_manifest: bytes | None,
+    previous_ledger: bytes | None,
+) -> pathlib.Path:
+    ledger = (repo / pin_ledger.LEDGER_JSONL_PATH).read_bytes()
+    prefix = (repo / pin_ledger.LEDGER_PREFIX_PATH).read_bytes()
+    if index == 0:
+        append = None
+        previous_digest = None
+    else:
+        assert previous_manifest is not None
+        assert previous_ledger is not None
+        assert ledger.startswith(previous_ledger)
+        suffix = ledger[len(previous_ledger) :]
+        append = {
+            "previousLineCount": len(previous_ledger.splitlines()),
+            "appendedRowCount": (
+                len(ledger.splitlines()) - len(previous_ledger.splitlines())
+            ),
+            "appendedBytesSha256": hashlib.sha256(suffix).hexdigest(),
+        }
+        previous_digest = hashlib.sha256(previous_manifest).hexdigest()
+    manifest = {
+        "schemaVersion": "thesis_ledger_release_v1",
+        "releaseIndex": index,
+        "previousManifestSha256": previous_digest,
+        "state": {
+            "path": pin_ledger.LEDGER_JSONL_PATH,
+            "jsonlSha256": hashlib.sha256(ledger).hexdigest(),
+            "lineCount": len(ledger.splitlines()),
+            "immutablePrefixSha256": hashlib.sha256(prefix).hexdigest(),
+        },
+        "append": append,
+        "createdAtUtc": _created_at(),
+        "producer": {
+            "repo": pin_ledger.LEDGER_REPO,
+            "branch": pin_ledger.LEDGER_BRANCH,
+        },
+    }
+    raw = canonical_bytes(manifest) + b"\n"
+    directory = repo / "releases" / "manifests"
+    directory.mkdir(parents=True, exist_ok=True)
+    path = directory / manifest_filename(index, raw)
+    path.write_bytes(raw)
+    for slot in ("freetsa", "digicert"):
+        _mint_receipt(
+            path,
+            path.with_name(f"{path.stem}.{slot}.tsr"),
+            tsa=tsa,
+            signer=slot,
+        )
+    return path
+
+
+def _build_release_repo(root: pathlib.Path) -> ReleaseRepo:
+    repo = root / "repo"
+    tsa = root / "release_tsa"
+    repo.mkdir()
+    shutil.copytree(TSA_FIXTURE, tsa)
+    ledger = repo / pin_ledger.LEDGER_JSONL_PATH
+    ledger.parent.mkdir(parents=True)
+    ledger.write_bytes(_row_bytes("row-0"))
+    (repo / pin_ledger.LEDGER_PREFIX_PATH).write_bytes(b"{}\n")
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.name", "Ledger Pin Test")
+    _git(repo, "config", "user.email", "ledger-pin@example.invalid")
+    base = _commit(repo, "pre-genesis")
+
+    anchors = repo / "releases" / "anchors"
+    shutil.copytree(tsa / "anchors", anchors)
+    (repo / "releases" / "README.md").write_text("test release journal\n")
+    manifest = _write_release(
+        repo,
+        tsa,
+        index=0,
+        previous_manifest=None,
+        previous_ledger=None,
+    )
+    genesis = _commit(repo, "release genesis")
+
+    previous_manifest = manifest.read_bytes()
+    previous_ledger = ledger.read_bytes()
+    ledger.write_bytes(previous_ledger + _row_bytes("row-1"))
+    manifest = _write_release(
+        repo,
+        tsa,
+        index=1,
+        previous_manifest=previous_manifest,
+        previous_ledger=previous_ledger,
+    )
+    release_one = _commit(repo, "release one")
+
+    previous_manifest = manifest.read_bytes()
+    previous_ledger = ledger.read_bytes()
+    ledger.write_bytes(previous_ledger + _row_bytes("row-2"))
+    _write_release(
+        repo,
+        tsa,
+        index=2,
+        previous_manifest=previous_manifest,
+        previous_ledger=previous_ledger,
+    )
+    head = _commit(repo, "release two")
+    return ReleaseRepo(repo, tsa, base, genesis, release_one, head)
+
+
+@pytest.fixture(scope="session")
+def release_repo_template(tmp_path_factory: pytest.TempPathFactory) -> ReleaseRepo:
+    return _build_release_repo(tmp_path_factory.mktemp("ledger-pin-release"))
+
+
+@pytest.fixture
+def release_repo(
+    tmp_path: pathlib.Path, release_repo_template: ReleaseRepo
+) -> ReleaseRepo:
+    root = tmp_path / "release-copy"
+    repo = root / "repo"
+    tsa = root / "release_tsa"
+    shutil.copytree(release_repo_template.repo, repo)
+    shutil.copytree(release_repo_template.tsa, tsa)
+    return ReleaseRepo(
+        repo,
+        tsa,
+        release_repo_template.base,
+        release_repo_template.genesis,
+        release_repo_template.release_one,
+        release_repo_template.head,
+    )
+
+
+def _commit_time(repo: pathlib.Path, commit: str) -> str:
+    return pin_ledger._utc_instant(_git(repo, "show", "-s", "--format=%cI", commit))
+
+
+def _tree_payload(repo: pathlib.Path, tree_sha: str) -> dict[str, Any]:
+    output = _git_bytes(repo, "ls-tree", "-z", tree_sha)
+    entries = []
+    for record in output.split(b"\0"):
+        if not record:
+            continue
+        metadata, raw_name = record.split(b"\t", 1)
+        mode, object_type, object_id = metadata.decode().split(" ")
+        entries.append(
+            {
+                "path": raw_name.decode(),
+                "mode": mode,
+                "type": object_type,
+                "sha": object_id,
+            }
+        )
+    return {"sha": tree_sha, "tree": entries, "truncated": False}
+
+
+def _install_remote(
+    monkeypatch: pytest.MonkeyPatch,
+    release_repo: ReleaseRepo,
+    *,
+    date_overrides: dict[str, str] | None = None,
+) -> None:
+    repo = release_repo.repo
+
+    def api(path: str) -> Any:
+        if path.startswith("commits/"):
+            ref = path.removeprefix("commits/")
+            head = _git(
+                repo,
+                "rev-parse",
+                "HEAD" if ref == pin_ledger.LEDGER_BRANCH else f"{ref}^{{commit}}",
+            )
+            tree = _git(repo, "show", "-s", "--format=%T", head)
+            return {
+                "sha": head,
+                "parents": [
+                    {"sha": parent}
+                    for parent in _git(
+                        repo, "rev-list", "--parents", "-n", "1", head
+                    ).split()[1:]
+                ],
+                "commit": {
+                    "tree": {"sha": tree},
+                    "committer": {"date": _commit_time(repo, head)},
+                },
+            }
+        if path.startswith("compare/"):
+            match = re.match(
+                r"compare/(?P<base>[0-9a-f]{40})\.\.\."
+                r"(?P<head>[0-9a-f]{40})\?per_page=100&page=(?P<page>[0-9]+)",
+                path,
+            )
+            assert match is not None
+            base = match.group("base")
+            head = match.group("head")
+            assert match.group("page") == "1"
+            commits = _git(
+                repo, "rev-list", "--reverse", f"{base}..{head}"
+            ).splitlines()
+            overrides = date_overrides or {}
+            return {
+                "status": "ahead",
+                "merge_base_commit": {"sha": _git(repo, "merge-base", base, head)},
+                "total_commits": len(commits),
+                "commits": [
+                    {
+                        "sha": commit,
+                        "commit": {
+                            "committer": {
+                                "date": overrides.get(
+                                    commit, _commit_time(repo, commit)
+                                )
+                            }
+                        },
+                    }
+                    for commit in commits
+                ],
+            }
+        if path.startswith("git/trees/"):
+            return _tree_payload(repo, path.removeprefix("git/trees/"))
+        raise AssertionError(f"unexpected API path {path}")
+
+    raw_pattern = re.compile(
+        r"https://raw\.githubusercontent\.com/PolicyEngine/ledger/"
+        r"(?P<sha>[0-9a-f]{40})/(?P<path>.+)"
+    )
+
+    def fetch(url: str) -> bytes:
+        match = raw_pattern.fullmatch(url)
+        assert match is not None, url
+        return _git_bytes(
+            repo,
+            "show",
+            f"{match.group('sha')}:{unquote(match.group('path'))}",
+        )
+
+    monkeypatch.setattr(pin_ledger, "_api", api)
+    monkeypatch.setattr(pin_ledger, "_fetch", fetch)
+
+
+def _seed_outputs(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+    *,
+    pin_sha: str | None = None,
+) -> tuple[pathlib.Path, pathlib.Path, pathlib.Path]:
+    pin_path = tmp_path / "ledger-pin.json"
+    availability_path = tmp_path / "availability.json"
+    generated_path = tmp_path / "ledger-availability.generated.ts"
+    monkeypatch.setattr(pin_ledger, "PIN_PATH", pin_path)
+    monkeypatch.setattr(pin_ledger, "AVAILABILITY_PATH", availability_path)
+    monkeypatch.setattr(pin_ledger, "GENERATED_PATH", generated_path)
+    selected_sha = pin_sha or release_repo.base
+    raw = _git_bytes(
+        release_repo.repo,
+        "show",
+        f"{selected_sha}:{pin_ledger.LEDGER_JSONL_PATH}",
+    )
+    assert len(raw.splitlines()) == 1
+    line = raw.decode().strip()
+    accepted_at = _commit_time(release_repo.repo, release_repo.base)
+    pin = {
+        "schemaVersion": pin_ledger.PIN_SCHEMA,
+        "repo": pin_ledger.LEDGER_REPO,
+        "branch": pin_ledger.LEDGER_BRANCH,
+        "sha": selected_sha,
+        "jsonlSha256": hashlib.sha256(raw).hexdigest(),
+        "jsonlBytes": len(raw),
+        "lineCount": 1,
+        "pinnedAtUtc": accepted_at,
+    }
+    availability = {
+        "schemaVersion": pin_ledger.AVAILABILITY_SCHEMA,
+        "repo": pin_ledger.LEDGER_REPO,
+        "branch": pin_ledger.LEDGER_BRANCH,
+        "headSha": selected_sha,
+        "jsonlSha256": pin["jsonlSha256"],
+        "legacyQuarantineLineCount": 1,
+        "historyAnomalies": [],
+        "rows": [
+            {
+                "sourceRecordId": "row-0",
+                "acceptedSequence": 0,
+                "acceptedAtUtc": accepted_at,
+                "acceptedCommit": release_repo.base,
+                "lineSha256": hashlib.sha256(line.encode()).hexdigest(),
+                "custody": "append_derived",
+            }
+        ],
+    }
+    pin_path.write_text(json.dumps(pin, indent=2) + "\n")
+    availability_path.write_bytes(canonical_bytes(availability) + b"\n")
+    generated_path.write_text("old generated output\n")
+    return pin_path, availability_path, generated_path
+
+
+def _install_test_verifier(
+    monkeypatch: pytest.MonkeyPatch, release_repo: ReleaseRepo
+) -> list[bool]:
+    production_pin_requests: list[bool] = []
+
+    def verifier(root: pathlib.Path, **kwargs: Any) -> Any:
+        production_pin_requests.append(kwargs["enforce_production_pins"])
+        kwargs["anchor_dir"] = release_repo.tsa / "anchors"
+        kwargs["enforce_production_pins"] = False
+        return verify_release_chain(root, **kwargs)
+
+    monkeypatch.setattr(pin_ledger, "verify_release_chain", verifier)
+    return production_pin_requests
+
+
+def _prepare_refresh(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+    *,
+    date_overrides: dict[str, str] | None = None,
+) -> tuple[pathlib.Path, pathlib.Path, pathlib.Path, list[bool]]:
+    paths = _seed_outputs(monkeypatch, tmp_path, release_repo)
+    _install_remote(monkeypatch, release_repo, date_overrides=date_overrides)
+    pin_requests = _install_test_verifier(monkeypatch, release_repo)
+    return (*paths, pin_requests)
 
 
 def _pin_binding() -> dict:
@@ -48,6 +472,549 @@ def test_refresh_accepts_a_pure_append() -> None:
     appended = ['{"source_record_id":"a"}', '{"source_record_id":"b"}']
 
     pin_ledger._require_extension(previous, appended, label="commit test")
+
+
+def test_same_commit_tree_rejects_omitted_entry_with_false_completeness_claim(
+    monkeypatch: pytest.MonkeyPatch, release_repo: ReleaseRepo
+) -> None:
+    tree_sha = _git(release_repo.repo, "show", "-s", "--format=%T", "HEAD")
+    payload = _tree_payload(release_repo.repo, tree_sha)
+    payload["tree"] = payload["tree"][:-1]
+    monkeypatch.setattr(pin_ledger, "_api", lambda path: payload)
+
+    with pytest.raises(pin_ledger.PinError, match="refusing incomplete"):
+        pin_ledger._tree_entries_at(tree_sha)
+
+
+@pytest.mark.parametrize(
+    ("commit_shas", "diagnostic"),
+    [
+        (["b" * 40, "b" * 40], "duplicate commits"),
+        (["c" * 40, "d" * 40], "ends at"),
+    ],
+)
+def test_compare_commit_list_is_unique_and_ends_at_requested_head(
+    monkeypatch: pytest.MonkeyPatch,
+    commit_shas: list[str],
+    diagnostic: str,
+) -> None:
+    base = "a" * 40
+    head = "b" * 40
+    payload = {
+        "status": "ahead",
+        "merge_base_commit": {"sha": base},
+        "total_commits": len(commit_shas),
+        "commits": [{"sha": sha} for sha in commit_shas],
+    }
+    monkeypatch.setattr(pin_ledger, "_api", lambda _path: payload)
+
+    with pytest.raises(pin_ledger.PinError, match=diagnostic):
+        pin_ledger._compare_commits(base, head)
+
+
+def test_refresh_parent_chain_cannot_skip_an_omitted_commit() -> None:
+    with pytest.raises(pin_ledger.PinError, match="skips or reorders"):
+        pin_ledger._require_linear_parent(
+            {"sha": "c" * 40, "parents": [{"sha": "d" * 40}]},
+            "c" * 40,
+            "b" * 40,
+        )
+
+
+def test_refresh_verifies_chain_and_derives_three_release_windows(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+
+    pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    pin = json.loads(pin_path.read_text())
+    assert pin["sha"] == release_repo.head
+    assert pin["releaseHead"]["index"] == 2
+    assert re.fullmatch(r"[0-9a-f]{64}", pin["releaseHead"]["manifestSha256"])
+    rows = json.loads(availability_path.read_text())["rows"]
+    assert [row["witnessedInReleaseIndex"] for row in rows] == [0, 1, 2]
+    assert [row["lastExcludedReleaseIndex"] for row in rows] == [None, 0, 1]
+    assert rows[0]["lastExcludedReleaseFreetsaGenTimeUtc"] is None
+    assert rows[0]["lastExcludedReleaseDigicertGenTimeUtc"] is None
+    assert rows[1]["lastExcludedReleaseFreetsaGenTimeUtc"].endswith("Z")
+    assert rows[1]["lastExcludedReleaseDigicertGenTimeUtc"].endswith("Z")
+    assert rows[2]["witnessedInReleaseFreetsaGenTimeUtc"].endswith("Z")
+    assert rows[2]["witnessedInReleaseDigicertGenTimeUtc"].endswith("Z")
+    verification = verify_release_chain(
+        release_repo.repo,
+        anchor_dir=release_repo.tsa / "anchors",
+        require_chain=True,
+        verify_state=True,
+        enforce_production_pins=False,
+    )
+    for index, row in enumerate(rows):
+        included = verification.releases[index]
+        assert row["witnessedInReleaseFreetsaGenTimeUtc"] == (
+            pin_ledger._format_utc(included.receipt_times["freetsa"])
+        )
+        assert row["witnessedInReleaseDigicertGenTimeUtc"] == (
+            pin_ledger._format_utc(included.receipt_times["digicert"])
+        )
+        if index == 0:
+            continue
+        excluded = verification.releases[index - 1]
+        assert row["lastExcludedReleaseFreetsaGenTimeUtc"] == (
+            pin_ledger._format_utc(excluded.receipt_times["freetsa"])
+        )
+        assert row["lastExcludedReleaseDigicertGenTimeUtc"] == (
+            pin_ledger._format_utc(excluded.receipt_times["digicert"])
+        )
+    generated = generated_path.read_text()
+    assert "witnessedInReleaseIndex: number | null" in generated
+    assert "lastExcludedReleaseIndex: number | null" in generated
+
+
+@pytest.mark.parametrize(
+    ("tamper", "diagnostic"),
+    [
+        ("manifest", "manifest bytes are not canonical"),
+        ("missing_receipt", "must have exactly freetsa and digicert receipts"),
+        ("head_state", "HEAD release lineCount"),
+    ],
+)
+def test_refresh_refuses_invalid_or_unwitnessed_release_state_before_writes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+    tamper: str,
+    diagnostic: str,
+) -> None:
+    directory = release_repo.repo / "releases" / "manifests"
+    if tamper == "manifest":
+        genesis = next(directory.glob("0000-*.json"))
+        genesis.write_bytes(genesis.read_bytes() + b" ")
+    elif tamper == "missing_receipt":
+        head = next(directory.glob("0002-*.json"))
+        head.with_name(f"{head.stem}.digicert.tsr").unlink()
+    else:
+        ledger = release_repo.repo / pin_ledger.LEDGER_JSONL_PATH
+        ledger.write_bytes(ledger.read_bytes() + _row_bytes("row-3-unwitnessed"))
+    _commit(release_repo.repo, f"tamper {tamper}")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match=diagnostic):
+        pin_ledger.refresh()
+
+    assert pin_requests and all(pin_requests)
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_absent_chain_after_stored_release_head(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    pin_path, _, _, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    pin_ledger.refresh()
+    witnessed_pin = pin_path.read_bytes()
+    shutil.rmtree(release_repo.repo / "releases" / "manifests")
+    _commit(release_repo.repo, "delete witnessed chain")
+
+    with pytest.raises(pin_ledger.PinError, match="absent after witnessed genesis"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert pin_path.read_bytes() == witnessed_pin
+
+
+def test_legacy_pin_refuses_chain_introduced_then_removed(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    shutil.rmtree(release_repo.repo / "releases")
+    ledger = release_repo.repo / pin_ledger.LEDGER_JSONL_PATH
+    ledger.write_bytes(ledger.read_bytes() + _row_bytes("row-3-unwitnessed"))
+    _commit(release_repo.repo, "delete chain and append unwitnessed row")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch,
+        tmp_path,
+        release_repo,
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="absent after witnessed genesis"):
+        pin_ledger.refresh()
+
+    assert pin_requests == []
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_unwitnessed_intermediate_append_even_if_later_released(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    ledger = release_repo.repo / pin_ledger.LEDGER_JSONL_PATH
+    previous_ledger = ledger.read_bytes()
+    previous_manifest_path = next(
+        (release_repo.repo / "releases/manifests").glob("0002-*.json")
+    )
+    previous_manifest = previous_manifest_path.read_bytes()
+    ledger.write_bytes(previous_ledger + _row_bytes("row-3"))
+    _commit(release_repo.repo, "unwitnessed intermediate append")
+    _write_release(
+        release_repo.repo,
+        release_repo.tsa,
+        index=3,
+        previous_manifest=previous_manifest,
+        previous_ledger=previous_ledger,
+    )
+    _commit(release_repo.repo, "later release cannot sanitize intermediate")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="unwitnessed JSONL state"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_transient_release_receipt_replacement(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    receipt = next(
+        (release_repo.repo / "releases/manifests").glob("0002-*.freetsa.tsr")
+    )
+    original = receipt.read_bytes()
+    receipt.write_bytes(original + b"tampered")
+    _commit(release_repo.repo, "transient receipt replacement")
+    receipt.write_bytes(original)
+    _commit(release_repo.repo, "restore receipt before refresh")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="absent or changed"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_transient_release_mode_change(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    receipt = next(
+        (release_repo.repo / "releases/manifests").glob("0002-*.freetsa.tsr")
+    )
+    original_mode = receipt.stat().st_mode
+    receipt.chmod(original_mode | 0o111)
+    _commit(release_repo.repo, "transient receipt mode change")
+    receipt.chmod(original_mode)
+    _commit(release_repo.repo, "restore receipt mode before refresh")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="absent or changed"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_same_sha_refresh_migrates_legacy_witness_fields(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    _git(release_repo.repo, "checkout", "-q", release_repo.genesis)
+    pin_path, availability_path, generated_path = _seed_outputs(
+        monkeypatch,
+        tmp_path,
+        release_repo,
+        pin_sha=release_repo.genesis,
+    )
+    _install_remote(monkeypatch, release_repo)
+    pin_requests = _install_test_verifier(monkeypatch, release_repo)
+
+    pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert json.loads(pin_path.read_text())["releaseHead"]["index"] == 0
+    row = json.loads(availability_path.read_text())["rows"][0]
+    assert row["witnessedInReleaseIndex"] == 0
+    assert row["lastExcludedReleaseIndex"] is None
+    assert "witnessedInReleaseIndex: number | null" in generated_path.read_text()
+
+
+def test_same_sha_refresh_repairs_interrupted_pin_last_publication(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    _git(release_repo.repo, "checkout", "-q", release_repo.genesis)
+    pin_path, availability_path, generated_path = _seed_outputs(
+        monkeypatch,
+        tmp_path,
+        release_repo,
+        pin_sha=release_repo.genesis,
+    )
+    _install_remote(monkeypatch, release_repo)
+    _install_test_verifier(monkeypatch, release_repo)
+    original_replace = pin_ledger.os.replace
+    calls = 0
+
+    def fail_second_replace(source: pathlib.Path, destination: pathlib.Path) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError("simulated generated-output replace failure")
+        original_replace(source, destination)
+
+    monkeypatch.setattr(pin_ledger.os, "replace", fail_second_replace)
+    with pytest.raises(OSError, match="generated-output"):
+        pin_ledger.refresh()
+
+    assert "witnessedInReleaseIndex" in availability_path.read_text()
+    assert generated_path.read_text() == "old generated output\n"
+    assert "releaseHead" not in json.loads(pin_path.read_text())
+
+    monkeypatch.setattr(pin_ledger.os, "replace", original_replace)
+    pin_ledger.refresh()
+
+    assert json.loads(pin_path.read_text())["releaseHead"]["index"] == 0
+    assert "witnessedInReleaseIndex: number | null" in generated_path.read_text()
+
+
+def test_refresh_allows_support_files_before_genesis(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    _git(release_repo.repo, "checkout", "-q", release_repo.base)
+    anchors = release_repo.repo / "releases" / "anchors"
+    shutil.copytree(release_repo.tsa / "anchors", anchors)
+    (release_repo.repo / "releases" / "README.md").write_text("support only\n")
+    support_head = _commit(release_repo.repo, "release support before genesis")
+    pin_path, availability_path, _, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+
+    pin_ledger.refresh()
+
+    assert pin_requests == []
+    pin = json.loads(pin_path.read_text())
+    assert pin["sha"] == support_head
+    assert pin["releaseHead"] is None
+    row = json.loads(availability_path.read_text())["rows"][0]
+    assert row["witnessedInReleaseIndex"] is None
+    assert row["lastExcludedReleaseIndex"] is None
+
+
+def test_backdated_acceptance_before_last_excluding_release_refuses_refresh(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    pin_path, availability_path, generated_path, _ = _prepare_refresh(
+        monkeypatch,
+        tmp_path,
+        release_repo,
+        date_overrides={release_repo.release_one: "2000-01-01T00:00:00Z"},
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="last excluding release 0"):
+        pin_ledger.refresh()
+
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_release_checkpoint_continuity_includes_both_receipt_times(
+    release_repo: ReleaseRepo,
+) -> None:
+    verification = verify_release_chain(
+        release_repo.repo,
+        anchor_dir=release_repo.tsa / "anchors",
+        require_chain=True,
+        verify_state=True,
+        enforce_production_pins=False,
+    )
+    previous = pin_ledger._release_head(verification)
+    previous["digicertGenTimeUtc"] = "2000-01-01T00:00:00Z"
+
+    with pytest.raises(pin_ledger.PinError, match="digicertGenTimeUtc changed"):
+        pin_ledger._require_checkpoint_continuity(verification, previous)
+
+
+def test_acceptance_window_enforces_only_last_excluded_minus_skew(
+    release_repo: ReleaseRepo,
+) -> None:
+    verification = verify_release_chain(
+        release_repo.repo,
+        anchor_dir=release_repo.tsa / "anchors",
+        require_chain=True,
+        verify_state=True,
+        enforce_production_pins=False,
+    )
+    rows = [{"acceptedAtUtc": "2000-01-01T00:00:00Z"}]
+    for excluded in verification.releases[:2]:
+        threshold = max(excluded.receipt_times.values()) - dt.timedelta(
+            seconds=pin_ledger.DEFAULT_CLOCK_SKEW_SECONDS
+        )
+        rows.append({"acceptedAtUtc": pin_ledger._format_utc(threshold)})
+
+    windowed = pin_ledger._rows_with_release_windows(rows, verification)
+
+    assert windowed[0]["lastExcludedReleaseIndex"] is None
+    assert windowed[1]["lastExcludedReleaseIndex"] == 0
+    assert windowed[2]["lastExcludedReleaseIndex"] == 1
+
+
+def test_acceptance_windows_preserve_distinct_exact_provider_times() -> None:
+    release_times = (
+        (
+            dt.datetime(2030, 1, 1, 0, 0, 1, tzinfo=dt.timezone.utc),
+            dt.datetime(2030, 1, 1, 0, 0, 2, tzinfo=dt.timezone.utc),
+        ),
+        (
+            dt.datetime(2030, 1, 1, 0, 1, 3, tzinfo=dt.timezone.utc),
+            dt.datetime(2030, 1, 1, 0, 1, 4, tzinfo=dt.timezone.utc),
+        ),
+        (
+            dt.datetime(2030, 1, 1, 0, 2, 5, tzinfo=dt.timezone.utc),
+            dt.datetime(2030, 1, 1, 0, 2, 6, tzinfo=dt.timezone.utc),
+        ),
+    )
+    releases = tuple(
+        SimpleNamespace(
+            release_index=index,
+            manifest={"state": {"lineCount": index + 1}},
+            receipt_times={"freetsa": times[0], "digicert": times[1]},
+        )
+        for index, times in enumerate(release_times)
+    )
+    verification = SimpleNamespace(releases=releases)
+    rows = [
+        {"acceptedAtUtc": "2030-01-01T00:00:00Z"},
+        {"acceptedAtUtc": "2030-01-01T00:00:03Z"},
+        {"acceptedAtUtc": "2030-01-01T00:01:05Z"},
+    ]
+
+    windowed = pin_ledger._rows_with_release_windows(rows, verification)
+
+    assert [row["witnessedInReleaseFreetsaGenTimeUtc"] for row in windowed] == [
+        "2030-01-01T00:00:01Z",
+        "2030-01-01T00:01:03Z",
+        "2030-01-01T00:02:05Z",
+    ]
+    assert [row["witnessedInReleaseDigicertGenTimeUtc"] for row in windowed] == [
+        "2030-01-01T00:00:02Z",
+        "2030-01-01T00:01:04Z",
+        "2030-01-01T00:02:06Z",
+    ]
+    assert windowed[0]["lastExcludedReleaseIndex"] is None
+    assert windowed[1]["lastExcludedReleaseFreetsaGenTimeUtc"] == (
+        "2030-01-01T00:00:01Z"
+    )
+    assert windowed[1]["lastExcludedReleaseDigicertGenTimeUtc"] == (
+        "2030-01-01T00:00:02Z"
+    )
+    assert windowed[2]["lastExcludedReleaseFreetsaGenTimeUtc"] == (
+        "2030-01-01T00:01:03Z"
+    )
+    assert windowed[2]["lastExcludedReleaseDigicertGenTimeUtc"] == (
+        "2030-01-01T00:01:04Z"
+    )
+
+
+def test_rebuild_writes_verified_release_head_and_windows(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    pin_path, availability_path, _generated_path = _seed_outputs(
+        monkeypatch,
+        tmp_path,
+        release_repo,
+    )
+    pin_requests = _install_test_verifier(monkeypatch, release_repo)
+
+    pin_ledger.rebuild_from_history(release_repo.repo, release_repo.head)
+
+    assert pin_requests == [True]
+    pin = json.loads(pin_path.read_text())
+    assert pin["sha"] == release_repo.head
+    assert pin["releaseHead"]["index"] == 2
+    rows = json.loads(availability_path.read_text())["rows"]
+    assert [row["witnessedInReleaseIndex"] for row in rows] == [0, 1, 2]
+    assert [row["lastExcludedReleaseIndex"] for row in rows] == [None, 0, 1]
+
+
+def test_rebuild_verifies_release_chain_before_any_output_write(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    pin_path, availability_path, generated_path = _seed_outputs(
+        monkeypatch, tmp_path, release_repo
+    )
+    pin_requests = _install_test_verifier(monkeypatch, release_repo)
+    head = next((release_repo.repo / "releases/manifests").glob("0002-*.json"))
+    head.with_name(f"{head.stem}.freetsa.tsr").unlink()
+    bad_head = _commit(release_repo.repo, "missing receipt before rebuild")
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="must have exactly"):
+        pin_ledger.rebuild_from_history(release_repo.repo, bad_head)
+
+    assert pin_requests and all(pin_requests)
+    assert {path: path.read_bytes() for path in before} == before
 
 
 def test_v3_registration_hash_commits_to_the_ledger_pin() -> None:
@@ -102,6 +1069,44 @@ def test_pin_binding_validation_fails_closed() -> None:
         validate_ledger_pin_binding({**_pin_binding(), "lineCount": -1})
 
 
+def test_pin_schema_rejects_malformed_release_head(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    pin_path = tmp_path / "ledger-pin.json"
+    pin_path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": "thesis_ledger_pin_v1",
+                **_pin_binding(),
+                "jsonlBytes": 12345,
+                "pinnedAtUtc": "2030-01-01T00:00:00Z",
+                "releaseHead": {
+                    "index": True,
+                    "manifestSha256": "c" * 64,
+                    "freetsaGenTimeUtc": "2030-01-01T00:00:00Z",
+                    "digicertGenTimeUtc": "2030-01-01T00:00:01Z",
+                },
+            }
+        )
+    )
+    monkeypatch.setattr(pin_ledger, "PIN_PATH", pin_path)
+
+    with pytest.raises(pin_ledger.PinError, match="non-negative integer"):
+        pin_ledger.load_pin()
+
+
+def test_release_head_index_cannot_exceed_four_digit_manifest_namespace() -> None:
+    release_head = {
+        "index": 10_000,
+        "manifestSha256": "c" * 64,
+        "freetsaGenTimeUtc": "2030-01-01T00:00:00Z",
+        "digicertGenTimeUtc": "2030-01-01T00:00:01Z",
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="no greater than 9999"):
+        pin_ledger._validate_release_head(release_head)
+
+
 def test_registration_reads_the_committed_pin(monkeypatch, tmp_path) -> None:
     pin_path = tmp_path / "ledger-pin.json"
     pin_path.write_text(
@@ -111,6 +1116,12 @@ def test_registration_reads_the_committed_pin(monkeypatch, tmp_path) -> None:
                 **_pin_binding(),
                 "jsonlBytes": 12345,
                 "pinnedAtUtc": "2030-01-01T00:00:00Z",
+                "releaseHead": {
+                    "index": 7,
+                    "manifestSha256": "c" * 64,
+                    "freetsaGenTimeUtc": "2030-01-01T00:00:00Z",
+                    "digicertGenTimeUtc": "2030-01-01T00:00:01Z",
+                },
             }
         )
     )

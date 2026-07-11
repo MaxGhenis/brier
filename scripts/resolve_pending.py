@@ -27,23 +27,45 @@ Idempotent: refs already present in the ledger are skipped.
 from __future__ import annotations
 
 import argparse
+import base64
 import copy
 import csv
 import datetime as dt
 import gzip
 import hashlib
+import http.client
 import io
 import json
+import math
+import os
 import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 import time
+import urllib.error
 import urllib.request
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from canonical_json import canonical_bytes, canonical_sha256
+from ledger_release_chain import (
+    DEFAULT_CLOCK_SKEW_SECONDS,
+    LEDGER_RELATIVE,
+    MANIFEST_RELATIVE,
+    PREFIX_RELATIVE,
+    SCHEMA_VERSION,
+    ChainVerification,
+    jsonl_line_offsets,
+    manifest_filename,
+    receipt_paths_for_manifest,
+    sha256_bytes,
+    validate_manifest_schema,
+    verify_release_chain,
+)
 from register_targets import RegistrationError, registration_content_hash
 from thesis_log_client import load_thesis_log
 from verify_custody import verify_run
@@ -56,6 +78,153 @@ FRED_CSV = (
     "https://alfred.stlouisfed.org/graph/alfredgraph.csv"
     "?id={series}&vintage_date={vintage}"
 )
+
+MAX_TIMESTAMP_TOKEN_BYTES = 1024 * 1024
+DEFAULT_TIMESTAMP_TIMEOUT_SECONDS = 45.0
+TSA_ENDPOINTS = {
+    "freetsa": "https://freetsa.org/tsr",
+    # DigiCert's documented RFC 3161 endpoint is plain HTTP (its TLS endpoint
+    # does not answer timestamp queries). The signed token is verified against
+    # the separately pinned trust anchor before the proposal branch exists.
+    "digicert": "http://timestamp.digicert.com",
+}
+TimestampRequester = Callable[[str, bytes, float], bytes]
+
+
+class LedgerProposalError(RuntimeError):
+    """A witnessed ledger proposal could not be constructed or published."""
+
+
+@dataclass(frozen=True)
+class RepositoryTree:
+    tree_sha: str
+    files: dict[str, bytes]
+    modes: dict[str, str]
+    blob_shas: dict[str, str]
+
+
+def _validate_timestamp_timeout(value: float) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise LedgerProposalError(
+            "timeout_seconds must be a finite positive number"
+        )
+    result = float(value)
+    if not math.isfinite(result) or result <= 0:
+        raise LedgerProposalError(
+            "timeout_seconds must be a finite positive number"
+        )
+    return result
+
+
+def request_timestamp(endpoint: str, query: bytes, timeout_seconds: float) -> bytes:
+    """POST one DER RFC 3161 query and return a size-bounded response."""
+
+    if endpoint not in TSA_ENDPOINTS.values():
+        raise LedgerProposalError(f"refusing unapproved TSA endpoint: {endpoint!r}")
+    if type(query) is not bytes or not query:
+        raise LedgerProposalError("RFC 3161 query must be non-empty bytes")
+    timeout = _validate_timestamp_timeout(timeout_seconds)
+    request = urllib.request.Request(
+        endpoint,
+        data=query,
+        headers={
+            "Content-Type": "application/timestamp-query",
+            "User-Agent": "Thesis-Ledger-Release-Witness/1",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        token = response.read(MAX_TIMESTAMP_TOKEN_BYTES + 1)
+    if not token:
+        raise LedgerProposalError(f"TSA returned an empty response: {endpoint}")
+    if len(token) > MAX_TIMESTAMP_TOKEN_BYTES:
+        raise LedgerProposalError(
+            f"TSA response exceeds the one-megabyte limit: {endpoint}"
+        )
+    return token
+
+
+def _build_timestamp_query(manifest: bytes, timeout_seconds: float) -> bytes:
+    """Build the DER query whose SHA-256 imprint covers exact manifest bytes."""
+
+    with tempfile.TemporaryDirectory(prefix="thesis-release-query-") as name:
+        temporary = pathlib.Path(name)
+        manifest_path = temporary / "manifest.json"
+        query_path = temporary / "request.tsq"
+        manifest_path.write_bytes(manifest)
+        try:
+            completed = subprocess.run(
+                [
+                    "openssl",
+                    "ts",
+                    "-query",
+                    "-config",
+                    "/dev/null",
+                    "-data",
+                    str(manifest_path),
+                    "-sha256",
+                    "-cert",
+                    "-out",
+                    str(query_path),
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+                timeout=timeout_seconds,
+                env={**os.environ, "LC_ALL": "C", "OPENSSL_CONF": "/dev/null"},
+            )
+        except FileNotFoundError as exc:
+            raise LedgerProposalError(
+                "openssl is required to construct the RFC 3161 query"
+            ) from exc
+        except subprocess.TimeoutExpired as exc:
+            raise LedgerProposalError(
+                "OpenSSL timestamp-query construction timed out"
+            ) from exc
+        if completed.returncode != 0:
+            diagnostic = (completed.stderr or completed.stdout).strip()
+            raise LedgerProposalError(
+                "OpenSSL timestamp-query construction failed: "
+                f"{diagnostic[-1000:] or 'no diagnostic'}"
+            )
+        try:
+            query = query_path.read_bytes()
+        except FileNotFoundError as exc:
+            raise LedgerProposalError(
+                "OpenSSL did not produce the RFC 3161 query"
+            ) from exc
+    if not query or len(query) > MAX_TIMESTAMP_TOKEN_BYTES:
+        raise LedgerProposalError("OpenSSL produced an invalid-sized RFC 3161 query")
+    return query
+
+
+def _request_timestamp_receipts(
+    query: bytes,
+    *,
+    requester: TimestampRequester,
+    timeout_seconds: float,
+) -> dict[str, bytes]:
+    receipts: dict[str, bytes] = {}
+    for tsa, endpoint in TSA_ENDPOINTS.items():
+        try:
+            token = requester(endpoint, query, timeout_seconds)
+        except (
+            http.client.HTTPException,
+            OSError,
+            LedgerProposalError,
+            urllib.error.URLError,
+        ) as exc:
+            raise LedgerProposalError(f"{tsa} timestamp request failed: {exc}") from exc
+        except Exception as exc:
+            raise LedgerProposalError(f"{tsa} timestamp request failed: {exc}") from exc
+        if type(token) is not bytes or not token:
+            raise LedgerProposalError(f"{tsa} TSA must return non-empty bytes")
+        if len(token) > MAX_TIMESTAMP_TOKEN_BYTES:
+            raise LedgerProposalError(
+                f"{tsa} TSA response exceeds the one-megabyte limit"
+            )
+        receipts[tsa] = token
+    return receipts
 
 
 def utc_now() -> str:
@@ -1777,6 +1946,215 @@ def pending_adapter_refs(
     return out
 
 
+def _created_at_utc(now: dt.datetime | None) -> str:
+    current = now or dt.datetime.now(dt.timezone.utc)
+    if (
+        not isinstance(current, dt.datetime)
+        or current.tzinfo is None
+        or current.utcoffset() is None
+    ):
+        raise LedgerProposalError("now must be a timezone-aware datetime")
+    try:
+        current_utc = current.astimezone(dt.timezone.utc)
+    except (OverflowError, ValueError) as exc:
+        raise LedgerProposalError("now cannot be represented as UTC") from exc
+    return current_utc.isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def _build_next_release_manifest(
+    ledger: bytes,
+    immutable_prefix: bytes,
+    existing: ChainVerification,
+    *,
+    now: dt.datetime | None,
+) -> tuple[dict[str, Any], bytes]:
+    """Construct the exact next non-genesis manifest from a verified base."""
+
+    head = existing.head
+    if head is None:
+        raise LedgerProposalError("cannot build a release before witnessed genesis")
+    offsets = jsonl_line_offsets(ledger, LEDGER_RELATIVE.as_posix())
+    line_count = len(offsets) - 1
+    previous_count = head.manifest["state"]["lineCount"]
+    if previous_count >= line_count:
+        raise LedgerProposalError(
+            "proposed ledger has no rows after the witnessed base HEAD"
+        )
+    witnessed_prefix = ledger[: offsets[previous_count]]
+    if sha256_bytes(witnessed_prefix) != head.manifest["state"]["jsonlSha256"]:
+        raise LedgerProposalError(
+            "proposed ledger does not begin with the exact state committed by "
+            "the witnessed base HEAD"
+        )
+    immutable_digest = sha256_bytes(immutable_prefix)
+    if immutable_digest != head.manifest["state"]["immutablePrefixSha256"]:
+        raise LedgerProposalError(
+            "ledger/immutable_prefix.json differs from the witnessed base HEAD"
+        )
+    suffix = ledger[offsets[previous_count] :]
+    manifest: dict[str, Any] = {
+        "schemaVersion": SCHEMA_VERSION,
+        "releaseIndex": head.release_index + 1,
+        "previousManifestSha256": head.sha256,
+        "state": {
+            "path": LEDGER_RELATIVE.as_posix(),
+            "jsonlSha256": sha256_bytes(ledger),
+            "lineCount": line_count,
+            "immutablePrefixSha256": immutable_digest,
+        },
+        "append": {
+            "previousLineCount": previous_count,
+            "appendedRowCount": line_count - previous_count,
+            "appendedBytesSha256": sha256_bytes(suffix),
+        },
+        "createdAtUtc": _created_at_utc(now),
+        "producer": {
+            "repo": "PolicyEngine/ledger",
+            "branch": "codex/thesis-ledger-facts",
+        },
+    }
+    validate_manifest_schema(manifest)
+    return manifest, canonical_bytes(manifest) + b"\n"
+
+
+def _validated_repository_path(value: str) -> pathlib.PurePosixPath:
+    if type(value) is not str or not value or value.startswith("/"):
+        raise LedgerProposalError(f"invalid repository path: {value!r}")
+    path = pathlib.PurePosixPath(value)
+    if path.as_posix() != value or any(part in {"", ".", ".."} for part in path.parts):
+        raise LedgerProposalError(f"invalid repository path: {value!r}")
+    return path
+
+
+def _materialize_repository_tree(
+    root: pathlib.Path,
+    tree: RepositoryTree,
+) -> None:
+    for relative, payload in tree.files.items():
+        path = _validated_repository_path(relative)
+        mode = tree.modes.get(relative)
+        if mode not in {"100644", "100755"}:
+            raise LedgerProposalError(
+                f"base tree entry has non-regular mode {mode}: {relative}"
+            )
+        output = root / path
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_bytes(payload)
+        output.chmod(0o755 if mode == "100755" else 0o644)
+
+
+def _base_has_release_chain(tree: RepositoryTree) -> bool:
+    prefix = MANIFEST_RELATIVE.as_posix() + "/"
+    return any(relative.startswith(prefix) for relative in tree.files)
+
+
+def _prepare_release_files(
+    tree: RepositoryTree,
+    *,
+    path: str,
+    candidate_ledger: bytes,
+    added: int,
+    requester: TimestampRequester,
+    timeout_seconds: float,
+    clock_skew_seconds: int,
+    anchor_dir: pathlib.Path | None,
+    now: dt.datetime | None,
+) -> dict[str, bytes]:
+    """Build and locally verify the release files before any visible push."""
+
+    base_ledger = tree.files.get(path)
+    if base_ledger is None:
+        raise LedgerProposalError(f"base commit is missing ledger file {path}")
+    base_offsets = jsonl_line_offsets(base_ledger, path)
+    candidate_offsets = jsonl_line_offsets(candidate_ledger, path)
+    if not candidate_ledger.startswith(base_ledger):
+        raise LedgerProposalError(
+            "proposed ledger is not an exact byte append to the base commit"
+        )
+    row_delta = len(candidate_offsets) - len(base_offsets)
+    if row_delta <= 0:
+        raise LedgerProposalError("proposed ledger does not append any rows")
+    if type(added) is not int or added != row_delta:
+        raise LedgerProposalError(
+            f"proposal row delta is {row_delta}, but added={added!r}"
+        )
+
+    # Until the ledger's separately reviewed genesis lands, preserve the
+    # existing legacy append path. In particular, the automated consumer must
+    # not race that migration by inventing genesis itself.
+    if not _base_has_release_chain(tree):
+        return {}
+    if path != LEDGER_RELATIVE.as_posix():
+        raise LedgerProposalError(
+            f"witnessed releases require ledger path {LEDGER_RELATIVE.as_posix()}"
+        )
+    prefix_path = PREFIX_RELATIVE.as_posix()
+    immutable_prefix = tree.files.get(prefix_path)
+    if immutable_prefix is None:
+        raise LedgerProposalError(
+            f"base commit is missing immutable-prefix file {prefix_path}"
+        )
+
+    timeout = _validate_timestamp_timeout(timeout_seconds)
+    if type(clock_skew_seconds) is not int or clock_skew_seconds < 0:
+        raise LedgerProposalError(
+            "clock_skew_seconds must be a non-negative integer"
+        )
+    with tempfile.TemporaryDirectory(prefix="thesis-ledger-proposal-") as name:
+        stage = pathlib.Path(name)
+        _materialize_repository_tree(stage, tree)
+        selected_anchors = anchor_dir or (stage / "releases" / "anchors")
+        enforce_production_pins = anchor_dir is None
+
+        # The base is verified strictly, with HEAD required to witness its
+        # entire JSONL. Allowing a pending append here would permit a proposer
+        # to advance an already-unwitnessed state.
+        base_verification = verify_release_chain(
+            stage,
+            anchor_dir=selected_anchors,
+            require_chain=True,
+            verify_state=True,
+            enforce_production_pins=enforce_production_pins,
+            clock_skew_seconds=clock_skew_seconds,
+        )
+        manifest, manifest_raw = _build_next_release_manifest(
+            candidate_ledger,
+            immutable_prefix,
+            base_verification,
+            now=now,
+        )
+        filename = manifest_filename(manifest["releaseIndex"], manifest_raw)
+        manifest_path = stage / MANIFEST_RELATIVE / filename
+        if manifest_path.exists():
+            raise LedgerProposalError(
+                f"refusing to overwrite release manifest {manifest_path.name}"
+            )
+        query = _build_timestamp_query(manifest_raw, timeout)
+        receipts = _request_timestamp_receipts(
+            query,
+            requester=requester,
+            timeout_seconds=timeout,
+        )
+
+        (stage / LEDGER_RELATIVE).write_bytes(candidate_ledger)
+        manifest_path.write_bytes(manifest_raw)
+        receipt_paths = receipt_paths_for_manifest(manifest_path)
+        for tsa, token in receipts.items():
+            receipt_paths[tsa].write_bytes(token)
+        verify_release_chain(
+            stage,
+            anchor_dir=selected_anchors,
+            require_chain=True,
+            verify_state=True,
+            enforce_production_pins=enforce_production_pins,
+            clock_skew_seconds=clock_skew_seconds,
+        )
+        return {
+            (stage_path.relative_to(stage).as_posix()): stage_path.read_bytes()
+            for stage_path in (manifest_path, *receipt_paths.values())
+        }
+
+
 def ledger_state(repo: str, branch: str, path: str) -> tuple[str, str, str]:
     """Return (content, blob_sha, repository HEAD sha) for the ledger."""
     repo_sha = subprocess.run(
@@ -1822,6 +2200,500 @@ def _gh_api(*args: str, input_body: dict[str, Any] | None = None) -> str:
     return completed.stdout
 
 
+def _git_object_sha(value: Any, label: str) -> str:
+    if type(value) is not str or re.fullmatch(r"[0-9a-f]{40}", value) is None:
+        raise LedgerProposalError(f"GitHub returned an invalid {label}: {value!r}")
+    return value
+
+
+def _fetch_git_blob(repo: str, sha: str) -> bytes:
+    sha = _git_object_sha(sha, "requested blob SHA")
+    payload = json.loads(_gh_api(f"repos/{repo}/git/blobs/{sha}"))
+    response_sha = _git_object_sha(payload.get("sha"), "returned blob SHA")
+    if response_sha != sha:
+        raise LedgerProposalError(
+            f"GitHub returned blob {response_sha} for requested blob {sha}"
+        )
+    if payload.get("encoding") != "base64" or type(payload.get("content")) is not str:
+        raise LedgerProposalError(f"GitHub blob {sha} is not base64 encoded")
+    try:
+        encoded = "".join(payload["content"].split())
+        raw = base64.b64decode(encoded, validate=True)
+    except (ValueError, base64.binascii.Error) as exc:
+        raise LedgerProposalError(f"GitHub blob {sha} has invalid base64") from exc
+    size = payload.get("size")
+    if type(size) is not int or size != len(raw):
+        raise LedgerProposalError(
+            f"GitHub blob {sha} size mismatch: reported={size!r}, actual={len(raw)}"
+        )
+    header = f"blob {len(raw)}\0".encode("ascii")
+    actual_sha = hashlib.sha1(
+        header + raw,
+        usedforsecurity=False,
+    ).hexdigest()
+    if actual_sha != sha:
+        raise LedgerProposalError(
+            f"GitHub blob bytes do not match tree object {sha}: {actual_sha}"
+        )
+    return raw
+
+
+def _git_tree_object_sha(entries: list[dict[str, str]]) -> str:
+    body = bytearray()
+    for entry in entries:
+        mode = entry["mode"].lstrip("0") or "0"
+        body.extend(f"{mode} {entry['path']}\0".encode("utf-8"))
+        body.extend(bytes.fromhex(entry["sha"]))
+    header = f"tree {len(body)}\0".encode("ascii")
+    return hashlib.sha1(header + body, usedforsecurity=False).hexdigest()
+
+
+def _fetch_git_tree(
+    repo: str,
+    tree_sha: str,
+    cache: dict[str, dict[str, dict[str, str]]],
+) -> dict[str, dict[str, str]]:
+    tree_sha = _git_object_sha(tree_sha, "requested tree SHA")
+    if tree_sha in cache:
+        return cache[tree_sha]
+    payload = json.loads(_gh_api(f"repos/{repo}/git/trees/{tree_sha}"))
+    if type(payload) is not dict:
+        raise LedgerProposalError(f"GitHub tree {tree_sha} response is not an object")
+    response_sha = _git_object_sha(payload.get("sha"), "returned tree SHA")
+    if response_sha != tree_sha:
+        raise LedgerProposalError(
+            f"GitHub returned tree {response_sha} for requested tree {tree_sha}"
+        )
+    if payload.get("truncated") is not False:
+        raise LedgerProposalError(
+            f"GitHub returned a truncated tree for object {tree_sha}"
+        )
+    raw_entries = payload.get("tree")
+    if type(raw_entries) is not list:
+        raise LedgerProposalError(f"GitHub tree {tree_sha} has no entry list")
+    entries: dict[str, dict[str, str]] = {}
+    ordered: list[dict[str, str]] = []
+    for raw_entry in raw_entries:
+        if type(raw_entry) is not dict:
+            raise LedgerProposalError(f"GitHub tree {tree_sha} has a malformed entry")
+        path = raw_entry.get("path")
+        mode = raw_entry.get("mode")
+        object_type = raw_entry.get("type")
+        if (
+            type(path) is not str
+            or not path
+            or "/" in path
+            or path in {".", ".."}
+            or "\0" in path
+            or type(mode) is not str
+            or type(object_type) is not str
+        ):
+            raise LedgerProposalError(
+                f"GitHub tree {tree_sha} has an unsafe direct entry"
+            )
+        valid_kind = (
+            (object_type == "tree" and mode == "040000")
+            or (object_type == "blob" and mode in {"100644", "100755", "120000"})
+            or (object_type == "commit" and mode == "160000")
+        )
+        if not valid_kind:
+            raise LedgerProposalError(
+                f"GitHub tree {tree_sha} has invalid type/mode for {path}: "
+                f"{object_type}/{mode}"
+            )
+        if path in entries:
+            raise LedgerProposalError(
+                f"GitHub tree {tree_sha} contains duplicate path {path!r}"
+            )
+        entry = {
+            "path": path,
+            "mode": mode,
+            "type": object_type,
+            "sha": _git_object_sha(raw_entry.get("sha"), f"object SHA for {path}"),
+        }
+        entries[path] = entry
+        ordered.append(entry)
+    computed_sha = _git_tree_object_sha(ordered)
+    if computed_sha != tree_sha:
+        raise LedgerProposalError(
+            f"GitHub tree entries hash to {computed_sha}, expected {tree_sha}; "
+            "refusing partial base state"
+        )
+    cache[tree_sha] = entries
+    return entries
+
+
+def _repository_blob_at_path(
+    repo: str,
+    root_entries: dict[str, dict[str, str]],
+    path: str,
+    cache: dict[str, dict[str, dict[str, str]]],
+    *,
+    required: bool,
+) -> tuple[bytes, str, str] | None:
+    relative = _validated_repository_path(path)
+    entries = root_entries
+    for component in relative.parts[:-1]:
+        entry = entries.get(component)
+        if entry is None:
+            if required:
+                raise LedgerProposalError(f"base commit is missing {path}")
+            return None
+        if entry["type"] != "tree" or entry["mode"] != "040000":
+            raise LedgerProposalError(
+                f"base path component is not a regular tree: {component}"
+            )
+        entries = _fetch_git_tree(repo, entry["sha"], cache)
+    entry = entries.get(relative.name)
+    if entry is None:
+        if required:
+            raise LedgerProposalError(f"base commit is missing {path}")
+        return None
+    if entry["type"] != "blob" or entry["mode"] not in {"100644", "100755"}:
+        raise LedgerProposalError(f"base tree entry is not a regular file: {path}")
+    return _fetch_git_blob(repo, entry["sha"]), entry["mode"], entry["sha"]
+
+
+def _collect_release_tree_files(
+    repo: str,
+    tree_sha: str,
+    prefix: pathlib.PurePosixPath,
+    cache: dict[str, dict[str, dict[str, str]]],
+    files: dict[str, bytes],
+    modes: dict[str, str],
+    blob_shas: dict[str, str],
+) -> None:
+    entries = _fetch_git_tree(repo, tree_sha, cache)
+    for name, entry in entries.items():
+        relative = prefix / name
+        if entry["type"] == "tree":
+            _collect_release_tree_files(
+                repo,
+                entry["sha"],
+                relative,
+                cache,
+                files,
+                modes,
+                blob_shas,
+            )
+            continue
+        if entry["type"] != "blob" or entry["mode"] not in {"100644", "100755"}:
+            raise LedgerProposalError(
+                f"base release entry is not a regular file: {relative}"
+            )
+        path = _validated_repository_path(relative.as_posix()).as_posix()
+        files[path] = _fetch_git_blob(repo, entry["sha"])
+        modes[path] = entry["mode"]
+        blob_shas[path] = entry["sha"]
+
+
+def _fetch_repository_tree(
+    repo: str, commit_sha: str, ledger_path: str
+) -> RepositoryTree:
+    """Fetch the exact ledger/release subset from one immutable commit tree."""
+
+    commit_sha = _git_object_sha(commit_sha, "commit SHA")
+    commit = json.loads(_gh_api(f"repos/{repo}/git/commits/{commit_sha}"))
+    if type(commit) is not dict:
+        raise LedgerProposalError(
+            f"GitHub commit {commit_sha} response is not an object"
+        )
+    response_sha = _git_object_sha(commit.get("sha"), "returned commit SHA")
+    if response_sha != commit_sha:
+        raise LedgerProposalError(
+            f"GitHub returned commit {response_sha} for requested commit {commit_sha}"
+        )
+    tree_payload = commit.get("tree")
+    if type(tree_payload) is not dict:
+        raise LedgerProposalError(f"GitHub commit {commit_sha} has no tree")
+    tree_sha = _git_object_sha(tree_payload.get("sha"), "tree SHA")
+    cache: dict[str, dict[str, dict[str, str]]] = {}
+    root_entries = _fetch_git_tree(repo, tree_sha, cache)
+    files: dict[str, bytes] = {}
+    modes: dict[str, str] = {}
+    blob_shas: dict[str, str] = {}
+    for wanted, required in (
+        (ledger_path, True),
+        (PREFIX_RELATIVE.as_posix(), False),
+    ):
+        blob = _repository_blob_at_path(
+            repo, root_entries, wanted, cache, required=required
+        )
+        if blob is not None:
+            payload, mode, blob_sha = blob
+            files[wanted] = payload
+            modes[wanted] = mode
+            blob_shas[wanted] = blob_sha
+    releases = root_entries.get("releases")
+    if releases is not None:
+        if releases["type"] != "tree" or releases["mode"] != "040000":
+            raise LedgerProposalError("base releases path is not a regular tree")
+        _collect_release_tree_files(
+            repo,
+            releases["sha"],
+            pathlib.PurePosixPath("releases"),
+            cache,
+            files,
+            modes,
+            blob_shas,
+        )
+    return RepositoryTree(
+        tree_sha=tree_sha,
+        files=files,
+        modes=modes,
+        blob_shas=blob_shas,
+    )
+
+
+def _upload_git_blob(repo: str, payload: bytes) -> str:
+    response = json.loads(
+        _gh_api(
+            "-X",
+            "POST",
+            f"repos/{repo}/git/blobs",
+            input_body={
+                "content": base64.b64encode(payload).decode("ascii"),
+                "encoding": "base64",
+            },
+        )
+    )
+    return _git_object_sha(response.get("sha"), "created blob SHA")
+
+
+def _publish_proposal_commit(
+    repo: str,
+    *,
+    base_sha: str,
+    base_tree_sha: str,
+    message: str,
+    changes: Mapping[str, bytes],
+) -> str:
+    """Create one unreferenced commit containing every proposal change."""
+
+    if not changes:
+        raise LedgerProposalError("proposal commit has no changes")
+    tree_entries: list[dict[str, str]] = []
+    for relative, payload in sorted(changes.items()):
+        relative = _validated_repository_path(relative).as_posix()
+        if type(payload) is not bytes:
+            raise LedgerProposalError(f"proposal payload is not bytes: {relative}")
+        tree_entries.append(
+            {
+                "path": relative,
+                "mode": "100644",
+                "type": "blob",
+                "sha": _upload_git_blob(repo, payload),
+            }
+        )
+    tree_response = json.loads(
+        _gh_api(
+            "-X",
+            "POST",
+            f"repos/{repo}/git/trees",
+            input_body={"base_tree": base_tree_sha, "tree": tree_entries},
+        )
+    )
+    candidate_tree_sha = _git_object_sha(
+        tree_response.get("sha"), "created tree SHA"
+    )
+    commit_response = json.loads(
+        _gh_api(
+            "-X",
+            "POST",
+            f"repos/{repo}/git/commits",
+            input_body={
+                "message": message,
+                "tree": candidate_tree_sha,
+                "parents": [base_sha],
+            },
+        )
+    )
+    return _git_object_sha(commit_response.get("sha"), "proposal commit SHA")
+
+
+def _branch_head(repo: str, branch: str) -> str:
+    value = _gh_api(f"repos/{repo}/commits/{branch}", "--jq", ".sha").strip()
+    return _git_object_sha(value, f"{branch} branch HEAD")
+
+
+def _is_github_not_found(error: Exception) -> bool:
+    diagnostic = str(error).lower()
+    return "http 404" in diagnostic or "(404)" in diagnostic
+
+
+def _proposal_ref_sha(repo: str, proposal: str) -> str | None:
+    try:
+        payload = json.loads(
+            _gh_api(f"repos/{repo}/git/ref/heads/{proposal}")
+        )
+    except RuntimeError as exc:
+        if _is_github_not_found(exc):
+            return None
+        raise
+    target = payload.get("object")
+    if type(target) is not dict:
+        raise LedgerProposalError(f"proposal ref {proposal} has no target object")
+    return _git_object_sha(target.get("sha"), f"target of proposal ref {proposal}")
+
+
+def _find_open_proposal_pr(repo: str, proposal: str) -> int | None:
+    owner, separator, _name = repo.partition("/")
+    if not separator or not owner:
+        raise LedgerProposalError(f"invalid GitHub repository name: {repo!r}")
+    head = quote(f"{owner}:{proposal}", safe="")
+    payload = json.loads(
+        _gh_api(f"repos/{repo}/pulls?state=open&head={head}&per_page=10")
+    )
+    if type(payload) is not list:
+        raise LedgerProposalError("GitHub open-PR recovery response is not a list")
+    numbers = [entry.get("number") for entry in payload if type(entry) is dict]
+    if any(type(number) is not int for number in numbers):
+        raise LedgerProposalError("GitHub open-PR recovery returned an invalid number")
+    if len(numbers) > 1:
+        raise LedgerProposalError(
+            f"multiple open PRs unexpectedly use proposal branch {proposal}"
+        )
+    return numbers[0] if numbers else None
+
+
+def _proposal_pr_identity(
+    repo: str,
+    pr_number: int,
+    *,
+    expected_head_sha: str,
+    expected_base: str,
+    expected_base_sha: str | None = None,
+) -> dict[str, Any]:
+    payload = json.loads(_gh_api(f"repos/{repo}/pulls/{pr_number}"))
+    if type(payload) is not dict:
+        raise LedgerProposalError("GitHub pull-request response is not an object")
+    head = payload.get("head")
+    base = payload.get("base")
+    matches = (
+        type(head) is dict
+        and head.get("sha") == expected_head_sha
+        and type(base) is dict
+        and base.get("ref") == expected_base
+    )
+    if expected_base_sha is not None:
+        matches = matches and base.get("sha") == expected_base_sha
+    if not matches:
+        raise LedgerProposalError(
+            "pull request no longer has the expected proposal head and base"
+        )
+    return payload
+
+
+def _merged_proposal_sha(
+    repo: str,
+    pr_number: int,
+    *,
+    expected_head_sha: str,
+    expected_base: str,
+) -> str | None:
+    """Recover a merge that may have succeeded despite a lost response."""
+
+    payload = _proposal_pr_identity(
+        repo,
+        pr_number,
+        expected_head_sha=expected_head_sha,
+        expected_base=expected_base,
+    )
+    if payload.get("merged") is not True:
+        return None
+    return _git_object_sha(
+        payload.get("merge_commit_sha"),
+        f"merged commit SHA for pull request {pr_number}",
+    )
+
+
+def _cleanup_proposal(
+    repo: str,
+    proposal: str,
+    *,
+    ref_created: bool,
+    ref_creation_attempted: bool,
+    proposal_commit: str,
+    pr_number: int | None,
+    pr_creation_attempted: bool,
+    merged: bool,
+) -> list[str]:
+    failures: list[str] = []
+    if pr_number is None and pr_creation_attempted and not merged:
+        try:
+            pr_number = _find_open_proposal_pr(repo, proposal)
+        except Exception as exc:
+            failures.append(f"locate possibly-created PR: {exc}")
+    if pr_number is not None and not merged:
+        try:
+            _gh_api(
+                "-X",
+                "PATCH",
+                f"repos/{repo}/pulls/{pr_number}",
+                input_body={"state": "closed"},
+            )
+        except Exception as exc:
+            failures.append(f"close PR #{pr_number}: {exc}")
+    should_delete_ref = ref_created
+    if not ref_created and ref_creation_attempted:
+        try:
+            recovered_sha = _proposal_ref_sha(repo, proposal)
+            if recovered_sha is not None and recovered_sha != proposal_commit:
+                failures.append(
+                    f"ref {proposal} points to unexpected commit {recovered_sha}; "
+                    "refusing to delete it"
+                )
+            else:
+                should_delete_ref = recovered_sha is not None
+        except Exception as exc:
+            failures.append(f"locate possibly-created branch {proposal}: {exc}")
+    if should_delete_ref:
+        try:
+            _gh_api("-X", "DELETE", f"repos/{repo}/git/refs/heads/{proposal}")
+        except Exception as exc:
+            failures.append(f"delete branch {proposal}: {exc}")
+    return failures
+
+
+def _verify_remote_proposal_state(
+    repo: str,
+    commit_sha: str,
+    *,
+    path: str,
+    candidate_ledger: bytes,
+    release_files: Mapping[str, bytes],
+    clock_skew_seconds: int,
+    anchor_dir: pathlib.Path | None,
+) -> None:
+    """Re-fetch and fully verify the exact merged repository state."""
+
+    tree = _fetch_repository_tree(repo, commit_sha, path)
+    if tree.files.get(path) != candidate_ledger:
+        raise LedgerProposalError(
+            "merged commit ledger bytes do not equal the verified proposal"
+        )
+    for relative, expected in release_files.items():
+        if tree.files.get(relative) != expected:
+            raise LedgerProposalError(
+                f"merged commit release bytes differ from proposal: {relative}"
+            )
+    with tempfile.TemporaryDirectory(prefix="thesis-ledger-merged-") as name:
+        stage = pathlib.Path(name)
+        _materialize_repository_tree(stage, tree)
+        has_chain = _base_has_release_chain(tree)
+        selected_anchors = anchor_dir or (stage / "releases" / "anchors")
+        verification = verify_release_chain(
+            stage,
+            anchor_dir=selected_anchors,
+            require_chain=has_chain,
+            verify_state=True,
+            enforce_production_pins=anchor_dir is None,
+            clock_skew_seconds=clock_skew_seconds,
+        )
+        if release_files and verification.head is None:
+            raise LedgerProposalError("merged release chain unexpectedly has no HEAD")
+
+
 def propose_ledger_append(
     repo: str,
     branch: str,
@@ -1833,113 +2705,219 @@ def propose_ledger_append(
     *,
     poll_seconds: int = 20,
     poll_attempts: int = 30,
+    timestamp_requester: TimestampRequester | None = None,
+    timestamp_timeout_seconds: float = DEFAULT_TIMESTAMP_TIMEOUT_SECONDS,
+    clock_skew_seconds: int = DEFAULT_CLOCK_SKEW_SECONDS,
+    release_anchor_dir: pathlib.Path | None = None,
+    release_now: dt.datetime | None = None,
 ) -> str:
-    """Append through a reviewed proposal, never by writing the branch.
+    """Publish one fully witnessed commit through the reviewed append gate."""
 
-    The accepted branch only advances through a pull request whose append
-    gate (schema, immutable prefix, append-only diff, contract bindings,
-    supersede semantics) has passed. The proposal branches from the exact
-    state the rows were built against; a merge without a passing gate, or
-    with no gate at all, fails closed and leaves the proposal open for
-    humans (review finding 5).
-    """
-    import base64
-
-    stamp = utc_now().lower().replace(":", "-").replace("t", "-")
-    proposal = f"thesis-facts-append/{stamp}"
-    _gh_api(
-        "-X",
-        "POST",
-        f"repos/{repo}/git/refs",
-        input_body={"ref": f"refs/heads/{proposal}", "sha": base_sha},
+    candidate_ledger = content.encode("utf-8")
+    base_tree = _fetch_repository_tree(repo, base_sha, path)
+    if base_tree.blob_shas.get(path) != blob_sha:
+        raise LedgerProposalError(
+            "base ledger blob differs from the state used to build the append"
+        )
+    release_files = _prepare_release_files(
+        base_tree,
+        path=path,
+        candidate_ledger=candidate_ledger,
+        added=added,
+        requester=timestamp_requester or request_timestamp,
+        timeout_seconds=timestamp_timeout_seconds,
+        clock_skew_seconds=clock_skew_seconds,
+        anchor_dir=release_anchor_dir,
+        now=release_now,
     )
     message = f"Record {added} first-print observation(s) via resolve_pending.py"
-    put_response = json.loads(
-        _gh_api(
-            "-X",
-            "PUT",
-            f"repos/{repo}/contents/{path}",
-            input_body={
-                "message": message,
-                "content": base64.b64encode(content.encode()).decode(),
-                "sha": blob_sha,
-                "branch": proposal,
-            },
-        )
+    changes = {path: candidate_ledger, **release_files}
+    proposal_commit = _publish_proposal_commit(
+        repo,
+        base_sha=base_sha,
+        base_tree_sha=base_tree.tree_sha,
+        message=message,
+        changes=changes,
     )
-    head_sha = str(put_response["commit"]["sha"])
-    pr = json.loads(
+    current_base = _branch_head(repo, branch)
+    if current_base != base_sha:
+        raise LedgerProposalError(
+            f"ledger branch moved while proposal was prepared: {base_sha} -> "
+            f"{current_base}; retry against the new trusted state"
+        )
+
+    stamp = utc_now().lower().replace(":", "-").replace("t", "-")
+    proposal = f"thesis-facts-append/{stamp}-{time.time_ns():x}"
+    ref_created = False
+    ref_creation_attempted = False
+    pr_number: int | None = None
+    pr_creation_attempted = False
+    merged = False
+    try:
+        ref_creation_attempted = True
         _gh_api(
             "-X",
             "POST",
-            f"repos/{repo}/pulls",
+            f"repos/{repo}/git/refs",
             input_body={
-                "title": message,
-                "head": proposal,
-                "base": branch,
-                "body": (
-                    f"Automated append proposal from resolve_pending.py: "
-                    f"{added} first-print observation(s) built against "
-                    f"{base_sha}. Merges only after the thesis-facts append "
-                    "gate passes."
-                ),
+                "ref": f"refs/heads/{proposal}",
+                "sha": proposal_commit,
             },
         )
-    )
-    pr_number = int(pr["number"])
-
-    gate_passed = False
-    for _ in range(poll_attempts):
-        runs = json.loads(
-            _gh_api(f"repos/{repo}/commits/{head_sha}/check-runs")
-        ).get("check_runs", [])
-        gate_runs = [run for run in runs if run.get("name") == "Append gate"]
-        if gate_runs and all(
-            run.get("status") == "completed" for run in gate_runs
-        ):
-            if all(run.get("conclusion") == "success" for run in gate_runs):
-                gate_passed = True
-            break
-        time.sleep(poll_seconds)
-    if not gate_passed:
-        raise RuntimeError(
-            f"append gate did not pass for {repo}#{pr_number}; leaving the "
-            "proposal open for review instead of merging unreviewed rows"
+        ref_created = True
+        pr_creation_attempted = True
+        pr = json.loads(
+            _gh_api(
+                "-X",
+                "POST",
+                f"repos/{repo}/pulls",
+                input_body={
+                    "title": message,
+                    "head": proposal,
+                    "base": branch,
+                    "body": (
+                        "Automated witnessed append proposal from "
+                        f"resolve_pending.py: {added} first-print observation(s) "
+                        f"built against {base_sha}. The proposal commit contains "
+                        "the ledger append and its complete release triple, and "
+                        "merges only after the thesis-facts append gate passes."
+                    ),
+                },
+            )
         )
+        if type(pr.get("number")) is not int:
+            raise LedgerProposalError("GitHub did not return a pull-request number")
+        pr_number = pr["number"]
 
-    _gh_api(
-        "-X",
-        "PUT",
-        f"repos/{repo}/pulls/{pr_number}/merge",
-        input_body={"merge_method": "rebase"},
-    )
-    _gh_api("-X", "DELETE", f"repos/{repo}/git/refs/heads/{proposal}")
+        gate_passed = False
+        for _ in range(poll_attempts):
+            runs = json.loads(
+                _gh_api(f"repos/{repo}/commits/{proposal_commit}/check-runs")
+            ).get("check_runs", [])
+            gate_runs = [run for run in runs if run.get("name") == "Append gate"]
+            if gate_runs and all(
+                run.get("status") == "completed" for run in gate_runs
+            ):
+                if all(run.get("conclusion") == "success" for run in gate_runs):
+                    gate_passed = True
+                break
+            time.sleep(poll_seconds)
+        if not gate_passed:
+            raise LedgerProposalError(
+                f"append gate did not pass for {repo}#{pr_number}; refusing to "
+                "leave a failed proposal branch or PR"
+            )
 
-    merged_sha = _gh_api(
-        f"repos/{repo}/commits/{branch}", "--jq", ".sha"
-    ).strip()
-    merged_lines = _fetch_branch_lines(repo, merged_sha, path)
-    expected_lines = [line for line in content.split("\n") if line.strip()]
-    if merged_lines[: len(expected_lines)] != expected_lines:
-        raise RuntimeError(
-            "merged ledger does not extend the proposed append; investigate "
-            f"{repo}@{merged_sha} before trusting new resolutions"
+        current_base = _branch_head(repo, branch)
+        if current_base != base_sha:
+            raise LedgerProposalError(
+                f"ledger branch moved while proposal awaited the append gate: "
+                f"{base_sha} -> {current_base}; refusing to rebase a release "
+                "built against stale state"
+            )
+
+        pr_state = _proposal_pr_identity(
+            repo,
+            pr_number,
+            expected_head_sha=proposal_commit,
+            expected_base=branch,
+            expected_base_sha=base_sha,
         )
-    return merged_sha
+        if pr_state.get("merged") is True:
+            raise LedgerProposalError(
+                f"pull request {repo}#{pr_number} merged before the controlled merge"
+            )
 
+        ambiguous_merge_error: BaseException | None = None
+        merge_response: Any = None
+        try:
+            merge_raw = _gh_api(
+                "-X",
+                "PUT",
+                f"repos/{repo}/pulls/{pr_number}/merge",
+                input_body={
+                    "merge_method": "rebase",
+                    "sha": proposal_commit,
+                },
+            )
+        except RuntimeError as exc:
+            ambiguous_merge_error = exc
+        else:
+            try:
+                merge_response = json.loads(merge_raw)
+            except json.JSONDecodeError as exc:
+                ambiguous_merge_error = exc
+            if type(merge_response) is not dict:
+                ambiguous_merge_error = LedgerProposalError(
+                    "GitHub merge response is not an object"
+                )
 
-def _fetch_branch_lines(repo: str, ref: str, path: str) -> list[str]:
-    import base64
-
-    payload = json.loads(
-        _gh_api(
-            f"repos/{repo}/contents/{path}?ref={ref}",
-            "--jq",
-            "{content: .content}",
+        if ambiguous_merge_error is not None:
+            recovered_sha = _merged_proposal_sha(
+                repo,
+                pr_number,
+                expected_head_sha=proposal_commit,
+                expected_base=branch,
+            )
+            if recovered_sha is None:
+                raise ambiguous_merge_error
+            merged_sha = recovered_sha
+        else:
+            assert isinstance(merge_response, dict)
+            if merge_response.get("merged") is not True:
+                raise LedgerProposalError(
+                    f"GitHub did not merge {repo}#{pr_number}: "
+                    f"{merge_response.get('message', 'no diagnostic')}"
+                )
+            response_merged_sha = _git_object_sha(
+                merge_response.get("sha"), "merged commit SHA"
+            )
+            confirmed_sha = _merged_proposal_sha(
+                repo,
+                pr_number,
+                expected_head_sha=proposal_commit,
+                expected_base=branch,
+            )
+            if confirmed_sha is None:
+                raise LedgerProposalError(
+                    "GitHub merge response was not confirmed by pull-request state"
+                )
+            if confirmed_sha != response_merged_sha:
+                raise LedgerProposalError(
+                    "GitHub merge response SHA disagrees with pull-request state: "
+                    f"{response_merged_sha} != {confirmed_sha}"
+                )
+            merged_sha = confirmed_sha
+        merged = True
+        _verify_remote_proposal_state(
+            repo,
+            merged_sha,
+            path=path,
+            candidate_ledger=candidate_ledger,
+            release_files=release_files,
+            clock_skew_seconds=clock_skew_seconds,
+            anchor_dir=release_anchor_dir,
         )
-    )
-    text = base64.b64decode(payload["content"]).decode()
-    return [line for line in text.split("\n") if line.strip()]
+        _gh_api("-X", "DELETE", f"repos/{repo}/git/refs/heads/{proposal}")
+        ref_created = False
+        return merged_sha
+    except BaseException as exc:
+        cleanup_failures = _cleanup_proposal(
+            repo,
+            proposal,
+            ref_created=ref_created,
+            ref_creation_attempted=ref_creation_attempted,
+            proposal_commit=proposal_commit,
+            pr_number=pr_number,
+            pr_creation_attempted=pr_creation_attempted,
+            merged=merged,
+        )
+        if cleanup_failures:
+            raise LedgerProposalError(
+                f"proposal failed ({exc}); cleanup also failed: "
+                + "; ".join(cleanup_failures)
+            ) from exc
+        raise
 
 
 def registration_contracts(

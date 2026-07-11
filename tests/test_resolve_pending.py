@@ -1,13 +1,22 @@
 from __future__ import annotations
 
+import base64
+import datetime as dt
 import gzip
+import hashlib
+import json
 import pathlib
+import shutil
+import subprocess
 import sys
 from types import SimpleNamespace
+
+import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import ledger_release_chain  # noqa: E402
 import resolve_pending  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 from verify_custody import verify_run  # noqa: E402
@@ -630,111 +639,1038 @@ def test_assertion_version_changes_when_the_value_changes() -> None:
     assert original["id"] != corrected["id"]
 
 
-def _proposal_api_stub(gate_conclusion: str, calls: list[list[str]]):
-    import base64 as _base64
-    import json as _json
+def _local_timestamp_requester(
+    tsa_root: pathlib.Path,
+    *,
+    signer_overrides: dict[str, str] | None = None,
+):
+    endpoint_slots = {
+        endpoint: slot for slot, endpoint in resolve_pending.TSA_ENDPOINTS.items()
+    }
+    counter = 0
 
-    payload = _json.dumps(
-        {"source_record_id": "test.series.2030", "value": 1}
+    def request(endpoint: str, query: bytes, _timeout_seconds: float) -> bytes:
+        nonlocal counter
+        counter += 1
+        slot = endpoint_slots[endpoint]
+        signer = (signer_overrides or {}).get(slot, slot)
+        query_path = tsa_root / f"request-{counter}.tsq"
+        receipt_path = tsa_root / f"response-{counter}.tsr"
+        query_path.write_bytes(query)
+        subprocess.run(
+            [
+                "openssl",
+                "ts",
+                "-reply",
+                "-config",
+                "openssl-ts.cnf",
+                "-queryfile",
+                str(query_path),
+                "-out",
+                str(receipt_path),
+            ],
+            cwd=tsa_root / signer,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return receipt_path.read_bytes()
+
+    return request
+
+
+def _release_fixture_tree(
+    tmp_path: pathlib.Path,
+) -> tuple[
+    resolve_pending.RepositoryTree,
+    pathlib.Path,
+    resolve_pending.TimestampRequester,
+]:
+    tsa_root = tmp_path / "release_tsa"
+    shutil.copytree(ROOT / "tests" / "fixtures" / "release_tsa", tsa_root)
+    anchor_dir = tsa_root / "anchors"
+    requester = _local_timestamp_requester(tsa_root)
+    ledger = b'{"source_record_id":"fixture.base","value":0}\n'
+    immutable_prefix = b'{"prefixLineCount":0}\n'
+    created_at = (
+        dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2)
+    ).isoformat(timespec="seconds").replace("+00:00", "Z")
+    manifest = {
+        "schemaVersion": "thesis_ledger_release_v1",
+        "releaseIndex": 0,
+        "previousManifestSha256": None,
+        "state": {
+            "path": "ledger/official_observations.jsonl",
+            "jsonlSha256": hashlib.sha256(ledger).hexdigest(),
+            "lineCount": 1,
+            "immutablePrefixSha256": hashlib.sha256(immutable_prefix).hexdigest(),
+        },
+        "append": None,
+        "createdAtUtc": created_at,
+        "producer": {"repo": "PolicyEngine/ledger", "branch": "fixture"},
+    }
+    manifest_raw = canonical_bytes(manifest) + b"\n"
+    manifest_name = ledger_release_chain.manifest_filename(0, manifest_raw)
+    query = resolve_pending._build_timestamp_query(manifest_raw, 10)
+    receipts = {
+        slot: requester(endpoint, query, 10)
+        for slot, endpoint in resolve_pending.TSA_ENDPOINTS.items()
+    }
+    manifest_path = f"releases/manifests/{manifest_name}"
+    files = {
+        "ledger/official_observations.jsonl": ledger,
+        "ledger/immutable_prefix.json": immutable_prefix,
+        manifest_path: manifest_raw,
+        **{
+            f"releases/manifests/{pathlib.PurePosixPath(manifest_name).stem}."
+            f"{slot}.tsr": receipt
+            for slot, receipt in receipts.items()
+        },
+        **{
+            f"releases/anchors/{anchor.name}": anchor.read_bytes()
+            for anchor in anchor_dir.iterdir()
+        },
+    }
+    return (
+        resolve_pending.RepositoryTree(
+            tree_sha="1" * 40,
+            files=files,
+            modes={relative: "100644" for relative in files},
+            blob_shas={relative: "a" * 40 for relative in files},
+        ),
+        anchor_dir,
+        requester,
     )
 
-    def fake_run(command, **_kwargs):
-        calls.append(command)
-        joined = " ".join(command)
-        if "/git/refs" in joined and "-X POST" in joined:
-            return SimpleNamespace(returncode=0, stdout="{}", stderr="")
-        if "/contents/" in joined and "-X PUT" in joined:
-            return SimpleNamespace(
-                returncode=0,
-                stdout=_json.dumps({"commit": {"sha": "h" * 40}}),
-                stderr="",
+
+def _pre_genesis_tree() -> resolve_pending.RepositoryTree:
+    path = "ledger/official_observations.jsonl"
+    files = {path: b'{"source_record_id":"fixture.base","value":0}\n'}
+    return resolve_pending.RepositoryTree(
+        tree_sha="1" * 40,
+        files=files,
+        modes={path: "100644"},
+        blob_shas={path: "a" * 40},
+    )
+
+
+def _proposal_api_stub(
+    gate_conclusion: str,
+    calls: list[tuple[tuple[str, ...], dict | None]],
+    *,
+    fail_ref_creation: bool = False,
+    fail_pr_creation: bool = False,
+    recover_pr_number: int | None = None,
+    merge_payload: dict | None = None,
+):
+    merged = False
+
+    def api(*args: str, input_body=None) -> str:
+        nonlocal merged
+        calls.append((args, input_body))
+        joined = " ".join(args)
+        if "/git/refs" in joined and "POST" in args:
+            if fail_ref_creation:
+                raise RuntimeError("simulated ref creation failure")
+            return "{}"
+        if "/git/ref/heads/" in joined:
+            return json.dumps({"object": {"sha": "c" * 40}})
+        if "/pulls?state=open" in joined:
+            return json.dumps(
+                [] if recover_pr_number is None else [{"number": recover_pr_number}]
             )
-        if joined.endswith("/pulls") and "-X POST" in joined:
-            return SimpleNamespace(
-                returncode=0, stdout=_json.dumps({"number": 7}), stderr=""
-            )
+        if joined.endswith("/pulls") and "POST" in args:
+            if fail_pr_creation:
+                raise RuntimeError("simulated PR creation failure")
+            return json.dumps({"number": 7})
         if "/check-runs" in joined:
-            return SimpleNamespace(
-                returncode=0,
-                stdout=_json.dumps(
-                    {
-                        "check_runs": [
-                            {
-                                "name": "Append gate",
-                                "status": "completed",
-                                "conclusion": gate_conclusion,
-                            }
-                        ]
-                    }
-                ),
-                stderr="",
+            return json.dumps(
+                {
+                    "check_runs": [
+                        {
+                            "name": "Append gate",
+                            "status": "completed",
+                            "conclusion": gate_conclusion,
+                        }
+                    ]
+                }
             )
         if "/merge" in joined:
-            return SimpleNamespace(returncode=0, stdout="{}", stderr="")
-        if "-X DELETE" in joined:
-            return SimpleNamespace(returncode=0, stdout="", stderr="")
-        if "/commits/" in joined:
-            return SimpleNamespace(returncode=0, stdout="m" * 40 + "\n", stderr="")
-        if "/contents/" in joined:
-            return SimpleNamespace(
-                returncode=0,
-                stdout=_json.dumps(
-                    {
-                        "content": _base64.b64encode(
-                            (payload + "\n").encode()
-                        ).decode()
-                    }
-                ),
-                stderr="",
+            result = (
+                merge_payload
+                if merge_payload is not None
+                else {"merged": True, "sha": "d" * 40}
             )
+            if type(result) is dict and result.get("merged") is True:
+                merged = True
+            return json.dumps(result)
+        if joined.endswith("/pulls/7") and "PATCH" not in args:
+            return json.dumps(
+                {
+                    "merged": merged,
+                    "merge_commit_sha": "d" * 40 if merged else None,
+                    "head": {"sha": "c" * 40},
+                    "base": {
+                        "ref": "codex/thesis-ledger-facts",
+                        "sha": "b" * 40,
+                    },
+                }
+            )
+        if "PATCH" in args or "DELETE" in args:
+            return "{}"
         raise AssertionError(f"unexpected gh call: {joined}")
 
-    return fake_run, payload
+    return api
 
 
-def test_append_proposal_merges_only_after_the_gate_passes(monkeypatch) -> None:
-    calls: list[list[str]] = []
-    fake_run, payload = _proposal_api_stub("success", calls)
-    monkeypatch.setattr(resolve_pending.subprocess, "run", fake_run)
+def _install_proposal_transport(
+    monkeypatch,
+    tree: resolve_pending.RepositoryTree,
+    calls: list[tuple[tuple[str, ...], dict | None]],
+    *,
+    gate_conclusion: str = "success",
+    fail_ref_creation: bool = False,
+    fail_pr_creation: bool = False,
+    recover_pr_number: int | None = None,
+    merge_payload: dict | None = None,
+    published: list[dict[str, bytes]] | None = None,
+) -> None:
+    monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
+
+    def publish(*_args, changes, **_kwargs):
+        if published is not None:
+            published.append(dict(changes))
+        return "c" * 40
+
+    monkeypatch.setattr(resolve_pending, "_publish_proposal_commit", publish)
+    monkeypatch.setattr(resolve_pending, "_branch_head", lambda *_: "b" * 40)
+    monkeypatch.setattr(
+        resolve_pending,
+        "_verify_remote_proposal_state",
+        lambda *_args, **_kwargs: None,
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "_gh_api",
+        _proposal_api_stub(
+            gate_conclusion,
+            calls,
+            fail_ref_creation=fail_ref_creation,
+            fail_pr_creation=fail_pr_creation,
+            recover_pr_number=recover_pr_number,
+            merge_payload=merge_payload,
+        ),
+    )
+
+
+def test_append_proposal_builds_byte_correct_verified_release(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    tree, anchor_dir, requester = _release_fixture_tree(tmp_path)
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    published: list[dict[str, bytes]] = []
+    _install_proposal_transport(monkeypatch, tree, calls, published=published)
+    real_verify = resolve_pending.verify_release_chain
+    verify_calls: list[dict] = []
+
+    def tracking_verify(*args, **kwargs):
+        verify_calls.append(dict(kwargs))
+        return real_verify(*args, **kwargs)
+
+    monkeypatch.setattr(resolve_pending, "verify_release_chain", tracking_verify)
+    appended = b'{"source_record_id":"test.series.2030","value":1}\n'
+    candidate = tree.files["ledger/official_observations.jsonl"] + appended
+
+    release_now = dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2)
+    merged = resolve_pending.propose_ledger_append(
+        "PolicyEngine/ledger",
+        "codex/thesis-ledger-facts",
+        "ledger/official_observations.jsonl",
+        candidate.decode(),
+        "a" * 40,
+        "b" * 40,
+        1,
+        poll_seconds=0,
+        poll_attempts=1,
+        timestamp_requester=requester,
+        release_anchor_dir=anchor_dir,
+        release_now=release_now,
+    )
+
+    assert merged == "d" * 40
+    assert len(published) == 1
+    changes = published[0]
+    assert changes["ledger/official_observations.jsonl"] == candidate
+    release_paths = [path for path in changes if path.startswith("releases/")]
+    assert len(release_paths) == 3
+    manifest_path = next(path for path in release_paths if path.endswith(".json"))
+    manifest_raw = changes[manifest_path]
+    manifest = json.loads(manifest_raw)
+    assert manifest_raw == canonical_bytes(manifest) + b"\n"
+    assert pathlib.PurePosixPath(manifest_path).name == (
+        ledger_release_chain.manifest_filename(1, manifest_raw)
+    )
+    assert manifest["previousManifestSha256"] == hashlib.sha256(
+        next(
+            payload
+            for path, payload in tree.files.items()
+            if path.startswith("releases/manifests/") and path.endswith(".json")
+        )
+    ).hexdigest()
+    assert manifest["append"] == {
+        "previousLineCount": 1,
+        "appendedRowCount": 1,
+        "appendedBytesSha256": hashlib.sha256(appended).hexdigest(),
+    }
+    assert manifest["createdAtUtc"] == release_now.isoformat(
+        timespec="seconds"
+    ).replace("+00:00", "Z")
+    assert manifest["producer"] == {
+        "repo": "PolicyEngine/ledger",
+        "branch": "codex/thesis-ledger-facts",
+    }
+    assert manifest["state"] == {
+        "path": "ledger/official_observations.jsonl",
+        "jsonlSha256": hashlib.sha256(candidate).hexdigest(),
+        "lineCount": 2,
+        "immutablePrefixSha256": hashlib.sha256(
+            tree.files["ledger/immutable_prefix.json"]
+        ).hexdigest(),
+    }
+    assert len(verify_calls) == 2
+    assert all(call["require_chain"] is True for call in verify_calls)
+    assert all(call["verify_state"] is True for call in verify_calls)
+    assert not any("/contents/" in " ".join(args) for args, _ in calls)
+    merge_call = next(
+        (args, body) for args, body in calls if "/merge" in " ".join(args)
+    )
+    assert merge_call[1] == {"merge_method": "rebase", "sha": "c" * 40}
+
+
+def test_append_proposal_bad_receipt_has_no_remote_mutation(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    tree, anchor_dir, _requester = _release_fixture_tree(tmp_path)
+    bad_requester = _local_timestamp_requester(
+        anchor_dir.parent,
+        signer_overrides={"digicert": "freetsa"},
+    )
+    monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
+    mutations: list[str] = []
+    monkeypatch.setattr(
+        resolve_pending,
+        "_publish_proposal_commit",
+        lambda *_args, **_kwargs: mutations.append("publish"),
+    )
+    appended = b'{"source_record_id":"test.series.bad","value":1}\n'
+    candidate = tree.files["ledger/official_observations.jsonl"] + appended
+
+    with pytest.raises(ledger_release_chain.ReleaseChainError):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            timestamp_requester=bad_requester,
+            release_anchor_dir=anchor_dir,
+        )
+
+    assert mutations == []
+
+
+def test_append_proposal_tsa_failure_has_no_remote_mutation(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    tree, anchor_dir, _requester = _release_fixture_tree(tmp_path)
+    monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
+    mutations: list[str] = []
+    monkeypatch.setattr(
+        resolve_pending,
+        "_publish_proposal_commit",
+        lambda *_args, **_kwargs: mutations.append("publish"),
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.tsa","value":1}\n'
+    )
+
+    def fail_tsa(*_args):
+        raise OSError("TSA unavailable")
+
+    with pytest.raises(resolve_pending.LedgerProposalError, match="timestamp request"):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            timestamp_requester=fail_tsa,
+            release_anchor_dir=anchor_dir,
+        )
+
+    assert mutations == []
+
+
+def test_postmerge_state_is_fully_reverified(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    base_tree, anchor_dir, requester = _release_fixture_tree(tmp_path)
+    path = "ledger/official_observations.jsonl"
+    candidate = (
+        base_tree.files[path]
+        + b'{"source_record_id":"test.series.postmerge","value":1}\n'
+    )
+    release_files = resolve_pending._prepare_release_files(
+        base_tree,
+        path=path,
+        candidate_ledger=candidate,
+        added=1,
+        requester=requester,
+        timeout_seconds=10,
+        clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
+        anchor_dir=anchor_dir,
+        now=dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2),
+    )
+    files = {**base_tree.files, path: candidate, **release_files}
+    merged_tree = resolve_pending.RepositoryTree(
+        tree_sha="9" * 40,
+        files=files,
+        modes={relative: "100644" for relative in files},
+        blob_shas={relative: "8" * 40 for relative in files},
+    )
+    monkeypatch.setattr(
+        resolve_pending,
+        "_fetch_repository_tree",
+        lambda *_args: merged_tree,
+    )
+
+    resolve_pending._verify_remote_proposal_state(
+        "PolicyEngine/ledger",
+        "d" * 40,
+        path=path,
+        candidate_ledger=candidate,
+        release_files=release_files,
+        clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
+        anchor_dir=anchor_dir,
+    )
+
+    old_receipt = next(
+        relative
+        for relative in files
+        if relative.endswith(".digicert.tsr") and relative not in release_files
+    )
+    files[old_receipt] = b"tampered historical receipt"
+    with pytest.raises(ledger_release_chain.ReleaseChainError):
+        resolve_pending._verify_remote_proposal_state(
+            "PolicyEngine/ledger",
+            "d" * 40,
+            path=path,
+            candidate_ledger=candidate,
+            release_files=release_files,
+            clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
+            anchor_dir=anchor_dir,
+        )
+
+
+def test_pre_genesis_append_emits_no_release_files_or_tsa(monkeypatch) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    published: list[dict[str, bytes]] = []
+    _install_proposal_transport(monkeypatch, tree, calls, published=published)
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.legacy","value":1}\n'
+    )
+
+    def unexpected_tsa(*_args):
+        raise AssertionError("pre-genesis proposal contacted a TSA")
 
     merged = resolve_pending.propose_ledger_append(
         "PolicyEngine/ledger",
         "codex/thesis-ledger-facts",
         "ledger/official_observations.jsonl",
-        payload + "\n",
-        "blob-sha",
+        candidate.decode(),
+        "a" * 40,
+        "b" * 40,
+        1,
+        poll_seconds=0,
+        poll_attempts=1,
+        timestamp_requester=unexpected_tsa,
+    )
+
+    assert merged == "d" * 40
+    assert list(published[0]) == ["ledger/official_observations.jsonl"]
+
+
+def test_append_proposal_refuses_to_merge_and_cleans_gate_failure(
+    monkeypatch,
+) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(
+        monkeypatch,
+        tree,
+        calls,
+        gate_conclusion="failure",
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.gate","value":1}\n'
+    )
+
+    with pytest.raises(resolve_pending.LedgerProposalError, match="append gate"):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            poll_seconds=0,
+            poll_attempts=1,
+        )
+
+    joined = [" ".join(args) for args, _ in calls]
+    assert not any("/merge" in call for call in joined)
+    assert any("PATCH" in call and "/pulls/7" in call for call in joined)
+    assert any("DELETE" in call and "/git/refs/heads/" in call for call in joined)
+
+
+def test_append_proposal_cleans_pr_and_branch_when_merge_is_refused(
+    monkeypatch,
+) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(
+        monkeypatch,
+        tree,
+        calls,
+        merge_payload={"merged": False, "message": "base moved"},
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.merge","value":1}\n'
+    )
+
+    with pytest.raises(resolve_pending.LedgerProposalError, match="did not merge"):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            poll_seconds=0,
+            poll_attempts=1,
+        )
+
+    joined = [" ".join(args) for args, _ in calls]
+    assert any("/merge" in call for call in joined)
+    assert any("PATCH" in call and "/pulls/7" in call for call in joined)
+    assert any("DELETE" in call and "/git/refs/heads/" in call for call in joined)
+
+
+def test_append_proposal_refuses_if_base_moves_during_gate_poll(
+    monkeypatch,
+) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(monkeypatch, tree, calls)
+    heads = iter(["b" * 40, "e" * 40])
+    monkeypatch.setattr(resolve_pending, "_branch_head", lambda *_: next(heads))
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.race","value":1}\n'
+    )
+
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match="moved while proposal awaited the append gate",
+    ):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            poll_seconds=0,
+            poll_attempts=1,
+        )
+
+    joined = [" ".join(args) for args, _ in calls]
+    assert not any("/merge" in call for call in joined)
+    assert any("PATCH" in call and "/pulls/7" in call for call in joined)
+    assert any("DELETE" in call and "/git/refs/heads/" in call for call in joined)
+
+
+def test_append_proposal_recovers_ambiguous_successful_merge(monkeypatch) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(monkeypatch, tree, calls)
+    base_api = resolve_pending._gh_api
+    merge_attempted = False
+
+    def ambiguous_api(*args: str, input_body=None) -> str:
+        nonlocal merge_attempted
+        joined = " ".join(args)
+        if "/merge" in joined:
+            merge_attempted = True
+            raise RuntimeError("merge response lost after server success")
+        if (
+            merge_attempted
+            and joined.endswith("/pulls/7")
+            and "PATCH" not in args
+        ):
+            return json.dumps(
+                {
+                    "merged": True,
+                    "merge_commit_sha": "d" * 40,
+                    "head": {"sha": "c" * 40},
+                    "base": {"ref": "codex/thesis-ledger-facts"},
+                }
+            )
+        return base_api(*args, input_body=input_body)
+
+    verified: list[str] = []
+    monkeypatch.setattr(resolve_pending, "_gh_api", ambiguous_api)
+    monkeypatch.setattr(
+        resolve_pending,
+        "_verify_remote_proposal_state",
+        lambda _repo, sha, **_kwargs: verified.append(sha),
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.ambiguous","value":1}\n'
+    )
+
+    merged = resolve_pending.propose_ledger_append(
+        "PolicyEngine/ledger",
+        "codex/thesis-ledger-facts",
+        "ledger/official_observations.jsonl",
+        candidate.decode(),
+        "a" * 40,
         "b" * 40,
         1,
         poll_seconds=0,
         poll_attempts=1,
     )
 
-    assert merged == "m" * 40
-    assert any("/merge" in " ".join(c) for c in calls)
+    assert merged == "d" * 40
+    assert verified == ["d" * 40]
 
 
-def test_append_proposal_refuses_to_merge_on_gate_failure(monkeypatch) -> None:
-    calls: list[list[str]] = []
-    fake_run, payload = _proposal_api_stub("failure", calls)
-    monkeypatch.setattr(resolve_pending.subprocess, "run", fake_run)
+def test_append_proposal_rejects_retarget_after_normal_merge_response(
+    monkeypatch,
+) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(monkeypatch, tree, calls)
+    base_api = resolve_pending._gh_api
+    pr_reads = 0
 
-    try:
+    def retargeting_api(*args: str, input_body=None) -> str:
+        nonlocal pr_reads
+        joined = " ".join(args)
+        if joined.endswith("/pulls/7") and "PATCH" not in args:
+            pr_reads += 1
+            if pr_reads >= 2:
+                return json.dumps(
+                    {
+                        "merged": True,
+                        "merge_commit_sha": "d" * 40,
+                        "head": {"sha": "c" * 40},
+                        "base": {"ref": "attacker-retarget", "sha": "b" * 40},
+                    }
+                )
+        return base_api(*args, input_body=input_body)
+
+    verified: list[str] = []
+    monkeypatch.setattr(resolve_pending, "_gh_api", retargeting_api)
+    monkeypatch.setattr(
+        resolve_pending,
+        "_verify_remote_proposal_state",
+        lambda _repo, sha, **_kwargs: verified.append(sha),
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.retarget","value":1}\n'
+    )
+
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match="expected proposal head and base",
+    ):
         resolve_pending.propose_ledger_append(
             "PolicyEngine/ledger",
             "codex/thesis-ledger-facts",
             "ledger/official_observations.jsonl",
-            payload + "\n",
-            "blob-sha",
+            candidate.decode(),
+            "a" * 40,
             "b" * 40,
             1,
             poll_seconds=0,
             poll_attempts=1,
         )
-    except RuntimeError as error:
-        assert "append gate did not pass" in str(error)
-    else:
-        raise AssertionError("gate failure did not block the merge")
-    assert not any("/merge" in " ".join(c) for c in calls)
+
+    assert any("/merge" in " ".join(args) for args, _body in calls)
+    assert verified == []
+
+
+def test_append_proposal_rejects_merge_response_sha_disagreement(monkeypatch) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(
+        monkeypatch,
+        tree,
+        calls,
+        merge_payload={"merged": True, "sha": "e" * 40},
+    )
+    verified: list[str] = []
+    monkeypatch.setattr(
+        resolve_pending,
+        "_verify_remote_proposal_state",
+        lambda _repo, sha, **_kwargs: verified.append(sha),
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.sha-mismatch","value":1}\n'
+    )
+
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match="SHA disagrees with pull-request state",
+    ):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            poll_seconds=0,
+            poll_attempts=1,
+        )
+
+    assert verified == []
+
+
+def test_merge_recovery_rejects_retargeted_pull_request(monkeypatch) -> None:
+    monkeypatch.setattr(
+        resolve_pending,
+        "_gh_api",
+        lambda *_args, **_kwargs: json.dumps(
+            {
+                "merged": True,
+                "merge_commit_sha": "d" * 40,
+                "head": {"sha": "e" * 40},
+                "base": {"ref": "other-branch"},
+            }
+        ),
+    )
+
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match="expected proposal head and base",
+    ):
+        resolve_pending._merged_proposal_sha(
+            "PolicyEngine/ledger",
+            7,
+            expected_head_sha="c" * 40,
+            expected_base="codex/thesis-ledger-facts",
+        )
+
+
+def test_append_proposal_recovers_and_cleans_ambiguous_ref_creation(
+    monkeypatch,
+) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(
+        monkeypatch,
+        tree,
+        calls,
+        fail_ref_creation=True,
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.ref","value":1}\n'
+    )
+
+    with pytest.raises(RuntimeError, match="ref creation"):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+        )
+
+    joined = [" ".join(args) for args, _ in calls]
+    assert any("/git/ref/heads/" in call for call in joined)
+    assert any("DELETE" in call and "/git/refs/heads/" in call for call in joined)
+    assert not any("/pulls" in call for call in joined)
+
+
+def test_append_proposal_recovers_and_cleans_ambiguous_pr_creation(
+    monkeypatch,
+) -> None:
+    tree = _pre_genesis_tree()
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    _install_proposal_transport(
+        monkeypatch,
+        tree,
+        calls,
+        fail_pr_creation=True,
+        recover_pr_number=7,
+    )
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.pr","value":1}\n'
+    )
+
+    with pytest.raises(RuntimeError, match="PR creation"):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+        )
+
+    joined = [" ".join(args) for args, _ in calls]
+    assert any("DELETE" in call and "/git/refs/heads/" in call for call in joined)
+    assert any("PATCH" in call and "/pulls/7" in call for call in joined)
+
+
+def test_publish_proposal_uses_one_tree_and_one_commit(monkeypatch) -> None:
+    calls: list[tuple[tuple[str, ...], dict | None]] = []
+    blob_number = 0
+
+    def api(*args: str, input_body=None) -> str:
+        nonlocal blob_number
+        calls.append((args, input_body))
+        endpoint = args[-1]
+        if endpoint.endswith("/git/blobs"):
+            blob_number += 1
+            return json.dumps({"sha": f"{blob_number:040x}"})
+        if endpoint.endswith("/git/trees"):
+            return json.dumps({"sha": "e" * 40})
+        if endpoint.endswith("/git/commits"):
+            return json.dumps({"sha": "f" * 40})
+        raise AssertionError(endpoint)
+
+    monkeypatch.setattr(resolve_pending, "_gh_api", api)
+    changes = {
+        "ledger/official_observations.jsonl": b"ledger\n",
+        "releases/manifests/0001-a.json": b"manifest\n",
+        "releases/manifests/0001-a.freetsa.tsr": b"one",
+        "releases/manifests/0001-a.digicert.tsr": b"two",
+    }
+
+    commit = resolve_pending._publish_proposal_commit(
+        "PolicyEngine/ledger",
+        base_sha="b" * 40,
+        base_tree_sha="c" * 40,
+        message="test",
+        changes=changes,
+    )
+
+    assert commit == "f" * 40
+    blob_calls = [call for call in calls if call[0][-1].endswith("/git/blobs")]
+    tree_calls = [call for call in calls if call[0][-1].endswith("/git/trees")]
+    commit_calls = [call for call in calls if call[0][-1].endswith("/git/commits")]
+    assert len(blob_calls) == len(changes)
+    assert len(tree_calls) == 1
+    assert len(commit_calls) == 1
+    assert tree_calls[0][1]["base_tree"] == "c" * 40
+    assert {entry["path"] for entry in tree_calls[0][1]["tree"]} == set(changes)
+    assert commit_calls[0][1]["parents"] == ["b" * 40]
+
+
+def test_fetch_git_blob_binds_response_and_bytes_to_requested_sha(monkeypatch) -> None:
+    raw = b"tree-bound blob bytes"
+    requested_sha = hashlib.sha1(
+        f"blob {len(raw)}\0".encode("ascii") + raw,
+        usedforsecurity=False,
+    ).hexdigest()
+    payload = {
+        "sha": requested_sha,
+        "encoding": "base64",
+        "content": base64.b64encode(raw).decode("ascii"),
+        "size": len(raw),
+    }
+    monkeypatch.setattr(resolve_pending, "_gh_api", lambda *_args: json.dumps(payload))
+
+    assert resolve_pending._fetch_git_blob("PolicyEngine/ledger", requested_sha) == raw
+
+    payload["sha"] = "0" * 40
+    with pytest.raises(resolve_pending.LedgerProposalError, match="requested blob"):
+        resolve_pending._fetch_git_blob("PolicyEngine/ledger", requested_sha)
+
+    payload["sha"] = requested_sha
+    payload["content"] = base64.b64encode(b"same reported size!!").decode("ascii")
+    payload["size"] = len(b"same reported size!!")
+    with pytest.raises(resolve_pending.LedgerProposalError, match="do not match"):
+        resolve_pending._fetch_git_blob("PolicyEngine/ledger", requested_sha)
+
+
+def test_fetch_repository_tree_binds_commit_trees_and_blobs(monkeypatch) -> None:
+    repo = "PolicyEngine/ledger"
+    commit_sha = "a" * 40
+    ledger_path = "ledger/official_observations.jsonl"
+    blobs = {
+        "immutable_prefix.json": b"{}\n",
+        "official_observations.jsonl": b'{"source_record_id":"base"}\n',
+    }
+    blob_shas = {
+        name: hashlib.sha1(
+            f"blob {len(raw)}\0".encode("ascii") + raw,
+            usedforsecurity=False,
+        ).hexdigest()
+        for name, raw in blobs.items()
+    }
+    ledger_entries = [
+        {"path": name, "mode": "100644", "type": "blob", "sha": blob_shas[name]}
+        for name in sorted(blobs)
+    ]
+    ledger_tree_sha = resolve_pending._git_tree_object_sha(ledger_entries)
+    root_entries = [
+        {
+            "path": "ledger",
+            "mode": "040000",
+            "type": "tree",
+            "sha": ledger_tree_sha,
+        }
+    ]
+    root_tree_sha = resolve_pending._git_tree_object_sha(root_entries)
+
+    def api(*args: str, input_body=None) -> str:
+        del input_body
+        endpoint = args[-1]
+        if endpoint.endswith(f"/git/commits/{commit_sha}"):
+            return json.dumps({"sha": commit_sha, "tree": {"sha": root_tree_sha}})
+        if endpoint.endswith(f"/git/trees/{root_tree_sha}"):
+            return json.dumps(
+                {"sha": root_tree_sha, "tree": root_entries, "truncated": False}
+            )
+        if endpoint.endswith(f"/git/trees/{ledger_tree_sha}"):
+            return json.dumps(
+                {
+                    "sha": ledger_tree_sha,
+                    "tree": ledger_entries,
+                    "truncated": False,
+                }
+            )
+        for name, blob_sha in blob_shas.items():
+            if endpoint.endswith(f"/git/blobs/{blob_sha}"):
+                raw = blobs[name]
+                return json.dumps(
+                    {
+                        "sha": blob_sha,
+                        "encoding": "base64",
+                        "content": base64.b64encode(raw).decode(),
+                        "size": len(raw),
+                    }
+                )
+        raise AssertionError(endpoint)
+
+    monkeypatch.setattr(resolve_pending, "_gh_api", api)
+
+    tree = resolve_pending._fetch_repository_tree(repo, commit_sha, ledger_path)
+
+    assert tree.tree_sha == root_tree_sha
+    assert tree.files == {
+        ledger_path: blobs["official_observations.jsonl"],
+        "ledger/immutable_prefix.json": blobs["immutable_prefix.json"],
+    }
+
+
+def test_fetch_repository_tree_rejects_swapped_commit_response(monkeypatch) -> None:
+    monkeypatch.setattr(
+        resolve_pending,
+        "_gh_api",
+        lambda *_args: json.dumps(
+            {"sha": "b" * 40, "tree": {"sha": "c" * 40}}
+        ),
+    )
+
+    with pytest.raises(resolve_pending.LedgerProposalError, match="requested commit"):
+        resolve_pending._fetch_repository_tree(
+            "PolicyEngine/ledger",
+            "a" * 40,
+            "ledger/official_observations.jsonl",
+        )
+
+
+def test_fetch_repository_tree_rejects_partial_tree_with_claimed_sha(
+    monkeypatch,
+) -> None:
+    commit_sha = "a" * 40
+    claimed_tree_sha = "c" * 40
+
+    def api(*args: str, input_body=None) -> str:
+        del input_body
+        if "/git/commits/" in args[-1]:
+            return json.dumps(
+                {"sha": commit_sha, "tree": {"sha": claimed_tree_sha}}
+            )
+        return json.dumps(
+            {"sha": claimed_tree_sha, "tree": [], "truncated": False}
+        )
+
+    monkeypatch.setattr(resolve_pending, "_gh_api", api)
+
+    with pytest.raises(resolve_pending.LedgerProposalError, match="partial base state"):
+        resolve_pending._fetch_repository_tree(
+            "PolicyEngine/ledger",
+            commit_sha,
+            "ledger/official_observations.jsonl",
+        )
+
+
+def test_append_proposal_rejects_unwitnessed_base_state(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    tree, anchor_dir, requester = _release_fixture_tree(tmp_path)
+    path = "ledger/official_observations.jsonl"
+    tree.files[path] += b'{"source_record_id":"unwitnessed","value":1}\n'
+    monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
+    mutations: list[str] = []
+    monkeypatch.setattr(
+        resolve_pending,
+        "_publish_proposal_commit",
+        lambda *_args, **_kwargs: mutations.append("publish"),
+    )
+    candidate = tree.files[path] + b'{"source_record_id":"next","value":2}\n'
+
+    with pytest.raises(ledger_release_chain.ReleaseChainError, match="HEAD release"):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            path,
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            timestamp_requester=requester,
+            release_anchor_dir=anchor_dir,
+        )
+
+    assert mutations == []
 
 
 def test_assertion_version_binds_measure_mapping_and_lineage() -> None:

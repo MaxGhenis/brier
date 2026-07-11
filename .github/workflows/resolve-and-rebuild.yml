@@ -76,6 +76,7 @@ jobs:
           echo "ledger current=$CURRENT last-successfully-deployed=${LAST:-none} appended=$APPENDED"
 
       - name: Advance the ledger pin and witness the new upstream state
+        id: pin_witness
         if: steps.ledger.outputs.needs_publish == '1'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -89,14 +90,26 @@ jobs:
           # chain so the state the site scored against stays reconstructable
           # even if upstream history later changes.
           python3 scripts/pin_ledger.py
-          python3 scripts/witness_upstream_ledger.py
+          PIN_SHA=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["sha"])')
+          PIN_LINES=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["lineCount"])')
+          PIN_JSONL_SHA256=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["jsonlSha256"])')
+          WITNESS_MANIFEST=$(python3 scripts/witness_upstream_ledger.py \
+            --ledger-sha "$PIN_SHA" \
+            --expect-line-count "$PIN_LINES" \
+            --expect-jsonl-sha256 "$PIN_JSONL_SHA256")
+          test -f "$WITNESS_MANIFEST"
+          echo "witness_manifest=$WITNESS_MANIFEST" >> "$GITHUB_OUTPUT"
 
       - name: Commit resolution rebuild request (makes HEAD deployable)
         if: steps.ledger.outputs.needs_publish == '1'
         env:
-          LEDGER_SHA: ${{ steps.ledger.outputs.current_sha }}
+          WITNESS_MANIFEST: ${{ steps.pin_witness.outputs.witness_manifest }}
         run: |
           set -euo pipefail
+          LEDGER_SHA=$(python3 -c 'import json; print(json.load(open("site/src/data/ledger-pin.json"))["sha"])')
+          WITNESS_DIR=$(python3 scripts/verify_witnessed_pin.py \
+            "$WITNESS_MANIFEST" site/src/data/ledger-pin.json)
+          WITNESS_REL="$WITNESS_DIR/manifest.json"
           # Vercel honors [skip ci] even on deploy-hook builds, so a hook
           # fired while HEAD is a recorder commit silently cancels and
           # scores never surface (F13). A real, non-skip marker commit
@@ -111,19 +124,32 @@ jobs:
             > records/resolutions/rebuild-request.json
           git config user.name "thesis-resolver"
           git config user.email "recorder@thesisinstitute.org"
-          git add records/resolutions/rebuild-request.json
-          git add records/resolutions/????-??-??/ 2>/dev/null || true
-          git add site/src/data/ledger-pin.json \
+          git add -- records/resolutions/rebuild-request.json \
+            site/src/data/ledger-pin.json \
             site/src/data/ledger-availability.generated.ts \
-            records/ledger/ 2>/dev/null || true
-          git add records/????-??-??/ 2>/dev/null || true
+            records/ledger/availability.json \
+            "$WITNESS_DIR"
+          for resolution_dir in records/resolutions/????-??-??; do
+            if [ -d "$resolution_dir" ]; then
+              git add -- "$resolution_dir"
+            fi
+          done
+          git ls-files --error-unmatch -- "$WITNESS_REL" >/dev/null
+          while IFS= read -r -d '' witness_file; do
+            git ls-files --error-unmatch -- "$witness_file" >/dev/null
+          done < <(find "$WITNESS_DIR" -type f -print0)
+          git ls-files --error-unmatch -- site/src/data/ledger-pin.json >/dev/null
           git commit -m "Resolution rebuild marker $(date -u +%F)"
 
       - name: Rebase resolution marker
         if: steps.ledger.outputs.needs_publish == '1'
+        env:
+          WITNESS_MANIFEST: ${{ steps.pin_witness.outputs.witness_manifest }}
         run: |
           set -euo pipefail
           git pull --rebase origin main
+          python3 scripts/verify_witnessed_pin.py \
+            "$WITNESS_MANIFEST" site/src/data/ledger-pin.json
 
       - name: Push resolution marker
         if: steps.ledger.outputs.needs_publish == '1'
@@ -161,11 +187,12 @@ jobs:
         if: steps.ledger.outputs.needs_publish == '1'
         env:
           GH_TOKEN: ${{ github.token }}
-          LEDGER_SHA: ${{ steps.ledger.outputs.current_sha }}
           SITE_SHA: ${{ steps.deploy.outputs.site_sha }}
         run: |
           set -euo pipefail
           git pull --rebase origin main
+          LEDGER_SHA=$(git show "${SITE_SHA}:site/src/data/ledger-pin.json" \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["sha"])')
           printf '{"deployedAt":"%s","workflowRun":"%s","ledgerBranchSha":"%s","siteCommitSha":"%s"}\n' \
             "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "${GITHUB_RUN_ID}" \
             "$LEDGER_SHA" "$SITE_SHA" > records/resolutions/latest.json
