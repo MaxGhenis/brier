@@ -1,0 +1,374 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-11T18:17:27Z",
+  "runStartedAt": "2026-07-11T18:17:27Z",
+  "series": "ons.labour.claimant_count",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "uk-claimant-count-june-2026",
+    "country": "UK",
+    "dataPointId": "ons.labour.claimant_count.2026_06.first_print",
+    "expectedReleaseDate": "2026-07-14",
+    "period": "2026-06",
+    "registeredAt": "2026-07-11T18:10:24Z",
+    "registeredAtUtc": "2026-07-11T18:10:24Z",
+    "registrationCommit": "357f4e8477327d91775a345ece531f3eb42fa3b7",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/datasets/claimantcountandvacanciesdataset",
+    "series": "ons.labour.claimant_count",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.ons.gov.uk"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-14",
+        "start": "2026-07-14"
+      },
+      "field": "People claiming unemployment related benefits: United Kingdom: all aged 16+: seasonally adjusted",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "CLA01/BCJD",
+      "sourceUrl": "https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/datasets/claimantcountandvacanciesdataset",
+      "table": "CLA01: Claimant Count and Vacancies",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "People claiming unemployment related benefits: United Kingdom: all aged 16+: seasonally adjusted",
+    "sourceSeriesId": "CLA01/BCJD",
+    "sourceTable": "CLA01: Claimant Count and Vacancies",
+    "targetContentHash": "f35bec853a4c4fc4fe2a96f113938b208bd62e270f3c2c5268aa82dc7aab89e4",
+    "targetRegistrationPath": "records/targets/2026-07-11-f35bec853a4c4fc4fe2a96f113938b208bd62e270f3c2c5268aa82dc7aab89e4.json",
+    "targetUnit": "thousands",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "357f4e8477327d91775a345ece531f3eb42fa3b7",
+  "targetContentHash": "f35bec853a4c4fc4fe2a96f113938b208bd62e270f3c2c5268aa82dc7aab89e4",
+  "targetRegistrationPath": "records/targets/2026-07-11-f35bec853a4c4fc4fe2a96f113938b208bd62e270f3c2c5268aa82dc7aab89e4.json",
+  "registeredAtUtc": "2026-07-11T18:10:24Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-11T18:17:27Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "5cc9a96a1bcc63a098703adcb317f718d88ed8941866d0b2622a7d7f70e0114f"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider making the 14 July vs 21 July release-date discrepancy a validation note outside the forecast text as well, since the draft correctly retains the registered resolutionDate."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval method is coherent, but briefly noting whether the 12.4 thousand sigma is sample or population standard deviation would make the trace easier to audit."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the auditability suggestion by explicitly identifying sigma as the sample standard deviation. Retained the registered 14 July resolutionDate and kept the official 21 July schedule discrepancy in the resolution rule and sourced reasoning; no separate validation field exists in the required forecast shape.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the auditability suggestion by explicitly identifying sigma as the sample standard deviation. Retained the registered 14 July resolutionDate and kept the official 21 July schedule discrepancy in the resolution rule and sourced reasoning; no separate validation field exists in the required forecast shape.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; it cleanly preserves the registered target while flagging the apparent ONS release-date discrepancy."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/prompt.md",
+      "sha256": "8431c043aa964efe43e74215e2ffeb22cdb2509e3d77faeea1fa3595e2197492",
+      "bytes": 9056,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_command.json",
+      "sha256": "0e9ff7e336aad1b68c4622fce4744e37e590e768a4b9246fe69b5b6138838f5c",
+      "bytes": 704,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "6a3b0923956932e03d152fe8f354552d40ad979122f430924e5108cdbfd494d8",
+      "bytes": 7185,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_codex_stderr.log",
+      "sha256": "386a8316f5ebd8d859bfa55a6fa8ae263a9233faae9c78add8aaa778d1046739",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_codex_events.jsonl",
+      "sha256": "51f03916d138ec54f7b7673ef5e3d3d3f0d50b38b85e20272405cf8ce58cb4f1",
+      "bytes": 7181,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_codex_last_message.txt",
+      "sha256": "c8d346b21dfda68ab8b5bdb3d8174be71a4cea79095d42ef764caacc0526f0ab",
+      "bytes": 4522,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_codex_trace.json",
+      "sha256": "7bd0ab7ebac8d1e9fa175af257b5b35e33733e3cfd19af31d2b40b1a10e8879b",
+      "bytes": 513,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_stdout.txt",
+      "sha256": "c8d346b21dfda68ab8b5bdb3d8174be71a4cea79095d42ef764caacc0526f0ab",
+      "bytes": 4522,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/draft_stderr.txt",
+      "sha256": "e2e1edd869a02cc619a29fbe11ff45a3b7466624276011f95e341590eeaa055e",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_prompt.md",
+      "sha256": "a1d8f69f2636a32daaec74a9d8e2d6fe99fa53e0d6f84b03d1bac57fefd00210",
+      "bytes": 7806,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_command.json",
+      "sha256": "dc0abfb04764a43d818b1c0fb4659164e78b1f6a839d8556d201ae5437a07a65",
+      "bytes": 696,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "3588267a23f8f0f5c6367e12eb5ddbc9e1c5b8c9a0dc5523c4652c02ffafcf60",
+      "bytes": 913,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "fc4dcde58ef367e5ff26728cafb88bb626a9af5f210363634b3e5e2a1d232abc",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "4f9293c602fc4893f3a6463c21fa21015d67f4be1b01c02b6e6710cce0ecf134",
+      "bytes": 935,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "ea3b77f2a454200067cacc204a4fdc86ad330d3bb33dbcc36a0d865e27ea5ff2",
+      "bytes": 580,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "a1c7e0a591eec0228537c7dda7231669fa3812e480e0fafb35619be3e98dd0b3",
+      "bytes": 501,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "ea3b77f2a454200067cacc204a4fdc86ad330d3bb33dbcc36a0d865e27ea5ff2",
+      "bytes": 580,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "accaf44c28be7a07b4347ba2bedb05b058eb226b44a55cd4984810c3026c3e1c",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/revision_prompt.md",
+      "sha256": "1ba67747419a2bd6e681ad7352622d563883a01bc2149f420009d34c82dbf9b2",
+      "bytes": 15094,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/command.json",
+      "sha256": "d2043d9de15cf6d198ddde7e105ce17a3f0baa43a34c5ae9ed262ed78d574701",
+      "bytes": 698,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/codex_stdout.jsonl",
+      "sha256": "428b34787d538ec1032146280bb80df6ddf86ebaa8cc694a9fe8efc233d396b7",
+      "bytes": 5418,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/codex_stderr.log",
+      "sha256": "4a83c2890c5cc0d9d898b3242bba047b18210d85bbe22b1a9a366be2cf449807",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/codex_events.jsonl",
+      "sha256": "46fa9f7d1e0c6ea87e8d0a2bd7766621fa650056e02b6a12d10e12b683bdce48",
+      "bytes": 5440,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/codex_last_message.txt",
+      "sha256": "59d476fa301a7e1fd58e528d01ad4d12c18b210dc4b115a309e349913587195a",
+      "bytes": 4882,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/codex_trace.json",
+      "sha256": "784cd38161a04bda7c66b08a683670eb06ff7a476f011b6f7a0ea195f26c145a",
+      "bytes": 504,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/stdout.txt",
+      "sha256": "59d476fa301a7e1fd58e528d01ad4d12c18b210dc4b115a309e349913587195a",
+      "bytes": 4882,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/stderr.txt",
+      "sha256": "61d8a6873bb68e38de508ed75da48fa9e1e4a82a912ed445fe4e6094cf825982",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/raw_response.txt",
+      "sha256": "59d476fa301a7e1fd58e528d01ad4d12c18b210dc4b115a309e349913587195a",
+      "bytes": 4882,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/parsed_cells.json",
+      "sha256": "a05534ea9ce2957c56117e0aa20b367d29804aee11490ddca1bb67cd0996c0eb",
+      "bytes": 5704,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/normalized_cells.json",
+      "sha256": "569b3336b509e99463cb667c7b0ce3f61664347b3c9e422b816c629b05cec8d1",
+      "bytes": 23601,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/distribution.json",
+      "sha256": "24c098f60f26e40aab3a22108ce2ab52963e7ecb1a413e08cbc44b2b6f73e65d",
+      "bytes": 14113,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/validation.json",
+      "sha256": "518e8b0d1b96c6ffa4f4f34153256eb3dc12a7cf089253ff1c45a4950a156f0a",
+      "bytes": 128,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/cells.with_activity.json",
+      "sha256": "ec3da6419f0c0d6580b29659090b50c5d320014c496eae4938e58903dd59160d",
+      "bytes": 37330,
+      "createdAt": "2026-07-11T18:17:27Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-17-27z-ons-labour-claimant-count-2026-06/manifest.json",
+      "sha256": "f555995468bc73c48f81df587f0915411baada997a44511446f8651dc55b6eab",
+      "bytes": 14457,
+      "createdAt": "2026-07-11T18:17:27Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "uk-claimant-count-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "52ea0605de668a98f967379443243f1bda21356222778f9fed38447ed54442ac"
+}

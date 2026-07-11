@@ -1,0 +1,374 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-11T18:16:23Z",
+  "runStartedAt": "2026-07-11T18:16:23Z",
+  "series": "eurostat.construction.production_index",
+  "period": "2026-05",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "euro-area-construction-production-index-may-2026",
+    "country": "EA",
+    "dataPointId": "eurostat.construction.production_index.2026_05.first_print",
+    "expectedReleaseDate": "2026-07-20",
+    "period": "2026-05",
+    "registeredAt": "2026-07-11T18:10:24Z",
+    "registeredAtUtc": "2026-07-11T18:10:24Z",
+    "registrationCommit": "357f4e8477327d91775a345ece531f3eb42fa3b7",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/sts_copr_m/default/table?lang=en",
+    "series": "eurostat.construction.production_index",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "ec.europa.eu"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-20",
+        "start": "2026-07-20"
+      },
+      "field": "freq=M, unit=I21, s_adj=SCA, indic_bt=PRD, nace_r2=F, geo=EA20",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "sts_copr_m.M.I21.SCA.PRD.F.EA20",
+      "sourceUrl": "https://ec.europa.eu/eurostat/databrowser/view/sts_copr_m/default/table?lang=en",
+      "table": "sts_copr_m: Production in construction - monthly data",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "freq=M, unit=I21, s_adj=SCA, indic_bt=PRD, nace_r2=F, geo=EA20",
+    "sourceSeriesId": "sts_copr_m.M.I21.SCA.PRD.F.EA20",
+    "sourceTable": "sts_copr_m: Production in construction - monthly data",
+    "targetContentHash": "88e510f907520fe3734008853e5f0f83c6b6296c6f9c0dd7d76a6a9c8f0bee49",
+    "targetRegistrationPath": "records/targets/2026-07-11-88e510f907520fe3734008853e5f0f83c6b6296c6f9c0dd7d76a6a9c8f0bee49.json",
+    "targetUnit": "index_points",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "357f4e8477327d91775a345ece531f3eb42fa3b7",
+  "targetContentHash": "88e510f907520fe3734008853e5f0f83c6b6296c6f9c0dd7d76a6a9c8f0bee49",
+  "targetRegistrationPath": "records/targets/2026-07-11-88e510f907520fe3734008853e5f0f83c6b6296c6f9c0dd7d76a6a9c8f0bee49.json",
+  "registeredAtUtc": "2026-07-11T18:10:24Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-11T18:16:23Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "c0cf21bd2473958e49ffdafda49930ace775dd56fbeffe626ae775d758f2f053"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify the driver phrase \"six-month mean monthly change\" as \"mean of the five successive Nov-Apr level changes\" to avoid ambiguity."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider naming the April 2026 release as the latest available official observation in the reasoning, since the May first print is still pending."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted both optional wording improvements by clarifying that 0.24 is the mean of five successive level changes and identifying April 2026 as the latest available official observation; no required fixes were identified.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted both optional wording improvements by clarifying that 0.24 is the mean of five successive level changes and identifying April 2026 as the latest available official observation; no required fixes were identified.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft satisfies the review rubric and is publication-ready, with only minor wording cleanup suggested."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/prompt.md",
+      "sha256": "5975c9f1db1035f0b547fc885e48d40a37d9f14d692954c9b43698e3e6bad865",
+      "bytes": 8993,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_command.json",
+      "sha256": "1541c2ffeda5407aff7f36bfbf42864660d9c00e7bcb3530a46c2aeacd70d6d8",
+      "bytes": 717,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_codex_stdout.jsonl",
+      "sha256": "27ddb03d6d26f6bdaddfd0045421d7101c4c8e5b25f9bb1d8e471256476cd8f3",
+      "bytes": 6295,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_codex_stderr.log",
+      "sha256": "53b601b281d0cb7a8efe3490e681305a6cca50d69e5c95a5e4760de549dcb689",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_codex_events.jsonl",
+      "sha256": "679d1db18cd5151b7c1fdab20bcca77a904a10da5d47e9ab22b218911997d9e4",
+      "bytes": 6319,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_codex_last_message.txt",
+      "sha256": "137d9d87c3800badd13ed3130662ee77500f33ca3a5cf9ee7878b2f1115dfcdd",
+      "bytes": 5051,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_codex_trace.json",
+      "sha256": "09b09e37e9681e13899d55e8b44138a11cd77506558dcdc8a6b7bb48c5809bba",
+      "bytes": 509,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_stdout.txt",
+      "sha256": "137d9d87c3800badd13ed3130662ee77500f33ca3a5cf9ee7878b2f1115dfcdd",
+      "bytes": 5051,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/draft_stderr.txt",
+      "sha256": "412d6170d54e1090cca64ede8c9c34fc81be038c0c81fa3d5dbf3186fbeeee78",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_prompt.md",
+      "sha256": "5deab48105ed0e01de60438275cb6b90e0c85ba2dc3f326f21009fe2a53e3a39",
+      "bytes": 8308,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_command.json",
+      "sha256": "115671ce6551d1c65536d7ccc336293fad7cade0a3d235e96746d15d5d13b475",
+      "bytes": 709,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "34d90fef2dbbac6c9bf8d2884e3a5980786f7cd8c2d7f98577dd7b14c869acf1",
+      "bytes": 784,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_codex_stderr.log",
+      "sha256": "a57dcd74faa1341b845d8ad6c03ffdd67578d337207228616136747060e07e1c",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_codex_events.jsonl",
+      "sha256": "dae7c7651af4342459f71cc2e49ba4d202e9f5f407d2825b568984f1b250310f",
+      "bytes": 806,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_codex_last_message.txt",
+      "sha256": "470c6fc5104fca936dc830f1377da28a493cb66ad498f08e9d2f91b3caf8e138",
+      "bytes": 450,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_codex_trace.json",
+      "sha256": "9a5ac035c42c70d2f8eb655df0ce9f68800c93dd49ed92f4466380a1ea4203fc",
+      "bytes": 501,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_stdout.txt",
+      "sha256": "470c6fc5104fca936dc830f1377da28a493cb66ad498f08e9d2f91b3caf8e138",
+      "bytes": 450,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/pre_submit_review_stderr.txt",
+      "sha256": "bd3b7c837a0acd5d672a58cedff4b19f7dfc30e7b14ede4a792346174f9ff948",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/revision_prompt.md",
+      "sha256": "29d93d9948e05c7811b81b7b1f7cd3f53afd29567f01ed5b8b7c311324d8d61a",
+      "bytes": 15430,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/command.json",
+      "sha256": "c86966c00966f527eb6032da7050460c1171d664bd9965181223d84528b86a4f",
+      "bytes": 711,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/codex_stdout.jsonl",
+      "sha256": "e438e138daac7c892a87e20faa5ded0c9c324fd5da31677261f7faa5fa9e4dcb",
+      "bytes": 5986,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/codex_stderr.log",
+      "sha256": "dad2aeb3ed4920a741b0640784a6630bd979dfebf7232769a8e48578fa075785",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/codex_events.jsonl",
+      "sha256": "80c96c6f6b8dd385db8cf01ed87d45dfec3b2d1f6e51491c897e0a978102f8ef",
+      "bytes": 6012,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/codex_last_message.txt",
+      "sha256": "1cd45410f9299524f64d32617664715f28602e84d86a06ab128aa58b9474bf29",
+      "bytes": 5436,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/codex_trace.json",
+      "sha256": "e19736fdbf30b54e2fea84aa70f3e0e5659b960ef59520c157ae44598d3e83ee",
+      "bytes": 504,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/stdout.txt",
+      "sha256": "1cd45410f9299524f64d32617664715f28602e84d86a06ab128aa58b9474bf29",
+      "bytes": 5436,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/stderr.txt",
+      "sha256": "647ac41b2d8486cd9dc5f3d3911f9ae3f9bd8c6e66d7f3a4c3e711ef8bb7bbd5",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/raw_response.txt",
+      "sha256": "1cd45410f9299524f64d32617664715f28602e84d86a06ab128aa58b9474bf29",
+      "bytes": 5436,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/parsed_cells.json",
+      "sha256": "f47ab835d6e66ff7bb66729855189ad81a050f5ce95daff96de291065be676e3",
+      "bytes": 6330,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/normalized_cells.json",
+      "sha256": "dcbfeca2ed85b135f5ba9b5fd8f3af61895f500152ceec46f80572153085aa50",
+      "bytes": 25215,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/distribution.json",
+      "sha256": "f295b6ffb3b5eef3fc4c89c4b3005851222705505221bfe47f92724e96adf5a5",
+      "bytes": 15101,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/validation.json",
+      "sha256": "c39f9311dea0c5276480ab903cabd73423c8e5e0b8475baaa0c194ecba316443",
+      "bytes": 149,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/cells.with_activity.json",
+      "sha256": "80de32f91935e71eaee727434d75d024f93e889848d387ad9da434c7a8ef6a3d",
+      "bytes": 39107,
+      "createdAt": "2026-07-11T18:16:23Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-16-23z-eurostat-construction-production-index-2026-05/manifest.json",
+      "sha256": "20e9162accbad9df0ea80afc1d43d4bf562e01b0e797f9b3be72a363f6047ef5",
+      "bytes": 14658,
+      "createdAt": "2026-07-11T18:16:23Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "euro-area-construction-production-index-may-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "5d94c569d395995ec92a3c01434ccc7d89f172636bda258dff8b6d3e46c5ca97"
+}

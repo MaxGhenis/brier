@@ -1,0 +1,54 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: abs.building_approvals.total_dwellings_mom.australia
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "abs-building-approvals-total-dwellings-mom-australia-june-2026"
+- country: "AU"
+- targetUnit: "percent_growth"
+- dataPointId: "abs.building_approvals.total_dwellings_mom.australia.june_2026.first_print"
+- resolutionSourceUrl: "https://web.archive.org/web/20260701030516/https://www.abs.gov.au/statistics/industry/building-and-construction/building-approvals-australia/may-2026"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["web.archive.org"], "expectedReleaseWindow": {"end": "2026-08-05", "start": "2026-07-28"}, "field": "building-approvals-australia release page", "releasePolicy": "first_print", "sourceSeriesId": "building-approvals-australia release page", "sourceUrl": "https://web.archive.org/web/20260701030516/https://www.abs.gov.au/statistics/industry/building-and-construction/building-approvals-australia/may-2026", "table": "Building Approvals, Australia (release page, key statistics)", "transform": {"factor": 1, "operation": "identity"}}
+- targetRegistrationPath: "records/targets/2026-07-11-86249570a0f4c11f073c381a4d7ae422d3e1b1a8fd8a9ad4a151e0b6fd3dabe4.json"
+- targetContentHash: "86249570a0f4c11f073c381a4d7ae422d3e1b1a8fd8a9ad4a151e0b6fd3dabe4"
+- registrationCommit: "357f4e8477327d91775a345ece531f3eb42fa3b7"
+- registeredAtUtc: "2026-07-11T18:10:24Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+815300232bb0643739ce3305e16ba703b504bde8c46aada6579aef39ca69e6ad
+
+# Draft forecast response
+{"slug":"abs-building-approvals-total-dwellings-mom-australia-june-2026","country":"AU","type":"data","title":"Australia June building approvals","question":"What will be the June 2026 month-over-month percentage change in Australia's seasonally adjusted total dwelling units approved, in the ABS first print?","unit":"percent_growth","pointEstimate":1.5,"ciLow":-22,"ciHigh":25,"confidence":0.8,"resolutionDate":"2026-07-30","resolutionSource":"Australian Bureau of Statistics, Building Approvals, Australia","resolutionSourceUrl":"https://web.archive.org/web/20260701030516/https://www.abs.gov.au/statistics/industry/building-and-construction/building-approvals-australia/may-2026","resolutionRule":"Resolve to the month-over-month percentage change for seasonally adjusted total dwelling units approved for June 2026 shown on the first ABS Building Approvals, Australia release scheduled for 30 July 2026 at 11:30am AEST. Use the published one-decimal percentage value without incorporating later revisions or the 6 August additional-information release.","dataPointId":"abs.building_approvals.total_dwellings_mom.australia.june_2026.first_print","historicalContext":[{"label":"March 2026 month-over-month change, current May-release vintage","value":-13},{"label":"April 2026 month-over-month change, current May-release vintage","value":-0.2},{"label":"May 2026 month-over-month change, first print","value":-1.1},{"label":"May 2026 total dwellings approved","value":17019},{"label":"May 2026 trend month-over-month change","value":-0.5}],"drivers":["volatile multi-unit approvals after February's spike","May weakness creates modest rebound potential","house approvals rose while non-house approvals fell sharply","underlying trend was mildly negative"],"sourceContext":["https://www.abs.gov.au/statistics/industry/building-and-construction/building-approvals-australia/latest-release","https://www.abs.gov.au/statistics/industry/building-and-construction/building-approvals-australia","https://www.abs.gov.au/statistics/industry/building-and-construction/building-approvals-australia/feb-2026"],"runAt":"2026-07-11T18:11:50Z","reasoning":[{"kind":"heading","text":"Australia June 2026 total dwelling approvals growth"},{"kind":"text","text":"The target is the first-print June 2026 month-over-month change in seasonally adjusted total dwelling units approved for Australia. The ABS release page is the resolver; this is the seasonally adjusted total series, not trend, original, private-house, or small-area data."},{"kind":"tool","tool":"official.lookup","call":"Inspect the ABS May 2026 Building Approvals release for the latest national seasonally adjusted total-dwellings observations.","result":"ABS reported 17,019 total dwellings approved in May 2026, down 1.1% month over month and up 5.3% year over year; the corresponding trend change was -0.5%."},{"kind":"tool","tool":"official.lookup","call":"Inspect recent ABS releases for the national seasonally adjusted reference class.","result":"The current May-release levels for June 2025 through May 2026 were 16,885, 16,003, 15,314, 18,267, 16,261, 18,904, 15,974, 13,725, 19,817, 17,245, 17,207, and 17,019 dwellings; these imply monthly changes of about -5.2%, -4.3%, 19.3%, -11.0%, 16.3%, -15.5%, -14.1%, 44.4%, -13.0%, -0.2%, and -1.1%."},{"kind":"tool","tool":"official.lookup","call":"Check the ABS component split and state detail in the May 2026 release.","result":"Private-sector houses rose 2.8% to 10,537 while private-sector dwellings excluding houses fell 10.4% to 6,034; state total approvals ranged from -8.8% in Queensland to 10.9% in South Australia."},{"kind":"tool","tool":"official.calendar","call":"Verify the June 2026 publication date from the ABS future-releases schedule.","result":"The ABS schedule lists the June 2026 main Building Approvals release for 30/07/2026 at 11:30am AEST and an additional-information release for 06/08/2026 at 11:30am AEST."},{"kind":"text","text":"The outside-view base rate is modestly positive: the mean of the 11 latest same-vintage monthly changes is about 1.4%, but the reference class is extremely dispersed because lumpy multi-unit projects drive large reversals."},{"kind":"text","text":"Level, momentum, one-off, and policy mechanisms point in different directions. The 17,019 May level is near the recent range's middle and May's -1.1% offers limited rebound pressure; two weak months suggest soft momentum, while February's multi-unit spike has largely unwound. Firm house approvals provide support, but the volatile non-house component dominates tail risk."},{"kind":"math","text":"Prior/update/interval: use a 12-month same-series persistence/base-rate model built from the 11 successive changes in the ABS June 2025-May 2026 seasonally adjusted total-dwellings levels. Their mean is 1.4% and sample sigma = 18.3 percentage points. Starting from that 1.4% historical mean, apply roughly +1.0 point for rebound after May weakness, -0.5 point for the mildly negative trend, and -0.4 point for continued multi-unit normalization, yielding 1.5% after rounding. The normal-reference 80% half-width is 1.28*sigma = 1.28*18.3 = 23.4 points, so 1.5 ± 23.4 gives -21.9% to 24.9%, rounded outward to final bounds of -22% and 25%."},{"kind":"text","text":"Upside risk comes from several large apartment projects being approved together; a repeat of February's concentrated multi-unit surge would land above the interval. Downside risk comes from another broad state-level pullback or reversal in non-house approvals; a fall comparable to the sharpest recent contractions could approach the lower bound, while an unusually synchronized collapse would land outside the interval."},{"kind":"forecast","point":1.5,"ciLow":-22,"ciHigh":25}]}

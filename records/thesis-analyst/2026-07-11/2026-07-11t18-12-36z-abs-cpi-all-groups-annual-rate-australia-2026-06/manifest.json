@@ -1,0 +1,366 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-11T18:12:36Z",
+  "runStartedAt": "2026-07-11T18:12:36Z",
+  "series": "abs.cpi.all_groups_annual_rate.australia",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "abs-cpi-all-groups-annual-rate-australia-june-2026",
+    "country": "AU",
+    "dataPointId": "abs.cpi.all_groups_annual_rate.australia.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-11T18:10:24Z",
+    "registeredAtUtc": "2026-07-11T18:10:24Z",
+    "registrationCommit": "357f4e8477327d91775a345ece531f3eb42fa3b7",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://data.api.abs.gov.au/rest/data/CPI/3.10001.10.50.M?lastNObservations=30&format=jsondata",
+    "series": "abs.cpi.all_groups_annual_rate.australia",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "data.api.abs.gov.au"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-28",
+        "start": "2026-07-20"
+      },
+      "field": "CPI/3.10001.10.50.M",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "CPI/3.10001.10.50.M",
+      "sourceUrl": "https://data.api.abs.gov.au/rest/data/CPI/3.10001.10.50.M?lastNObservations=30&format=jsondata",
+      "table": "Monthly Consumer Price Index (complete monthly CPI, dataflow CPI: annual change, all groups, original, weighted average of eight capital cities)",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "27a452d7e21646679c3fb7aaa3ae1761853c56d8fd4f34d9fcdd30adf7c9ab13",
+    "targetRegistrationPath": "records/targets/2026-07-11-27a452d7e21646679c3fb7aaa3ae1761853c56d8fd4f34d9fcdd30adf7c9ab13.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "357f4e8477327d91775a345ece531f3eb42fa3b7",
+  "targetContentHash": "27a452d7e21646679c3fb7aaa3ae1761853c56d8fd4f34d9fcdd30adf7c9ab13",
+  "targetRegistrationPath": "records/targets/2026-07-11-27a452d7e21646679c3fb7aaa3ae1761853c56d8fd4f34d9fcdd30adf7c9ab13.json",
+  "registeredAtUtc": "2026-07-11T18:10:24Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-11T18:12:36Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "0291ab5f18389699634134d7d28dcd1d9f57929d500ac33c80ed8e91ed0436f9"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider adding the exact ABS release time only if the schema has a place for it; the current resolutionDate and reasoning are sufficient."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If the publisher treats the ledger expectedReleaseWindow as authoritative, separately correct that registration metadata rather than changing this forecast target."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the review's assessment that no forecast fixes were required. The exact release time is already recorded in the calendar lookup, and the ledger expectedReleaseWindow discrepancy remains explicitly flagged for separate registration correction rather than altering the target.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the review's assessment that no forecast fixes were required. The exact release time is already recorded in the calendar lookup, and the ledger expectedReleaseWindow discrepancy remains explicitly flagged for separate registration correction rather than altering the target.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publication-ready; it identifies the ABS first-print resolver, states a persistence prior, gives a coherent update and volatility-based 80% interval, and flags the ledger release-window discrepancy explicitly."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/prompt.md",
+      "sha256": "71be504b6d5050091d8827659ed1094c9c538d7d9a2dabd2c87366b1fda89a9f",
+      "bytes": 9061,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_command.json",
+      "sha256": "8b4aed6109826d528e53203cf44e77e033042aa82891ff7552a60cb05a4204be",
+      "bytes": 719,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "b95c90fbf4b19add3a4af8769a00fdebbb8265db1ec227465e6065325d60d8a1",
+      "bytes": 6879,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_codex_stderr.log",
+      "sha256": "81e2c55a69799f6ea08dbf9bde7c74a8f1ce24eaa005655af7e77ae5a432585e",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_codex_events.jsonl",
+      "sha256": "b5322e49e2ba36033452a6b3280e0d9a3ee3f3897e38e65dd86963acbef4332f",
+      "bytes": 6898,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_codex_last_message.txt",
+      "sha256": "aaf2d50d52ac7787cc45b78756cf1d6744104fa2776ff806e5cb4b69458100b6",
+      "bytes": 5196,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_codex_trace.json",
+      "sha256": "71692f53efb9b1cbecfffaa3f43c727b1be4cc169b86a7b827215fd74910cce8",
+      "bytes": 511,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_stdout.txt",
+      "sha256": "aaf2d50d52ac7787cc45b78756cf1d6744104fa2776ff806e5cb4b69458100b6",
+      "bytes": 5196,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/draft_stderr.txt",
+      "sha256": "40074325a93ce5abc605e28afd51eacdab0fbba89bbea994d30e2e2298a79608",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_prompt.md",
+      "sha256": "ca19d8c1b8a4a4b6a64e64a5c0459a32f454795c537bcbb7ee9503e96ef64c18",
+      "bytes": 8529,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_command.json",
+      "sha256": "f0f228aacf3319f2509929577b7d7fc22add992131660f281d47decd7de3c9f0",
+      "bytes": 711,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "1c7b6f30eb6e2d8f624aea012ef266509211c31c28b0cc50abde819824c1485d",
+      "bytes": 2305,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "275d8b5dfcf81cc8ea583a163ea33e648b8c3652157035d9c5c4aec8878811d1",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "832f8eaa0537c69a2e673685336e84aead04c0da45d3032fc7b610e1f1cf9c95",
+      "bytes": 2324,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "de7cd27afd9499a52b48f6fdcc7393adb5cac79e22ab6a3b8ab2231a849957eb",
+      "bytes": 608,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "aace5b1d022ac073411351c5ac3b06eb6c81f1de5ac33a6753d2acf5cdefe073",
+      "bytes": 501,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "de7cd27afd9499a52b48f6fdcc7393adb5cac79e22ab6a3b8ab2231a849957eb",
+      "bytes": 608,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "15ce75e4df7ae313d54c20e7d563937fd409968d19a50004605329f341f3ce0b",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/revision_prompt.md",
+      "sha256": "ecbd14c06a60b288061c3899f88ead2e05379bbb59dfc13c72551ee9ac0a94ae",
+      "bytes": 15801,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/command.json",
+      "sha256": "e6425718a599097217cbb1656405ae79e8691c2b54ff93f0eaab22d4841ae9c9",
+      "bytes": 713,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/codex_stdout.jsonl",
+      "sha256": "d717496a72a068dbe38fbeb34c9c63582bfcbfd45220f85c55d7e21b1f27a197",
+      "bytes": 6076,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/codex_stderr.log",
+      "sha256": "4f14eb9059fb2f9832c04a769fb353afc6968fb3bff390f26283e4a28ffeb6fe",
+      "bytes": 233,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/codex_events.jsonl",
+      "sha256": "31798070854560cac9c1079d2a04e13623c1c77244f0bf677014a480514fcc4d",
+      "bytes": 6102,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/codex_last_message.txt",
+      "sha256": "d5a6936dbb900b069b494953fb3c37d0a7abc0cd0885bfcc1060602be5502e36",
+      "bytes": 5525,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/codex_trace.json",
+      "sha256": "51e82802f36339da4673669d270aaa23541288fdb207ccccea3af7a2b1c17812",
+      "bytes": 503,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/stdout.txt",
+      "sha256": "d5a6936dbb900b069b494953fb3c37d0a7abc0cd0885bfcc1060602be5502e36",
+      "bytes": 5525,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/stderr.txt",
+      "sha256": "3a22accc043ccc018f3756167d0539c87de7ad67da945a62fee26a51ac3d502c",
+      "bytes": 248,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/raw_response.txt",
+      "sha256": "d5a6936dbb900b069b494953fb3c37d0a7abc0cd0885bfcc1060602be5502e36",
+      "bytes": 5525,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/parsed_cells.json",
+      "sha256": "495460243e5d8a746b5e30edc2e5d85bc088c7f6d0c9313d109abd6f144b34e0",
+      "bytes": 6426,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/normalized_cells.json",
+      "sha256": "2877b4e0252015a84c73fa1f5c5f8a85c922f37c36df159f1072845fde0d6b59",
+      "bytes": 23548,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/distribution.json",
+      "sha256": "65679989077105fffaad635086e52d907d7d4196139ceef79bc18a685b5e8f3d",
+      "bytes": 13338,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/validation.json",
+      "sha256": "988b95c8b78652967fa536d3c7eac7a146cc1d7a85f4aab857591de71452928b",
+      "bytes": 151,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/cells.with_activity.json",
+      "sha256": "f2765178ab94bd24a6e5e9a251fc503accd29201d9e981989b2c83ce63783c28",
+      "bytes": 37768,
+      "createdAt": "2026-07-11T18:12:36Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-11/2026-07-11t18-12-36z-abs-cpi-all-groups-annual-rate-australia-2026-06/manifest.json",
+      "sha256": "03c67819ea0e92625369e08e894f9e5bfcd7ec5c0ec1b2babb1cddbeeadbf1f9",
+      "bytes": 14789,
+      "createdAt": "2026-07-11T18:12:36Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "abs-cpi-all-groups-annual-rate-australia-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "a4b1a6ca1b19b9c45dc47e384b72e8c6d2f3ede8ce5a7295b9881ccbdc404d7f"
+}
