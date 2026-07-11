@@ -1,0 +1,109 @@
+[
+  {
+    "slug": "continued-claims-week-2026-07-18",
+    "country": "US",
+    "type": "data",
+    "title": "US Continued Claims, July 18 Week",
+    "question": "What will the first-print U.S. seasonally adjusted continued claims level be for the week ending July 18, 2026?",
+    "unit": "millions",
+    "pointEstimate": 1.828,
+    "ciLow": 1.798,
+    "ciHigh": 1.858,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "U.S. Department of Labor Unemployment Insurance Weekly Claims release, preserved through the ALFRED CCSA advance vintage",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA",
+    "resolutionRule": "Resolve to the advance first-print seasonally adjusted insured unemployment level for the week ending July 18, 2026, published in the U.S. Department of Labor release scheduled for July 30, 2026 and preserved as the ALFRED CCSA advance vintage; convert persons to millions and round to 0.001 million. Ignore all subsequent revisions.",
+    "dataPointId": "dol.eta.continued_claims.sa.week_2026-07-18.first_print",
+    "historicalContext": [
+      {
+        "label": "week ending 2026-06-27 first print",
+        "value": 1.814
+      },
+      {
+        "label": "week ending 2026-06-20 first print",
+        "value": 1.814
+      },
+      {
+        "label": "week ending 2026-06-13 first print",
+        "value": 1.821
+      },
+      {
+        "label": "week ending 2026-06-06 first print",
+        "value": 1.81
+      },
+      {
+        "label": "week ending 2026-05-30 first print",
+        "value": 1.795
+      }
+    ],
+    "drivers": [
+      "Recent continued-claims level near 1.81 million",
+      "Mild positive five-week momentum",
+      "Initial claims near 215,000",
+      "Holiday-period seasonal-adjustment uncertainty"
+    ],
+    "sourceContext": [
+      "https://www.dol.gov/ui/data.pdf",
+      "https://www.dol.gov/sites/dolgov/files/OPA/newsreleases/ui-claims/20261132.pdf",
+      "https://www.dol.gov/sites/dolgov/files/OPA/newsreleases/ui-claims/20261092.pdf",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CCSA",
+      "https://www.dol.gov/index.php/newsroom/releases/opa/opa20200701"
+    ],
+    "runAt": "2026-07-11T00:26:09Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Continued claims for the week ending July 18, 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The target is ETA series CCSA: advance first-print U.S. insured unemployment, seasonally adjusted, for the week ending July 18\u2014not the NSA level, four-week average, or a later revised vintage. Resolution uses the July 30 release, reports millions, and preserves the first print through the ledger-bound ALFRED advance vintage."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Department of Labor's official release-timing announcement and the target's calendar window.",
+        "result": "DOL states that Weekly Claims is released each Thursday at 8:30 a.m. ET; the scheduled release for the week ending 2026-07-18 is 2026-07-30, within the registered 2026-07-28 to 2026-08-01 window."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read DOL Weekly Claims releases for the recent seasonally adjusted insured-unemployment reference class.",
+        "result": "Fetched first-print SA insured unemployment of 1,795,000 for 2026-05-30, 1,810,000 for 2026-06-06, and 1,821,000 for 2026-06-13; DOL also reported the insured unemployment rate at 1.2%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the July 2 DOL release and ALFRED CCSA advance-vintage history for the latest weeks.",
+        "result": "Fetched first-print SA insured unemployment of 1,814,000 for 2026-06-20 and 1,814,000 for 2026-06-27; recent SA initial claims were near 215,000."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: persistence dominates this weekly level series. The five first prints from May 30 through June 27 averaged 1.811 million, while their net change was only +0.019 million. As of the run time, June 27 was the latest available continued-claims first print, making July 18 a three-step horizon."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = 1.814 million, using the five first-print observations 1.795, 1.810, 1.821, 1.814, and 1.814. Successive changes are +0.015, +0.011, -0.007, and 0.000 million; their mean is +0.00475 and sample sigma = 0.0101 million. Three-week momentum adds 3\u00d70.00475 = 0.01425, giving 1.82825, rounded to 1.828. For a three-step horizon, sigma scales to 0.0101\u00d7sqrt(3) = 0.0175, and 1.28\u00d7sigma = 0.0224. Because four calm changes are a short volatility sample and the horizon spans holiday-sensitive seasonal adjustment, the half-width is widened by about 1.34\u00d7 to 0.030 million, yielding final implied bounds of 1.798 to 1.858 million."
+      },
+      {
+        "kind": "text",
+        "text": "Level and momentum point mildly upward, while initial claims near 0.215 million provide no strong deterioration signal. Holiday-related seasonal adjustment is the main one-off risk; no discrete policy mechanism warrants an additional point shift."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: a broad rise in benefit duration or delayed hiring could land above 1.858 million. Downside risk: faster claimant exits or unusually favorable seasonal adjustment could land below 1.798 million. Either outcome would be outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver-stability critique by binding the source URL to the ALFRED CCSA advance-vintage CSV while retaining the DOL first-print rule; accepted the interval critique by widening for the short calm sample, three-step horizon, and holiday adjustment risk. Also clarified the latest available week and described initial claims as near 215,000."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.828,
+        "ciLow": 1.798,
+        "ciHigh": 1.858
+      }
+    ]
+  }
+]
