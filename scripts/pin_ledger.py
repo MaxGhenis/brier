@@ -369,9 +369,12 @@ def _remote_commit_entries(
 
 
 def _validated_manifest_inventory(
-    entries: dict[str, dict[str, Any]], *, label: str
+    entries: dict[str, dict[str, Any]],
+    *,
+    label: str,
+    require_complete_siblings: bool,
 ) -> dict[str, str]:
-    """Validate the closed directory and return exact Git mode/blob identities."""
+    """Parse a closed inventory; require four siblings only for the final tree."""
 
     if not entries:
         return {}
@@ -420,14 +423,17 @@ def _validated_manifest_inventory(
         raise PinError(
             f"{label} has orphan producer signature stems: {orphan_signatures}"
         )
-    for name in manifests.values():
-        stem = pathlib.PurePosixPath(name).stem
-        if receipts.get(stem, set()) != {"freetsa", "digicert"}:
-            raise PinError(
-                f"{label}/{name} must have exactly freetsa and digicert receipts"
-            )
-        if stem not in producer_signatures:
-            raise PinError(f"{label}/{name} is missing its producer signature")
+    if require_complete_siblings:
+        for name in manifests.values():
+            stem = pathlib.PurePosixPath(name).stem
+            if receipts.get(stem, set()) != {"freetsa", "digicert"}:
+                raise PinError(
+                    f"{label}/{name} must have exactly freetsa and digicert receipts"
+                )
+            if stem not in producer_signatures:
+                raise PinError(
+                    f"{label}/{name} is missing its producer signature"
+                )
     return {
         name: f"{entries[name]['mode']}:{entries[name]['sha']}"
         for name in sorted(entries)
@@ -438,6 +444,8 @@ def _remote_release_inventory_at_commit(
     sha: str,
     commit_payload: dict[str, Any],
     expected_jsonl: bytes,
+    *,
+    require_complete_siblings: bool,
 ) -> tuple[dict[str, str], bytes | None]:
     """Read the exact same-commit manifest inventory without verifying TSA tokens."""
 
@@ -458,7 +466,9 @@ def _remote_release_inventory_at_commit(
     )
     entries = _tree_entries_at(str(manifest_entry["sha"]))
     inventory = _validated_manifest_inventory(
-        entries, label="releases/manifests"
+        entries,
+        label="releases/manifests",
+        require_complete_siblings=require_complete_siblings,
     )
     prefix_name = pathlib.PurePosixPath(LEDGER_PREFIX_PATH).name
     prefix_entry = _require_blob_entry(
@@ -469,7 +479,10 @@ def _remote_release_inventory_at_commit(
 
 
 def _local_release_inventory_at_commit(
-    ledger_git: pathlib.Path, sha: str
+    ledger_git: pathlib.Path,
+    sha: str,
+    *,
+    require_complete_siblings: bool,
 ) -> tuple[dict[str, str], bytes | None]:
     """Read a commit's manifest inventory directly from local Git objects."""
 
@@ -496,7 +509,9 @@ def _local_release_inventory_at_commit(
             "sha": entry.object_id,
         }
     inventory = _validated_manifest_inventory(
-        entries, label=f"releases/manifests at {sha}"
+        entries,
+        label=f"releases/manifests at {sha}",
+        require_complete_siblings=require_complete_siblings,
     )
     try:
         prefix = subprocess.check_output(
@@ -514,7 +529,14 @@ def _require_inventory_progress(
     *,
     label: str,
 ) -> None:
-    """Require an immutable manifest/receipt prefix of the verified final tree."""
+    """Require a monotonic prefix-subset of the verified final inventory."""
+
+    candidate_manifests = sorted(
+        name for name in candidate if MANIFEST_RE.fullmatch(name)
+    )
+    final_manifests = sorted(
+        name for name in final if MANIFEST_RE.fullmatch(name)
+    )
 
     for name, object_id in candidate.items():
         if final.get(name) != object_id:
@@ -523,6 +545,11 @@ def _require_inventory_progress(
                 "verified final tree; release chain is absent after witnessed "
                 "genesis or its history was rewritten"
             )
+    if candidate_manifests != final_manifests[: len(candidate_manifests)]:
+        raise PinError(
+            f"{label} release manifest stems are not a prefix of the verified "
+            "final chain"
+        )
     for name, object_id in previous.items():
         if candidate.get(name) != object_id:
             raise PinError(
@@ -900,11 +927,17 @@ def _local_release_history_state(
         head_sha,
         previous_release_head=previous_release_head,
     )
-    final_inventory, _ = _local_release_inventory_at_commit(ledger_git, head_sha)
+    final_inventory, _ = _local_release_inventory_at_commit(
+        ledger_git,
+        head_sha,
+        require_complete_siblings=True,
+    )
     previous_inventory: dict[str, str] = {}
     for commit in commits:
         inventory, immutable_prefix = _local_release_inventory_at_commit(
-            ledger_git, commit
+            ledger_git,
+            commit,
+            require_complete_siblings=False,
         )
         _require_inventory_progress(
             previous_inventory,
@@ -1319,8 +1352,8 @@ def refresh() -> None:
         return
 
     # Verify the exact final commit once with production trust anchors. Every
-    # crossed commit below must expose an immutable prefix of these exact,
-    # authenticated manifest and receipt Git objects and its release head must
+    # crossed commit below must expose an immutable prefix-subset of these exact,
+    # authenticated release-artifact Git objects and its release head must
     # witness that commit's own JSONL bytes. This preserves the stronger
     # no-unwitnessed-intermediate guarantee without re-running OpenSSL over the
     # growing chain at every commit.
@@ -1332,11 +1365,17 @@ def refresh() -> None:
         previous_release_head=pin.get("releaseHead"),
     )
     final_inventory, _ = _remote_release_inventory_at_commit(
-        head_sha, head, head_raw
+        head_sha,
+        head,
+        head_raw,
+        require_complete_siblings=True,
     )
     pinned_commit = _api(f"commits/{pin['sha']}")
     previous_inventory, old_prefix = _remote_release_inventory_at_commit(
-        pin["sha"], pinned_commit, old_raw
+        pin["sha"],
+        pinned_commit,
+        old_raw,
+        require_complete_siblings=False,
     )
     _require_inventory_progress(
         {},
@@ -1395,6 +1434,7 @@ def refresh() -> None:
             commit_sha,
             commit_payload,
             raw,
+            require_complete_siblings=False,
         )
         _require_inventory_progress(
             previous_inventory,

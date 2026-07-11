@@ -326,6 +326,68 @@ def _build_release_repo(root: pathlib.Path) -> ReleaseRepo:
     return ReleaseRepo(repo, tsa, base, genesis, release_one, head)
 
 
+def _build_pre_signing_crossing_history(
+    release_repo: ReleaseRepo,
+    *,
+    delay_digicert_receipt: bool = False,
+) -> ReleaseRepo:
+    repo = release_repo.repo
+    tsa = release_repo.tsa
+    _git(repo, "checkout", "-q", release_repo.base)
+    anchors = repo / "releases" / "anchors"
+    shutil.copytree(tsa / "anchors", anchors)
+    (repo / "releases" / "README.md").write_text("test release journal\n")
+    ledger = repo / pin_ledger.LEDGER_JSONL_PATH
+    producer_key = tsa / "producer-ed25519-key.pem"
+
+    genesis_manifest = _write_release(
+        repo,
+        tsa,
+        index=0,
+        previous_manifest=None,
+        previous_ledger=None,
+        producer_key=producer_key,
+    )
+    genesis_signature = genesis_manifest.with_name(
+        f"{genesis_manifest.stem}.producer.sig"
+    )
+    genesis_signature.unlink()
+    delayed_receipt = genesis_manifest.with_name(
+        f"{genesis_manifest.stem}.digicert.tsr"
+    )
+    delayed_receipt_bytes = (
+        delayed_receipt.read_bytes() if delay_digicert_receipt else None
+    )
+    if delayed_receipt_bytes is not None:
+        delayed_receipt.unlink()
+    genesis = _commit(repo, "incomplete release genesis")
+
+    if delayed_receipt_bytes is not None:
+        delayed_receipt.write_bytes(delayed_receipt_bytes)
+    _sign_manifest(genesis_manifest, producer_key)
+    signed_genesis = _commit(repo, "add genesis producer signature")
+
+    previous_ledger = ledger.read_bytes()
+    ledger.write_bytes(previous_ledger + _row_bytes("row-1"))
+    _write_release(
+        repo,
+        tsa,
+        index=1,
+        previous_manifest=genesis_manifest.read_bytes(),
+        previous_ledger=previous_ledger,
+        producer_key=producer_key,
+    )
+    head = _commit(repo, "signed four-sibling append")
+    return ReleaseRepo(
+        repo,
+        tsa,
+        release_repo.base,
+        genesis,
+        signed_genesis,
+        head,
+    )
+
+
 @pytest.fixture(scope="session")
 def release_repo_template(tmp_path_factory: pytest.TempPathFactory) -> ReleaseRepo:
     return _build_release_repo(tmp_path_factory.mktemp("ledger-pin-release"))
@@ -701,6 +763,48 @@ def test_refresh_accepts_signed_four_sibling_chain_and_derives_three_release_win
     assert "lastExcludedReleaseIndex: number | null" in generated
 
 
+@pytest.mark.parametrize(
+    ("delay_digicert_receipt", "genesis_sibling_count"),
+    [(False, 3), (True, 2)],
+)
+def test_refresh_crosses_incomplete_genesis_and_lands_signed_release_head(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+    delay_digicert_receipt: bool,
+    genesis_sibling_count: int,
+) -> None:
+    crossing_repo = _build_pre_signing_crossing_history(
+        release_repo,
+        delay_digicert_receipt=delay_digicert_receipt,
+    )
+    genesis_inventory = _git(
+        crossing_repo.repo,
+        "ls-tree",
+        "--name-only",
+        f"{crossing_repo.genesis}:releases/manifests",
+    ).splitlines()
+    assert len(genesis_inventory) == genesis_sibling_count
+    assert not any(name.endswith(".producer.sig") for name in genesis_inventory)
+    pin_path, availability_path, _generated_path = _seed_outputs(
+        monkeypatch,
+        tmp_path,
+        crossing_repo,
+        pin_sha=crossing_repo.genesis,
+    )
+    _install_remote(monkeypatch, crossing_repo)
+    pin_requests = _install_test_verifier(monkeypatch, crossing_repo)
+
+    pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    pin = json.loads(pin_path.read_text())
+    assert pin["sha"] == crossing_repo.head
+    assert pin["releaseHead"]["index"] == 1
+    rows = json.loads(availability_path.read_text())["rows"]
+    assert [row["witnessedInReleaseIndex"] for row in rows] == [0, 1]
+
+
 def test_refresh_refuses_unsigned_three_sibling_post_genesis_release(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,
@@ -928,6 +1032,47 @@ def test_refresh_refuses_unwitnessed_intermediate_append_even_if_later_released(
     assert {path: path.read_bytes() for path in before} == before
 
 
+def test_refresh_refuses_transient_chain_deletion_hiding_unwitnessed_append(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    manifest_directory = release_repo.repo / "releases" / "manifests"
+    saved_manifests = tmp_path / "saved-manifests"
+    shutil.copytree(manifest_directory, saved_manifests)
+    ledger = release_repo.repo / pin_ledger.LEDGER_JSONL_PATH
+    previous_ledger = ledger.read_bytes()
+    previous_manifest = next(manifest_directory.glob("0002-*.json")).read_bytes()
+    shutil.rmtree(manifest_directory)
+    ledger.write_bytes(previous_ledger + _row_bytes("row-3-unwitnessed"))
+    _commit(release_repo.repo, "hide unwitnessed append behind absent chain")
+
+    shutil.copytree(saved_manifests, manifest_directory)
+    _write_release(
+        release_repo.repo,
+        release_repo.tsa,
+        index=3,
+        previous_manifest=previous_manifest,
+        previous_ledger=previous_ledger,
+        producer_key=release_repo.tsa / "producer-ed25519-key.pem",
+    )
+    _commit(release_repo.repo, "restore chain and release hidden append")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="deletes or replaces"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
 def test_refresh_refuses_transient_release_receipt_replacement(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,
@@ -941,6 +1086,35 @@ def test_refresh_refuses_transient_release_receipt_replacement(
     _commit(release_repo.repo, "transient receipt replacement")
     receipt.write_bytes(original)
     _commit(release_repo.repo, "restore receipt before refresh")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="absent or changed"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_transient_release_manifest_replacement(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    manifest = next(
+        (release_repo.repo / "releases/manifests").glob("0002-*.json")
+    )
+    original = manifest.read_bytes()
+    manifest.write_bytes(original + b"tampered")
+    _commit(release_repo.repo, "transient manifest replacement")
+    manifest.write_bytes(original)
+    _commit(release_repo.repo, "restore manifest before refresh")
     pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
         monkeypatch, tmp_path, release_repo
     )
@@ -972,6 +1146,37 @@ def test_refresh_refuses_transient_producer_signature_replacement(
     _commit(release_repo.repo, "transient producer signature replacement")
     signature.write_bytes(original)
     _commit(release_repo.repo, "restore producer signature before refresh")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="absent or changed"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_crossed_manifest_missing_from_final_chain(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    transient = (
+        release_repo.repo
+        / "releases"
+        / "manifests"
+        / "0003-0000000000000000.json"
+    )
+    transient.write_bytes(b"transient release manifest\n")
+    _commit(release_repo.repo, "add release artifact absent from final chain")
+    transient.unlink()
+    _commit(release_repo.repo, "remove transient release artifact")
     pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
         monkeypatch, tmp_path, release_repo
     )
