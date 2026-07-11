@@ -1762,6 +1762,8 @@ function targetPeriodLabel(cell: ForecastCell): string {
   // Label the forecast by the PERIOD it grades, not the date it resolves:
   // a fiscal-year cell reads "FY 2025", never the June-after publication
   // month. Monthly and weekly cells keep the resolution-date fallback.
+  const schoolYear = /sy[_ -]?(\d{4})[_-](\d{2})/i.exec(cell.dataPointId ?? "");
+  if (schoolYear) return `SY ${schoolYear[1]}-${schoolYear[2]}`;
   const fiscalYear = /fy[_ -]?(\d{4})/i.exec(cell.dataPointId ?? "");
   if (fiscalYear) return `FY ${fiscalYear[1]}`;
   return formatShortDate(

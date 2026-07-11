@@ -211,6 +211,54 @@ function buildDensityPath(center: number, width: number): string {
     .join(" ");
 }
 
+const MONTH_INDEX: Record<string, number> = {
+  jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5,
+  jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11,
+};
+
+/**
+ * Best-effort UTC timestamp for a history/target label, for proportional
+ * x-axis spacing. Returns null when no time token is recognizable; callers
+ * fall back to index spacing, so a miss can never break a chart. Anchors
+ * are period midpoints (month → 15th, FY → Apr 1, SY → Jan 15) — only
+ * monotone, roughly proportional placement matters.
+ */
+export function parseTimelineLabel(label: string): number | null {
+  const text = label.trim();
+  let match = /(\d{4})-(\d{2})-(\d{2})/.exec(text);
+  if (match) return Date.UTC(+match[1], +match[2] - 1, +match[3]);
+  match = /(\d{4})[ -]?Q([1-4])/i.exec(text);
+  if (match) return Date.UTC(+match[1], (+match[2] - 1) * 3 + 1, 15);
+  match = /Q([1-4])[ -]?(\d{4})/i.exec(text);
+  if (match) return Date.UTC(+match[2], (+match[1] - 1) * 3 + 1, 15);
+  match = /(\d{4})-(\d{2})(?!\d)/.exec(text);
+  if (match && +match[2] >= 1 && +match[2] <= 12) {
+    return Date.UTC(+match[1], +match[2] - 1, 15);
+  }
+  match =
+    /(?:(\d{1,2})\s+)?(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{4})/i.exec(
+      text,
+    );
+  if (match) {
+    return Date.UTC(
+      +match[3],
+      MONTH_INDEX[match[2].slice(0, 3).toLowerCase()],
+      match[1] ? +match[1] : 15,
+    );
+  }
+  match = /^(\d{2})\/(\d{2})$/.exec(text);
+  if (match && +match[1] >= 1 && +match[1] <= 12) {
+    return Date.UTC(2000 + +match[2], +match[1] - 1, 15);
+  }
+  match = /SY\s?(\d{4})[-–_]\d{2,4}/i.exec(text);
+  if (match) return Date.UTC(+match[1] + 1, 0, 15);
+  match = /FY\s?(\d{4})/i.exec(text);
+  if (match) return Date.UTC(+match[1], 3, 1);
+  match = /^(\d{4})\b/.exec(text);
+  if (match) return Date.UTC(+match[1], 6, 1);
+  return null;
+}
+
 export function ForecastTrend({
   actual,
   ciHigh,
@@ -243,7 +291,28 @@ export function ForecastTrend({
   const plotHeight = height - margin.top - margin.bottom;
   const forecastIndex = history.length;
   const denominator = Math.max(forecastIndex, 1);
-  const x = (index: number) => margin.left + (plotWidth * index) / denominator;
+  // Space the x-axis proportionally to time when every label carries a
+  // recognizable time token and the sequence strictly increases toward the
+  // target; otherwise keep index spacing (uneven history gaps — FY2019 to
+  // FY2022 to FY2023 — previously drew as equal steps).
+  const times = [...history.map((item) => parseTimelineLabel(item.label))];
+  const targetTime = parseTimelineLabel(targetLabel);
+  const timeline = [...times, targetTime];
+  const proportional =
+    targetTime !== null &&
+    times.every((time) => time !== null) &&
+    timeline.every(
+      (time, index) => index === 0 || (time as number) > (timeline[index - 1] as number),
+    );
+  const x = (index: number) => {
+    if (proportional) {
+      const t0 = timeline[0] as number;
+      const t1 = targetTime as number;
+      const t = timeline[index] as number;
+      return margin.left + (plotWidth * (t - t0)) / (t1 - t0);
+    }
+    return margin.left + (plotWidth * index) / denominator;
+  };
   const y = (value: number) =>
     margin.top + plotHeight - ((value - min) / span) * plotHeight;
 

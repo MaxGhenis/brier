@@ -165,3 +165,48 @@ describe("signed-zero normalization", () => {
     expect(Object.is(built.support.upper, -0)).toBe(false);
   });
 });
+
+describe("timeline label parsing for proportional trend spacing", () => {
+  it("parses every label format observed in the catalog", async () => {
+    const { parseTimelineLabel } = await import("@/components/ForecastViz");
+    const zoo: Array<[string, boolean]> = [
+      ["Mar 2026", true],
+      ["March 2026", true],
+      ["19 March 2026", true],
+      ["2026-04", true],
+      ["2026-04 MoM", true],
+      ["Week 2026-06-06 (latest)", true],
+      ["2024-11-08", true],
+      ["01/26", true],
+      ["2025 Q2 revised, BLS/FRED PRS85006092", true],
+      ["2023-Q4 first-flash qoq", true],
+      ["FY2019", true],
+      ["FY 2024", true],
+      ["SY2026-27", true],
+      ["SY 2026-27", true],
+      ["2021 first print age 65+ SPM poverty rate", true],
+      ["no time here", false],
+    ];
+    for (const [label, expected] of zoo) {
+      expect(parseTimelineLabel(label) !== null, label).toBe(expected);
+    }
+  });
+
+  it("orders fiscal years, school years, and months consistently", async () => {
+    const { parseTimelineLabel } = await import("@/components/ForecastViz");
+    const sequence = [
+      "FY2019",
+      "FY2022",
+      "FY2023",
+      "FY2024",
+      "SY 2026-27",
+    ].map((label) => parseTimelineLabel(label)!);
+    for (let index = 1; index < sequence.length; index += 1) {
+      expect(sequence[index]).toBeGreaterThan(sequence[index - 1]);
+    }
+    // FY2019 -> FY2022 must span three times the FY2022 -> FY2023 gap.
+    const bigGap = sequence[1] - sequence[0];
+    const smallGap = sequence[2] - sequence[1];
+    expect(bigGap / smallGap).toBeCloseTo(3, 1);
+  });
+});
