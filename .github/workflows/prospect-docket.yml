@@ -102,6 +102,8 @@ jobs:
     timeout-minutes: 30
     permissions:
       contents: write
+      id-token: write # Sigstore attestation of records pushes
+      attestations: write
     outputs:
       count: ${{ steps.targets.outputs.count }}
       batch: ${{ steps.targets.outputs.batch }}
@@ -231,6 +233,14 @@ jobs:
             echo "target_content_hashes=$HASHES"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Attest the registration push
+        if: >-
+          steps.registration_commit.outputs.committed == '1' &&
+          steps.sync.outputs.source_sha != ''
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.sync.outputs.source_sha }}
+
       - name: Stage privileged target artifact
         if: steps.targets.outputs.count != '0'
         run: |
@@ -332,6 +342,8 @@ jobs:
       contents: write
       issues: write
       actions: write
+      id-token: write # Sigstore attestation of records pushes
+      attestations: write
     steps:
       - name: Propagate upstream failure
         if: >-
@@ -451,6 +463,7 @@ jobs:
           echo "committed=1" >> "$GITHUB_OUTPUT"
 
       - name: Rebase, reverify, and push once
+        id: final_push
         if: steps.commit.outputs.committed == '1'
         timeout-minutes: 30
         env:
@@ -503,6 +516,10 @@ jobs:
                 bun run build
               )
             fi
+            if [ "$(git rev-list --count origin/main..HEAD)" = "0" ]; then
+              echo "nothing of ours survived the rebase; refusing a no-op push" >&2
+              exit 1
+            fi
             LOCAL=$(git rev-parse HEAD)
             if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
               REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
@@ -517,6 +534,13 @@ jobs:
             echo "publication push did not converge after 3 attempts" >&2
             exit 1
           fi
+          echo "attest_commit=$LOCAL" >> "$GITHUB_OUTPUT"
+
+      - name: Attest the publication push
+        if: steps.final_push.outputs.attest_commit != ''
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.final_push.outputs.attest_commit }}
 
       - name: Stamp the record
         if: >-

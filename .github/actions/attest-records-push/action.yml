@@ -1,0 +1,31 @@
+name: Attest records push
+description: >-
+  Sign a canonical subject naming the records commit this job just pushed,
+  binding the commit to this exact workflow run via Sigstore provenance.
+  Detective control: scripts/verify_records_attestations.py fails CI for any
+  records-touching commit on main that lacks a matching attestation from an
+  allowlisted workflow.
+
+inputs:
+  commit:
+    description: Full 40-hex sha of the commit that was pushed to main.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Build the canonical push subject
+      shell: bash
+      env:
+        PUSHED_COMMIT: ${{ inputs.commit }}
+      run: |
+        set -euo pipefail
+        python3 scripts/attest_subject.py \
+          --commit "$PUSHED_COMMIT" \
+          --repository "$GITHUB_REPOSITORY" \
+          --out "/tmp/records-attest/records-push-$PUSHED_COMMIT.json"
+
+    - name: Attest the push subject
+      uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+      with:
+        subject-path: /tmp/records-attest/records-push-${{ inputs.commit }}.json

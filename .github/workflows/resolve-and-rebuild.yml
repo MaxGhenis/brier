@@ -13,6 +13,8 @@ on:
 permissions:
   contents: write # resolution marker commit makes HEAD deployable
   issues: write
+  id-token: write # Sigstore attestation of records pushes
+  attestations: write
 
 concurrency: resolve-pending
 
@@ -152,13 +154,25 @@ jobs:
             "$WITNESS_MANIFEST" site/src/data/ledger-pin.json
 
       - name: Push resolution marker
+        id: marker_push
         if: steps.ledger.outputs.needs_publish == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          if [ "$(git rev-list --count origin/main..HEAD)" = "0" ]; then
+            echo "nothing of ours survived the rebase; refusing a no-op push" >&2
+            exit 1
+          fi
           auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
           git -c credential.helper= -c credential.helper="$auth_helper" push origin main
+          echo "pushed_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Attest the resolution marker push
+        if: steps.marker_push.outputs.pushed_sha != ''
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.marker_push.outputs.pushed_sha }}
 
       - name: Rebuild the site
         id: deploy
@@ -184,6 +198,7 @@ jobs:
           echo "site_sha=$SHA" >> "$GITHUB_OUTPUT"
 
       - name: Record the successfully deployed ledger SHA
+        id: deployed_ledger
         if: steps.ledger.outputs.needs_publish == '1'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -202,6 +217,13 @@ jobs:
           git commit -m "Record deployed resolution ledger $LEDGER_SHA [skip ci]"
           auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
           git -c credential.helper= -c credential.helper="$auth_helper" push origin main
+          echo "pushed_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Attest the deployed-ledger push
+        if: steps.deployed_ledger.outputs.pushed_sha != ''
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.deployed_ledger.outputs.pushed_sha }}
 
       - name: Alert on failure
         if: failure()

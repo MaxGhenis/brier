@@ -1,0 +1,41 @@
+name: Records provenance
+
+# Detective control: every commit touching records/** after the enforcement
+# epoch must carry a Sigstore attestation from an allowlisted publishing
+# workflow (see scripts/verify_records_attestations.py). Push runs check the
+# pushed range; the daily audit re-walks epoch..HEAD, which also covers
+# [skip ci] pushes that never trigger the push run.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "10 15 * * *" # daily, after the 13:40 UTC resolution cycle
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  attestations: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify records commit provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_BEFORE: ${{ github.event.before || '' }}
+          EVENT_AFTER: ${{ github.event.after || '' }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ] && [ -n "$EVENT_BEFORE" ] && [ -n "$EVENT_AFTER" ]; then
+            python3 scripts/verify_records_attestations.py --range "$EVENT_BEFORE..$EVENT_AFTER"
+          else
+            python3 scripts/verify_records_attestations.py
+          fi

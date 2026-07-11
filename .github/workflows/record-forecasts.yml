@@ -17,6 +17,8 @@ on:
 permissions:
   contents: write
   issues: write
+  id-token: write # Sigstore attestation of records pushes
+  attestations: write
 
 concurrency: record-forecasts
 
@@ -205,13 +207,30 @@ jobs:
         run: python3 scripts/witnessed_timeline.py
 
       - name: Commit snapshot
+        id: snapshot_push
         run: |
           set -euo pipefail
           git config user.name "thesis-recorder"
           git config user.email "recorder@thesisinstitute.org"
           git add records/ site/src/data/witnessed-timeline.generated.ts
-          git commit -m "Record forecast surfaces $(date -u +%F) [skip ci]" || echo "nothing new to commit"
+          if git diff --cached --quiet; then
+            echo "nothing new to commit"
+            committed=0
+          else
+            git commit -m "Record forecast surfaces $(date -u +%F) [skip ci]"
+            committed=1
+          fi
           git push origin main
+          {
+            echo "committed=$committed"
+            echo "pushed_sha=$(git rev-parse HEAD)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Attest the snapshot push
+        if: steps.snapshot_push.outputs.committed == '1'
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.snapshot_push.outputs.pushed_sha }}
 
       # A silent failure is a missing recorder invocation. File an issue so a
       # broken scheduled run surfaces the same day.

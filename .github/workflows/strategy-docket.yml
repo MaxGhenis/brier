@@ -360,6 +360,8 @@ jobs:
       actions: write
       contents: write
       issues: write
+      id-token: write # Sigstore attestation of records pushes
+      attestations: write
     steps:
       - name: Propagate upstream failure
         if: >-
@@ -599,6 +601,7 @@ jobs:
           echo "committed=1" >> "$GITHUB_OUTPUT"
 
       - name: Rebase, reverify, and push
+        id: final_push
         if: steps.commit.outputs.committed == '1'
         timeout-minutes: 45
         env:
@@ -656,6 +659,10 @@ jobs:
               bun run test
               bun run build
             )
+            if [ "$(git rev-list --count origin/main..HEAD)" = "0" ]; then
+              echo "nothing of ours survived the rebase; refusing a no-op push" >&2
+              exit 1
+            fi
             LOCAL=$(git rev-parse HEAD)
             if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
               REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
@@ -670,6 +677,13 @@ jobs:
             echo "strategy publication push did not converge after 3 attempts" >&2
             exit 1
           fi
+          echo "attest_commit=$LOCAL" >> "$GITHUB_OUTPUT"
+
+      - name: Attest the publication push
+        if: steps.final_push.outputs.attest_commit != ''
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.final_push.outputs.attest_commit }}
 
       - name: Stamp the publication record
         if: steps.commit.outputs.committed == '1' || steps.commit.outputs.committed == '0'
