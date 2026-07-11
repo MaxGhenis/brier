@@ -51,6 +51,7 @@ LEDGER_PIN_PATH = (
 LEDGER_PIN_BINDING_KEYS = {"repo", "branch", "sha", "jsonlSha256", "lineCount"}
 SOURCE_ADAPTERS = {"alfred-fred", "generic-url"}
 RELEASE_POLICIES = {"first_print", "advance_vintage"}
+SOURCE_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
 SERIES_BINDINGS: dict[str, dict[str, Any]] = {
     "us.dol.initial_claims.sa": {
         "adapter": "alfred-fred",
@@ -649,6 +650,69 @@ def _published_block_matches_registration(
     )
 
 
+def _reject_duplicate_object_keys(
+    pairs: list[tuple[str, Any]],
+) -> dict[str, Any]:
+    value: dict[str, Any] = {}
+    for key, item in pairs:
+        if key in value:
+            raise RegistrationError(
+                f"committed docket contains duplicate JSON key {key!r}"
+            )
+        value[key] = item
+    return value
+
+
+def _load_committed_docket(head_commit: str) -> list[Any]:
+    """Load the series entries committed at one exact trusted revision."""
+
+    try:
+        docket = json.loads(
+            _git_output("show", f"{head_commit}:scripts/docket_series.json"),
+            object_pairs_hook=_reject_duplicate_object_keys,
+        )
+    except json.JSONDecodeError as exc:
+        raise RegistrationError(f"committed docket is not valid JSON: {exc}") from exc
+    entries = docket.get("series") if isinstance(docket, dict) else None
+    if not isinstance(entries, list):
+        raise RegistrationError("committed docket must contain a series list")
+    return entries
+
+
+def _binding_matches_template(binding: Any, template: Any) -> bool:
+    if not isinstance(binding, dict) or not isinstance(template, dict):
+        return False
+    if set(binding) - set(template) != SOURCE_BINDING_DERIVED_KEYS:
+        return False
+    projection = {
+        key: value
+        for key, value in binding.items()
+        if key not in SOURCE_BINDING_DERIVED_KEYS
+    }
+    return canonical_bytes(projection) == canonical_bytes(template)
+
+
+def _binding_is_committed_template(
+    contract: dict[str, Any], head_commit: str
+) -> bool:
+    """Authorize a source binding only from its series template at trusted HEAD."""
+
+    try:
+        entries = _load_committed_docket(head_commit)
+        matches = []
+        for entry in entries:
+            if not isinstance(entry, dict) or "series" not in entry:
+                return False
+            if entry["series"] == contract["series"]:
+                matches.append(entry)
+        if len(matches) != 1:
+            return False
+        template = matches[0]["extras"]["sourceBinding"]
+        return _binding_matches_template(contract["sourceBinding"], template)
+    except Exception:
+        return False
+
+
 def _may_supersede(
     existing_block: str,
     registration: dict[str, Any],
@@ -741,10 +805,14 @@ def _may_supersede(
                 "merge-base", "--is-ancestor", introducing_commit, cutover_commit
             )
 
-        if canonical_bytes(old_contract) != canonical_bytes(
-            registration["contract"]
-        ):
-            return False
+        new_contract = registration["contract"]
+        if canonical_bytes(old_contract) != canonical_bytes(new_contract):
+            old_identity = {**old_contract, "sourceBinding": None}
+            new_identity = {**new_contract, "sourceBinding": None}
+            if canonical_bytes(old_identity) != canonical_bytes(
+                new_identity
+            ) or not _binding_is_committed_template(new_contract, head_commit):
+                return False
         if parse_utc_instant(registration["registeredAtUtc"]) <= parse_utc_instant(
             authenticated_snapshot["registeredAtUtc"]
         ):
@@ -1038,6 +1106,12 @@ def bind_registration_commits(
     targets = payload.get("targets") if isinstance(payload, dict) else None
     if not isinstance(targets, list):
         raise RegistrationError("targets file must contain an object-list 'targets'")
+    docket_entries = _load_committed_docket(source_commit)
+    for index, entry in enumerate(docket_entries):
+        if not isinstance(entry, dict) or "series" not in entry:
+            raise RegistrationError(
+                f"committed docket entry {index} must be an object with series"
+            )
     registrations = []
     for target in targets:
         relative = pathlib.PurePosixPath(
@@ -1087,6 +1161,39 @@ def bind_registration_commits(
                 )
         if target.get("registeredAtUtc") != snapshot["registeredAtUtc"]:
             raise RegistrationError(f"registeredAtUtc mismatch: {relative}")
+        series = contract.get("series")
+        data_point_id = contract.get("dataPointId")
+        template_matches = [
+            entry for entry in docket_entries if entry["series"] == series
+        ]
+        if len(template_matches) > 1:
+            raise RegistrationError(
+                "ambiguous committed docket template for "
+                f"{data_point_id} in series {series}"
+            )
+        if template_matches:
+            entry = template_matches[0]
+            extras = entry.get("extras")
+            if "extras" in entry and not isinstance(extras, dict):
+                raise RegistrationError(
+                    "committed docket sourceBinding template is malformed for "
+                    f"{data_point_id} in series {series}"
+                )
+            if isinstance(extras, dict) and "sourceBinding" in extras:
+                template = extras["sourceBinding"]
+                if not isinstance(template, dict):
+                    raise RegistrationError(
+                        "committed docket sourceBinding template is malformed for "
+                        f"{data_point_id} in series {series}"
+                    )
+                if not _binding_matches_template(
+                    contract.get("sourceBinding"), template
+                ):
+                    raise RegistrationError(
+                        "target registration sourceBinding disagrees with the "
+                        "committed docket template for "
+                        f"{data_point_id} in series {series}"
+                    )
         commits = _git_output(
             "log",
             source_commit,

@@ -11,6 +11,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import adopt_proven_series  # noqa: E402
 import generate_ledger_targets  # noqa: E402
 import register_targets  # noqa: E402
 import register_wave  # noqa: E402
@@ -252,9 +253,13 @@ def test_bind_registration_commits_uses_snapshot_introducing_commit(
     tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     generated = configure_registration_root(tmp_path, monkeypatch)
+    docket = _write_docket(tmp_path, [])
     subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
     subprocess.run(
-        ["git", "add", generated.name], cwd=tmp_path, check=True, capture_output=True
+        ["git", "add", generated.name, docket.relative_to(tmp_path).as_posix()],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
     )
     commit_args = [
         "git",
@@ -483,6 +488,200 @@ def _supersede_contract() -> dict:
     }
 
 
+def _binding_upgrade_contracts() -> tuple[dict, dict]:
+    """Mirror the portal-to-Data-API upgrade in the live ABS registration."""
+
+    old = {
+        **_supersede_contract(),
+        "series": "abs.labour.unemployment_rate",
+        "sourceBinding": {
+            "adapter": "generic-url",
+            "sourceUrl": (
+                "https://www.abs.gov.au/statistics/labour/"
+                "employment-and-unemployment/labour-force-australia/"
+                "latest-release"
+            ),
+            "sourceSeriesId": "abs.labour.unemployment_rate",
+            "field": "abs.labour.unemployment_rate",
+            "table": (
+                "Australian Bureau of Statistics Labour Force, Australia, June 2026"
+            ),
+            "transform": {"operation": "multiply", "factor": 1},
+            "releasePolicy": "first_print",
+            "expectedReleaseWindow": {
+                "start": "2026-08-19",
+                "end": "2026-08-27",
+            },
+            "allowedHosts": ["www.abs.gov.au"],
+        },
+    }
+    upgraded = {
+        **old,
+        "sourceBinding": {
+            "adapter": "generic-url",
+            "sourceUrl": (
+                "https://data.api.abs.gov.au/rest/data/"
+                "LF/M13.3.1599.20.AUS.M?format=jsondata"
+            ),
+            "sourceSeriesId": "LF/M13.3.1599.20.AUS.M",
+            "field": "M13",
+            "table": (
+                "Labour Force, Australia (dataflow LF): unemployment rate, "
+                "persons, seasonally adjusted; first print captured on release day"
+            ),
+            "transform": {"operation": "multiply", "factor": 1},
+            "releasePolicy": "first_print",
+            "expectedReleaseWindow": {
+                "start": "2026-08-19",
+                "end": "2026-08-27",
+            },
+            "allowedHosts": ["data.api.abs.gov.au", "www.abs.gov.au"],
+        },
+    }
+    return old, upgraded
+
+
+def _binding_template(binding: dict) -> dict:
+    return {
+        key: value
+        for key, value in binding.items()
+        if key not in {"expectedReleaseWindow", "allowedHosts"}
+    }
+
+
+def _write_docket(
+    tmp_path: pathlib.Path, entries: list[dict]
+) -> pathlib.Path:
+    path = tmp_path / "scripts" / "docket_series.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"series": entries}, indent=2) + "\n")
+    return path
+
+
+def _docket_entry(contract: dict) -> dict:
+    return {
+        "series": contract["series"],
+        "extras": {
+            "sourceBinding": _binding_template(contract["sourceBinding"]),
+        },
+    }
+
+
+def _docket_with_duplicate_key(contract: dict, duplicate: str) -> str:
+    source = json.dumps({"series": [_docket_entry(contract)]}, indent=2) + "\n"
+    if duplicate == "series":
+        needle = f'"series": {json.dumps(contract["series"])}'
+        replacement = (
+            '"series": "ignored.invalid.series",\n'
+            f'      "series": {json.dumps(contract["series"])}'
+        )
+    else:
+        source_url = contract["sourceBinding"]["sourceUrl"]
+        needle = f'"sourceUrl": {json.dumps(source_url)}'
+        replacement = (
+            '"sourceUrl": "https://ignored.invalid/source",\n'
+            f'          "sourceUrl": {json.dumps(source_url)}'
+        )
+    assert source.count(needle) == 1
+    return source.replace(needle, replacement, 1)
+
+
+def _commit_files(
+    tmp_path: pathlib.Path, paths: list[pathlib.Path], message: str
+) -> None:
+    subprocess.run(
+        ["git", "add", *(path.relative_to(tmp_path).as_posix() for path in paths)],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "-m",
+            message,
+        ],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+
+def _target_from_contract(contract: dict) -> dict:
+    return {
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+        "dataPointId": contract["dataPointId"],
+        "country": contract["country"],
+        "targetUnit": contract["unit"],
+        "valueScale": contract["valueScale"],
+        "sourceBinding": contract["sourceBinding"],
+        "expectedReleaseWindow": contract["sourceBinding"][
+            "expectedReleaseWindow"
+        ],
+    }
+
+
+def _registered_target_payload(
+    registration: dict, relative: pathlib.Path
+) -> dict:
+    contract = registration["contract"]
+    return {
+        "series": contract["series"],
+        "period": contract["period"],
+        "catalogSlug": contract["catalogSlug"],
+        "dataPointId": contract["dataPointId"],
+        "country": contract["country"],
+        "targetUnit": contract["unit"],
+        "valueScale": contract["valueScale"],
+        "sourceBinding": contract["sourceBinding"],
+        "registeredAtUtc": registration["registeredAtUtc"],
+        "targetContentHash": registration["targetContentHash"],
+        "targetRegistrationPath": relative.as_posix(),
+    }
+
+
+def _install_registration_for_bind(
+    tmp_path: pathlib.Path,
+    generated: pathlib.Path,
+    registration: dict,
+) -> tuple[pathlib.Path, pathlib.Path]:
+    relative = (
+        pathlib.Path("records/targets")
+        / f"{registration['registeredAtUtc'][:10]}-"
+        f"{registration['targetContentHash']}.json"
+    )
+    snapshot_path = tmp_path / relative
+    snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_path.write_bytes(canonical_bytes(registration["snapshot"]) + b"\n")
+    _write_block(
+        generated,
+        register_targets.ts_literal(
+            register_targets._entry_for(
+                registration["contract"],
+                registration["targetContentHash"],
+                registration["registeredAtUtc"],
+                registration["snapshot"].get("ledgerPin"),
+            )
+        ),
+    )
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text(
+        json.dumps(
+            {"targets": [_registered_target_payload(registration, relative)]},
+            indent=2,
+        )
+        + "\n"
+    )
+    return snapshot_path, targets_path
+
+
 def _registration(contract: dict, registered_at: str, pin: dict | None) -> dict:
     if pin is not None:
         snapshot = {
@@ -526,6 +725,35 @@ def _write_block(generated: pathlib.Path, block: str) -> None:
         f"{block}\n"
         "] satisfies TargetRegisteredLedgerEntry[];\n"
     )
+
+
+def _commit_first_registration(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    contract: dict,
+) -> tuple[pathlib.Path, pathlib.Path, pathlib.Path, dict]:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    docket = _write_docket(tmp_path, [_docket_entry(contract)])
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    _commit_files(tmp_path, [generated, docket], "commit binding template")
+    monkeypatch.setattr(
+        register_targets,
+        "load_ledger_pin_binding",
+        lambda: _pin("c" * 40, 128),
+    )
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text(
+        json.dumps({"targets": [_target_from_contract(contract)]}) + "\n"
+    )
+    [registration] = register_targets.register(
+        targets_path, dt.date(2026, 7, 10), "2026-07-10T06:17:27Z"
+    )
+    _commit_files(
+        tmp_path,
+        [generated, registration["path"]],
+        "commit first target registration",
+    )
+    return generated, docket, targets_path, registration
 
 
 def _backed_block(
@@ -728,6 +956,530 @@ def test_unpublished_v2_target_is_superseded_by_a_pinned_v3_reroll(
     )
     # Superseded in place, not appended: exactly one kind: target_registered.
     assert rendered.count("kind: \"target_registered\"") == 1
+
+
+def test_committed_docket_template_authorizes_source_binding_upgrade(
+    tmp_path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch
+    )
+    docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
+    _commit_files(tmp_path, [docket], "upgrade ABS source binding")
+
+    reroll = _registration(
+        upgraded_contract,
+        "2026-07-10T06:17:27Z",
+        _pin("c" * 40, 128),
+    )
+    rendered = register_targets.render_generated_targets(
+        [reroll], allow_published=True, allow_supersede=True
+    )
+
+    blocks = register_targets._generated_blocks(
+        rendered, upgraded_contract["dataPointId"]
+    )
+    assert len(blocks) == 1
+    assert register_targets._block_value(blocks[0], "sourceBinding") == reroll[
+        "contract"
+    ]["sourceBinding"]
+    assert rendered.count("kind: \"target_registered\"") == 1
+
+
+def test_binding_upgrade_refuses_wave_invented_binding(
+    tmp_path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch
+    )
+    docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
+    _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
+    invented = json.loads(json.dumps(upgraded_contract))
+    invented["sourceBinding"]["sourceUrl"] = (
+        "https://invented.example/abs-unemployment"
+    )
+    invented["sourceBinding"]["allowedHosts"] = ["invented.example"]
+    reroll = _registration(
+        invented, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+
+def test_binding_upgrade_refuses_uncommitted_docket_authority(
+    tmp_path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch
+    )
+    docket = _write_docket(tmp_path, [_docket_entry(old_contract)])
+    _commit_files(tmp_path, [docket], "commit original ABS binding")
+    # The working tree advertises the upgrade, but trusted HEAD still binds A.
+    _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
+    reroll = _registration(
+        upgraded_contract,
+        "2026-07-10T06:17:27Z",
+        _pin("c" * 40, 128),
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+
+def test_binding_upgrade_refuses_identity_drift(tmp_path, monkeypatch) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch
+    )
+    docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
+    _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
+    drifted = {**upgraded_contract, "unit": "count"}
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+    assert register_targets._binding_is_committed_template(drifted, head)
+    reroll = _registration(
+        drifted, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+
+@pytest.mark.parametrize("abuse", ["extra", "missing-template-key"])
+def test_binding_upgrade_refuses_derived_key_abuse(
+    tmp_path, monkeypatch, abuse
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch
+    )
+    docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
+    _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
+    abused = json.loads(json.dumps(upgraded_contract))
+    if abuse == "extra":
+        abused["sourceBinding"]["waveOverride"] = True
+    else:
+        abused["sourceBinding"].pop("field")
+    reroll = _registration(
+        abused, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+
+def test_binding_upgrade_refuses_ambiguous_template(tmp_path, monkeypatch) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch
+    )
+    entry = _docket_entry(upgraded_contract)
+    docket = _write_docket(tmp_path, [entry, entry])
+    _commit_files(tmp_path, [docket], "commit ambiguous ABS bindings")
+    reroll = _registration(
+        upgraded_contract,
+        "2026-07-10T06:17:27Z",
+        _pin("c" * 40, 128),
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+
+def test_binding_upgrade_refuses_stale_binding_projection(
+    tmp_path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch
+    )
+    docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
+    _commit_files(tmp_path, [docket], "commit reviewed ABS binding")
+    stale = json.loads(json.dumps(old_contract))
+    # Enter the changed-contract lane while retaining binding A's projection.
+    # An exactly byte-equal A contract remains allowed by the required fast path.
+    stale["sourceBinding"]["expectedReleaseWindow"]["end"] = "2026-08-28"
+    reroll = _registration(
+        stale, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+
+def test_binding_upgrade_of_published_head_target_is_refused(
+    tmp_path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+    registered_at = "2026-07-10T05:03:56Z"
+    _commit_v2_supersede_history(
+        tmp_path, generated, old_contract, monkeypatch, registered_at
+    )
+    old_registration = _registration(old_contract, registered_at, None)
+    published = register_targets._entry_for(
+        old_registration["contract"],
+        old_registration["targetContentHash"],
+        registered_at,
+        None,
+    )
+    published["registrationState"] = "published"
+    _write_block(generated, register_targets.ts_literal(published))
+    docket = _write_docket(tmp_path, [_docket_entry(upgraded_contract)])
+    _commit_files(tmp_path, [generated, docket], "publish target and upgrade binding")
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+    assert register_targets._binding_is_committed_template(
+        upgraded_contract, head
+    )
+    reroll = _registration(
+        upgraded_contract,
+        "2026-07-10T06:17:27Z",
+        _pin("c" * 40, 128),
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+
+def test_adoption_writes_an_authorizing_template_and_bind_accepts_it(
+    tmp_path, monkeypatch
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    _commit_files(tmp_path, [generated], "base generated targets")
+
+    contract = _supersede_contract()
+    docket = _write_docket(tmp_path, [])
+    records = tmp_path / "records" / "thesis-analyst"
+    run_dir = records / "2026-07-10" / "adoption-fixture"
+    run_dir.mkdir(parents=True)
+    cells_path = run_dir / "cells.with_activity.json"
+    cells_path.write_text(json.dumps([{"slug": contract["catalogSlug"]}]) + "\n")
+    manifest = {
+        "series": contract["series"],
+        "period": contract["period"],
+        "ok": True,
+        "cellsPath": cells_path.relative_to(tmp_path).as_posix(),
+        "targetContext": {
+            "valueScale": contract["valueScale"],
+            "targetUnit": contract["unit"],
+            "country": contract["country"],
+            "sourceBinding": contract["sourceBinding"],
+        },
+    }
+    (run_dir / "manifest.json").write_text(json.dumps(manifest) + "\n")
+    legacy_run_dir = records / "2026-07-10" / "000-legacy-without-binding"
+    legacy_run_dir.mkdir()
+    legacy_cells_path = legacy_run_dir / "cells.with_activity.json"
+    legacy_cells_path.write_text(
+        json.dumps([{"slug": contract["catalogSlug"]}]) + "\n"
+    )
+    legacy_manifest = {
+        **manifest,
+        "cellsPath": legacy_cells_path.relative_to(tmp_path).as_posix(),
+        "targetContext": {
+            key: value
+            for key, value in manifest["targetContext"].items()
+            if key != "sourceBinding"
+        },
+    }
+    (legacy_run_dir / "manifest.json").write_text(
+        json.dumps(legacy_manifest) + "\n"
+    )
+    monkeypatch.setattr(adopt_proven_series, "ROOT", tmp_path)
+    monkeypatch.setattr(adopt_proven_series, "REGISTRY", docket)
+    monkeypatch.setattr(adopt_proven_series, "RECORDS", records)
+    monkeypatch.setattr(
+        adopt_proven_series, "scored_slugs", lambda: {contract["catalogSlug"]}
+    )
+    monkeypatch.setattr(sys, "argv", ["adopt_proven_series.py"])
+
+    assert adopt_proven_series.main() == 0
+
+    [adopted] = json.loads(docket.read_text())["series"]
+    template = adopted["extras"]["sourceBinding"]
+    template_keys = {
+        "adapter",
+        "sourceUrl",
+        "sourceSeriesId",
+        "field",
+        "table",
+        "transform",
+        "releasePolicy",
+    }
+    assert set(template) == template_keys
+    assert template == _binding_template(contract["sourceBinding"])
+
+    monkeypatch.setattr(
+        register_targets,
+        "load_ledger_pin_binding",
+        lambda: _pin("c" * 40, 128),
+    )
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text(
+        json.dumps({"targets": [_target_from_contract(contract)]}) + "\n"
+    )
+    [registration] = register_targets.register(
+        targets_path, dt.date(2026, 7, 10), "2026-07-10T06:17:27Z"
+    )
+    _commit_files(
+        tmp_path,
+        [docket, generated, registration["path"]],
+        "adopt series and register next target",
+    )
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+
+    assert register_targets._binding_is_committed_template(
+        registration["contract"], head
+    )
+    metadata = register_targets.bind_registration_commits(targets_path, head)
+    assert metadata["registrationCommits"] == [head]
+
+
+def test_bind_rejects_first_registration_after_head_template_changes(
+    tmp_path, monkeypatch
+) -> None:
+    contract = _supersede_contract()
+    _, docket, targets_path, registration = _commit_first_registration(
+        tmp_path, monkeypatch, contract
+    )
+    authorized_head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+    assert register_targets._binding_is_committed_template(
+        registration["contract"], authorized_head
+    )
+
+    changed_template = json.loads(json.dumps(contract))
+    changed_template["sourceBinding"]["table"] = "Replacement ABS table"
+    _write_docket(tmp_path, [_docket_entry(changed_template)])
+    _commit_files(tmp_path, [docket], "change template during registration wave")
+    rebased_head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+    targets_before = targets_path.read_bytes()
+
+    with pytest.raises(register_targets.RegistrationError) as error:
+        register_targets.bind_registration_commits(targets_path, rebased_head)
+
+    assert contract["dataPointId"] in str(error.value)
+    assert contract["series"] in str(error.value)
+    assert targets_path.read_bytes() == targets_before
+
+
+def test_bind_rejects_ambiguous_head_template(tmp_path, monkeypatch) -> None:
+    contract = _supersede_contract()
+    _, docket, targets_path, _ = _commit_first_registration(
+        tmp_path, monkeypatch, contract
+    )
+    entry = _docket_entry(contract)
+    _write_docket(tmp_path, [entry, entry])
+    _commit_files(tmp_path, [docket], "make template ambiguous")
+
+    with pytest.raises(register_targets.RegistrationError, match="ambiguous"):
+        register_targets.bind_registration_commits(targets_path)
+
+
+@pytest.mark.parametrize(
+    "entry_extras",
+    [
+        pytest.param(None, id="extras-absent"),
+        pytest.param(
+            {"valueScale": 0.001, "targetUnit": "thousands"},
+            id="source-binding-key-absent",
+        ),
+    ],
+)
+def test_bind_accepts_docket_series_without_source_binding_template(
+    tmp_path, monkeypatch, entry_extras
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    docket_entry = {
+        "series": "us.dol.initial_claims.sa",
+        "cadence": "weekly",
+        "slug": "initial-claims-week-{period}",
+    }
+    if entry_extras is not None:
+        docket_entry["extras"] = entry_extras
+    docket = _write_docket(
+        tmp_path,
+        [docket_entry],
+    )
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    _commit_files(tmp_path, [generated, docket], "commit legacy docket entry")
+    monkeypatch.setattr(
+        register_targets,
+        "load_ledger_pin_binding",
+        lambda: _pin("c" * 40, 128),
+    )
+    targets_path = tmp_path / "targets.json"
+    targets_path.write_text(
+        json.dumps(
+            {
+                "targets": [
+                    {
+                        "series": "us.dol.initial_claims.sa",
+                        "period": "week_2030-01-05",
+                        "catalogSlug": "initial-claims-week-2030-01-05",
+                        "targetUnit": "thousands",
+                        "valueScale": 0.001,
+                    }
+                ]
+            }
+        )
+        + "\n"
+    )
+    [registration] = register_targets.register(
+        targets_path, dt.date(2030, 1, 6), "2030-01-06T14:32:05Z"
+    )
+    _commit_files(
+        tmp_path,
+        [generated, registration["path"]],
+        "register initial claims target",
+    )
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=tmp_path, text=True
+    ).strip()
+
+    assert not register_targets._binding_is_committed_template(
+        registration["contract"], head
+    )
+    metadata = register_targets.bind_registration_commits(targets_path, head)
+
+    target = json.loads(targets_path.read_text())["targets"][0]
+    assert target["registrationCommit"] == head
+    assert metadata["sourceCommit"] == head
+    assert metadata["registrationCommits"] == [head]
+
+
+@pytest.mark.parametrize(
+    ("malformation", "message"),
+    [
+        ("non-list", "series list"),
+        ("missing-series", "entry 0"),
+        ("non-dict-extras", "sourceBinding template is malformed"),
+        ("list-source-binding", "sourceBinding template is malformed"),
+        ("null-source-binding", "sourceBinding template is malformed"),
+    ],
+)
+def test_bind_rejects_malformed_head_docket(
+    tmp_path, monkeypatch, malformation, message
+) -> None:
+    contract = _supersede_contract()
+    _, docket, targets_path, _ = _commit_first_registration(
+        tmp_path, monkeypatch, contract
+    )
+    if malformation == "non-list":
+        malformed = {"series": {}}
+    elif malformation == "missing-series":
+        malformed = {"series": [{"extras": {}}]}
+    elif malformation == "non-dict-extras":
+        malformed = {
+            "series": [{"series": contract["series"], "extras": []}]
+        }
+    else:
+        malformed = {
+            "series": [
+                {
+                    "series": contract["series"],
+                    "extras": {
+                        "sourceBinding": (
+                            [] if malformation == "list-source-binding" else None
+                        )
+                    },
+                }
+            ]
+        }
+    docket.write_text(json.dumps(malformed) + "\n")
+    _commit_files(tmp_path, [docket], f"commit {malformation} docket")
+
+    with pytest.raises(register_targets.RegistrationError, match=message):
+        register_targets.bind_registration_commits(targets_path)
+
+
+@pytest.mark.parametrize("duplicate", ["series", "sourceUrl"])
+def test_duplicate_docket_keys_fail_closed_for_supersede_and_bind(
+    tmp_path, monkeypatch, duplicate
+) -> None:
+    old_contract, upgraded_contract = _binding_upgrade_contracts()
+
+    supersede_root = tmp_path / "supersede"
+    supersede_root.mkdir()
+    generated = configure_registration_root(supersede_root, monkeypatch)
+    _commit_v2_supersede_history(
+        supersede_root, generated, old_contract, monkeypatch
+    )
+    docket = supersede_root / "scripts" / "docket_series.json"
+    docket.parent.mkdir(parents=True)
+    docket.write_text(_docket_with_duplicate_key(upgraded_contract, duplicate))
+    _commit_files(supersede_root, [docket], f"commit duplicate {duplicate}")
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=supersede_root, text=True
+    ).strip()
+    assert not register_targets._binding_is_committed_template(
+        upgraded_contract, head
+    )
+    reroll = _registration(
+        upgraded_contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
+    )
+    with pytest.raises(register_targets.RegistrationError, match="not the exact"):
+        register_targets.render_generated_targets(
+            [reroll], allow_published=True, allow_supersede=True
+        )
+
+    bind_root = tmp_path / "bind"
+    bind_root.mkdir()
+    generated = configure_registration_root(bind_root, monkeypatch)
+    docket = bind_root / "scripts" / "docket_series.json"
+    docket.parent.mkdir(parents=True)
+    docket.write_text(_docket_with_duplicate_key(upgraded_contract, duplicate))
+    registration = _registration(
+        upgraded_contract, "2026-07-10T06:17:27Z", _pin("c" * 40, 128)
+    )
+    snapshot, targets_path = _install_registration_for_bind(
+        bind_root, generated, registration
+    )
+    subprocess.run(["git", "init"], cwd=bind_root, check=True, capture_output=True)
+    _commit_files(
+        bind_root,
+        [generated, docket, snapshot],
+        f"commit registration with duplicate {duplicate}",
+    )
+    targets_before = targets_path.read_bytes()
+
+    with pytest.raises(register_targets.RegistrationError, match="duplicate JSON key"):
+        register_targets.bind_registration_commits(targets_path)
+    assert targets_path.read_bytes() == targets_before
 
 
 def test_supersede_refuses_a_published_target(tmp_path, monkeypatch) -> None:

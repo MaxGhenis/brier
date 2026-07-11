@@ -29,6 +29,16 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
 RECORDS = ROOT / "records" / "thesis-analyst"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
+SOURCE_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+SOURCE_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
 
 MONTH_NAMES = [m.lower() for m in calendar.month_name]
 
@@ -179,10 +189,24 @@ def main() -> int:
             )
             continue
         context = manifest.get("targetContext") or {}
+        source_binding = context.get("sourceBinding")
+        if not isinstance(source_binding, dict) or set(source_binding) != (
+            SOURCE_BINDING_TEMPLATE_KEYS | SOURCE_BINDING_DERIVED_KEYS
+        ):
+            print(
+                f"  cannot derive source-binding template for {series} "
+                "— leaving on probation"
+            )
+            continue
         extras = {
             key: context[key]
             for key in ("valueScale", "targetUnit", "country", "sourceBinding")
             if key in context
+        }
+        extras["sourceBinding"] = {
+            key: value
+            for key, value in source_binding.items()
+            if key not in SOURCE_BINDING_DERIVED_KEYS
         }
         entry = {"series": series, "cadence": cadence, "slug": template}
         if extras:
