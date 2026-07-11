@@ -10,9 +10,11 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+from generate_ledger_targets import generated_entry_for  # noqa: E402
 from strategy_targets import (  # noqa: E402
     StrategyTargetError,
     ensure_open,
+    registrations_by_slug,
     select_targets,
     selection_hash,
     stamp_artifact,
@@ -99,9 +101,6 @@ def test_selector_rejects_unknown_unpublished_resolved_and_release_day(
     with pytest.raises(StrategyTargetError, match="unknown catalog slug"):
         selection(tmp_path, slug="definitely-not-a-catalog-target")
 
-    with pytest.raises(StrategyTargetError, match="not published"):
-        selection(tmp_path, slug="australia-unemployment-rate-july-2026")
-
     with pytest.raises(StrategyTargetError, match="not contemporaneous"):
         selection(tmp_path, slug="ons-cpi-annual-rate-june-2026")
 
@@ -112,6 +111,38 @@ def test_selector_rejects_unknown_unpublished_resolved_and_release_day(
 
     with pytest.raises(StrategyTargetError, match="release day"):
         selection(tmp_path, selected_at="2026-08-26T00:00:00Z")
+
+
+def test_selector_rejects_registered_but_unpublished_targets(
+    tmp_path: pathlib.Path,
+) -> None:
+    # Pick a registered-but-unpublished slug from live state: hardcoding one
+    # broke the moment that target published (the data-state-literal trap).
+    # Split from the combined rejection test so its skip cannot swallow the
+    # other cases (Sol review P2-10).
+    registrations = registrations_by_slug(ROOT)
+    generated = ROOT.joinpath(
+        "site/src/data/ledger-targets.generated.ts"
+    ).read_text()
+
+    def is_preregistered(data_point_id: str) -> bool:
+        match = generated_entry_for(generated, data_point_id)
+        entry = match.group(0) if match else ""
+        return 'registrationState: "preregistered"' in entry
+
+    unpublished = next(
+        (
+            slug
+            for slug, rows in sorted(registrations.items())
+            if len(rows) == 1
+            and is_preregistered(rows[0]["contract"]["dataPointId"])
+        ),
+        None,
+    )
+    if unpublished is None:
+        pytest.skip("every registered target is currently published")
+    with pytest.raises(StrategyTargetError, match="not published"):
+        selection(tmp_path, slug=unpublished)
 
 
 def test_selector_requires_registration_commit_strictly_before_selection(

@@ -182,3 +182,51 @@ A change is not done until:
 
 When in doubt, choose the path that increases the number of automatically
 resolvable, fully traced, scored public-data forecasts.
+
+### Records provenance (workflow attestations)
+
+Every workflow that pushes `records/**` to `main` attests a canonical
+subject naming the pushed commit (`scripts/attest_subject.py`, via the
+composite action `.github/actions/attest-records-push`, Sigstore/GitHub
+artifact attestations). `scripts/verify_records_attestations.py` — run by
+`.github/workflows/records-provenance.yml` on every push and on a daily
+audit — fails when any records commit after the enforcement epoch lacks a
+valid attestation from an allowlisted publishing workflow on
+`refs/heads/main`. The epoch is self-anchoring: the commit that introduced
+the verifier script.
+
+This binds each records commit to an allowlisted workflow run that
+asserted the push (Sigstore proves the run attested the subject; push
+causality follows from the workflow logic, which attests only after its
+own ref advancement). It complements the RFC 3161 witness chain (when)
+with workflow identity (who/how), and makes the "never push records from
+a local checkout" rule mechanical: a local push turns `records-provenance`
+red on its next run.
+
+Honest limits: this is a detective control. The verifier, subject builder,
+composite action, and workflows live in the same mutable `main` they
+guard — an actor with direct write access could alter the control files
+before pushing unsigned records, and force-pushes could remove an unsigned
+commit before the daily audit sees it. Branch rulesets (no force pushes;
+required review or CODEOWNERS on `.github/workflows/**` and the
+provenance scripts) are the containment for that class and are a
+repository-settings decision. Repository administration remains outside
+the control's reach entirely.
+
+Third parties can check any records commit by rebuilding the subject with
+`scripts/attest_subject.py --commit <sha>` and running
+`gh attestation verify <subject-file> --repo MaxGhenis/brier
+--cert-identity-regex <pattern>` where the pattern is
+`cert_identity_pattern()` from `scripts/verify_records_attestations.py` —
+or simply running that verifier, which does both.
+
+### Waiver ratchet
+
+`waivers.json` enumerates every grandfather set — pre-cutover v1/v2
+registration snapshots, docket series without a committed sourceBinding
+template, legacy-incomplete custody roots — and
+`tests/test_waiver_ratchet.py` recomputes each population from live state on
+every CI run. A population that exceeds its manifest fails the build:
+exceptions shrink over time or grow only through a deliberate, reviewable
+edit to `waivers.json`, never silently. (Pattern adapted from Axiom's
+validation-waiver ratchet.)

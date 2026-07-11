@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "thesis_waiver_manifest_v1",
+  "comment": "Grandfather sets that may only shrink. Every waiver here names an exception to a fail-closed rule that newer machinery enforces; tests/test_waiver_ratchet.py recomputes each population from live state and fails if it exceeds this manifest. Adding a member is a deliberate, reviewable manifest edit; nothing may join silently.",
+  "waivers": {
+    "pre_cutover_v1_registrations": {
+      "description": "Target registration snapshots minted under schema v1, before registeredAtUtc existed. Immutable history; the count is frozen because trusted history can no longer mint v1.",
+      "frozenCount": 4
+    },
+    "pre_cutover_v2_registrations": {
+      "description": "Target registration snapshots minted under schema v2, before the v3 ledgerPin cutover. Immutable history; the count is frozen because trusted history can no longer mint v2.",
+      "frozenCount": 23
+    },
+    "templateless_docket_series": {
+      "description": "Docket series without a committed extras.sourceBinding template: binding upgrades are impossible for them, and their registrations bind under pre-template rules. Members leave this list by gaining a template; new series must ship with one.",
+      "members": [
+        "bea.core_pce.mom",
+        "bls.ces.nonfarm_payrolls.change",
+        "bls.cpi.u.core_mom",
+        "bls.cpi.u.headline_mom",
+        "bls.cps.telework_share",
+        "bls.cps.unemployment_rate",
+        "bls.jolts.job_openings",
+        "bls.jolts.quits_rate",
+        "bls.productivity.nonfarm_qoq_prelim",
+        "bls.real_earnings.avg_hourly_mom",
+        "dol.eta.continued_claims.sa",
+        "eurostat.unemployment_rate.belgium",
+        "fns.wic.total_participation",
+        "nbb.business_barometer.overall",
+        "nbb.consumer_confidence.indicator",
+        "nbb.gdp.flash_qoq",
+        "ssa.ssi.total_recipients",
+        "statbel.cpi.headline_yoy",
+        "statbel.health_index.yoy",
+        "treasury.mts.monthly_deficit",
+        "us.dol.initial_claims.sa"
+      ]
+    },
+    "legacy_incomplete_custody_roots": {
+      "description": "Custody roots recorded before custody inventory v2, honestly marked legacy-incomplete and permanently headline-ineligible. Immutable history; frozen.",
+      "frozenCount": 40
+    }
+  }
+}
