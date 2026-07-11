@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: statcan.employment_insurance.regular_beneficiaries
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "canada-ei-regular-beneficiaries-july-2026"
+- country: "CA"
+- targetUnit: "thousands"
+- dataPointId: "statcan.employment_insurance.regular_beneficiaries.canada.july_2026.first_print"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["www150.statcan.gc.ca"], "expectedReleaseWindow": {"end": "2026-09-24", "start": "2026-09-16"}, "field": "v64549350", "releasePolicy": "first_print", "sourceSeriesId": "v64549350", "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=64549350", "table": "Statistics Canada Table 14-10-0011-01, EI regular beneficiaries, Canada, seasonally adjusted (persons)", "transform": {"factor": 0.001, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-11-f79e329aa4df0ee4abe1cc340829573fdfb069213c3fd3a6d4d5dbdec932cb40.json"
+- targetContentHash: "f79e329aa4df0ee4abe1cc340829573fdfb069213c3fd3a6d4d5dbdec932cb40"
+- registrationCommit: "464d182153273b99932d1049c8c2b2039b6a9eba"
+- registeredAtUtc: "2026-07-11T01:30:29Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+05808dbb91cb6834c7262a0c7f3bb71e23a8f63b8291800e387cd548c66fde0c
+
+# Draft forecast response
+{"slug":"canada-ei-regular-beneficiaries-july-2026","country":"CA","type":"data","title":"Canada EI regular beneficiaries, July 2026","question":"What will Statistics Canada first report for the number of regular Employment Insurance beneficiaries in Canada in July 2026, seasonally adjusted, in thousands of persons?","unit":"thousands","pointEstimate":529.0,"ciLow":521.7,"ciHigh":536.3,"confidence":0.8,"resolutionDate":"2026-09-17","resolutionSource":"Statistics Canada Table 14-10-0011-01","resolutionSourceUrl":"https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=64549350","resolutionRule":"Resolve to the first Statistics Canada publication for July 2026 of vector v64549350 in Table 14-10-0011-01: regular Employment Insurance beneficiaries, Canada, both sexes, age 15 years and over, seasonally adjusted, persons. Multiply the first-published persons value by 0.001 to express thousands. Ignore all subsequent revisions or corrections and apply no release-day grace exception.","dataPointId":"statcan.employment_insurance.regular_beneficiaries.canada.july_2026.first_print","historicalContext":[{"label":"December 2025","value":567.62},{"label":"January 2026","value":559.02},{"label":"February 2026","value":550.35},{"label":"March 2026","value":547.44},{"label":"April 2026","value":544.44},{"label":"July 2025","value":551.87}],"drivers":["Recent EI-beneficiary downtrend","May and June labour-market improvement","Lagged eligibility and benefit exhaustion","Possible July occupational composition rebound"],"sourceContext":["https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1410001101","https://www150.statcan.gc.ca/n1/daily-quotidien/260618/dq260618d-eng.htm","https://www150.statcan.gc.ca/n1/daily-quotidien/260710/dq260710a-eng.htm","https://www150.statcan.gc.ca/n1/daily-quotidien/250918/dq250918a-eng.htm","https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf"],"runAt":"2026-07-11T01:33:19Z","reasoning":[{"kind":"heading","text":"Canada regular EI beneficiaries for July 2026"},{"kind":"text","text":"The target is the first July 2026 print for Statistics Canada vector v64549350 in Table 14-10-0011-01: Canada, regular benefits, both sexes, age 15 years and over, seasonally adjusted persons. The ledger conversion to thousands is persons × 0.001; later revisions are excluded."},{"kind":"tool","tool":"official.lookup","call":"Fetched the latest Canada observations from Statistics Canada Table 14-10-0011-01.","result":"The official seasonally adjusted series was 567.62 thousand in December 2025, 559.02 thousand in January 2026, 550.35 thousand in February, 547.44 thousand in March, and 544.44 thousand in April."},{"kind":"tool","tool":"official.release","call":"Fetched Statistics Canada's April 2026 Employment Insurance release.","result":"The April first release reported 544.44 thousand regular beneficiaries, down 3.00 thousand or 0.5% from revised March; the 12-month change was +3.5%."},{"kind":"tool","tool":"official.reference_class","call":"Fetched Statistics Canada's July 2025 Employment Insurance release as a same-month reference class observation.","result":"July 2025 registered 551.87 thousand beneficiaries, a monthly increase of 6.60 thousand or 1.2%; December 2024 to July 2025 rose 64.00 thousand or 13.2%."},{"kind":"text","text":"The outside-view base rate is recent persistence: four successive monthly changes from December 2025 through April 2026 were -8.60, -8.67, -2.91, and -3.00 thousand, averaging -5.80 thousand. Applying that mean for three months gives a raw July level of 544.44 - 3×5.80 = 527.04 thousand."},{"kind":"tool","tool":"official.lookup","call":"Fetched the June 2026 Labour Force Survey for current labour-market momentum.","result":"Employment increased 88,000 or 0.4% in May and 18,000 or 0.1% in June; unemployment fell from 6.9% in April to 6.6% in May and 6.5% in June, while June's job-finding rate was 24.3% and layoff rate 0.6%."},{"kind":"text","text":"Level is anchored at April's 544.44 thousand. Momentum is downward because employment strengthened and unemployment declined in May and June. The one-off adjustment is +2.0 thousand relative to the raw trend because July 2025 showed a 6.6-thousand increase concentrated in occupational composition, while the policy mechanism remains lagged: EI entry, return to work, benefit exhaustion, and eligibility need not move contemporaneously with the LFS."},{"kind":"math","text":"Prior/update/interval: The model is a three-step average-change persistence prior using the December 2025-April 2026 official history. Baseline = 544.44 + 3×(-5.80) = 527.04 thousand; adjustment components are +2.0 thousand for July composition/lag effects and approximately 0 for policy changes, giving 529.0 thousand. The sample standard deviation of the four successive changes (-8.60, -8.67, -2.91, -3.00) is sigma = 3.3 thousand. For a three-month horizon, the 80% half-width is 1.28×sigma×sqrt(3) = 1.28×3.3×1.732 = 7.3 thousand, implying 529.0±7.3 = 521.7 to 536.3 thousand."},{"kind":"text","text":"Upside risk comes from renewed layoffs, particularly in manufacturing, or another education-related July composition jump and would land above the interval. Downside risk comes from faster job finding, benefit exhaustion, or delayed claims entry and could land below the interval. A sharp administrative or eligibility change would also place the result outside the interval."},{"kind":"tool","tool":"official.calendar","call":"Checked Statistics Canada's official 2026 release-date publication for Employment Insurance.","result":"The official calendar lists Employment Insurance for September 17, 2026; the ledger's expected window is September 16-24, so resolution is set to 2026-09-17."},{"kind":"forecast","point":529.0,"ciLow":521.7,"ciHigh":536.3}]}
