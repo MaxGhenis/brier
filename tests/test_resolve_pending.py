@@ -5,6 +5,7 @@ import datetime as dt
 import gzip
 import hashlib
 import json
+import os
 import pathlib
 import shutil
 import subprocess
@@ -168,6 +169,24 @@ def test_ledger_state_pins_content_fetch_to_the_recorded_repo_sha(monkeypatch) -
     assert blob_sha == "blob-sha"
     assert repo_sha == "a" * 40
     assert calls[1][2].endswith(f"?ref={'a' * 40}")
+
+
+def test_main_removes_signing_secret_before_any_resolver_work(
+    monkeypatch, capsys
+) -> None:
+    signing_key = "generated-test-signing-key"
+    monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key)
+
+    def load_log(_url: str) -> dict:
+        assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in os.environ
+        return {"entries": [], "resolutionLinks": []}
+
+    monkeypatch.setattr(resolve_pending, "load_thesis_log", load_log)
+    monkeypatch.setattr(sys, "argv", ["resolve_pending.py"])
+
+    assert resolve_pending.main() == 0
+    assert capsys.readouterr().out == "no pending adapter-covered cells\n"
+    assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in os.environ
 
 
 def test_parse_ref_period_handles_all_dialects() -> None:
@@ -679,16 +698,83 @@ def _local_timestamp_requester(
     return request
 
 
+def _generate_test_producer_keypair(
+    root: pathlib.Path,
+) -> tuple[pathlib.Path, str]:
+    private_key = root / "producer-test-private.pem"
+    public_key = root / "anchors" / "producer-ed25519.pub"
+    subprocess.run(
+        [
+            "openssl",
+            "genpkey",
+            "-algorithm",
+            "ED25519",
+            "-out",
+            str(private_key),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    subprocess.run(
+        [
+            "openssl",
+            "pkey",
+            "-in",
+            str(private_key),
+            "-pubout",
+            "-out",
+            str(public_key),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return private_key, private_key.read_text()
+
+
+def _sign_test_manifest(
+    root: pathlib.Path,
+    private_key: pathlib.Path,
+    manifest: bytes,
+) -> bytes:
+    manifest_path = root / "producer-genesis-manifest.json"
+    signature_path = root / "producer-genesis.sig"
+    manifest_path.write_bytes(manifest)
+    subprocess.run(
+        [
+            "openssl",
+            "pkeyutl",
+            "-sign",
+            "-inkey",
+            str(private_key),
+            "-rawin",
+            "-in",
+            str(manifest_path),
+            "-out",
+            str(signature_path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return signature_path.read_bytes()
+
+
 def _release_fixture_tree(
     tmp_path: pathlib.Path,
 ) -> tuple[
     resolve_pending.RepositoryTree,
     pathlib.Path,
     resolve_pending.TimestampRequester,
+    str,
 ]:
     tsa_root = tmp_path / "release_tsa"
     shutil.copytree(ROOT / "tests" / "fixtures" / "release_tsa", tsa_root)
     anchor_dir = tsa_root / "anchors"
+    producer_private_key, signing_key_pem = _generate_test_producer_keypair(
+        tsa_root
+    )
     requester = _local_timestamp_requester(tsa_root)
     ledger = b'{"source_record_id":"fixture.base","value":0}\n'
     immutable_prefix = b'{"prefixLineCount":0}\n'
@@ -711,6 +797,11 @@ def _release_fixture_tree(
     }
     manifest_raw = canonical_bytes(manifest) + b"\n"
     manifest_name = ledger_release_chain.manifest_filename(0, manifest_raw)
+    producer_signature = _sign_test_manifest(
+        tsa_root,
+        producer_private_key,
+        manifest_raw,
+    )
     query = resolve_pending._build_timestamp_query(manifest_raw, 10)
     receipts = {
         slot: requester(endpoint, query, 10)
@@ -726,6 +817,10 @@ def _release_fixture_tree(
             f"{slot}.tsr": receipt
             for slot, receipt in receipts.items()
         },
+        (
+            "releases/manifests/"
+            f"{pathlib.PurePosixPath(manifest_name).stem}.producer.sig"
+        ): producer_signature,
         **{
             f"releases/anchors/{anchor.name}": anchor.read_bytes()
             for anchor in anchor_dir.iterdir()
@@ -740,6 +835,7 @@ def _release_fixture_tree(
         ),
         anchor_dir,
         requester,
+        signing_key_pem,
     )
 
 
@@ -866,18 +962,37 @@ def _install_proposal_transport(
 def test_append_proposal_builds_byte_correct_verified_release(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
-    tree, anchor_dir, requester = _release_fixture_tree(tmp_path)
+    tree, anchor_dir, requester, signing_key_pem = _release_fixture_tree(tmp_path)
+    monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key_pem)
     calls: list[tuple[tuple[str, ...], dict | None]] = []
     published: list[dict[str, bytes]] = []
     _install_proposal_transport(monkeypatch, tree, calls, published=published)
     real_verify = resolve_pending.verify_release_chain
+    real_verify_signature = resolve_pending.verify_producer_signature_bytes
     verify_calls: list[dict] = []
+    signature_anchor_checks: list[bytes] = []
 
     def tracking_verify(*args, **kwargs):
         verify_calls.append(dict(kwargs))
+        # Test keys intentionally do not match production code pins. Keeping
+        # anchor_dir unset in the proposal call exercises the production path:
+        # the anchor must come from the staged immutable base tree.
+        kwargs["enforce_production_pins"] = False
         return real_verify(*args, **kwargs)
 
+    def tracking_signature_verify(*args, **kwargs):
+        selected_anchor = kwargs["anchor_dir"] / "producer-ed25519.pub"
+        signature_anchor_checks.append(selected_anchor.read_bytes())
+        assert kwargs["anchor_dir"] != anchor_dir
+        kwargs["enforce_production_pin"] = False
+        return real_verify_signature(*args, **kwargs)
+
     monkeypatch.setattr(resolve_pending, "verify_release_chain", tracking_verify)
+    monkeypatch.setattr(
+        resolve_pending,
+        "verify_producer_signature_bytes",
+        tracking_signature_verify,
+    )
     appended = b'{"source_record_id":"test.series.2030","value":1}\n'
     candidate = tree.files["ledger/official_observations.jsonl"] + appended
 
@@ -893,7 +1008,6 @@ def test_append_proposal_builds_byte_correct_verified_release(
         poll_seconds=0,
         poll_attempts=1,
         timestamp_requester=requester,
-        release_anchor_dir=anchor_dir,
         release_now=release_now,
     )
 
@@ -902,8 +1016,15 @@ def test_append_proposal_builds_byte_correct_verified_release(
     changes = published[0]
     assert changes["ledger/official_observations.jsonl"] == candidate
     release_paths = [path for path in changes if path.startswith("releases/")]
-    assert len(release_paths) == 3
+    assert len(release_paths) == 4
     manifest_path = next(path for path in release_paths if path.endswith(".json"))
+    producer_signature_path = next(
+        path for path in release_paths if path.endswith(".producer.sig")
+    )
+    assert producer_signature_path == (
+        f"releases/manifests/{pathlib.PurePosixPath(manifest_path).stem}.producer.sig"
+    )
+    assert len(changes[producer_signature_path]) == 64
     manifest_raw = changes[manifest_path]
     manifest = json.loads(manifest_raw)
     assert manifest_raw == canonical_bytes(manifest) + b"\n"
@@ -940,6 +1061,10 @@ def test_append_proposal_builds_byte_correct_verified_release(
     assert len(verify_calls) == 2
     assert all(call["require_chain"] is True for call in verify_calls)
     assert all(call["verify_state"] is True for call in verify_calls)
+    assert signature_anchor_checks == [
+        tree.files["releases/anchors/producer-ed25519.pub"]
+    ]
+    assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in os.environ
     assert not any("/contents/" in " ".join(args) for args, _ in calls)
     merge_call = next(
         (args, body) for args, body in calls if "/merge" in " ".join(args)
@@ -947,10 +1072,187 @@ def test_append_proposal_builds_byte_correct_verified_release(
     assert merge_call[1] == {"merge_method": "rebase", "sha": "c" * 40}
 
 
+@pytest.mark.parametrize("signing_key", [None, ""])
+def test_append_proposal_missing_signing_key_has_no_remote_mutation(
+    tmp_path: pathlib.Path,
+    monkeypatch,
+    signing_key: str | None,
+) -> None:
+    tree, anchor_dir, _requester, _valid_key = _release_fixture_tree(tmp_path)
+    if signing_key is None:
+        monkeypatch.delenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, raising=False)
+    else:
+        monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key)
+    monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
+    mutations: list[str] = []
+    timestamp_calls: list[str] = []
+    monkeypatch.setattr(
+        resolve_pending,
+        "_publish_proposal_commit",
+        lambda *_args, **_kwargs: mutations.append("publish"),
+    )
+
+    def unexpected_timestamp(endpoint: str, *_args) -> bytes:
+        timestamp_calls.append(endpoint)
+        return b"unexpected"
+
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.no-key","value":1}\n'
+    )
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match=resolve_pending.PRODUCER_SIGNING_KEY_ENV,
+    ):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            timestamp_requester=unexpected_timestamp,
+            release_anchor_dir=anchor_dir,
+        )
+
+    assert mutations == []
+    assert timestamp_calls == []
+    assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in os.environ
+
+
+def test_append_proposal_signing_failure_erases_key_and_has_no_remote_mutation(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    tree, anchor_dir, _requester, signing_key_pem = _release_fixture_tree(tmp_path)
+    monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key_pem)
+    monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
+    mutations: list[str] = []
+    timestamp_calls: list[str] = []
+    monkeypatch.setattr(
+        resolve_pending,
+        "_publish_proposal_commit",
+        lambda *_args, **_kwargs: mutations.append("publish"),
+    )
+
+    real_open = resolve_pending.os.open
+    key_open: dict[str, object] = {}
+
+    def tracking_open(path, flags, mode=0o777, *, dir_fd=None):
+        if pathlib.Path(path).name == "producer-private.pem":
+            key_open.update(path=pathlib.Path(path), flags=flags, mode=mode)
+        if dir_fd is None:
+            return real_open(path, flags, mode)
+        return real_open(path, flags, mode, dir_fd=dir_fd)
+
+    real_run = resolve_pending.subprocess.run
+
+    def failing_sign(command, **kwargs):
+        if command[:3] == ["openssl", "pkeyutl", "-sign"]:
+            key_path = pathlib.Path(command[command.index("-inkey") + 1])
+            assert key_path.read_text() == signing_key_pem
+            assert key_path.stat().st_mode & 0o777 == 0o600
+            assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in kwargs["env"]
+            assert signing_key_pem not in " ".join(command)
+            return SimpleNamespace(
+                returncode=23,
+                stdout="",
+                # A hostile diagnostic must not be propagated, even in part.
+                stderr=signing_key_pem[:40],
+            )
+        return real_run(command, **kwargs)
+
+    monkeypatch.setattr(resolve_pending.os, "open", tracking_open)
+    monkeypatch.setattr(resolve_pending.subprocess, "run", failing_sign)
+
+    def unexpected_timestamp(endpoint: str, *_args) -> bytes:
+        timestamp_calls.append(endpoint)
+        return b"unexpected"
+
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.sign-fail","value":1}\n'
+    )
+    with pytest.raises(
+        resolve_pending.LedgerProposalError,
+        match="producer signing failed with exit code 23",
+    ) as caught:
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            timestamp_requester=unexpected_timestamp,
+            release_anchor_dir=anchor_dir,
+        )
+
+    assert signing_key_pem not in str(caught.value)
+    assert signing_key_pem[:40] not in str(caught.value)
+    assert key_open["flags"] & os.O_EXCL
+    assert key_open["mode"] == 0o600
+    key_path = key_open["path"]
+    assert isinstance(key_path, pathlib.Path)
+    assert not key_path.exists()
+    assert not key_path.parent.exists()
+    assert mutations == []
+    assert timestamp_calls == []
+    assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in os.environ
+
+
+def test_append_proposal_self_verify_failure_precedes_tsa_and_remote_mutation(
+    tmp_path: pathlib.Path, monkeypatch
+) -> None:
+    tree, anchor_dir, _requester, _valid_key = _release_fixture_tree(tmp_path)
+    wrong_root = tmp_path / "wrong_producer"
+    (wrong_root / "anchors").mkdir(parents=True)
+    _wrong_key_path, wrong_key_pem = _generate_test_producer_keypair(wrong_root)
+    monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, wrong_key_pem)
+    monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
+    mutations: list[str] = []
+    timestamp_calls: list[str] = []
+    monkeypatch.setattr(
+        resolve_pending,
+        "_publish_proposal_commit",
+        lambda *_args, **_kwargs: mutations.append("publish"),
+    )
+
+    def unexpected_timestamp(endpoint: str, *_args) -> bytes:
+        timestamp_calls.append(endpoint)
+        return b"unexpected"
+
+    candidate = (
+        tree.files["ledger/official_observations.jsonl"]
+        + b'{"source_record_id":"test.series.wrong-key","value":1}\n'
+    )
+    with pytest.raises(
+        ledger_release_chain.ReleaseChainError,
+        match="producer Ed25519 signature verification failed",
+    ):
+        resolve_pending.propose_ledger_append(
+            "PolicyEngine/ledger",
+            "codex/thesis-ledger-facts",
+            "ledger/official_observations.jsonl",
+            candidate.decode(),
+            "a" * 40,
+            "b" * 40,
+            1,
+            timestamp_requester=unexpected_timestamp,
+            release_anchor_dir=anchor_dir,
+        )
+
+    assert mutations == []
+    assert timestamp_calls == []
+    assert resolve_pending.PRODUCER_SIGNING_KEY_ENV not in os.environ
+
+
 def test_append_proposal_bad_receipt_has_no_remote_mutation(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
-    tree, anchor_dir, _requester = _release_fixture_tree(tmp_path)
+    tree, anchor_dir, _requester, signing_key_pem = _release_fixture_tree(tmp_path)
+    monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key_pem)
     bad_requester = _local_timestamp_requester(
         anchor_dir.parent,
         signer_overrides={"digicert": "freetsa"},
@@ -984,7 +1286,8 @@ def test_append_proposal_bad_receipt_has_no_remote_mutation(
 def test_append_proposal_tsa_failure_has_no_remote_mutation(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
-    tree, anchor_dir, _requester = _release_fixture_tree(tmp_path)
+    tree, anchor_dir, _requester, signing_key_pem = _release_fixture_tree(tmp_path)
+    monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key_pem)
     monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)
     mutations: list[str] = []
     monkeypatch.setattr(
@@ -1019,7 +1322,10 @@ def test_append_proposal_tsa_failure_has_no_remote_mutation(
 def test_postmerge_state_is_fully_reverified(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
-    base_tree, anchor_dir, requester = _release_fixture_tree(tmp_path)
+    base_tree, anchor_dir, requester, signing_key_pem = _release_fixture_tree(
+        tmp_path
+    )
+    monkeypatch.setenv(resolve_pending.PRODUCER_SIGNING_KEY_ENV, signing_key_pem)
     path = "ledger/official_observations.jsonl"
     candidate = (
         base_tree.files[path]
@@ -1035,6 +1341,7 @@ def test_postmerge_state_is_fully_reverified(
         clock_skew_seconds=resolve_pending.DEFAULT_CLOCK_SKEW_SECONDS,
         anchor_dir=anchor_dir,
         now=dt.datetime.now(dt.timezone.utc) - dt.timedelta(seconds=2),
+        producer_signing_key=signing_key_pem,
     )
     files = {**base_tree.files, path: candidate, **release_files}
     merged_tree = resolve_pending.RepositoryTree(
@@ -1479,6 +1786,7 @@ def test_publish_proposal_uses_one_tree_and_one_commit(monkeypatch) -> None:
         "releases/manifests/0001-a.json": b"manifest\n",
         "releases/manifests/0001-a.freetsa.tsr": b"one",
         "releases/manifests/0001-a.digicert.tsr": b"two",
+        "releases/manifests/0001-a.producer.sig": b"signature",
     }
 
     commit = resolve_pending._publish_proposal_commit(
@@ -1645,7 +1953,7 @@ def test_fetch_repository_tree_rejects_partial_tree_with_claimed_sha(
 def test_append_proposal_rejects_unwitnessed_base_state(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
-    tree, anchor_dir, requester = _release_fixture_tree(tmp_path)
+    tree, anchor_dir, requester, _signing_key_pem = _release_fixture_tree(tmp_path)
     path = "ledger/official_observations.jsonl"
     tree.files[path] += b'{"source_record_id":"unwitnessed","value":1}\n'
     monkeypatch.setattr(resolve_pending, "_fetch_repository_tree", lambda *_: tree)

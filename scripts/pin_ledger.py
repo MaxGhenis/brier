@@ -50,6 +50,7 @@ from canonical_json import canonical_bytes, canonical_sha256
 from ledger_release_chain import (
     DEFAULT_CLOCK_SKEW_SECONDS,
     MANIFEST_RE,
+    PRODUCER_SIGNATURE_RE,
     RECEIPT_RE,
     ChainVerification,
     ReleaseChainError,
@@ -376,6 +377,7 @@ def _validated_manifest_inventory(
         return {}
     manifests: dict[int, str] = {}
     receipts: dict[str, set[str]] = {}
+    producer_signatures: set[str] = set()
     for name in sorted(entries):
         _require_blob_entry(entries, name, label=f"{label}/{name}")
         manifest_match = MANIFEST_RE.fullmatch(name)
@@ -389,11 +391,16 @@ def _validated_manifest_inventory(
             manifests[index] = name
             continue
         receipt_match = RECEIPT_RE.fullmatch(name)
-        if receipt_match is None:
-            raise PinError(f"{label} has unknown closed-world file {name!r}")
-        receipts.setdefault(receipt_match.group("stem"), set()).add(
-            receipt_match.group("tsa")
-        )
+        if receipt_match is not None:
+            receipts.setdefault(receipt_match.group("stem"), set()).add(
+                receipt_match.group("tsa")
+            )
+            continue
+        signature_match = PRODUCER_SIGNATURE_RE.fullmatch(name)
+        if signature_match is not None:
+            producer_signatures.add(signature_match.group("stem"))
+            continue
+        raise PinError(f"{label} has unknown closed-world file {name!r}")
 
     if not manifests:
         raise PinError(
@@ -408,12 +415,19 @@ def _validated_manifest_inventory(
     orphan_receipts = sorted(set(receipts) - manifest_stems)
     if orphan_receipts:
         raise PinError(f"{label} has orphan receipt stems: {orphan_receipts}")
+    orphan_signatures = sorted(producer_signatures - manifest_stems)
+    if orphan_signatures:
+        raise PinError(
+            f"{label} has orphan producer signature stems: {orphan_signatures}"
+        )
     for name in manifests.values():
         stem = pathlib.PurePosixPath(name).stem
         if receipts.get(stem, set()) != {"freetsa", "digicert"}:
             raise PinError(
                 f"{label}/{name} must have exactly freetsa and digicert receipts"
             )
+        if stem not in producer_signatures:
+            raise PinError(f"{label}/{name} is missing its producer signature")
     return {
         name: f"{entries[name]['mode']}:{entries[name]['sha']}"
         for name in sorted(entries)

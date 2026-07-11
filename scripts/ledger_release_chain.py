@@ -3,11 +3,12 @@
 #!/usr/bin/env python3
 """Offline verification for the witnessed thesis-ledger release chain.
 
-The verifier treats manifest and receipt bytes as an append-only journal.  It
-does not trust manifest provenance or timestamps supplied by the producer:
-each manifest is canonical and content-addressed, every state and append digest
-is recomputed from the current append-only JSONL, and both RFC 3161 receipts are
-verified against separate, committed trust anchors.
+The verifier treats manifest, signature, and receipt bytes as an append-only
+journal. It does not trust manifest provenance or timestamps supplied by the
+producer: each manifest is canonical and content-addressed, every state and
+append digest is recomputed from the current append-only JSONL, every manifest
+has a valid signature from the pinned producer key, and both RFC 3161 receipts
+are verified against separate, committed trust anchors.
 """
 
 from __future__ import annotations
@@ -27,6 +28,19 @@ from typing import Any
 
 from canonical_json import canonical_bytes
 
+try:
+    from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    from cryptography.hazmat.primitives.serialization import (
+        Encoding,
+        PublicFormat,
+        load_pem_public_key,
+    )
+except ImportError:  # Bare pre-sync CI falls back to the OpenSSL 3 CLI below.
+    CRYPTOGRAPHY_AVAILABLE = False
+else:
+    CRYPTOGRAPHY_AVAILABLE = True
+
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 MANIFEST_RELATIVE = pathlib.PurePosixPath("releases/manifests")
 LEDGER_RELATIVE = pathlib.PurePosixPath("ledger/official_observations.jsonl")
@@ -42,6 +56,14 @@ RECEIPT_RE = re.compile(
     r"(?P<stem>[0-9]{4}-[0-9a-f]{16})"
     r"\.(?P<tsa>freetsa|digicert)\.tsr\Z"
 )
+PRODUCER_SIGNATURE_RE = re.compile(
+    r"(?P<stem>[0-9]{4}-[0-9a-f]{16})\.producer\.sig\Z"
+)
+PRODUCER_PUBLIC_KEY_FILENAME = "producer-ed25519.pub"
+PRODUCER_SPKI_SHA256 = (
+    "4a90eff40455ce0d853d4bab1608efbdae1efaf8c06054ead6e396c5b0c4846e"
+)
+PRODUCER_SIGNATURE_BYTES = 64
 STRICT_UTC_RE = re.compile(
     r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:"
     r"[0-9]{2}:[0-9]{2}(?:\.[0-9]{1,6})?Z\Z"
@@ -110,6 +132,7 @@ class ReleaseRecord:
     manifest: dict[str, Any]
     receipt_paths: dict[str, pathlib.Path]
     receipt_times: dict[str, datetime]
+    producer_signature_path: pathlib.Path
 
     @property
     def release_index(self) -> int:
@@ -317,9 +340,13 @@ def receipt_paths_for_manifest(path: pathlib.Path) -> dict[str, pathlib.Path]:
     return {tsa: path.with_name(f"{stem}.{tsa}.tsr") for tsa in ANCHORS}
 
 
+def producer_signature_path_for_manifest(path: pathlib.Path) -> pathlib.Path:
+    return path.with_name(f"{path.stem}.producer.sig")
+
+
 def _enumerate_manifest_files(
     root: pathlib.Path,
-) -> list[tuple[pathlib.Path, dict[str, pathlib.Path]]]:
+) -> list[tuple[pathlib.Path, dict[str, pathlib.Path], pathlib.Path]]:
     directory = root / MANIFEST_RELATIVE
     if not directory.exists():
         return []
@@ -330,6 +357,7 @@ def _enumerate_manifest_files(
 
     manifests: dict[str, pathlib.Path] = {}
     receipts: dict[str, dict[str, pathlib.Path]] = {}
+    producer_signatures: dict[str, pathlib.Path] = {}
     for entry in directory.iterdir():
         if entry.is_symlink() or not entry.is_file():
             raise ReleaseChainError(
@@ -345,6 +373,10 @@ def _enumerate_manifest_files(
             tsa = receipt_match.group("tsa")
             receipts.setdefault(stem, {})[tsa] = entry
             continue
+        signature_match = PRODUCER_SIGNATURE_RE.fullmatch(entry.name)
+        if signature_match is not None:
+            producer_signatures[signature_match.group("stem")] = entry
+            continue
         raise ReleaseChainError(
             f"unknown file in closed release manifest directory: {entry.name}"
         )
@@ -354,7 +386,15 @@ def _enumerate_manifest_files(
         raise ReleaseChainError(
             f"orphan release receipts for manifest stems: {orphan_receipts}"
         )
-    result: list[tuple[pathlib.Path, dict[str, pathlib.Path]]] = []
+    orphan_signatures = sorted(set(producer_signatures) - set(manifests))
+    if orphan_signatures:
+        raise ReleaseChainError(
+            "orphan producer signatures for manifest stems: "
+            f"{orphan_signatures}"
+        )
+    result: list[
+        tuple[pathlib.Path, dict[str, pathlib.Path], pathlib.Path]
+    ] = []
     seen_indices: dict[int, str] = {}
     for stem, path in manifests.items():
         match = MANIFEST_RE.fullmatch(path.name)
@@ -371,7 +411,13 @@ def _enumerate_manifest_files(
                 f"manifest {path.name} must have exactly freetsa and digicert "
                 f"receipts; found={sorted(actual_receipts)}"
             )
-        result.append((path, actual_receipts))
+        producer_signature = producer_signatures.get(stem)
+        if producer_signature is None:
+            raise ReleaseChainError(
+                f"manifest {path.name} is missing its producer signature "
+                f"{stem}.producer.sig"
+            )
+        result.append((path, actual_receipts, producer_signature))
     return sorted(
         result,
         key=lambda item: int(MANIFEST_RE.fullmatch(item[0].name).group("index")),
@@ -479,6 +525,180 @@ def _openssl_binary(
             f"{diagnostic.strip()[-1000:]}"
         )
     return completed.stdout
+
+
+def _producer_openssl_binary(
+    arguments: list[str],
+    *,
+    environment: dict[str, str],
+    label: str,
+) -> bytes:
+    try:
+        completed = subprocess.run(
+            ["openssl", *arguments],
+            check=False,
+            capture_output=True,
+            env=environment,
+        )
+    except FileNotFoundError as exc:
+        raise ReleaseChainError(
+            "producer signature verification requires cryptography or OpenSSL 3"
+        ) from exc
+    if completed.returncode != 0:
+        diagnostic = (completed.stderr or completed.stdout).decode(
+            "utf-8", errors="replace"
+        )
+        raise ReleaseChainError(
+            f"OpenSSL producer {label} failed (exit {completed.returncode}): "
+            f"{diagnostic.strip()[-1000:]}"
+        )
+    return completed.stdout
+
+
+def _verify_producer_signature_with_openssl(
+    manifest: bytes,
+    signature: bytes,
+    public_key_pem: bytes,
+    *,
+    enforce_production_pin: bool,
+    label: str,
+) -> None:
+    with tempfile.TemporaryDirectory(prefix="thesis-release-producer-") as name:
+        temporary = pathlib.Path(name)
+        empty_ca_dir = temporary / "empty-ca"
+        empty_ca_dir.mkdir()
+        environment = _openssl_environment(empty_ca_dir)
+        manifest_path = temporary / "manifest.json"
+        signature_path = temporary / "producer.sig"
+        public_key_path = temporary / PRODUCER_PUBLIC_KEY_FILENAME
+        manifest_path.write_bytes(manifest)
+        signature_path.write_bytes(signature)
+        public_key_path.write_bytes(public_key_pem)
+
+        spki_der = _producer_openssl_binary(
+            [
+                "pkey",
+                "-pubin",
+                "-in",
+                str(public_key_path),
+                "-outform",
+                "DER",
+            ],
+            environment=environment,
+            label=f"public-key decoding for {label}",
+        )
+        if enforce_production_pin:
+            spki_sha256 = sha256_bytes(spki_der)
+            if spki_sha256 != PRODUCER_SPKI_SHA256:
+                raise ReleaseChainError(
+                    "producer public-key SPKI is not code-pinned: "
+                    f"{spki_sha256}"
+                )
+
+        try:
+            _producer_openssl_binary(
+                [
+                    "pkeyutl",
+                    "-verify",
+                    "-pubin",
+                    "-inkey",
+                    str(public_key_path),
+                    "-rawin",
+                    "-in",
+                    str(manifest_path),
+                    "-sigfile",
+                    str(signature_path),
+                ],
+                environment=environment,
+                label=f"Ed25519 signature verification for {label}",
+            )
+        except ReleaseChainError as exc:
+            raise ReleaseChainError(
+                f"producer Ed25519 signature verification failed for {label}"
+            ) from exc
+
+
+def verify_producer_signature_bytes(
+    manifest: bytes,
+    signature: bytes,
+    *,
+    anchor_dir: pathlib.Path,
+    enforce_production_pin: bool,
+    label: str,
+) -> None:
+    """Verify one raw Ed25519 signature over exact manifest bytes."""
+
+    if type(manifest) is not bytes:
+        raise ReleaseChainError("producer-signed manifest payload must be bytes")
+    if type(signature) is not bytes or len(signature) != PRODUCER_SIGNATURE_BYTES:
+        actual = len(signature) if isinstance(signature, bytes) else "non-bytes"
+        raise ReleaseChainError(
+            f"producer signature for {label} must be exactly "
+            f"{PRODUCER_SIGNATURE_BYTES} raw bytes; found={actual}"
+        )
+    public_key_path = anchor_dir / PRODUCER_PUBLIC_KEY_FILENAME
+    if public_key_path.is_symlink() or not public_key_path.is_file():
+        raise ReleaseChainError(
+            f"missing or non-regular producer public key: {public_key_path}"
+        )
+    public_key_pem = public_key_path.read_bytes()
+
+    if not CRYPTOGRAPHY_AVAILABLE:
+        _verify_producer_signature_with_openssl(
+            manifest,
+            signature,
+            public_key_pem,
+            enforce_production_pin=enforce_production_pin,
+            label=label,
+        )
+        return
+
+    try:
+        public_key = load_pem_public_key(public_key_pem)
+    except (TypeError, ValueError, UnsupportedAlgorithm) as exc:
+        raise ReleaseChainError(
+            f"cannot decode producer Ed25519 public key: {public_key_path}"
+        ) from exc
+    if not isinstance(public_key, Ed25519PublicKey):
+        raise ReleaseChainError(
+            f"producer public key is not Ed25519: {public_key_path}"
+        )
+    spki_der = public_key.public_bytes(
+        Encoding.DER,
+        PublicFormat.SubjectPublicKeyInfo,
+    )
+    if enforce_production_pin:
+        spki_sha256 = sha256_bytes(spki_der)
+        if spki_sha256 != PRODUCER_SPKI_SHA256:
+            raise ReleaseChainError(
+                f"producer public-key SPKI is not code-pinned: {spki_sha256}"
+            )
+    try:
+        public_key.verify(signature, manifest)
+    except InvalidSignature as exc:
+        raise ReleaseChainError(
+            f"producer Ed25519 signature verification failed for {label}"
+        ) from exc
+
+
+def verify_producer_signature(
+    manifest: bytes,
+    signature_path: pathlib.Path,
+    *,
+    anchor_dir: pathlib.Path,
+    enforce_production_pin: bool,
+) -> None:
+    if signature_path.is_symlink() or not signature_path.is_file():
+        raise ReleaseChainError(
+            f"missing or non-regular producer signature: {signature_path}"
+        )
+    verify_producer_signature_bytes(
+        manifest,
+        signature_path.read_bytes(),
+        anchor_dir=anchor_dir,
+        enforce_production_pin=enforce_production_pin,
+        label=signature_path.name,
+    )
 
 
 def _verify_production_signer(
@@ -673,6 +893,60 @@ def verify_receipt(
     return gen_time
 
 
+def verify_release_receipts(
+    manifest: dict[str, Any],
+    manifest_digest: str,
+    receipt_paths: dict[str, pathlib.Path],
+    *,
+    anchor_dir: pathlib.Path,
+    enforce_production_pins: bool,
+    clock_skew_seconds: int,
+    previous_times: dict[str, datetime] | None = None,
+    now: datetime | None = None,
+) -> dict[str, datetime]:
+    """Verify both receipts and their chronology for one manifest."""
+
+    if set(receipt_paths) != set(ANCHORS):
+        raise ReleaseChainError(
+            "release must have exactly freetsa and digicert receipt paths"
+        )
+    receipt_times = {
+        tsa: verify_receipt(
+            manifest_digest,
+            receipt_path,
+            tsa,
+            anchor_dir=anchor_dir,
+            enforce_production_pins=enforce_production_pins,
+            now=now,
+        )
+        for tsa, receipt_path in receipt_paths.items()
+    }
+    created_at = parse_created_at(manifest["createdAtUtc"])
+    earliest_allowed = created_at - timedelta(seconds=clock_skew_seconds)
+    release_index = manifest["releaseIndex"]
+    for tsa, gen_time in receipt_times.items():
+        if gen_time < earliest_allowed:
+            raise ReleaseChainError(
+                f"release {release_index} {tsa} genTime "
+                f"{gen_time.isoformat()} impossibly precedes createdAtUtc "
+                f"{created_at.isoformat()}"
+            )
+    if previous_times is not None:
+        lower_bound = max(previous_times.values()) - timedelta(
+            seconds=clock_skew_seconds
+        )
+        current_earliest = min(receipt_times.values())
+        if current_earliest < lower_bound:
+            raise ReleaseChainError(
+                f"release {release_index} receipt chronology regresses: "
+                f"earliest current genTime {current_earliest.isoformat()} "
+                f"precedes latest prior genTime "
+                f"{max(previous_times.values()).isoformat()} beyond "
+                f"{clock_skew_seconds}s skew"
+            )
+    return receipt_times
+
+
 def jsonl_line_offsets(payload: bytes, label: str) -> list[int]:
     """Return exact byte offsets after each non-empty LF-terminated row."""
 
@@ -795,7 +1069,7 @@ def verify_release_chain(
     clock_skew_seconds: int = DEFAULT_CLOCK_SKEW_SECONDS,
     now: datetime | None = None,
 ) -> ChainVerification:
-    """Verify all manifests, receipts, links, chronology, and state bytes."""
+    """Verify all manifests, signatures, receipts, links, and state bytes."""
 
     root = root.resolve()
     default_anchor_dir = root / "releases" / "anchors"
@@ -815,7 +1089,9 @@ def verify_release_chain(
     previous_hash: str | None = None
     previous_times: dict[str, datetime] | None = None
     verification_now = now or datetime.now(timezone.utc)
-    for expected_index, (path, receipt_paths) in enumerate(enumerated):
+    for expected_index, (path, receipt_paths, producer_signature_path) in enumerate(
+        enumerated
+    ):
         manifest, raw, digest = load_manifest(path)
         filename_match = MANIFEST_RE.fullmatch(path.name)
         assert filename_match is not None
@@ -839,6 +1115,12 @@ def verify_release_chain(
                 f"release {expected_index} previousManifestSha256 does not "
                 "match the previous manifest file bytes"
             )
+        verify_producer_signature(
+            raw,
+            producer_signature_path,
+            anchor_dir=selected_anchors,
+            enforce_production_pin=enforce_production_pins,
+        )
         if records:
             previous_line_count = records[-1].manifest["state"]["lineCount"]
             line_count = manifest["state"]["lineCount"]
@@ -861,39 +1143,16 @@ def verify_release_chain(
                     f"{row_delta}"
                 )
 
-        receipt_times = {
-            tsa: verify_receipt(
-                digest,
-                receipt_path,
-                tsa,
-                anchor_dir=selected_anchors,
-                enforce_production_pins=enforce_production_pins,
-                now=verification_now,
-            )
-            for tsa, receipt_path in receipt_paths.items()
-        }
-        created_at = parse_created_at(manifest["createdAtUtc"])
-        earliest_allowed = created_at - timedelta(seconds=clock_skew_seconds)
-        for tsa, gen_time in receipt_times.items():
-            if gen_time < earliest_allowed:
-                raise ReleaseChainError(
-                    f"release {expected_index} {tsa} genTime "
-                    f"{gen_time.isoformat()} impossibly precedes createdAtUtc "
-                    f"{created_at.isoformat()}"
-                )
-        if previous_times is not None:
-            lower_bound = max(previous_times.values()) - timedelta(
-                seconds=clock_skew_seconds
-            )
-            current_earliest = min(receipt_times.values())
-            if current_earliest < lower_bound:
-                raise ReleaseChainError(
-                    f"release {expected_index} receipt chronology regresses: "
-                    f"earliest current genTime {current_earliest.isoformat()} "
-                    f"precedes latest prior genTime "
-                    f"{max(previous_times.values()).isoformat()} beyond "
-                    f"{clock_skew_seconds}s skew"
-                )
+        receipt_times = verify_release_receipts(
+            manifest,
+            digest,
+            receipt_paths,
+            anchor_dir=selected_anchors,
+            enforce_production_pins=enforce_production_pins,
+            clock_skew_seconds=clock_skew_seconds,
+            previous_times=previous_times,
+            now=verification_now,
+        )
 
         records.append(
             ReleaseRecord(
@@ -903,6 +1162,7 @@ def verify_release_chain(
                 manifest=manifest,
                 receipt_paths=receipt_paths,
                 receipt_times=receipt_times,
+                producer_signature_path=producer_signature_path,
             )
         )
         previous_hash = digest

@@ -15,6 +15,7 @@ from typing import Any
 
 from ledger_release_chain import (
     MANIFEST_RE,
+    PRODUCER_SIGNATURE_RE,
     RECEIPT_RE,
     ReleaseChainError,
     _openssl_environment,
@@ -180,6 +181,7 @@ def _release_inventory(
 ) -> tuple[dict[int, dict[str, Any]], dict[str, dict[str, dict[str, Any]]]]:
     manifests: dict[int, dict[str, Any]] = {}
     receipts: dict[str, dict[str, dict[str, Any]]] = {}
+    producer_signatures: dict[str, dict[str, Any]] = {}
     prefix = f"{RELEASE_DIRECTORY}/"
     for item in release_files:
         if type(item) is not dict or type(item.get("path")) is not str:
@@ -194,6 +196,15 @@ def _release_inventory(
             if index in manifests:
                 raise WitnessedPinError(f"duplicate archived release index {index}")
             manifests[index] = item
+            continue
+        signature_match = PRODUCER_SIGNATURE_RE.fullmatch(basename)
+        if signature_match is not None:
+            stem = signature_match.group("stem")
+            if stem in producer_signatures:
+                raise WitnessedPinError(
+                    f"duplicate archived producer signature for {stem}"
+                )
+            producer_signatures[stem] = item
             continue
         receipt_match = RECEIPT_RE.fullmatch(basename)
         if receipt_match is None:
@@ -216,6 +227,11 @@ def _release_inventory(
     if set(receipts) != stems:
         raise WitnessedPinError(
             "archived release receipts do not correspond exactly to manifests"
+        )
+    if set(producer_signatures) != stems:
+        raise WitnessedPinError(
+            "archived release producer signatures do not correspond exactly "
+            "to manifests"
         )
     for stem in stems:
         if set(receipts[stem]) != {"freetsa", "digicert"}:

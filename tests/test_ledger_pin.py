@@ -18,6 +18,7 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import ledger_release_chain  # noqa: E402
 import pin_ledger  # noqa: E402
 import register_targets  # noqa: E402
 from canonical_json import canonical_bytes  # noqa: E402
@@ -116,6 +117,95 @@ def _mint_receipt(
     )
 
 
+def _generate_producer_key(directory: pathlib.Path, name: str) -> pathlib.Path:
+    key = directory / f"{name}-key.pem"
+    public_key = directory / f"{name}.pub"
+    subprocess.run(
+        [
+            "openssl",
+            "genpkey",
+            "-algorithm",
+            "ED25519",
+            "-out",
+            str(key),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        [
+            "openssl",
+            "pkey",
+            "-in",
+            str(key),
+            "-pubout",
+            "-out",
+            str(public_key),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    return key
+
+
+def _sign_manifest(manifest: pathlib.Path, key: pathlib.Path) -> pathlib.Path:
+    signature = manifest.with_name(f"{manifest.stem}.producer.sig")
+    subprocess.run(
+        [
+            "openssl",
+            "pkeyutl",
+            "-sign",
+            "-inkey",
+            str(key),
+            "-rawin",
+            "-in",
+            str(manifest),
+            "-out",
+            str(signature),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    assert len(signature.read_bytes()) == ledger_release_chain.PRODUCER_SIGNATURE_BYTES
+    return signature
+
+
+def _spki_sha256(public_key_pem: bytes) -> str:
+    spki_der = subprocess.check_output(
+        ["openssl", "pkey", "-pubin", "-outform", "DER"],
+        input=public_key_pem,
+    )
+    return hashlib.sha256(spki_der).hexdigest()
+
+
+def _test_anchor_specs(tsa: pathlib.Path) -> dict[str, ledger_release_chain.AnchorSpec]:
+    fixture_specs = {
+        "freetsa": ("freetsa-root-2016.pem", "1.3.6.1.4.1.55555.1.1"),
+        "digicert": (
+            "digicert-trusted-root-g4.pem",
+            "1.3.6.1.4.1.55555.1.2",
+        ),
+    }
+    result = {}
+    for signer, (filename, policy_oid) in fixture_specs.items():
+        anchor = tsa / "anchors" / filename
+        certificate = tsa / signer / "signer.pem"
+        certificate_der = subprocess.check_output(
+            ["openssl", "x509", "-in", str(certificate), "-outform", "DER"]
+        )
+        signer_public_key = subprocess.check_output(
+            ["openssl", "x509", "-in", str(certificate), "-pubkey", "-noout"]
+        )
+        result[signer] = ledger_release_chain.AnchorSpec(
+            filename=filename,
+            pem_sha256=hashlib.sha256(anchor.read_bytes()).hexdigest(),
+            policy_oid=policy_oid,
+            signer_certificate_sha256=hashlib.sha256(certificate_der).hexdigest(),
+            signer_spki_sha256=_spki_sha256(signer_public_key),
+        )
+    return result
+
+
 def _write_release(
     repo: pathlib.Path,
     tsa: pathlib.Path,
@@ -123,6 +213,7 @@ def _write_release(
     index: int,
     previous_manifest: bytes | None,
     previous_ledger: bytes | None,
+    producer_key: pathlib.Path,
 ) -> pathlib.Path:
     ledger = (repo / pin_ledger.LEDGER_JSONL_PATH).read_bytes()
     prefix = (repo / pin_ledger.LEDGER_PREFIX_PATH).read_bytes()
@@ -164,6 +255,7 @@ def _write_release(
     directory.mkdir(parents=True, exist_ok=True)
     path = directory / manifest_filename(index, raw)
     path.write_bytes(raw)
+    _sign_manifest(path, producer_key)
     for slot in ("freetsa", "digicert"):
         _mint_receipt(
             path,
@@ -179,6 +271,11 @@ def _build_release_repo(root: pathlib.Path) -> ReleaseRepo:
     tsa = root / "release_tsa"
     repo.mkdir()
     shutil.copytree(TSA_FIXTURE, tsa)
+    producer_key = _generate_producer_key(tsa, "producer-ed25519")
+    shutil.copy2(
+        tsa / "producer-ed25519.pub",
+        tsa / "anchors" / ledger_release_chain.PRODUCER_PUBLIC_KEY_FILENAME,
+    )
     ledger = repo / pin_ledger.LEDGER_JSONL_PATH
     ledger.parent.mkdir(parents=True)
     ledger.write_bytes(_row_bytes("row-0"))
@@ -197,6 +294,7 @@ def _build_release_repo(root: pathlib.Path) -> ReleaseRepo:
         index=0,
         previous_manifest=None,
         previous_ledger=None,
+        producer_key=producer_key,
     )
     genesis = _commit(repo, "release genesis")
 
@@ -209,6 +307,7 @@ def _build_release_repo(root: pathlib.Path) -> ReleaseRepo:
         index=1,
         previous_manifest=previous_manifest,
         previous_ledger=previous_ledger,
+        producer_key=producer_key,
     )
     release_one = _commit(repo, "release one")
 
@@ -221,6 +320,7 @@ def _build_release_repo(root: pathlib.Path) -> ReleaseRepo:
         index=2,
         previous_manifest=previous_manifest,
         previous_ledger=previous_ledger,
+        producer_key=producer_key,
     )
     head = _commit(repo, "release two")
     return ReleaseRepo(repo, tsa, base, genesis, release_one, head)
@@ -418,11 +518,25 @@ def _install_test_verifier(
     monkeypatch: pytest.MonkeyPatch, release_repo: ReleaseRepo
 ) -> list[bool]:
     production_pin_requests: list[bool] = []
+    trusted_anchors = release_repo.tsa / "anchors"
+    monkeypatch.setattr(
+        ledger_release_chain,
+        "ANCHORS",
+        _test_anchor_specs(release_repo.tsa),
+    )
+    monkeypatch.setattr(
+        ledger_release_chain,
+        "PRODUCER_SPKI_SHA256",
+        _spki_sha256(
+            (
+                trusted_anchors
+                / ledger_release_chain.PRODUCER_PUBLIC_KEY_FILENAME
+            ).read_bytes()
+        ),
+    )
 
     def verifier(root: pathlib.Path, **kwargs: Any) -> Any:
         production_pin_requests.append(kwargs["enforce_production_pins"])
-        kwargs["anchor_dir"] = release_repo.tsa / "anchors"
-        kwargs["enforce_production_pins"] = False
         return verify_release_chain(root, **kwargs)
 
     monkeypatch.setattr(pin_ledger, "verify_release_chain", verifier)
@@ -521,7 +635,7 @@ def test_refresh_parent_chain_cannot_skip_an_omitted_commit() -> None:
         )
 
 
-def test_refresh_verifies_chain_and_derives_three_release_windows(
+def test_refresh_accepts_signed_four_sibling_chain_and_derives_three_release_windows(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: pathlib.Path,
     release_repo: ReleaseRepo,
@@ -533,6 +647,18 @@ def test_refresh_verifies_chain_and_derives_three_release_windows(
     pin_ledger.refresh()
 
     assert pin_requests == [True]
+    manifest_directory = release_repo.repo / "releases" / "manifests"
+    for manifest in manifest_directory.glob("*.json"):
+        assert {
+            path.name
+            for path in manifest_directory.iterdir()
+            if path.name.startswith(f"{manifest.stem}.")
+        } == {
+            manifest.name,
+            f"{manifest.stem}.producer.sig",
+            f"{manifest.stem}.freetsa.tsr",
+            f"{manifest.stem}.digicert.tsr",
+        }
     pin = json.loads(pin_path.read_text())
     assert pin["sha"] == release_repo.head
     assert pin["releaseHead"]["index"] == 2
@@ -573,6 +699,106 @@ def test_refresh_verifies_chain_and_derives_three_release_windows(
     generated = generated_path.read_text()
     assert "witnessedInReleaseIndex: number | null" in generated
     assert "lastExcludedReleaseIndex: number | null" in generated
+
+
+def test_refresh_refuses_unsigned_three_sibling_post_genesis_release(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    manifest = next(
+        (release_repo.repo / "releases" / "manifests").glob("0002-*.json")
+    )
+    manifest.with_name(f"{manifest.stem}.producer.sig").unlink()
+    _commit(release_repo.repo, "remove post-genesis producer signature")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="missing its producer signature"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_wrong_key_producer_signature(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    manifest = next(
+        (release_repo.repo / "releases" / "manifests").glob("0002-*.json")
+    )
+    wrong_key = _generate_producer_key(release_repo.tsa, "wrong-producer")
+    _sign_manifest(manifest, wrong_key)
+    _commit(release_repo.repo, "replace producer signature with wrong key")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(
+        pin_ledger.PinError,
+        match="producer Ed25519 signature verification failed",
+    ):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_tampered_committed_producer_anchor_spki(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    attacker_key = _generate_producer_key(release_repo.tsa, "attacker-producer")
+    committed_anchor = (
+        release_repo.repo
+        / "releases"
+        / "anchors"
+        / ledger_release_chain.PRODUCER_PUBLIC_KEY_FILENAME
+    )
+    shutil.copy2(release_repo.tsa / "attacker-producer.pub", committed_anchor)
+    for manifest in (release_repo.repo / "releases" / "manifests").glob("*.json"):
+        _sign_manifest(manifest, attacker_key)
+    _commit(release_repo.repo, "replace committed producer anchor and signatures")
+
+    # The attacker-controlled anchor and signatures are internally consistent;
+    # only the independent code pin distinguishes them from the trusted key.
+    verify_release_chain(
+        release_repo.repo,
+        require_chain=True,
+        verify_state=True,
+        enforce_production_pins=False,
+    )
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(
+        pin_ledger.PinError,
+        match="producer public-key SPKI is not code-pinned",
+    ):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
 
 
 @pytest.mark.parametrize(
@@ -683,6 +909,7 @@ def test_refresh_refuses_unwitnessed_intermediate_append_even_if_later_released(
         index=3,
         previous_manifest=previous_manifest,
         previous_ledger=previous_ledger,
+        producer_key=release_repo.tsa / "producer-ed25519-key.pem",
     )
     _commit(release_repo.repo, "later release cannot sanitize intermediate")
     pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
@@ -714,6 +941,37 @@ def test_refresh_refuses_transient_release_receipt_replacement(
     _commit(release_repo.repo, "transient receipt replacement")
     receipt.write_bytes(original)
     _commit(release_repo.repo, "restore receipt before refresh")
+    pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
+        monkeypatch, tmp_path, release_repo
+    )
+    before = {
+        pin_path: pin_path.read_bytes(),
+        availability_path: availability_path.read_bytes(),
+        generated_path: generated_path.read_bytes(),
+    }
+
+    with pytest.raises(pin_ledger.PinError, match="absent or changed"):
+        pin_ledger.refresh()
+
+    assert pin_requests == [True]
+    assert {path: path.read_bytes() for path in before} == before
+
+
+def test_refresh_refuses_transient_producer_signature_replacement(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+    release_repo: ReleaseRepo,
+) -> None:
+    signature = next(
+        (release_repo.repo / "releases" / "manifests").glob(
+            "0002-*.producer.sig"
+        )
+    )
+    original = signature.read_bytes()
+    signature.write_bytes(b"x" * ledger_release_chain.PRODUCER_SIGNATURE_BYTES)
+    _commit(release_repo.repo, "transient producer signature replacement")
+    signature.write_bytes(original)
+    _commit(release_repo.repo, "restore producer signature before refresh")
     pin_path, availability_path, generated_path, pin_requests = _prepare_refresh(
         monkeypatch, tmp_path, release_repo
     )

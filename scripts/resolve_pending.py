@@ -61,9 +61,11 @@ from ledger_release_chain import (
     ChainVerification,
     jsonl_line_offsets,
     manifest_filename,
+    producer_signature_path_for_manifest,
     receipt_paths_for_manifest,
     sha256_bytes,
     validate_manifest_schema,
+    verify_producer_signature_bytes,
     verify_release_chain,
 )
 from register_targets import RegistrationError, registration_content_hash
@@ -81,6 +83,7 @@ FRED_CSV = (
 
 MAX_TIMESTAMP_TOKEN_BYTES = 1024 * 1024
 DEFAULT_TIMESTAMP_TIMEOUT_SECONDS = 45.0
+PRODUCER_SIGNING_KEY_ENV = "LEDGER_PRODUCER_SIGNING_KEY"
 TSA_ENDPOINTS = {
     "freetsa": "https://freetsa.org/tsr",
     # DigiCert's documented RFC 3161 endpoint is plain HTTP (its TLS endpoint
@@ -196,6 +199,98 @@ def _build_timestamp_query(manifest: bytes, timeout_seconds: float) -> bytes:
     if not query or len(query) > MAX_TIMESTAMP_TOKEN_BYTES:
         raise LedgerProposalError("OpenSSL produced an invalid-sized RFC 3161 query")
     return query
+
+
+def _sign_release_manifest(
+    manifest: bytes,
+    signing_key: str | None,
+    timeout_seconds: float,
+) -> bytes:
+    """Materialize the PEM for OpenSSL without parsing or logging its contents."""
+
+    if type(manifest) is not bytes:
+        raise LedgerProposalError("producer-signed manifest payload must be bytes")
+    if type(signing_key) is not str or not signing_key.strip():
+        raise LedgerProposalError(
+            f"{PRODUCER_SIGNING_KEY_ENV} must contain a non-empty PEM private key"
+        )
+    timeout = _validate_timestamp_timeout(timeout_seconds)
+
+    with tempfile.TemporaryDirectory(prefix="thesis-release-signature-") as name:
+        temporary = pathlib.Path(name)
+        # TemporaryDirectory is private by default; make that property explicit
+        # before materializing secret bytes and use exclusive creation below.
+        temporary.chmod(0o700)
+        key_path = temporary / "producer-private.pem"
+        manifest_path = temporary / "manifest.json"
+        signature_path = temporary / "producer.sig"
+        descriptor = -1
+        try:
+            flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            descriptor = os.open(key_path, flags, 0o600)
+            with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as stream:
+                descriptor = -1
+                stream.write(signing_key)
+
+            manifest_path.write_bytes(manifest)
+            environment = os.environ.copy()
+            environment.pop(PRODUCER_SIGNING_KEY_ENV, None)
+            environment.update({"LC_ALL": "C", "OPENSSL_CONF": "/dev/null"})
+            try:
+                completed = subprocess.run(
+                    [
+                        "openssl",
+                        "pkeyutl",
+                        "-sign",
+                        "-inkey",
+                        str(key_path),
+                        "-rawin",
+                        "-in",
+                        str(manifest_path),
+                        "-out",
+                        str(signature_path),
+                    ],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    timeout=timeout,
+                    env=environment,
+                )
+            except FileNotFoundError as exc:
+                raise LedgerProposalError(
+                    "OpenSSL 3 is required for Ed25519 producer signing"
+                ) from exc
+            except subprocess.TimeoutExpired:
+                raise LedgerProposalError(
+                    "OpenSSL producer signing timed out"
+                ) from None
+            if completed.returncode != 0:
+                raise LedgerProposalError(
+                    "OpenSSL producer signing failed "
+                    f"with exit code {completed.returncode}"
+                )
+            try:
+                signature = signature_path.read_bytes()
+            except FileNotFoundError as exc:
+                raise LedgerProposalError(
+                    "OpenSSL producer signing did not emit a signature"
+                ) from exc
+        finally:
+            if descriptor >= 0:
+                os.close(descriptor)
+            # Do not rely only on TemporaryDirectory cleanup for key erasure:
+            # unlink as soon as OpenSSL is done, including every failure path.
+            try:
+                key_path.unlink()
+            except FileNotFoundError:
+                pass
+    if len(signature) != 64:
+        raise LedgerProposalError(
+            "OpenSSL producer signing did not emit a 64-byte raw Ed25519 signature"
+        )
+    return signature
 
 
 def _request_timestamp_receipts(
@@ -2059,6 +2154,7 @@ def _prepare_release_files(
     clock_skew_seconds: int,
     anchor_dir: pathlib.Path | None,
     now: dt.datetime | None,
+    producer_signing_key: str | None,
 ) -> dict[str, bytes]:
     """Build and locally verify the release files before any visible push."""
 
@@ -2129,6 +2225,21 @@ def _prepare_release_files(
             raise LedgerProposalError(
                 f"refusing to overwrite release manifest {manifest_path.name}"
             )
+        producer_signature_path = producer_signature_path_for_manifest(manifest_path)
+        producer_signature = _sign_release_manifest(
+            manifest_raw,
+            producer_signing_key,
+            timeout,
+        )
+        # Verify against the public key materialized from the immutable base
+        # tree (or the explicit test-only anchor override), never this checkout.
+        verify_producer_signature_bytes(
+            manifest_raw,
+            producer_signature,
+            anchor_dir=selected_anchors,
+            enforce_production_pin=enforce_production_pins,
+            label=producer_signature_path.name,
+        )
         query = _build_timestamp_query(manifest_raw, timeout)
         receipts = _request_timestamp_receipts(
             query,
@@ -2141,6 +2252,7 @@ def _prepare_release_files(
         receipt_paths = receipt_paths_for_manifest(manifest_path)
         for tsa, token in receipts.items():
             receipt_paths[tsa].write_bytes(token)
+        producer_signature_path.write_bytes(producer_signature)
         verify_release_chain(
             stage,
             anchor_dir=selected_anchors,
@@ -2151,7 +2263,11 @@ def _prepare_release_files(
         )
         return {
             (stage_path.relative_to(stage).as_posix()): stage_path.read_bytes()
-            for stage_path in (manifest_path, *receipt_paths.values())
+            for stage_path in (
+                manifest_path,
+                *receipt_paths.values(),
+                producer_signature_path,
+            )
         }
 
 
@@ -2710,9 +2826,13 @@ def propose_ledger_append(
     clock_skew_seconds: int = DEFAULT_CLOCK_SKEW_SECONDS,
     release_anchor_dir: pathlib.Path | None = None,
     release_now: dt.datetime | None = None,
+    producer_signing_key: str | None = None,
 ) -> str:
     """Publish one fully witnessed commit through the reviewed append gate."""
 
+    environment_signing_key = os.environ.pop(PRODUCER_SIGNING_KEY_ENV, None)
+    if producer_signing_key is None:
+        producer_signing_key = environment_signing_key
     candidate_ledger = content.encode("utf-8")
     base_tree = _fetch_repository_tree(repo, base_sha, path)
     if base_tree.blob_shas.get(path) != blob_sha:
@@ -2729,6 +2849,7 @@ def propose_ledger_append(
         clock_skew_seconds=clock_skew_seconds,
         anchor_dir=release_anchor_dir,
         now=release_now,
+        producer_signing_key=producer_signing_key,
     )
     message = f"Record {added} first-print observation(s) via resolve_pending.py"
     changes = {path: candidate_ledger, **release_files}
@@ -2779,7 +2900,8 @@ def propose_ledger_append(
                         "Automated witnessed append proposal from "
                         f"resolve_pending.py: {added} first-print observation(s) "
                         f"built against {base_sha}. The proposal commit contains "
-                        "the ledger append and its complete release triple, and "
+                        "the ledger append and its complete four-sibling release, "
+                        "and "
                         "merges only after the thesis-facts append gate passes."
                     ),
                 },
@@ -3316,6 +3438,9 @@ def finalize_resolution_manifest(
 
 
 def main() -> int:
+    # Remove the secret before any network client or subprocess can inherit it.
+    # The value remains only as an in-memory string until proposal signing.
+    producer_signing_key = os.environ.pop(PRODUCER_SIGNING_KEY_ENV, None)
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--ledger-repo", default="PolicyEngine/ledger")
@@ -3572,6 +3697,7 @@ def main() -> int:
         sha,
         ledger_repo_sha,
         len(new_rows),
+        producer_signing_key=producer_signing_key,
     )
     print(
         f"appended {len(new_rows)} observation(s) to "

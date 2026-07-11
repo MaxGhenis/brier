@@ -91,6 +91,43 @@ def _mint_receipt(
     return receipt.read_bytes()
 
 
+def _mint_producer_signature(
+    private_key: pathlib.Path,
+    payload: pathlib.Path,
+) -> bytes:
+    if not private_key.exists():
+        subprocess.run(
+            [
+                "openssl",
+                "genpkey",
+                "-algorithm",
+                "Ed25519",
+                "-out",
+                str(private_key),
+            ],
+            check=True,
+            capture_output=True,
+        )
+    signature = payload.with_name(f"{payload.stem}.producer.sig")
+    subprocess.run(
+        [
+            "openssl",
+            "pkeyutl",
+            "-sign",
+            "-inkey",
+            str(private_key),
+            "-rawin",
+            "-in",
+            str(payload),
+            "-out",
+            str(signature),
+        ],
+        check=True,
+        capture_output=True,
+    )
+    return signature.read_bytes()
+
+
 def _release_inputs(
     tmp_path: pathlib.Path,
     monkeypatch,
@@ -98,6 +135,7 @@ def _release_inputs(
     with_chain: bool,
     jsonl_raw: bytes,
     release_count: int = 1,
+    with_producer_signatures: bool = True,
 ):
     branch_sha = "b" * 40
     base = f"https://api.github.com/repos/{wul.LEDGER_REPO}/git/trees/"
@@ -108,6 +146,7 @@ def _release_inputs(
             raise AssertionError("fixture supports one or two releases")
         tsa = tmp_path / "release_tsa"
         shutil.copytree(TSA_FIXTURE, tsa)
+        producer_private_key = tmp_path / "producer-ed25519-test-private.pem"
         rows = jsonl_raw.splitlines(keepends=True)
         line_counts = [len(rows)] if release_count == 1 else [1, len(rows)]
         previous_count = 0
@@ -151,6 +190,10 @@ def _release_inputs(
                 source_files[
                     f"releases/manifests/{manifest_path.stem}.{tsa_name}.tsr"
                 ] = _mint_receipt(tsa, manifest_path, signer=tsa_name)
+            if with_producer_signatures:
+                source_files[
+                    f"releases/manifests/{manifest_path.stem}.producer.sig"
+                ] = _mint_producer_signature(producer_private_key, manifest_path)
             previous_count = line_count
             previous_digest = digest
         manifest_entries = [
@@ -220,6 +263,7 @@ def _v2_witness_run(
     *,
     with_chain: bool = True,
     release_count: int = 1,
+    with_producer_signatures: bool = True,
     skip_archive_names: set[str] | None = None,
     skip_source_suffix: str | None = None,
     mutate_manifest=None,
@@ -238,6 +282,7 @@ def _v2_witness_run(
             with_chain=with_chain,
             jsonl_raw=jsonl_raw,
             release_count=release_count,
+            with_producer_signatures=with_producer_signatures,
         )
     )
     skipped = set(skip_archive_names or set())
@@ -436,7 +481,7 @@ def test_witness_run_seals_and_verifies(tmp_path, monkeypatch) -> None:
     assert manifest["jsonl"]["sourceRecordIdCount"] == 2
 
 
-def test_v2_witness_archives_complete_manifest_and_both_der_receipts(
+def test_v2_witness_archives_complete_four_sibling_release(
     tmp_path, monkeypatch
 ) -> None:
     run_dir, source_files = _v2_witness_run(tmp_path, monkeypatch)
@@ -447,7 +492,7 @@ def test_v2_witness_archives_complete_manifest_and_both_der_receipts(
 
     assert result.inventory_status == "complete"
     assert release_archive["schemaVersion"] == wul.RELEASE_ARCHIVE_SCHEMA
-    assert release_archive["fileCount"] == 3
+    assert release_archive["fileCount"] == 4
     receipt_slots = {
         path.rsplit(".", 2)[-2] for path in source_files if path.endswith(".tsr")
     }
@@ -455,6 +500,7 @@ def test_v2_witness_archives_complete_manifest_and_both_der_receipts(
         "freetsa",
         "digicert",
     }
+    assert sum(path.endswith(".producer.sig") for path in source_files) == 1
     upstream_by_source = {
         record["sourcePath"]: record
         for record in manifest["upstream"]
@@ -467,6 +513,67 @@ def test_v2_witness_archives_complete_manifest_and_both_der_receipts(
         assert gzip.decompress(compressed) == expected
         assert record["archive"]["sha256"] == hashlib.sha256(expected).hexdigest()
         assert record["gitBlobSha"] == _git_blob_sha(expected)
+
+
+def test_v2_witness_archives_and_inventory_binds_producer_signature(
+    tmp_path, monkeypatch
+) -> None:
+    run_dir, source_files = _v2_witness_run(
+        tmp_path,
+        monkeypatch,
+        with_producer_signatures=True,
+    )
+
+    result = verify_run(run_dir)
+    manifest = json.loads((run_dir / "manifest.json").read_text())
+    signature_path, expected = next(
+        (path, raw)
+        for path, raw in source_files.items()
+        if path.endswith(".producer.sig")
+    )
+    file_record = next(
+        item
+        for item in manifest["releaseArchive"]["files"]
+        if item["path"] == signature_path
+    )
+    upstream_record = next(
+        item
+        for item in manifest["upstream"]
+        if item.get("sourcePath") == signature_path
+    )
+    archive_path = tmp_path / upstream_record["archive"]["path"]
+
+    assert result.inventory_status == "complete"
+    assert gzip.decompress(archive_path.read_bytes()) == expected
+    assert file_record["sha256"] == hashlib.sha256(expected).hexdigest()
+    assert file_record["gitBlobSha"] == _git_blob_sha(expected)
+    assert upstream_record["name"] == file_record["archiveName"]
+    assert upstream_record["role"] == "ledger_release_file"
+
+    replacement = hashlib.sha512(b"replacement producer signature").digest()
+    replacement_compressed = gzip.compress(replacement, mtime=0)
+    replacement_blob_sha = _git_blob_sha(replacement)
+    archive_path.write_bytes(replacement_compressed)
+    upstream_record["archive"].update(
+        {
+            "sha256": hashlib.sha256(replacement).hexdigest(),
+            "bytes": len(replacement),
+            "gzipSha256": hashlib.sha256(replacement_compressed).hexdigest(),
+            "gzipBytes": len(replacement_compressed),
+        }
+    )
+    upstream_record["gitBlobSha"] = replacement_blob_sha
+    file_record.update(
+        {
+            "gitBlobSha": replacement_blob_sha,
+            "sha256": hashlib.sha256(replacement).hexdigest(),
+            "bytes": len(replacement),
+        }
+    )
+    _remove_seal_fields(manifest)
+
+    with pytest.raises(CustodyError, match="Git blob SHA mismatch"):
+        wul._seal(run_dir, manifest)
 
 
 def test_witnessed_pin_validator_binds_full_release_head(
@@ -482,6 +589,41 @@ def test_witnessed_pin_validator_binds_full_release_head(
     pin["releaseHead"]["manifestSha256"] = "0" * 64
     pin_path.write_text(json.dumps(pin, indent=2) + "\n")
     with pytest.raises(vwp.WitnessedPinError, match="releaseHead"):
+        vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path)
+
+
+def test_witnessed_pin_validator_refuses_unsigned_postgenesis_archive(
+    tmp_path, monkeypatch
+) -> None:
+    run_dir, _source_files = _v2_witness_run(
+        tmp_path,
+        monkeypatch,
+        with_producer_signatures=False,
+    )
+    pin_path = _pin_for_witness(tmp_path, run_dir)
+    monkeypatch.setattr(vwp, "ROOT", tmp_path)
+
+    with pytest.raises(vwp.WitnessedPinError, match="producer signatures"):
+        vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path)
+
+
+def test_witnessed_pin_validator_refuses_tampered_producer_signature(
+    tmp_path, monkeypatch
+) -> None:
+    run_dir, _source_files = _v2_witness_run(tmp_path, monkeypatch)
+    pin_path = _pin_for_witness(tmp_path, run_dir)
+    manifest = json.loads((run_dir / "manifest.json").read_text())
+    signature = next(
+        item
+        for item in manifest["upstream"]
+        if str(item.get("sourcePath", "")).endswith(".producer.sig")
+    )
+    (tmp_path / signature["archive"]["path"]).write_bytes(
+        gzip.compress(b"tampered producer signature", mtime=0)
+    )
+    monkeypatch.setattr(vwp, "ROOT", tmp_path)
+
+    with pytest.raises(vwp.WitnessedPinError, match="custody verification failed"):
         vwp.verify_witnessed_pin(run_dir / "manifest.json", pin_path)
 
 
@@ -657,9 +799,18 @@ def test_v2_witness_rejects_resealed_wrong_jsonl_byte_count(
 
 def test_resolution_workflow_revalidates_custody_and_marks_deployed_commit() -> None:
     workflow = (ROOT / ".github/workflows/resolve-and-rebuild.yml").read_text()
+    signing_key_env = (
+        "          LEDGER_PRODUCER_SIGNING_KEY: "
+        "${{ secrets.LEDGER_PRODUCER_SIGNING_KEY }}\n"
+    )
+    resolve_step = workflow.split(
+        "      - name: Resolve pending cells against official prints\n", 1
+    )[1].split("\n      - name:", 1)[0]
 
     assert workflow.count("scripts/verify_witnessed_pin.py") == 2
     assert 'git show "${SITE_SHA}:site/src/data/ledger-pin.json"' in workflow
+    assert workflow.count(signing_key_env) == 1
+    assert signing_key_env in resolve_step
 
 
 def test_v2_witness_detects_tampered_der_receipt(tmp_path, monkeypatch) -> None:

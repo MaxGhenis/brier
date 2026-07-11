@@ -32,6 +32,7 @@ jobs:
         id: resolve
         env:
           GH_TOKEN: ${{ secrets.ARCH_DATA_TOKEN }}
+          LEDGER_PRODUCER_SIGNING_KEY: ${{ secrets.LEDGER_PRODUCER_SIGNING_KEY }}
         run: |
           set -euo pipefail
           # Stream resolver output while capturing it: command substitution
