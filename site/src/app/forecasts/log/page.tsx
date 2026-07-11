@@ -402,7 +402,7 @@ function ScoreboardPanel({
           </h2>
         </div>
         <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
-          {scoreboard.overall.scored} scored · nCRPS = CRPS / 80% width
+          {scoreboard.overall.scored} scored · nCRPS = CRPS / ledger dispersion scale
         </span>
       </div>
 
@@ -439,18 +439,30 @@ function ScoreboardPanel({
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-7 lg:grid-cols-2">
-        <ScoreExtremesTable
-          forecasts={forecasts}
-          scores={scoreboard.bestScores}
-          title="Best nCRPS"
-        />
-        <ScoreExtremesTable
-          forecasts={forecasts}
-          scores={scoreboard.worstScores}
-          title="Largest nCRPS"
-        />
-      </div>
+      {scoreboard.bestScores.length === 0 &&
+      scoreboard.worstScores.length === 0 ? (
+        <p className="mt-6 max-w-[640px] text-[0.8rem] leading-[1.6] text-[var(--theme-text-muted)]">
+          Normalized CRPS extremes appear once resolved scores carry their
+          pre-registered normalization scale — CRPS divided by the target's
+          historical dispersion in the official ledger at registration. No
+          resolved score has an eligible scale yet; scales activate as the
+          ledger accumulates pre-cutoff observations per target, and raw
+          CRPS stays published on every resolved prediction below meanwhile.
+        </p>
+      ) : (
+        <div className="mt-6 grid grid-cols-1 gap-7 lg:grid-cols-2">
+          <ScoreExtremesTable
+            forecasts={forecasts}
+            scores={scoreboard.bestScores}
+            title="Best nCRPS"
+          />
+          <ScoreExtremesTable
+            forecasts={forecasts}
+            scores={scoreboard.worstScores}
+            title="Largest nCRPS"
+          />
+        </div>
+      )}
     </section>
   );
 }
