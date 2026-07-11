@@ -19,6 +19,9 @@ on:
       focus:
         description: "Optional focus areas (e.g. 'UK, health, housing')"
         default: ""
+      codex_model:
+        description: "Codex model for the analyst (empty = pipeline default)"
+        default: ""
 
 permissions:
   contents: read
@@ -306,6 +309,7 @@ jobs:
       - name: Run the analyst batch
         env:
           BATCH_MANIFEST: ${{ needs.register.outputs.batch }}
+          THESIS_CODEX_MODEL: ${{ github.event.inputs.codex_model || '' }}
         run: |
           set -euo pipefail
           python3 scripts/run_thesis_batch.py \
