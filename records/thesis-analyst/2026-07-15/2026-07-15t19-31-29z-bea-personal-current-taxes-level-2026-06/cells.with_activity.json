@@ -1,0 +1,1248 @@
+[
+  {
+    "slug": "bea-personal-current-taxes-level-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US personal current taxes, June 2026",
+    "question": "What will BEA report as June 2026 personal current taxes, monthly seasonally adjusted annual rate, in the first print?",
+    "unit": "usd_billions",
+    "pointEstimate": 3277.2,
+    "ciLow": 3266.8,
+    "ciHigh": 3287.6,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-29",
+    "resolutionSource": "Registered ALFRED mirror of BEA Personal Income and Outlays, Table 1",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W055RC1&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve to the June 2026 first-published value for BEA personal current taxes series W055RC1, monthly seasonally adjusted annual rate, billions of dollars, rounded to one decimal, using the registered source binding and ignoring subsequent revisions. The registered ALFRED vintage predates the June observation and BEA schedules the first print for July 30, so the binding and registered July 29 resolution date require target-contract review; this forecast remains tied to the registered slug, dataPointId, URL, and date.",
+    "dataPointId": "bea.personal_current_taxes.level.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "January 2026",
+        "value": 3214.7
+      },
+      {
+        "label": "February 2026",
+        "value": 3215.3
+      },
+      {
+        "label": "March 2026",
+        "value": 3229.5
+      },
+      {
+        "label": "April 2026",
+        "value": 3247.9
+      },
+      {
+        "label": "May 2026",
+        "value": 3264.7
+      }
+    ],
+    "drivers": [
+      "recent monthly tax-receipt momentum",
+      "continued nominal income and wage growth",
+      "withholding and estimated-payment noise",
+      "first-print measurement uncertainty"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule/",
+      "https://www.bea.gov/sites/default/files/2026-06/pi0526.pdf",
+      "https://fred.stlouisfed.org/series/W055RC1",
+      "https://fred.stlouisfed.org/release/tables?eid=155443&rid=54"
+    ],
+    "runAt": "2026-07-15T19:33:28Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "June 2026 personal current taxes forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is BEA series W055RC1: monthly personal current taxes, seasonally adjusted at an annual rate, billions of dollars, first print for June 2026. The registered binding names Personal Income and Outlays Table 1, while the detailed series mirror places W055RC1 in Table 2.6."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BEA 2026 release schedule and the May Personal Income and Outlays release for the announced June 2026 publication date.",
+        "result": "BEA schedules Personal Income and Outlays, June 2026 for July 30, 2026 at 8:30 a.m. EDT; the May release independently states the next release is July 30, 2026 at 8:30 a.m. EDT."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the latest W055RC1 monthly reference-class observations from the BEA-sourced series and detailed table mirror.",
+        "result": "January-May 2026 values were 3214.7, 3215.3, 3229.5, 3247.9, and 3264.7 billion dollars SAAR; May 2025 was 3203.2."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the latest BEA Personal Income and Outlays release for contemporaneous income conditions.",
+        "result": "May 2026 personal income increased 181.6 billion dollars, disposable personal income increased 164.9 billion dollars, and personal current taxes rose from 3247.9 to 3264.7 billion dollars SAAR."
+      },
+      {
+        "kind": "text",
+        "text": "The reference class and base rate are the four successive changes from January through May 2026: 0.6, 14.2, 18.4, and 16.8 billion dollars. Their mean is 12.5, indicating positive recent momentum after the nearly flat January-February move."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: The model is a one-month persistence-plus-mean-change prior using the January-May 2026 historical sample. Starting from 3264.7, the base-rate increment is (0.6 + 14.2 + 18.4 + 16.8)/4 = 12.5. Level effect: 3264.7. Momentum effect: +12.5. One-off adjustment: 0.0 because no June-specific tax-policy discontinuity was identified. Policy-mechanism adjustment: 0.0. Point = 3264.7 + 12.5 = 3277.2. The sample standard deviation of those successive changes is sigma = sqrt(197.8/3) = 8.12. The normal 80% half-width is 1.28*sigma = 1.28*8.12 = 10.39, giving 3277.2 \u00b1 10.39, or 3266.8 to 3287.6 after rounding. This relatively narrow interval reflects a short sample of four recent monthly changes."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk from unusually strong wage withholding, capital-gains-related estimated payments, or stronger taxable income would require a June increase above about 22.9 billion dollars to land above the interval. Downside risk from refund timing, weaker withholding, or an adverse first-print seasonal adjustment would require an increase below about 2.1 billion dollars to land below the interval. A tax-policy or payment-timing discontinuity could place the result outside the interval."
+      },
+      {
+        "kind": "text",
+        "text": "Resolver discrepancy: the registered expected window ends July 29 and its fixed ALFRED vintage is June 25, but BEA's official schedule and release notice both give July 30. The June 25 vintage cannot contain the June first print. The canonical July 29 date and registered resolver fields are preserved pending correction through the target-registration process."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions."
+      },
+      {
+        "kind": "forecast",
+        "point": 3277.2,
+        "ciLow": 3266.8,
+        "ciHigh": 3287.6
+      }
+    ],
+    "agentReportedRunAt": "2026-07-15T19:32:02Z",
+    "runStartedAt": "2026-07-15T19:31:29Z",
+    "promptMode": "fast",
+    "registrationCommit": "6dcfcbe86a61d979569d385cd1372ae83573a1f9",
+    "targetContentHash": "d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36",
+    "targetRegistrationPath": "records/targets/2026-07-15-d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36.json",
+    "registeredAtUtc": "2026-07-15T19:13:18Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 3251.2,
+        "upper": 3303.2
+      },
+      "points": [
+        {
+          "value": 3251.2,
+          "probability": 0.0
+        },
+        {
+          "value": 3251.46,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 3251.72,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 3251.98,
+          "probability": 0.005
+        },
+        {
+          "value": 3252.24,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 3252.5,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 3252.76,
+          "probability": 0.01
+        },
+        {
+          "value": 3253.02,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 3253.28,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 3253.54,
+          "probability": 0.015
+        },
+        {
+          "value": 3253.8,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 3254.06,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 3254.32,
+          "probability": 0.02
+        },
+        {
+          "value": 3254.58,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 3254.84,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 3255.1,
+          "probability": 0.025
+        },
+        {
+          "value": 3255.36,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 3255.62,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 3255.88,
+          "probability": 0.03
+        },
+        {
+          "value": 3256.14,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 3256.4,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 3256.66,
+          "probability": 0.035
+        },
+        {
+          "value": 3256.92,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 3257.18,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 3257.44,
+          "probability": 0.04
+        },
+        {
+          "value": 3257.7,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 3257.96,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 3258.22,
+          "probability": 0.045
+        },
+        {
+          "value": 3258.48,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 3258.74,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 3259.0,
+          "probability": 0.05
+        },
+        {
+          "value": 3259.26,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 3259.52,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 3259.78,
+          "probability": 0.055
+        },
+        {
+          "value": 3260.04,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 3260.3,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 3260.56,
+          "probability": 0.06
+        },
+        {
+          "value": 3260.82,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 3261.08,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 3261.34,
+          "probability": 0.065
+        },
+        {
+          "value": 3261.6,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 3261.86,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 3262.12,
+          "probability": 0.07
+        },
+        {
+          "value": 3262.38,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 3262.64,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 3262.9,
+          "probability": 0.075
+        },
+        {
+          "value": 3263.16,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 3263.42,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 3263.68,
+          "probability": 0.08
+        },
+        {
+          "value": 3263.94,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 3264.2,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 3264.46,
+          "probability": 0.085
+        },
+        {
+          "value": 3264.72,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 3264.98,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 3265.24,
+          "probability": 0.09
+        },
+        {
+          "value": 3265.5,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 3265.76,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 3266.02,
+          "probability": 0.095
+        },
+        {
+          "value": 3266.28,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 3266.54,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 3266.8,
+          "probability": 0.1
+        },
+        {
+          "value": 3267.06,
+          "probability": 0.11
+        },
+        {
+          "value": 3267.32,
+          "probability": 0.12
+        },
+        {
+          "value": 3267.58,
+          "probability": 0.13
+        },
+        {
+          "value": 3267.84,
+          "probability": 0.14
+        },
+        {
+          "value": 3268.1,
+          "probability": 0.15
+        },
+        {
+          "value": 3268.36,
+          "probability": 0.16
+        },
+        {
+          "value": 3268.62,
+          "probability": 0.17
+        },
+        {
+          "value": 3268.88,
+          "probability": 0.18
+        },
+        {
+          "value": 3269.14,
+          "probability": 0.19
+        },
+        {
+          "value": 3269.4,
+          "probability": 0.2
+        },
+        {
+          "value": 3269.66,
+          "probability": 0.21
+        },
+        {
+          "value": 3269.92,
+          "probability": 0.22
+        },
+        {
+          "value": 3270.18,
+          "probability": 0.23
+        },
+        {
+          "value": 3270.44,
+          "probability": 0.24
+        },
+        {
+          "value": 3270.7,
+          "probability": 0.25
+        },
+        {
+          "value": 3270.96,
+          "probability": 0.26
+        },
+        {
+          "value": 3271.22,
+          "probability": 0.27
+        },
+        {
+          "value": 3271.48,
+          "probability": 0.28
+        },
+        {
+          "value": 3271.74,
+          "probability": 0.29
+        },
+        {
+          "value": 3272.0,
+          "probability": 0.3
+        },
+        {
+          "value": 3272.26,
+          "probability": 0.31
+        },
+        {
+          "value": 3272.52,
+          "probability": 0.32
+        },
+        {
+          "value": 3272.78,
+          "probability": 0.33
+        },
+        {
+          "value": 3273.04,
+          "probability": 0.34
+        },
+        {
+          "value": 3273.3,
+          "probability": 0.35
+        },
+        {
+          "value": 3273.56,
+          "probability": 0.36
+        },
+        {
+          "value": 3273.82,
+          "probability": 0.37
+        },
+        {
+          "value": 3274.08,
+          "probability": 0.38
+        },
+        {
+          "value": 3274.34,
+          "probability": 0.39
+        },
+        {
+          "value": 3274.6,
+          "probability": 0.4
+        },
+        {
+          "value": 3274.86,
+          "probability": 0.41
+        },
+        {
+          "value": 3275.12,
+          "probability": 0.42
+        },
+        {
+          "value": 3275.38,
+          "probability": 0.43
+        },
+        {
+          "value": 3275.64,
+          "probability": 0.44
+        },
+        {
+          "value": 3275.9,
+          "probability": 0.45
+        },
+        {
+          "value": 3276.16,
+          "probability": 0.46
+        },
+        {
+          "value": 3276.42,
+          "probability": 0.47
+        },
+        {
+          "value": 3276.68,
+          "probability": 0.48
+        },
+        {
+          "value": 3276.94,
+          "probability": 0.49
+        },
+        {
+          "value": 3277.2,
+          "probability": 0.5
+        },
+        {
+          "value": 3277.46,
+          "probability": 0.51
+        },
+        {
+          "value": 3277.72,
+          "probability": 0.52
+        },
+        {
+          "value": 3277.98,
+          "probability": 0.53
+        },
+        {
+          "value": 3278.24,
+          "probability": 0.54
+        },
+        {
+          "value": 3278.5,
+          "probability": 0.55
+        },
+        {
+          "value": 3278.76,
+          "probability": 0.56
+        },
+        {
+          "value": 3279.02,
+          "probability": 0.57
+        },
+        {
+          "value": 3279.28,
+          "probability": 0.58
+        },
+        {
+          "value": 3279.54,
+          "probability": 0.59
+        },
+        {
+          "value": 3279.8,
+          "probability": 0.6
+        },
+        {
+          "value": 3280.06,
+          "probability": 0.61
+        },
+        {
+          "value": 3280.32,
+          "probability": 0.62
+        },
+        {
+          "value": 3280.58,
+          "probability": 0.63
+        },
+        {
+          "value": 3280.84,
+          "probability": 0.64
+        },
+        {
+          "value": 3281.1,
+          "probability": 0.65
+        },
+        {
+          "value": 3281.36,
+          "probability": 0.66
+        },
+        {
+          "value": 3281.62,
+          "probability": 0.67
+        },
+        {
+          "value": 3281.88,
+          "probability": 0.68
+        },
+        {
+          "value": 3282.14,
+          "probability": 0.69
+        },
+        {
+          "value": 3282.4,
+          "probability": 0.7
+        },
+        {
+          "value": 3282.66,
+          "probability": 0.71
+        },
+        {
+          "value": 3282.92,
+          "probability": 0.72
+        },
+        {
+          "value": 3283.18,
+          "probability": 0.73
+        },
+        {
+          "value": 3283.44,
+          "probability": 0.74
+        },
+        {
+          "value": 3283.7,
+          "probability": 0.75
+        },
+        {
+          "value": 3283.96,
+          "probability": 0.76
+        },
+        {
+          "value": 3284.22,
+          "probability": 0.77
+        },
+        {
+          "value": 3284.48,
+          "probability": 0.78
+        },
+        {
+          "value": 3284.74,
+          "probability": 0.79
+        },
+        {
+          "value": 3285.0,
+          "probability": 0.8
+        },
+        {
+          "value": 3285.26,
+          "probability": 0.81
+        },
+        {
+          "value": 3285.52,
+          "probability": 0.82
+        },
+        {
+          "value": 3285.78,
+          "probability": 0.83
+        },
+        {
+          "value": 3286.04,
+          "probability": 0.84
+        },
+        {
+          "value": 3286.3,
+          "probability": 0.85
+        },
+        {
+          "value": 3286.56,
+          "probability": 0.86
+        },
+        {
+          "value": 3286.82,
+          "probability": 0.87
+        },
+        {
+          "value": 3287.08,
+          "probability": 0.88
+        },
+        {
+          "value": 3287.34,
+          "probability": 0.89
+        },
+        {
+          "value": 3287.6,
+          "probability": 0.9
+        },
+        {
+          "value": 3287.86,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 3288.12,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 3288.38,
+          "probability": 0.905
+        },
+        {
+          "value": 3288.64,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 3288.9,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 3289.16,
+          "probability": 0.91
+        },
+        {
+          "value": 3289.42,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 3289.68,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 3289.94,
+          "probability": 0.915
+        },
+        {
+          "value": 3290.2,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 3290.46,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 3290.72,
+          "probability": 0.92
+        },
+        {
+          "value": 3290.98,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 3291.24,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 3291.5,
+          "probability": 0.925
+        },
+        {
+          "value": 3291.76,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 3292.02,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 3292.28,
+          "probability": 0.93
+        },
+        {
+          "value": 3292.54,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 3292.8,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 3293.06,
+          "probability": 0.935
+        },
+        {
+          "value": 3293.32,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 3293.58,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 3293.84,
+          "probability": 0.94
+        },
+        {
+          "value": 3294.1,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 3294.36,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 3294.62,
+          "probability": 0.945
+        },
+        {
+          "value": 3294.88,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 3295.14,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 3295.4,
+          "probability": 0.95
+        },
+        {
+          "value": 3295.66,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 3295.92,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 3296.18,
+          "probability": 0.955
+        },
+        {
+          "value": 3296.44,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 3296.7,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 3296.96,
+          "probability": 0.96
+        },
+        {
+          "value": 3297.22,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 3297.48,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 3297.74,
+          "probability": 0.965
+        },
+        {
+          "value": 3298.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 3298.26,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 3298.52,
+          "probability": 0.97
+        },
+        {
+          "value": 3298.78,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 3299.04,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 3299.3,
+          "probability": 0.975
+        },
+        {
+          "value": 3299.56,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 3299.82,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 3300.08,
+          "probability": 0.98
+        },
+        {
+          "value": 3300.34,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 3300.6,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 3300.86,
+          "probability": 0.985
+        },
+        {
+          "value": 3301.12,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 3301.38,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 3301.64,
+          "probability": 0.99
+        },
+        {
+          "value": 3301.9,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 3302.16,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 3302.42,
+          "probability": 0.995
+        },
+        {
+          "value": 3302.68,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 3302.94,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 3303.2,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 3277.2,
+        "median": 3277.2,
+        "interval80": {
+          "lower": 3266.8,
+          "upper": 3287.6
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.6-sol",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/prompt.md",
+        "sha256": "c4939dc45c511a2b4cea147ea7a7b86c8617f057053a70023ce402ebcd1b5e31",
+        "bytes": 9015,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_command.json",
+        "sha256": "83a447298757b04bed95bcba96f7549139efcab740318461c3712d355fa94d75",
+        "bytes": 711,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "3cac7a1ba48a9293dcf9912a40fed113718277ab32273263fff91888c947c643",
+        "bytes": 7248,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_stderr.log",
+        "sha256": "b8dfd1745473809e42c1467c026bf3db58d0956f3fad6982c60a00f78c9bbb59",
+        "bytes": 233,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_events.jsonl",
+        "sha256": "ca66f05abd775ee5b25d1f75f03d6585e65d51a9243d7c8f3c9b5409bad5be8e",
+        "bytes": 7258,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_last_message.txt",
+        "sha256": "a6e82067b39486b7a4f27e7763d9e172b8a55ce57a89b4af7045fc802cbf33b2",
+        "bytes": 4874,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_trace.json",
+        "sha256": "61b838b623bf33d19151c995401a1b7a818efdd143b8af9335a0ca8d7a4dbe84",
+        "bytes": 513,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_stdout.txt",
+        "sha256": "a6e82067b39486b7a4f27e7763d9e172b8a55ce57a89b4af7045fc802cbf33b2",
+        "bytes": 4874,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_stderr.txt",
+        "sha256": "cce4fdbb0255acc1f7a6b55fd87c6d93beec91d691ec9d34d65dcef555b32940",
+        "bytes": 248,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_prompt.md",
+        "sha256": "5704c23614003a294ebb8a32840ba5dbbb81f62c4bc8f547d887ffc119f79a11",
+        "bytes": 8042,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_command.json",
+        "sha256": "83396f0db6619058760a446a7afa611fe94fb17151bdc397182b91846411ebf0",
+        "bytes": 703,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "37c5d372379bc9f9858d03ecc43a6fb85b1ea64c8d0d126021bcc6ea81e811c4",
+        "bytes": 2485,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "f308ae8df9c5a5fd3ea21d17c6433185f04ff088e96016e520e8484d080ede53",
+        "bytes": 233,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "eeabb53bbb9673706e66a1217fba9651d9713fd4112b4a841ce76deaaa2cdd0b",
+        "bytes": 2507,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "067bcfaabbe4b741855ad20e06189bed66dd81b720680cce7c6dbeb1fccf729d",
+        "bytes": 2085,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "d8cd5512c88a6afaca09ed438499bd8b78f6624f5330c238582ef659b378cc2c",
+        "bytes": 501,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "067bcfaabbe4b741855ad20e06189bed66dd81b720680cce7c6dbeb1fccf729d",
+        "bytes": 2085,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "e0bbc4dea5ffb9661666a9ea4273ced95bd5114d7028bec34614ac7ad8eb0eff",
+        "bytes": 248,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/revision_prompt.md",
+        "sha256": "8f5126310839d97465477080fe8c7cf222490e67ff79c106d514696d0037295b",
+        "bytes": 16910,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/command.json",
+        "sha256": "111b1d7bb2d48790381002b78f8333c0eb420550216a80703de5fd1c33c4b6a0",
+        "bytes": 705,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_stdout.jsonl",
+        "sha256": "9b31a88b1bf90d601b89994c991f3ff347bac468c52742f8561461be338f4c33",
+        "bytes": 6090,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_stderr.log",
+        "sha256": "d37eea85ba6c808f40358583750663fe3aabb4cc1c57baefd1ba755368cb8b5e",
+        "bytes": 233,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_events.jsonl",
+        "sha256": "7b59bb62c0110b1e8f8a6c77994b52510034014f63a1761bcab8b68ac5751375",
+        "bytes": 6116,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_last_message.txt",
+        "sha256": "87d3f1ebcdf38b90f017f9a038512675d2be624834909440ed89d40017265d25",
+        "bytes": 5551,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_trace.json",
+        "sha256": "df78a697b6aba56f9ccd6452fe62c02107a06d7fb9ac1204011e2047212053bf",
+        "bytes": 505,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/stdout.txt",
+        "sha256": "87d3f1ebcdf38b90f017f9a038512675d2be624834909440ed89d40017265d25",
+        "bytes": 5551,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/stderr.txt",
+        "sha256": "beb7459f462027c0b8a48757c971152c2bdbb0f42c25eb1906776c7d1c075266",
+        "bytes": 248,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/raw_response.txt",
+        "sha256": "87d3f1ebcdf38b90f017f9a038512675d2be624834909440ed89d40017265d25",
+        "bytes": 5551,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/parsed_cells.json",
+        "sha256": "a1e83e5c2f271cc3bf7980eba1d59350b7cf64d1e470fde7684e5523ce4fc303",
+        "bytes": 6384,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/normalized_cells.json",
+        "sha256": "087dbf3589766358a2286fd2d81bcb295b27ea8f8b939c886d6ccdc26a0bb868",
+        "bytes": 23997,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/distribution.json",
+        "sha256": "b2a9bfe102aa8c3b250230df5edb513d9efbc6f422cbd936cc692bb290843864",
+        "bytes": 13829,
+        "createdAt": "2026-07-15T19:31:29Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/validation.json",
+        "sha256": "6ad24bc6af066c7cd672b6dc02a5e875a690b8377ad5f978057957570828c950",
+        "bytes": 143,
+        "createdAt": "2026-07-15T19:31:29Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-15T19:31:29Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "96c4beba514232974eca011d66a66e6894b7f08cf3ce23451ce500568ab32340"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "Top-level resolutionDate is 2026-07-30, but the canonical ledger target contract requires 2026-07-29; resolutionSource also names BEA Table 2.6 while the ledger binding names the registered ALFRED W055RC1 URL and Personal Income and Outlays Table 1.",
+          "actionRequested": "Keep the forecast tied to the registered slug/dataPointId/source URL and either set the JSON resolver fields to the canonical ledger values while preserving the discrepancy note in reasoning, or route a corrected target registration before publication."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft identifies a likely concrete ledger error: the registered ALFRED vintage_date=2026-06-25 predates the June 2026 observation and cannot contain the June first print.",
+          "actionRequested": "Do not rely on the impossible ALFRED vintage as if it resolves June 2026; explicitly flag this as a target-contract discrepancy for review while keeping the forecast on the same target."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "coherence",
+          "summary": "The question/title refer to Table 2.6, while the canonical sourceBinding says Personal Income and Outlays, Table 1.",
+          "actionRequested": "Harmonize the table reference with the ledger contract or state that W055RC1 appears in the cited mirror/table but the registered binding names Table 1."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The four-change January-May sample is very short; mention that the 80% interval is narrow because it uses only recent realized monthly changes."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Tail scenarios are directionally useful, but could be more concrete by naming approximate June change sizes needed to miss the interval."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft has a solid prior/update/interval structure, but it is not publishable until the resolver metadata is aligned with the canonical ledger target or the ledger error is corrected through the proper target process."
+    }
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is mostly forecast-method complete, but publication should block on the resolver/sourceBinding discrepancy and tighten the uncertainty basis.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft identifies concrete ledger defects: BEA schedules Personal Income and Outlays, June 2026 for 2026-07-30, while the registered resolutionDate is 2026-07-29, and the ALFRED vintage URL dated 2026-06-25 cannot contain the June 2026 first print.",
+      "actionRequested": "Before publication, correct or formally waive the target registration/sourceBinding so the resolver uses a post-release first-print source for PCEPI and the official 2026-07-30 release date; keep any forecast record tied to the existing target hash until that target-level decision is made."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is based on only five Jan-May 2026 monthly PCE observations, which understates translation and nowcast uncertainty from CPI to PCE and from volatile energy components.",
+      "actionRequested": "Either justify why a five-observation sigma is sufficient for this target or widen/derive the interval from a longer realized monthly PCE sample, historical CPI-to-PCE nowcast errors, or an explicit added uncertainty component."
+    }
+  ],
+  "optionalSuggestions": [
+    "State whether the forecast rounds to BEA one-decimal precision only for resolution or whether point/interval JSON intentionally remain at two decimals.",
+    "Make the -0.40 energy and -0.14 core/PCE-weight adjustments less opaque by briefly tying them to PCE weights or historical CPI-PCE pass-through."
+  ]
+}

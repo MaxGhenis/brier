@@ -1,0 +1,27 @@
+{
+  "summary": "Draft has a solid prior/update/interval structure, but it is not publishable until the resolver metadata is aligned with the canonical ledger target or the ledger error is corrected through the proper target process.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "Top-level resolutionDate is 2026-07-30, but the canonical ledger target contract requires 2026-07-29; resolutionSource also names BEA Table 2.6 while the ledger binding names the registered ALFRED W055RC1 URL and Personal Income and Outlays Table 1.",
+      "actionRequested": "Keep the forecast tied to the registered slug/dataPointId/source URL and either set the JSON resolver fields to the canonical ledger values while preserving the discrepancy note in reasoning, or route a corrected target registration before publication."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft identifies a likely concrete ledger error: the registered ALFRED vintage_date=2026-06-25 predates the June 2026 observation and cannot contain the June first print.",
+      "actionRequested": "Do not rely on the impossible ALFRED vintage as if it resolves June 2026; explicitly flag this as a target-contract discrepancy for review while keeping the forecast on the same target."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "The question/title refer to Table 2.6, while the canonical sourceBinding says Personal Income and Outlays, Table 1.",
+      "actionRequested": "Harmonize the table reference with the ledger contract or state that W055RC1 appears in the cited mirror/table but the registered binding names Table 1."
+    }
+  ],
+  "optionalSuggestions": [
+    "The four-change January-May sample is very short; mention that the 80% interval is narrow because it uses only recent realized monthly changes.",
+    "Tail scenarios are directionally useful, but could be more concrete by naming approximate June change sizes needed to miss the interval."
+  ]
+}

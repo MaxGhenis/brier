@@ -1,0 +1,387 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-15T19:33:28Z",
+  "runStartedAt": "2026-07-15T19:33:28Z",
+  "series": "census.m3.defense_capital_goods.inventories",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-defense-capital-goods-inventories-june-2026",
+    "country": "US",
+    "dataPointId": "census.m3.defense_capital_goods.inventories.2026_06.first_print",
+    "expectedReleaseDate": "2026-07-27",
+    "period": "2026-06",
+    "registeredAt": "2026-07-15T19:28:27Z",
+    "registeredAtUtc": "2026-07-15T19:28:27Z",
+    "registrationCommit": "05b56ed86beda8ccde0b2891912278d9ab065f09",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.census.gov/manufacturing/m3/adv/current/index.html",
+    "series": "census.m3.defense_capital_goods.inventories",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.census.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-27",
+        "start": "2026-07-27"
+      },
+      "field": "Defense capital goods; Inventories; seasonally adjusted; preliminary June 2026 value",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "M3_ADV_TABLE2_DEFENSE_CAPITAL_GOODS_INVENTORY_SA",
+      "sourceUrl": "https://www.census.gov/manufacturing/m3/adv/current/index.html",
+      "table": "Monthly Advance Report on Durable Goods Manufacturers' Shipments, Inventories and Orders, Table 2 - Unfilled Orders and Inventory",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "sourceField": "Defense capital goods; Inventories; seasonally adjusted; preliminary June 2026 value",
+    "sourceSeriesId": "M3_ADV_TABLE2_DEFENSE_CAPITAL_GOODS_INVENTORY_SA",
+    "sourceTable": "Monthly Advance Report on Durable Goods Manufacturers' Shipments, Inventories and Orders, Table 2 - Unfilled Orders and Inventory",
+    "targetContentHash": "8dd3078fe13d3af0a3b419b722d536b8642ab37d614e8373b70faea0c7284901",
+    "targetRegistrationPath": "records/targets/2026-07-15-8dd3078fe13d3af0a3b419b722d536b8642ab37d614e8373b70faea0c7284901.json",
+    "targetUnit": "usd_billions",
+    "transform": {
+      "factor": 0.001,
+      "operation": "multiply"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "05b56ed86beda8ccde0b2891912278d9ab065f09",
+  "targetContentHash": "8dd3078fe13d3af0a3b419b722d536b8642ab37d614e8373b70faea0c7284901",
+  "targetRegistrationPath": "records/targets/2026-07-15-8dd3078fe13d3af0a3b419b722d536b8642ab37d614e8373b70faea0c7284901.json",
+  "registeredAtUtc": "2026-07-15T19:28:27Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-15T19:33:28Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "0954c91617032690aa885f47057d9f3ec79af7b97387f0c0094c99862d19e833"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The math step says 28.257 + 0.0865 = 28.3435, rounded to 28.35, but ordinary rounding to two decimals would give 28.34 and to three decimals 28.344.",
+        "actionRequested": "Either change the stated rounded point to 28.34/28.344 with matching interval fields, or explicitly justify the small discretionary upward rounding to 28.35."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add the May 2026 advance release PDF explicitly to sourceContext if available, since the May value anchors the forecast."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that March/April values used in the historical sample are first-print values, distinct from any later revised values visible in the current table."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the coherence critique by replacing the incorrect rounding claim with an explicit +0.0065 billion judgmental adjustment, and clarified that the March and April historical observations are first prints rather than later revised values. The optional May-PDF addition was not used because the existing official current-release table was the source actually consulted.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the coherence critique by replacing the incorrect rounding claim with an explicit +0.0065 billion judgmental adjustment, and clarified that the March and April historical observations are first prints rather than later revised values. The optional May-PDF addition was not used because the existing official current-release table was the source actually consulted.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the coherence critique by replacing the incorrect rounding claim with an explicit +0.0065 billion judgmental adjustment, and clarified that the March and April historical observations are first prints rather than later revised values. The optional May-PDF addition was not used because the existing official current-release table was the source actually consulted.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with one minor coherence cleanup around rounding the computed point estimate."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/prompt.md",
+      "sha256": "a48fd8d0491afcc089094163d9312c097f2ded89549c3cfa4ff913c2a3f96977",
+      "bytes": 9328,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_command.json",
+      "sha256": "335ace8aadd0c1410c292c342b3c8d5203e3d0b7474e2f1fbbe30a1006b31a47",
+      "bytes": 722,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "78f6c73a3ada5c4c65e5e1abd3771df4858e2d1c50dbe874658754035b1bdbb0",
+      "bytes": 9726,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_codex_stderr.log",
+      "sha256": "b2ee07b8c882ae89e2b6cd1ea373542a58a23ef37a88c03c065e3f2edcc1a8f7",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_codex_events.jsonl",
+      "sha256": "f97d45d875f4b7c3b5e8276fb6015d3812eafd1a03c19f810dc2e3c21504820a",
+      "bytes": 9706,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_codex_last_message.txt",
+      "sha256": "f253350f23ae127eba9bfabb7792def464e91326726e173a68d1bcbb78244e65",
+      "bytes": 5448,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_codex_trace.json",
+      "sha256": "dc4a28ed5437129e3e01b026bfb1f7691d3e48ee43704b306c1eeba392bceee9",
+      "bytes": 512,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_stdout.txt",
+      "sha256": "f253350f23ae127eba9bfabb7792def464e91326726e173a68d1bcbb78244e65",
+      "bytes": 5448,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/draft_stderr.txt",
+      "sha256": "e1232c74498905f5c1dded53abb886d496823eb8d83657355cc410f4d3293764",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_prompt.md",
+      "sha256": "0220369140208319f5cdfb0ab20c1e3806cd9e18b24c49689e014614f0dd12cf",
+      "bytes": 8800,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_command.json",
+      "sha256": "e499822a9a0cd8f79b2429e3cff8ba6e2c9de7addfa68e3462382698a45f16b4",
+      "bytes": 714,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "6d1668c8800ebb564bb78b80591dca2a0385833736598f7e4b135e930e752d2d",
+      "bytes": 1163,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "b2e775550c934409f041ea5586848bf41740aae3ec44042a443898de5a16ed7a",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "b37f9edce4d6608904f40838bb5405177239337ce3262c30063ee2fec65de466",
+      "bytes": 1185,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "ce9a96853750fdf4e09ea1caf017e50727a0959cc5d05a0782f6f54137f358cc",
+      "bytes": 821,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "d409bd027f7629122293b199a4f665a3c9c5458199c533cb7b93e1a2e88e20de",
+      "bytes": 501,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "ce9a96853750fdf4e09ea1caf017e50727a0959cc5d05a0782f6f54137f358cc",
+      "bytes": 821,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "849215419f30a09cdeb385e1ed52786683fcdc32ed961a0d5ea65253bd2d825b",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/revision_prompt.md",
+      "sha256": "dde1b7d81b46eaa3153dfca6a5fde788897e58a68077a39eb44c83776210a204",
+      "bytes": 16533,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/command.json",
+      "sha256": "d115226b3930beaff0daab02c8f746ab8e10398b3b74c3f5dcb93dc643cbc413",
+      "bytes": 716,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/codex_stdout.jsonl",
+      "sha256": "3af90d424edac6a155c9043a03e62f21a01e49bb157507595b6182c271f3d916",
+      "bytes": 6593,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/codex_stderr.log",
+      "sha256": "7606981d7ad1d2e57dede2a9cc66261b65fff9d1ef83fbc9d9b32c5082335155",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/codex_events.jsonl",
+      "sha256": "9cc79acf8d84ed5e5d4630dad9847e24baff66960b6761d6da96160222d323fb",
+      "bytes": 6619,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/codex_last_message.txt",
+      "sha256": "7ff2152fd41bf7a87341c5fbbaeb9423c3eafd730c0343e053d4cc0de0adea22",
+      "bytes": 6040,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/codex_trace.json",
+      "sha256": "4c35bc45eeec23b2f11a02022d38b49c04615eefedb0c74c2c4a8001f7bcb3f4",
+      "bytes": 505,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/stdout.txt",
+      "sha256": "7ff2152fd41bf7a87341c5fbbaeb9423c3eafd730c0343e053d4cc0de0adea22",
+      "bytes": 6040,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/stderr.txt",
+      "sha256": "154113b1d18d4b4876f81f4bcfc22406534f4103d01715421684e259349846b5",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/raw_response.txt",
+      "sha256": "7ff2152fd41bf7a87341c5fbbaeb9423c3eafd730c0343e053d4cc0de0adea22",
+      "bytes": 6040,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/parsed_cells.json",
+      "sha256": "18465f7bfce3ef7a4defc6ef0da366af99acc92e64191b039e52ecf14bb3d13f",
+      "bytes": 6928,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/normalized_cells.json",
+      "sha256": "d8d51f73ba521c05c70511f656108aa1981bf8b6529f57e80f0bfddf7cc1b4b3",
+      "bytes": 24622,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/distribution.json",
+      "sha256": "24e2ebd97cb6a261722e09aa1c9838cbf56667670e3d2ba75d61f1d9b0f84985",
+      "bytes": 13910,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/validation.json",
+      "sha256": "863331a8ca49cd6b3c6256284c028c8fe714c4a9dd7ceecec00b834678d3846f",
+      "bytes": 147,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/cells.with_activity.json",
+      "sha256": "a375929cdde691b1e625f83fb7ba79ea6e76b6fdc01585382d29b212666f3ca7",
+      "bytes": 40030,
+      "createdAt": "2026-07-15T19:33:28Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-33-28z-census-m3-defense-capital-goods-inventories-2026-06/manifest.json",
+      "sha256": "e131b7a22d069f7eafb23981c1557aaf2903a94ef1903c10110a257e8719cc7f",
+      "bytes": 16257,
+      "createdAt": "2026-07-15T19:33:28Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-defense-capital-goods-inventories-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "172b82fdd09b34589ff50049f22849dcf28862d6e6dd83706a4ad74c43f7d496"
+}

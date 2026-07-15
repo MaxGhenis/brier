@@ -1,0 +1,392 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-15T19:29:32Z",
+  "runStartedAt": "2026-07-15T19:29:32Z",
+  "series": "bea.pce_price_index.monthly_change",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bea-pce-price-index-monthly-change-june-2026",
+    "country": "US",
+    "dataPointId": "bea.pce_price_index.monthly_change.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-15T19:13:18Z",
+    "registeredAtUtc": "2026-07-15T19:13:18Z",
+    "registrationCommit": "6dcfcbe86a61d979569d385cd1372ae83573a1f9",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PCEPI&vintage_date=2026-06-25",
+    "series": "bea.pce_price_index.monthly_change",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-29",
+        "start": "2026-07-21"
+      },
+      "field": "PCEPI",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "PCEPI",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PCEPI&vintage_date=2026-06-25",
+      "table": "Personal Income and Outlays",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "3f121ef8159dd9e82324d35927f3da89eb6731dce7171364f190afb81d01f7ce",
+    "targetRegistrationPath": "records/targets/2026-07-15-3f121ef8159dd9e82324d35927f3da89eb6731dce7171364f190afb81d01f7ce.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "6dcfcbe86a61d979569d385cd1372ae83573a1f9",
+  "targetContentHash": "3f121ef8159dd9e82324d35927f3da89eb6731dce7171364f190afb81d01f7ce",
+  "targetRegistrationPath": "records/targets/2026-07-15-3f121ef8159dd9e82324d35927f3da89eb6731dce7171364f190afb81d01f7ce.json",
+  "registeredAtUtc": "2026-07-15T19:13:18Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-15T19:29:32Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f38138a87eb76b115aa75d3c437ff48d1cfd21777ec3289845dfd59a7464ad11"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft identifies concrete ledger defects: BEA schedules Personal Income and Outlays, June 2026 for 2026-07-30, while the registered resolutionDate is 2026-07-29, and the ALFRED vintage URL dated 2026-06-25 cannot contain the June 2026 first print.",
+        "actionRequested": "Before publication, correct or formally waive the target registration/sourceBinding so the resolver uses a post-release first-print source for PCEPI and the official 2026-07-30 release date; keep any forecast record tied to the existing target hash until that target-level decision is made."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is based on only five Jan-May 2026 monthly PCE observations, which understates translation and nowcast uncertainty from CPI to PCE and from volatile energy components.",
+        "actionRequested": "Either justify why a five-observation sigma is sufficient for this target or widen/derive the interval from a longer realized monthly PCE sample, historical CPI-to-PCE nowcast errors, or an explicit added uncertainty component."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State whether the forecast rounds to BEA one-decimal precision only for resolution or whether point/interval JSON intentionally remain at two decimals."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the -0.40 energy and -0.14 core/PCE-weight adjustments less opaque by briefly tying them to PCE weights or historical CPI-PCE pass-through."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the blocking resolver critique by retaining the registered target while explicitly flagging that publication requires target correction or formal waiver. Accepted the interval warning by adding CPI-to-PCE translation uncertainty and widening the 80% bounds. Also clarified resolution rounding and the judgmental adjustment basis.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the blocking resolver critique by retaining the registered target while explicitly flagging that publication requires target correction or formal waiver. Accepted the interval warning by adding CPI-to-PCE translation uncertainty and widening the 80% bounds. Also clarified resolution rounding and the judgmental adjustment basis.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the blocking resolver critique by retaining the registered target while explicitly flagging that publication requires target correction or formal waiver. Accepted the interval warning by adding CPI-to-PCE translation uncertainty and widening the 80% bounds. Also clarified resolution rounding and the judgmental adjustment basis.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the blocking resolver critique by retaining the registered target while explicitly flagging that publication requires target correction or formal waiver. Accepted the interval warning by adding CPI-to-PCE translation uncertainty and widening the 80% bounds. Also clarified resolution rounding and the judgmental adjustment basis.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly forecast-method complete, but publication should block on the resolver/sourceBinding discrepancy and tighten the uncertainty basis."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/prompt.md",
+      "sha256": "ee8f90f29e9243d9173e064d068df2112fdf32393cdc9b26d7bed75f2628620d",
+      "bytes": 9006,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_command.json",
+      "sha256": "193e10a01f43b34b57d4da0df50ff239dda7e675c023bf0f907ce45baae48ff4",
+      "bytes": 713,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "85bf9d386dec7c4a23f08fae1d4b1919989960ea535381c483f08c2724b811b8",
+      "bytes": 7695,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_codex_stderr.log",
+      "sha256": "5b65580114ddd356c80279151a57dc74296a5ee8f5ffd44d62459db8eec1eaf8",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_codex_events.jsonl",
+      "sha256": "35db85eafd5ff68069919f5b8966f445e8ad3c961e7c619245955e9d9edec87c",
+      "bytes": 7735,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_codex_last_message.txt",
+      "sha256": "1ef1db806fc1ebf65a5c97dffbaf85e4f07b08e9581194a32fd59fcf93a7f26e",
+      "bytes": 5515,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_codex_trace.json",
+      "sha256": "60b3bc00dd7fe9333af65a91fbb19854828978b8cff56a97e9475624591888b9",
+      "bytes": 510,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_stdout.txt",
+      "sha256": "1ef1db806fc1ebf65a5c97dffbaf85e4f07b08e9581194a32fd59fcf93a7f26e",
+      "bytes": 5515,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/draft_stderr.txt",
+      "sha256": "8b672ebce3c54f916eff6818765bcbf7d0d075db33c24a72fba57dfe0b098bb0",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_prompt.md",
+      "sha256": "845f016205891f2673299b3b1ea28c8bb88dd73d144f3f988210335b69eae002",
+      "bytes": 8674,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_command.json",
+      "sha256": "41038d04aa002600aee3720f437677ff80432c5fc52a4ce49a5d9eb8b1262e6d",
+      "bytes": 705,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "fa2f4f83c33697728c21ba9c3bfe6ff210cd80292e41bf97f0fca38c8a03e284",
+      "bytes": 3936,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "9eaa0b305a6b71c6dbe5bf5340e20b658967f77c02ca9c038483e2ca8c1db00c",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "39bb40016a6b9c896f3198862393b2f35bbb16c00add478d3e698f756909cc8e",
+      "bytes": 3960,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "327395c8b013dcdc5376a558f23c532e6090791e4c8a9246c409f0b7e68d269e",
+      "bytes": 1732,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "0df106fb8c241bab78551b79e171926d91b79156de41b1841d3fb824326c63ae",
+      "bytes": 503,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "327395c8b013dcdc5376a558f23c532e6090791e4c8a9246c409f0b7e68d269e",
+      "bytes": 1732,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "e90cae23ad023b61618369e36d852d8f4897e0345775a380cfcf551035efe745",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/revision_prompt.md",
+      "sha256": "819e16c4f2df5f6315352a8935b0f28f42c14dc248700ffe44cadab8d528091e",
+      "bytes": 17189,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/command.json",
+      "sha256": "cdc2c2ef5d8ad9c252c5f1550819312efdd45b403675dcec6712c7cf1af31861",
+      "bytes": 707,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/codex_stdout.jsonl",
+      "sha256": "fd82611495cc5c53d325c360e111470edc3bf37e51ffc9b53b7bcb5fabd8b8cc",
+      "bytes": 6793,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/codex_stderr.log",
+      "sha256": "91fc271ec4962610b46e686fcc31e5207f520b6a55a551ec189ed3f18f3f2aa6",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/codex_events.jsonl",
+      "sha256": "b3c211d5bee13253cea225a44af959111910d27b3aad0ae10f10b9a748f796d6",
+      "bytes": 6822,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/codex_last_message.txt",
+      "sha256": "9cffc8f7235868e5a1935091d8520962522c25f908a6a16d05470aaa2b395ec8",
+      "bytes": 6218,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/codex_trace.json",
+      "sha256": "59e610e9ef032fe214ced5e3e476b313232da25b7a8a77fb248d873ce00b7597",
+      "bytes": 505,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/stdout.txt",
+      "sha256": "9cffc8f7235868e5a1935091d8520962522c25f908a6a16d05470aaa2b395ec8",
+      "bytes": 6218,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/stderr.txt",
+      "sha256": "6377ef0a024ced0b73a158a98a0bb098784e7988548f9d831314e4a54fdd43a8",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/raw_response.txt",
+      "sha256": "9cffc8f7235868e5a1935091d8520962522c25f908a6a16d05470aaa2b395ec8",
+      "bytes": 6218,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/parsed_cells.json",
+      "sha256": "766fac69d787d74c870b6a6b15f1b050e6485d8ef18d82616e620c13c401cfc6",
+      "bytes": 7204,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/normalized_cells.json",
+      "sha256": "2f507b553260302abc3c00ba8511ae91c8cfbc671ea707ea3986decf0e58eccd",
+      "bytes": 24653,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/distribution.json",
+      "sha256": "38e3ab1cd13f9d18b19dec6cf697b9785af42b53fe8c08b10947127c5252868c",
+      "bytes": 13665,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/validation.json",
+      "sha256": "621c28b7c12e3ebdc18337888e6a01fc2d8a3f9a23b3adb46242c01e18444f0d",
+      "bytes": 145,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/cells.with_activity.json",
+      "sha256": "9b4a850a988e5cc64de83063f238cc2c28fcfe8247b2b14b76c47fa7da0d25e9",
+      "bytes": 41065,
+      "createdAt": "2026-07-15T19:29:32Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-29-32z-bea-pce-price-index-monthly-change-2026-06/manifest.json",
+      "sha256": "14308d963b35461bf65ff0dc8123163ec88c9ee5931101817afc3807c61acb25",
+      "bytes": 16495,
+      "createdAt": "2026-07-15T19:29:32Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bea-pce-price-index-monthly-change-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "6b8afe77b5e1f8c76b08a0e6e9613c0a63ff77d0d314caec53c7598422796fd5"
+}

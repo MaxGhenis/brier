@@ -1,0 +1,405 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-15T19:31:29Z",
+  "runStartedAt": "2026-07-15T19:31:29Z",
+  "series": "bea.personal_current_taxes.level",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bea-personal-current-taxes-level-june-2026",
+    "country": "US",
+    "dataPointId": "bea.personal_current_taxes.level.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-15T19:13:18Z",
+    "registeredAtUtc": "2026-07-15T19:13:18Z",
+    "registrationCommit": "6dcfcbe86a61d979569d385cd1372ae83573a1f9",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W055RC1&vintage_date=2026-06-25",
+    "series": "bea.personal_current_taxes.level",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-29",
+        "start": "2026-07-21"
+      },
+      "field": "W055RC1",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "W055RC1",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W055RC1&vintage_date=2026-06-25",
+      "table": "Personal Income and Outlays, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36",
+    "targetRegistrationPath": "records/targets/2026-07-15-d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "registrationCommit": "6dcfcbe86a61d979569d385cd1372ae83573a1f9",
+  "targetContentHash": "d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36",
+  "targetRegistrationPath": "records/targets/2026-07-15-d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36.json",
+  "registeredAtUtc": "2026-07-15T19:13:18Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-15T19:31:29Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "96c4beba514232974eca011d66a66e6894b7f08cf3ce23451ce500568ab32340"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "Top-level resolutionDate is 2026-07-30, but the canonical ledger target contract requires 2026-07-29; resolutionSource also names BEA Table 2.6 while the ledger binding names the registered ALFRED W055RC1 URL and Personal Income and Outlays Table 1.",
+        "actionRequested": "Keep the forecast tied to the registered slug/dataPointId/source URL and either set the JSON resolver fields to the canonical ledger values while preserving the discrepancy note in reasoning, or route a corrected target registration before publication."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft identifies a likely concrete ledger error: the registered ALFRED vintage_date=2026-06-25 predates the June 2026 observation and cannot contain the June first print.",
+        "actionRequested": "Do not rely on the impossible ALFRED vintage as if it resolves June 2026; explicitly flag this as a target-contract discrepancy for review while keeping the forecast on the same target."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The question/title refer to Table 2.6, while the canonical sourceBinding says Personal Income and Outlays, Table 1.",
+        "actionRequested": "Harmonize the table reference with the ledger contract or state that W055RC1 appears in the cited mirror/table but the registered binding names Table 1."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The four-change January-May sample is very short; mention that the 80% interval is narrow because it uses only recent realized monthly changes."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios are directionally useful, but could be more concrete by naming approximate June change sizes needed to miss the interval."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the resolver-alignment and table-reference critiques by preserving the canonical date, URL, slug, dataPointId, and Table 1 binding while explicitly flagging the impossible vintage and official July 30 schedule. Also accepted the short-sample and concrete-tail suggestions.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft has a solid prior/update/interval structure, but it is not publishable until the resolver metadata is aligned with the canonical ledger target or the ledger error is corrected through the proper target process."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/prompt.md",
+      "sha256": "c4939dc45c511a2b4cea147ea7a7b86c8617f057053a70023ce402ebcd1b5e31",
+      "bytes": 9015,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_command.json",
+      "sha256": "83a447298757b04bed95bcba96f7549139efcab740318461c3712d355fa94d75",
+      "bytes": 711,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "3cac7a1ba48a9293dcf9912a40fed113718277ab32273263fff91888c947c643",
+      "bytes": 7248,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_stderr.log",
+      "sha256": "b8dfd1745473809e42c1467c026bf3db58d0956f3fad6982c60a00f78c9bbb59",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_events.jsonl",
+      "sha256": "ca66f05abd775ee5b25d1f75f03d6585e65d51a9243d7c8f3c9b5409bad5be8e",
+      "bytes": 7258,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_last_message.txt",
+      "sha256": "a6e82067b39486b7a4f27e7763d9e172b8a55ce57a89b4af7045fc802cbf33b2",
+      "bytes": 4874,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_codex_trace.json",
+      "sha256": "61b838b623bf33d19151c995401a1b7a818efdd143b8af9335a0ca8d7a4dbe84",
+      "bytes": 513,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_stdout.txt",
+      "sha256": "a6e82067b39486b7a4f27e7763d9e172b8a55ce57a89b4af7045fc802cbf33b2",
+      "bytes": 4874,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/draft_stderr.txt",
+      "sha256": "cce4fdbb0255acc1f7a6b55fd87c6d93beec91d691ec9d34d65dcef555b32940",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_prompt.md",
+      "sha256": "5704c23614003a294ebb8a32840ba5dbbb81f62c4bc8f547d887ffc119f79a11",
+      "bytes": 8042,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_command.json",
+      "sha256": "83396f0db6619058760a446a7afa611fe94fb17151bdc397182b91846411ebf0",
+      "bytes": 703,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "37c5d372379bc9f9858d03ecc43a6fb85b1ea64c8d0d126021bcc6ea81e811c4",
+      "bytes": 2485,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "f308ae8df9c5a5fd3ea21d17c6433185f04ff088e96016e520e8484d080ede53",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "eeabb53bbb9673706e66a1217fba9651d9713fd4112b4a841ce76deaaa2cdd0b",
+      "bytes": 2507,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "067bcfaabbe4b741855ad20e06189bed66dd81b720680cce7c6dbeb1fccf729d",
+      "bytes": 2085,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "d8cd5512c88a6afaca09ed438499bd8b78f6624f5330c238582ef659b378cc2c",
+      "bytes": 501,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "067bcfaabbe4b741855ad20e06189bed66dd81b720680cce7c6dbeb1fccf729d",
+      "bytes": 2085,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "e0bbc4dea5ffb9661666a9ea4273ced95bd5114d7028bec34614ac7ad8eb0eff",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/revision_prompt.md",
+      "sha256": "8f5126310839d97465477080fe8c7cf222490e67ff79c106d514696d0037295b",
+      "bytes": 16910,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/command.json",
+      "sha256": "111b1d7bb2d48790381002b78f8333c0eb420550216a80703de5fd1c33c4b6a0",
+      "bytes": 705,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_stdout.jsonl",
+      "sha256": "9b31a88b1bf90d601b89994c991f3ff347bac468c52742f8561461be338f4c33",
+      "bytes": 6090,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_stderr.log",
+      "sha256": "d37eea85ba6c808f40358583750663fe3aabb4cc1c57baefd1ba755368cb8b5e",
+      "bytes": 233,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_events.jsonl",
+      "sha256": "7b59bb62c0110b1e8f8a6c77994b52510034014f63a1761bcab8b68ac5751375",
+      "bytes": 6116,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_last_message.txt",
+      "sha256": "87d3f1ebcdf38b90f017f9a038512675d2be624834909440ed89d40017265d25",
+      "bytes": 5551,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/codex_trace.json",
+      "sha256": "df78a697b6aba56f9ccd6452fe62c02107a06d7fb9ac1204011e2047212053bf",
+      "bytes": 505,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/stdout.txt",
+      "sha256": "87d3f1ebcdf38b90f017f9a038512675d2be624834909440ed89d40017265d25",
+      "bytes": 5551,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/stderr.txt",
+      "sha256": "beb7459f462027c0b8a48757c971152c2bdbb0f42c25eb1906776c7d1c075266",
+      "bytes": 248,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/raw_response.txt",
+      "sha256": "87d3f1ebcdf38b90f017f9a038512675d2be624834909440ed89d40017265d25",
+      "bytes": 5551,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/parsed_cells.json",
+      "sha256": "a1e83e5c2f271cc3bf7980eba1d59350b7cf64d1e470fde7684e5523ce4fc303",
+      "bytes": 6384,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/normalized_cells.json",
+      "sha256": "087dbf3589766358a2286fd2d81bcb295b27ea8f8b939c886d6ccdc26a0bb868",
+      "bytes": 23997,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/distribution.json",
+      "sha256": "b2a9bfe102aa8c3b250230df5edb513d9efbc6f422cbd936cc692bb290843864",
+      "bytes": 13829,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/validation.json",
+      "sha256": "6ad24bc6af066c7cd672b6dc02a5e875a690b8377ad5f978057957570828c950",
+      "bytes": 143,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/cells.with_activity.json",
+      "sha256": "af4f6e8e241d431a8ed4b3768600be84c44ef919ec1d4393bc3e854b6590dbe1",
+      "bytes": 40993,
+      "createdAt": "2026-07-15T19:31:29Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t19-31-29z-bea-personal-current-taxes-level-2026-06/manifest.json",
+      "sha256": "91afa175e44683436211f3093313a447f1c944f6266e2df8b79cba013b9a536e",
+      "bytes": 16934,
+      "createdAt": "2026-07-15T19:31:29Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bea-personal-current-taxes-level-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "0d2e1960c88a62faf7f9d2a42d60dfa4ce120e2ef40bf6a1bf2187e3eab427f0"
+}

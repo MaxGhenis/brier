@@ -1,0 +1,54 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bea.personal_current_taxes.level
+- period: 2026-06
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "bea-personal-current-taxes-level-june-2026"
+- country: "US"
+- targetUnit: "usd_billions"
+- dataPointId: "bea.personal_current_taxes.level.june_2026.first_print"
+- resolutionSourceUrl: "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W055RC1&vintage_date=2026-06-25"
+- sourceBinding: {"adapter": "generic-url", "allowedHosts": ["alfred.stlouisfed.org"], "expectedReleaseWindow": {"end": "2026-07-29", "start": "2026-07-21"}, "field": "W055RC1", "releasePolicy": "first_print", "sourceSeriesId": "W055RC1", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W055RC1&vintage_date=2026-06-25", "table": "Personal Income and Outlays, Table 1", "transform": {"factor": 1, "operation": "identity"}}
+- targetRegistrationPath: "records/targets/2026-07-15-d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36.json"
+- targetContentHash: "d1c11d1dca6d4747e72624aa27b4adfe284e7962b4f1245f57fee44b2530ec36"
+- registrationCommit: "6dcfcbe86a61d979569d385cd1372ae83573a1f9"
+- registeredAtUtc: "2026-07-15T19:13:18Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+c4939dc45c511a2b4cea147ea7a7b86c8617f057053a70023ce402ebcd1b5e31
+
+# Draft forecast response
+{"slug":"bea-personal-current-taxes-level-june-2026","country":"US","type":"data","title":"US personal current taxes, June 2026","question":"What will BEA report as June 2026 personal current taxes, monthly seasonally adjusted annual rate, in the first print?","unit":"usd_billions","pointEstimate":3277.2,"ciLow":3266.8,"ciHigh":3287.6,"confidence":0.8,"resolutionDate":"2026-07-30","resolutionSource":"U.S. Bureau of Economic Analysis Personal Income and Outlays, Table 2.6","resolutionSourceUrl":"https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W055RC1&vintage_date=2026-06-25","resolutionRule":"Resolve to the June 2026 first-published value for BEA personal current taxes, account W055RC/W055RC1, in Table 2.6, monthly seasonally adjusted annual rate, billions of dollars, rounded to one decimal. Ignore all subsequent revisions. The registered ALFRED URL and expected window are discrepant: its 2026-06-25 vintage predates the June observation, while BEA's official calendar schedules the first print for 2026-07-30; resolution remains tied to the registered target but requires the BEA first print.","dataPointId":"bea.personal_current_taxes.level.june_2026.first_print","historicalContext":[{"label":"January 2026","value":3214.7},{"label":"February 2026","value":3215.3},{"label":"March 2026","value":3229.5},{"label":"April 2026","value":3247.9},{"label":"May 2026","value":3264.7}],"drivers":["recent monthly tax-receipt momentum","continued nominal income and wage growth","withholding and estimated-payment noise","first-print measurement uncertainty"],"sourceContext":["https://www.bea.gov/news/schedule/","https://www.bea.gov/sites/default/files/2026-06/pi0526.pdf","https://fred.stlouisfed.org/series/W055RC1","https://fred.stlouisfed.org/release/tables?eid=155443&rid=54"],"runAt":"2026-07-15T19:32:02Z","reasoning":[{"kind":"heading","text":"June 2026 personal current taxes forecast"},{"kind":"text","text":"The target is BEA account W055RC/W055RC1 in Personal Income and Outlays Table 2.6: monthly personal current taxes, seasonally adjusted at an annual rate, billions of dollars, first print for June 2026."},{"kind":"tool","tool":"official.lookup","call":"Checked the BEA 2026 release schedule and the May Personal Income and Outlays release for the announced June 2026 publication date.","result":"BEA schedules Personal Income and Outlays, June 2026 for July 30, 2026 at 8:30 a.m. EDT; the May release independently states the next release is July 30, 2026 at 8:30 a.m. EDT."},{"kind":"tool","tool":"official.lookup","call":"Fetched the latest W055RC1 monthly reference-class observations from the BEA-sourced series and Table 2.6 mirror.","result":"January-May 2026 values were 3214.7, 3215.3, 3229.5, 3247.9, and 3264.7 billion dollars SAAR; May 2025 was 3203.2."},{"kind":"tool","tool":"official.lookup","call":"Checked the latest BEA Personal Income and Outlays release for contemporaneous income conditions.","result":"May 2026 personal income increased 181.6 billion dollars, disposable personal income increased 164.9 billion dollars, and personal current taxes rose from 3247.9 to 3264.7 billion dollars SAAR."},{"kind":"text","text":"The reference class and base rate are the four successive changes from January through May 2026: 0.6, 14.2, 18.4, and 16.8 billion dollars. Their mean is 12.5, indicating positive recent momentum after the nearly flat January-February move."},{"kind":"math","text":"Prior/update/interval: The model is a one-month persistence-plus-mean-change prior using the January-May 2026 historical sample. Starting from 3264.7, the base-rate increment is (0.6 + 14.2 + 18.4 + 16.8)/4 = 12.5. Level effect: 3264.7. Momentum effect: +12.5. One-off adjustment: 0.0 because no June-specific tax-policy discontinuity was identified. Policy-mechanism adjustment: 0.0. Point = 3264.7 + 12.5 = 3277.2. The sample standard deviation of those successive changes is sigma = sqrt(197.8/3) = 8.12. The normal 80% half-width is 1.28*sigma = 1.28*8.12 = 10.39, giving 3277.2 ± 10.39, or 3266.8 to 3287.6 after rounding."},{"kind":"text","text":"Upside risk comes from unusually strong wage withholding, capital-gains-related estimated payments, or stronger taxable income and would land above the interval. Downside risk comes from refund timing, weaker withholding, or an adverse first-print seasonal adjustment and would land below the interval. A tax-policy or payment-timing discontinuity could place the result outside the interval."},{"kind":"text","text":"Resolver discrepancy: the registered expected window ends July 29 and its fixed ALFRED vintage is June 25, but BEA's official schedule and release notice both give July 30. I therefore use the verified July 30 release date while preserving the registered slug, dataPointId, and resolver URL."},{"kind":"forecast","point":3277.2,"ciLow":3266.8,"ciHigh":3287.6}]}
