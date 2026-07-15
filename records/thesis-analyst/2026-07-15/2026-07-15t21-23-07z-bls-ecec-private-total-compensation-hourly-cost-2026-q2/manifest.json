@@ -1,0 +1,374 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-15T21:23:07Z",
+  "runStartedAt": "2026-07-15T21:23:07Z",
+  "series": "bls.ecec.private_total_compensation.hourly_cost",
+  "period": "2026-Q2",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bls-ecec-private-total-compensation-hourly-cost-q2-2026",
+    "country": "US",
+    "dataPointId": "bls.ecec.private_total_compensation.hourly_cost.2026_q2.first_print",
+    "expectedReleaseDate": "2026-09-09",
+    "period": "2026-Q2",
+    "registeredAt": "2026-07-15T21:20:34Z",
+    "registeredAtUtc": "2026-07-15T21:20:34Z",
+    "registrationCommit": "4ca8bf2478e8cea37b8112b8821dc9865efdce9c",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/ecec.toc.htm",
+    "series": "bls.ecec.private_total_compensation.hourly_cost",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-09",
+        "start": "2026-09-09"
+      },
+      "field": "Private industry workers; Total compensation; Cost per hour worked",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "BLS ECEC Table 1",
+      "sourceUrl": "https://www.bls.gov/news.release/ecec.toc.htm",
+      "table": "Employer Costs for Employee Compensation, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "Private industry workers; Total compensation; Cost per hour worked",
+    "sourceSeriesId": "BLS ECEC Table 1",
+    "sourceTable": "Employer Costs for Employee Compensation, Table 1",
+    "targetContentHash": "f07de9fdb95478f14b96f101504b1e5d0404742bc86d896b9b296cd124bcc7f5",
+    "targetRegistrationPath": "records/targets/2026-07-15-f07de9fdb95478f14b96f101504b1e5d0404742bc86d896b9b296cd124bcc7f5.json",
+    "targetUnit": "usd",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "4ca8bf2478e8cea37b8112b8821dc9865efdce9c",
+  "targetContentHash": "f07de9fdb95478f14b96f101504b1e5d0404742bc86d896b9b296cd124bcc7f5",
+  "targetRegistrationPath": "records/targets/2026-07-15-f07de9fdb95478f14b96f101504b1e5d0404742bc86d896b9b296cd124bcc7f5.json",
+  "registeredAtUtc": "2026-07-15T21:20:34Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-15T21:23:07Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "9b345555ef4677a7cf15f7be9a653751bd61c4583a988acd4cdb82a064dc5f1a"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider citing the exact archived March 2026 ECEC release URL for the $46.60 latest level, if available, rather than relying partly on the live Table 1 URL."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The tail scenarios could name approximate dollar thresholds, e.g. above $47.20 or below $46.70, to mirror the interval bounds."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the suggestion to state explicit $47.20 and $46.70 tail thresholds. Did not add an exact archived March 2026 release URL because none was verified in the available draft evidence; the cited live BLS Table 1 remains the source for the latest level.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted the suggestion to state explicit $47.20 and $46.70 tail thresholds. Did not add an exact archived March 2026 release URL because none was verified in the available draft evidence; the cited live BLS Table 1 remains the source for the latest level.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready against the rubric: resolver, prior, persistence model, update logic, interval construction, tails, and JSON fields are coherent with the ledger target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/prompt.md",
+      "sha256": "c4e8ab8083d525132c65265f3714c19cd97df7a113f591f07e2f6a94155908fe",
+      "bytes": 9036,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_command.json",
+      "sha256": "56596c2712dc6ac4e5dae7f9934abc050a9c04a13c153840a8ec0744fbc113e5",
+      "bytes": 726,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_stdout.jsonl",
+      "sha256": "7d08ce0ed0606234e20bd561016b4d30a26e71570c473bd1ba4ad845aaef3e2b",
+      "bytes": 7841,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_stderr.log",
+      "sha256": "5400e2b986d297529520849642233f046fd500d0d6a6374516f4301f990dada9",
+      "bytes": 233,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_events.jsonl",
+      "sha256": "9b84ccdd574ac99d9502093871bc7fe5d5d8114bd1fb55d56d9b3e6fc9e68a0f",
+      "bytes": 7867,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_last_message.txt",
+      "sha256": "f4d3b5ca50fbb102bbbad8068c520db62e05f8c711c5d828b7c100447e4d5235",
+      "bytes": 4849,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_trace.json",
+      "sha256": "4ab57b4a3bf358284acf32b869c75090a8d75396a9fc58a1ec0ee19b67cf658f",
+      "bytes": 512,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_stdout.txt",
+      "sha256": "f4d3b5ca50fbb102bbbad8068c520db62e05f8c711c5d828b7c100447e4d5235",
+      "bytes": 4849,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_stderr.txt",
+      "sha256": "c7ab7c4f0097a540c63414b4647352e99050b4e9d8eac1481d5d02a0861f8a6d",
+      "bytes": 248,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_prompt.md",
+      "sha256": "9256d616e69955b8593d3887d1116e9dc8e615fd254f01c618a6b425cbfb42a6",
+      "bytes": 8038,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_command.json",
+      "sha256": "d236901751787ccaee59984d0f3ba42a63c4e8f14ea2b7d99985fe57b6687127",
+      "bytes": 718,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "b1773d5d2e8fc73f695ac27e1dcd68287827b56cc7bbeff1ee526b09ef49349b",
+      "bytes": 855,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_stderr.log",
+      "sha256": "2de3961f3b82db5650e6aefdf1e2260da66883efc1d2eba2f78da33f08450a55",
+      "bytes": 233,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_events.jsonl",
+      "sha256": "595dc9f44078ef7408332b26b442434ea5d7681cb4493ea7688a621ec8ca6040",
+      "bytes": 877,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_last_message.txt",
+      "sha256": "5fa24ebece015012976e3c87afa7e6d61333e191a1c188eaf6a5d2cfbf2a0461",
+      "bytes": 529,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_trace.json",
+      "sha256": "26d45998b3885b8b6a72ad51924f0992bd7b2e1cd1c065792096e79faea99929",
+      "bytes": 501,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_stdout.txt",
+      "sha256": "5fa24ebece015012976e3c87afa7e6d61333e191a1c188eaf6a5d2cfbf2a0461",
+      "bytes": 529,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_stderr.txt",
+      "sha256": "151cae9095a4cd09963f3989044f9fd9c1a9f488f849874c6448ba9270caa28b",
+      "bytes": 248,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/revision_prompt.md",
+      "sha256": "b597ac23d19e8c7a3778e2e57731ab6ecc9fed71f73187b947fe0b7111ec80fd",
+      "bytes": 15350,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/command.json",
+      "sha256": "95f1868e26c7d6352763c13a43f839a5cba42e685112ef2d4856df0276c2e244",
+      "bytes": 720,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_stdout.jsonl",
+      "sha256": "2bbc50ba37bf7bcbf275a019b0d8b0fa0cfcac0b23e23a963c51adcba1fbf055",
+      "bytes": 5705,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_stderr.log",
+      "sha256": "d0ac34eb2470c12eedd38d817ef5716053d24b5b92c420be9fd1598172bb4fef",
+      "bytes": 233,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_events.jsonl",
+      "sha256": "a60c9c59ceb08789514a0f9e06008f2902ba7b758a761c477a0c5202f689fff3",
+      "bytes": 5743,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_last_message.txt",
+      "sha256": "0549115d0a7817078e10aeff2fde66929db61b8406a4d3da23d589149344c561",
+      "bytes": 5139,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_trace.json",
+      "sha256": "d75d15921c58a46053c1dd2d8e8da65788669fd4698fb9327ef30813b8d2eb9f",
+      "bytes": 504,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/stdout.txt",
+      "sha256": "0549115d0a7817078e10aeff2fde66929db61b8406a4d3da23d589149344c561",
+      "bytes": 5139,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/stderr.txt",
+      "sha256": "ab91a558f91b4170bd777bd068e91747746b3f2731f5b9632655c13fa16fc330",
+      "bytes": 248,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/raw_response.txt",
+      "sha256": "0549115d0a7817078e10aeff2fde66929db61b8406a4d3da23d589149344c561",
+      "bytes": 5139,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/parsed_cells.json",
+      "sha256": "a5bd02944d056791c8f6fc70974ce054366070bea4ba1d74c28ac86a1e2c30a9",
+      "bytes": 6128,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/normalized_cells.json",
+      "sha256": "ca2c5946909e8a4f6c7907ed0a563bf0c7cd9e0124de696ed4511e51c8df32b2",
+      "bytes": 23788,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/distribution.json",
+      "sha256": "2517248a0df417f3588507d6aedc87640f7178160278f5791691dff7b79bd120",
+      "bytes": 13876,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/validation.json",
+      "sha256": "b6471fc16d5cb06c41527decbb31f2b54c757dbf191f2aafa67e0441ce46b915",
+      "bytes": 156,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/cells.with_activity.json",
+      "sha256": "f9b4d55c6d60f6c09aae67c91215af01738e6dddae1c0e3cb2db2d1588cb8b98",
+      "bytes": 38146,
+      "createdAt": "2026-07-15T21:23:07Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/manifest.json",
+      "sha256": "23475ea2caabbda81704bae6bee71242bba5106160df31541c4902bea645255d",
+      "bytes": 15075,
+      "createdAt": "2026-07-15T21:23:07Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bls-ecec-private-total-compensation-hourly-cost-q2-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "86983de3845980cceb48e42c2fd319bb736ae4067d1f4a8dcb8a0a28e163df99"
+}

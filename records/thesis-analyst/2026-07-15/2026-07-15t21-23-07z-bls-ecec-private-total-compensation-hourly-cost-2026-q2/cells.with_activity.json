@@ -1,0 +1,1227 @@
+[
+  {
+    "slug": "bls-ecec-private-total-compensation-hourly-cost-q2-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US private compensation cost, Q2 2026",
+    "question": "What will BLS first report for private industry workers\u2019 total compensation cost per hour worked in June 2026 (2026 Q2), in current US dollars, ECEC Table 1?",
+    "unit": "usd",
+    "pointEstimate": 46.95,
+    "ciLow": 46.7,
+    "ciHigh": 47.2,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-09",
+    "resolutionSource": "U.S. Bureau of Labor Statistics Employer Costs for Employee Compensation release",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/ecec.toc.htm",
+    "resolutionRule": "Resolve to the first value published on September 9, 2026 for \u201cPrivate industry workers; Total compensation; Cost per hour worked\u201d in Employer Costs for Employee Compensation Table 1 for June 2026. Use the current-dollar value as printed to the nearest cent; ignore all later revisions.",
+    "dataPointId": "bls.ecec.private_total_compensation.hourly_cost.2026_q2.first_print",
+    "historicalContext": [
+      {
+        "label": "March 2024",
+        "value": 43.78
+      },
+      {
+        "label": "June 2024",
+        "value": 43.94
+      },
+      {
+        "label": "September 2024",
+        "value": 44.4
+      },
+      {
+        "label": "December 2024",
+        "value": 44.67
+      },
+      {
+        "label": "March 2025",
+        "value": 45.38
+      },
+      {
+        "label": "June 2025",
+        "value": 45.65
+      },
+      {
+        "label": "September 2025",
+        "value": 46.05
+      },
+      {
+        "label": "December 2025",
+        "value": 46.15
+      },
+      {
+        "label": "March 2026",
+        "value": 46.6
+      }
+    ],
+    "drivers": [
+      "Recent quarterly compensation-cost momentum",
+      "Private-industry wage growth",
+      "Benefits-cost growth",
+      "ECEC sampling and employment-weight variation"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/news.release/ecec.t01.htm",
+      "https://www.bls.gov/schedule/news_release/ecec.htm",
+      "https://www.bls.gov/news.release/archives/ecec_03202026.htm",
+      "https://www.bls.gov/news.release/archives/ecec_02242026.htm",
+      "https://www.bls.gov/news.release/archives/ecec_09122025.htm",
+      "https://www.bls.gov/news.release/archives/ecec_06132025.htm",
+      "https://www.bls.gov/news.release/archives/ecec_03142025.htm",
+      "https://www.bls.gov/news.release/archives/ecec_12172024.htm",
+      "https://www.bls.gov/news.release/archives/ecec_09102024.htm",
+      "https://www.bls.gov/news.release/archives/ecec_06182024.htm"
+    ],
+    "runAt": "2026-07-15T21:24:37Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast: private-industry total compensation cost in June 2026"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the first-print current-dollar cost per hour for private industry workers\u2019 total compensation in BLS ECEC Table 1, June 2026. This is the published ECEC level rather than the seasonally adjusted Employment Cost Index; later revisions do not count."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the latest BLS ECEC Table 1 release.",
+        "result": "BLS Table 1 reports March 2026 private-industry total compensation of $46.60 per hour, comprising $32.60 in wages and salaries and $14.01 in benefits."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch recent first-published BLS ECEC private-industry total-compensation levels from archived releases.",
+        "result": "The fetched quarterly levels were $44.67 in December 2024, $45.38 in March 2025, $45.65 in June 2025, $46.05 in September 2025, $46.15 in December 2025, and $46.60 in March 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch the official BLS ECEC release schedule for June 2026 data.",
+        "result": "The BLS calendar schedules Employer Costs for Employee Compensation for June 2026 for September 9, 2026 at 10:00 AM ET; it also lists the prior March 2026 release on June 12, 2026 at 10:00 AM."
+      },
+      {
+        "kind": "text",
+        "text": "The outside-view base rate is persistent quarterly growth: across the eight changes from March 2024 through March 2026, the increases were $0.16, $0.46, $0.27, $0.71, $0.27, $0.40, $0.10, and $0.45, averaging about $0.35 per quarter. The level effect starts at $46.60; momentum contributes about $0.35. Wage and benefit inflation support continued growth, while no specific one-off or policy mechanism warrants a separate adjustment."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: a persistence model uses the latest $46.60 level plus the $0.35 mean change from the eight-quarter historical sample, with adjustment components of $0.00 for one-offs and $0.00 for policy mechanisms, yielding $46.95. The sample standard deviation of successive changes is sigma = $0.195; 1.28*sigma = $0.250, so the realized-dispersion 80% interval is $46.95 \u00b1 $0.25 = [$46.70, $47.20]."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk comes from unusually strong wage growth, benefits inflation, or a composition shift toward high-compensation jobs and would land above $47.20. Downside risk comes from weak hours-adjusted compensation growth or a composition shift toward lower-cost jobs and would land below $46.70; either outcome outside the interval would falsify the recent-change reference class."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: Accepted the suggestion to state explicit $47.20 and $46.70 tail thresholds. Did not add an exact archived March 2026 release URL because none was verified in the available draft evidence; the cited live BLS Table 1 remains the source for the latest level."
+      },
+      {
+        "kind": "forecast",
+        "point": 46.95,
+        "ciLow": 46.7,
+        "ciHigh": 47.2
+      }
+    ],
+    "agentReportedRunAt": "2026-07-15T21:23:39Z",
+    "runStartedAt": "2026-07-15T21:23:07Z",
+    "promptMode": "fast",
+    "registrationCommit": "4ca8bf2478e8cea37b8112b8821dc9865efdce9c",
+    "targetContentHash": "f07de9fdb95478f14b96f101504b1e5d0404742bc86d896b9b296cd124bcc7f5",
+    "targetRegistrationPath": "records/targets/2026-07-15-f07de9fdb95478f14b96f101504b1e5d0404742bc86d896b9b296cd124bcc7f5.json",
+    "registeredAtUtc": "2026-07-15T21:20:34Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 46.325,
+        "upper": 47.575
+      },
+      "points": [
+        {
+          "value": 46.325,
+          "probability": 0.0
+        },
+        {
+          "value": 46.33125,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 46.3375,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 46.34375,
+          "probability": 0.005
+        },
+        {
+          "value": 46.35,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 46.35625,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 46.3625,
+          "probability": 0.01
+        },
+        {
+          "value": 46.36875,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 46.375,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 46.38125,
+          "probability": 0.015
+        },
+        {
+          "value": 46.3875,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 46.39375,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 46.4,
+          "probability": 0.02
+        },
+        {
+          "value": 46.40625,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 46.4125,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 46.41875,
+          "probability": 0.025
+        },
+        {
+          "value": 46.425,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 46.43125,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 46.4375,
+          "probability": 0.03
+        },
+        {
+          "value": 46.44375,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 46.45,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 46.45625,
+          "probability": 0.035
+        },
+        {
+          "value": 46.4625,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 46.46875,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 46.475,
+          "probability": 0.04
+        },
+        {
+          "value": 46.48125,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 46.4875,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 46.49375,
+          "probability": 0.045
+        },
+        {
+          "value": 46.5,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 46.50625,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 46.5125,
+          "probability": 0.05
+        },
+        {
+          "value": 46.51875,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 46.525,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 46.53125,
+          "probability": 0.055
+        },
+        {
+          "value": 46.5375,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 46.54375,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 46.55,
+          "probability": 0.06
+        },
+        {
+          "value": 46.55625,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 46.5625,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 46.56875,
+          "probability": 0.065
+        },
+        {
+          "value": 46.575,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 46.58125,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 46.5875,
+          "probability": 0.07
+        },
+        {
+          "value": 46.59375,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 46.6,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 46.60625,
+          "probability": 0.075
+        },
+        {
+          "value": 46.6125,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 46.61875,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 46.625,
+          "probability": 0.08
+        },
+        {
+          "value": 46.63125,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 46.6375,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 46.64375,
+          "probability": 0.085
+        },
+        {
+          "value": 46.65,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 46.65625,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 46.6625,
+          "probability": 0.09
+        },
+        {
+          "value": 46.66875,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 46.675,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 46.68125,
+          "probability": 0.095
+        },
+        {
+          "value": 46.6875,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 46.69375,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 46.7,
+          "probability": 0.1
+        },
+        {
+          "value": 46.70625,
+          "probability": 0.11
+        },
+        {
+          "value": 46.7125,
+          "probability": 0.12
+        },
+        {
+          "value": 46.71875,
+          "probability": 0.13
+        },
+        {
+          "value": 46.725,
+          "probability": 0.14
+        },
+        {
+          "value": 46.73125,
+          "probability": 0.15
+        },
+        {
+          "value": 46.7375,
+          "probability": 0.16
+        },
+        {
+          "value": 46.74375,
+          "probability": 0.17
+        },
+        {
+          "value": 46.75,
+          "probability": 0.18
+        },
+        {
+          "value": 46.75625,
+          "probability": 0.19
+        },
+        {
+          "value": 46.7625,
+          "probability": 0.2
+        },
+        {
+          "value": 46.76875,
+          "probability": 0.21
+        },
+        {
+          "value": 46.775,
+          "probability": 0.22
+        },
+        {
+          "value": 46.78125,
+          "probability": 0.23
+        },
+        {
+          "value": 46.7875,
+          "probability": 0.24
+        },
+        {
+          "value": 46.79375,
+          "probability": 0.25
+        },
+        {
+          "value": 46.8,
+          "probability": 0.26
+        },
+        {
+          "value": 46.80625,
+          "probability": 0.27
+        },
+        {
+          "value": 46.8125,
+          "probability": 0.28
+        },
+        {
+          "value": 46.81875,
+          "probability": 0.29
+        },
+        {
+          "value": 46.825,
+          "probability": 0.3
+        },
+        {
+          "value": 46.83125,
+          "probability": 0.31
+        },
+        {
+          "value": 46.8375,
+          "probability": 0.32
+        },
+        {
+          "value": 46.84375,
+          "probability": 0.33
+        },
+        {
+          "value": 46.85,
+          "probability": 0.34
+        },
+        {
+          "value": 46.85625,
+          "probability": 0.35
+        },
+        {
+          "value": 46.8625,
+          "probability": 0.36
+        },
+        {
+          "value": 46.86875,
+          "probability": 0.37
+        },
+        {
+          "value": 46.875,
+          "probability": 0.38
+        },
+        {
+          "value": 46.88125,
+          "probability": 0.39
+        },
+        {
+          "value": 46.8875,
+          "probability": 0.4
+        },
+        {
+          "value": 46.89375,
+          "probability": 0.41
+        },
+        {
+          "value": 46.9,
+          "probability": 0.42
+        },
+        {
+          "value": 46.90625,
+          "probability": 0.43
+        },
+        {
+          "value": 46.9125,
+          "probability": 0.44
+        },
+        {
+          "value": 46.91875,
+          "probability": 0.45
+        },
+        {
+          "value": 46.925,
+          "probability": 0.46
+        },
+        {
+          "value": 46.93125,
+          "probability": 0.47
+        },
+        {
+          "value": 46.9375,
+          "probability": 0.48
+        },
+        {
+          "value": 46.94375,
+          "probability": 0.49
+        },
+        {
+          "value": 46.95,
+          "probability": 0.5
+        },
+        {
+          "value": 46.95625,
+          "probability": 0.51
+        },
+        {
+          "value": 46.9625,
+          "probability": 0.52
+        },
+        {
+          "value": 46.96875,
+          "probability": 0.53
+        },
+        {
+          "value": 46.975,
+          "probability": 0.54
+        },
+        {
+          "value": 46.98125,
+          "probability": 0.55
+        },
+        {
+          "value": 46.9875,
+          "probability": 0.56
+        },
+        {
+          "value": 46.99375,
+          "probability": 0.57
+        },
+        {
+          "value": 47.0,
+          "probability": 0.58
+        },
+        {
+          "value": 47.00625,
+          "probability": 0.59
+        },
+        {
+          "value": 47.0125,
+          "probability": 0.6
+        },
+        {
+          "value": 47.01875,
+          "probability": 0.61
+        },
+        {
+          "value": 47.025,
+          "probability": 0.62
+        },
+        {
+          "value": 47.03125,
+          "probability": 0.63
+        },
+        {
+          "value": 47.0375,
+          "probability": 0.64
+        },
+        {
+          "value": 47.04375,
+          "probability": 0.65
+        },
+        {
+          "value": 47.05,
+          "probability": 0.66
+        },
+        {
+          "value": 47.05625,
+          "probability": 0.67
+        },
+        {
+          "value": 47.0625,
+          "probability": 0.68
+        },
+        {
+          "value": 47.06875,
+          "probability": 0.69
+        },
+        {
+          "value": 47.075,
+          "probability": 0.7
+        },
+        {
+          "value": 47.08125,
+          "probability": 0.71
+        },
+        {
+          "value": 47.0875,
+          "probability": 0.72
+        },
+        {
+          "value": 47.09375,
+          "probability": 0.73
+        },
+        {
+          "value": 47.1,
+          "probability": 0.74
+        },
+        {
+          "value": 47.10625,
+          "probability": 0.75
+        },
+        {
+          "value": 47.1125,
+          "probability": 0.76
+        },
+        {
+          "value": 47.11875,
+          "probability": 0.77
+        },
+        {
+          "value": 47.125,
+          "probability": 0.78
+        },
+        {
+          "value": 47.13125,
+          "probability": 0.79
+        },
+        {
+          "value": 47.1375,
+          "probability": 0.8
+        },
+        {
+          "value": 47.14375,
+          "probability": 0.81
+        },
+        {
+          "value": 47.15,
+          "probability": 0.82
+        },
+        {
+          "value": 47.15625,
+          "probability": 0.83
+        },
+        {
+          "value": 47.1625,
+          "probability": 0.84
+        },
+        {
+          "value": 47.16875,
+          "probability": 0.85
+        },
+        {
+          "value": 47.175,
+          "probability": 0.86
+        },
+        {
+          "value": 47.18125,
+          "probability": 0.87
+        },
+        {
+          "value": 47.1875,
+          "probability": 0.88
+        },
+        {
+          "value": 47.19375,
+          "probability": 0.89
+        },
+        {
+          "value": 47.2,
+          "probability": 0.9
+        },
+        {
+          "value": 47.20625,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 47.2125,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 47.21875,
+          "probability": 0.905
+        },
+        {
+          "value": 47.225,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 47.23125,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 47.2375,
+          "probability": 0.91
+        },
+        {
+          "value": 47.24375,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 47.25,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 47.25625,
+          "probability": 0.915
+        },
+        {
+          "value": 47.2625,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 47.26875,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 47.275,
+          "probability": 0.92
+        },
+        {
+          "value": 47.28125,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 47.2875,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 47.29375,
+          "probability": 0.925
+        },
+        {
+          "value": 47.3,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 47.30625,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 47.3125,
+          "probability": 0.93
+        },
+        {
+          "value": 47.31875,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 47.325,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 47.33125,
+          "probability": 0.935
+        },
+        {
+          "value": 47.3375,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 47.34375,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 47.35,
+          "probability": 0.94
+        },
+        {
+          "value": 47.35625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 47.3625,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 47.36875,
+          "probability": 0.945
+        },
+        {
+          "value": 47.375,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 47.38125,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 47.3875,
+          "probability": 0.95
+        },
+        {
+          "value": 47.39375,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 47.4,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 47.40625,
+          "probability": 0.955
+        },
+        {
+          "value": 47.4125,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 47.41875,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 47.425,
+          "probability": 0.96
+        },
+        {
+          "value": 47.43125,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 47.4375,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 47.44375,
+          "probability": 0.965
+        },
+        {
+          "value": 47.45,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 47.45625,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 47.4625,
+          "probability": 0.97
+        },
+        {
+          "value": 47.46875,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 47.475,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 47.48125,
+          "probability": 0.975
+        },
+        {
+          "value": 47.4875,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 47.49375,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 47.5,
+          "probability": 0.98
+        },
+        {
+          "value": 47.50625,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 47.5125,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 47.51875,
+          "probability": 0.985
+        },
+        {
+          "value": 47.525,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 47.53125,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 47.5375,
+          "probability": 0.99
+        },
+        {
+          "value": 47.54375,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 47.55,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 47.55625,
+          "probability": 0.995
+        },
+        {
+          "value": 47.5625,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 47.56875,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 47.575,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 46.95,
+        "median": 46.95,
+        "interval80": {
+          "lower": 46.7,
+          "upper": 47.2
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.6-sol",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/prompt.md",
+        "sha256": "c4e8ab8083d525132c65265f3714c19cd97df7a113f591f07e2f6a94155908fe",
+        "bytes": 9036,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_command.json",
+        "sha256": "56596c2712dc6ac4e5dae7f9934abc050a9c04a13c153840a8ec0744fbc113e5",
+        "bytes": 726,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_stdout.jsonl",
+        "sha256": "7d08ce0ed0606234e20bd561016b4d30a26e71570c473bd1ba4ad845aaef3e2b",
+        "bytes": 7841,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_stderr.log",
+        "sha256": "5400e2b986d297529520849642233f046fd500d0d6a6374516f4301f990dada9",
+        "bytes": 233,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_events.jsonl",
+        "sha256": "9b84ccdd574ac99d9502093871bc7fe5d5d8114bd1fb55d56d9b3e6fc9e68a0f",
+        "bytes": 7867,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_last_message.txt",
+        "sha256": "f4d3b5ca50fbb102bbbad8068c520db62e05f8c711c5d828b7c100447e4d5235",
+        "bytes": 4849,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_codex_trace.json",
+        "sha256": "4ab57b4a3bf358284acf32b869c75090a8d75396a9fc58a1ec0ee19b67cf658f",
+        "bytes": 512,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_stdout.txt",
+        "sha256": "f4d3b5ca50fbb102bbbad8068c520db62e05f8c711c5d828b7c100447e4d5235",
+        "bytes": 4849,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_stderr.txt",
+        "sha256": "c7ab7c4f0097a540c63414b4647352e99050b4e9d8eac1481d5d02a0861f8a6d",
+        "bytes": 248,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_prompt.md",
+        "sha256": "9256d616e69955b8593d3887d1116e9dc8e615fd254f01c618a6b425cbfb42a6",
+        "bytes": 8038,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_command.json",
+        "sha256": "d236901751787ccaee59984d0f3ba42a63c4e8f14ea2b7d99985fe57b6687127",
+        "bytes": 718,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "b1773d5d2e8fc73f695ac27e1dcd68287827b56cc7bbeff1ee526b09ef49349b",
+        "bytes": 855,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_stderr.log",
+        "sha256": "2de3961f3b82db5650e6aefdf1e2260da66883efc1d2eba2f78da33f08450a55",
+        "bytes": 233,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_events.jsonl",
+        "sha256": "595dc9f44078ef7408332b26b442434ea5d7681cb4493ea7688a621ec8ca6040",
+        "bytes": 877,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_last_message.txt",
+        "sha256": "5fa24ebece015012976e3c87afa7e6d61333e191a1c188eaf6a5d2cfbf2a0461",
+        "bytes": 529,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_codex_trace.json",
+        "sha256": "26d45998b3885b8b6a72ad51924f0992bd7b2e1cd1c065792096e79faea99929",
+        "bytes": 501,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_stdout.txt",
+        "sha256": "5fa24ebece015012976e3c87afa7e6d61333e191a1c188eaf6a5d2cfbf2a0461",
+        "bytes": 529,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_stderr.txt",
+        "sha256": "151cae9095a4cd09963f3989044f9fd9c1a9f488f849874c6448ba9270caa28b",
+        "bytes": 248,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/revision_prompt.md",
+        "sha256": "b597ac23d19e8c7a3778e2e57731ab6ecc9fed71f73187b947fe0b7111ec80fd",
+        "bytes": 15350,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/command.json",
+        "sha256": "95f1868e26c7d6352763c13a43f839a5cba42e685112ef2d4856df0276c2e244",
+        "bytes": 720,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_stdout.jsonl",
+        "sha256": "2bbc50ba37bf7bcbf275a019b0d8b0fa0cfcac0b23e23a963c51adcba1fbf055",
+        "bytes": 5705,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_stderr.log",
+        "sha256": "d0ac34eb2470c12eedd38d817ef5716053d24b5b92c420be9fd1598172bb4fef",
+        "bytes": 233,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_events.jsonl",
+        "sha256": "a60c9c59ceb08789514a0f9e06008f2902ba7b758a761c477a0c5202f689fff3",
+        "bytes": 5743,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_last_message.txt",
+        "sha256": "0549115d0a7817078e10aeff2fde66929db61b8406a4d3da23d589149344c561",
+        "bytes": 5139,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/codex_trace.json",
+        "sha256": "d75d15921c58a46053c1dd2d8e8da65788669fd4698fb9327ef30813b8d2eb9f",
+        "bytes": 504,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/stdout.txt",
+        "sha256": "0549115d0a7817078e10aeff2fde66929db61b8406a4d3da23d589149344c561",
+        "bytes": 5139,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/stderr.txt",
+        "sha256": "ab91a558f91b4170bd777bd068e91747746b3f2731f5b9632655c13fa16fc330",
+        "bytes": 248,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/raw_response.txt",
+        "sha256": "0549115d0a7817078e10aeff2fde66929db61b8406a4d3da23d589149344c561",
+        "bytes": 5139,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/parsed_cells.json",
+        "sha256": "a5bd02944d056791c8f6fc70974ce054366070bea4ba1d74c28ac86a1e2c30a9",
+        "bytes": 6128,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/normalized_cells.json",
+        "sha256": "ca2c5946909e8a4f6c7907ed0a563bf0c7cd9e0124de696ed4511e51c8df32b2",
+        "bytes": 23788,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/distribution.json",
+        "sha256": "2517248a0df417f3588507d6aedc87640f7178160278f5791691dff7b79bd120",
+        "bytes": 13876,
+        "createdAt": "2026-07-15T21:23:07Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/validation.json",
+        "sha256": "b6471fc16d5cb06c41527decbb31f2b54c757dbf191f2aafa67e0441ce46b915",
+        "bytes": 156,
+        "createdAt": "2026-07-15T21:23:07Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-15T21:23:07Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "9b345555ef4677a7cf15f7be9a653751bd61c4583a988acd4cdb82a064dc5f1a"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-23-07z-bls-ecec-private-total-compensation-hourly-cost-2026-q2/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider citing the exact archived March 2026 ECEC release URL for the $46.60 latest level, if available, rather than relying partly on the live Table 1 URL."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The tail scenarios could name approximate dollar thresholds, e.g. above $47.20 or below $46.70, to mirror the interval bounds."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: Accepted the suggestion to state explicit $47.20 and $46.70 tail thresholds. Did not add an exact archived March 2026 release URL because none was verified in the available draft evidence; the cited live BLS Table 1 remains the source for the latest level.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: Accepted the suggestion to state explicit $47.20 and $46.70 tail thresholds. Did not add an exact archived March 2026 release URL because none was verified in the available draft evidence; the cited live BLS Table 1 remains the source for the latest level.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publication-ready against the rubric: resolver, prior, persistence model, update logic, interval construction, tails, and JSON fields are coherent with the ledger target."
+    }
+  }
+]

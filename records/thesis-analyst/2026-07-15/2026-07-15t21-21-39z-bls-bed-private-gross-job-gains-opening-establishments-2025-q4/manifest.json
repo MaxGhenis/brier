@@ -1,0 +1,374 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-15T21:21:39Z",
+  "runStartedAt": "2026-07-15T21:21:39Z",
+  "series": "bls.bed.private_gross_job_gains.opening_establishments",
+  "period": "2025-Q4",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bls-bed-opening-establishment-gross-job-gains-q4-2025",
+    "country": "US",
+    "dataPointId": "bls.bed.private_gross_job_gains.opening_establishments.2025_q4.first_print",
+    "expectedReleaseDate": "2026-07-29",
+    "period": "2025-Q4",
+    "registeredAt": "2026-07-15T21:20:34Z",
+    "registeredAtUtc": "2026-07-15T21:20:34Z",
+    "registrationCommit": "4ca8bf2478e8cea37b8112b8821dc9865efdce9c",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/cewbd.toc.htm",
+    "series": "bls.bed.private_gross_job_gains.opening_establishments",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-29",
+        "start": "2026-07-29"
+      },
+      "field": "Gross job gains at opening establishments; private sector; seasonally adjusted",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "BLS BED Table 1",
+      "sourceUrl": "https://www.bls.gov/news.release/cewbd.toc.htm",
+      "table": "Business Employment Dynamics, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "sourceField": "Gross job gains at opening establishments; private sector; seasonally adjusted",
+    "sourceSeriesId": "BLS BED Table 1",
+    "sourceTable": "Business Employment Dynamics, Table 1",
+    "targetContentHash": "0da8b2bfeb748c0bd47c8b30aed2a4ac58581d3c578ffd0c870928a8c55d9740",
+    "targetRegistrationPath": "records/targets/2026-07-15-0da8b2bfeb748c0bd47c8b30aed2a4ac58581d3c578ffd0c870928a8c55d9740.json",
+    "targetUnit": "thousands",
+    "transform": {
+      "factor": 1,
+      "operation": "identity"
+    },
+    "valueScale": 1
+  },
+  "registrationCommit": "4ca8bf2478e8cea37b8112b8821dc9865efdce9c",
+  "targetContentHash": "0da8b2bfeb748c0bd47c8b30aed2a4ac58581d3c578ffd0c870928a8c55d9740",
+  "targetRegistrationPath": "records/targets/2026-07-15-0da8b2bfeb748c0bd47c8b30aed2a4ac58581d3c578ffd0c870928a8c55d9740.json",
+  "registeredAtUtc": "2026-07-15T21:20:34Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-15T21:21:39Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d44b4316483c5b006a5223c53c4fbe6826b6ddd05c72752de987fdd6998c7044"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider stating explicitly whether the 40.7 thousand sigma is computed from all 11 listed observations to remove any ambiguity."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The -13.5 thousand downward adjustment is acceptable, but could be made slightly more auditable by naming it as the sole adjustment component."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted both optional clarifications by specifying that sigma uses all 11 listed observations and that the -13.5 thousand reduction is the sole adjustment component; no required fixes were identified.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted both optional clarifications by specifying that sigma uses all 11 listed observations and that the -13.5 thousand reduction is the sole adjustment component; no required fixes were identified.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable: resolver, first-print rule, priors, interval math, tails, and JSON fields are coherent with the ledger target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/prompt.md",
+      "sha256": "8b80c2db2f36957b3a36181929ef6e90e2cacded423e94fdfb6fb046fd14c624",
+      "bytes": 9055,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_command.json",
+      "sha256": "1445d4fc895f5c51f2455cd17e9835dfebc9c3cc2dfb931b3ab8dd227f37aa3f",
+      "bytes": 733,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_codex_stdout.jsonl",
+      "sha256": "bc1fa36da19686d3e2ca4662d86692538b82715eb4ebc9a0939b5081d0257df2",
+      "bytes": 6255,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_codex_stderr.log",
+      "sha256": "f75452f950a2dae6ae5e3d1ba32866ddaaf6d12e5a015df5e5883e28efeeeb37",
+      "bytes": 233,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_codex_events.jsonl",
+      "sha256": "4d60d4426f35e7bcdde1f8cdadf42c2548eb40aa0d226fd0ef0b7e332c6d0cc9",
+      "bytes": 6285,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_codex_last_message.txt",
+      "sha256": "b48beebef8bc8431cc3a866978bea91be4d75e956e7aec621fef24740ee0e49e",
+      "bytes": 4695,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_codex_trace.json",
+      "sha256": "aa03b1169c0578c51916abdd52282f36eed583aab379e1c9627f9f519307afbc",
+      "bytes": 511,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_stdout.txt",
+      "sha256": "b48beebef8bc8431cc3a866978bea91be4d75e956e7aec621fef24740ee0e49e",
+      "bytes": 4695,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/draft_stderr.txt",
+      "sha256": "d5b4b0e98e324d49d56deaa815592552354ba01f8ab694c1de520e8550c2fe85",
+      "bytes": 248,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_prompt.md",
+      "sha256": "5e9c85df11a6ec0d95b6a5f9cb7ef0c0c88c77abaf9240f75cb54a83f5f11ba0",
+      "bytes": 7903,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_command.json",
+      "sha256": "11546f6ecf6a2a360d272148a9a24e13c0e3c747599795d345fbf66f9df58a1c",
+      "bytes": 725,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "0a510829179e570bd64d2e6501d2be8d37d5d3846a5618e7248b3f312334b816",
+      "bytes": 828,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_codex_stderr.log",
+      "sha256": "0f5a3de736cc47bcd67c5f395c17a71322989c32a3791bbad6bf6aff147ee852",
+      "bytes": 233,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_codex_events.jsonl",
+      "sha256": "0b10169ba0c81c23f93c714836da36593d0a08e8564e39aa484aa1c256283e76",
+      "bytes": 850,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_codex_last_message.txt",
+      "sha256": "8dbe9acbe61fdf7098cd0520cb8512fb9e98465223bf76efb73bda4f3bf1531c",
+      "bytes": 495,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_codex_trace.json",
+      "sha256": "aedff442a2fc9ee501e31d7cb063b57568cda932ba2152af907d8e3431f423dc",
+      "bytes": 501,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_stdout.txt",
+      "sha256": "8dbe9acbe61fdf7098cd0520cb8512fb9e98465223bf76efb73bda4f3bf1531c",
+      "bytes": 495,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/pre_submit_review_stderr.txt",
+      "sha256": "9f9f994080b5e3231fec34d0aca42fd0717ffe8fa7a91d5f709ace223c77d326",
+      "bytes": 248,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/revision_prompt.md",
+      "sha256": "0c6d1d5200d6ad03baa2bcf06325de59d6c400e2f587e4f1335a90f872a7d634",
+      "bytes": 15181,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/command.json",
+      "sha256": "80944aae3127eea48841c7cf359213ba6abc956e5f0ca4c7acab772482459d46",
+      "bytes": 727,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/codex_stdout.jsonl",
+      "sha256": "cb2cc8a92fa39ce2d095e48e142b6cfabeca9befc1323475cd0bc946120530e5",
+      "bytes": 5552,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/codex_stderr.log",
+      "sha256": "002d63a6570af5f6307ea43ee81140db33d54d49ad4840c6b048f93e97505273",
+      "bytes": 233,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/codex_events.jsonl",
+      "sha256": "49cee9ff30ce591c6515d4a636b8bfdcf92d1f9bfc4cb5e312d55a19dcf98054",
+      "bytes": 5590,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/codex_last_message.txt",
+      "sha256": "101fbce6351c0f0f50476a49edc7cf020992e8d17f572003b1865badccdf4d83",
+      "bytes": 4980,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/codex_trace.json",
+      "sha256": "16394fa6cfcedc380233b479d8a7283bc5c40565616383e61b58da0139fa226a",
+      "bytes": 504,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/stdout.txt",
+      "sha256": "101fbce6351c0f0f50476a49edc7cf020992e8d17f572003b1865badccdf4d83",
+      "bytes": 4980,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/stderr.txt",
+      "sha256": "c1dc7dfeea35013dcd92d4af4d195c3c0c1a06d691ae41c3a2fecc541f3b3538",
+      "bytes": 248,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/raw_response.txt",
+      "sha256": "101fbce6351c0f0f50476a49edc7cf020992e8d17f572003b1865badccdf4d83",
+      "bytes": 4980,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/parsed_cells.json",
+      "sha256": "f32b24e34d4100850c6a70f4fedc19a6f84457a1ebff1fd2dd0762c2d88c794a",
+      "bytes": 6022,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/normalized_cells.json",
+      "sha256": "9c7a700f502a8c1e1a588889a15abaf2e54d3bd2d5caff52d15fd373d522700c",
+      "bytes": 23467,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/distribution.json",
+      "sha256": "e3f955d3a2847e3d32a01125f3241d7ca166be6911776c0ceae3c67af059e525",
+      "bytes": 13661,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/validation.json",
+      "sha256": "6f98fed7b31290143f5597f2fd65004528273b6b3fbadbef67f74bd15128ef17",
+      "bytes": 154,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/cells.with_activity.json",
+      "sha256": "db26f89d7ce638fa2bed773fde149ab297c1364d86d7942135fd33bd3f2ff54c",
+      "bytes": 37900,
+      "createdAt": "2026-07-15T21:21:39Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t21-21-39z-bls-bed-private-gross-job-gains-opening-establishments-2025-q4/manifest.json",
+      "sha256": "1a4f4d8b262eaba6bbb5ef58dbd3d0f40434cf80b82f318f1d6aed3bb30a17da",
+      "bytes": 15187,
+      "createdAt": "2026-07-15T21:21:39Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bls-bed-opening-establishment-gross-job-gains-q4-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "fe9a1f8d8c03e99bee089a726e6ff80beac7b716b66dfb09df788a0b308f0029"
+}
