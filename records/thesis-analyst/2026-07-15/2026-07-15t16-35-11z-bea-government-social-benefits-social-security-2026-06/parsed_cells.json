@@ -1,0 +1,111 @@
+[
+  {
+    "slug": "bea-government-social-benefits-social-security-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Social Security Benefits, June 2026",
+    "question": "BEA Personal Income and Outlays Table 1 series W823RC1, government social benefits to persons: Social Security, seasonally adjusted annual rate, June 2026 first print",
+    "unit": "usd_billions",
+    "pointEstimate": 1657.3,
+    "ciLow": 1652.8,
+    "ciHigh": 1661.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "Registered ALFRED W823RC1 mirror of BEA Personal Income and Outlays Table 1",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W823RC1&vintage_date=2026-06-25",
+    "resolutionRule": "Binding resolver is the registered ALFRED CSV URL exactly as recorded, id=W823RC1 with vintage_date=2026-06-25, for the 2026-06 observation in usd_billions. This registered vintage appears inconsistent with the verified BEA June 2026 Personal Income and Outlays first-print release date of 2026-07-31; do not substitute a later ALFRED vintage unless the ledger target is corrected. If the binding vintage contains the 2026-06 value, use that first-vintage value; later revisions do not change resolution.",
+    "dataPointId": "bea.government_social_benefits.social_security.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 W823RC1 first-vintage mirror",
+        "value": 1654.5
+      },
+      {
+        "label": "2026-04 W823RC1 first-vintage mirror",
+        "value": 1651.6
+      },
+      {
+        "label": "2026-03 W823RC1 first-vintage mirror",
+        "value": 1649.2
+      },
+      {
+        "label": "2026-02 W823RC1 first-vintage mirror",
+        "value": 1646.1
+      },
+      {
+        "label": "2026-01 W823RC1 first-vintage mirror",
+        "value": 1643.7
+      }
+    ],
+    "drivers": [
+      "May level near 1654.5 billion annual rate",
+      "routine beneficiary-count drift adds roughly 2.5 to 3.5 billion annualized per month",
+      "2026 COLA already embedded in January through May levels, so June is mostly momentum rather than a new policy step",
+      "little reason to expect a June one-off lump-sum or retroactive benefit surge in the first print"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W823RC1&vintage_date=2026-06-25",
+      "https://www.ssa.gov/news/press/releases/2025/#10-2025-2"
+    ],
+    "runAt": "2026-07-15T16:36:21Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for BEA Social Security Benefits, June 2026 First Print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is BEA Personal Income and Outlays Table 1 series W823RC1, government social benefits to persons: Social Security, seasonally adjusted annual rate in usd_billions for observation month 2026-06. I am using the same SA annual-rate variant for anchors and forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Resolver discrepancy: the registered ALFRED URL has vintage_date=2026-06-25, while the BEA June 2026 Personal Income and Outlays first print is scheduled for 2026-07-31. I keep the registered slug, dataPointId, and source URL as binding, and I do not imply that a later ALFRED vintage will be used unless the ledger is corrected."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BEA release calendar lookup for Personal Income and Outlays covering June 2026",
+        "result": "BEA schedule lookup showed Personal Income and Outlays for June 2026 scheduled on 2026-07-31; comparable monthly release dates around this target include 2026-06-25 for May 2026 and 2026-07-31 for June 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ALFRED/FRED W823RC1 recent first-vintage history lookup for BEA Social Security benefits",
+        "result": "Fetched W823RC1 recent annual-rate levels: 2026-05 = 1654.5, 2026-04 = 1651.6, 2026-03 = 1649.2, 2026-02 = 1646.1, 2026-01 = 1643.7 usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "SSA public benefit-mechanism lookup for 2026 Social Security payment baseline",
+        "result": "SSA public COLA context indicated a 2026 Social Security COLA of 2.8 percent; public May 2026 beneficiary/payment context put retired-worker average benefits at 2082.76 dollars and retirement beneficiaries around 57.32 million, supporting a high-1.6-trillion annualized aggregate benefit scale after adding survivor and disability categories."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for a monthly SA annual-rate Social Security benefits level after the January COLA reset, the best base rate is persistence plus recent monthly drift. The reference class is recent non-January W823RC1 monthly level changes, where the series usually moves by a few billion annualized per month unless a legislated retroactive payment, unusual lump-sum processing, or classification issue hits."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior starts from May 2026 W823RC1 = 1654.5, with the 2026 COLA already embedded in that anchor. Recent post-COLA monthly changes were approximately +2.4, +3.1, +2.4, and +2.9, so I apply a +2.8 June drift for point = 1654.5 + 2.8 = 1657.3. For uncertainty, sigma = 3.5 usd_billions is a judgmental allowance above the very low four-month drift dispersion, sized to cover wider recent first-print monthly volatility and possible SA/processing noise. The 80 percent half-width is about 1.28*sigma = 1.28*3.5 = 4.48, rounded to 4.5. Final 80 percent interval is 1657.3 - 4.5 = 1652.8 to 1657.3 + 4.5 = 1661.8."
+      },
+      {
+        "kind": "text",
+        "text": "Policy/mechanism adjustment: the January 2026 COLA step is already included in the May anchor, so June should mainly reflect beneficiary-count growth, benefit recomputation, mortality/entry churn, and routine seasonal-adjustment mechanics. I did not add a separate policy shock because I found no target-specific public evidence of a June-only Social Security payment expansion."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is an unusual June lump-sum or retroactive Social Security benefit-processing flow in W823RC1, or a stronger beneficiary/payment-count surprise, that would land above the interval. Downside risk is a weak first-print beneficiary/payment count, seasonal-adjustment behavior that trims the June annual-rate value, or reversal of prior elevated payments that would land below the interval. A genuine one-off first-vintage processing change is the outside the interval scenario most likely to falsify this persistence forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics."
+      },
+      {
+        "kind": "forecast",
+        "point": 1657.3,
+        "ciLow": 1652.8,
+        "ciHigh": 1661.8
+      }
+    ]
+  }
+]

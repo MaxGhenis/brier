@@ -1,0 +1,1213 @@
+[
+  {
+    "slug": "bea-government-social-benefits-medicare-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Medicare Benefits, June 2026",
+    "question": "What will BEA first print for personal current transfer receipts: government social benefits to persons: Medicare, monthly seasonally adjusted annual rate, June 2026?",
+    "unit": "usd_billions",
+    "pointEstimate": 1342.3,
+    "ciLow": 1338.3,
+    "ciHigh": 1346.3,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-30",
+    "resolutionSource": "U.S. Bureau of Economic Analysis, Personal Income and Outlays, Table 1, with W824RC1 original-vintage mirror",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W824RC1&vintage_date=2026-06-25",
+    "resolutionRule": "Resolve to the first published value for W824RC1, personal current transfer receipts: government social benefits to persons: Medicare, for 2026-06, in billions of dollars at a seasonally adjusted annual rate, rounded to one decimal. Use the first print from the BEA Personal Income and Outlays June 2026 release and ignore later revisions. The registered ALFRED URL is retained as target contract, but its vintage_date=2026-06-25 is before the verified July 30, 2026 BEA release date and therefore is not itself a valid June first-print outcome vintage.",
+    "dataPointId": "bea.government_social_benefits.medicare.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 latest",
+        "value": 1332
+      },
+      {
+        "label": "2026-04",
+        "value": 1321.7
+      },
+      {
+        "label": "2026-03",
+        "value": 1311.4
+      },
+      {
+        "label": "2026-02",
+        "value": 1301
+      },
+      {
+        "label": "2026-01",
+        "value": 1290.6
+      },
+      {
+        "label": "2025-12 vintage context",
+        "value": 1280.1
+      }
+    ],
+    "drivers": [
+      "recent W824RC1 level trend is very smooth near +10.3 billion per month",
+      "Medicare benefit accruals are policy-driven and trend-like at monthly frequency",
+      "first-print/original-vintage risk and BEA release mechanics warrant wider uncertainty than the visible recent run-rate",
+      "same variant throughout: monthly seasonally adjusted annual rate, billions of dollars"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://fred.stlouisfed.org/series/W824RC1",
+      "https://alfred.stlouisfed.org/series?seid=W824RC1",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W824RC1&vintage_date=2026-06-25"
+    ],
+    "runAt": "2026-07-15T16:35:10Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for BEA Medicare government social benefits, June 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is BEA/FRED series W824RC1, personal current transfer receipts: government social benefits to persons: Medicare, monthly, billions of dollars, seasonally adjusted annual rate. I use the same SAAR billions variant for every historical anchor and forecast value."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BEA release schedule for Personal Income and Outlays, June 2026.",
+        "result": "BEA schedule lists Personal Income and Outlays, June 2026 on July 30, 2026 at 8:30 AM; the BEA schedule page was last modified 7/15/26."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked current public W824RC1 series display for latest observations and release metadata.",
+        "result": "FRED display for W824RC1 shows May 2026 = 1332.0, Apr 2026 = 1321.7, Mar 2026 = 1311.4, Feb 2026 = 1301.0, Jan 2026 = 1290.6, units billions of dollars SAAR, monthly, updated Jun 25, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked ALFRED W824RC1 vintage/context page for older visible observations and definition.",
+        "result": "ALFRED W824RC1 page shows Dec 2025 = 1280.1, Nov 2025 = 1269.5, Oct 2025 = 1258.9, Sep 2025 = 1248.3, Aug 2025 = 1237.6; notes identify BEA Account Code W824RC and Medicare benefits."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: for this smooth level series, the useful base rate is the recent successive monthly change in the same W824RC1 SAAR billions series. The visible Aug 2025-May 2026 run is almost linear, with changes of about +10.3 to +10.7 billion per month."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = latest May 2026 level plus recent mean monthly change; historical sample = fetched Aug 2025-May 2026 visible W824RC1 values; adjustment components = level 1332.0, momentum +10.38, one-off/policy-mechanism 0.0 because no fetched evidence of a June discontinuity; point = 1332.0 + 10.38 = 1342.38, rounded to 1342.3. For fetched successive changes 10.7, 10.6, 10.6, 10.6, 10.5, 10.4, 10.4, 10.3, 10.3, sigma = 0.13, so 1.28*sigma = 0.17. I widen the 80% half-width to 4.0 because the displayed recent run-rate is policy-smoothed and materially understates first-print/original-vintage and release-mechanics risk for a benefits accrual series; final implied bounds are 1342.3 - 4.0 = 1338.3 and 1342.3 + 4.0 = 1346.3."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: a stronger Medicare accrual month, updated seasonal factors, or a June-specific trust-fund/payment adjustment would land above the interval if the first print exceeds 1346.3. Downside risk: a monthly accrual pause, offsetting seasonal revision, or weaker-than-trend benefits booking would land below the interval if the first print is under 1338.3."
+      },
+      {
+        "kind": "text",
+        "text": "Target-contract discrepancy noted: the ledger sourceBinding expected release window ends 2026-07-29 and the registered ALFRED vintage URL uses vintage_date=2026-06-25, but the official BEA schedule verified this run gives July 30, 2026 for Personal Income and Outlays, June 2026. I keep the canonical slug, unit, dataPointId, and registered mirror URL rather than silently changing the target."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer's resolver-clarity framing that the forecast is coherent while preserving the explicit catalog-contract discrepancy; rejected adding FRED next-release metadata because it was not included in the drafted public evidence used for this submission."
+      },
+      {
+        "kind": "forecast",
+        "point": 1342.3,
+        "ciLow": 1338.3,
+        "ciHigh": 1346.3
+      }
+    ],
+    "agentReportedRunAt": "2026-07-15T16:33:57Z",
+    "runStartedAt": "2026-07-15T16:32:50Z",
+    "promptMode": "fast",
+    "registrationCommit": "0b8a29cc7d9bec54ef1d71247d06c1bf17d64355",
+    "targetContentHash": "d9074bfce2314259e94b6212a4c40f3b45ecba5251b62858fc2cd2c4610df70e",
+    "targetRegistrationPath": "records/targets/2026-07-15-d9074bfce2314259e94b6212a4c40f3b45ecba5251b62858fc2cd2c4610df70e.json",
+    "registeredAtUtc": "2026-07-15T16:29:07Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 1332.3,
+        "upper": 1352.3
+      },
+      "points": [
+        {
+          "value": 1332.3,
+          "probability": 0.0
+        },
+        {
+          "value": 1332.4,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 1332.5,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 1332.6,
+          "probability": 0.005
+        },
+        {
+          "value": 1332.7,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 1332.8,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 1332.9,
+          "probability": 0.01
+        },
+        {
+          "value": 1333.0,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 1333.1,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 1333.2,
+          "probability": 0.015
+        },
+        {
+          "value": 1333.3,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 1333.4,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 1333.5,
+          "probability": 0.02
+        },
+        {
+          "value": 1333.6,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 1333.7,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 1333.8,
+          "probability": 0.025
+        },
+        {
+          "value": 1333.9,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 1334.0,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 1334.1,
+          "probability": 0.03
+        },
+        {
+          "value": 1334.2,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 1334.3,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 1334.4,
+          "probability": 0.035
+        },
+        {
+          "value": 1334.5,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 1334.6,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 1334.7,
+          "probability": 0.04
+        },
+        {
+          "value": 1334.8,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 1334.9,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 1335.0,
+          "probability": 0.045
+        },
+        {
+          "value": 1335.1,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 1335.2,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 1335.3,
+          "probability": 0.05
+        },
+        {
+          "value": 1335.4,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 1335.5,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 1335.6,
+          "probability": 0.055
+        },
+        {
+          "value": 1335.7,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 1335.8,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 1335.9,
+          "probability": 0.06
+        },
+        {
+          "value": 1336.0,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 1336.1,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 1336.2,
+          "probability": 0.065
+        },
+        {
+          "value": 1336.3,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 1336.4,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 1336.5,
+          "probability": 0.07
+        },
+        {
+          "value": 1336.6,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 1336.7,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 1336.8,
+          "probability": 0.075
+        },
+        {
+          "value": 1336.9,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 1337.0,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 1337.1,
+          "probability": 0.08
+        },
+        {
+          "value": 1337.2,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 1337.3,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 1337.4,
+          "probability": 0.085
+        },
+        {
+          "value": 1337.5,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 1337.6,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 1337.7,
+          "probability": 0.09
+        },
+        {
+          "value": 1337.8,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 1337.9,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 1338.0,
+          "probability": 0.095
+        },
+        {
+          "value": 1338.1,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 1338.2,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 1338.3,
+          "probability": 0.1
+        },
+        {
+          "value": 1338.4,
+          "probability": 0.11
+        },
+        {
+          "value": 1338.5,
+          "probability": 0.12
+        },
+        {
+          "value": 1338.6,
+          "probability": 0.13
+        },
+        {
+          "value": 1338.7,
+          "probability": 0.14
+        },
+        {
+          "value": 1338.8,
+          "probability": 0.15
+        },
+        {
+          "value": 1338.9,
+          "probability": 0.16
+        },
+        {
+          "value": 1339.0,
+          "probability": 0.17
+        },
+        {
+          "value": 1339.1,
+          "probability": 0.18
+        },
+        {
+          "value": 1339.2,
+          "probability": 0.19
+        },
+        {
+          "value": 1339.3,
+          "probability": 0.2
+        },
+        {
+          "value": 1339.4,
+          "probability": 0.21
+        },
+        {
+          "value": 1339.5,
+          "probability": 0.22
+        },
+        {
+          "value": 1339.6,
+          "probability": 0.23
+        },
+        {
+          "value": 1339.7,
+          "probability": 0.24
+        },
+        {
+          "value": 1339.8,
+          "probability": 0.25
+        },
+        {
+          "value": 1339.9,
+          "probability": 0.26
+        },
+        {
+          "value": 1340.0,
+          "probability": 0.27
+        },
+        {
+          "value": 1340.1,
+          "probability": 0.28
+        },
+        {
+          "value": 1340.2,
+          "probability": 0.29
+        },
+        {
+          "value": 1340.3,
+          "probability": 0.3
+        },
+        {
+          "value": 1340.4,
+          "probability": 0.31
+        },
+        {
+          "value": 1340.5,
+          "probability": 0.32
+        },
+        {
+          "value": 1340.6,
+          "probability": 0.33
+        },
+        {
+          "value": 1340.7,
+          "probability": 0.34
+        },
+        {
+          "value": 1340.8,
+          "probability": 0.35
+        },
+        {
+          "value": 1340.9,
+          "probability": 0.36
+        },
+        {
+          "value": 1341.0,
+          "probability": 0.37
+        },
+        {
+          "value": 1341.1,
+          "probability": 0.38
+        },
+        {
+          "value": 1341.2,
+          "probability": 0.39
+        },
+        {
+          "value": 1341.3,
+          "probability": 0.4
+        },
+        {
+          "value": 1341.4,
+          "probability": 0.41
+        },
+        {
+          "value": 1341.5,
+          "probability": 0.42
+        },
+        {
+          "value": 1341.6,
+          "probability": 0.43
+        },
+        {
+          "value": 1341.7,
+          "probability": 0.44
+        },
+        {
+          "value": 1341.8,
+          "probability": 0.45
+        },
+        {
+          "value": 1341.9,
+          "probability": 0.46
+        },
+        {
+          "value": 1342.0,
+          "probability": 0.47
+        },
+        {
+          "value": 1342.1,
+          "probability": 0.48
+        },
+        {
+          "value": 1342.2,
+          "probability": 0.49
+        },
+        {
+          "value": 1342.3,
+          "probability": 0.5
+        },
+        {
+          "value": 1342.4,
+          "probability": 0.51
+        },
+        {
+          "value": 1342.5,
+          "probability": 0.52
+        },
+        {
+          "value": 1342.6,
+          "probability": 0.53
+        },
+        {
+          "value": 1342.7,
+          "probability": 0.54
+        },
+        {
+          "value": 1342.8,
+          "probability": 0.55
+        },
+        {
+          "value": 1342.9,
+          "probability": 0.56
+        },
+        {
+          "value": 1343.0,
+          "probability": 0.57
+        },
+        {
+          "value": 1343.1,
+          "probability": 0.58
+        },
+        {
+          "value": 1343.2,
+          "probability": 0.59
+        },
+        {
+          "value": 1343.3,
+          "probability": 0.6
+        },
+        {
+          "value": 1343.4,
+          "probability": 0.61
+        },
+        {
+          "value": 1343.5,
+          "probability": 0.62
+        },
+        {
+          "value": 1343.6,
+          "probability": 0.63
+        },
+        {
+          "value": 1343.7,
+          "probability": 0.64
+        },
+        {
+          "value": 1343.8,
+          "probability": 0.65
+        },
+        {
+          "value": 1343.9,
+          "probability": 0.66
+        },
+        {
+          "value": 1344.0,
+          "probability": 0.67
+        },
+        {
+          "value": 1344.1,
+          "probability": 0.68
+        },
+        {
+          "value": 1344.2,
+          "probability": 0.69
+        },
+        {
+          "value": 1344.3,
+          "probability": 0.7
+        },
+        {
+          "value": 1344.4,
+          "probability": 0.71
+        },
+        {
+          "value": 1344.5,
+          "probability": 0.72
+        },
+        {
+          "value": 1344.6,
+          "probability": 0.73
+        },
+        {
+          "value": 1344.7,
+          "probability": 0.74
+        },
+        {
+          "value": 1344.8,
+          "probability": 0.75
+        },
+        {
+          "value": 1344.9,
+          "probability": 0.76
+        },
+        {
+          "value": 1345.0,
+          "probability": 0.77
+        },
+        {
+          "value": 1345.1,
+          "probability": 0.78
+        },
+        {
+          "value": 1345.2,
+          "probability": 0.79
+        },
+        {
+          "value": 1345.3,
+          "probability": 0.8
+        },
+        {
+          "value": 1345.4,
+          "probability": 0.81
+        },
+        {
+          "value": 1345.5,
+          "probability": 0.82
+        },
+        {
+          "value": 1345.6,
+          "probability": 0.83
+        },
+        {
+          "value": 1345.7,
+          "probability": 0.84
+        },
+        {
+          "value": 1345.8,
+          "probability": 0.85
+        },
+        {
+          "value": 1345.9,
+          "probability": 0.86
+        },
+        {
+          "value": 1346.0,
+          "probability": 0.87
+        },
+        {
+          "value": 1346.1,
+          "probability": 0.88
+        },
+        {
+          "value": 1346.2,
+          "probability": 0.89
+        },
+        {
+          "value": 1346.3,
+          "probability": 0.9
+        },
+        {
+          "value": 1346.4,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 1346.5,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 1346.6,
+          "probability": 0.905
+        },
+        {
+          "value": 1346.7,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 1346.8,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 1346.9,
+          "probability": 0.91
+        },
+        {
+          "value": 1347.0,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 1347.1,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 1347.2,
+          "probability": 0.915
+        },
+        {
+          "value": 1347.3,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 1347.4,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 1347.5,
+          "probability": 0.92
+        },
+        {
+          "value": 1347.6,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 1347.7,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 1347.8,
+          "probability": 0.925
+        },
+        {
+          "value": 1347.9,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1348.0,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1348.1,
+          "probability": 0.93
+        },
+        {
+          "value": 1348.2,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1348.3,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1348.4,
+          "probability": 0.935
+        },
+        {
+          "value": 1348.5,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1348.6,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1348.7,
+          "probability": 0.94
+        },
+        {
+          "value": 1348.8,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1348.9,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1349.0,
+          "probability": 0.945
+        },
+        {
+          "value": 1349.1,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1349.2,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1349.3,
+          "probability": 0.95
+        },
+        {
+          "value": 1349.4,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1349.5,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1349.6,
+          "probability": 0.955
+        },
+        {
+          "value": 1349.7,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1349.8,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1349.9,
+          "probability": 0.96
+        },
+        {
+          "value": 1350.0,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1350.1,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1350.2,
+          "probability": 0.965
+        },
+        {
+          "value": 1350.3,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1350.4,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1350.5,
+          "probability": 0.97
+        },
+        {
+          "value": 1350.6,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 1350.7,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 1350.8,
+          "probability": 0.975
+        },
+        {
+          "value": 1350.9,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 1351.0,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 1351.1,
+          "probability": 0.98
+        },
+        {
+          "value": 1351.2,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 1351.3,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 1351.4,
+          "probability": 0.985
+        },
+        {
+          "value": 1351.5,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 1351.6,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 1351.7,
+          "probability": 0.99
+        },
+        {
+          "value": 1351.8,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 1351.9,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 1352.0,
+          "probability": 0.995
+        },
+        {
+          "value": 1352.1,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 1352.2,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 1352.3,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 1342.3,
+        "median": 1342.3,
+        "interval80": {
+          "lower": 1338.3,
+          "upper": 1346.3
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/prompt.md",
+        "sha256": "7ca193567c03678299a94249b4c57f17a731cbbb873588e315c01d7ce91241ad",
+        "bytes": 9036,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_command.json",
+        "sha256": "860604730b1755b2dd3282b522b0b1232c7620e8a24fb8373cb1066f15853b3f",
+        "bytes": 714,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "0dce6c51e8c0d0ccb3e72f0f666b28b099ae9ad7259e353b2ea2a6c1faddea97",
+        "bytes": 11581,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_codex_stderr.log",
+        "sha256": "0d0f333c3f4378cbcc3377d4ceb178e26b3ba8686620daa07b41c82d43cab6aa",
+        "bytes": 233,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_codex_events.jsonl",
+        "sha256": "1934bcffd526c349421bd8251a449fe1913d0457dcc8b42e674abbc8f332f26c",
+        "bytes": 11586,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_codex_last_message.txt",
+        "sha256": "432c651b2b103b653ac4f9b1066a605605521af96dbb9600ab09dfc4fde2e7cc",
+        "bytes": 5570,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_codex_trace.json",
+        "sha256": "bab3ccdd8d167dab091f35d86123dbe1df213159d1b30d0494d8e7554c2e1db9",
+        "bytes": 508,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_stdout.txt",
+        "sha256": "432c651b2b103b653ac4f9b1066a605605521af96dbb9600ab09dfc4fde2e7cc",
+        "bytes": 5570,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_stderr.txt",
+        "sha256": "b0702d2abc791738ce911976b9119499d66c307dae3199126e3a73bda56b825f",
+        "bytes": 248,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_prompt.md",
+        "sha256": "41f7eebd9ea24ece72b49d7f91d1e6ae197069460a06a8e3c1711c7a69d65c4e",
+        "bytes": 8759,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_command.json",
+        "sha256": "f0d24c33c039cd89bf619b7ed17852f89b883fe04fce4435488ef37964b8cf17",
+        "bytes": 710,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "c734322a01a32c2aecc63ed52f84f79597d7cd8f4b3905bbac248651249fd12a",
+        "bytes": 2303,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "0cee0535a1d47212b1d32821926c5767c8b9d702b14318fe6370de5ff6615d99",
+        "bytes": 233,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "e4fd2a7cf2a1a116e32fc7b74cc9335585a3a92a9a336577afca99e7ea20363b",
+        "bytes": 2312,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "cb606a9f287608da658f3955c88e8a79203b8efb5f41a1bf351c7712dea30678",
+        "bytes": 587,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "060ffe1664e3b9669a53e90ba6f82f1c81a20e27c599c192a1794e4619ba7e44",
+        "bytes": 503,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "cb606a9f287608da658f3955c88e8a79203b8efb5f41a1bf351c7712dea30678",
+        "bytes": 587,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "09563f9b5d561f4e55ecfdb6b32bb21a022e18e1b1368d71465fc0d790932fd6",
+        "bytes": 248,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/revision_prompt.md",
+        "sha256": "c4a1baf05997d9c64fd4154a590c4dd0c41f671bc64bd52f2c327fefd9bb25fc",
+        "bytes": 16129,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/command.json",
+        "sha256": "3349ed1d63148871f9b10b2fbb0b78a7720fdf1de65a0125f29792675639ecfc",
+        "bytes": 708,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/codex_stdout.jsonl",
+        "sha256": "d87a1c53dde46a8651985ad1228d4a0be3aa41aab5ec7c41d59736735cb6dfe1",
+        "bytes": 6431,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/codex_stderr.log",
+        "sha256": "546bc55fa98542e4894de8e32fc9ab01315f68b56561032d8ec98066c0f28dc3",
+        "bytes": 233,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/codex_events.jsonl",
+        "sha256": "48cc6e2dcc0ea8e900cc2d4ba4db6d5c851e3983d1b791b727740fd95ec7701e",
+        "bytes": 6453,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/codex_last_message.txt",
+        "sha256": "5fc30bd1f882da880e43958d9ef520539a80f0ebe6c8e24530217b475189e874",
+        "bytes": 5882,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/codex_trace.json",
+        "sha256": "b0d25fd7a82983e204f774167003552195337e195dbfd514451b08624b427e5e",
+        "bytes": 505,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/stdout.txt",
+        "sha256": "5fc30bd1f882da880e43958d9ef520539a80f0ebe6c8e24530217b475189e874",
+        "bytes": 5882,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/stderr.txt",
+        "sha256": "f6918af4efe096e428ce8db6cb4f695194f44996f8b7b60b69bce8321f59e9d7",
+        "bytes": 248,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/raw_response.txt",
+        "sha256": "5fc30bd1f882da880e43958d9ef520539a80f0ebe6c8e24530217b475189e874",
+        "bytes": 5882,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/parsed_cells.json",
+        "sha256": "09f4a8a1523daa0db2bec94a8d22a857ea555d2d913a2de02b92bb21180362cf",
+        "bytes": 6745,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/normalized_cells.json",
+        "sha256": "2cef2025b81ed55a140bc1898b45d2366ae733ed92121d86e9250f881835d323",
+        "bytes": 24198,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/distribution.json",
+        "sha256": "2e6db74264f653e7f684a5d9cb80e042b50372778e97e8739f240e9281fccc1f",
+        "bytes": 13669,
+        "createdAt": "2026-07-15T16:32:50Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/validation.json",
+        "sha256": "a94a2f1945ad0ef5b517d6634512659d8cd001937ac24e7a591427fab9623781",
+        "bytes": 150,
+        "createdAt": "2026-07-15T16:32:50Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-15T16:32:50Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "60f1c01a826acc98e18721f32b6ea86044e7a035c97e344531136334b0868d86"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-32-50z-bea-government-social-benefits-medicare-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Add the FRED next-release metadata to the resolver evidence, since it independently supports July 30, 2026 for the next W824RC1 update."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "If the publisher requires strict ledger-field equality, resolve the catalog registration issue rather than changing only the forecast text."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer's resolver-clarity framing that the forecast is coherent while preserving the explicit catalog-contract discrepancy; rejected adding FRED next-release metadata because it was not included in the drafted public evidence used for this submission.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer's resolver-clarity framing that the forecast is coherent while preserving the explicit catalog-contract discrepancy; rejected adding FRED next-release metadata because it was not included in the drafted public evidence used for this submission.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable on forecasting method and coherence, with one catalog-contract discrepancy already surfaced: the registered ALFRED vintage/window appears inconsistent with the BEA/FRED July 30, 2026 first-print release."
+    }
+  }
+]

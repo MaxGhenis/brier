@@ -1,0 +1,405 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-15T16:35:11Z",
+  "runStartedAt": "2026-07-15T16:35:11Z",
+  "series": "bea.government_social_benefits.social_security",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bea-government-social-benefits-social-security-june-2026",
+    "country": "US",
+    "dataPointId": "bea.government_social_benefits.social_security.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-15T16:29:07Z",
+    "registeredAtUtc": "2026-07-15T16:29:07Z",
+    "registrationCommit": "0b8a29cc7d9bec54ef1d71247d06c1bf17d64355",
+    "registrationState": "preregistered",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W823RC1&vintage_date=2026-06-25",
+    "series": "bea.government_social_benefits.social_security",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-29",
+        "start": "2026-07-21"
+      },
+      "field": "W823RC1",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "W823RC1",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W823RC1&vintage_date=2026-06-25",
+      "table": "Personal Income and Outlays, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "71d5e19f498c3b8a7f2f80219ed03393c8f31b5957c6bbf65f107a42c96f6200",
+    "targetRegistrationPath": "records/targets/2026-07-15-71d5e19f498c3b8a7f2f80219ed03393c8f31b5957c6bbf65f107a42c96f6200.json",
+    "targetUnit": "usd_billions",
+    "valueScale": 1
+  },
+  "registrationCommit": "0b8a29cc7d9bec54ef1d71247d06c1bf17d64355",
+  "targetContentHash": "71d5e19f498c3b8a7f2f80219ed03393c8f31b5957c6bbf65f107a42c96f6200",
+  "targetRegistrationPath": "records/targets/2026-07-15-71d5e19f498c3b8a7f2f80219ed03393c8f31b5957c6bbf65f107a42c96f6200.json",
+  "registeredAtUtc": "2026-07-15T16:29:07Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-15T16:35:11Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f1267983a7c3c6a026f5bdd53b792a2fc736ef709e7e85ac72cb21570c61cf50"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The forecast simultaneously uses the ledger URL with vintage_date=2026-06-25 and a rule resolving to the June 2026 first print expected around 2026-07-31; these cannot both be the operative resolver without an explicit discrepancy note in the final fields.",
+        "actionRequested": "Keep the registered slug/dataPointId/source URL, but make the resolver text explicitly say the ledger URL/vintage is the binding target and that it appears inconsistent with the June first-print release date; do not imply a different ALFRED vintage will be used unless the ledger is corrected."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval claims sigma = 3.5 from a recent official-source reference-class dispersion, but the sample or calculation for that sigma is not shown beyond four recent positive monthly changes.",
+        "actionRequested": "Name the realized-volatility sample used for sigma = 3.5, or state that it is a judgmental uncertainty allowance above the recent four-month drift dispersion."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "tails",
+        "summary": "Tail scenarios are directionally relevant but still generic, especially the upside administrative/retroactive-payment case and downside adjustment correction case.",
+        "actionRequested": "Tie tails more concretely to W823RC1 first-print mechanics, such as unusual lump-sum benefit processing, seasonal-adjustment revision behavior in first vintage, or beneficiary/payment-count surprise."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make resolutionSource match the ledger source more exactly, e.g. registered ALFRED W823RC1 first-print mirror, while noting BEA Table 1 as the underlying source."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the compact prior/update/interval step, mention that the 2026 COLA is already embedded in the May anchor before applying the +2.8 drift."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent but has a blocking resolver inconsistency because the registered ALFRED vintage URL appears unable to contain the June 2026 first print while the forecast rule describes a later BEA/ALFRED first-print resolver."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/prompt.md",
+      "sha256": "4ab60e9bd66474716feab556f660e8e96631aaf3ff155dc745403e6b51430fcc",
+      "bytes": 9057,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_command.json",
+      "sha256": "17127e9619342d7084df209c9a844ac3f91df9b3b61dffff8bff6d506acb8097",
+      "bytes": 721,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "be5b6883dcc0d3f6185687467a74b2b6f06e9ce8233280aa30b544f9ae73f655",
+      "bytes": 15892,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_stderr.log",
+      "sha256": "8f6a9dcbc6c7105c615a9ebc4aa023fd8255cfd8ae7fd3a05c3d7d14f05127a8",
+      "bytes": 233,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_events.jsonl",
+      "sha256": "dd859e89ce2f2fa4429be2e1ce3cac08dfd69f866256472f1dbaaedbefdb7d40",
+      "bytes": 15864,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_last_message.txt",
+      "sha256": "da3147a095988b3e654074cc0b32201eed1894884f0338e9c482ea3b71a66f46",
+      "bytes": 5871,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_trace.json",
+      "sha256": "8b9a4c844a0c350346ae27054c60f5b78392b12d74690b696b004e23de3f13ba",
+      "bytes": 507,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_stdout.txt",
+      "sha256": "da3147a095988b3e654074cc0b32201eed1894884f0338e9c482ea3b71a66f46",
+      "bytes": 5871,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_stderr.txt",
+      "sha256": "a93986ceb6e8a431ee14a03d53461cc6d06a4fa2fe7fb36d42277cdd11634f7a",
+      "bytes": 248,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_prompt.md",
+      "sha256": "272725aacb86e5d47002e9d9692a96b0e945fab83a6ac245b12ac1ecd0d850b0",
+      "bytes": 9081,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_command.json",
+      "sha256": "a354d3cad116d5682508b9aab1b023ffbd0bec1729b8074c05468cfb60ed8466",
+      "bytes": 717,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "3e270ec22152e6b2a6fd686e5525637a93d2286f8bbf0a871b7e792eddcc76ce",
+      "bytes": 2473,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "3df7eb2c4ce3c6f93133118e263b57336a614ecc402d5b8a3381b8fc33a5d15d",
+      "bytes": 233,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "375bf924966867f26f6a37bbccb093f19ed43d2a0589c63f4291b4c7a3437671",
+      "bytes": 2495,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "5154bf6f72e4e9b83e2b21d34a58f02249a8ffcfa8ac757be73dbadda05f4c9e",
+      "bytes": 2099,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "570a4098d537cd4f9f84c40d67bd1e8ab52fb569d63aec6092fe47af02f43f2c",
+      "bytes": 501,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "5154bf6f72e4e9b83e2b21d34a58f02249a8ffcfa8ac757be73dbadda05f4c9e",
+      "bytes": 2099,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "f2c0a9c91db49cdf5b5b3aa3dc1a9366be536e1f7edc229c85505c8594a25305",
+      "bytes": 248,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/revision_prompt.md",
+      "sha256": "9f21155dec15c370caf04662abd3012d32373356e2b7621926df943f7b8ee9ef",
+      "bytes": 17963,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/command.json",
+      "sha256": "3633c3fd4d9db49d39cf7833303ce69ba7b5901720375da55905f7a9a6ada342",
+      "bytes": 715,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_stdout.jsonl",
+      "sha256": "58fbdb00dd1ce302ac7950d30dde92248dfdf6888e5a3fa110c9c107d01979b3",
+      "bytes": 7296,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_stderr.log",
+      "sha256": "46da8235c8bdef68a26fb2f3880367e19b45ba6b8dfb2bd6d15db55b599f3ad2",
+      "bytes": 233,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_events.jsonl",
+      "sha256": "222cf0f768582e903f6cc6049fe7d31870331081d8ec7d03fbc7ded7fcc0e084",
+      "bytes": 7318,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_last_message.txt",
+      "sha256": "0b2b78ddb5e4e9d3a9245459971b693891d2f312aa491873978fdc652cde0d00",
+      "bytes": 6746,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_trace.json",
+      "sha256": "e646b808c1ec406033fa72a2c4a2ec1992499c1a054668d547fdc9e68c814e6a",
+      "bytes": 506,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/stdout.txt",
+      "sha256": "0b2b78ddb5e4e9d3a9245459971b693891d2f312aa491873978fdc652cde0d00",
+      "bytes": 6746,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/stderr.txt",
+      "sha256": "bbc59d0ffeabc84bf300ac1d9b5670ae6dd4f4f62dc464b095c27dafee78878b",
+      "bytes": 248,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/raw_response.txt",
+      "sha256": "0b2b78ddb5e4e9d3a9245459971b693891d2f312aa491873978fdc652cde0d00",
+      "bytes": 6746,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/parsed_cells.json",
+      "sha256": "847dc75087cb70ddaee36b02c220f18f165016ef03bc84f43d27fed174481a30",
+      "bytes": 7602,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/normalized_cells.json",
+      "sha256": "006946a2d75d093602874b8a5f92b07ab5097aa1f76f57dfabe23c6be52d42a2",
+      "bytes": 25483,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/distribution.json",
+      "sha256": "74ff13fbbb0ea899e2bb38b36c9cdec3df44af79bf4558e397dea62eada681d4",
+      "bytes": 14097,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/validation.json",
+      "sha256": "4f881e669603858ed1ab3a619bd6f7057dcd4e3d95a637dc72b151d60f5e0596",
+      "bytes": 157,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/cells.with_activity.json",
+      "sha256": "90d4b98fb2e9e5fee48394c1a39e331ae76ffef6301afc1d27aa5a225bf2436d",
+      "bytes": 43811,
+      "createdAt": "2026-07-15T16:35:11Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/manifest.json",
+      "sha256": "0130064655a2b896bdcfddcaa7823df36bced4296be2c3b0d9942ad6aa3a5897",
+      "bytes": 18364,
+      "createdAt": "2026-07-15T16:35:11Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bea-government-social-benefits-social-security-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "6e2120700caa12797211400150a90a0b80fdc8a9b51de9beb9b2dc6f38d22397"
+}

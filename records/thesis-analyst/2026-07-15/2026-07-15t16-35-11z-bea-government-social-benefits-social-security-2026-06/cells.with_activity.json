@@ -1,0 +1,1251 @@
+[
+  {
+    "slug": "bea-government-social-benefits-social-security-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Social Security Benefits, June 2026",
+    "question": "BEA Personal Income and Outlays Table 1 series W823RC1, government social benefits to persons: Social Security, seasonally adjusted annual rate, June 2026 first print",
+    "unit": "usd_billions",
+    "pointEstimate": 1657.3,
+    "ciLow": 1652.8,
+    "ciHigh": 1661.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-31",
+    "resolutionSource": "Registered ALFRED W823RC1 mirror of BEA Personal Income and Outlays Table 1",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W823RC1&vintage_date=2026-06-25",
+    "resolutionRule": "Binding resolver is the registered ALFRED CSV URL exactly as recorded, id=W823RC1 with vintage_date=2026-06-25, for the 2026-06 observation in usd_billions. This registered vintage appears inconsistent with the verified BEA June 2026 Personal Income and Outlays first-print release date of 2026-07-31; do not substitute a later ALFRED vintage unless the ledger target is corrected. If the binding vintage contains the 2026-06 value, use that first-vintage value; later revisions do not change resolution.",
+    "dataPointId": "bea.government_social_benefits.social_security.june_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 W823RC1 first-vintage mirror",
+        "value": 1654.5
+      },
+      {
+        "label": "2026-04 W823RC1 first-vintage mirror",
+        "value": 1651.6
+      },
+      {
+        "label": "2026-03 W823RC1 first-vintage mirror",
+        "value": 1649.2
+      },
+      {
+        "label": "2026-02 W823RC1 first-vintage mirror",
+        "value": 1646.1
+      },
+      {
+        "label": "2026-01 W823RC1 first-vintage mirror",
+        "value": 1643.7
+      }
+    ],
+    "drivers": [
+      "May level near 1654.5 billion annual rate",
+      "routine beneficiary-count drift adds roughly 2.5 to 3.5 billion annualized per month",
+      "2026 COLA already embedded in January through May levels, so June is mostly momentum rather than a new policy step",
+      "little reason to expect a June one-off lump-sum or retroactive benefit surge in the first print"
+    ],
+    "sourceContext": [
+      "https://www.bea.gov/news/schedule",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=W823RC1&vintage_date=2026-06-25",
+      "https://www.ssa.gov/news/press/releases/2025/#10-2025-2"
+    ],
+    "runAt": "2026-07-15T16:38:49Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for BEA Social Security Benefits, June 2026 First Print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is BEA Personal Income and Outlays Table 1 series W823RC1, government social benefits to persons: Social Security, seasonally adjusted annual rate in usd_billions for observation month 2026-06. I am using the same SA annual-rate variant for anchors and forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Resolver discrepancy: the registered ALFRED URL has vintage_date=2026-06-25, while the BEA June 2026 Personal Income and Outlays first print is scheduled for 2026-07-31. I keep the registered slug, dataPointId, and source URL as binding, and I do not imply that a later ALFRED vintage will be used unless the ledger is corrected."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BEA release calendar lookup for Personal Income and Outlays covering June 2026",
+        "result": "BEA schedule lookup showed Personal Income and Outlays for June 2026 scheduled on 2026-07-31; comparable monthly release dates around this target include 2026-06-25 for May 2026 and 2026-07-31 for June 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "ALFRED/FRED W823RC1 recent first-vintage history lookup for BEA Social Security benefits",
+        "result": "Fetched W823RC1 recent annual-rate levels: 2026-05 = 1654.5, 2026-04 = 1651.6, 2026-03 = 1649.2, 2026-02 = 1646.1, 2026-01 = 1643.7 usd_billions."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "SSA public benefit-mechanism lookup for 2026 Social Security payment baseline",
+        "result": "SSA public COLA context indicated a 2026 Social Security COLA of 2.8 percent; public May 2026 beneficiary/payment context put retired-worker average benefits at 2082.76 dollars and retirement beneficiaries around 57.32 million, supporting a high-1.6-trillion annualized aggregate benefit scale after adding survivor and disability categories."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for a monthly SA annual-rate Social Security benefits level after the January COLA reset, the best base rate is persistence plus recent monthly drift. The reference class is recent non-January W823RC1 monthly level changes, where the series usually moves by a few billion annualized per month unless a legislated retroactive payment, unusual lump-sum processing, or classification issue hits."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior starts from May 2026 W823RC1 = 1654.5, with the 2026 COLA already embedded in that anchor. Recent post-COLA monthly changes were approximately +2.4, +3.1, +2.4, and +2.9, so I apply a +2.8 June drift for point = 1654.5 + 2.8 = 1657.3. For uncertainty, sigma = 3.5 usd_billions is a judgmental allowance above the very low four-month drift dispersion, sized to cover wider recent first-print monthly volatility and possible SA/processing noise. The 80 percent half-width is about 1.28*sigma = 1.28*3.5 = 4.48, rounded to 4.5. Final 80 percent interval is 1657.3 - 4.5 = 1652.8 to 1657.3 + 4.5 = 1661.8."
+      },
+      {
+        "kind": "text",
+        "text": "Policy/mechanism adjustment: the January 2026 COLA step is already included in the May anchor, so June should mainly reflect beneficiary-count growth, benefit recomputation, mortality/entry churn, and routine seasonal-adjustment mechanics. I did not add a separate policy shock because I found no target-specific public evidence of a June-only Social Security payment expansion."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is an unusual June lump-sum or retroactive Social Security benefit-processing flow in W823RC1, or a stronger beneficiary/payment-count surprise, that would land above the interval. Downside risk is a weak first-print beneficiary/payment count, seasonal-adjustment behavior that trims the June annual-rate value, or reversal of prior elevated payments that would land below the interval. A genuine one-off first-vintage processing change is the outside the interval scenario most likely to falsify this persistence forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics."
+      },
+      {
+        "kind": "forecast",
+        "point": 1657.3,
+        "ciLow": 1652.8,
+        "ciHigh": 1661.8
+      }
+    ],
+    "agentReportedRunAt": "2026-07-15T16:36:21Z",
+    "runStartedAt": "2026-07-15T16:35:11Z",
+    "promptMode": "fast",
+    "registrationCommit": "0b8a29cc7d9bec54ef1d71247d06c1bf17d64355",
+    "targetContentHash": "71d5e19f498c3b8a7f2f80219ed03393c8f31b5957c6bbf65f107a42c96f6200",
+    "targetRegistrationPath": "records/targets/2026-07-15-71d5e19f498c3b8a7f2f80219ed03393c8f31b5957c6bbf65f107a42c96f6200.json",
+    "registeredAtUtc": "2026-07-15T16:29:07Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 1646.05,
+        "upper": 1668.55
+      },
+      "points": [
+        {
+          "value": 1646.05,
+          "probability": 0.0
+        },
+        {
+          "value": 1646.1625,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 1646.275,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 1646.3875,
+          "probability": 0.005
+        },
+        {
+          "value": 1646.5,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 1646.6125,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 1646.725,
+          "probability": 0.01
+        },
+        {
+          "value": 1646.8375,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 1646.95,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 1647.0625,
+          "probability": 0.015
+        },
+        {
+          "value": 1647.175,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 1647.2875,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 1647.4,
+          "probability": 0.02
+        },
+        {
+          "value": 1647.5125,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 1647.625,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 1647.7375,
+          "probability": 0.025
+        },
+        {
+          "value": 1647.85,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 1647.9625,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 1648.075,
+          "probability": 0.03
+        },
+        {
+          "value": 1648.1875,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 1648.3,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 1648.4125,
+          "probability": 0.035
+        },
+        {
+          "value": 1648.525,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 1648.6375,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 1648.75,
+          "probability": 0.04
+        },
+        {
+          "value": 1648.8625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 1648.975,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 1649.0875,
+          "probability": 0.045
+        },
+        {
+          "value": 1649.2,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 1649.3125,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 1649.425,
+          "probability": 0.05
+        },
+        {
+          "value": 1649.5375,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 1649.65,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 1649.7625,
+          "probability": 0.055
+        },
+        {
+          "value": 1649.875,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 1649.9875,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 1650.1,
+          "probability": 0.06
+        },
+        {
+          "value": 1650.2125,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 1650.325,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 1650.4375,
+          "probability": 0.065
+        },
+        {
+          "value": 1650.55,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 1650.6625,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 1650.775,
+          "probability": 0.07
+        },
+        {
+          "value": 1650.8875,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 1651.0,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 1651.1125,
+          "probability": 0.075
+        },
+        {
+          "value": 1651.225,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 1651.3375,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 1651.45,
+          "probability": 0.08
+        },
+        {
+          "value": 1651.5625,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 1651.675,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 1651.7875,
+          "probability": 0.085
+        },
+        {
+          "value": 1651.9,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 1652.0125,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 1652.125,
+          "probability": 0.09
+        },
+        {
+          "value": 1652.2375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 1652.35,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 1652.4625,
+          "probability": 0.095
+        },
+        {
+          "value": 1652.575,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 1652.6875,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 1652.8,
+          "probability": 0.1
+        },
+        {
+          "value": 1652.9125,
+          "probability": 0.11
+        },
+        {
+          "value": 1653.025,
+          "probability": 0.12
+        },
+        {
+          "value": 1653.1375,
+          "probability": 0.13
+        },
+        {
+          "value": 1653.25,
+          "probability": 0.14
+        },
+        {
+          "value": 1653.3625,
+          "probability": 0.15
+        },
+        {
+          "value": 1653.475,
+          "probability": 0.16
+        },
+        {
+          "value": 1653.5875,
+          "probability": 0.17
+        },
+        {
+          "value": 1653.7,
+          "probability": 0.18
+        },
+        {
+          "value": 1653.8125,
+          "probability": 0.19
+        },
+        {
+          "value": 1653.925,
+          "probability": 0.2
+        },
+        {
+          "value": 1654.0375,
+          "probability": 0.21
+        },
+        {
+          "value": 1654.15,
+          "probability": 0.22
+        },
+        {
+          "value": 1654.2625,
+          "probability": 0.23
+        },
+        {
+          "value": 1654.375,
+          "probability": 0.24
+        },
+        {
+          "value": 1654.4875,
+          "probability": 0.25
+        },
+        {
+          "value": 1654.6,
+          "probability": 0.26
+        },
+        {
+          "value": 1654.7125,
+          "probability": 0.27
+        },
+        {
+          "value": 1654.825,
+          "probability": 0.28
+        },
+        {
+          "value": 1654.9375,
+          "probability": 0.29
+        },
+        {
+          "value": 1655.05,
+          "probability": 0.3
+        },
+        {
+          "value": 1655.1625,
+          "probability": 0.31
+        },
+        {
+          "value": 1655.275,
+          "probability": 0.32
+        },
+        {
+          "value": 1655.3875,
+          "probability": 0.33
+        },
+        {
+          "value": 1655.5,
+          "probability": 0.34
+        },
+        {
+          "value": 1655.6125,
+          "probability": 0.35
+        },
+        {
+          "value": 1655.725,
+          "probability": 0.36
+        },
+        {
+          "value": 1655.8375,
+          "probability": 0.37
+        },
+        {
+          "value": 1655.95,
+          "probability": 0.38
+        },
+        {
+          "value": 1656.0625,
+          "probability": 0.39
+        },
+        {
+          "value": 1656.175,
+          "probability": 0.4
+        },
+        {
+          "value": 1656.2875,
+          "probability": 0.41
+        },
+        {
+          "value": 1656.4,
+          "probability": 0.42
+        },
+        {
+          "value": 1656.5125,
+          "probability": 0.43
+        },
+        {
+          "value": 1656.625,
+          "probability": 0.44
+        },
+        {
+          "value": 1656.7375,
+          "probability": 0.45
+        },
+        {
+          "value": 1656.85,
+          "probability": 0.46
+        },
+        {
+          "value": 1656.9625,
+          "probability": 0.47
+        },
+        {
+          "value": 1657.075,
+          "probability": 0.48
+        },
+        {
+          "value": 1657.1875,
+          "probability": 0.49
+        },
+        {
+          "value": 1657.3,
+          "probability": 0.5
+        },
+        {
+          "value": 1657.4125,
+          "probability": 0.51
+        },
+        {
+          "value": 1657.525,
+          "probability": 0.52
+        },
+        {
+          "value": 1657.6375,
+          "probability": 0.53
+        },
+        {
+          "value": 1657.75,
+          "probability": 0.54
+        },
+        {
+          "value": 1657.8625,
+          "probability": 0.55
+        },
+        {
+          "value": 1657.975,
+          "probability": 0.56
+        },
+        {
+          "value": 1658.0875,
+          "probability": 0.57
+        },
+        {
+          "value": 1658.2,
+          "probability": 0.58
+        },
+        {
+          "value": 1658.3125,
+          "probability": 0.59
+        },
+        {
+          "value": 1658.425,
+          "probability": 0.6
+        },
+        {
+          "value": 1658.5375,
+          "probability": 0.61
+        },
+        {
+          "value": 1658.65,
+          "probability": 0.62
+        },
+        {
+          "value": 1658.7625,
+          "probability": 0.63
+        },
+        {
+          "value": 1658.875,
+          "probability": 0.64
+        },
+        {
+          "value": 1658.9875,
+          "probability": 0.65
+        },
+        {
+          "value": 1659.1,
+          "probability": 0.66
+        },
+        {
+          "value": 1659.2125,
+          "probability": 0.67
+        },
+        {
+          "value": 1659.325,
+          "probability": 0.68
+        },
+        {
+          "value": 1659.4375,
+          "probability": 0.69
+        },
+        {
+          "value": 1659.55,
+          "probability": 0.7
+        },
+        {
+          "value": 1659.6625,
+          "probability": 0.71
+        },
+        {
+          "value": 1659.775,
+          "probability": 0.72
+        },
+        {
+          "value": 1659.8875,
+          "probability": 0.73
+        },
+        {
+          "value": 1660.0,
+          "probability": 0.74
+        },
+        {
+          "value": 1660.1125,
+          "probability": 0.75
+        },
+        {
+          "value": 1660.225,
+          "probability": 0.76
+        },
+        {
+          "value": 1660.3375,
+          "probability": 0.77
+        },
+        {
+          "value": 1660.45,
+          "probability": 0.78
+        },
+        {
+          "value": 1660.5625,
+          "probability": 0.79
+        },
+        {
+          "value": 1660.675,
+          "probability": 0.8
+        },
+        {
+          "value": 1660.7875,
+          "probability": 0.81
+        },
+        {
+          "value": 1660.9,
+          "probability": 0.82
+        },
+        {
+          "value": 1661.0125,
+          "probability": 0.83
+        },
+        {
+          "value": 1661.125,
+          "probability": 0.84
+        },
+        {
+          "value": 1661.2375,
+          "probability": 0.85
+        },
+        {
+          "value": 1661.35,
+          "probability": 0.86
+        },
+        {
+          "value": 1661.4625,
+          "probability": 0.87
+        },
+        {
+          "value": 1661.575,
+          "probability": 0.88
+        },
+        {
+          "value": 1661.6875,
+          "probability": 0.89
+        },
+        {
+          "value": 1661.8,
+          "probability": 0.9
+        },
+        {
+          "value": 1661.9125,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 1662.025,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 1662.1375,
+          "probability": 0.905
+        },
+        {
+          "value": 1662.25,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 1662.3625,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 1662.475,
+          "probability": 0.91
+        },
+        {
+          "value": 1662.5875,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 1662.7,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 1662.8125,
+          "probability": 0.915
+        },
+        {
+          "value": 1662.925,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 1663.0375,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 1663.15,
+          "probability": 0.92
+        },
+        {
+          "value": 1663.2625,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 1663.375,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 1663.4875,
+          "probability": 0.925
+        },
+        {
+          "value": 1663.6,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1663.7125,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1663.825,
+          "probability": 0.93
+        },
+        {
+          "value": 1663.9375,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1664.05,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1664.1625,
+          "probability": 0.935
+        },
+        {
+          "value": 1664.275,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1664.3875,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1664.5,
+          "probability": 0.94
+        },
+        {
+          "value": 1664.6125,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1664.725,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1664.8375,
+          "probability": 0.945
+        },
+        {
+          "value": 1664.95,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1665.0625,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1665.175,
+          "probability": 0.95
+        },
+        {
+          "value": 1665.2875,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1665.4,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1665.5125,
+          "probability": 0.955
+        },
+        {
+          "value": 1665.625,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1665.7375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1665.85,
+          "probability": 0.96
+        },
+        {
+          "value": 1665.9625,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1666.075,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1666.1875,
+          "probability": 0.965
+        },
+        {
+          "value": 1666.3,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1666.4125,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1666.525,
+          "probability": 0.97
+        },
+        {
+          "value": 1666.6375,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 1666.75,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 1666.8625,
+          "probability": 0.975
+        },
+        {
+          "value": 1666.975,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 1667.0875,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 1667.2,
+          "probability": 0.98
+        },
+        {
+          "value": 1667.3125,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 1667.425,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 1667.5375,
+          "probability": 0.985
+        },
+        {
+          "value": 1667.65,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 1667.7625,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 1667.875,
+          "probability": 0.99
+        },
+        {
+          "value": 1667.9875,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 1668.1,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 1668.2125,
+          "probability": 0.995
+        },
+        {
+          "value": 1668.325,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 1668.4375,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 1668.55,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 1657.3,
+        "median": 1657.3,
+        "interval80": {
+          "lower": 1652.8,
+          "upper": 1661.8
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/prompt.md",
+        "sha256": "4ab60e9bd66474716feab556f660e8e96631aaf3ff155dc745403e6b51430fcc",
+        "bytes": 9057,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_command.json",
+        "sha256": "17127e9619342d7084df209c9a844ac3f91df9b3b61dffff8bff6d506acb8097",
+        "bytes": 721,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "be5b6883dcc0d3f6185687467a74b2b6f06e9ce8233280aa30b544f9ae73f655",
+        "bytes": 15892,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_stderr.log",
+        "sha256": "8f6a9dcbc6c7105c615a9ebc4aa023fd8255cfd8ae7fd3a05c3d7d14f05127a8",
+        "bytes": 233,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_events.jsonl",
+        "sha256": "dd859e89ce2f2fa4429be2e1ce3cac08dfd69f866256472f1dbaaedbefdb7d40",
+        "bytes": 15864,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_last_message.txt",
+        "sha256": "da3147a095988b3e654074cc0b32201eed1894884f0338e9c482ea3b71a66f46",
+        "bytes": 5871,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_codex_trace.json",
+        "sha256": "8b9a4c844a0c350346ae27054c60f5b78392b12d74690b696b004e23de3f13ba",
+        "bytes": 507,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_stdout.txt",
+        "sha256": "da3147a095988b3e654074cc0b32201eed1894884f0338e9c482ea3b71a66f46",
+        "bytes": 5871,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_stderr.txt",
+        "sha256": "a93986ceb6e8a431ee14a03d53461cc6d06a4fa2fe7fb36d42277cdd11634f7a",
+        "bytes": 248,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_prompt.md",
+        "sha256": "272725aacb86e5d47002e9d9692a96b0e945fab83a6ac245b12ac1ecd0d850b0",
+        "bytes": 9081,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_command.json",
+        "sha256": "a354d3cad116d5682508b9aab1b023ffbd0bec1729b8074c05468cfb60ed8466",
+        "bytes": 717,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "3e270ec22152e6b2a6fd686e5525637a93d2286f8bbf0a871b7e792eddcc76ce",
+        "bytes": 2473,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "3df7eb2c4ce3c6f93133118e263b57336a614ecc402d5b8a3381b8fc33a5d15d",
+        "bytes": 233,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "375bf924966867f26f6a37bbccb093f19ed43d2a0589c63f4291b4c7a3437671",
+        "bytes": 2495,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "5154bf6f72e4e9b83e2b21d34a58f02249a8ffcfa8ac757be73dbadda05f4c9e",
+        "bytes": 2099,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "570a4098d537cd4f9f84c40d67bd1e8ab52fb569d63aec6092fe47af02f43f2c",
+        "bytes": 501,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "5154bf6f72e4e9b83e2b21d34a58f02249a8ffcfa8ac757be73dbadda05f4c9e",
+        "bytes": 2099,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "f2c0a9c91db49cdf5b5b3aa3dc1a9366be536e1f7edc229c85505c8594a25305",
+        "bytes": 248,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/revision_prompt.md",
+        "sha256": "9f21155dec15c370caf04662abd3012d32373356e2b7621926df943f7b8ee9ef",
+        "bytes": 17963,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/command.json",
+        "sha256": "3633c3fd4d9db49d39cf7833303ce69ba7b5901720375da55905f7a9a6ada342",
+        "bytes": 715,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_stdout.jsonl",
+        "sha256": "58fbdb00dd1ce302ac7950d30dde92248dfdf6888e5a3fa110c9c107d01979b3",
+        "bytes": 7296,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_stderr.log",
+        "sha256": "46da8235c8bdef68a26fb2f3880367e19b45ba6b8dfb2bd6d15db55b599f3ad2",
+        "bytes": 233,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_events.jsonl",
+        "sha256": "222cf0f768582e903f6cc6049fe7d31870331081d8ec7d03fbc7ded7fcc0e084",
+        "bytes": 7318,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_last_message.txt",
+        "sha256": "0b2b78ddb5e4e9d3a9245459971b693891d2f312aa491873978fdc652cde0d00",
+        "bytes": 6746,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/codex_trace.json",
+        "sha256": "e646b808c1ec406033fa72a2c4a2ec1992499c1a054668d547fdc9e68c814e6a",
+        "bytes": 506,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/stdout.txt",
+        "sha256": "0b2b78ddb5e4e9d3a9245459971b693891d2f312aa491873978fdc652cde0d00",
+        "bytes": 6746,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/stderr.txt",
+        "sha256": "bbc59d0ffeabc84bf300ac1d9b5670ae6dd4f4f62dc464b095c27dafee78878b",
+        "bytes": 248,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/raw_response.txt",
+        "sha256": "0b2b78ddb5e4e9d3a9245459971b693891d2f312aa491873978fdc652cde0d00",
+        "bytes": 6746,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/parsed_cells.json",
+        "sha256": "847dc75087cb70ddaee36b02c220f18f165016ef03bc84f43d27fed174481a30",
+        "bytes": 7602,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/normalized_cells.json",
+        "sha256": "006946a2d75d093602874b8a5f92b07ab5097aa1f76f57dfabe23c6be52d42a2",
+        "bytes": 25483,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/distribution.json",
+        "sha256": "74ff13fbbb0ea899e2bb38b36c9cdec3df44af79bf4558e397dea62eada681d4",
+        "bytes": 14097,
+        "createdAt": "2026-07-15T16:35:11Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/validation.json",
+        "sha256": "4f881e669603858ed1ab3a619bd6f7057dcd4e3d95a637dc72b151d60f5e0596",
+        "bytes": 157,
+        "createdAt": "2026-07-15T16:35:11Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-15T16:35:11Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "f1267983a7c3c6a026f5bdd53b792a2fc736ef709e7e85ac72cb21570c61cf50"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-15/2026-07-15t16-35-11z-bea-government-social-benefits-social-security-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The forecast simultaneously uses the ledger URL with vintage_date=2026-06-25 and a rule resolving to the June 2026 first print expected around 2026-07-31; these cannot both be the operative resolver without an explicit discrepancy note in the final fields.",
+          "actionRequested": "Keep the registered slug/dataPointId/source URL, but make the resolver text explicitly say the ledger URL/vintage is the binding target and that it appears inconsistent with the June first-print release date; do not imply a different ALFRED vintage will be used unless the ledger is corrected."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval claims sigma = 3.5 from a recent official-source reference-class dispersion, but the sample or calculation for that sigma is not shown beyond four recent positive monthly changes.",
+          "actionRequested": "Name the realized-volatility sample used for sigma = 3.5, or state that it is a judgmental uncertainty allowance above the recent four-month drift dispersion."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "tails",
+          "summary": "Tail scenarios are directionally relevant but still generic, especially the upside administrative/retroactive-payment case and downside adjustment correction case.",
+          "actionRequested": "Tie tails more concretely to W823RC1 first-print mechanics, such as unusual lump-sum benefit processing, seasonal-adjustment revision behavior in first vintage, or beneficiary/payment-count surprise."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make resolutionSource match the ledger source more exactly, e.g. registered ALFRED W823RC1 first-print mirror, while noting BEA Table 1 as the underlying source."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the compact prior/update/interval step, mention that the 2026 COLA is already embedded in the May anchor before applying the +2.8 drift."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by making the registered 2026-06-25 ALFRED vintage explicitly binding and noting its inconsistency with the 2026-07-31 BEA release date; accepted the interval critique by labeling sigma = 3.5 as a judgmental allowance above the short drift sample; accepted the tails critique by tying risks to W823RC1 first-print lump-sum, seasonal-adjustment, and beneficiary/payment-count mechanics.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly coherent but has a blocking resolver inconsistency because the registered ALFRED vintage URL appears unable to contain the June 2026 first print while the forecast rule describes a later BEA/ALFRED first-print resolver."
+    }
+  }
+]
