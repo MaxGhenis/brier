@@ -1554,3 +1554,42 @@ def test_ladder_v2_prompt_swaps_the_derivation_contract() -> None:
     )
     assert run_meta["agent"] == "thesis.analyst.ladder_v2"
     assert "promptMode ladder_v2" in prompt
+
+
+def test_canonical_steps_are_stripped_to_contract_keys(tmp_path: Path) -> None:
+    # A forecast step decorated with commentary text broke the typed publish
+    # build (2026-07-15 APEL wave): canonical kinds must keep only the
+    # contract's keys.
+    from normalize_spawn_json import norm_steps
+
+    cell = {
+        "pointEstimate": 5,
+        "ciLow": 4,
+        "ciHigh": 6,
+        "reasoning": [
+            {"kind": "math", "text": "sigma = 1", "confidence": 0.9},
+            {
+                "kind": "tool",
+                "tool": "data.fetch",
+                "call": "GET x",
+                "result": "42",
+                "url": "https://example.gov",
+            },
+            {
+                "kind": "forecast",
+                "point": 5,
+                "ciLow": 4,
+                "ciHigh": 6,
+                "text": "final answer commentary",
+            },
+        ],
+    }
+    steps = norm_steps(cell)
+    assert steps[0] == {"kind": "math", "text": "sigma = 1"}
+    assert steps[1] == {
+        "kind": "tool",
+        "tool": "data.fetch",
+        "call": "GET x",
+        "result": "42",
+    }
+    assert steps[2] == {"kind": "forecast", "point": 5, "ciLow": 4, "ciHigh": 6}

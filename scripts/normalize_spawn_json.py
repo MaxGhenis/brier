@@ -27,12 +27,24 @@ TEXT_TYPES = {"text", "heading", "base_rate", "counter_consideration",
               "reference-class", "reference_class"}
 
 
+CANON_STEP_KEYS = {
+    "heading": ("kind", "text"),
+    "text": ("kind", "text"),
+    "math": ("kind", "text"),
+    "tool": ("kind", "tool", "call", "result"),
+    "forecast": ("kind", "point", "ciLow", "ciHigh"),
+}
+
+
 def norm_steps(cell: dict) -> list[dict]:
     out = []
     for s in cell["reasoning"]:
-        CANON = {"heading", "text", "tool", "math", "forecast"}
-        if s.get("kind") in CANON:  # already contract-shaped
-            out.append(s)
+        if s.get("kind") in CANON_STEP_KEYS:
+            # Contract-shaped kind, but agents decorate steps with extra
+            # fields (a forecast step carrying commentary text broke the
+            # typed publish build); keep only the contract's keys.
+            allowed = CANON_STEP_KEYS[s["kind"]]
+            out.append({k: s[k] for k in allowed if k in s})
             continue
         t = s.get("type") or s.get("kind") or "text"
         detail = s.get("detail", "")
