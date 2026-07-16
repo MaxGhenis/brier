@@ -45,6 +45,7 @@ import sys
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -1160,6 +1161,150 @@ _EUROSTAT_RETAIL_SPEC = {
     "anchor_tolerance": 0.0,
 }
 
+USASPENDING_API_ROOT = "https://api.usaspending.gov/api/v2"
+
+# Registered-query snapshot family: USAspending revises continuously, so a
+# target's outcome is the value its pinned query returns on the registered
+# capture date (expectedReleaseWindow.start), never a source first print.
+# Each spec mirrors the series' committed 7-key template in
+# scripts/docket_series.json; the executor refuses on any drift between the
+# registered binding and this table.
+USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
+    "usaspending.dod.prime_award_obligations": {
+        "url_template": (
+            f"{USASPENDING_API_ROOT}/agency/097/awards/"
+            "?fiscal_year={fiscal_year}"
+        ),
+        "field": "obligations",
+        "series_id": "usaspending.agency.097.awards.obligations",
+        "label": "US DoD prime award obligations, fiscal year to date",
+        "unit": "billions USD",
+        "scale": 1e-9,
+        "round": 1,
+        "source_name": "usaspending_api",
+        "source_table": "USAspending API v2, agency 097 (DoD) award summary",
+        "concept_authority": "usaspending",
+        "source_concept": "obligations",
+    },
+    "usaspending.dod.prime_contract_obligations": {
+        "url_template": (
+            f"{USASPENDING_API_ROOT}/agency/097/obligations_by_award_category/"
+            "?fiscal_year={fiscal_year}"
+        ),
+        "field": "results[category=contracts].aggregated_amount",
+        "series_id": (
+            "usaspending.agency.097.obligations_by_award_category.contracts"
+        ),
+        "label": "US DoD prime contract obligations, fiscal year to date",
+        "unit": "billions USD",
+        "scale": 1e-9,
+        "round": 1,
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2, agency 097 (DoD) obligations by award "
+            "category, contracts row"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": "results[category=contracts].aggregated_amount",
+    },
+    "usaspending.dod.new_prime_awards": {
+        "url_template": (
+            f"{USASPENDING_API_ROOT}/agency/097/awards/new/count/"
+            "?fiscal_year={fiscal_year}"
+        ),
+        "field": "new_award_count",
+        "series_id": "usaspending.agency.097.awards.new_award_count",
+        "label": "US DoD new prime awards, fiscal year to date",
+        "unit": "millions",
+        "scale": 1e-6,
+        "round": 3,
+        "source_name": "usaspending_api",
+        "source_table": "USAspending API v2, agency 097 (DoD) new award count",
+        "concept_authority": "usaspending",
+        "source_concept": "new_award_count",
+    },
+    "usaspending.dod.prime_award_transactions": {
+        "url_template": (
+            f"{USASPENDING_API_ROOT}/agency/097/awards/"
+            "?fiscal_year={fiscal_year}"
+        ),
+        "field": "transaction_count",
+        "series_id": "usaspending.agency.097.awards.transaction_count",
+        "label": "US DoD prime award transactions, fiscal year to date",
+        "unit": "millions",
+        "scale": 1e-6,
+        "round": 3,
+        "source_name": "usaspending_api",
+        "source_table": "USAspending API v2, agency 097 (DoD) award summary",
+        "concept_authority": "usaspending",
+        "source_concept": "transaction_count",
+    },
+}
+for _spec in USASPENDING_ADAPTERS.values():
+    _spec["evidence_notes"] = (
+        "Registered-query snapshot for {period} captured from {source_url} "
+        "inside the preregistered snapshot window. USAspending revises "
+        "continuously, so the outcome is defined as the value the pinned "
+        "query returned on the registered capture date; the full response "
+        "bytes are archived as evidence."
+    )
+
+
+def extract_json_field(payload: Any, selector: str) -> float | None:
+    """Resolve a dotted selector with [key=value] list matches to a number.
+
+    "results[category=contracts].aggregated_amount" walks payload["results"],
+    picks the item whose "category" equals "contracts", then reads
+    "aggregated_amount". Returns None when any hop is missing or the leaf is
+    not a plain number, so the caller refuses instead of guessing.
+    """
+    current: Any = payload
+    for segment in selector.split("."):
+        match = re.fullmatch(r"([A-Za-z_]\w*)\[(\w+)=([^\]]+)\]", segment)
+        if match:
+            name, key, expected = match.groups()
+            if not isinstance(current, dict):
+                return None
+            items = current.get(name)
+            if not isinstance(items, list):
+                return None
+            current = next(
+                (
+                    item
+                    for item in items
+                    if isinstance(item, dict) and str(item.get(key)) == expected
+                ),
+                None,
+            )
+        else:
+            if not isinstance(current, dict):
+                return None
+            current = current.get(segment)
+        if current is None:
+            return None
+    if isinstance(current, bool) or not isinstance(current, (int, float)):
+        return None
+    return float(current)
+
+
+def snapshot_window_state(today: dt.date, window: Any) -> str:
+    """"pending" | "open" | "missed" | "invalid" for a snapshot window."""
+    if not isinstance(window, dict):
+        return "invalid"
+    try:
+        start = dt.date.fromisoformat(str(window.get("start")))
+        end = dt.date.fromisoformat(str(window.get("end")))
+    except (TypeError, ValueError):
+        return "invalid"
+    if start > end:
+        return "invalid"
+    if today < start:
+        return "pending"
+    if today > end:
+        return "missed"
+    return "open"
+
+
 INTL_ADAPTERS: dict[str, dict[str, Any]] = {
     # Canada (two CPI dataPointId dialects name the same fact)
     "statcan.cpi.all_items_annual_rate.canada": _STATCAN_CPI_SPEC,
@@ -1615,7 +1760,8 @@ def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     """(period_type, YYYY-MM) parsed from a dataPointId's period tail."""
     tail = ref[len(stem) + 1 :]
     tail = re.sub(
-        r"\.(first_print|advance|second|third|flash|preliminary)_?(estimate)?$",
+        r"\.(first_print|registered_query_snapshot|advance|second|third|flash"
+        r"|preliminary)_?(estimate)?$",
         "",
         tail,
     )
@@ -1631,6 +1777,9 @@ def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     m = re.fullmatch(r"(\d{4})_q([1-4])", tail)
     if m:
         return "quarter", f"{m.group(1)}-{(int(m.group(2)) - 1) * 3 + 1:02d}"
+    m = re.fullmatch(r"fy_?(\d{4})", tail)
+    if m:
+        return "fiscal_year", m.group(1)
     return None
 
 
@@ -1706,7 +1855,11 @@ def generic_fact(
         "geography": INTL_GEOGRAPHY.get(spec.get("country", ""), US_GEOGRAPHY),
         "entity": spec.get("entity", {"name": "economy", "role": "aggregate"}),
         "measure": {
-            "concept": re.sub(r"\.(first_print|flash|preliminary)$", "", ref),
+            "concept": re.sub(
+            r"\.(first_print|registered_query_snapshot|flash|preliminary)$",
+            "",
+            ref,
+        ),
             "unit": spec["unit"],
             "source_concept": spec.get("fred", spec.get("source_concept", "")),
             "concept_relation": "source_label",
@@ -1974,6 +2127,29 @@ def pending_adapter_refs(
                         ref,
                         "intl",
                         INTL_ADAPTERS[intl_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        usaspending_stem = next(
+            (
+                stem
+                for stem in USASPENDING_ADAPTERS
+                if ref.startswith(stem + ".")
+            ),
+            None,
+        )
+        if usaspending_stem:
+            parsed = parse_ref_period(ref, usaspending_stem)
+            if parsed and parsed[0] == "fiscal_year":
+                out.append(
+                    (
+                        ref,
+                        "usaspending",
+                        USASPENDING_ADAPTERS[usaspending_stem],
                         parsed[0],
                         parsed[1],
                         release_date,
@@ -3504,6 +3680,8 @@ def main() -> int:
     # year range); A-19 snapshots per month; international artifacts per
     # source key so dataPointId dialects share one archived response.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
+    usaspending_cache: dict[str, tuple[Any, bytes | None, str, str]] = {}
+    usaspending_contracts: dict[str, dict[str, Any]] | None = None
     bls_cache: dict[
         tuple[str, int, int], tuple[dict, bytes | None, str, str]
     ] = {}
@@ -3603,6 +3781,100 @@ def main() -> int:
             # inside the first-print window.
             release_day = dt.date.fromisoformat(retrieved_at[:10])
             source_file = "timeseries/data (BLS Public Data API v2)"
+            extension = "json"
+        elif kind == "usaspending":
+            if usaspending_contracts is None:
+                usaspending_contracts = registration_contracts()
+            contract = usaspending_contracts.get(ref)
+            binding = (contract or {}).get("sourceBinding") or {}
+            window_state = snapshot_window_state(
+                dt.date.fromisoformat(utc_now()[:10]),
+                binding.get("expectedReleaseWindow"),
+            )
+            if contract is None or window_state == "invalid":
+                print(f"  NO REGISTERED SNAPSHOT WINDOW (refusing): {ref}")
+                continue
+            if window_state == "pending":
+                print(
+                    f"  SNAPSHOT WINDOW NOT OPEN (deferring): {ref} — opens "
+                    f"{binding['expectedReleaseWindow']['start']}"
+                )
+                continue
+            if window_state == "missed":
+                print(
+                    f"  SNAPSHOT WINDOW MISSED (refusing): {ref} — closed "
+                    f"{binding['expectedReleaseWindow']['end']}"
+                )
+                continue
+            if (
+                binding.get("sourceUrl") != spec["url_template"]
+                or binding.get("field") != spec["field"]
+            ):
+                print(
+                    f"  BINDING/ADAPTER MISMATCH (refusing, registry drift?): "
+                    f"{ref}"
+                )
+                continue
+            snapshot_url = spec["url_template"].format(fiscal_year=period)
+            allowed = binding.get("allowedHosts") or []
+            host = urllib.parse.urlparse(snapshot_url).hostname
+            if host not in allowed:
+                print(
+                    f"  HOST NOT IN REGISTERED ALLOWLIST (refusing): {ref} — "
+                    f"{host}"
+                )
+                continue
+            if snapshot_url not in usaspending_cache:
+                retrieved_at = utc_now()
+                request = urllib.request.Request(
+                    snapshot_url,
+                    headers={
+                        "User-Agent": "thesis-resolver/1 "
+                        "(app.thesisinstitute.org)"
+                    },
+                )
+                try:
+                    with urllib.request.urlopen(request, timeout=120) as r:
+                        raw_body = r.read()
+                    usaspending_cache[snapshot_url] = (
+                        json.loads(raw_body.decode()),
+                        raw_body,
+                        snapshot_url,
+                        retrieved_at,
+                    )
+                except (
+                    urllib.error.URLError,
+                    json.JSONDecodeError,
+                    UnicodeDecodeError,
+                ) as exc:
+                    print(f"  USAspending fetch failed ({exc}): {ref}")
+                    usaspending_cache[snapshot_url] = (
+                        None,
+                        None,
+                        snapshot_url,
+                        retrieved_at,
+                    )
+            payload, raw, source_url, retrieved_at = usaspending_cache[
+                snapshot_url
+            ]
+            if raw is None:
+                continue
+            raw_value = extract_json_field(payload, spec["field"])
+            if raw_value is None:
+                print(
+                    f"  FIELD NOT FOUND IN RESPONSE (refusing): {ref} — "
+                    f"{spec['field']}"
+                )
+                continue
+            value = round(raw_value * spec.get("scale", 1), spec.get("round", 4))
+            # The registered capture day IS the outcome's vintage: the
+            # window gate above bounds it inside the preregistered
+            # snapshot window.
+            release_day = dt.date.fromisoformat(retrieved_at[:10])
+            series_id = spec["series_id"]
+            source_file = (
+                "registered query snapshot (USAspending API v2)"
+            )
             extension = "json"
         else:
             snapshot_url = A19_SNAPSHOT_URLS.get(period)

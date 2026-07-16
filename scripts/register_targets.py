@@ -49,8 +49,8 @@ LEDGER_PIN_PATH = (
     / "ledger-pin.json"
 )
 LEDGER_PIN_BINDING_KEYS = {"repo", "branch", "sha", "jsonlSha256", "lineCount"}
-SOURCE_ADAPTERS = {"alfred-fred", "generic-url"}
-RELEASE_POLICIES = {"first_print", "advance_vintage"}
+SOURCE_ADAPTERS = {"alfred-fred", "generic-url", "usaspending-api"}
+RELEASE_POLICIES = {"first_print", "advance_vintage", "registered_query_snapshot"}
 SOURCE_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
 SERIES_BINDINGS: dict[str, dict[str, Any]] = {
     "us.dol.initial_claims.sa": {
@@ -286,6 +286,14 @@ def derive_data_point_id(
             replacement = _replacement_period_variant(old, period)
             return prior_id.replace(old, replacement, 1)
     token = period.lower().replace("-", "_")
+    seed_binding = target.get("sourceBinding")
+    seed_policy = (
+        seed_binding.get("releasePolicy") if isinstance(seed_binding, dict) else None
+    )
+    if seed_policy == "registered_query_snapshot":
+        # Time-anchored semantics: the outcome is whatever the registered
+        # query returns on the registered date, not a source first print.
+        return f"{series}.{token}.registered_query_snapshot"
     return f"{series}.{token}.first_print"
 
 
@@ -383,6 +391,18 @@ def derive_source_binding(
         raise RegistrationError(f"unsupported source adapter {adapter!r}")
     if release_policy not in RELEASE_POLICIES:
         raise RegistrationError(f"unsupported release policy {release_policy!r}")
+    if release_policy == "registered_query_snapshot":
+        supplied_window = target.get("expectedReleaseWindow")
+        if not (
+            isinstance(supplied_window, dict)
+            and supplied_window.get("start")
+            and supplied_window.get("end")
+        ):
+            raise RegistrationError(
+                "registered_query_snapshot requires an explicit "
+                "expectedReleaseWindow: start = the registered query date, "
+                "end = start plus the retry margin"
+            )
     _host(source_url)
     # Official series legitimately span sibling hosts (news release page,
     # data-file host, ALFRED mirror). The binding allows every host the

@@ -313,9 +313,13 @@ def _source_binding_errors(value: Any) -> list[str]:
     if not isinstance(value, dict) or set(value) != SOURCE_BINDING_FIELDS:
         return ["bad previousTarget sourceBinding schema"]
     errors = []
-    if value.get("adapter") not in {"alfred-fred", "generic-url"}:
+    if value.get("adapter") not in {"alfred-fred", "generic-url", "usaspending-api"}:
         errors.append("bad previousTarget source adapter")
-    if value.get("releasePolicy") not in {"first_print", "advance_vintage"}:
+    if value.get("releasePolicy") not in {
+        "first_print",
+        "advance_vintage",
+        "registered_query_snapshot",
+    }:
         errors.append("bad previousTarget release policy")
     url_error = _public_https_error(value.get("sourceUrl"), "sourceBinding URL")
     if url_error:

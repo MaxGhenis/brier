@@ -1,38 +1,390 @@
 {
   "comment": "Registry for the auto-roll loop (scripts/roll_docket.py). Next period per series derives from the latest recorded run in records/thesis-analyst/; the live catalog slug set is the final dup guard. Only series with at least one rubric-passing published run belong here.",
   "series": [
-    {"series": "us.dol.initial_claims.sa", "cadence": "weekly", "slug": "initial-claims-week-{period}", "extras": {"valueScale": 0.001, "targetUnit": "thousands"}},
-    {"series": "dol.eta.continued_claims.sa", "cadence": "weekly", "slug": "continued-claims-week-{period}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
-
-    {"series": "bls.cpi.u.headline_mom", "cadence": "monthly", "slug": "us-cpi-u-mom-{month}-{year}"},
-    {"series": "bls.cpi.u.core_mom", "cadence": "monthly", "slug": "us-core-cpi-mom-{month}-{year}"},
-    {"series": "bls.ces.nonfarm_payrolls.change", "cadence": "monthly", "slug": "nonfarm-payrolls-{month}-{year}"},
-    {"series": "bls.cps.unemployment_rate", "cadence": "monthly", "slug": "unemployment-rate-{month}-{year}"},
-    {"series": "bls.jolts.job_openings", "cadence": "monthly", "slug": "jolts-openings-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
-    {"series": "bls.jolts.quits_rate", "cadence": "monthly", "slug": "jolts-quits-rate-{month}-{year}"},
-    {"series": "bls.real_earnings.avg_hourly_mom", "cadence": "monthly", "slug": "us-real-avg-hourly-earnings-mom-{month}-{year}"},
-    {"series": "bls.cps.telework_share", "cadence": "monthly", "slug": "us-telework-rate-{month}-{year}"},
-    {"series": "bea.core_pce.mom", "cadence": "monthly", "slug": "us-core-pce-mom-{month}-{year}"},
-    {"series": "treasury.mts.monthly_deficit", "cadence": "monthly", "slug": "us-mts-deficit-{month}-{year}"},
-    {"series": "fns.wic.total_participation", "cadence": "monthly", "slug": "wic-participation-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
-    {"series": "fns.snap.total_persons", "cadence": "monthly", "slug": "snap-participation-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions", "sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap", "sourceSeriesId": "fns.snap.total_persons", "field": "Persons", "table": "FNS SNAP data tables, national monthly participation (thousands)", "transform": {"operation": "multiply", "factor": 0.001}, "releasePolicy": "first_print"}}},
-    {"series": "ssa.ssi.total_recipients", "cadence": "monthly", "slug": "ssi-recipients-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "millions"}},
-
-    {"series": "eurostat.hicp.flash.yoy", "cadence": "monthly", "slug": "euro-flash-hicp-{month}-{year}", "extras": {"sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_minr/M.RCH_A.TOTAL.EA21?format=JSON", "sourceSeriesId": "prc_hicp_minr/M.RCH_A.TOTAL.EA21", "field": "RCH_A", "table": "HICP (ECOICOP ver.2) monthly rates, all-items annual rate, euro area; flash carries the provisional flag on release day", "transform": {"operation": "multiply", "factor": 1}, "releasePolicy": "first_print"}}},
-    {"series": "eurostat.unemployment_rate", "cadence": "monthly", "slug": "euro-area-unemployment-rate-{month}-{year}", "extras": {"sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21?format=JSON", "sourceSeriesId": "une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21", "field": "PC_ACT", "table": "Unemployment by sex and age (une_rt_m), euro area, SA, total; first print captured between monthly releases", "transform": {"operation": "multiply", "factor": 1}, "releasePolicy": "first_print"}}},
-    {"series": "abs.cpi.all_groups.yoy", "cadence": "monthly", "slug": "australia-cpi-annual-rate-{month}-{year}", "extras": {"sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://data.api.abs.gov.au/rest/data/CPI/3.10001.10.50.M?format=jsondata", "sourceSeriesId": "CPI/3.10001.10.50.M", "field": "3.10001.10.50.M", "table": "ABS complete monthly CPI (dataflow CPI): all groups annual change, original, weighted average of eight capital cities", "transform": {"operation": "multiply", "factor": 1}, "releasePolicy": "first_print"}}},
-    {"series": "abs.labour.unemployment_rate", "cadence": "monthly", "slug": "australia-unemployment-rate-{month}-{year}", "extras": {"sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M13.3.1599.20.AUS.M?format=jsondata", "sourceSeriesId": "LF/M13.3.1599.20.AUS.M", "field": "M13", "table": "Labour Force, Australia (dataflow LF): unemployment rate, persons, seasonally adjusted; first print captured on release day", "transform": {"operation": "multiply", "factor": 1}, "releasePolicy": "first_print"}}},
-    {"series": "statcan.gdp_by_industry.monthly_growth", "cadence": "monthly", "slug": "canada-monthly-gdp-growth-{month}-{year}", "extras": {"sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=65201210", "sourceSeriesId": "v65201210", "field": "v65201210", "table": "Statistics Canada Table 36-10-0434-01, all industries, chained 2017 dollars SA at annual rates; MoM percent change computed from levels at the release vintage", "transform": {"operation": "multiply", "factor": 1}, "releasePolicy": "first_print"}}},
-    {"series": "statcan.employment_insurance.regular_beneficiaries", "cadence": "monthly", "slug": "canada-ei-regular-beneficiaries-{month}-{year}", "extras": {"valueScale": 0.001, "targetUnit": "thousands", "sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=64549350", "sourceSeriesId": "v64549350", "field": "v64549350", "table": "Statistics Canada Table 14-10-0011-01, EI regular beneficiaries, Canada, seasonally adjusted (persons)", "transform": {"operation": "multiply", "factor": 0.001}, "releasePolicy": "first_print"}}},
-    {"series": "statjp.cpi.tokyo_all_items_yoy", "cadence": "monthly", "slug": "japan-tokyo-cpi-annual-rate-{month}-{year}-prelim", "extras": {"sourceBinding": {"adapter": "generic-url", "sourceUrl": "https://www.stat.go.jp/data/cpi/sokuhou/tsuki/index-t.html", "sourceSeriesId": "statjp.tokyo_cpi.all_items", "field": "0001", "table": "2020-base CPI Tokyo ku-area mid-month preliminary; machine-readable vintage is the release's e-Stat table 1-2 workbook (all items, series code 0001), YoY computed from rounded index", "transform": {"operation": "multiply", "factor": 1}, "releasePolicy": "first_print"}}},
-
-    {"series": "statbel.cpi.headline_yoy", "cadence": "monthly", "slug": "belgium-cpi-annual-rate-{month}-{year}", "extras": {"country": "BE"}},
-    {"series": "statbel.health_index.yoy", "cadence": "monthly", "slug": "belgium-health-index-annual-rate-{month}-{year}", "extras": {"country": "BE"}},
-    {"series": "eurostat.unemployment_rate.belgium", "cadence": "monthly", "slug": "belgium-unemployment-rate-{month}-{year}", "extras": {"country": "BE"}},
-    {"series": "nbb.business_barometer.overall", "cadence": "monthly", "slug": "belgium-nbb-business-barometer-{month}-{year}", "extras": {"country": "BE", "targetUnit": "index_points"}},
-    {"series": "nbb.consumer_confidence.indicator", "cadence": "monthly", "slug": "belgium-consumer-confidence-{month}-{year}", "extras": {"country": "BE", "targetUnit": "index_points"}},
-
-    {"series": "nbb.gdp.flash_qoq", "cadence": "quarterly", "slug": "belgium-gdp-flash-q{quarter}-{year}", "extras": {"country": "BE"}},
-    {"series": "bls.productivity.nonfarm_qoq_prelim", "cadence": "quarterly", "slug": "us-nonfarm-productivity-q{quarter}-{year}-prelim"}
+    {
+      "series": "us.dol.initial_claims.sa",
+      "cadence": "weekly",
+      "slug": "initial-claims-week-{period}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "thousands"
+      }
+    },
+    {
+      "series": "dol.eta.continued_claims.sa",
+      "cadence": "weekly",
+      "slug": "continued-claims-week-{period}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions"
+      }
+    },
+    {
+      "series": "bls.cpi.u.headline_mom",
+      "cadence": "monthly",
+      "slug": "us-cpi-u-mom-{month}-{year}"
+    },
+    {
+      "series": "bls.cpi.u.core_mom",
+      "cadence": "monthly",
+      "slug": "us-core-cpi-mom-{month}-{year}"
+    },
+    {
+      "series": "bls.ces.nonfarm_payrolls.change",
+      "cadence": "monthly",
+      "slug": "nonfarm-payrolls-{month}-{year}"
+    },
+    {
+      "series": "bls.cps.unemployment_rate",
+      "cadence": "monthly",
+      "slug": "unemployment-rate-{month}-{year}"
+    },
+    {
+      "series": "bls.jolts.job_openings",
+      "cadence": "monthly",
+      "slug": "jolts-openings-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions"
+      }
+    },
+    {
+      "series": "bls.jolts.quits_rate",
+      "cadence": "monthly",
+      "slug": "jolts-quits-rate-{month}-{year}"
+    },
+    {
+      "series": "bls.real_earnings.avg_hourly_mom",
+      "cadence": "monthly",
+      "slug": "us-real-avg-hourly-earnings-mom-{month}-{year}"
+    },
+    {
+      "series": "bls.cps.telework_share",
+      "cadence": "monthly",
+      "slug": "us-telework-rate-{month}-{year}"
+    },
+    {
+      "series": "bea.core_pce.mom",
+      "cadence": "monthly",
+      "slug": "us-core-pce-mom-{month}-{year}"
+    },
+    {
+      "series": "treasury.mts.monthly_deficit",
+      "cadence": "monthly",
+      "slug": "us-mts-deficit-{month}-{year}"
+    },
+    {
+      "series": "fns.wic.total_participation",
+      "cadence": "monthly",
+      "slug": "wic-participation-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions"
+      }
+    },
+    {
+      "series": "fns.snap.total_persons",
+      "cadence": "monthly",
+      "slug": "snap-participation-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.fns.usda.gov/pd/supplemental-nutrition-assistance-program-snap",
+          "sourceSeriesId": "fns.snap.total_persons",
+          "field": "Persons",
+          "table": "FNS SNAP data tables, national monthly participation (thousands)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "ssa.ssi.total_recipients",
+      "cadence": "monthly",
+      "slug": "ssi-recipients-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions"
+      }
+    },
+    {
+      "series": "eurostat.hicp.flash.yoy",
+      "cadence": "monthly",
+      "slug": "euro-flash-hicp-{month}-{year}",
+      "extras": {
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_minr/M.RCH_A.TOTAL.EA21?format=JSON",
+          "sourceSeriesId": "prc_hicp_minr/M.RCH_A.TOTAL.EA21",
+          "field": "RCH_A",
+          "table": "HICP (ECOICOP ver.2) monthly rates, all-items annual rate, euro area; flash carries the provisional flag on release day",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "eurostat.unemployment_rate",
+      "cadence": "monthly",
+      "slug": "euro-area-unemployment-rate-{month}-{year}",
+      "extras": {
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21?format=JSON",
+          "sourceSeriesId": "une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21",
+          "field": "PC_ACT",
+          "table": "Unemployment by sex and age (une_rt_m), euro area, SA, total; first print captured between monthly releases",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "abs.cpi.all_groups.yoy",
+      "cadence": "monthly",
+      "slug": "australia-cpi-annual-rate-{month}-{year}",
+      "extras": {
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/CPI/3.10001.10.50.M?format=jsondata",
+          "sourceSeriesId": "CPI/3.10001.10.50.M",
+          "field": "3.10001.10.50.M",
+          "table": "ABS complete monthly CPI (dataflow CPI): all groups annual change, original, weighted average of eight capital cities",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "abs.labour.unemployment_rate",
+      "cadence": "monthly",
+      "slug": "australia-unemployment-rate-{month}-{year}",
+      "extras": {
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M13.3.1599.20.AUS.M?format=jsondata",
+          "sourceSeriesId": "LF/M13.3.1599.20.AUS.M",
+          "field": "M13",
+          "table": "Labour Force, Australia (dataflow LF): unemployment rate, persons, seasonally adjusted; first print captured on release day",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "statcan.gdp_by_industry.monthly_growth",
+      "cadence": "monthly",
+      "slug": "canada-monthly-gdp-growth-{month}-{year}",
+      "extras": {
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=65201210",
+          "sourceSeriesId": "v65201210",
+          "field": "v65201210",
+          "table": "Statistics Canada Table 36-10-0434-01, all industries, chained 2017 dollars SA at annual rates; MoM percent change computed from levels at the release vintage",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "statcan.employment_insurance.regular_beneficiaries",
+      "cadence": "monthly",
+      "slug": "canada-ei-regular-beneficiaries-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "thousands",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=64549350",
+          "sourceSeriesId": "v64549350",
+          "field": "v64549350",
+          "table": "Statistics Canada Table 14-10-0011-01, EI regular beneficiaries, Canada, seasonally adjusted (persons)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "statjp.cpi.tokyo_all_items_yoy",
+      "cadence": "monthly",
+      "slug": "japan-tokyo-cpi-annual-rate-{month}-{year}-prelim",
+      "extras": {
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.stat.go.jp/data/cpi/sokuhou/tsuki/index-t.html",
+          "sourceSeriesId": "statjp.tokyo_cpi.all_items",
+          "field": "0001",
+          "table": "2020-base CPI Tokyo ku-area mid-month preliminary; machine-readable vintage is the release's e-Stat table 1-2 workbook (all items, series code 0001), YoY computed from rounded index",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "statbel.cpi.headline_yoy",
+      "cadence": "monthly",
+      "slug": "belgium-cpi-annual-rate-{month}-{year}",
+      "extras": {
+        "country": "BE"
+      }
+    },
+    {
+      "series": "statbel.health_index.yoy",
+      "cadence": "monthly",
+      "slug": "belgium-health-index-annual-rate-{month}-{year}",
+      "extras": {
+        "country": "BE"
+      }
+    },
+    {
+      "series": "eurostat.unemployment_rate.belgium",
+      "cadence": "monthly",
+      "slug": "belgium-unemployment-rate-{month}-{year}",
+      "extras": {
+        "country": "BE"
+      }
+    },
+    {
+      "series": "nbb.business_barometer.overall",
+      "cadence": "monthly",
+      "slug": "belgium-nbb-business-barometer-{month}-{year}",
+      "extras": {
+        "country": "BE",
+        "targetUnit": "index_points"
+      }
+    },
+    {
+      "series": "nbb.consumer_confidence.indicator",
+      "cadence": "monthly",
+      "slug": "belgium-consumer-confidence-{month}-{year}",
+      "extras": {
+        "country": "BE",
+        "targetUnit": "index_points"
+      }
+    },
+    {
+      "series": "nbb.gdp.flash_qoq",
+      "cadence": "quarterly",
+      "slug": "belgium-gdp-flash-q{quarter}-{year}",
+      "extras": {
+        "country": "BE"
+      }
+    },
+    {
+      "series": "bls.productivity.nonfarm_qoq_prelim",
+      "cadence": "quarterly",
+      "slug": "us-nonfarm-productivity-q{quarter}-{year}-prelim"
+    },
+    {
+      "series": "usaspending.dod.prime_award_obligations",
+      "cadence": "annual",
+      "slug": "us-dod-prime-award-obligations-{period}",
+      "extras": {
+        "valueScale": 1e-09,
+        "targetUnit": "billions USD",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}",
+          "sourceSeriesId": "usaspending.agency.097.awards.obligations",
+          "field": "obligations",
+          "table": "USAspending API v2, agency 097 (DoD) award summary, prime award obligations, fiscal year to date",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1e-09
+          },
+          "releasePolicy": "registered_query_snapshot"
+        }
+      }
+    },
+    {
+      "series": "usaspending.dod.prime_contract_obligations",
+      "cadence": "annual",
+      "slug": "us-dod-prime-contract-obligations-{period}",
+      "extras": {
+        "valueScale": 1e-09,
+        "targetUnit": "billions USD",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/obligations_by_award_category/?fiscal_year={fiscal_year}",
+          "sourceSeriesId": "usaspending.agency.097.obligations_by_award_category.contracts",
+          "field": "results[category=contracts].aggregated_amount",
+          "table": "USAspending API v2, agency 097 (DoD) obligations by award category, contracts row, fiscal year to date",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1e-09
+          },
+          "releasePolicy": "registered_query_snapshot"
+        }
+      }
+    },
+    {
+      "series": "usaspending.dod.new_prime_awards",
+      "cadence": "annual",
+      "slug": "us-dod-new-prime-awards-{period}",
+      "extras": {
+        "valueScale": 1e-06,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/new/count/?fiscal_year={fiscal_year}",
+          "sourceSeriesId": "usaspending.agency.097.awards.new_award_count",
+          "field": "new_award_count",
+          "table": "USAspending API v2, agency 097 (DoD) new award count, fiscal year to date",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1e-06
+          },
+          "releasePolicy": "registered_query_snapshot"
+        }
+      }
+    },
+    {
+      "series": "usaspending.dod.prime_award_transactions",
+      "cadence": "annual",
+      "slug": "us-dod-prime-award-transactions-{period}",
+      "extras": {
+        "valueScale": 1e-06,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/agency/097/awards/?fiscal_year={fiscal_year}",
+          "sourceSeriesId": "usaspending.agency.097.awards.transaction_count",
+          "field": "transaction_count",
+          "table": "USAspending API v2, agency 097 (DoD) award summary, transaction count, fiscal year to date",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1e-06
+          },
+          "releasePolicy": "registered_query_snapshot"
+        }
+      }
+    }
   ]
 }
