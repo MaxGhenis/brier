@@ -436,6 +436,78 @@ def test_registration_contracts_resolves_duplicates_to_published_hash(
     assert contracts[dpid]["targetContentHash"] == published
 
 
+def test_registration_contracts_scans_past_early_conflicts(tmp_path) -> None:
+    # Supersede history retains every snapshot for a dataPointId, so the
+    # published-matching registration can sort AFTER two non-matching ones
+    # (production case: v1 + superseded v2 sorted before the published v3).
+    # The pairwise scan must defer failure until the whole directory is read.
+    records = tmp_path / "records" / "targets"
+    records.mkdir(parents=True)
+    dpid = "test.supersede.series.2030"
+    hashes = []
+    for day, series in (("01", "a.series"), ("01", "b.series"), ("02", "c.series")):
+        contract = {
+            "dataPointId": dpid,
+            "series": series,
+            "period": "2030",
+            "unit": "count",
+            "sourceBinding": {"releasePolicy": "first_print", "table": "t"},
+        }
+        snap = {"schemaVersion": "thesis_target_registration_v1", "targets": [contract]}
+        ch = canonical_sha256(snap)
+        hashes.append((f"2030-01-{day}-{ch}.json", ch))
+        (records / hashes[-1][0]).write_bytes(canonical_bytes(snap) + b"\n")
+    # Publish the file that sorts LAST.
+    published = sorted(hashes)[-1][1]
+    generated = tmp_path / "generated.ts"
+    generated.write_text(
+        f'  {{\n    dataPointId: "{dpid}",\n'
+        f'    targetContentHash: "{published}",\n  }},\n'
+    )
+    resolve_pending._PUBLISHED_TARGET_HASHES = None
+    try:
+        pub = resolve_pending.published_target_hashes(generated)
+        resolve_pending._PUBLISHED_TARGET_HASHES = pub
+        contracts = resolve_pending.registration_contracts(records)
+    finally:
+        resolve_pending._PUBLISHED_TARGET_HASHES = None
+    assert contracts[dpid]["targetContentHash"] == published
+
+
+def test_registration_contracts_still_fails_closed_without_a_match(
+    tmp_path,
+) -> None:
+    # If NO retained snapshot matches the published hash, the deferred check
+    # must still refuse after the full scan.
+    records = tmp_path / "records" / "targets"
+    records.mkdir(parents=True)
+    dpid = "test.orphaned.series.2030"
+    for series in ("a.series", "b.series"):
+        contract = {
+            "dataPointId": dpid,
+            "series": series,
+            "period": "2030",
+            "unit": "count",
+            "sourceBinding": {"releasePolicy": "first_print", "table": "t"},
+        }
+        snap = {"schemaVersion": "thesis_target_registration_v1", "targets": [contract]}
+        ch = canonical_sha256(snap)
+        (records / f"2030-01-01-{ch}.json").write_bytes(canonical_bytes(snap) + b"\n")
+    generated = tmp_path / "generated.ts"
+    generated.write_text(
+        f'  {{\n    dataPointId: "{dpid}",\n'
+        f'    targetContentHash: "{"f" * 64}",\n  }},\n'
+    )
+    resolve_pending._PUBLISHED_TARGET_HASHES = None
+    try:
+        pub = resolve_pending.published_target_hashes(generated)
+        resolve_pending._PUBLISHED_TARGET_HASHES = pub
+        with pytest.raises(ValueError, match="neither registration"):
+            resolve_pending.registration_contracts(records)
+    finally:
+        resolve_pending._PUBLISHED_TARGET_HASHES = None
+
+
 BLS_DOD_PAYLOAD = {
     "status": "REQUEST_SUCCEEDED",
     "responseTime": 88,

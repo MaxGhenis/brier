@@ -3053,6 +3053,7 @@ def registration_contracts(
     """
     records_dir = records_dir or ROOT / "records" / "targets"
     contracts: dict[str, dict[str, Any]] = {}
+    unresolved_published: set[str] = set()
     if not records_dir.exists():
         return contracts
     for path in sorted(records_dir.glob("*.json")):
@@ -3111,12 +3112,22 @@ def registration_contracts(
             # contain fails closed (finding 9).
             if content_hash == published:
                 contracts[key] = entry
+                unresolved_published.discard(key)
             elif existing["targetContentHash"] != published:
-                raise ValueError(
-                    f"neither registration for published dataPointId {key} "
-                    f"matches its target hash {published[:16]}…; resolve the "
-                    "duplicate before appending"
-                )
+                # Neither candidate seen so far matches the published hash.
+                # Supersede history retains every snapshot for a dataPointId,
+                # and file order is date-lexicographic, so the matching
+                # snapshot may simply not have been scanned yet. Defer the
+                # fail-closed decision to the end of the scan.
+                unresolved_published.add(key)
+    for key in sorted(unresolved_published):
+        published = published_target_hashes().get(key)
+        if contracts[key]["targetContentHash"] != published:
+            raise ValueError(
+                f"neither registration for published dataPointId {key} "
+                f"matches its target hash {(published or '')[:16]}…; resolve "
+                "the duplicate before appending"
+            )
     return contracts
 
 
