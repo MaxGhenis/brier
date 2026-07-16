@@ -482,8 +482,7 @@ jobs:
           commit: ${{ steps.final_push.outputs.attest_commit }}
 
       - name: Stamp the record
-        if: >-
-          (steps.commit.outputs.committed == '1' || steps.commit.outputs.committed == '0')
+        if: steps.commit.conclusion == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
           MANUAL_DEPLOY_HOOK_URL: ${{ secrets.MANUAL_DEPLOY_HOOK_URL }}
