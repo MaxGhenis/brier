@@ -1650,7 +1650,10 @@ def intl_transformed_value(
     digits = spec.get("round")
     if digits is not None:
         value = round(value, digits)
-    return round(value, 4)
+    # IEEE -0.0 survives round() and splits Python's json ("-0.0") from
+    # JSON.stringify ("0") downstream; normalize before the value enters
+    # any ledger row (same guard as the spawn intake).
+    return round(value, 4) + 0.0
 
 
 def intl_anchor_failures(
@@ -1835,7 +1838,10 @@ def apply_transform(
     digits = spec.get("round")
     if digits is not None:
         value = round(value, digits)
-    return round(value, 4)
+    # IEEE -0.0 survives round() and splits Python's json ("-0.0") from
+    # JSON.stringify ("0") downstream; normalize before the value enters
+    # any ledger row (same guard as the spawn intake).
+    return round(value, 4) + 0.0
 
 
 def value_plausible(
