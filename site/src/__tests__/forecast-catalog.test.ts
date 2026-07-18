@@ -1,5 +1,9 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
+import {
+  EXPIRED_UNFORECAST_REGISTRATIONS,
+  EXPIRED_UNFORECAST_SET,
+} from "@/data/expired-unforecast-registrations";
 import { AGENT_RUN_PREDICTION_SERIES } from "@/data/forecast-examples/agent-runs";
 import { CANADA_AUSTRALIA_PREDICTION_SERIES } from "@/data/forecast-examples/canada-australia";
 import { EURO_JAPAN_PREDICTION_SERIES } from "@/data/forecast-examples/euro-japan";
@@ -1385,10 +1389,39 @@ describe("forecast catalog", () => {
     const missingForecastTargets = THESIS_TARGET_LEDGER.filter(
       (target) =>
         !forecastDataPointIds.has(target.dataPointId) &&
-        !isPreregisteredTargetWithinOrphanGrace(target),
+        !isPreregisteredTargetWithinOrphanGrace(target) &&
+        !EXPIRED_UNFORECAST_SET.has(target.dataPointId),
     );
 
     expect(missingForecastTargets).toEqual([]);
+  });
+
+  it("keeps the expired-unforecast list exact", () => {
+    // The list is a terminal record, not a dumping ground: every entry
+    // must name a real preregistered target that is genuinely unforecast
+    // and out of grace, and an id that gains a forecast (or leaves the
+    // ledger) must be removed. Silent growth is impossible because
+    // additions are reviewed commits gated by this test.
+    const forecastDataPointIds = new Set(
+      FORECAST_CELLS.flatMap((forecast) =>
+        forecast.dataPointId ? [forecast.dataPointId] : [],
+      ),
+    );
+    const targetsById = new Map(
+      THESIS_TARGET_LEDGER.map((target) => [target.dataPointId, target]),
+    );
+    for (const dataPointId of EXPIRED_UNFORECAST_REGISTRATIONS) {
+      const target = targetsById.get(dataPointId);
+      expect(target, `${dataPointId} is not a registered target`).toBeDefined();
+      expect(
+        forecastDataPointIds.has(dataPointId),
+        `${dataPointId} has a forecast and must leave the expired list`,
+      ).toBe(false);
+      expect(
+        isPreregisteredTargetWithinOrphanGrace(target!),
+        `${dataPointId} is still inside the orphan grace window`,
+      ).toBe(false);
+    }
   });
 
   it("covers every observed ledger series with an exact or derived forecast family", () => {
