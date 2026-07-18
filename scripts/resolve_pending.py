@@ -2986,6 +2986,21 @@ def _verify_remote_proposal_state(
             raise LedgerProposalError("merged release chain unexpectedly has no HEAD")
 
 
+def append_gate_verdict(gate_runs: list[dict]) -> bool:
+    """True when the append gate genuinely passed on a proposal head.
+
+    The gate workflow fires on several events, so the same head carries one
+    real "Append gate" run per delivering event plus skipped twins from the
+    events whose job-level condition did not match. A skipped twin is not a
+    verdict: the gate passed when at least one run concluded success and
+    none concluded against the proposal.
+    """
+    conclusions = [run.get("conclusion") for run in gate_runs]
+    if any(c not in ("success", "skipped", "neutral") for c in conclusions):
+        return False
+    return "success" in conclusions
+
+
 def propose_ledger_append(
     repo: str,
     branch: str,
@@ -3096,8 +3111,7 @@ def propose_ledger_append(
             if gate_runs and all(
                 run.get("status") == "completed" for run in gate_runs
             ):
-                if all(run.get("conclusion") == "success" for run in gate_runs):
-                    gate_passed = True
+                gate_passed = append_gate_verdict(gate_runs)
                 break
             time.sleep(poll_seconds)
         if not gate_passed:

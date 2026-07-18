@@ -172,3 +172,23 @@ def test_first_print_registration_flow_is_unchanged() -> None:
     contract = register_targets.build_contract(target, dt.date(2026, 7, 16))
     assert contract["dataPointId"].endswith(".first_print")
     assert contract["sourceBinding"]["releasePolicy"] == "first_print"
+
+
+def test_append_gate_verdict_ignores_skipped_twins() -> None:
+    verdict = resolve_pending.append_gate_verdict
+    # The multi-event gate workflow leaves skipped twins on the same head;
+    # they are non-verdicts, not failures (the 2026-07-18 outage tail).
+    assert verdict(
+        [{"conclusion": "success"}, {"conclusion": "skipped"}]
+    ) is True
+    assert verdict([{"conclusion": "success"}]) is True
+    # A real adverse conclusion always refuses, whatever else passed.
+    assert verdict(
+        [{"conclusion": "success"}, {"conclusion": "failure"}]
+    ) is False
+    assert verdict(
+        [{"conclusion": "skipped"}, {"conclusion": "cancelled"}]
+    ) is False
+    # All-skipped means the gate never judged the proposal: refuse.
+    assert verdict([{"conclusion": "skipped"}]) is False
+    assert verdict([]) is False
