@@ -661,24 +661,55 @@ def _compare_commits(base: str, head: str) -> list[dict[str, Any]]:
     return commits
 
 
-def _require_linear_parent(
+def _require_walk_parent(
     commit_payload: Any,
     commit_sha: str,
     expected_parent: str,
-) -> None:
+    visited: set[str],
+) -> bool:
+    """Admit a commit into the pin walk; True when it is a merge commit.
+
+    Ledger appends stay strictly linear: a single-parent commit must
+    continue the walk exactly. A multi-parent commit is traversable only
+    when the walk predecessor is among its parents and every other parent
+    was already walked (or is the pinned base), so a merge can reconcile
+    branch-internal history — a gate-class PR merged with a merge commit —
+    but can never splice in unwalked foreign history. The caller enforces
+    the companion content rule: a merge must leave the ledger bytes
+    exactly as its walk predecessor left them; appends arrive only on
+    single-parent commits.
+    """
     if type(commit_payload) is not dict or commit_payload.get("sha") != commit_sha:
         raise PinError(f"commit response does not describe requested SHA {commit_sha}")
     parents = commit_payload.get("parents")
-    if type(parents) is not list or len(parents) != 1 or type(parents[0]) is not dict:
+    if (
+        type(parents) is not list
+        or not parents
+        or any(type(parent) is not dict for parent in parents)
+    ):
         raise PinError(
             f"commit {commit_sha[:12]} is not on a linear single-parent history"
         )
-    parent_sha = parents[0].get("sha")
-    if parent_sha != expected_parent:
+    parent_shas = [str(parent.get("sha")) for parent in parents]
+    if len(parents) == 1:
+        if parent_shas[0] != expected_parent:
+            raise PinError(
+                f"commit history skips or reorders a parent at {commit_sha[:12]}: "
+                f"expected {expected_parent[:12]}, found {parent_shas[0][:12]}"
+            )
+        return False
+    if expected_parent not in parent_shas:
         raise PinError(
-            f"commit history skips or reorders a parent at {commit_sha[:12]}: "
-            f"expected {expected_parent[:12]}, found {str(parent_sha)[:12]}"
+            f"merge commit {commit_sha[:12]} does not continue the walk from "
+            f"{expected_parent[:12]}"
         )
+    strangers = [sha for sha in parent_shas if sha != expected_parent and sha not in visited]
+    if strangers:
+        raise PinError(
+            f"merge commit {commit_sha[:12]} pulls in unwalked history "
+            f"({strangers[0][:12]}); refusing to advance the pin"
+        )
+    return True
 
 
 def _lines(raw: bytes) -> list[str]:
@@ -1403,14 +1434,23 @@ def refresh() -> None:
     previous_lines = old_lines
     previous_raw = old_raw
     expected_parent = pin["sha"]
+    visited: set[str] = {pin["sha"]}
     for commit in commits:
         commit_sha = str(commit["sha"])
         commit_payload = (
             head if commit_sha == head_sha else _api(f"commits/{commit_sha}")
         )
-        _require_linear_parent(commit_payload, commit_sha, expected_parent)
+        is_merge = _require_walk_parent(
+            commit_payload, commit_sha, expected_parent, visited
+        )
+        visited.add(commit_sha)
         raw = _jsonl_at(commit_sha)
         lines = _lines(raw)
+        if is_merge and raw != previous_raw:
+            raise PinError(
+                f"merge commit {commit_sha[:12]} changes ledger bytes; "
+                "appends must arrive on single-parent commits"
+            )
         if lines != previous_lines:
             _require_extension(
                 previous_lines,

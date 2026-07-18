@@ -690,10 +690,11 @@ def test_compare_commit_list_is_unique_and_ends_at_requested_head(
 
 def test_refresh_parent_chain_cannot_skip_an_omitted_commit() -> None:
     with pytest.raises(pin_ledger.PinError, match="skips or reorders"):
-        pin_ledger._require_linear_parent(
+        pin_ledger._require_walk_parent(
             {"sha": "c" * 40, "parents": [{"sha": "d" * 40}]},
             "c" * 40,
             "b" * 40,
+            {"b" * 40},
         )
 
 
@@ -1604,3 +1605,37 @@ def test_registration_without_a_pin_file_fails_closed(
 
     with pytest.raises(RegistrationError, match="committed ledger pin"):
         register_targets.load_ledger_pin_binding()
+
+
+def test_walk_parent_admits_branch_internal_merge_only() -> None:
+    from pin_ledger import PinError, _require_walk_parent
+
+    def payload(sha, parents):
+        return {"sha": sha, "parents": [{"sha": parent} for parent in parents]}
+
+    base, side, merge = "a" * 40, "b" * 40, "c" * 40
+
+    # Single-parent commits keep the exact-chain rule.
+    assert _require_walk_parent(payload(side, [base]), side, base, {base}) is False
+    with pytest.raises(PinError, match="skips or reorders"):
+        _require_walk_parent(payload(side, ["d" * 40]), side, base, {base})
+
+    # The real 2026-07-18 diamond: side branch forked from the pin, merged
+    # back while the walk predecessor is the side commit. Both parents are
+    # walked, so the merge is traversable.
+    assert (
+        _require_walk_parent(payload(merge, [base, side]), merge, side, {base, side})
+        is True
+    )
+
+    # A merge whose other parent was never walked splices foreign history.
+    with pytest.raises(PinError, match="unwalked history"):
+        _require_walk_parent(payload(merge, ["e" * 40, side]), merge, side, {base, side})
+
+    # A merge that does not continue the walk predecessor is rejected too.
+    with pytest.raises(PinError, match="does not continue the walk"):
+        _require_walk_parent(payload(merge, [base, "e" * 40]), merge, side, {base, side})
+
+    # No parents at all is never traversable.
+    with pytest.raises(PinError, match="linear single-parent"):
+        _require_walk_parent(payload(merge, []), merge, side, {base, side})
