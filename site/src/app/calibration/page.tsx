@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CalibrationPlot } from "@/components/CalibrationPlot";
+import { EXPIRED_UNFORECAST_REGISTRATIONS } from "@/data/expired-unforecast-registrations";
 import { Header } from "@/components/Header";
 import { FORECAST_CELLS, formatValue } from "@/data/forecast-cells";
 import {
@@ -183,7 +185,7 @@ export default async function CalibrationPage() {
               value: String(scores.length),
               detail: `witness-verified; ${claimedOnlyCount.toLocaleString()} claimed-time-only and ${(
                 provisionalCount + violatedCount
-              ).toLocaleString()} unverified or violated scores excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} runs awaiting resolution`,
+              ).toLocaleString()} unverified or violated scores excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} runs awaiting resolution, ${EXPIRED_UNFORECAST_REGISTRATIONS.length} registrations expired unforecast`,
             },
             {
               label: "80% interval coverage",
@@ -298,6 +300,49 @@ export default async function CalibrationPage() {
             starts at zero by construction and fills as custody-v2 runs
             resolve against official prints.
           </p>
+        </section>
+
+        <section className="mt-14">
+          <h2
+            className="[font-family:var(--font-display)] text-[1.3rem] font-semibold"
+            style={{ color: "var(--theme-text)" }}
+          >
+            The calibration curve
+          </h2>
+          <p
+            className="mt-2 max-w-[640px] text-[0.88rem] leading-[1.6]"
+            style={{ color: "var(--theme-text-muted)" }}
+          >
+            Each score records the forecast distribution evaluated at the
+            official print (its probability integral transform), so coverage
+            is checkable at every stated interval, not just the elicited 80%.
+            A calibrated forecaster tracks the diagonal: above it means
+            intervals are too wide, below it too narrow. The PIT histograms
+            show the same thing distributionally — a calibrated forecaster
+            fills each bin equally; a U shape is overconfidence, a central
+            hump underconfidence. The curve reads coverage off each
+            forecast&apos;s materialized distribution, while the headline 80%
+            stat counts stated interval endpoints directly, so the two can
+            differ by a few scores.
+          </p>
+          <div
+            className="mt-5 rounded-[14px] border p-6"
+            style={{
+              borderColor: "var(--theme-border)",
+              backgroundColor: "var(--theme-card-bg)",
+            }}
+          >
+            <CalibrationPlot
+              witnessedPits={scores.map(
+                (score) => score.probabilityIntegralTransform,
+              )}
+              claimedPits={allScores
+                .filter(
+                  (score) => score.chronology === "claimed_time_verified",
+                )
+                .map((score) => score.probabilityIntegralTransform)}
+            />
+          </div>
         </section>
 
         <section className="mt-14">
