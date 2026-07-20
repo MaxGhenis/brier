@@ -101,6 +101,24 @@ export default async function CalibrationPage() {
           0,
         ) / normalizedScores.length
       : null;
+  const claimedNormalizedScores = publishedScores.filter(
+    (score) =>
+      score.chronology === "claimed_time_verified" &&
+      score.normalizedCrps !== null,
+  );
+  const claimedMeanNormalizedCrps =
+    claimedNormalizedScores.length > 0
+      ? claimedNormalizedScores.reduce(
+          (total, score) => total + (score.normalizedCrps ?? 0),
+          0,
+        ) / claimedNormalizedScores.length
+      : null;
+  // Until the first custody-v2 cells resolve, the witnessed tier is empty
+  // by construction. The cards stay honest but never lead with a wall of
+  // zeros: each shows its best PUBLISHED tier as the primary number with
+  // the tier named right on the card, and flips to witnessed automatically
+  // once witnessed scores exist.
+  const witnessedLive = scores.length > 0;
 
   const leaderboard = [...rewardExport.leaderboard].sort((left, right) => {
     if (left.pairedCrpsRatioGeomean === null) return 1;
@@ -182,28 +200,43 @@ export default async function CalibrationPage() {
           {[
             {
               label: "Scored forecasts",
-              value: String(scores.length),
-              detail: `witness-verified; ${claimedOnlyCount.toLocaleString()} claimed-time-only and ${(
-                provisionalCount + violatedCount
-              ).toLocaleString()} unverified or violated scores excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} runs awaiting resolution, ${EXPIRED_UNFORECAST_REGISTRATIONS.length} registrations expired unforecast`,
+              tier: witnessedLive ? "witness-verified" : "claimed-time tier",
+              value: witnessedLive
+                ? String(scores.length)
+                : publishedScores.length.toLocaleString(),
+              detail: witnessedLive
+                ? `witness-verified; ${claimedOnlyCount.toLocaleString()} claimed-time-only and ${(
+                    provisionalCount + violatedCount
+                  ).toLocaleString()} unverified or violated excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} awaiting resolution`
+                : `witness-verified: 0 — the official headline fills as custody-v2 cells resolve (first eligible prints land July 23). ${(
+                    provisionalCount + violatedCount
+                  ).toLocaleString()} unverified or violated excluded, ${rewardExport.counts.unresolvedRuns.toLocaleString()} awaiting resolution, ${EXPIRED_UNFORECAST_REGISTRATIONS.length} registrations expired unforecast.`,
             },
             {
               label: "80% interval coverage",
-              value: formatCoverage(coverage),
-              detail:
-                scores.length > 0
-                  ? `${covered} of ${scores.length} witness-verified observed inside the stated interval`
-                  : `No witness-verified scores yet — the first custody-v2 waves resolve from July 16. Claimed-time tier below: ${claimedCovered} of ${publishedScores.length} (${formatCoverage(claimedCoverage)}) inside.`,
+              tier: witnessedLive ? "witness-verified" : "claimed-time tier",
+              value: witnessedLive
+                ? formatCoverage(coverage)
+                : formatCoverage(claimedCoverage),
+              detail: witnessedLive
+                ? `${covered} of ${scores.length} witness-verified observed inside the stated interval`
+                : `${claimedCovered} of ${publishedScores.length} observed inside the stated interval · witness-verified: none scored yet`,
             },
             {
               label: "Unpaired mean normalized CRPS",
-              value: formatCrps(meanNormalizedCrps),
-              detail: `Lower is better; ${normalizedScores.length} of ${scores.length} witness-verified scores have a ledger scale. Mean sharpness ${
-                meanSharpness === null ? "—" : meanSharpness.toFixed(2)
-              }× target scale.`,
+              tier: witnessedLive ? "witness-verified" : "claimed-time tier",
+              value: witnessedLive
+                ? formatCrps(meanNormalizedCrps)
+                : formatCrps(claimedMeanNormalizedCrps),
+              detail: witnessedLive
+                ? `Lower is better; ${normalizedScores.length} of ${scores.length} witness-verified scores have a ledger scale. Mean sharpness ${
+                    meanSharpness === null ? "—" : meanSharpness.toFixed(2)
+                  }× target scale.`
+                : `Lower is better; ${claimedNormalizedScores.length} of ${publishedScores.length} claimed-time scores have a pre-registered ledger scale.`,
             },
             {
               label: "CRPS ratio vs persistence",
+              tier: "witness-verified",
               value:
                 rewardExport.pairedComparison.crpsRatioGeomean === null
                   ? "—"
@@ -211,7 +244,7 @@ export default async function CalibrationPage() {
               detail:
                 rewardExport.pairedComparison.pairedTargets > 0
                   ? `Geometric mean of per-target raw CRPS ratios (agent / paired persistence baseline) on ${rewardExport.pairedComparison.pairedTargets} matched targets; below 1 beats persistence. ${formatCoverage(rewardExport.pairedComparison.agentWinRate)} agent win rate.`
-                  : "No ledger-backed baseline pairs scored yet",
+                  : "Pairs form as series accumulate repeat resolutions; the headline ratio scores witness-verified runs only.",
             },
           ].map((stat) => (
             <div
@@ -233,6 +266,15 @@ export default async function CalibrationPage() {
                 style={{ color: "var(--theme-text)" }}
               >
                 {stat.value}
+              </div>
+              <div
+                className="mt-1 inline-block rounded-full border px-2 py-[1px] [font-family:var(--font-mono)] text-[0.56rem] uppercase tracking-[0.1em]"
+                style={{
+                  borderColor: "var(--theme-border)",
+                  color: "var(--theme-text-muted)",
+                }}
+              >
+                {stat.tier}
               </div>
               <div
                 className="mt-1 text-[0.74rem] leading-[1.5]"
