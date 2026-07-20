@@ -34,6 +34,19 @@ jobs:
         run: bun run build
         working-directory: site
 
+      - name: Alert on main failure
+        if: failure() && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="CI failed on main $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" \
+              --body "CI is red on main: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}. Production deploys fail alongside — the site canary stays pinned to the last green build until this is fixed (2026-07-18 to 2026-07-20 outage class)."
+          fi
+
       - name: Enforce generated-site size budgets
         run: bun run check:size-budgets
         working-directory: site
