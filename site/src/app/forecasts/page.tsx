@@ -57,6 +57,12 @@ export default async function ForecastsPage() {
               View Thesis Log →
             </Link>
             <Link
+              href="/topics"
+              className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
+            >
+              Browse by topic →
+            </Link>
+            <Link
               href="/ledger"
               className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
             >

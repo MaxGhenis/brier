@@ -76,7 +76,7 @@ export function ForecastBrowser({ forecasts }: ForecastBrowserProps) {
                 {section.label}
               </h2>
               <p className="text-[0.9rem] text-[var(--theme-text-muted)]">
-                {section.description} Showing {sectionForecasts.length}
+                {section.description} Showing {sectionForecasts.length}{" "}
                 predictions, sorted by earliest expected resolution.
               </p>
             </div>

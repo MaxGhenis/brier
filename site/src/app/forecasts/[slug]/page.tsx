@@ -17,6 +17,7 @@ import {
   withResolvedOutcome,
   withResolvedOutcomes,
 } from "@/data/thesis-log";
+import { topicsForCell } from "@/data/topics";
 
 export function generateStaticParams() {
   return FORECAST_CELLS.map((forecast) => ({ slug: forecast.slug }));
@@ -91,6 +92,16 @@ export default async function ForecastDetailPage({
             <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
               {TYPE_DESCRIPTION[forecast.type]}
             </span>
+            {topicsForCell(forecast).map((topic) => (
+              <Link
+                key={topic.slug}
+                href={`/topics/${topic.slug}`}
+                className="inline-block rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] text-[var(--theme-text-muted)] no-underline transition-colors hover:text-[var(--color-accent)] hover:no-underline"
+                style={{ borderColor: "var(--theme-border)" }}
+              >
+                {topic.shortLabel}
+              </Link>
+            ))}
           </div>
           <h1 className="[font-family:var(--font-display)] text-[clamp(1.7rem,3.5vw,2.4rem)] font-light leading-[1.2] tracking-[-0.02em] text-[var(--theme-text)] mb-5">
             {forecast.title}
