@@ -114,7 +114,7 @@ export function Header({
                 : undefined
             }
           >
-            Packs
+            Briefings
           </Link>
           <Link
             href="/log"

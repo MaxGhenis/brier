@@ -22,9 +22,9 @@ const PACK_OVERVIEW_POINTS = [
 ];
 
 export const metadata: Metadata = {
-  title: "Prediction packs — Thesis Institute",
+  title: "Briefings — Thesis Institute",
   description:
-    "Browse reusable prediction packs used by Thesis Institute forecast agents, including their purpose, checks, versions, and forecast runs.",
+    "Browse the briefing library — versioned bundles of curated reference material handed to forecasters, with their purpose, checks, versions, and forecast runs.",
   robots: {
     index: false,
     follow: false,
@@ -50,14 +50,17 @@ export default function PacksPage() {
       <main className="mx-auto max-w-[1200px] px-8 pb-32 pt-12 max-md:px-5">
         <section className="mb-12 max-w-[760px]">
           <p className="mb-3 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.15em] text-[var(--color-accent)]">
-            Thesis Institute · prediction packs
+            Thesis Institute · the briefing library
           </p>
           <h1 className="mb-5 [font-family:var(--font-display)] text-[clamp(1.9rem,4vw,2.6rem)] font-light leading-[1.15] tracking-[-0.02em] text-[var(--theme-text)]">
-            Versioned inputs for forecast runs
+            Briefings: versioned material handed to forecasters
           </h1>
           <p className="text-[1.05rem] leading-[1.65] text-[var(--theme-text-muted)]">
-            Packs give forecast agents reusable evidence, calibration rules, and
-            checks for a specific kind of forecast update. Each pack page shows
+            A briefing hands a forecaster curated evidence, calibration rules, and
+            checks up front — research stays fully open with or without it, so
+            briefed-versus-unbriefed contrasts measure the value of curation,
+            not information access. Recorded as packId@version until the
+            identifier migration. Each briefing page shows
             the pack's current version, how it is applied, and the runs where it
             appears.
           </p>

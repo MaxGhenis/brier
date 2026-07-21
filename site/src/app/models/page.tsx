@@ -117,7 +117,8 @@ export default async function ModelsPage() {
             style={{ color: "var(--theme-text-muted)" }}
           >
             Runs passing the sealed trace rubric over runs attempted, from the
-            recorded strategy-lane manifests. Fast and Ladder demand the
+            recorded protocol-lane manifests (strategy lanes in the records
+            until the identifier migration). Fast and Ladder demand the
             parametric width derivation (&ldquo;sigma = X&rdquo;, 1.28·sigma);
             Ladder v2 is the pre-registered quantile-native contract (rungs
             plus interpolated 10th/90th percentiles stated literally).

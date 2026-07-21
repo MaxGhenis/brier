@@ -19,7 +19,7 @@ import {
 export const metadata: Metadata = {
   title: "Calibration — Thesis Institute",
   description:
-    "The public scoreboard: interval coverage, CRPS against persistence baselines, and per-agent calibration for every resolved Thesis forecast.",
+    "The public scoreboard: interval coverage, CRPS against persistence baselines, and per-forecaster calibration for every resolved Thesis forecast.",
 };
 
 const BASELINE_AGENT_PREFIX = "brier.time_series_prior";
@@ -392,7 +392,7 @@ export default async function CalibrationPage() {
             className="[font-family:var(--font-display)] text-[1.3rem] font-semibold"
             style={{ color: "var(--theme-text)" }}
           >
-            Agents against the baseline
+            Forecasters against the baseline
           </h2>
           <p
             className="mt-2 max-w-[640px] text-[0.88rem] leading-[1.6]"
@@ -403,7 +403,7 @@ export default async function CalibrationPage() {
             Unpaired means remain visible for context. The persistence baseline
             forecasts every target as its last official print with a
             realized-volatility interval — an agent earns its place by beating
-            it. Agent rows score here only when witness-verified; the
+            it. Forecaster rows score here only when witness-verified; the
             deterministic baseline is a replayable function of pre-cutoff
             ledger data and needs no witness of its own. Rows with few scored
             runs are noisy; read them accordingly.
@@ -418,7 +418,7 @@ export default async function CalibrationPage() {
                   className="[font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em]"
                   style={{ color: "var(--theme-text-muted)" }}
                 >
-                  <th className="px-4 py-3 text-left font-normal">Agent</th>
+                  <th className="px-4 py-3 text-left font-normal">Forecaster</th>
                   <th className="px-4 py-3 text-right font-normal">
                     Scored / total runs
                   </th>
