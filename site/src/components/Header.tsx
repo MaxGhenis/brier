@@ -10,7 +10,7 @@ export function Header({
     | "brier"
     | "paper"
     | "forecasts"
-    | "packs"
+    | "briefings"
     | "log"
     | "calibration"
     | "models";
@@ -102,14 +102,14 @@ export function Header({
             Forecasts
           </Link>
           <Link
-            href="/packs"
+            href="/briefings"
             className={`[font-family:var(--font-body)] text-[0.82rem] font-normal no-underline transition-colors duration-200 hover:no-underline max-md:hidden ${
-              activePage === "packs"
+              activePage === "briefings"
                 ? "text-[#A94E80]"
                 : "text-[var(--theme-text-muted)]"
             }`}
             style={
-              activePage !== "packs"
+              activePage !== "briefings"
                 ? { color: "var(--theme-text-muted)" }
                 : undefined
             }

@@ -1066,7 +1066,7 @@ function PackVisualizer({
           </p>
           <a
             className="mt-3 inline-block [font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em] text-[var(--color-accent)] no-underline hover:no-underline"
-            href={`/packs/${selectedPack.packId}`}
+            href={`/briefings/${selectedPack.packId}`}
           >
             Open pack page →
           </a>

@@ -135,7 +135,7 @@ describe("ForecastRuntime stream watchdog", () => {
       screen
         .getByRole("link", { name: "Open pack page →" })
         .getAttribute("href"),
-    ).toBe("/packs/base-rate-first");
+    ).toBe("/briefings/base-rate-first");
 
     fireEvent.click(
       screen.getAllByRole("button", { name: /Tariff pass-through/i })[0],
@@ -155,6 +155,6 @@ describe("ForecastRuntime stream watchdog", () => {
       screen
         .getByRole("link", { name: "Open pack page →" })
         .getAttribute("href"),
-    ).toBe("/packs/tariff-pass-through");
+    ).toBe("/briefings/tariff-pass-through");
   });
 });

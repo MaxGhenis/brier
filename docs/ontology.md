@@ -64,7 +64,9 @@ tools. "Cheat sheet" — implies illegitimate advantage.
 
 - `packSet`/`packMode`/`packId` identifiers → briefing terms in
   log.json/reward.json (versioned schema bump, consumers notified).
-- `/packs` route → `/briefings` with a permanent redirect.
 - strategy-docket / strategy-suite / strategy-lab internals → protocol
   naming.
 - Leaderboard export field `agent` → `forecaster` (same pass).
+
+Done early: `/packs` → `/briefings` route moved 2026-07-21 with no
+redirect (Max: pre-launch, nothing links to it, no backward compat).

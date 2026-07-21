@@ -12,21 +12,21 @@ import {
 
 export function generateStaticParams() {
   return buildPredictionPackCatalog().map((pack) => ({
-    packId: pack.packId,
+    briefingId: pack.packId,
   }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ packId: string }>;
+  params: Promise<{ briefingId: string }>;
 }): Promise<Metadata> {
-  const { packId } = await params;
-  const pack = getPredictionPackCatalogEntry(packId);
-  if (!pack) return { title: "Pack not found — Thesis Institute" };
+  const { briefingId } = await params;
+  const pack = getPredictionPackCatalogEntry(briefingId);
+  if (!pack) return { title: "Briefing not found — Thesis Institute" };
 
   return {
-    title: `${pack.label} — Thesis Institute prediction pack`,
+    title: `${pack.label} — Thesis Institute briefing`,
     description: pack.summary,
     robots: {
       index: false,
@@ -41,25 +41,25 @@ export async function generateMetadata({
   };
 }
 
-export default async function PackDetailPage({
+export default async function BriefingDetailPage({
   params,
 }: {
-  params: Promise<{ packId: string }>;
+  params: Promise<{ briefingId: string }>;
 }) {
-  const { packId } = await params;
-  const pack = getPredictionPackCatalogEntry(packId);
+  const { briefingId } = await params;
+  const pack = getPredictionPackCatalogEntry(briefingId);
   if (!pack) notFound();
 
   return (
     <div>
-      <Header activePage="packs" />
+      <Header activePage="briefings" />
       <main className="mx-auto max-w-[1100px] px-8 pb-32 pt-10 max-md:px-5">
         <nav className="mb-6 [font-family:var(--font-mono)] text-[0.7rem] uppercase tracking-[0.12em] text-[var(--theme-text-muted)]">
           <Link
             className="text-[var(--theme-text-muted)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
-            href="/packs"
+            href="/briefings"
           >
-            ← all packs
+            ← all briefings
           </Link>
         </nav>
 
@@ -69,7 +69,7 @@ export default async function PackDetailPage({
               {pack.kind}
             </span>
             <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
-              prediction pack · v{pack.latestVersion}
+              briefing · v{pack.latestVersion}
             </span>
           </div>
           <h1 className="mb-5 [font-family:var(--font-display)] text-[clamp(1.9rem,4vw,2.7rem)] font-light leading-[1.15] tracking-[-0.02em] text-[var(--theme-text)]">
@@ -83,7 +83,7 @@ export default async function PackDetailPage({
         <section className="mb-10 grid grid-cols-4 gap-4 max-md:grid-cols-2 max-sm:grid-cols-1">
           <PackMetric label="runs" value={pack.runCount} />
           <PackMetric label="targets" value={pack.targetCount} />
-          <PackMetric label="agents" value={pack.agents.length} />
+          <PackMetric label="forecasters" value={pack.agents.length} />
           <PackMetric label="versions" value={pack.versions.length} />
         </section>
 
@@ -188,7 +188,7 @@ function PackUsageTable({ pack }: { pack: PredictionPackCatalogEntry }) {
     <section className="border-t border-[var(--theme-border)] pt-6">
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="[font-family:var(--font-display)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--theme-text)]">
-          Runs using this pack
+          Runs handed this briefing
         </h2>
         <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
           {packSetLabel}
@@ -197,9 +197,9 @@ function PackUsageTable({ pack }: { pack: PredictionPackCatalogEntry }) {
       {pack.usage.length === 0 ? (
         <div className="border-y border-[var(--theme-border)] py-5">
           <p className="max-w-[620px] text-[0.88rem] leading-[1.6] text-[var(--theme-text-muted)]">
-            No recorded runs yet. This pack is registered for future ablations,
-            so the first runs can be compared against no-pack controls before
-            any promotion decision.
+            No recorded runs yet. This briefing is registered for future
+            contrasts, so its first runs can be compared against unbriefed
+            controls before any promotion decision.
           </p>
         </div>
       ) : null}
@@ -269,12 +269,12 @@ function formatRunDate(value: string) {
 
 function formatPackDelta(value: number | undefined, unit: Unit) {
   if (value === undefined) return "no control";
-  if (value === 0) return "matches no-pack control";
-  return `${formatSignedPackValue(value, unit)} vs no-pack`;
+  if (value === 0) return "matches unbriefed control";
+  return `${formatSignedPackValue(value, unit)} vs unbriefed`;
 }
 
 function formatPackSetMode(value: PredictionPackUsage["packSetMode"]) {
-  if (value === "with_packs") return "pack-enabled";
+  if (value === "with_packs") return "briefed";
   if (value === "ensemble") return "ensemble";
   return value;
 }

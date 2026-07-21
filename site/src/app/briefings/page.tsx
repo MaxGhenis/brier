@@ -46,7 +46,7 @@ export default function PacksPage() {
 
   return (
     <div>
-      <Header activePage="packs" />
+      <Header activePage="briefings" />
       <main className="mx-auto max-w-[1200px] px-8 pb-32 pt-12 max-md:px-5">
         <section className="mb-12 max-w-[760px]">
           <p className="mb-3 [font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.15em] text-[var(--color-accent)]">
@@ -89,7 +89,7 @@ export default function PacksPage() {
           {packs.map((pack) => (
             <Link
               className="rounded-xl border bg-[var(--theme-bg-elevated)] p-5 no-underline transition-colors hover:border-[var(--color-horizon-300)] hover:no-underline"
-              href={`/packs/${pack.packId}`}
+              href={`/briefings/${pack.packId}`}
               key={pack.packId}
               style={{ borderColor: "var(--theme-border)" }}
             >
