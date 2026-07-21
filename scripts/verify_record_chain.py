@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -15,6 +16,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+import producer_signing_pins as producer_pins
 from canonical_json import canonical_bytes, canonical_sha256
 
 SNAPSHOT_RE = re.compile(r"digest-[A-Za-z0-9][A-Za-z0-9._-]*\.json$")
@@ -159,12 +161,189 @@ def physical_path(records: Path, value: str) -> Path:
     return path
 
 
+def ensure_regular_records_file(
+    records: Path,
+    path: Path,
+    *,
+    message: str,
+) -> None:
+    """Reject files reached through symlinks or outside the records root."""
+
+    try:
+        relative = path.relative_to(records)
+    except ValueError as exc:
+        raise ChainError(message) from exc
+    if not relative.parts:
+        raise ChainError(message)
+
+    cursor = records
+    for index, part in enumerate(relative.parts):
+        cursor /= part
+        try:
+            mode = cursor.lstat().st_mode
+        except OSError as exc:
+            raise ChainError(message) from exc
+        final = index == len(relative.parts) - 1
+        if final:
+            if not stat.S_ISREG(mode):
+                raise ChainError(message)
+        elif not stat.S_ISDIR(mode):
+            raise ChainError(message)
+
+    try:
+        path.resolve().relative_to(records.resolve())
+    except (OSError, ValueError) as exc:
+        raise ChainError(message) from exc
+
+
 def snapshot_paths(records: Path) -> list[Path]:
     return sorted(
         path
         for path in records.glob("????-??-??/digest-*.json")
         if SNAPSHOT_RE.fullmatch(path.name) and not path.name.endswith(".witness.json")
     )
+
+
+def producer_signature_path(snapshot: Path) -> Path:
+    """Return the producer-signature sibling for one snapshot."""
+
+    return snapshot.with_suffix(producer_pins.SIGNATURE_SUFFIX)
+
+
+def _producer_signature_paths(records: Path) -> list[Path]:
+    return sorted(records.rglob(f"*{producer_pins.SIGNATURE_SUFFIX}"))
+
+
+def _verify_producer_signatures(records: Path, ordered: list[Path]) -> None:
+    try:
+        active = producer_pins.producer_signing_active()
+    except ValueError as exc:
+        raise ChainError(str(exc)) from exc
+
+    discovered = _producer_signature_paths(records)
+    if not active:
+        if discovered:
+            raise ChainError(
+                "producer signature is present while producer signing is dormant: "
+                f"{logical_path(records, discovered[0])}"
+            )
+        return
+
+    activation_logical = producer_pins.ACTIVATION_SNAPSHOT
+    if activation_logical is None:  # Defended by producer_signing_active().
+        raise ChainError("producer signing pins are half-armed")
+    activation = physical_path(records, activation_logical)
+    if activation not in ordered:
+        raise ChainError(
+            "producer signing activation snapshot is absent from the reachable "
+            f"chain: {activation_logical}"
+        )
+    activation_index = ordered.index(activation)
+
+    discovered_set = set(discovered)
+    for snapshot in ordered[: activation_index + 1]:
+        signature = producer_signature_path(snapshot)
+        if signature in discovered_set:
+            raise ChainError(
+                "producer signature is forbidden at or before activation: "
+                f"{logical_path(records, signature)}"
+            )
+
+    signed_snapshots = ordered[activation_index + 1 :]
+    expected = {producer_signature_path(snapshot) for snapshot in signed_snapshots}
+    orphaned = sorted(discovered_set - expected)
+    if orphaned:
+        raise ChainError(
+            "orphan producer signature is not a post-activation snapshot sibling: "
+            f"{logical_path(records, orphaned[0])}"
+        )
+
+    for signature in sorted(expected):
+        ensure_regular_records_file(
+            records,
+            signature,
+            message=(
+                "missing or non-regular producer signature: "
+                f"{logical_path(records, signature)}"
+            ),
+        )
+
+    public_key_logical = Path(producer_pins.PUBLIC_KEY_RELPATH)
+    if public_key_logical.parts[:1] == ("records",):
+        public_key_logical = Path(*public_key_logical.parts[1:])
+    public_key_candidate = records / public_key_logical
+    ensure_regular_records_file(
+        records,
+        public_key_candidate,
+        message=(
+            "missing or non-regular producer public key: "
+            f"{producer_pins.PUBLIC_KEY_RELPATH}"
+        ),
+    )
+    public_key = physical_path(records, producer_pins.PUBLIC_KEY_RELPATH)
+
+    try:
+        from receipt.sign import SignError, spki_sha256, verify_signature_bytes
+    except ImportError as exc:
+        raise ChainError(
+            "producer signing is active but the receipt package is not installed"
+        ) from exc
+
+    try:
+        public_key_pem = public_key.read_bytes()
+    except OSError as exc:
+        raise ChainError(
+            f"cannot read producer public key "
+            f"{producer_pins.PUBLIC_KEY_RELPATH}: {exc}"
+        ) from exc
+    spki_pin = producer_pins.PRODUCER_SPKI_SHA256
+    if spki_pin is None:  # Defended by producer_signing_active().
+        raise ChainError("producer signing pins are half-armed")
+    try:
+        computed_spki = spki_sha256(public_key_pem)
+    except SignError as exc:
+        raise ChainError(
+            f"producer public key is invalid: {producer_pins.PUBLIC_KEY_RELPATH}: "
+            f"{exc}"
+        ) from exc
+    if computed_spki != spki_pin:
+        raise ChainError(
+            "producer public-key SPKI is not code-pinned for "
+            f"{producer_pins.PUBLIC_KEY_RELPATH}: {computed_spki}"
+        )
+    for snapshot in signed_snapshots:
+        signature = producer_signature_path(snapshot)
+        signature_logical = logical_path(records, signature)
+        try:
+            signature_bytes = signature.read_bytes()
+        except OSError as exc:
+            raise ChainError(
+                f"cannot read producer signature {signature_logical}: {exc}"
+            ) from exc
+        if len(signature_bytes) != 64:
+            raise ChainError(
+                f"producer signature for {signature_logical} must be exactly "
+                f"64 raw bytes; found={len(signature_bytes)}"
+            )
+        snapshot_logical = logical_path(records, snapshot)
+        try:
+            snapshot_bytes = snapshot.read_bytes()
+        except OSError as exc:
+            raise ChainError(
+                "cannot read snapshot for producer signature verification: "
+                f"{snapshot_logical}: {exc}"
+            ) from exc
+        try:
+            verify_signature_bytes(
+                producer_pins.SIGNATURE_DOMAIN + snapshot_bytes,
+                signature_bytes,
+                public_key_pem,
+                public_key_filename=producer_pins.PUBLIC_KEY_RELPATH,
+                spki_sha256=spki_pin,
+                label=signature_logical,
+            )
+        except SignError as exc:
+            raise ChainError(str(exc)) from exc
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -1419,6 +1598,15 @@ def verify_chain(
         )
 
     snapshots = snapshot_paths(records)
+    for path in snapshots:
+        ensure_regular_records_file(
+            records,
+            path,
+            message=(
+                "missing or non-regular record snapshot: "
+                f"{logical_path(records, path)}"
+            ),
+        )
     first_logical = genesis.get("firstSnapshot")
     if not isinstance(first_logical, str) or not first_logical:
         raise ChainError("genesis firstSnapshot must name one snapshot")
@@ -1479,6 +1667,7 @@ def verify_chain(
                 logical_path(records, path) for path in sorted(snapshot_set - visited)
             )
         )
+    _verify_producer_signatures(records, ordered)
     verified_order = ordered
     if pending_snapshot is not None:
         if pending_snapshot != ordered[-1] or len(ordered) < 2:
