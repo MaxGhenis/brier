@@ -10,6 +10,10 @@ const nextConfig: NextConfig = {
       // /about retired in the ledger migration; its successor is /thesis.
       // The apex landing and old links still point at /about.
       { source: "/about", destination: "/thesis", permanent: false },
+      // Topic views retired 2026-07-21 (deterministic facets on the
+      // forecasts browser replaced them); temporary in case a curated
+      // collections product revives the path.
+      { source: "/topics/:path*", destination: "/", permanent: false },
       {
         source: "/markets/:path*",
         destination: "/forecasts/:path*",

@@ -20,6 +20,7 @@ describe("generated-site scaling surfaces", () => {
         "country",
         "interval",
         "point",
+        "publisher",
         "resolutionDate",
         "slug",
         "status",

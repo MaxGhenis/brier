@@ -117,13 +117,12 @@ which the site fetches at build time. Deploy by pushing `main`; run the
 recorder workflow (`gh workflow run record-forecasts.yml --ref main`) right
 after new predictions go live so their pre-registration timestamp is tight.
 
-Topic views (`site/src/data/topics.ts`, served at `/topics/[slug]`) are
-standing rule-based collections keyed on dataPointId prefixes. When a
-spawned series belongs to a topic, add its `agency.program.metric` prefix
-to that topic in the same commit as the wave module — `topics.test.ts`
-fails on prefixes that match no published cell, so prefix and cells must
-land together. Rolled successors of a series join their topics
-automatically because the prefix is period-free.
+The forecasts browser filters on DERIVED attributes only (publisher from
+the dataPointId's agency token via `site/src/data/forecast-publishers.ts`,
+plus country/status/title) — there is deliberately no hand-curated
+topic/tag layer (removed 2026-07-21; `/topics/*` redirects home). New
+agencies ship with no registry edits; add a display label to
+`PUBLISHER_LABELS` only if the raw token is unreadable.
 
 ### Site (`site/`)
 

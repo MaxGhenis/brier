@@ -5,6 +5,7 @@ import {
   type ForecastCell,
   type ForecastCellType,
 } from "./forecast-cells";
+import { publisherForCell, type PublisherInfo } from "./forecast-publishers";
 
 /** The only catalog fields allowed across the /forecasts page boundary. */
 export interface ForecastListingItem {
@@ -19,6 +20,7 @@ export interface ForecastListingItem {
   status: "pending" | "resolved";
   country: CountryCode;
   type: ForecastCellType;
+  publisher: PublisherInfo | null;
 }
 
 export function buildForecastListing(
@@ -45,5 +47,31 @@ export function buildForecastListing(
     status: forecast.resolvedOutcome ? "resolved" : "pending",
     country: getForecastCountry(forecast),
     type: forecast.type,
+    publisher: publisherForCell(forecast),
   }));
+}
+
+/** Deterministic facet filters over the listing. Every field is derived
+ * from the cells themselves; an empty/undefined filter passes everything. */
+export interface ForecastListingFilter {
+  publisher?: string;
+  country?: string;
+  status?: "pending" | "resolved";
+  query?: string;
+}
+
+export function filterForecastListing(
+  items: ForecastListingItem[],
+  filter: ForecastListingFilter,
+): ForecastListingItem[] {
+  const query = filter.query?.trim().toLowerCase();
+  return items.filter((item) => {
+    if (filter.publisher && item.publisher?.slug !== filter.publisher) {
+      return false;
+    }
+    if (filter.country && item.country !== filter.country) return false;
+    if (filter.status && item.status !== filter.status) return false;
+    if (query && !item.title.toLowerCase().includes(query)) return false;
+    return true;
+  });
 }

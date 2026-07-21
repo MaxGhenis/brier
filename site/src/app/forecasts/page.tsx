@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { ForecastBrowser } from "@/components/ForecastBrowser";
 import { FORECAST_CELLS } from "@/data/forecast-cells";
@@ -57,12 +58,6 @@ export default async function ForecastsPage() {
               View Thesis Log →
             </Link>
             <Link
-              href="/topics"
-              className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
-            >
-              Browse by topic →
-            </Link>
-            <Link
               href="/ledger"
               className="inline-block [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] no-underline hover:text-[var(--color-accent)] hover:no-underline"
             >
@@ -82,7 +77,9 @@ export default async function ForecastsPage() {
             </Link>
           </div>
         </section>
-        <ForecastBrowser forecasts={buildForecastListing(forecasts)} />
+        <Suspense>
+          <ForecastBrowser forecasts={buildForecastListing(forecasts)} />
+        </Suspense>
         <section
           className="mt-16 rounded-xl border bg-[var(--theme-bg-surface)] p-6"
           style={{ borderColor: "var(--theme-border)" }}
