@@ -33,9 +33,12 @@ live records tree is unchanged, and neither dormant command path imports
   symlinked path component.
 - Ran the 30 producer-signing tests against the cached byte-identical
   `receipt==0.2.0` package: 30 passed.
+- Added the Python-3.11-gated `custody` extra and regenerated `uv.lock`
+  offline. The generated wheel and source-distribution hashes exactly match
+  the two known-good `receipt==0.2.0` hashes from the brief.
 
 ## Next
 
-- Add the optional dependency lock, workflow step, and ceremony runbook.
+- Add the workflow signing step and ceremony runbook.
 - Run Black, Ruff, targeted tests, and the full pytest suite; perform the
   dormant-path and orphan-file self-audit; write the final report.
