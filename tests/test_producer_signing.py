@@ -12,6 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import producer_signing_pins as producer_pins  # noqa: E402
+import sign_record_snapshot as producer_signer  # noqa: E402
 import verify_record_chain as record_chain  # noqa: E402
 from receipt.sign import (  # noqa: E402
     generate_signing_keypair,
@@ -144,6 +145,17 @@ def sign_snapshot(snapshot: pathlib.Path, private_key_pem: bytes) -> pathlib.Pat
         )
     )
     return signature
+
+
+def move_snapshot_behind_symlinked_day(
+    records: pathlib.Path,
+    snapshot: pathlib.Path,
+    tmp_path: pathlib.Path,
+) -> pathlib.Path:
+    outside_day = tmp_path / "outside-day"
+    snapshot.parent.rename(outside_day)
+    snapshot.parent.symlink_to(outside_day, target_is_directory=True)
+    return outside_day / snapshot.name
 
 
 def assert_chain_error(
@@ -468,3 +480,221 @@ def test_active_signing_refuses_when_receipt_is_not_importable(
         records,
         "producer signing is active but the receipt package is not installed",
     )
+
+
+def test_verifier_rejects_a_snapshot_behind_a_symlinked_day_directory(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    _private_key, public_key = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, public_key)
+    move_snapshot_behind_symlinked_day(records, post_activation, tmp_path)
+
+    assert_chain_error(
+        records,
+        "missing or non-regular record snapshot: "
+        f"{logical(records, post_activation)}",
+    )
+
+
+def test_proposer_signs_then_verifies_and_scrubs_the_environment(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    private_key, public_key = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, public_key)
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, private_key.decode())
+
+    written = producer_signer.sign_record_snapshots(records)
+
+    signature = record_chain.producer_signature_path(post_activation)
+    assert written == [signature]
+    assert len(signature.read_bytes()) == 64
+    assert producer_signer.SIGNING_KEY_ENV not in producer_signer.os.environ
+    assert len(verify_chain(records, allow_pre_enumeration=True).ordered) == 3
+
+
+def test_proposer_rejects_a_snapshot_behind_a_symlinked_day_directory(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: pathlib.Path,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    private_key, public_key = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, public_key)
+    outside_snapshot = move_snapshot_behind_symlinked_day(
+        records, post_activation, tmp_path
+    )
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, private_key.decode())
+
+    with pytest.raises(producer_signer.ProducerSigningError) as caught:
+        producer_signer.sign_record_snapshots(records)
+
+    assert str(caught.value) == (
+        "missing or non-regular record snapshot: "
+        f"{logical(records, post_activation)}"
+    )
+    assert not record_chain.producer_signature_path(outside_snapshot).exists()
+
+
+def test_proposer_is_idempotent_and_preserves_a_valid_signature(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    private_key, public_key = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, public_key)
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, private_key.decode())
+    [signature] = producer_signer.sign_record_snapshots(records)
+    original_bytes = signature.read_bytes()
+    original_mtime = signature.stat().st_mtime_ns
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, private_key.decode())
+
+    assert producer_signer.sign_record_snapshots(records) == []
+    assert signature.read_bytes() == original_bytes
+    assert signature.stat().st_mtime_ns == original_mtime
+    assert producer_signer.SIGNING_KEY_ENV not in producer_signer.os.environ
+
+
+def test_proposer_refuses_a_wrong_key_before_writing(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    _trusted_private, trusted_public = generate_signing_keypair()
+    wrong_private, _wrong_public = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, trusted_public)
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, wrong_private.decode())
+
+    with pytest.raises(producer_signer.ProducerSigningError) as caught:
+        producer_signer.sign_record_snapshots(records)
+
+    assert str(caught.value) == (
+        f"{producer_signer.SIGNING_KEY_ENV} does not match the code-pinned "
+        "producer public key"
+    )
+    assert producer_signer.SIGNING_KEY_ENV not in producer_signer.os.environ
+    assert not record_chain.producer_signature_path(post_activation).exists()
+
+
+def test_proposer_rejects_a_public_key_outside_the_spki_pin(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    _trusted_private, trusted_public = generate_signing_keypair()
+    other_private, other_public = generate_signing_keypair()
+    activate_signing(
+        monkeypatch,
+        records,
+        activation,
+        other_public,
+        pin=spki_sha256(trusted_public),
+    )
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, other_private.decode())
+
+    with pytest.raises(producer_signer.ProducerSigningError) as caught:
+        producer_signer.sign_record_snapshots(records)
+
+    assert str(caught.value) == (
+        "producer public-key SPKI is not code-pinned for "
+        f"{producer_pins.PUBLIC_KEY_RELPATH}: {spki_sha256(other_public)}"
+    )
+    assert not record_chain.producer_signature_path(post_activation).exists()
+
+
+def test_proposer_rejects_a_malformed_committed_public_key(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    private_key, public_key = generate_signing_keypair()
+    public_key_path = activate_signing(monkeypatch, records, activation, public_key)
+    public_key_path.write_bytes(b"not an Ed25519 public key")
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, private_key.decode())
+
+    with pytest.raises(producer_signer.ProducerSigningError) as caught:
+        producer_signer.sign_record_snapshots(records)
+
+    assert str(caught.value) == (
+        "producer public key is invalid: "
+        f"{producer_pins.PUBLIC_KEY_RELPATH}: cannot decode Ed25519 public key"
+    )
+    assert not record_chain.producer_signature_path(post_activation).exists()
+
+
+def test_proposer_refuses_and_scrubs_a_malformed_private_key(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    _private_key, public_key = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, public_key)
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, "not a private key")
+
+    with pytest.raises(producer_signer.ProducerSigningError) as caught:
+        producer_signer.sign_record_snapshots(records)
+
+    assert str(caught.value) == (
+        f"{producer_signer.SIGNING_KEY_ENV} is not a valid Ed25519 private key"
+    )
+    assert producer_signer.SIGNING_KEY_ENV not in producer_signer.os.environ
+    assert not record_chain.producer_signature_path(post_activation).exists()
+
+
+def test_proposer_refuses_when_the_private_key_is_absent(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    _private_key, public_key = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, public_key)
+    monkeypatch.delenv(producer_signer.SIGNING_KEY_ENV, raising=False)
+
+    with pytest.raises(producer_signer.ProducerSigningError) as caught:
+        producer_signer.sign_record_snapshots(records)
+
+    assert str(caught.value) == (
+        f"{producer_signer.SIGNING_KEY_ENV} is required while producer signing "
+        "is active"
+    )
+    assert not record_chain.producer_signature_path(post_activation).exists()
+
+
+def test_proposer_refuses_to_overwrite_an_invalid_existing_signature(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    records, _first, activation, post_activation = synthetic_chain
+    private_key, public_key = generate_signing_keypair()
+    activate_signing(monkeypatch, records, activation, public_key)
+    signature = record_chain.producer_signature_path(post_activation)
+    invalid = b"x" * 64
+    signature.write_bytes(invalid)
+    monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, private_key.decode())
+
+    with pytest.raises(producer_signer.ProducerSigningError) as caught:
+        producer_signer.sign_record_snapshots(records)
+
+    assert str(caught.value) == (
+        "existing producer signature is invalid: " f"{logical(records, signature)}"
+    )
+    assert signature.read_bytes() == invalid
+    assert producer_signer.SIGNING_KEY_ENV not in producer_signer.os.environ
+
+
+def test_proposer_dormant_mode_is_a_silent_no_op(
+    synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    records, _first, _activation, post_activation = synthetic_chain
+
+    assert producer_signer.main(["--records", str(records)]) == 0
+
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
+    assert not record_chain.producer_signature_path(post_activation).exists()

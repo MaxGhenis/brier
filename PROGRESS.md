@@ -2,10 +2,10 @@
 
 ## State
 
-The dormant pins and fail-closed record-chain verifier integration are
-implemented and covered by targeted tests. Producer signing remains dormant:
-both activation constants are `None`, the live records tree is unchanged, and
-the dormant verifier path does not import `receipt`.
+The verifier and proposer are implemented and covered by targeted tests.
+Producer signing remains dormant: both activation constants are `None`, the
+live records tree is unchanged, and neither dormant command path imports
+`receipt`.
 
 ## Done
 
@@ -24,12 +24,18 @@ the dormant verifier path does not import `receipt`.
   global orphan/stray signature detection.
 - Added exact-message verifier tests for dormant, half-armed, active-valid,
   missing, malformed, wrong-key, bit-flipped, symlinked, boundary, orphan, and
-  missing-package states. Targeted result: 19 passed.
+  missing-package states.
+- Added the proposer CLI with private-key/SPKI self-check, domain-separated
+  signing, optional target selection, exclusive writes, invalid-signature
+  refusal, idempotence, and environment cleanup.
+- Closed a discovered symlinked-date-directory escape in both verifier and
+  proposer; neither now accepts a snapshot nor writes a signature through a
+  symlinked path component.
+- Ran the 30 producer-signing tests against the cached byte-identical
+  `receipt==0.2.0` package: 30 passed.
 
 ## Next
 
-- Finish and test the idempotent proposer CLI, including key self-check and
-  environment scrubbing.
 - Add the optional dependency lock, workflow step, and ceremony runbook.
 - Run Black, Ruff, targeted tests, and the full pytest suite; perform the
   dormant-path and orphan-file self-audit; write the final report.

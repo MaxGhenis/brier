@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -160,6 +161,41 @@ def physical_path(records: Path, value: str) -> Path:
     return path
 
 
+def ensure_regular_records_file(
+    records: Path,
+    path: Path,
+    *,
+    message: str,
+) -> None:
+    """Reject files reached through symlinks or outside the records root."""
+
+    try:
+        relative = path.relative_to(records)
+    except ValueError as exc:
+        raise ChainError(message) from exc
+    if not relative.parts:
+        raise ChainError(message)
+
+    cursor = records
+    for index, part in enumerate(relative.parts):
+        cursor /= part
+        try:
+            mode = cursor.lstat().st_mode
+        except OSError as exc:
+            raise ChainError(message) from exc
+        final = index == len(relative.parts) - 1
+        if final:
+            if not stat.S_ISREG(mode):
+                raise ChainError(message)
+        elif not stat.S_ISDIR(mode):
+            raise ChainError(message)
+
+    try:
+        path.resolve().relative_to(records.resolve())
+    except (OSError, ValueError) as exc:
+        raise ChainError(message) from exc
+
+
 def snapshot_paths(records: Path) -> list[Path]:
     return sorted(
         path
@@ -223,27 +259,28 @@ def _verify_producer_signatures(records: Path, ordered: list[Path]) -> None:
         )
 
     for signature in sorted(expected):
-        if signature.is_symlink() or not signature.is_file():
-            raise ChainError(
+        ensure_regular_records_file(
+            records,
+            signature,
+            message=(
                 "missing or non-regular producer signature: "
                 f"{logical_path(records, signature)}"
-            )
+            ),
+        )
 
     public_key_logical = Path(producer_pins.PUBLIC_KEY_RELPATH)
     if public_key_logical.parts[:1] == ("records",):
         public_key_logical = Path(*public_key_logical.parts[1:])
     public_key_candidate = records / public_key_logical
-    if public_key_candidate.is_symlink():
-        raise ChainError(
+    ensure_regular_records_file(
+        records,
+        public_key_candidate,
+        message=(
             "missing or non-regular producer public key: "
             f"{producer_pins.PUBLIC_KEY_RELPATH}"
-        )
+        ),
+    )
     public_key = physical_path(records, producer_pins.PUBLIC_KEY_RELPATH)
-    if public_key.is_symlink() or not public_key.is_file():
-        raise ChainError(
-            "missing or non-regular producer public key: "
-            f"{producer_pins.PUBLIC_KEY_RELPATH}"
-        )
 
     try:
         from receipt.sign import SignError, spki_sha256, verify_signature_bytes
@@ -1561,6 +1598,15 @@ def verify_chain(
         )
 
     snapshots = snapshot_paths(records)
+    for path in snapshots:
+        ensure_regular_records_file(
+            records,
+            path,
+            message=(
+                "missing or non-regular record snapshot: "
+                f"{logical_path(records, path)}"
+            ),
+        )
     first_logical = genesis.get("firstSnapshot")
     if not isinstance(first_logical, str) or not first_logical:
         raise ChainError("genesis firstSnapshot must name one snapshot")
