@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReasoningStep, Unit } from "@/data/forecast-cells";
 import { formatValue } from "@/data/forecast-cells";
+import type { TraceProvenance } from "@/data/trace-provenance";
 
 interface AgentReasoningProps {
   steps: ReasoningStep[];
   unit: Unit;
   speed?: number; // 1.0 = normal; higher is faster
+  provenance?: TraceProvenance;
 }
 
 interface StepState {
@@ -23,6 +25,7 @@ export function AgentReasoning({
   steps,
   unit,
   speed = 1,
+  provenance = "activity_backed",
 }: AgentReasoningProps) {
   const initial: StepState[] = useMemo(
     () =>
@@ -173,6 +176,37 @@ export function AgentReasoning({
         ref={containerRef}
         className="max-h-[640px] overflow-y-auto px-5 py-5"
       >
+        {provenance === "illustrative" && (
+          <div
+            className="mb-4 rounded-md border px-4 py-3 text-[0.78rem] leading-[1.55]"
+            style={{
+              borderColor: "var(--theme-border-strong)",
+              color: "var(--theme-text-muted)",
+              backgroundColor: "var(--theme-bg-surface)",
+            }}
+          >
+            <span
+              className="mr-2 rounded-full border px-2 py-[1px] [font-family:var(--font-mono)] text-[0.58rem] uppercase tracking-[0.1em]"
+              style={{ borderColor: "var(--theme-border-strong)" }}
+            >
+              illustrative trace
+            </span>
+            This trace was authored from source context when the cell was
+            created; the tool calls shown were not executed. Runs from June
+            28, 2026 onward replay archived activity from the public
+            records.
+          </div>
+        )}
+        {provenance === "recorded_run" && (
+          <div
+            className="mb-4 text-[0.72rem] leading-[1.5]"
+            style={{ color: "var(--theme-text-dim)" }}
+          >
+            Recorded research run from before on-repo activity archives
+            (June 28, 2026); steps reflect real activity without archived
+            receipts.
+          </div>
+        )}
         {state.map((s, i) => (
           <div
             key={i}
@@ -183,7 +217,12 @@ export function AgentReasoning({
                 : ""
             }
           >
-            <RenderedStep state={s} unit={unit} active={i === activeIndex && !complete} />
+            <RenderedStep
+              state={s}
+              unit={unit}
+              active={i === activeIndex && !complete}
+              provenance={provenance}
+            />
           </div>
         ))}
         {complete && (
@@ -200,10 +239,12 @@ function RenderedStep({
   state,
   unit,
   active,
+  provenance,
 }: {
   state: StepState;
   unit: Unit;
   active: boolean;
+  provenance: TraceProvenance;
 }) {
   const { step, progress, total } = state;
   switch (step.kind) {
@@ -239,8 +280,12 @@ function RenderedStep({
     }
     case "tool": {
       const tool = step.tool ?? "policyengine.simulate";
-      const label =
-        tool === "agent.run" ? "recorded agent run" : "recorded source check";
+      const illustrative = provenance === "illustrative";
+      const label = illustrative
+        ? "illustrative step"
+        : tool === "agent.run"
+          ? "recorded agent run"
+          : "recorded source check";
       return (
         <div className="my-3">
           <div
@@ -251,11 +296,13 @@ function RenderedStep({
               ▸ {label}: {tool}
             </span>
             <span className="text-[#9DB1BF]">
-              {progress === 0
-                ? "hidden"
-                : progress === 1
-                  ? "replaying"
-                  : "recorded"}
+              {illustrative
+                ? "authored, not executed"
+                : progress === 0
+                  ? "hidden"
+                  : progress === 1
+                    ? "replaying"
+                    : "recorded"}
             </span>
           </div>
           <pre className="overflow-x-auto border-x bg-[#0F1A24] px-4 py-3 text-[#E8F0F5] [font-family:var(--font-mono)] text-[0.78rem] leading-[1.55]"
@@ -277,7 +324,11 @@ function RenderedStep({
               style={{ borderColor: "var(--color-ink-border)" }}
             >
               <Spinner />
-              <span>running PolicyEngine microsim against MICROPLEX population…</span>
+              <span>
+                {illustrative
+                  ? "replaying authored step…"
+                  : "replaying recorded step…"}
+              </span>
             </div>
           ) : null}
         </div>

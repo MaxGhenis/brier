@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AgentReasoning } from "@/components/AgentReasoning";
+import { classifyTraceProvenance } from "@/data/trace-provenance";
 import { ForecastTrend, ForecastViz } from "@/components/ForecastViz";
 import {
   LIVE_FORECAST_SLUGS,
@@ -1353,7 +1354,11 @@ function ReasoningSurface({
             {error} Replaying the static reasoning trace.
           </div>
         )}
-        <AgentReasoning steps={forecast.reasoning} unit={forecast.unit} />
+        <AgentReasoning
+          steps={forecast.reasoning}
+          unit={forecast.unit}
+          provenance={classifyTraceProvenance(forecast)}
+        />
       </>
     );
   }
