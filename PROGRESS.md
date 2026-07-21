@@ -2,10 +2,10 @@
 
 ## State
 
-The verifier and proposer are implemented and covered by targeted tests.
-Producer signing remains dormant: both activation constants are `None`, the
-live records tree is unchanged, and neither dormant command path imports
-`receipt`.
+Implementation and documentation are complete; final full-suite validation and
+self-audit remain. Producer signing is still dormant: both activation constants
+are `None`, the live records tree is unchanged, and neither dormant command
+path imports `receipt`.
 
 ## Done
 
@@ -39,9 +39,11 @@ live records tree is unchanged, and neither dormant command path imports
 - Wired the recorder workflow to pass the Actions secret only to the signer,
   between snapshot creation and RFC 3161 witnessing. Focused signing,
   integrity, and provenance tests pass: 67 passed.
+- Added the ceremony runbook with local key generation, direct secret upload,
+  SPKI computation, exact HEAD activation boundary, provenance/runtime gates,
+  and an honest key-epoch requirement for rotation.
 
 ## Next
 
-- Add the ceremony runbook.
 - Run Black, Ruff, targeted tests, and the full pytest suite; perform the
   dormant-path and orphan-file self-audit; write the final report.
