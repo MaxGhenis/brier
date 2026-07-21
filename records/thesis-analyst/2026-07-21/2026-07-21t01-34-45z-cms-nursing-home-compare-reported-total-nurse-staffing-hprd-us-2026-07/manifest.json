@@ -1,0 +1,365 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T01:34:45Z",
+  "runStartedAt": "2026-07-21T01:34:45Z",
+  "series": "cms.nursing_home_compare.reported_total_nurse_staffing_hprd_us",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "nursing-home-staffing-hprd-july-2026",
+    "country": "US",
+    "dataPointId": "cms.nursing_home_compare.reported_total_nurse_staffing_hprd_us.2026-07.first_print",
+    "period": "2026-07",
+    "resolutionDate": "2026-07-29",
+    "resolutionRule": "Resolve to the NATION row value of 'Reported Total Nurse Staffing Hours per Resident per Day' in the first NH_StateUSAverages file CMS posts at the Care Compare refresh scheduled for 2026-07-29 (the July 2026 quarterly staffing update; schedule per the dataset metastore next-update field), rounded to three decimals. The refresh carries nurse staffing measures onto the next Payroll-Based Journal quarter. If CMS posts the refresh on a different calendar day, resolve to the first file posted at that refresh; ignore later monthly refreshes and revisions.",
+    "resolutionSource": "CMS Care Compare nursing home provider data, State US Averages file (NH_StateUSAverages), NATION row, Reported Total Nurse Staffing Hours per Resident per Day",
+    "resolutionSourceUrl": "https://data.cms.gov/provider-data/dataset/xcdc-v8bm",
+    "series": "cms.nursing_home_compare.reported_total_nurse_staffing_hprd_us",
+    "targetUnit": "ratio"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T01:34:45Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "c5687c0705869ab02720fd0ce9aa1122e179cbffc91ccc0bbfa6cf84b20d3118"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The reasoning says it inspected a published Thesis run for the same target with the same point and interval; even if described as strategy context, this creates catalog/peer-forecast circularity risk.",
+        "actionRequested": "Remove the prior-run check from the reasoning and source context, or explicitly state it was excluded before numeric estimation and show the point/interval derivation without relying on that same-target forecast."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval is ultimately judgment-widened from only three irregular, partly rounded or mirrored changes, so the realized-volatility basis is thin.",
+        "actionRequested": "Clarify that the 3.84-4.00 interval is an explicit uncertainty interval rather than a robust realized-volatility estimate, and name the sparse/irregular anchor limitation in the final compact interval step."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Date the 'State US Averages public preview value' anchor or identify which file/month it reflects."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep CMS as the resolver and treat ProPublica/Becker/Illinois only as historical mirrors or citations, not resolution authorities."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by excluding same-target prior-run/catalog point and interval context from the evidentiary reasoning; accepted the interval critique by stating that 3.84 to 4.00 is a judgmental uncertainty interval widened from a thin, irregular anchor set rather than a robust volatility estimate.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by excluding same-target prior-run/catalog point and interval context from the evidentiary reasoning; accepted the interval critique by stating that 3.84 to 4.00 is a judgmental uncertainty interval widened from a thin, irregular anchor set rather than a robust volatility estimate.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by excluding same-target prior-run/catalog point and interval context from the evidentiary reasoning; accepted the interval critique by stating that 3.84 to 4.00 is a judgmental uncertainty interval widened from a thin, irregular anchor set rather than a robust volatility estimate.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by excluding same-target prior-run/catalog point and interval context from the evidentiary reasoning; accepted the interval critique by stating that 3.84 to 4.00 is a judgmental uncertainty interval widened from a thin, irregular anchor set rather than a robust volatility estimate.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is mostly target-coherent, but it should remove or quarantine same-target prior-run/circularity context before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/prompt.md",
+      "sha256": "c6ac590da9c231a7626b816208eb7657e60f2d4527f06d6e2bb5657a7c4dd310",
+      "bytes": 9122,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_command.json",
+      "sha256": "b4596798a71b42336162884f575e27b7337b2ed05d6b80d23229b3e0dcb22833",
+      "bytes": 773,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "db4065601deac42223c23c99046b5f4ce1ce6ac61b2d8ed2e32d8ef811df4b74",
+      "bytes": 1328654,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_events.jsonl",
+      "sha256": "40a1e9758cd17b5a34f81b1fe34bdec8de11b1487138fe5ee26be4a0724e2e07",
+      "bytes": 1328817,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_last_message.txt",
+      "sha256": "ed83bb1157bcedf8d59a2a90a16201e8902c5364c815e230e236566bcff13fb9",
+      "bytes": 7151,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_trace.json",
+      "sha256": "ea863d613870fe4e1accbf1d3be4d8786d412c924c112bc6549f6d1d9f57334a",
+      "bytes": 508,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_stdout.txt",
+      "sha256": "ed83bb1157bcedf8d59a2a90a16201e8902c5364c815e230e236566bcff13fb9",
+      "bytes": 7151,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_prompt.md",
+      "sha256": "bc4e1e362416f1655512c8b3212b55586069a4ab7ef7a7ecf3fb94152fe0c89e",
+      "bytes": 10355,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_command.json",
+      "sha256": "0e4c5c130a9f96a9d9d992dd08dcf8e6027cb26c65c8a13da4bdb916b3c57354",
+      "bytes": 769,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "5fc7d819d6645ea63d29dd0903320a72e3464157720cfeb9a0d9d8e58954e31b",
+      "bytes": 1712,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "a9546afa9b042c9fdc4a53b65a79877d268a5efa4c110ae5c49f2baa75224c19",
+      "bytes": 1734,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "8845eefb70da2e2fbb7ae64d81c080aab3b05756a3d4ed41e436ae87f2b487d7",
+      "bytes": 1351,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "d4447f8811f9788e947a38c78b581c4bb118cee716391739a3a411d7a7d3351d",
+      "bytes": 504,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "8845eefb70da2e2fbb7ae64d81c080aab3b05756a3d4ed41e436ae87f2b487d7",
+      "bytes": 1351,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/revision_prompt.md",
+      "sha256": "63943dc216a6407aeac446fdbc259e621b6ef238f85104e01015511beca81954",
+      "bytes": 18560,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/command.json",
+      "sha256": "f7d863591592ab8c241e3d41dd537713851d8f8b665121537ae7f698c4d1a7a2",
+      "bytes": 767,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_stdout.jsonl",
+      "sha256": "a9ff9be87b03d91ad1bba04a34d2d10268d1b9a8f5b391c3adadb9c4ccdf0200",
+      "bytes": 8093,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_events.jsonl",
+      "sha256": "a459fb7f9a18b47993440d98897af9ecf971d766f5895a282502437c6f02b5ba",
+      "bytes": 8115,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_last_message.txt",
+      "sha256": "0b509ee082212ee5af956904b4e09e6c5fac797ce73fc454d75597679f63dc66",
+      "bytes": 7496,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_trace.json",
+      "sha256": "c4ec45eb48169192717c9a68adf095093610b688724793811bfa934c93892dfe",
+      "bytes": 503,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/stdout.txt",
+      "sha256": "0b509ee082212ee5af956904b4e09e6c5fac797ce73fc454d75597679f63dc66",
+      "bytes": 7496,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/raw_response.txt",
+      "sha256": "0b509ee082212ee5af956904b4e09e6c5fac797ce73fc454d75597679f63dc66",
+      "bytes": 7496,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/parsed_cells.json",
+      "sha256": "f6858431f47c18b849a6143af8f40b3f9893525a5b47d15ee83ee36a1516fb7b",
+      "bytes": 8508,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/normalized_cells.json",
+      "sha256": "2750e26df69e54a1d1ef59d8f0f9a869996d7878fbc98b814c3c93a409f2d66d",
+      "bytes": 25360,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/distribution.json",
+      "sha256": "d0013da3abd717e157050772ffda2da76bf636b3fc24fd913046fd164c4fcf69",
+      "bytes": 13408,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/validation.json",
+      "sha256": "60fa9d59a7d9ef9ed3ee1f577fe8298a75db6efae7cb10b4be7f2d822178c9f7",
+      "bytes": 137,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/cells.with_activity.json",
+      "sha256": "d0df6db1bb2f27cb675d442c4e6cddad29d45c909129bb4e38086765a0d96a50",
+      "bytes": 42379,
+      "createdAt": "2026-07-21T01:34:45Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-34-45z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/manifest.json",
+      "sha256": "b1ae5153dcb779bf9bd9443f45bcc813cbb8e98229c23126c4edd61e30636243",
+      "bytes": 16841,
+      "createdAt": "2026-07-21T01:34:45Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "nursing-home-staffing-hprd-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "d0a2dd6e60df7407105e21f1cb528d41abf0f1bc2255880bd4cf1b9d8a2d3d5f"
+}

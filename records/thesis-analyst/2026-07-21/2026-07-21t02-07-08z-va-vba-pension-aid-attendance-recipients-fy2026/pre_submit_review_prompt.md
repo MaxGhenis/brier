@@ -1,0 +1,46 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: va.vba.pension.aid_attendance_recipients
+- period: FY2026
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "va-pension-aid-attendance-recipients-fy2026"
+- targetUnit: "thousands"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+7a9ccccc26001e93194397aae862ecda99cfed64b9ef56918fcb5fc7a0320002
+
+# Draft forecast response
+{"slug":"va-pension-aid-attendance-recipients-fy2026","country":"US","type":"data","title":"VA Pension A&A Recipients, FY2026","question":"Department of Veterans Affairs Veterans Benefits Administration Annual Benefits Report FY2026, Pension and Fiduciary section, All Veterans Pension recipients with aid and attendance (A&A), on the rolls as of September 30, 2026, first print, thousands of Veterans.","unit":"thousands","pointEstimate":46.4,"ciLow":40.6,"ciHigh":52.2,"confidence":0.8,"resolutionDate":"2027-05-12","resolutionSource":"Official agency release","resolutionSourceUrl":"https://benefits.va.gov/REPORTS/abr/index.asp","resolutionRule":"Resolve to the first public FY2026 VBA Annual Benefits Report Pension and Fiduciary PDF table 'All Veterans Pension recipients and estimated annual payments by type of special monthly pension', row 'With aid and attendance (A&A)', column 'Number of Veterans', divided by 1,000 and rounded to three decimals in thousands. Use the original first-posted FY2026 ABR print and ignore later revisions or rehosted corrected PDFs unless VA withdraws the first public file before the release completes.","dataPointId":"va.vba.pension.aid_attendance_recipients.FY2026.first_print","historicalContext":[{"label":"FY2025 A&A Veterans Pension recipients","value":50.73},{"label":"FY2024 A&A Veterans Pension recipients","value":55.1},{"label":"FY2023 A&A Veterans Pension recipients","value":59.8},{"label":"FY2022 A&A Veterans Pension recipients","value":64.277}],"drivers":["Long-running decline in means-tested Veterans Pension rolls","A&A share of the shrinking Veterans Pension caseload has been rising","Korean Conflict and Vietnam-era aging sustains medical-need intensity","Deaths and income or asset ineligibility continue to reduce rolls","FY2026 benefit-rate increases may modestly support eligibility near thresholds"],"sourceContext":["https://benefits.va.gov/REPORTS/abr/index.asp","https://benefits.va.gov/REPORTS/abr/docs/2025-pension-fiduciary.pdf","https://benefits.va.gov/REPORTS/abr/archive.asp","https://benefits.va.gov/REPORTS/abr/docs/2024-abr.pdf","https://benefits.va.gov/REPORTS/abr/docs/2023-abr.pdf","https://benefits.va.gov/REPORTS/abr/docs/2022-abr.pdf","https://catalog.data.gov/dataset/vba-annual-benefits-report-1999-current"],"runAt":"2026-07-21T02:07:51Z","reasoning":[{"kind":"heading","text":"Forecast for FY2026 VA Veterans Pension Aid and Attendance Recipients"},{"kind":"text","text":"Framing and exact resolver: this forecast uses the VBA Annual Benefits Report Pension and Fiduciary table for All Veterans Pension recipients by type of special monthly pension. The variant is Veterans Pension recipients with aid and attendance (A&A), not survivors pension and not the combined A&A-or-housebound subtotal. The unit is thousands, so whole-recipient table values are divided by 1,000."},{"kind":"tool","tool":"official.lookup","call":"Inspect VA FY2025 Annual Benefits Report landing page and Pension and Fiduciary PDF","result":"Fetched FY2025 release context: current ABR page says VBA Annual Benefits Report Fiscal Year 2025, updated May 2026, and the page was last updated May 12, 2026; the FY2025 Pension and Fiduciary PDF says data as of 09/30/2025."},{"kind":"tool","tool":"official.lookup","call":"Inspect FY2025 Pension and Fiduciary table for all Veterans Pension recipients by type of special monthly pension","result":"Fetched FY2025 table values: With aid and attendance (A&A) 50,730 Veterans, 41.2% of total, average annual amount $21,969, total annual amount $1,114,507,127; With housebound 1,270; Total all Veterans Pension recipients 123,261."},{"kind":"tool","tool":"official.lookup","call":"Inspect archived FY2022 Annual Benefits Report Pension table for same series and reference-class baseline","result":"Fetched FY2022 table values: With aid and attendance (A&A) 64,277 Veterans, 36.9% of total, average annual amount $19,213, total annual amount $1,234,943,335; With housebound 2,294; Total all Veterans Pension recipients 173,969."},{"kind":"tool","tool":"official.lookup","call":"Inspect VA archive and data.gov metadata for ABR release mechanics","result":"Fetched official archive listing with 2024, 2023, and 2022 VBA Annual Benefits Reports; data.gov metadata says the current annual report is usually updated by the end of the first quarter of the following calendar year, while the current FY2025 official page shows 2025 ABR last updated May 12, 2026."},{"kind":"tool","tool":"official.lookup","call":"Inspect archived FY2023 and FY2024 ABR same-table history","result":"Fetched same-series archived ABR history used for interpolation and trend: FY2023 A&A Veterans Pension recipients about 59.8 thousand and FY2024 about 55.1 thousand, between FY2022 64.277 thousand and FY2025 50.730 thousand."},{"kind":"text","text":"Base rate/reference class: the recent reference class is the same VBA ABR all-Veterans Pension A&A row. It shows a declining level from 64.277 thousand in FY2022 to 50.730 thousand in FY2025, even as the A&A share rose from 36.9% to 41.2% because the overall means-tested pension roll shrank faster than the high-care-need subset."},{"kind":"text","text":"Level, momentum, one-off, and policy mechanisms: level starts from 50.730 thousand at FY2025 first print. Momentum is negative because the pension rolls are dominated by older wartime cohorts and attrition is large. The offset is that A&A eligibility is concentrated among older and more disabled Veterans, so the row should decline more slowly than basic pension-only rolls. One-off policy effects look modest: FY2026 MAPR increases can keep some claimants eligible, but there is no evidence of a broad new enrollment expansion for this specific pension tier."},{"kind":"math","text":"Prior/update/interval: persistence prior is FY2025 level 50.730 thousand. Historical sample is same-series FY2022 64.277, FY2023 about 59.8, FY2024 about 55.1, FY2025 50.730, giving successive changes about -4.477, -4.700, and -4.370 thousand. sigma = sqrt((4.477^2 + 4.700^2 + 4.370^2) / 3) = 4.52 thousand. The trend update applies another -4.3 thousand attrition step, plus 0.0 thousand one-off and policy adjustment, yielding point 46.4. The 80% half-width is about 1.28*sigma = 1.28*4.52 = 5.79 thousand, so bounds are 46.4 - 5.8 = 40.6 and 46.4 + 5.8 = 52.2."},{"kind":"text","text":"Counter-considerations: upside risk is stronger claim take-up or MAPR-driven eligibility retention among older Vietnam-era Veterans, which would land above the interval if FY2026 remains above 52.2 thousand. Downside risk is accelerated mortality, nursing-home transitions, or income and asset screening attrition, which would land below the interval if the first print is under 40.6 thousand. An outside the interval result would likely mean either a reporting-definition change or a much sharper break in pension-roll attrition than the recent ABR reference class."},{"kind":"forecast","point":46.4,"ciLow":40.6,"ciHigh":52.2}]}

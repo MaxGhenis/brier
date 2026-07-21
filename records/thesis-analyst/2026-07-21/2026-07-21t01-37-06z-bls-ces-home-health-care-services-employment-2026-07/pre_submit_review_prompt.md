@@ -1,0 +1,46 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.ces.home_health_care_services.employment
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "home-health-services-employment-july-2026"
+- targetUnit: "thousands"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+98f885d37535846fb7a604572312febe96b86d63712b2119097f110e3ebb7833
+
+# Draft forecast response
+{"slug":"home-health-services-employment-july-2026","country":"US","type":"data","title":"US home health employment, July 2026","question":"What will BLS first report for seasonally adjusted all employees in home health care services, CES6562160001, for July 2026?","unit":"thousands","pointEstimate":1888.8,"ciLow":1881.5,"ciHigh":1896.1,"confidence":0.8,"resolutionDate":"2026-08-07","resolutionSource":"Official agency release","resolutionSourceUrl":"https://data.bls.gov/timeseries/CES6562160001","resolutionRule":"Resolve to the first-print BLS Current Employment Statistics value for CES6562160001, All employees, home health care services, seasonally adjusted, July 2026, as published with the Employment Situation release on 2026-08-07 at 08:30 ET, in thousands of persons and rounded to one decimal. Ignore later revisions, benchmark revisions, and subsequent data-file updates.","dataPointId":"bls.ces.home_health_care_services.employment.2026-07.first_print","historicalContext":[{"label":"2026-06 latest SA employment","value":1880.8},{"label":"2026-05 SA employment","value":1877.5},{"label":"2026-04 SA employment","value":1868.0},{"label":"2026-03 SA employment","value":1858.5},{"label":"2025-07 SA employment","value":1799.2}],"drivers":["Demographic demand keeps home-health payrolls on an upward trend","Recent three-month gains were strong before a softer June print","July seasonal-adjusted first print has often shown positive growth in this industry","Policy and reimbursement uncertainty could slow hiring but no clear July break is visible in the public series"],"sourceContext":["https://www.bls.gov/schedule/news_release/empsit.htm","https://data.bls.gov/timeseries/CES6562160001","https://fred.stlouisfed.org/series/CES6562160001","https://www.bls.gov/web/empsit/cesseriespub.htm"],"runAt":"2026-07-21T01:37:35Z","reasoning":[{"kind":"heading","text":"Forecast for July 2026 BLS home health care services employment"},{"kind":"text","text":"Framing and exact resolver: this forecast targets BLS Current Employment Statistics series CES6562160001, all employees in home health care services, seasonally adjusted, measured in thousands of persons. The target is the July 2026 first print, not a later revised CES vintage."},{"kind":"tool","tool":"official.lookup","call":"Checked the BLS Employment Situation release schedule for the July 2026 reference month.","result":"BLS lists July 2026 Employment Situation for release on Aug. 07, 2026 at 08:30 AM; the same schedule shows June 2026 released Jul. 02, 2026 and August 2026 scheduled Sep. 04, 2026."},{"kind":"tool","tool":"official.lookup","call":"Checked the BLS CES published-series listing for the target industry identity.","result":"The CES published-series table lists home health care services as industry 65-621600, NAICS 6216, private, with a published start year of 1985."},{"kind":"tool","tool":"history.lookup","call":"Fetched recent observations for CES6562160001 from the public BLS-sourced FRED mirror to read the latest available CES history before the July release.","result":"CES6562160001 is seasonally adjusted, monthly, thousands of persons; recent values are 2026-06 = 1880.8, 2026-05 = 1877.5, 2026-04 = 1868.0, 2026-03 = 1858.5, 2026-02 = 1848.7."},{"kind":"tool","tool":"history.lookup","call":"Pulled the 2025-07 through 2026-06 reference-class run of monthly levels for current momentum and dispersion.","result":"The last 12 monthly changes ending 2026-06 were +20.4, +7.1, +7.2, +10.0, +5.6, +1.2, +16.7, +1.7, +9.8, +9.5, +9.5, and +3.3 thousand; their mean is 8.5 thousand."},{"kind":"text","text":"Base rate / reference class: home health care services employment has had persistent positive drift in the recent public CES history. The most relevant base rate is the latest 12 observed month-to-month changes in this same seasonally adjusted series, because the target is a one-month-ahead level forecast and the series has a strong trend."},{"kind":"math","text":"Prior/update/interval: persistence prior is latest level 1880.8 plus the recent 12-month average change of 8.5; historical sample is Jul 2025-Jun 2026 monthly changes in CES6562160001; adjustment components are -0.5 thousand for June's softer +3.3 reading versus prior +9.5 gains and +0.0 for no identified one-off July policy shock, giving 1880.8 + 8.0 = 1888.8. Interval method uses realized dispersion of those same successive changes: sigma = 5.67, so 1.28*sigma = 7.26; rounded 80% bounds are 1888.8 - 7.3 = 1881.5 and 1888.8 + 7.3 = 1896.1."},{"kind":"text","text":"Counter-considerations: upside risk is another double-digit July gain like 2025-07's +20.4, which would land above the interval. Downside risk is a hiring pause or reimbursement-driven slowdown near zero change, which would land below the interval. A renewed classification or benchmark-like break outside the interval is possible but not my central case for a first print."},{"kind":"forecast","point":1888.8,"ciLow":1881.5,"ciHigh":1896.1}]}

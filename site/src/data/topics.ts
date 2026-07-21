@@ -61,6 +61,14 @@ export const TOPICS: TopicDefinition[] = [
       "bls.cps.LNU02374597",
       // Census SPM poverty rate, 65 and older.
       "census.spm.poverty_rate_65_plus",
+      // CMS Care Compare nursing-home staffing (PBJ-based national HPRD).
+      "cms.nursing_home_compare.",
+      // BLS CES home health care services employment (care workforce).
+      "bls.ces.home_health_care_services.",
+      // Census ACS broadband subscription among the 65+ population.
+      "census.acs.broadband_subscription_65_plus",
+      // USDA FNS SNAP participation among adults 60+ (annual QC characteristics).
+      "usda.fns.snap.participants_age_60_plus",
     ],
   },
 ];

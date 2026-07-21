@@ -1,0 +1,117 @@
+[
+  {
+    "slug": "ssdi-disabled-workers-colorado-december-2025",
+    "country": "US",
+    "type": "data",
+    "title": "Colorado SSDI Disabled Workers, December 2025",
+    "question": "Social Security Administration Annual Statistical Supplement Table 5.J2 number of OASDI disabled workers in current-payment status, Colorado, December 2025, non-seasonally adjusted, first print",
+    "unit": "thousands",
+    "pointEstimate": 75.8,
+    "ciLow": 71.0,
+    "ciHigh": 80.6,
+    "confidence": 0.8,
+    "resolutionDate": "2027-02-28",
+    "resolutionSource": "Social Security Administration Annual Statistical Supplement",
+    "resolutionSourceUrl": "https://www.ssa.gov/policy/docs/statcomps/supplement/2026/5j.html",
+    "resolutionRule": "Resolve to the first published December 2025 value in SSA Annual Statistical Supplement, 2026, Table 5.J2, row Colorado, column Disability: Disabled workers. SSA publishes whole beneficiary counts; convert to thousands by dividing by 1,000 and report to 0.001-thousand precision. Use the first official print only and ignore later revisions. SSA's public schedule gives a 2026-edition release window rather than an exact section day; 2027-02-28 is the latest official completion by-date for the 2026 Annual Statistical Supplement.",
+    "dataPointId": "ssa.oasdi.disabled_workers.colorado.2025-12.first_print",
+    "historicalContext": [
+      {
+        "label": "2024-12 Colorado disabled workers, thousands",
+        "value": 77.912
+      },
+      {
+        "label": "2023-12 Colorado disabled workers, thousands",
+        "value": 79.912
+      },
+      {
+        "label": "2022-12 Colorado disabled workers, thousands",
+        "value": 83.08
+      },
+      {
+        "label": "2021-12 Colorado disabled workers, thousands",
+        "value": 87.507
+      },
+      {
+        "label": "2020-12 Colorado disabled workers, thousands",
+        "value": 92.314
+      }
+    ],
+    "drivers": [
+      "Colorado disabled-worker beneficiary count has declined each year from 92.314 thousand in 2020 to 77.912 thousand in 2024",
+      "The annual decline decelerated from -4.807 thousand in 2021 to -2.000 thousand in 2024",
+      "National disabled-worker counts also remain on a gradual downward path, anchoring against a rebound",
+      "Current-payment-status administrative counts are whole beneficiaries converted to thousands",
+      "No discrete 2025 policy change suggests a sudden Colorado level break"
+    ],
+    "sourceContext": [
+      "https://www.ssa.gov/policy/pub_schedule.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2025/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2024/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2023/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2022/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2021/5j.html"
+    ],
+    "runAt": "2026-07-21T01:49:36Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Colorado SSDI Disabled Workers in December 2025"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this target is the non-seasonally adjusted SSA administrative count of OASDI disabled workers in current-payment status, Colorado, December 2025, from Annual Statistical Supplement Table 5.J2. The variant is disabled workers only, not disabled-worker spouses or children, and all anchors below use that same Table 5.J2 current-payment-status variant."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Publishing Schedule for Annual Statistical Supplement timing.",
+        "result": "Fetched timing evidence: Annual Statistical Supplement frequency is Annual; the 2026 edition release window is June 2026-February 2027 and expected completion is February 28, 2027."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Annual Statistical Supplement 2025 Table 5.J2 for December 2024 Colorado history.",
+        "result": "Fetched Table 5.J2 same-variant values: Colorado total OASDI beneficiaries 987,075; Colorado disabled workers 77,912; all-areas disabled workers 7,231,147 for December 2024."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Annual Statistical Supplement 2024 and 2023 Table 5.J2 pages for December 2023 and December 2022 history.",
+        "result": "Fetched Table 5.J2 same-variant values: Colorado disabled workers 79,912 in December 2023 and 83,080 in December 2022; Colorado total OASDI beneficiaries were 959,232 in 2023 and 939,291 in 2022."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Annual Statistical Supplement 2022 and 2021 Table 5.J2 pages for December 2021 and December 2020 history.",
+        "result": "Fetched Table 5.J2 same-variant values: Colorado disabled workers 87,507 in December 2021 and 92,314 in December 2020; all-areas disabled workers were 7,877,129 in 2021 and 8,151,016 in 2020."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the reference class is recent annual first-print SSA Table 5.J2 Colorado disabled-worker levels. The base rate is a steadily declining but decelerating series: 92.314 thousand in 2020, 87.507 in 2021, 83.080 in 2022, 79.912 in 2023, and 77.912 in 2024."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanism: level starts at 77.912 thousand in December 2024. Momentum remains negative, but the annual drop slowed from -4.807 to -4.427 to -3.168 to -2.000 thousand. One-off effects look limited because this is an administrative stock count. Policy mechanics point to continued attrition from terminations, mortality, conversions to retirement age, and awards, with no obvious 2025 break large enough to reverse the trend."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is December 2024 at 77.912 thousand; historical sample for dispersion uses same-variant successive Colorado changes 2020->2021, 2021->2022, 2022->2023, and 2023->2024: -4.807, -4.427, -3.168, and -2.000 thousand. No separate fitted time-series model is used beyond persistence plus recent annual-change momentum. Adjustment components are -2.000 thousand for last-year momentum and -0.112 thousand for continued national DI attrition, giving point 77.912 - 2.112 = 75.800 thousand. sigma = sqrt((4.807^2 + 4.427^2 + 3.168^2 + 2.000^2) / 4) = 3.766 thousand. The 80% half-width is roughly 1.28*sigma = 1.28*3.766 = 4.820 thousand; this is conservative because it uses RMS annual change rather than residual volatility. Bounds are 75.800 - 4.820 = 70.980 and 75.800 + 4.820 = 80.620, rounded to 71.0 and 80.6."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is that 2025 awards or administrative reinstatements run stronger than the recent decelerating decline, which would land above the interval if Colorado exceeds 80.6 thousand. Downside risk is a renewed acceleration in conversions, deaths, terminations, or fewer disability awards, which would land below the interval if the first print is under 71.0 thousand. An outside the interval result would most likely reflect an administrative processing shift, a definitional/table change, or a much larger policy/eligibility shock than recent annual dispersion."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional clarifications that no separate fitted time-series model was used beyond persistence plus annual-change momentum and that the interval is conservative because sigma uses RMS annual changes rather than residual volatility; no required fixes were raised."
+      },
+      {
+        "kind": "forecast",
+        "point": 75.8,
+        "ciLow": 71.0,
+        "ciHigh": 80.6
+      }
+    ]
+  }
+]

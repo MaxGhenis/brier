@@ -1,0 +1,27 @@
+{
+  "summary": "The resolver and arithmetic are coherent, but the draft is blocking for pre-release publication because it uses the already published FY2024 outcome.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "The run occurred after the May 20, 2026 first print and directly fetched the FY2024 numerator, denominator, and 19.8% outcome.",
+      "actionRequested": "Do not publish this as a clean pre-release forecast; either label it as post-release/resolved/leaky and exclude it from training splits, or rerun using only evidence available before the FY2024 report was posted."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "blocking",
+      "summary": "The material movement from the 19.5% persistence prior to 19.8% is justified by the resolved FY2024 table rather than pre-resolution evidence.",
+      "actionRequested": "Remove FY2024 first-print data from the update logic for any pre-release forecast and explain the movement using only pre-release trends, policy changes, participation data, or explicitly state no material movement."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "The historicalContext includes 'FY2024 first print SNAP participants age 60+ share' as if it were context, while it is the target outcome.",
+      "actionRequested": "Move the FY2024 value out of historicalContext or mark the whole record as resolved/post-release so the JSON fields do not imply a prospective forecast."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the resolver text, dataPointId, unit, point, and interval together if this is retained as a resolved audit record.",
+    "For a clean rerun, make the prior/update/interval step exclude FY2024 and center the interval on a pre-release estimate rather than the observed first print."
+  ]
+}

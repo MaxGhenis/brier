@@ -1,0 +1,374 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T02:00:42Z",
+  "runStartedAt": "2026-07-21T02:00:42Z",
+  "series": "usda.fns.snap.participants_age_60_plus.share",
+  "period": "FY2024",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "snap-participants-60-plus-share-fy2024",
+    "period": "FY2024",
+    "series": "usda.fns.snap.participants_age_60_plus.share",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T02:00:42Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d05690da5d8f9e2680a19b70053fb72e5eecb94cde00aa052366e8a8ec27cb98"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The run occurred after the May 20, 2026 first print and directly fetched the FY2024 numerator, denominator, and 19.8% outcome.",
+        "actionRequested": "Do not publish this as a clean pre-release forecast; either label it as post-release/resolved/leaky and exclude it from training splits, or rerun using only evidence available before the FY2024 report was posted."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "The material movement from the 19.5% persistence prior to 19.8% is justified by the resolved FY2024 table rather than pre-resolution evidence.",
+        "actionRequested": "Remove FY2024 first-print data from the update logic for any pre-release forecast and explain the movement using only pre-release trends, policy changes, participation data, or explicitly state no material movement."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The historicalContext includes 'FY2024 first print SNAP participants age 60+ share' as if it were context, while it is the target outcome.",
+        "actionRequested": "Move the FY2024 value out of historicalContext or mark the whole record as resolved/post-release so the JSON fields do not imply a prospective forecast."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the resolver text, dataPointId, unit, point, and interval together if this is retained as a resolved audit record."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "For a clean rerun, make the prior/update/interval step exclude FY2024 and center the interval on a pre-release estimate rather than the observed first print."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by explicitly retaining this only as a post-release/resolved audit record, keeping the point tied to the fetched first-print table, and removing the FY2024 outcome from historicalContext; rejected rerunning as a clean pre-release forecast because the final submission is constrained to the already drafted public evidence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by explicitly retaining this only as a post-release/resolved audit record, keeping the point tied to the fetched first-print table, and removing the FY2024 outcome from historicalContext; rejected rerunning as a clean pre-release forecast because the final submission is constrained to the already drafted public evidence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by explicitly retaining this only as a post-release/resolved audit record, keeping the point tied to the fetched first-print table, and removing the FY2024 outcome from historicalContext; rejected rerunning as a clean pre-release forecast because the final submission is constrained to the already drafted public evidence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by explicitly retaining this only as a post-release/resolved audit record, keeping the point tied to the fetched first-print table, and removing the FY2024 outcome from historicalContext; rejected rerunning as a clean pre-release forecast because the final submission is constrained to the already drafted public evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by explicitly retaining this only as a post-release/resolved audit record, keeping the point tied to the fetched first-print table, and removing the FY2024 outcome from historicalContext; rejected rerunning as a clean pre-release forecast because the final submission is constrained to the already drafted public evidence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The resolver and arithmetic are coherent, but the draft is blocking for pre-release publication because it uses the already published FY2024 outcome."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/prompt.md",
+      "sha256": "fc8820107b9b76573d7d896a15affb614d15fd570bf8ac00d5ec3f91d90a3f38",
+      "bytes": 8074,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_command.json",
+      "sha256": "915404fcf199b271e9a777860cc400db5cc9d222d765ecd6685af9777fa233df",
+      "bytes": 754,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_codex_stdout.jsonl",
+      "sha256": "b8cb2cf3b555176c1defb9701ef0a1b1831ce60e004da8fea6379adb2bdf786c",
+      "bytes": 2464769,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_codex_events.jsonl",
+      "sha256": "e087d7806d361bc72da90dab0be944e9af39891b23663784bb73447d9a313dcd",
+      "bytes": 2464906,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_codex_last_message.txt",
+      "sha256": "70c2501d67a664859d01e9d7a6cc7c9f587fe2951e410b9c057e9bfc913dc7a5",
+      "bytes": 7338,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_codex_trace.json",
+      "sha256": "06ded05aeabd83f7b837d139c9e8711621971f5d9bc4aeb74256540e4e99016f",
+      "bytes": 509,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_stdout.txt",
+      "sha256": "70c2501d67a664859d01e9d7a6cc7c9f587fe2951e410b9c057e9bfc913dc7a5",
+      "bytes": 7338,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_prompt.md",
+      "sha256": "1863964252328a0c1a61cfc88c78c8b975d7da45218f8701172a5d045c93f23b",
+      "bytes": 9544,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_command.json",
+      "sha256": "3829dd36e7bb0a434e92e6cf85cfbcdc806392079b3a53ced7b6e0a28ddee774",
+      "bytes": 750,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "f2a27e88dec1397db5148911bc18bbe24c1aa7399b2529b11d09e6cedc642e40",
+      "bytes": 3216,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_codex_events.jsonl",
+      "sha256": "9f5dfa4e64a2efc579fa58db6c9118aed38f59eb05f5edaa4d941d8f4c1df8c1",
+      "bytes": 3226,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_codex_last_message.txt",
+      "sha256": "c1ae1793d4f2e392752373de6402d0b66ed2e13e98099bcefef7407179e68cc4",
+      "bytes": 1870,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_codex_trace.json",
+      "sha256": "7a43a1370e860f4cfbb135ea27e07c2a6064b11700247397a177f338fc191229",
+      "bytes": 505,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_stdout.txt",
+      "sha256": "c1ae1793d4f2e392752373de6402d0b66ed2e13e98099bcefef7407179e68cc4",
+      "bytes": 1870,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/revision_prompt.md",
+      "sha256": "89419c92ece008ca09fe2b433b0a2057d31c13f07d3e21efb73d7dab2bc83cd0",
+      "bytes": 18218,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/command.json",
+      "sha256": "9638536286c7d632669b5f0e99a4d97b747e5d43282ecb1e5c7406de8a513995",
+      "bytes": 748,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/codex_stdout.jsonl",
+      "sha256": "7d83e4d589f8e57bf0a95c111fe2d77e4066c643cd5f3fa5edc95262ed969d37",
+      "bytes": 8388,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/codex_events.jsonl",
+      "sha256": "1204d5dc94b134ba0695187917a1fabe5a12d2001bfcde2c5b51a537098017cb",
+      "bytes": 8410,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/codex_last_message.txt",
+      "sha256": "d68478c036f6eb406ef8ca38b9ed8eabda1174dc27c91cca26ae4c26852dfa66",
+      "bytes": 7788,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/codex_trace.json",
+      "sha256": "8919d5ae126aaad2bfdde9d5dfa6d066a5507d398be68b64e260793c5d41afe3",
+      "bytes": 504,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/stdout.txt",
+      "sha256": "d68478c036f6eb406ef8ca38b9ed8eabda1174dc27c91cca26ae4c26852dfa66",
+      "bytes": 7788,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/raw_response.txt",
+      "sha256": "d68478c036f6eb406ef8ca38b9ed8eabda1174dc27c91cca26ae4c26852dfa66",
+      "bytes": 7788,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/parsed_cells.json",
+      "sha256": "916b8020baa4fc2acd4b1d35e35cfd4b5f13fc4e5f712dd8d6d8625e967f20d2",
+      "bytes": 8820,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/normalized_cells.json",
+      "sha256": "e5e58e941b41ea826c17f69c5fb8bc42cea9755fa44e3676590d4145728bd3ed",
+      "bytes": 25809,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/distribution.json",
+      "sha256": "875085015cef25c17ceb9492d9167d35729a1fef6aa0371482303b9801e5c1f9",
+      "bytes": 13545,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/validation.json",
+      "sha256": "0481a7854b29ed54928aa4497c1ffd5ab0bf16894d24fdca6046eb6d5e3aa7cf",
+      "bytes": 256,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/cells.with_activity.json",
+      "sha256": "958c3bae1aa01f06480f46abc02c23f524a155ef6e4ea40c126f137291b796dd",
+      "bytes": 43326,
+      "createdAt": "2026-07-21T02:00:42Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-00-42z-usda-fns-snap-participants-age-60-plus-share-fy2024/manifest.json",
+      "sha256": "adf0a9a65d158c2614696fd98bcf7dfb3bca8c78f0b21277250ef120e25dd9ae",
+      "bytes": 16247,
+      "createdAt": "2026-07-21T02:00:42Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "snap-participants-60-plus-share-fy2024",
+        "ok": false,
+        "errors": [
+          "resolutionDate 2026-05-20 is not after runAt 2026-07-21 \u2014 target already published (leakage)"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "35485f32740c809bca0121b2601bf29a2225165f9959a8910dda7e269c6a1476"
+}

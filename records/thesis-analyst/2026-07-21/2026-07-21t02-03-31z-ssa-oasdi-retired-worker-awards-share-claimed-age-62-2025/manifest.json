@@ -1,0 +1,385 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T02:03:31Z",
+  "runStartedAt": "2026-07-21T02:03:31Z",
+  "series": "ssa.oasdi.retired_worker_awards.share_claimed_age_62",
+  "period": "2025",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "retired-worker-awards-claimed-at-62-share-2025",
+    "period": "2025",
+    "series": "ssa.oasdi.retired_worker_awards.share_claimed_age_62",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T02:03:31Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "80542cdbf463726193edc1748ba9c6b19d9b91bf3e2c470ce10df8599d803efd"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The reasoning, tool evidence, historicalContext, and point estimate directly use the 2025 first official all-sexes value of 22.1, which is the target outcome.",
+        "actionRequested": "Remove all target-year official outcome evidence from the forecast record and base the forecast only on information available before the target first print."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "coherence",
+        "summary": "The point estimate, interval, final forecast step, and historicalContext are circular because they include the realized 2025 value being forecast.",
+        "actionRequested": "Recompute the point, interval, historicalContext, and final JSON fields without the 2025 official value or any resolver-table lookup for the target year."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "update",
+        "summary": "The claimed -0.5 point update is justified by the observed 2025 outcome rather than independent current evidence.",
+        "actionRequested": "State only pre-resolution evidence that would justify any movement from the 2024 persistence prior, or reduce the update accordingly."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step is structurally good but contaminated by target-year leakage through the selected point.",
+        "actionRequested": "Keep the same compact structure, but make the historical sample explicitly pre-target and derive the forecast without using 2025 Table 6.B5."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the ledger slug, unit, dataPointId, resolution source, and 2027-02-28 resolutionDate unless documenting a concrete ledger discrepancy."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios are adequate once they are detached from the observed 2025 value."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage and coherence critiques by removing target-year 2025 official values from evidence, historicalContext, and the update; retained the ledger slug, unit, resolver, dataPointId, and verified release-date rule; recalibrated the point and interval from pre-target official history only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage and coherence critiques by removing target-year 2025 official values from evidence, historicalContext, and the update; retained the ledger slug, unit, resolver, dataPointId, and verified release-date rule; recalibrated the point and interval from pre-target official history only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage and coherence critiques by removing target-year 2025 official values from evidence, historicalContext, and the update; retained the ledger slug, unit, resolver, dataPointId, and verified release-date rule; recalibrated the point and interval from pre-target official history only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage and coherence critiques by removing target-year 2025 official values from evidence, historicalContext, and the update; retained the ledger slug, unit, resolver, dataPointId, and verified release-date rule; recalibrated the point and interval from pre-target official history only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage and coherence critiques by removing target-year 2025 official values from evidence, historicalContext, and the update; retained the ledger slug, unit, resolver, dataPointId, and verified release-date rule; recalibrated the point and interval from pre-target official history only.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage and coherence critiques by removing target-year 2025 official values from evidence, historicalContext, and the update; retained the ledger slug, unit, resolver, dataPointId, and verified release-date rule; recalibrated the point and interval from pre-target official history only.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is not publishable as a forecast because it uses the apparent target-year first official 2025 Table 6.B5 value as evidence and as the point estimate."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/prompt.md",
+      "sha256": "857d636bdebdcbe7340fd37ebe0b997457f912d1a21e0e7ca42ec05522ad698e",
+      "bytes": 7963,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_command.json",
+      "sha256": "f5d53e9079197b484c6e09f09e83e2e296446cbab8c05d2460f5f41cb6a23e90",
+      "bytes": 760,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_codex_stdout.jsonl",
+      "sha256": "58da9c7995bba7ac317aa1805a66343ce9a8a816d6f4ccd3d8e0fbfd8d3ef446",
+      "bytes": 1211467,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_codex_events.jsonl",
+      "sha256": "0bf6975aed701725f50d11aa5f06c1faa11f1fd63e40b67d485e6eea55de1ccb",
+      "bytes": 1211657,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_codex_last_message.txt",
+      "sha256": "1ec6eb84bd441a0ac1e6fde65791a39d15a87f8b334ad06443c86b0baf19b744",
+      "bytes": 7045,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_codex_trace.json",
+      "sha256": "919817b92739436aaeabdcd527d0dded4bab7d28194a0ee579ad01d511cbdd5d",
+      "bytes": 509,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_stdout.txt",
+      "sha256": "1ec6eb84bd441a0ac1e6fde65791a39d15a87f8b334ad06443c86b0baf19b744",
+      "bytes": 7045,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_prompt.md",
+      "sha256": "b8f70d339363b632ac4acdcb278b0d53985e0d79072cf64fc0ef985504ab2ad0",
+      "bytes": 9265,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_command.json",
+      "sha256": "f4def813ef693eeb66d3f578953bd4c756c055bdb2aa673b6092132f9327611d",
+      "bytes": 756,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "02f54012286a88bdb669d9cde545efa7fbe2bcf2e843f278a6ecbf76c2c6425c",
+      "bytes": 2526,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_codex_events.jsonl",
+      "sha256": "3e75ad3933dc04c7cebd16da3a00f0c4c3225dde737534f08becddac8705ee0c",
+      "bytes": 2548,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_codex_last_message.txt",
+      "sha256": "d168112a63b4ab0003da563ff02d61e28a6b76dc7959ee711445383f09dfc6b2",
+      "bytes": 2101,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_codex_trace.json",
+      "sha256": "82743602ffb568b9b21ec746790530172e8e0e0c6dbd62e9734d5bde5b2e5940",
+      "bytes": 504,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_stdout.txt",
+      "sha256": "d168112a63b4ab0003da563ff02d61e28a6b76dc7959ee711445383f09dfc6b2",
+      "bytes": 2101,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/revision_prompt.md",
+      "sha256": "bf4430c323ea7bad9a74ee74421d3cc1f983849197ef4417bde1f5579ab2b7af",
+      "bytes": 18045,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/command.json",
+      "sha256": "79d849b279f3e731897a50f18a04e4d22d40b2590d774041a21225ce7491488d",
+      "bytes": 754,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/codex_stdout.jsonl",
+      "sha256": "79575a64c3c53b680f90dabf0dd1c41675f880d3c8d940979775b25f5fc83a78",
+      "bytes": 7746,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/codex_events.jsonl",
+      "sha256": "ddf558f5b3862e136912131946c81f8adca32f3770eda93289c4ff1583dffdfe",
+      "bytes": 7768,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/codex_last_message.txt",
+      "sha256": "f529ef8458edbf6f227c820f55aa84933417bbce65cfe22cbc0918fe4fdf1d46",
+      "bytes": 7188,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/codex_trace.json",
+      "sha256": "bbec385368818790d1850cb206b19ba4888b6da5159175f750a6b1005ead0798",
+      "bytes": 504,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/stdout.txt",
+      "sha256": "f529ef8458edbf6f227c820f55aa84933417bbce65cfe22cbc0918fe4fdf1d46",
+      "bytes": 7188,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/raw_response.txt",
+      "sha256": "f529ef8458edbf6f227c820f55aa84933417bbce65cfe22cbc0918fe4fdf1d46",
+      "bytes": 7188,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/parsed_cells.json",
+      "sha256": "218861afb87fe604e73824e8f7077540fb01674a230ba41a62d4277aeabdcb63",
+      "bytes": 8071,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/normalized_cells.json",
+      "sha256": "113f10159a552f501ee2ae80e00cbd975dccf25de3bea4262b4edf5eb8ae298c",
+      "bytes": 25218,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/distribution.json",
+      "sha256": "5e4b8bfca59ee0b389207ddc5d6bbc6dba752fe6bddcf4d90582199ae83bf92e",
+      "bytes": 13703,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/validation.json",
+      "sha256": "275aef6ec7e69cedab2bb67589499808b4471c9b1b5d360c4082787cc3134082",
+      "bytes": 147,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/cells.with_activity.json",
+      "sha256": "5814bf853541f8965358c49c2ea4b0f3758df25556661a742ae50af7a2cf55c4",
+      "bytes": 43468,
+      "createdAt": "2026-07-21T02:03:31Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-03-31z-ssa-oasdi-retired-worker-awards-share-claimed-age-62-2025/manifest.json",
+      "sha256": "3208245cde7c91c351d8e32d6a390a584f15a574f2debf06bedd6222c90df2d6",
+      "bytes": 16777,
+      "createdAt": "2026-07-21T02:03:31Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "retired-worker-awards-claimed-at-62-share-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "e001c30615736a5775ec2da528b4e7ac7ca3f5e41f9cefbd8c1e11a97fd3731f"
+}

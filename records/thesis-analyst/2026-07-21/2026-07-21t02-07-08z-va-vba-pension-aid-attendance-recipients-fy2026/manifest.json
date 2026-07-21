@@ -1,0 +1,347 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T02:07:08Z",
+  "runStartedAt": "2026-07-21T02:07:08Z",
+  "series": "va.vba.pension.aid_attendance_recipients",
+  "period": "FY2026",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "va-pension-aid-attendance-recipients-fy2026",
+    "period": "FY2026",
+    "series": "va.vba.pension.aid_attendance_recipients",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T02:07:08Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "73eb7a39db1832d1e8d75e128b018e4d6d0ab997fd91c96e1c9a947795e020aa"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval labels the RMS of recent annual declines as sigma, which is conservative but not the realized volatility of deviations around the trend.",
+        "actionRequested": "Clarify that the 5.8 thousand half-width is a conservative annual-step uncertainty estimate from the FY2022-FY2025 same-series declines, or switch the wording to an explicit uncertainty floor rather than calling it realized volatility."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the resolver step, make explicit that the 2027-05-12 resolutionDate is the ledger deadline while the VA publication timing itself is only inferred from prior ABR timing."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Replace 'about 59.8' and 'about 55.1' in the compact math step with the exact extracted FY2023 and FY2024 values if available from the archived PDFs."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the interval clarification by describing sigma as a conservative annual-step uncertainty floor from FY2022-FY2025 same-series declines, and accepted the resolver clarification that 2027-05-12 is the ledger deadline while VA timing is based on prior official ABR timing and public metadata. Rejected replacing FY2023 and FY2024 approximations because exact extracted values were not available in the reviewed draft evidence.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval clarification by describing sigma as a conservative annual-step uncertainty floor from FY2022-FY2025 same-series declines, and accepted the resolver clarification that 2027-05-12 is the ledger deadline while VA timing is based on prior official ABR timing and public metadata. Rejected replacing FY2023 and FY2024 approximations because exact extracted values were not available in the reviewed draft evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the interval clarification by describing sigma as a conservative annual-step uncertainty floor from FY2022-FY2025 same-series declines, and accepted the resolver clarification that 2027-05-12 is the ledger deadline while VA timing is based on prior official ABR timing and public metadata. Rejected replacing FY2023 and FY2024 approximations because exact extracted values were not available in the reviewed draft evidence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable with only minor clarification needed on the interval method."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/prompt.md",
+      "sha256": "7a9ccccc26001e93194397aae862ecda99cfed64b9ef56918fcb5fc7a0320002",
+      "bytes": 7952,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_command.json",
+      "sha256": "825f706f0201c2e0f3ce54fa03db57418c0be96b8023c8e2e6b683ef2763f5d2",
+      "bytes": 750,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_stdout.jsonl",
+      "sha256": "25eb1529d87327138a51a71e3ef370b8ab5b7c7ff608ed82a7559cd91a17c8b7",
+      "bytes": 1674434,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_events.jsonl",
+      "sha256": "dc20b3073b691984fe5c53cd2cf9ac2000bbae09e7e79c5ceb3fbab493a28c65",
+      "bytes": 1674476,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_last_message.txt",
+      "sha256": "258cb23259e0e6b59e07dfd3f61ad3d9c4409ad0a0a7cc9301d6c934d91e1640",
+      "bytes": 6994,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_trace.json",
+      "sha256": "8c4e8334858140897ac8e72205f66e415872c23f4ca3249aabdbca698e933759",
+      "bytes": 509,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_stdout.txt",
+      "sha256": "258cb23259e0e6b59e07dfd3f61ad3d9c4409ad0a0a7cc9301d6c934d91e1640",
+      "bytes": 6994,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_prompt.md",
+      "sha256": "afd4fd0fdc222f9dbf324df781f5ba4096b588cec62804306a2d283312935389",
+      "bytes": 9203,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_command.json",
+      "sha256": "47a5103ce08a19eaab6c443f9b8ab7f21c32695afe7210f780a93f004ef3e8a9",
+      "bytes": 746,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "99a0146175ac30bdb33315b0ff2c6572a49e82eaa3a0d2bf94c02e0b8574f283",
+      "bytes": 2513,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_events.jsonl",
+      "sha256": "4b035de81c9dd425c5333e4ac2fedfce2b9a79b5dac31146a36c3ec5050e9a2a",
+      "bytes": 2517,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_last_message.txt",
+      "sha256": "8a7832924c317c2d78995d03e4244663cd01bd7e7d1cb617fee2d03b4d2d7fdd",
+      "bytes": 1004,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_trace.json",
+      "sha256": "324e35743c015c34c93dff1f91bf9c5e222ff6faef78e51784eb7f538a334827",
+      "bytes": 506,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_stdout.txt",
+      "sha256": "8a7832924c317c2d78995d03e4244663cd01bd7e7d1cb617fee2d03b4d2d7fdd",
+      "bytes": 1004,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/revision_prompt.md",
+      "sha256": "2bb353b5af2fd36dbaa1d7ccfe938fb65a4450001fde52ff2f96b5bd09df2b2d",
+      "bytes": 16886,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/command.json",
+      "sha256": "3fb355096e39e1807b9f41f84f6036a127e194296bfc3e1ba1aaa89db47a7e66",
+      "bytes": 744,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_stdout.jsonl",
+      "sha256": "8076aabcef825913a36095fe67e67b016d78906ddb4f8d558ea972f28d2ebb22",
+      "bytes": 8457,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_events.jsonl",
+      "sha256": "d08b61fab421492fd7e1c21a7c70f2b6e5917270cb6722a45bbce5a3c8426280",
+      "bytes": 8479,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_last_message.txt",
+      "sha256": "ae3796bb33459c750d0957f695987000b7fd7294b5537e7af0ecc711eaf9a035",
+      "bytes": 7881,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_trace.json",
+      "sha256": "8560206672ffe5adc2ae75c264ceb4f5af07b8628ce24142d129b9a5e75e2736",
+      "bytes": 504,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/stdout.txt",
+      "sha256": "ae3796bb33459c750d0957f695987000b7fd7294b5537e7af0ecc711eaf9a035",
+      "bytes": 7881,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/raw_response.txt",
+      "sha256": "ae3796bb33459c750d0957f695987000b7fd7294b5537e7af0ecc711eaf9a035",
+      "bytes": 7881,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/parsed_cells.json",
+      "sha256": "2ed87ecc102ac41828f5c225bfcc798f5b1357de12f438e9a047bf6f61c255e5",
+      "bytes": 8812,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/normalized_cells.json",
+      "sha256": "1432c87248f1830405b5895058f6e2dc85fb323307e4b149afd57705e3386017",
+      "bytes": 25801,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/distribution.json",
+      "sha256": "fa8e37274e33c271f40470e363e7fa5b4f81040d5d79a75ab4db14044759c3d2",
+      "bytes": 13545,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/validation.json",
+      "sha256": "dad0b3290e0545c63ed352278801fb26ea6ab3fc2fcbe3c565ed7760c8c1600b",
+      "bytes": 144,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/cells.with_activity.json",
+      "sha256": "53ae0d3022e98f3717e2f74a14ab2c39c7b621a952168b88e272a7754d2b0a73",
+      "bytes": 41356,
+      "createdAt": "2026-07-21T02:07:08Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/manifest.json",
+      "sha256": "77f1f09cc6746881f6a0538864610a808945a5a8902d37d507723915f799d13a",
+      "bytes": 14489,
+      "createdAt": "2026-07-21T02:07:08Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "va-pension-aid-attendance-recipients-fy2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "4b04c4ff0202bec506408232f6fec26616dc0ead6e208821c6867a60419c5d59"
+}

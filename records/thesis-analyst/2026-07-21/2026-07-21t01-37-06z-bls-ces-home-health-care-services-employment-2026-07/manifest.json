@@ -1,0 +1,333 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T01:37:06Z",
+  "runStartedAt": "2026-07-21T01:37:06Z",
+  "series": "bls.ces.home_health_care_services.employment",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "home-health-services-employment-july-2026",
+    "period": "2026-07",
+    "series": "bls.ces.home_health_care_services.employment",
+    "targetUnit": "thousands"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T01:37:06Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f123ebad068a39a2c87e938afb2786540d743c0cd7cbf0fe28d3967951d23ad4"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider naming the BLS CES time-series page as the resolution source rather than the generic phrase \"Official agency release\" if the publication pipeline displays that field directly."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If space allows, add one sentence explaining why the latest 12 monthly changes are preferred over a longer historical sample."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to name the BLS CES time-series page more directly as the resolution source and added a concise rationale for preferring the latest 12-month reference class; no required fixes were raised.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to name the BLS CES time-series page more directly as the resolution source and added a concise rationale for preferring the latest 12-month reference class; no required fixes were raised.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable: resolver, prior, update, interval math, tails, and JSON fields are coherent with the target contract."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/prompt.md",
+      "sha256": "98f885d37535846fb7a604572312febe96b86d63712b2119097f110e3ebb7833",
+      "bytes": 8059,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_command.json",
+      "sha256": "b38bfe1083761b8bfcd3d3fb8ac783f975c445ed583fcfe6c857a8c063a7f686",
+      "bytes": 755,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "07d48744c8680310f9a00fd48deb5525f473085e67b77dffa81a9435724754a1",
+      "bytes": 20269,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_codex_events.jsonl",
+      "sha256": "7db8f72aaeb17a9c6e719ed92cc53034d38b2f1569b8701b461ed261461263c6",
+      "bytes": 20439,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_codex_last_message.txt",
+      "sha256": "f00639af29b73347e1a4a42f49b6423d0569d166b7f243cd27a794548e0acf1a",
+      "bytes": 4993,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_codex_trace.json",
+      "sha256": "39de61b60243c44e66fd3599736764a14e489fc95a0713dacb4d727e0fdda14e",
+      "bytes": 509,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_stdout.txt",
+      "sha256": "f00639af29b73347e1a4a42f49b6423d0569d166b7f243cd27a794548e0acf1a",
+      "bytes": 4993,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_prompt.md",
+      "sha256": "8d2bf9261d13718f398b61233101faf7c73d062f0d0beaa2677a75cca97d3547",
+      "bytes": 7205,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_command.json",
+      "sha256": "f770a9c5c5f5db57743ff1896454c596b8590802c12eacf2f2dad8f9dbaf3f23",
+      "bytes": 751,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "52f4b75368d7a54c63c9d827285bf58e486b525666f896de57f224dff78bec99",
+      "bytes": 834,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "171b25fe46404c061830821a2a925403ae2d5317e786d5ab91cf389890529c95",
+      "bytes": 856,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "ce9c3c628deaa15759cbbdbe02a5aea1d373f698df3741d08ddd56d0c28cb334",
+      "bytes": 501,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "95ac19e7f77e9c3c260ad877270e021a0944401eeda9f125c9167935cb080ad1",
+      "bytes": 504,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "ce9c3c628deaa15759cbbdbe02a5aea1d373f698df3741d08ddd56d0c28cb334",
+      "bytes": 501,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/revision_prompt.md",
+      "sha256": "2ff63fb165cefcf82e38ac50892c8077b29844136549df4cdb4197862f32d48c",
+      "bytes": 14489,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/command.json",
+      "sha256": "e9ea7ad2fa01ea3c9e77c395eb25000c837a512edf6e63daddddbb46a4761f66",
+      "bytes": 749,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/codex_stdout.jsonl",
+      "sha256": "19b0e3c85d1b611fd1bf3c005cc035f132cacba1f4a36ee73f4ab8c3d9bfbb22",
+      "bytes": 5905,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/codex_events.jsonl",
+      "sha256": "d04c19c83f1fa1da91b93f8c3219a625b5d6066a81f2796ce98c2eb74a17a5e3",
+      "bytes": 5927,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/codex_last_message.txt",
+      "sha256": "5c8be768577289c7d27a960b3112abe0581fc656fcc0a2ced70ba8dbc7f5202b",
+      "bytes": 5356,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/codex_trace.json",
+      "sha256": "56ecb9a3b670c048faedf2e82e5dc154711b56f188643393c83d770cf89906b9",
+      "bytes": 503,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/stdout.txt",
+      "sha256": "5c8be768577289c7d27a960b3112abe0581fc656fcc0a2ced70ba8dbc7f5202b",
+      "bytes": 5356,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/raw_response.txt",
+      "sha256": "5c8be768577289c7d27a960b3112abe0581fc656fcc0a2ced70ba8dbc7f5202b",
+      "bytes": 5356,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/parsed_cells.json",
+      "sha256": "dcfbc835ed2076ff01cfea1f211694ed96f6c20083c7bef5b94d20e83321fab7",
+      "bytes": 6205,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/normalized_cells.json",
+      "sha256": "3746c5943a12ce38cacfc57e000faf84d3c34e49b58f2c6f4702a0f532972f6c",
+      "bytes": 23766,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/distribution.json",
+      "sha256": "7d8a73305c7e1e0e586d86dbda04e58a94b6b0f41154339f6b03b4930dbf6169",
+      "bytes": 14117,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/validation.json",
+      "sha256": "1288a2f44978427fdd3eb447c46c96a4b33e175ddf284dd8ec7eb0950d503e0f",
+      "bytes": 142,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/cells.with_activity.json",
+      "sha256": "da4be4ade2a1ad98109d845fbc0d6b2be395a8b1ed58164ef5440b0af9211b4b",
+      "bytes": 37893,
+      "createdAt": "2026-07-21T01:37:06Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-37-06z-bls-ces-home-health-care-services-employment-2026-07/manifest.json",
+      "sha256": "98e22be603c6126205bea9c2646693a2dbfdb66bc5d2224ebf4bd29c9024358b",
+      "bytes": 13204,
+      "createdAt": "2026-07-21T01:37:06Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "home-health-services-employment-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "536daef0b73875d1740cd0f15aea991b60ea2dc79b5139a8f5c6187e76a7cb28"
+}

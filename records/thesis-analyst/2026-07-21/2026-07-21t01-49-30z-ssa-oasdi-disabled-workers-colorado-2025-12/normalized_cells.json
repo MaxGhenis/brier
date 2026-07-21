@@ -1,0 +1,944 @@
+[
+  {
+    "slug": "ssdi-disabled-workers-colorado-december-2025",
+    "country": "US",
+    "type": "data",
+    "title": "Colorado SSDI Disabled Workers, December 2025",
+    "question": "Social Security Administration Annual Statistical Supplement Table 5.J2 number of OASDI disabled workers in current-payment status, Colorado, December 2025, non-seasonally adjusted, first print",
+    "unit": "thousands",
+    "pointEstimate": 75.8,
+    "ciLow": 71.0,
+    "ciHigh": 80.6,
+    "confidence": 0.8,
+    "resolutionDate": "2027-02-28",
+    "resolutionSource": "Social Security Administration Annual Statistical Supplement",
+    "resolutionSourceUrl": "https://www.ssa.gov/policy/docs/statcomps/supplement/2026/5j.html",
+    "resolutionRule": "Resolve to the first published December 2025 value in SSA Annual Statistical Supplement, 2026, Table 5.J2, row Colorado, column Disability: Disabled workers. SSA publishes whole beneficiary counts; convert to thousands by dividing by 1,000 and report to 0.001-thousand precision. Use the first official print only and ignore later revisions. SSA's public schedule gives a 2026-edition release window rather than an exact section day; 2027-02-28 is the latest official completion by-date for the 2026 Annual Statistical Supplement.",
+    "dataPointId": "ssa.oasdi.disabled_workers.colorado.2025-12.first_print",
+    "historicalContext": [
+      {
+        "label": "2024-12 Colorado disabled workers, thousands",
+        "value": 77.912
+      },
+      {
+        "label": "2023-12 Colorado disabled workers, thousands",
+        "value": 79.912
+      },
+      {
+        "label": "2022-12 Colorado disabled workers, thousands",
+        "value": 83.08
+      },
+      {
+        "label": "2021-12 Colorado disabled workers, thousands",
+        "value": 87.507
+      },
+      {
+        "label": "2020-12 Colorado disabled workers, thousands",
+        "value": 92.314
+      }
+    ],
+    "drivers": [
+      "Colorado disabled-worker beneficiary count has declined each year from 92.314 thousand in 2020 to 77.912 thousand in 2024",
+      "The annual decline decelerated from -4.807 thousand in 2021 to -2.000 thousand in 2024",
+      "National disabled-worker counts also remain on a gradual downward path, anchoring against a rebound",
+      "Current-payment-status administrative counts are whole beneficiaries converted to thousands",
+      "No discrete 2025 policy change suggests a sudden Colorado level break"
+    ],
+    "sourceContext": [
+      "https://www.ssa.gov/policy/pub_schedule.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2025/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2024/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2023/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2022/5j.html",
+      "https://www.ssa.gov/policy/docs/statcomps/supplement/2021/5j.html"
+    ],
+    "runAt": "2026-07-21T01:52:58Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Colorado SSDI Disabled Workers in December 2025"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this target is the non-seasonally adjusted SSA administrative count of OASDI disabled workers in current-payment status, Colorado, December 2025, from Annual Statistical Supplement Table 5.J2. The variant is disabled workers only, not disabled-worker spouses or children, and all anchors below use that same Table 5.J2 current-payment-status variant."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Publishing Schedule for Annual Statistical Supplement timing.",
+        "result": "Fetched timing evidence: Annual Statistical Supplement frequency is Annual; the 2026 edition release window is June 2026-February 2027 and expected completion is February 28, 2027."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Annual Statistical Supplement 2025 Table 5.J2 for December 2024 Colorado history.",
+        "result": "Fetched Table 5.J2 same-variant values: Colorado total OASDI beneficiaries 987,075; Colorado disabled workers 77,912; all-areas disabled workers 7,231,147 for December 2024."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Annual Statistical Supplement 2024 and 2023 Table 5.J2 pages for December 2023 and December 2022 history.",
+        "result": "Fetched Table 5.J2 same-variant values: Colorado disabled workers 79,912 in December 2023 and 83,080 in December 2022; Colorado total OASDI beneficiaries were 959,232 in 2023 and 939,291 in 2022."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened SSA Annual Statistical Supplement 2022 and 2021 Table 5.J2 pages for December 2021 and December 2020 history.",
+        "result": "Fetched Table 5.J2 same-variant values: Colorado disabled workers 87,507 in December 2021 and 92,314 in December 2020; all-areas disabled workers were 7,877,129 in 2021 and 8,151,016 in 2020."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the reference class is recent annual first-print SSA Table 5.J2 Colorado disabled-worker levels. The base rate is a steadily declining but decelerating series: 92.314 thousand in 2020, 87.507 in 2021, 83.080 in 2022, 79.912 in 2023, and 77.912 in 2024."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanism: level starts at 77.912 thousand in December 2024. Momentum remains negative, but the annual drop slowed from -4.807 to -4.427 to -3.168 to -2.000 thousand. One-off effects look limited because this is an administrative stock count. Policy mechanics point to continued attrition from terminations, mortality, conversions to retirement age, and awards, with no obvious 2025 break large enough to reverse the trend."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is December 2024 at 77.912 thousand; historical sample for dispersion uses same-variant successive Colorado changes 2020->2021, 2021->2022, 2022->2023, and 2023->2024: -4.807, -4.427, -3.168, and -2.000 thousand. No separate fitted time-series model is used beyond persistence plus recent annual-change momentum. Adjustment components are -2.000 thousand for last-year momentum and -0.112 thousand for continued national DI attrition, giving point 77.912 - 2.112 = 75.800 thousand. sigma = sqrt((4.807^2 + 4.427^2 + 3.168^2 + 2.000^2) / 4) = 3.766 thousand. The 80% half-width is roughly 1.28*sigma = 1.28*3.766 = 4.820 thousand; this is conservative because it uses RMS annual change rather than residual volatility. Bounds are 75.800 - 4.820 = 70.980 and 75.800 + 4.820 = 80.620, rounded to 71.0 and 80.6."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is that 2025 awards or administrative reinstatements run stronger than the recent decelerating decline, which would land above the interval if Colorado exceeds 80.6 thousand. Downside risk is a renewed acceleration in conversions, deaths, terminations, or fewer disability awards, which would land below the interval if the first print is under 71.0 thousand. An outside the interval result would most likely reflect an administrative processing shift, a definitional/table change, or a much larger policy/eligibility shock than recent annual dispersion."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the optional clarifications that no separate fitted time-series model was used beyond persistence plus annual-change momentum and that the interval is conservative because sigma uses RMS annual changes rather than residual volatility; no required fixes were raised."
+      },
+      {
+        "kind": "forecast",
+        "point": 75.8,
+        "ciLow": 71.0,
+        "ciHigh": 80.6
+      }
+    ],
+    "agentReportedRunAt": "2026-07-21T01:49:36Z",
+    "runStartedAt": "2026-07-21T01:49:30Z",
+    "promptMode": "fast",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 63.8,
+        "upper": 87.8
+      },
+      "points": [
+        {
+          "value": 63.8,
+          "probability": 0.0
+        },
+        {
+          "value": 63.92,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 64.04,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 64.16,
+          "probability": 0.005
+        },
+        {
+          "value": 64.28,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 64.4,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 64.52,
+          "probability": 0.01
+        },
+        {
+          "value": 64.64,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 64.76,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 64.88,
+          "probability": 0.015
+        },
+        {
+          "value": 65.0,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 65.12,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 65.24,
+          "probability": 0.02
+        },
+        {
+          "value": 65.36,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 65.48,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 65.6,
+          "probability": 0.025
+        },
+        {
+          "value": 65.72,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 65.84,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 65.96,
+          "probability": 0.03
+        },
+        {
+          "value": 66.08,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 66.2,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 66.32,
+          "probability": 0.035
+        },
+        {
+          "value": 66.44,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 66.56,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 66.68,
+          "probability": 0.04
+        },
+        {
+          "value": 66.8,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 66.92,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 67.04,
+          "probability": 0.045
+        },
+        {
+          "value": 67.16,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 67.28,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 67.4,
+          "probability": 0.05
+        },
+        {
+          "value": 67.52,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 67.64,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 67.76,
+          "probability": 0.055
+        },
+        {
+          "value": 67.88,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 68.0,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 68.12,
+          "probability": 0.06
+        },
+        {
+          "value": 68.24,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 68.36,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 68.48,
+          "probability": 0.065
+        },
+        {
+          "value": 68.6,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 68.72,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 68.84,
+          "probability": 0.07
+        },
+        {
+          "value": 68.96,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 69.08,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 69.2,
+          "probability": 0.075
+        },
+        {
+          "value": 69.32,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 69.44,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 69.56,
+          "probability": 0.08
+        },
+        {
+          "value": 69.68,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 69.8,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 69.92,
+          "probability": 0.085
+        },
+        {
+          "value": 70.04,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 70.16,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 70.28,
+          "probability": 0.09
+        },
+        {
+          "value": 70.4,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 70.52,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 70.64,
+          "probability": 0.095
+        },
+        {
+          "value": 70.76,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 70.88,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 71.0,
+          "probability": 0.1
+        },
+        {
+          "value": 71.12,
+          "probability": 0.11
+        },
+        {
+          "value": 71.24,
+          "probability": 0.12
+        },
+        {
+          "value": 71.36,
+          "probability": 0.13
+        },
+        {
+          "value": 71.48,
+          "probability": 0.14
+        },
+        {
+          "value": 71.6,
+          "probability": 0.15
+        },
+        {
+          "value": 71.72,
+          "probability": 0.16
+        },
+        {
+          "value": 71.84,
+          "probability": 0.17
+        },
+        {
+          "value": 71.96,
+          "probability": 0.18
+        },
+        {
+          "value": 72.08,
+          "probability": 0.19
+        },
+        {
+          "value": 72.2,
+          "probability": 0.2
+        },
+        {
+          "value": 72.32,
+          "probability": 0.21
+        },
+        {
+          "value": 72.44,
+          "probability": 0.22
+        },
+        {
+          "value": 72.56,
+          "probability": 0.23
+        },
+        {
+          "value": 72.68,
+          "probability": 0.24
+        },
+        {
+          "value": 72.8,
+          "probability": 0.25
+        },
+        {
+          "value": 72.92,
+          "probability": 0.26
+        },
+        {
+          "value": 73.04,
+          "probability": 0.27
+        },
+        {
+          "value": 73.16,
+          "probability": 0.28
+        },
+        {
+          "value": 73.28,
+          "probability": 0.29
+        },
+        {
+          "value": 73.4,
+          "probability": 0.3
+        },
+        {
+          "value": 73.52,
+          "probability": 0.31
+        },
+        {
+          "value": 73.64,
+          "probability": 0.32
+        },
+        {
+          "value": 73.76,
+          "probability": 0.33
+        },
+        {
+          "value": 73.88,
+          "probability": 0.34
+        },
+        {
+          "value": 74.0,
+          "probability": 0.35
+        },
+        {
+          "value": 74.12,
+          "probability": 0.36
+        },
+        {
+          "value": 74.24,
+          "probability": 0.37
+        },
+        {
+          "value": 74.36,
+          "probability": 0.38
+        },
+        {
+          "value": 74.48,
+          "probability": 0.39
+        },
+        {
+          "value": 74.6,
+          "probability": 0.4
+        },
+        {
+          "value": 74.72,
+          "probability": 0.41
+        },
+        {
+          "value": 74.84,
+          "probability": 0.42
+        },
+        {
+          "value": 74.96,
+          "probability": 0.43
+        },
+        {
+          "value": 75.08,
+          "probability": 0.44
+        },
+        {
+          "value": 75.2,
+          "probability": 0.45
+        },
+        {
+          "value": 75.32,
+          "probability": 0.46
+        },
+        {
+          "value": 75.44,
+          "probability": 0.47
+        },
+        {
+          "value": 75.56,
+          "probability": 0.48
+        },
+        {
+          "value": 75.68,
+          "probability": 0.49
+        },
+        {
+          "value": 75.8,
+          "probability": 0.5
+        },
+        {
+          "value": 75.92,
+          "probability": 0.51
+        },
+        {
+          "value": 76.04,
+          "probability": 0.52
+        },
+        {
+          "value": 76.16,
+          "probability": 0.53
+        },
+        {
+          "value": 76.28,
+          "probability": 0.54
+        },
+        {
+          "value": 76.4,
+          "probability": 0.55
+        },
+        {
+          "value": 76.52,
+          "probability": 0.56
+        },
+        {
+          "value": 76.64,
+          "probability": 0.57
+        },
+        {
+          "value": 76.76,
+          "probability": 0.58
+        },
+        {
+          "value": 76.88,
+          "probability": 0.59
+        },
+        {
+          "value": 77.0,
+          "probability": 0.6
+        },
+        {
+          "value": 77.12,
+          "probability": 0.61
+        },
+        {
+          "value": 77.24,
+          "probability": 0.62
+        },
+        {
+          "value": 77.36,
+          "probability": 0.63
+        },
+        {
+          "value": 77.48,
+          "probability": 0.64
+        },
+        {
+          "value": 77.6,
+          "probability": 0.65
+        },
+        {
+          "value": 77.72,
+          "probability": 0.66
+        },
+        {
+          "value": 77.84,
+          "probability": 0.67
+        },
+        {
+          "value": 77.96,
+          "probability": 0.68
+        },
+        {
+          "value": 78.08,
+          "probability": 0.69
+        },
+        {
+          "value": 78.2,
+          "probability": 0.7
+        },
+        {
+          "value": 78.32,
+          "probability": 0.71
+        },
+        {
+          "value": 78.44,
+          "probability": 0.72
+        },
+        {
+          "value": 78.56,
+          "probability": 0.73
+        },
+        {
+          "value": 78.68,
+          "probability": 0.74
+        },
+        {
+          "value": 78.8,
+          "probability": 0.75
+        },
+        {
+          "value": 78.92,
+          "probability": 0.76
+        },
+        {
+          "value": 79.04,
+          "probability": 0.77
+        },
+        {
+          "value": 79.16,
+          "probability": 0.78
+        },
+        {
+          "value": 79.28,
+          "probability": 0.79
+        },
+        {
+          "value": 79.4,
+          "probability": 0.8
+        },
+        {
+          "value": 79.52,
+          "probability": 0.81
+        },
+        {
+          "value": 79.64,
+          "probability": 0.82
+        },
+        {
+          "value": 79.76,
+          "probability": 0.83
+        },
+        {
+          "value": 79.88,
+          "probability": 0.84
+        },
+        {
+          "value": 80.0,
+          "probability": 0.85
+        },
+        {
+          "value": 80.12,
+          "probability": 0.86
+        },
+        {
+          "value": 80.24,
+          "probability": 0.87
+        },
+        {
+          "value": 80.36,
+          "probability": 0.88
+        },
+        {
+          "value": 80.48,
+          "probability": 0.89
+        },
+        {
+          "value": 80.6,
+          "probability": 0.9
+        },
+        {
+          "value": 80.72,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 80.84,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 80.96,
+          "probability": 0.905
+        },
+        {
+          "value": 81.08,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 81.2,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 81.32,
+          "probability": 0.91
+        },
+        {
+          "value": 81.44,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 81.56,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 81.68,
+          "probability": 0.915
+        },
+        {
+          "value": 81.8,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 81.92,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 82.04,
+          "probability": 0.92
+        },
+        {
+          "value": 82.16,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 82.28,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 82.4,
+          "probability": 0.925
+        },
+        {
+          "value": 82.52,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 82.64,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 82.76,
+          "probability": 0.93
+        },
+        {
+          "value": 82.88,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 83.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 83.12,
+          "probability": 0.935
+        },
+        {
+          "value": 83.24,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 83.36,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 83.48,
+          "probability": 0.94
+        },
+        {
+          "value": 83.6,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 83.72,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 83.84,
+          "probability": 0.945
+        },
+        {
+          "value": 83.96,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 84.08,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 84.2,
+          "probability": 0.95
+        },
+        {
+          "value": 84.32,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 84.44,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 84.56,
+          "probability": 0.955
+        },
+        {
+          "value": 84.68,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 84.8,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 84.92,
+          "probability": 0.96
+        },
+        {
+          "value": 85.04,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 85.16,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 85.28,
+          "probability": 0.965
+        },
+        {
+          "value": 85.4,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 85.52,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 85.64,
+          "probability": 0.97
+        },
+        {
+          "value": 85.76,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 85.88,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 86.0,
+          "probability": 0.975
+        },
+        {
+          "value": 86.12,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 86.24,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 86.36,
+          "probability": 0.98
+        },
+        {
+          "value": 86.48,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 86.6,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 86.72,
+          "probability": 0.985
+        },
+        {
+          "value": 86.84,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 86.96,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 87.08,
+          "probability": 0.99
+        },
+        {
+          "value": 87.2,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 87.32,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 87.44,
+          "probability": 0.995
+        },
+        {
+          "value": 87.56,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 87.68,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 87.8,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 75.8,
+        "median": 75.8,
+        "interval80": {
+          "lower": 71.0,
+          "upper": 80.6
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

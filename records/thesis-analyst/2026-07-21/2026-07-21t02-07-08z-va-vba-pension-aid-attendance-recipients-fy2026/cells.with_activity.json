@@ -1,0 +1,1230 @@
+[
+  {
+    "slug": "va-pension-aid-attendance-recipients-fy2026",
+    "country": "US",
+    "type": "data",
+    "title": "VA Pension A&A Recipients, FY2026",
+    "question": "Department of Veterans Affairs Veterans Benefits Administration Annual Benefits Report FY2026, Pension and Fiduciary section, All Veterans Pension recipients with aid and attendance (A&A), on the rolls as of September 30, 2026, first print, thousands of Veterans.",
+    "unit": "thousands",
+    "pointEstimate": 46.4,
+    "ciLow": 40.6,
+    "ciHigh": 52.2,
+    "confidence": 0.8,
+    "resolutionDate": "2027-05-12",
+    "resolutionSource": "Official agency release",
+    "resolutionSourceUrl": "https://benefits.va.gov/REPORTS/abr/index.asp",
+    "resolutionRule": "Resolve to the first public FY2026 VBA Annual Benefits Report Pension and Fiduciary PDF table 'All Veterans Pension recipients and estimated annual payments by type of special monthly pension', row 'With aid and attendance (A&A)', column 'Number of Veterans', divided by 1,000 and rounded to three decimals in thousands. Use the original first-posted FY2026 ABR print and ignore later revisions or rehosted corrected PDFs unless VA withdraws the first public file before the release completes. The 2027-05-12 resolutionDate is the ledger deadline for the first-print target; VA publication timing is grounded in the official FY2025 ABR page's May 12, 2026 update and the public annual-report metadata, not a guaranteed FY2026 calendar posting.",
+    "dataPointId": "va.vba.pension.aid_attendance_recipients.FY2026.first_print",
+    "historicalContext": [
+      {
+        "label": "FY2025 A&A Veterans Pension recipients",
+        "value": 50.73
+      },
+      {
+        "label": "FY2024 A&A Veterans Pension recipients",
+        "value": 55.1
+      },
+      {
+        "label": "FY2023 A&A Veterans Pension recipients",
+        "value": 59.8
+      },
+      {
+        "label": "FY2022 A&A Veterans Pension recipients",
+        "value": 64.277
+      }
+    ],
+    "drivers": [
+      "Long-running decline in means-tested Veterans Pension rolls",
+      "A&A share of the shrinking Veterans Pension caseload has been rising",
+      "Korean Conflict and Vietnam-era aging sustains medical-need intensity",
+      "Deaths and income or asset ineligibility continue to reduce rolls",
+      "FY2026 benefit-rate increases may modestly support eligibility near thresholds"
+    ],
+    "sourceContext": [
+      "https://benefits.va.gov/REPORTS/abr/index.asp",
+      "https://benefits.va.gov/REPORTS/abr/docs/2025-pension-fiduciary.pdf",
+      "https://benefits.va.gov/REPORTS/abr/archive.asp",
+      "https://benefits.va.gov/REPORTS/abr/docs/2024-abr.pdf",
+      "https://benefits.va.gov/REPORTS/abr/docs/2023-abr.pdf",
+      "https://benefits.va.gov/REPORTS/abr/docs/2022-abr.pdf",
+      "https://catalog.data.gov/dataset/vba-annual-benefits-report-1999-current"
+    ],
+    "runAt": "2026-07-21T02:10:52Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for FY2026 VA Veterans Pension Aid and Attendance Recipients"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecast uses the VBA Annual Benefits Report Pension and Fiduciary table for All Veterans Pension recipients by type of special monthly pension. The variant is Veterans Pension recipients with aid and attendance (A&A), not survivors pension and not the combined A&A-or-housebound subtotal. The unit is thousands, so whole-recipient table values are divided by 1,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspect VA FY2025 Annual Benefits Report landing page and Pension and Fiduciary PDF",
+        "result": "Fetched FY2025 release context: current ABR page says VBA Annual Benefits Report Fiscal Year 2025, updated May 2026, and the page was last updated May 12, 2026; the FY2025 Pension and Fiduciary PDF says data as of 09/30/2025."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspect FY2025 Pension and Fiduciary table for all Veterans Pension recipients by type of special monthly pension",
+        "result": "Fetched FY2025 table values: With aid and attendance (A&A) 50,730 Veterans, 41.2% of total, average annual amount $21,969, total annual amount $1,114,507,127; With housebound 1,270; Total all Veterans Pension recipients 123,261."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspect archived FY2022 Annual Benefits Report Pension table for same series and reference-class baseline",
+        "result": "Fetched FY2022 table values: With aid and attendance (A&A) 64,277 Veterans, 36.9% of total, average annual amount $19,213, total annual amount $1,234,943,335; With housebound 2,294; Total all Veterans Pension recipients 173,969."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspect VA archive and data.gov metadata for ABR release mechanics",
+        "result": "Fetched official archive listing with 2024, 2023, and 2022 VBA Annual Benefits Reports; data.gov metadata says the current annual report is usually updated by the end of the first quarter of the following calendar year, while the current FY2025 official page shows 2025 ABR last updated May 12, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspect archived FY2023 and FY2024 ABR same-table history",
+        "result": "Fetched same-series archived ABR history used for interpolation and trend: FY2023 A&A Veterans Pension recipients about 59.8 thousand and FY2024 about 55.1 thousand, between FY2022 64.277 thousand and FY2025 50.730 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent reference class is the same VBA ABR all-Veterans Pension A&A row. It shows a declining level from 64.277 thousand in FY2022 to 50.730 thousand in FY2025, even as the A&A share rose from 36.9% to 41.2% because the overall means-tested pension roll shrank faster than the high-care-need subset."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: level starts from 50.730 thousand at FY2025 first print. Momentum is negative because the pension rolls are dominated by older wartime cohorts and attrition is large. The offset is that A&A eligibility is concentrated among older and more disabled Veterans, so the row should decline more slowly than basic pension-only rolls. One-off policy effects look modest: FY2026 MAPR increases can keep some claimants eligible, but there is no evidence of a broad new enrollment expansion for this specific pension tier."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is FY2025 level 50.730 thousand. Historical sample is same-series FY2022 64.277, FY2023 about 59.8, FY2024 about 55.1, FY2025 50.730, giving successive changes about -4.477, -4.700, and -4.370 thousand. sigma = sqrt((4.477^2 + 4.700^2 + 4.370^2) / 3) = 4.52 thousand, used here as a conservative annual-step uncertainty floor from recent same-series declines rather than a residual-volatility estimate around the fitted trend. The trend update applies another -4.3 thousand attrition step, plus 0.0 thousand one-off and policy adjustment, yielding point 46.4. The 80% half-width is about 1.28*sigma = 1.28*4.52 = 5.79 thousand, so bounds are 46.4 - 5.8 = 40.6 and 46.4 + 5.8 = 52.2."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is stronger claim take-up or MAPR-driven eligibility retention among older Vietnam-era Veterans, which would land above the interval if FY2026 remains above 52.2 thousand. Downside risk is accelerated mortality, nursing-home transitions, or income and asset screening attrition, which would land below the interval if the first print is under 40.6 thousand. An outside the interval result would likely mean either a reporting-definition change or a much sharper break in pension-roll attrition than the recent ABR reference class."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the interval clarification by describing sigma as a conservative annual-step uncertainty floor from FY2022-FY2025 same-series declines, and accepted the resolver clarification that 2027-05-12 is the ledger deadline while VA timing is based on prior official ABR timing and public metadata. Rejected replacing FY2023 and FY2024 approximations because exact extracted values were not available in the reviewed draft evidence."
+      },
+      {
+        "kind": "forecast",
+        "point": 46.4,
+        "ciLow": 40.6,
+        "ciHigh": 52.2
+      }
+    ],
+    "agentReportedRunAt": "2026-07-21T02:07:51Z",
+    "runStartedAt": "2026-07-21T02:07:08Z",
+    "promptMode": "fast",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 31.9,
+        "upper": 60.9
+      },
+      "points": [
+        {
+          "value": 31.9,
+          "probability": 0.0
+        },
+        {
+          "value": 32.045,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 32.19,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 32.335,
+          "probability": 0.005
+        },
+        {
+          "value": 32.48,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 32.625,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 32.77,
+          "probability": 0.01
+        },
+        {
+          "value": 32.915,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 33.06,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 33.205,
+          "probability": 0.015
+        },
+        {
+          "value": 33.35,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 33.495,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 33.64,
+          "probability": 0.02
+        },
+        {
+          "value": 33.785,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 33.93,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 34.075,
+          "probability": 0.025
+        },
+        {
+          "value": 34.22,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 34.365,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 34.51,
+          "probability": 0.03
+        },
+        {
+          "value": 34.655,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 34.8,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 34.945,
+          "probability": 0.035
+        },
+        {
+          "value": 35.09,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 35.235,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 35.38,
+          "probability": 0.04
+        },
+        {
+          "value": 35.525,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 35.67,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 35.815,
+          "probability": 0.045
+        },
+        {
+          "value": 35.96,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 36.105,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 36.25,
+          "probability": 0.05
+        },
+        {
+          "value": 36.395,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 36.54,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 36.685,
+          "probability": 0.055
+        },
+        {
+          "value": 36.83,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 36.975,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 37.12,
+          "probability": 0.06
+        },
+        {
+          "value": 37.265,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 37.41,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 37.555,
+          "probability": 0.065
+        },
+        {
+          "value": 37.7,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 37.845,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 37.99,
+          "probability": 0.07
+        },
+        {
+          "value": 38.135,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 38.28,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 38.425,
+          "probability": 0.075
+        },
+        {
+          "value": 38.57,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 38.715,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 38.86,
+          "probability": 0.08
+        },
+        {
+          "value": 39.005,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 39.15,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 39.295,
+          "probability": 0.085
+        },
+        {
+          "value": 39.44,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 39.585,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 39.73,
+          "probability": 0.09
+        },
+        {
+          "value": 39.875,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 40.02,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 40.165,
+          "probability": 0.095
+        },
+        {
+          "value": 40.31,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 40.455,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 40.6,
+          "probability": 0.1
+        },
+        {
+          "value": 40.745,
+          "probability": 0.11
+        },
+        {
+          "value": 40.89,
+          "probability": 0.12
+        },
+        {
+          "value": 41.035,
+          "probability": 0.13
+        },
+        {
+          "value": 41.18,
+          "probability": 0.14
+        },
+        {
+          "value": 41.325,
+          "probability": 0.15
+        },
+        {
+          "value": 41.47,
+          "probability": 0.16
+        },
+        {
+          "value": 41.615,
+          "probability": 0.17
+        },
+        {
+          "value": 41.76,
+          "probability": 0.18
+        },
+        {
+          "value": 41.905,
+          "probability": 0.19
+        },
+        {
+          "value": 42.05,
+          "probability": 0.2
+        },
+        {
+          "value": 42.195,
+          "probability": 0.21
+        },
+        {
+          "value": 42.34,
+          "probability": 0.22
+        },
+        {
+          "value": 42.485,
+          "probability": 0.23
+        },
+        {
+          "value": 42.63,
+          "probability": 0.24
+        },
+        {
+          "value": 42.775,
+          "probability": 0.25
+        },
+        {
+          "value": 42.92,
+          "probability": 0.26
+        },
+        {
+          "value": 43.065,
+          "probability": 0.27
+        },
+        {
+          "value": 43.21,
+          "probability": 0.28
+        },
+        {
+          "value": 43.355,
+          "probability": 0.29
+        },
+        {
+          "value": 43.5,
+          "probability": 0.3
+        },
+        {
+          "value": 43.645,
+          "probability": 0.31
+        },
+        {
+          "value": 43.79,
+          "probability": 0.32
+        },
+        {
+          "value": 43.935,
+          "probability": 0.33
+        },
+        {
+          "value": 44.08,
+          "probability": 0.34
+        },
+        {
+          "value": 44.225,
+          "probability": 0.35
+        },
+        {
+          "value": 44.37,
+          "probability": 0.36
+        },
+        {
+          "value": 44.515,
+          "probability": 0.37
+        },
+        {
+          "value": 44.66,
+          "probability": 0.38
+        },
+        {
+          "value": 44.805,
+          "probability": 0.39
+        },
+        {
+          "value": 44.95,
+          "probability": 0.4
+        },
+        {
+          "value": 45.095,
+          "probability": 0.41
+        },
+        {
+          "value": 45.24,
+          "probability": 0.42
+        },
+        {
+          "value": 45.385,
+          "probability": 0.43
+        },
+        {
+          "value": 45.53,
+          "probability": 0.44
+        },
+        {
+          "value": 45.675,
+          "probability": 0.45
+        },
+        {
+          "value": 45.82,
+          "probability": 0.46
+        },
+        {
+          "value": 45.965,
+          "probability": 0.47
+        },
+        {
+          "value": 46.11,
+          "probability": 0.48
+        },
+        {
+          "value": 46.255,
+          "probability": 0.49
+        },
+        {
+          "value": 46.4,
+          "probability": 0.5
+        },
+        {
+          "value": 46.545,
+          "probability": 0.51
+        },
+        {
+          "value": 46.69,
+          "probability": 0.52
+        },
+        {
+          "value": 46.835,
+          "probability": 0.53
+        },
+        {
+          "value": 46.98,
+          "probability": 0.54
+        },
+        {
+          "value": 47.125,
+          "probability": 0.55
+        },
+        {
+          "value": 47.27,
+          "probability": 0.56
+        },
+        {
+          "value": 47.415,
+          "probability": 0.57
+        },
+        {
+          "value": 47.56,
+          "probability": 0.58
+        },
+        {
+          "value": 47.705,
+          "probability": 0.59
+        },
+        {
+          "value": 47.85,
+          "probability": 0.6
+        },
+        {
+          "value": 47.995,
+          "probability": 0.61
+        },
+        {
+          "value": 48.14,
+          "probability": 0.62
+        },
+        {
+          "value": 48.285,
+          "probability": 0.63
+        },
+        {
+          "value": 48.43,
+          "probability": 0.64
+        },
+        {
+          "value": 48.575,
+          "probability": 0.65
+        },
+        {
+          "value": 48.72,
+          "probability": 0.66
+        },
+        {
+          "value": 48.865,
+          "probability": 0.67
+        },
+        {
+          "value": 49.01,
+          "probability": 0.68
+        },
+        {
+          "value": 49.155,
+          "probability": 0.69
+        },
+        {
+          "value": 49.3,
+          "probability": 0.7
+        },
+        {
+          "value": 49.445,
+          "probability": 0.71
+        },
+        {
+          "value": 49.59,
+          "probability": 0.72
+        },
+        {
+          "value": 49.735,
+          "probability": 0.73
+        },
+        {
+          "value": 49.88,
+          "probability": 0.74
+        },
+        {
+          "value": 50.025,
+          "probability": 0.75
+        },
+        {
+          "value": 50.17,
+          "probability": 0.76
+        },
+        {
+          "value": 50.315,
+          "probability": 0.77
+        },
+        {
+          "value": 50.46,
+          "probability": 0.78
+        },
+        {
+          "value": 50.605,
+          "probability": 0.79
+        },
+        {
+          "value": 50.75,
+          "probability": 0.8
+        },
+        {
+          "value": 50.895,
+          "probability": 0.81
+        },
+        {
+          "value": 51.04,
+          "probability": 0.82
+        },
+        {
+          "value": 51.185,
+          "probability": 0.83
+        },
+        {
+          "value": 51.33,
+          "probability": 0.84
+        },
+        {
+          "value": 51.475,
+          "probability": 0.85
+        },
+        {
+          "value": 51.62,
+          "probability": 0.86
+        },
+        {
+          "value": 51.765,
+          "probability": 0.87
+        },
+        {
+          "value": 51.91,
+          "probability": 0.88
+        },
+        {
+          "value": 52.055,
+          "probability": 0.89
+        },
+        {
+          "value": 52.2,
+          "probability": 0.9
+        },
+        {
+          "value": 52.345,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 52.49,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 52.635,
+          "probability": 0.905
+        },
+        {
+          "value": 52.78,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 52.925,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 53.07,
+          "probability": 0.91
+        },
+        {
+          "value": 53.215,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 53.36,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 53.505,
+          "probability": 0.915
+        },
+        {
+          "value": 53.65,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 53.795,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 53.94,
+          "probability": 0.92
+        },
+        {
+          "value": 54.085,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 54.23,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 54.375,
+          "probability": 0.925
+        },
+        {
+          "value": 54.52,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 54.665,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 54.81,
+          "probability": 0.93
+        },
+        {
+          "value": 54.955,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 55.1,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 55.245,
+          "probability": 0.935
+        },
+        {
+          "value": 55.39,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 55.535,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 55.68,
+          "probability": 0.94
+        },
+        {
+          "value": 55.825,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 55.97,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 56.115,
+          "probability": 0.945
+        },
+        {
+          "value": 56.26,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 56.405,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 56.55,
+          "probability": 0.95
+        },
+        {
+          "value": 56.695,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 56.84,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 56.985,
+          "probability": 0.955
+        },
+        {
+          "value": 57.13,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 57.275,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 57.42,
+          "probability": 0.96
+        },
+        {
+          "value": 57.565,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 57.71,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 57.855,
+          "probability": 0.965
+        },
+        {
+          "value": 58.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 58.145,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 58.29,
+          "probability": 0.97
+        },
+        {
+          "value": 58.435,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 58.58,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 58.725,
+          "probability": 0.975
+        },
+        {
+          "value": 58.87,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 59.015,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 59.16,
+          "probability": 0.98
+        },
+        {
+          "value": 59.305,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 59.45,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 59.595,
+          "probability": 0.985
+        },
+        {
+          "value": 59.74,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 59.885,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 60.03,
+          "probability": 0.99
+        },
+        {
+          "value": 60.175,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 60.32,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 60.465,
+          "probability": 0.995
+        },
+        {
+          "value": 60.61,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 60.755,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 60.9,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 46.4,
+        "median": 46.4,
+        "interval80": {
+          "lower": 40.6,
+          "upper": 52.2
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/prompt.md",
+        "sha256": "7a9ccccc26001e93194397aae862ecda99cfed64b9ef56918fcb5fc7a0320002",
+        "bytes": 7952,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_command.json",
+        "sha256": "825f706f0201c2e0f3ce54fa03db57418c0be96b8023c8e2e6b683ef2763f5d2",
+        "bytes": 750,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_stdout.jsonl",
+        "sha256": "25eb1529d87327138a51a71e3ef370b8ab5b7c7ff608ed82a7559cd91a17c8b7",
+        "bytes": 1674434,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_events.jsonl",
+        "sha256": "dc20b3073b691984fe5c53cd2cf9ac2000bbae09e7e79c5ceb3fbab493a28c65",
+        "bytes": 1674476,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_last_message.txt",
+        "sha256": "258cb23259e0e6b59e07dfd3f61ad3d9c4409ad0a0a7cc9301d6c934d91e1640",
+        "bytes": 6994,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_codex_trace.json",
+        "sha256": "8c4e8334858140897ac8e72205f66e415872c23f4ca3249aabdbca698e933759",
+        "bytes": 509,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_stdout.txt",
+        "sha256": "258cb23259e0e6b59e07dfd3f61ad3d9c4409ad0a0a7cc9301d6c934d91e1640",
+        "bytes": 6994,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_prompt.md",
+        "sha256": "afd4fd0fdc222f9dbf324df781f5ba4096b588cec62804306a2d283312935389",
+        "bytes": 9203,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_command.json",
+        "sha256": "47a5103ce08a19eaab6c443f9b8ab7f21c32695afe7210f780a93f004ef3e8a9",
+        "bytes": 746,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "99a0146175ac30bdb33315b0ff2c6572a49e82eaa3a0d2bf94c02e0b8574f283",
+        "bytes": 2513,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_events.jsonl",
+        "sha256": "4b035de81c9dd425c5333e4ac2fedfce2b9a79b5dac31146a36c3ec5050e9a2a",
+        "bytes": 2517,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_last_message.txt",
+        "sha256": "8a7832924c317c2d78995d03e4244663cd01bd7e7d1cb617fee2d03b4d2d7fdd",
+        "bytes": 1004,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_codex_trace.json",
+        "sha256": "324e35743c015c34c93dff1f91bf9c5e222ff6faef78e51784eb7f538a334827",
+        "bytes": 506,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_stdout.txt",
+        "sha256": "8a7832924c317c2d78995d03e4244663cd01bd7e7d1cb617fee2d03b4d2d7fdd",
+        "bytes": 1004,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/revision_prompt.md",
+        "sha256": "2bb353b5af2fd36dbaa1d7ccfe938fb65a4450001fde52ff2f96b5bd09df2b2d",
+        "bytes": 16886,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/command.json",
+        "sha256": "3fb355096e39e1807b9f41f84f6036a127e194296bfc3e1ba1aaa89db47a7e66",
+        "bytes": 744,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_stdout.jsonl",
+        "sha256": "8076aabcef825913a36095fe67e67b016d78906ddb4f8d558ea972f28d2ebb22",
+        "bytes": 8457,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_events.jsonl",
+        "sha256": "d08b61fab421492fd7e1c21a7c70f2b6e5917270cb6722a45bbce5a3c8426280",
+        "bytes": 8479,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_last_message.txt",
+        "sha256": "ae3796bb33459c750d0957f695987000b7fd7294b5537e7af0ecc711eaf9a035",
+        "bytes": 7881,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/codex_trace.json",
+        "sha256": "8560206672ffe5adc2ae75c264ceb4f5af07b8628ce24142d129b9a5e75e2736",
+        "bytes": 504,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/stdout.txt",
+        "sha256": "ae3796bb33459c750d0957f695987000b7fd7294b5537e7af0ecc711eaf9a035",
+        "bytes": 7881,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/raw_response.txt",
+        "sha256": "ae3796bb33459c750d0957f695987000b7fd7294b5537e7af0ecc711eaf9a035",
+        "bytes": 7881,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/parsed_cells.json",
+        "sha256": "2ed87ecc102ac41828f5c225bfcc798f5b1357de12f438e9a047bf6f61c255e5",
+        "bytes": 8812,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/normalized_cells.json",
+        "sha256": "1432c87248f1830405b5895058f6e2dc85fb323307e4b149afd57705e3386017",
+        "bytes": 25801,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/distribution.json",
+        "sha256": "fa8e37274e33c271f40470e363e7fa5b4f81040d5d79a75ab4db14044759c3d2",
+        "bytes": 13545,
+        "createdAt": "2026-07-21T02:07:08Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/validation.json",
+        "sha256": "dad0b3290e0545c63ed352278801fb26ea6ab3fc2fcbe3c565ed7760c8c1600b",
+        "bytes": 144,
+        "createdAt": "2026-07-21T02:07:08Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-21T02:07:08Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "73eb7a39db1832d1e8d75e128b018e4d6d0ab997fd91c96e1c9a947795e020aa"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-07-08z-va-vba-pension-aid-attendance-recipients-fy2026/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval labels the RMS of recent annual declines as sigma, which is conservative but not the realized volatility of deviations around the trend.",
+          "actionRequested": "Clarify that the 5.8 thousand half-width is a conservative annual-step uncertainty estimate from the FY2022-FY2025 same-series declines, or switch the wording to an explicit uncertainty floor rather than calling it realized volatility."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the resolver step, make explicit that the 2027-05-12 resolutionDate is the ledger deadline while the VA publication timing itself is only inferred from prior ABR timing."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Replace 'about 59.8' and 'about 55.1' in the compact math step with the exact extracted FY2023 and FY2024 values if available from the archived PDFs."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval clarification by describing sigma as a conservative annual-step uncertainty floor from FY2022-FY2025 same-series declines, and accepted the resolver clarification that 2027-05-12 is the ledger deadline while VA timing is based on prior official ABR timing and public metadata. Rejected replacing FY2023 and FY2024 approximations because exact extracted values were not available in the reviewed draft evidence.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval clarification by describing sigma as a conservative annual-step uncertainty floor from FY2022-FY2025 same-series declines, and accepted the resolver clarification that 2027-05-12 is the ledger deadline while VA timing is based on prior official ABR timing and public metadata. Rejected replacing FY2023 and FY2024 approximations because exact extracted values were not available in the reviewed draft evidence.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval clarification by describing sigma as a conservative annual-step uncertainty floor from FY2022-FY2025 same-series declines, and accepted the resolver clarification that 2027-05-12 is the ledger deadline while VA timing is based on prior official ABR timing and public metadata. Rejected replacing FY2023 and FY2024 approximations because exact extracted values were not available in the reviewed draft evidence.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable with only minor clarification needed on the interval method."
+    }
+  }
+]

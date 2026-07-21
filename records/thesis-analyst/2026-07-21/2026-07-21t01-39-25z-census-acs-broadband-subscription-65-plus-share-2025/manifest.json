@@ -1,0 +1,397 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T01:39:25Z",
+  "runStartedAt": "2026-07-21T01:39:25Z",
+  "series": "census.acs.broadband_subscription_65_plus.share",
+  "period": "2025",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "broadband-subscription-65-plus-2025",
+    "period": "2025",
+    "series": "census.acs.broadband_subscription_65_plus.share",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T01:39:25Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "c07653f95d2095f10d8a95fde0539dd6e84e6e0fabfedc65f875d99998b13acf"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a constructed 2024 national prior and California/5-year proxies instead of citing the same-series U.S. ACS 1-year B28005 history available before resolution.",
+        "actionRequested": "Fetch and state the latest available U.S. ACS 1-year B28005_017E/B28005_014E values, preferably a short 2021-2024 same-series history, or explicitly explain why those exact annual observations cannot be used."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "The interval sigma is based on annualized changes of +2.3, +2.1, and +1.6 percentage points, but the source observations for those changes are not shown and do not appear in historicalContext.",
+        "actionRequested": "List the exact historical observations used to derive those annual changes, or recompute the interval from a transparent volatility/uncertainty method tied to cited same-series or closely comparable data."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact Prior/update/interval step names a prior and sigma, but both depend on undocumented estimates, so the step is not auditable enough for publication.",
+        "actionRequested": "Revise the step to name the actual historical sample, the persistence prior from that sample, each adjustment component, the interval method, and the resulting 80% bounds."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolver text and variables are clear, but the reasoning says the 2026-09-10 release date is only expected and should be rechecked, while the ledger target treats it as the resolution date.",
+        "actionRequested": "Either cite the official Census release-calendar evidence supporting 2026-09-10, or keep the ledger date and explicitly flag the release-date uncertainty as a ledger-calendar caveat rather than a resolved fact."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add the 2024 U.S. ACS 1-year same-table value to historicalContext and demote California to an external benchmark."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Make the downside tail more concrete by quantifying what prior-year stagnation or subsidy-related churn would imply for the percentage point change."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Check that all JSON fields continue to use percent units and one-decimal rounding after revising the prior and interval."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer\u2019s blocking fixes by replacing the constructed 2024 prior and undocumented change sample with same-series 2021-2024 U.S. ACS 1-year B28005 observations, recomputing sigma from those changes, and revising the interval. Kept the ledger 2026-09-10 resolution date and clarified it is supported by the official Census upcoming-releases ACS first-release slot.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer\u2019s blocking fixes by replacing the constructed 2024 prior and undocumented change sample with same-series 2021-2024 U.S. ACS 1-year B28005 observations, recomputing sigma from those changes, and revising the interval. Kept the ledger 2026-09-10 resolution date and clarified it is supported by the official Census upcoming-releases ACS first-release slot.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer\u2019s blocking fixes by replacing the constructed 2024 prior and undocumented change sample with same-series 2021-2024 U.S. ACS 1-year B28005 observations, recomputing sigma from those changes, and revising the interval. Kept the ledger 2026-09-10 resolution date and clarified it is supported by the official Census upcoming-releases ACS first-release slot.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer\u2019s blocking fixes by replacing the constructed 2024 prior and undocumented change sample with same-series 2021-2024 U.S. ACS 1-year B28005 observations, recomputing sigma from those changes, and revising the interval. Kept the ledger 2026-09-10 resolution date and clarified it is supported by the official Census upcoming-releases ACS first-release slot.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer\u2019s blocking fixes by replacing the constructed 2024 prior and undocumented change sample with same-series 2021-2024 U.S. ACS 1-year B28005 observations, recomputing sigma from those changes, and revising the interval. Kept the ledger 2026-09-10 resolution date and clarified it is supported by the official Census upcoming-releases ACS first-release slot.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer\u2019s blocking fixes by replacing the constructed 2024 prior and undocumented change sample with same-series 2021-2024 U.S. ACS 1-year B28005 observations, recomputing sigma from those changes, and revising the interval. Kept the ledger 2026-09-10 resolution date and clarified it is supported by the official Census upcoming-releases ACS first-release slot.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer\u2019s blocking fixes by replacing the constructed 2024 prior and undocumented change sample with same-series 2021-2024 U.S. ACS 1-year B28005 observations, recomputing sigma from those changes, and revising the interval. Kept the ledger 2026-09-10 resolution date and clarified it is supported by the official Census upcoming-releases ACS first-release slot.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The target contract is mostly coherent, but the draft relies on an estimated 2024 prior and unstated annual-change sample when exact same-series ACS 1-year history should be available."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/prompt.md",
+      "sha256": "47712687911f0469fa4fb0c2a28c9f842607bfdb397feca90a9cbdc33ae9821d",
+      "bytes": 8180,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_command.json",
+      "sha256": "0d5002726c5057ac762f6878404803d3c6292508aa591298c8d2c536d68f78a7",
+      "bytes": 755,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_codex_stdout.jsonl",
+      "sha256": "2ea39dc55c826afb9c5439b1be018d77e888902c7f6c81ed7ed606b0820bd213",
+      "bytes": 103545,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_codex_events.jsonl",
+      "sha256": "cc487db37f0bbd32dd1787b6740596d31eba16bc0d0361e764cc8c68f63708cf",
+      "bytes": 103709,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_codex_last_message.txt",
+      "sha256": "18d16c7f7346e9253e2398f6b3e1279a6bd023601b6f6e52d5a48f99dced04ec",
+      "bytes": 7797,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_codex_trace.json",
+      "sha256": "1de3d57c92a0ced54e98a5da99735e9507417232cab676fdeb88110e29d5d5dd",
+      "bytes": 509,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_stdout.txt",
+      "sha256": "18d16c7f7346e9253e2398f6b3e1279a6bd023601b6f6e52d5a48f99dced04ec",
+      "bytes": 7797,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_prompt.md",
+      "sha256": "c5b929a1c57394fc1259b00a39bd7992d897a12c7405d93f86762cd0f3c2d70d",
+      "bytes": 10001,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_command.json",
+      "sha256": "512abb658a16c292036f53a76f03fa927dfea184f3836b13324296b728dc7e39",
+      "bytes": 751,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "17ddf847821c0307677dccdb11c025a9ec2e3b8b26ba0d1d76d3e4e44e6437c9",
+      "bytes": 3520,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_codex_events.jsonl",
+      "sha256": "a360eaef55ccea2c8bd5c7dc24fce5277c34d5b4cfecb885e53b9a6451a3f089",
+      "bytes": 3541,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_codex_last_message.txt",
+      "sha256": "5768aef70fea1ab7efe908e675625002c0694efecb67e3760c31087d117674ce",
+      "bytes": 2483,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_codex_trace.json",
+      "sha256": "b481660b32c645d773d6d8e34e9698eb41ccfd649baac559a6bd7999f15af2b5",
+      "bytes": 505,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_stdout.txt",
+      "sha256": "5768aef70fea1ab7efe908e675625002c0694efecb67e3760c31087d117674ce",
+      "bytes": 2483,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/revision_prompt.md",
+      "sha256": "d6da6a9fc47f390e082f45cc33dd927577b6a818276a3901b3df42e4969681f6",
+      "bytes": 19396,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/command.json",
+      "sha256": "4d83f138de353eaf3f678550695663e9364948f2c9b48711d717d53a2976882f",
+      "bytes": 749,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/codex_stdout.jsonl",
+      "sha256": "b380a675995e23d9d5de4525802ac1f350bc92583bfa122eb87cc92049d9e6c0",
+      "bytes": 263033,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/codex_events.jsonl",
+      "sha256": "09cfb5dd0b8c55347534390e25fc14c55fab758388b169bf8ebabe6844e1f50f",
+      "bytes": 263148,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/codex_last_message.txt",
+      "sha256": "e04dc38aff2b37925d5ac8e5fa3522ebfb93a5287ae5028d07a47bb05f408607",
+      "bytes": 8208,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/codex_trace.json",
+      "sha256": "11c5be5b00f8f683277a8558f34861a9379c2a8d38a1d6de021e524d1eced5db",
+      "bytes": 509,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/stdout.txt",
+      "sha256": "e04dc38aff2b37925d5ac8e5fa3522ebfb93a5287ae5028d07a47bb05f408607",
+      "bytes": 8208,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/raw_response.txt",
+      "sha256": "e04dc38aff2b37925d5ac8e5fa3522ebfb93a5287ae5028d07a47bb05f408607",
+      "bytes": 8208,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/parsed_cells.json",
+      "sha256": "a5ed81f6e100e8d22dbc1066f3a4e92bb109d389a97f0a1ed7360f45c5d4cb49",
+      "bytes": 9217,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/normalized_cells.json",
+      "sha256": "4c4dae593e5ccd8a6a4a11d44e681f1880bbeff5367b37d1e66e4364e2f96d0b",
+      "bytes": 26076,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/distribution.json",
+      "sha256": "d9672d77ae5fc020b6487421a2ca8eeb2a5d515baf88ec31f01bef25e8296f6f",
+      "bytes": 13415,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/validation.json",
+      "sha256": "7e8ace56417e8800383cd2977f4b5afac4fce4230f43816f7b81480204662ad3",
+      "bytes": 136,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/cells.with_activity.json",
+      "sha256": "aa0d9192bfd96a2253fa88749e3d4b47ff74abca6865da7f045a5c049faac2fd",
+      "bytes": 45946,
+      "createdAt": "2026-07-21T01:39:25Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-39-25z-census-acs-broadband-subscription-65-plus-share-2025/manifest.json",
+      "sha256": "3394b0e8a5e09bb90c9d8fc32b4b8744d66b5c48b240ef4101ef8ccbc856597a",
+      "bytes": 18204,
+      "createdAt": "2026-07-21T01:39:25Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "broadband-subscription-65-plus-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "178da862ecbd8c900a38330cf2573a508580ba1c3adc30b346bdb3426649023c"
+}

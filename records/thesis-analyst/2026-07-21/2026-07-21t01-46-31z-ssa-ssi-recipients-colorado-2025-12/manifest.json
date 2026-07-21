@@ -1,0 +1,388 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T01:46:31Z",
+  "runStartedAt": "2026-07-21T01:46:31Z",
+  "series": "ssa.ssi.recipients.colorado",
+  "period": "2025-12",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ssi-recipients-colorado-december-2025",
+    "period": "2025-12",
+    "series": "ssa.ssi.recipients.colorado",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T01:46:31Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f63c50a1c686ee78fd7ad4e4e525caa42280801f3e3a63ed98aef61961ebb7d5"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The draft directly uses the December 2025 first-print value, even stating the official table was already available at run time.",
+        "actionRequested": "Do not publish this as an ex ante forecast; either exclude it from forecast publication or clearly reclassify it as an observed/resolved record rather than a forecast."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "base_rate",
+        "summary": "The stated prior is the resolving December 2025 value, not a pre-resolution base-rate or persistence prior.",
+        "actionRequested": "If an ex ante forecast is required, rebuild using only information available before the December 2025 Table 4 first print, such as prior months through November 2025."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "The interval is centered on the observed resolving value and its volatility sample includes Nov->Dec, which leaks the target outcome.",
+        "actionRequested": "Derive the interval from pre-target historical volatility only, and center it on a genuine forecast prior/update rather than the observed December value."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "blocking",
+        "rubricItem": "coherence",
+        "summary": "The point estimate, historicalContext, drivers, and reasoning all reveal the target outcome, making the JSON coherent as a resolved-data note but incoherent as a forecast.",
+        "actionRequested": "Remove the target observation from forecast fields or stop the publication path for this draft as a forecast."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The resolver text, unit conversion to thousands, slug, dataPointId, and catalog resolution date appear aligned with the supplied ledger contract."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If retained as an audit artifact, label it explicitly as post-resolution leakage rather than a valid forecast trace."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, base-rate, interval, and coherence critiques by removing the December 2025 observed value from the forecast point, history, drivers, and interval calculation; retained the reviewer-supported resolver, unit conversion, slug, dataPointId, and catalog resolution by-date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, base-rate, interval, and coherence critiques by removing the December 2025 observed value from the forecast point, history, drivers, and interval calculation; retained the reviewer-supported resolver, unit conversion, slug, dataPointId, and catalog resolution by-date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, base-rate, interval, and coherence critiques by removing the December 2025 observed value from the forecast point, history, drivers, and interval calculation; retained the reviewer-supported resolver, unit conversion, slug, dataPointId, and catalog resolution by-date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage, base-rate, interval, and coherence critiques by removing the December 2025 observed value from the forecast point, history, drivers, and interval calculation; retained the reviewer-supported resolver, unit conversion, slug, dataPointId, and catalog resolution by-date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage, base-rate, interval, and coherence critiques by removing the December 2025 observed value from the forecast point, history, drivers, and interval calculation; retained the reviewer-supported resolver, unit conversion, slug, dataPointId, and catalog resolution by-date.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage, base-rate, interval, and coherence critiques by removing the December 2025 observed value from the forecast point, history, drivers, and interval calculation; retained the reviewer-supported resolver, unit conversion, slug, dataPointId, and catalog resolution by-date.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is not publishable as a forecast because it uses the already published December 2025 resolving value as the point estimate, prior, historical context, and interval center."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/prompt.md",
+      "sha256": "1b747509e74112a635350395b1ec74068c68d1b163d69d6ebaea66cfe3a0cf49",
+      "bytes": 7934,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_command.json",
+      "sha256": "49bbc2d7a44c637c611db02423ea1b96b91ebc45be31ccfda9968ff4a4ca4f0f",
+      "bytes": 738,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_codex_stdout.jsonl",
+      "sha256": "6f36e05f59fc26bb27b47b2c6d4eb73068c15f0ed456f37109bcec2f6415f62e",
+      "bytes": 511593,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_codex_events.jsonl",
+      "sha256": "bbd02d5cb4a77be9e2e81287da3c6a187c609cad5abaec1a63eb67e19fa969cb",
+      "bytes": 511683,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_codex_last_message.txt",
+      "sha256": "0049e10b2cea569b35bc0c581f08e5828e3b7536cb6eca9ebf23841c690c8903",
+      "bytes": 6940,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_codex_trace.json",
+      "sha256": "241603f70ae7a7a5a90e1ddd456371b72b0965aa060f4a2b093417d86a91f0cb",
+      "bytes": 508,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_stdout.txt",
+      "sha256": "0049e10b2cea569b35bc0c581f08e5828e3b7536cb6eca9ebf23841c690c8903",
+      "bytes": 6940,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_prompt.md",
+      "sha256": "13c9d265a6ad29474171da5fa8f448e7e12995722bf0dde10b9e8c2d95c54e54",
+      "bytes": 9131,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_command.json",
+      "sha256": "6f527fe700cbf437774d08806a77c3e2e23eb12e7d72166a317e50614e79b844",
+      "bytes": 734,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "8fb34702d69231be624c8514302dc2e9db1e22cd8d8630602008e22bed388d68",
+      "bytes": 2584,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_codex_events.jsonl",
+      "sha256": "dd0f5c0595b149b7363f5e177ed5ca36be8bad58ca52b1989c0fb3ba98c6eafe",
+      "bytes": 2606,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_codex_last_message.txt",
+      "sha256": "199816359c1899017a37ebd8fbd83be8526e8f573e10a38946ba880508a73388",
+      "bytes": 2159,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_codex_trace.json",
+      "sha256": "498a19e774da0bb00ccdfb02300096a303bf0117aef4efe7d20abacae2749761",
+      "bytes": 504,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_stdout.txt",
+      "sha256": "199816359c1899017a37ebd8fbd83be8526e8f573e10a38946ba880508a73388",
+      "bytes": 2159,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/revision_prompt.md",
+      "sha256": "0ee90c165eafbd95233fe2d7deb8bfc6f06209a4908acfbd619d6edf60f97f41",
+      "bytes": 17969,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/command.json",
+      "sha256": "b02629779fb2e28f9bad58568065ddfb1cc31a35fc5ee09c7a06d44b457e9a66",
+      "bytes": 732,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/codex_stdout.jsonl",
+      "sha256": "80fe6001edac001435f5a57b6df5fc3c8886405f99d4c9ae30ed06664dd9ac53",
+      "bytes": 7853,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/codex_events.jsonl",
+      "sha256": "ce52d7d87366cd894ec6c7c0a8d547003f4eb0ea0a50500569ca2746c98fa3d5",
+      "bytes": 7903,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/codex_last_message.txt",
+      "sha256": "e25aeac795a40454c72e004b5f8018cff79dd9e8660a61df7b38b5d55f2b81a0",
+      "bytes": 6893,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/codex_trace.json",
+      "sha256": "9fe436bfb438baea4d3cdb3802434c8c4293946c89a71c8f1019308f14ff1d4d",
+      "bytes": 505,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/stdout.txt",
+      "sha256": "e25aeac795a40454c72e004b5f8018cff79dd9e8660a61df7b38b5d55f2b81a0",
+      "bytes": 6893,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/raw_response.txt",
+      "sha256": "e25aeac795a40454c72e004b5f8018cff79dd9e8660a61df7b38b5d55f2b81a0",
+      "bytes": 6893,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/parsed_cells.json",
+      "sha256": "740900db13dc82dafeb5af5b1850e6def235b4674f8484e35986f394066e5ca9",
+      "bytes": 7756,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/normalized_cells.json",
+      "sha256": "df07b02b900c1aec869f3155c404be4404e6077231d8f0fd3fb2933d25fe3a67",
+      "bytes": 25157,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/distribution.json",
+      "sha256": "f141e17b6b74042152609a4029623efdd32e5cf9e032a463ff9577ae02424875",
+      "bytes": 13957,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/validation.json",
+      "sha256": "804bd51db515cae5e03228fa150e7902be7023384a0cf05b8df25f8173cc1419",
+      "bytes": 255,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/cells.with_activity.json",
+      "sha256": "4ffd6c8ac9d4ef9a3a1e7c1ce12ec2620e7f5a9a9162b5da51f4a7a8fd97a645",
+      "bytes": 42627,
+      "createdAt": "2026-07-21T01:46:31Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-46-31z-ssa-ssi-recipients-colorado-2025-12/manifest.json",
+      "sha256": "ccdd0a2e32ee0027c705e74aecc292ee38de903bd2c20660ef760017ad97da7d",
+      "bytes": 16011,
+      "createdAt": "2026-07-21T01:46:31Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "ssi-recipients-colorado-december-2025",
+        "ok": false,
+        "errors": [
+          "resolutionDate 2026-01-31 is not after runAt 2026-07-21 \u2014 target already published (leakage)"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "5966f832162e3d0622ea663edc8108efbf178c5700434cf1d9be0c4ee2ff2f1c"
+}

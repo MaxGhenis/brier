@@ -1,0 +1,1246 @@
+[
+  {
+    "slug": "nursing-home-staffing-hprd-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US nursing-home total nurse staffing HPRD, July 2026 first print",
+    "question": "What will the NATION row value for Reported Total Nurse Staffing Hours per Resident per Day be in CMS Care Compare State US Averages at the July 2026 first print?",
+    "unit": "ratio",
+    "pointEstimate": 3.92,
+    "ciLow": 3.84,
+    "ciHigh": 4.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-29",
+    "resolutionSource": "CMS Care Compare nursing home provider data, State US Averages file (NH_StateUSAverages), NATION row, Reported Total Nurse Staffing Hours per Resident per Day",
+    "resolutionSourceUrl": "https://data.cms.gov/provider-data/dataset/xcdc-v8bm",
+    "resolutionRule": "Resolve to the NATION row value of 'Reported Total Nurse Staffing Hours per Resident per Day' in the first NH_StateUSAverages file CMS posts at the Care Compare refresh scheduled for 2026-07-29 (the July 2026 quarterly staffing update; schedule per the dataset metastore next-update field), rounded to three decimals. The refresh carries nurse staffing measures onto the next Payroll-Based Journal quarter. If CMS posts the refresh on a different calendar day, resolve to the first file posted at that refresh; ignore later monthly refreshes and revisions.",
+    "dataPointId": "cms.nursing_home_compare.reported_total_nurse_staffing_hprd_us.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "Oct 2023 CMS-based mirror",
+        "value": 3.76
+      },
+      {
+        "label": "Jan 2024 State US Averages cited in IL statute",
+        "value": 3.79
+      },
+      {
+        "label": "State US Averages marketplace preview",
+        "value": 3.83737
+      },
+      {
+        "label": "June 2026 CMS-based national average mirror",
+        "value": 3.9
+      }
+    ],
+    "drivers": [
+      "latest public national average near 3.9 HPRD",
+      "recent upward drift from 3.76 to about 3.9",
+      "July refresh updates staffing quarter",
+      "CMS minimum-staffing rule implementation is gradual, not an immediate step change"
+    ],
+    "sourceContext": [
+      "https://data.cms.gov/provider-data/dataset/xcdc-v8bm",
+      "https://data.cms.gov/provider-data/topics/nursing-homes",
+      "https://www.beckershospitalreview.com/post-acute/average-patients-nurse-staffing-hours-by-state/",
+      "https://witnessslips.ilga.gov/legislation/ILCS/details?ActID=1413&ActName=Illinois+Public+Aid+Code.&ChapAct=305&Chapter=&ChapterID=28&MajorTopic=",
+      "https://www.johnsnowlabs.com/marketplace/nursing-home-compare-state-averages/",
+      "https://projects.propublica.org/nursing-homes/affiliate/a-78",
+      "https://www.cms.gov/medicare/quality/nursing-home-improvement/value-based-purchasing/measures"
+    ],
+    "runAt": "2026-07-21T01:34:22Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "CMS State US Averages staffing HPRD forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the CMS Provider Data Catalog dataset xcdc-v8bm, State US Averages/NH_StateUSAverages, NATION row, Reported Total Nurse Staffing Hours per Resident per Day. I use the ledger's first-print rule and do not add a same-day correction window."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "CMS Provider Data Catalog State US Averages dataset page lookup",
+        "result": "Fetched official dataset metadata: identifier xcdc-v8bm, Last Modified June 1 2026, Released June 24 2026, Planned Update July 29 2026, publisher CMS, and public access level public."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "CMS nursing homes topic page lookup",
+        "result": "Fetched official topic context: nursing homes including rehab services datasets cover over 15,000 nationwide facilities, current topic page shows June 1 2026 modified, June 24 2026 released, and July 29 2026 planned update for State US Averages-related files."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.lookup",
+        "call": "Becker summary of CMS State US Averages table",
+        "result": "Fetched CMS-based historical national row: NATION average number of residents per day 80.8 and Reported Total Nurse Staffing Hours per Resident per Day 3.76, published October 10 2023."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.lookup",
+        "call": "Illinois legislative text citing federal State US Averages staffing values",
+        "result": "Fetched statutory citation to federal staffing reports: January 2024 State US Averages file NATION Reported Total Nurse Staffing Hours Per Resident Per Day 3.79 and January 2024 Provider Information resident-days weighted mean 3.662."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.lookup",
+        "call": "State US Averages schema/preview and current mirror checks",
+        "result": "Fetched field-specific context: State US Averages preview includes Reported Total Nurse Staffing Hours Per Resident Per Day value 3.83737 in the staffing columns; ProPublica CMS-based June 2026 nursing-home pages report national average nurse hours per resident per day 3.9."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: this is a slow-moving national average level series. The fetched public history is 3.76, 3.79, 3.83737, and about 3.9; the level trend is upward but each refresh usually changes by only a few hundredths rather than tenths."
+      },
+      {
+        "kind": "text",
+        "text": "Variant discipline: all anchors are reported total nurse staffing hours per resident per day, not adjusted total staffing, not RN-only staffing, and not weekend staffing. The resolver is the NATION row in State US Averages, not facility-level Provider Information."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is latest CMS-based national mirror 3.90; historical sample is fetched levels 3.76, 3.79, 3.83737, 3.90. Successive changes are +0.03000, +0.04737, +0.06263, so sigma = 0.016 for recent change dispersion and 1.28*sigma = 0.021. This sigma estimate is heuristic because the anchors are sparse, irregularly spaced, and include rounded or mirrored values. I add +0.02 momentum for the July quarterly staffing refresh, giving 3.92. I widen the 80% half-width to 0.08, about 3.8x the mechanical 0.021, because the sparse sample, rounded mirror anchor, and July PBJ-quarter rollover can create a larger measurement step than month-to-month drift."
+      },
+      {
+        "kind": "text",
+        "text": "Policy/mechanism effects: CMS minimum-staffing and SNF VBP attention create mild upside pressure, but implementation and reporting incentives are gradual. I therefore treat policy as +0.00 to +0.02 rather than a one-off jump."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a cleaner PBJ quarter or compliance-driven staffing increase that would land above the interval, especially if the NATION row prints over 4.00. Downside risk is weaker staffing, facility exits, or reporting/methodology changes that would land below the interval, especially below 3.84."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the interval-method critique by correcting the widening multiplier to about 3.8x and framing sigma as a heuristic given sparse, irregular, partly rounded or mirrored anchors; no resolver, source, point, or interval endpoint changes were needed."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.92,
+        "ciLow": 3.84,
+        "ciHigh": 4.0
+      }
+    ],
+    "agentReportedRunAt": "2026-07-21T01:30:56Z",
+    "runStartedAt": "2026-07-21T01:30:49Z",
+    "promptMode": "fast",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 3.72,
+        "upper": 4.12
+      },
+      "points": [
+        {
+          "value": 3.72,
+          "probability": 0.0
+        },
+        {
+          "value": 3.722,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 3.724,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 3.726,
+          "probability": 0.005
+        },
+        {
+          "value": 3.728,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 3.73,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 3.732,
+          "probability": 0.01
+        },
+        {
+          "value": 3.734,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 3.736,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 3.738,
+          "probability": 0.015
+        },
+        {
+          "value": 3.74,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 3.742,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 3.744,
+          "probability": 0.02
+        },
+        {
+          "value": 3.746,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 3.748,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 3.75,
+          "probability": 0.025
+        },
+        {
+          "value": 3.752,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 3.754,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 3.756,
+          "probability": 0.03
+        },
+        {
+          "value": 3.758,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 3.76,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 3.762,
+          "probability": 0.035
+        },
+        {
+          "value": 3.764,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 3.766,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 3.768,
+          "probability": 0.04
+        },
+        {
+          "value": 3.77,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 3.772,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 3.774,
+          "probability": 0.045
+        },
+        {
+          "value": 3.776,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 3.778,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 3.78,
+          "probability": 0.05
+        },
+        {
+          "value": 3.782,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 3.784,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 3.786,
+          "probability": 0.055
+        },
+        {
+          "value": 3.788,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 3.79,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 3.792,
+          "probability": 0.06
+        },
+        {
+          "value": 3.794,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 3.796,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 3.798,
+          "probability": 0.065
+        },
+        {
+          "value": 3.8,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 3.802,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 3.804,
+          "probability": 0.07
+        },
+        {
+          "value": 3.806,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 3.808,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 3.81,
+          "probability": 0.075
+        },
+        {
+          "value": 3.812,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 3.814,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 3.816,
+          "probability": 0.08
+        },
+        {
+          "value": 3.818,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 3.82,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 3.822,
+          "probability": 0.085
+        },
+        {
+          "value": 3.824,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 3.826,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 3.828,
+          "probability": 0.09
+        },
+        {
+          "value": 3.83,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 3.832,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 3.834,
+          "probability": 0.095
+        },
+        {
+          "value": 3.836,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 3.838,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 3.84,
+          "probability": 0.1
+        },
+        {
+          "value": 3.842,
+          "probability": 0.11
+        },
+        {
+          "value": 3.844,
+          "probability": 0.12
+        },
+        {
+          "value": 3.846,
+          "probability": 0.13
+        },
+        {
+          "value": 3.848,
+          "probability": 0.14
+        },
+        {
+          "value": 3.85,
+          "probability": 0.15
+        },
+        {
+          "value": 3.852,
+          "probability": 0.16
+        },
+        {
+          "value": 3.854,
+          "probability": 0.17
+        },
+        {
+          "value": 3.856,
+          "probability": 0.18
+        },
+        {
+          "value": 3.858,
+          "probability": 0.19
+        },
+        {
+          "value": 3.86,
+          "probability": 0.2
+        },
+        {
+          "value": 3.862,
+          "probability": 0.21
+        },
+        {
+          "value": 3.864,
+          "probability": 0.22
+        },
+        {
+          "value": 3.866,
+          "probability": 0.23
+        },
+        {
+          "value": 3.868,
+          "probability": 0.24
+        },
+        {
+          "value": 3.87,
+          "probability": 0.25
+        },
+        {
+          "value": 3.872,
+          "probability": 0.26
+        },
+        {
+          "value": 3.874,
+          "probability": 0.27
+        },
+        {
+          "value": 3.876,
+          "probability": 0.28
+        },
+        {
+          "value": 3.878,
+          "probability": 0.29
+        },
+        {
+          "value": 3.88,
+          "probability": 0.3
+        },
+        {
+          "value": 3.882,
+          "probability": 0.31
+        },
+        {
+          "value": 3.884,
+          "probability": 0.32
+        },
+        {
+          "value": 3.886,
+          "probability": 0.33
+        },
+        {
+          "value": 3.888,
+          "probability": 0.34
+        },
+        {
+          "value": 3.89,
+          "probability": 0.35
+        },
+        {
+          "value": 3.892,
+          "probability": 0.36
+        },
+        {
+          "value": 3.894,
+          "probability": 0.37
+        },
+        {
+          "value": 3.896,
+          "probability": 0.38
+        },
+        {
+          "value": 3.898,
+          "probability": 0.39
+        },
+        {
+          "value": 3.9,
+          "probability": 0.4
+        },
+        {
+          "value": 3.902,
+          "probability": 0.41
+        },
+        {
+          "value": 3.904,
+          "probability": 0.42
+        },
+        {
+          "value": 3.906,
+          "probability": 0.43
+        },
+        {
+          "value": 3.908,
+          "probability": 0.44
+        },
+        {
+          "value": 3.91,
+          "probability": 0.45
+        },
+        {
+          "value": 3.912,
+          "probability": 0.46
+        },
+        {
+          "value": 3.914,
+          "probability": 0.47
+        },
+        {
+          "value": 3.916,
+          "probability": 0.48
+        },
+        {
+          "value": 3.918,
+          "probability": 0.49
+        },
+        {
+          "value": 3.92,
+          "probability": 0.5
+        },
+        {
+          "value": 3.922,
+          "probability": 0.51
+        },
+        {
+          "value": 3.924,
+          "probability": 0.52
+        },
+        {
+          "value": 3.926,
+          "probability": 0.53
+        },
+        {
+          "value": 3.928,
+          "probability": 0.54
+        },
+        {
+          "value": 3.93,
+          "probability": 0.55
+        },
+        {
+          "value": 3.932,
+          "probability": 0.56
+        },
+        {
+          "value": 3.934,
+          "probability": 0.57
+        },
+        {
+          "value": 3.936,
+          "probability": 0.58
+        },
+        {
+          "value": 3.938,
+          "probability": 0.59
+        },
+        {
+          "value": 3.94,
+          "probability": 0.6
+        },
+        {
+          "value": 3.942,
+          "probability": 0.61
+        },
+        {
+          "value": 3.944,
+          "probability": 0.62
+        },
+        {
+          "value": 3.946,
+          "probability": 0.63
+        },
+        {
+          "value": 3.948,
+          "probability": 0.64
+        },
+        {
+          "value": 3.95,
+          "probability": 0.65
+        },
+        {
+          "value": 3.952,
+          "probability": 0.66
+        },
+        {
+          "value": 3.954,
+          "probability": 0.67
+        },
+        {
+          "value": 3.956,
+          "probability": 0.68
+        },
+        {
+          "value": 3.958,
+          "probability": 0.69
+        },
+        {
+          "value": 3.96,
+          "probability": 0.7
+        },
+        {
+          "value": 3.962,
+          "probability": 0.71
+        },
+        {
+          "value": 3.964,
+          "probability": 0.72
+        },
+        {
+          "value": 3.966,
+          "probability": 0.73
+        },
+        {
+          "value": 3.968,
+          "probability": 0.74
+        },
+        {
+          "value": 3.97,
+          "probability": 0.75
+        },
+        {
+          "value": 3.972,
+          "probability": 0.76
+        },
+        {
+          "value": 3.974,
+          "probability": 0.77
+        },
+        {
+          "value": 3.976,
+          "probability": 0.78
+        },
+        {
+          "value": 3.978,
+          "probability": 0.79
+        },
+        {
+          "value": 3.98,
+          "probability": 0.8
+        },
+        {
+          "value": 3.982,
+          "probability": 0.81
+        },
+        {
+          "value": 3.984,
+          "probability": 0.82
+        },
+        {
+          "value": 3.986,
+          "probability": 0.83
+        },
+        {
+          "value": 3.988,
+          "probability": 0.84
+        },
+        {
+          "value": 3.99,
+          "probability": 0.85
+        },
+        {
+          "value": 3.992,
+          "probability": 0.86
+        },
+        {
+          "value": 3.994,
+          "probability": 0.87
+        },
+        {
+          "value": 3.996,
+          "probability": 0.88
+        },
+        {
+          "value": 3.998,
+          "probability": 0.89
+        },
+        {
+          "value": 4.0,
+          "probability": 0.9
+        },
+        {
+          "value": 4.002,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 4.004,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 4.006,
+          "probability": 0.905
+        },
+        {
+          "value": 4.008,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 4.01,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 4.012,
+          "probability": 0.91
+        },
+        {
+          "value": 4.014,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 4.016,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 4.018,
+          "probability": 0.915
+        },
+        {
+          "value": 4.02,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 4.022,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 4.024,
+          "probability": 0.92
+        },
+        {
+          "value": 4.026,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 4.028,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 4.03,
+          "probability": 0.925
+        },
+        {
+          "value": 4.032,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 4.034,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 4.036,
+          "probability": 0.93
+        },
+        {
+          "value": 4.038,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 4.04,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 4.042,
+          "probability": 0.935
+        },
+        {
+          "value": 4.044,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 4.046,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 4.048,
+          "probability": 0.94
+        },
+        {
+          "value": 4.05,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 4.052,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 4.054,
+          "probability": 0.945
+        },
+        {
+          "value": 4.056,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 4.058,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 4.06,
+          "probability": 0.95
+        },
+        {
+          "value": 4.062,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 4.064,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 4.066,
+          "probability": 0.955
+        },
+        {
+          "value": 4.068,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 4.07,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 4.072,
+          "probability": 0.96
+        },
+        {
+          "value": 4.074,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 4.076,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 4.078,
+          "probability": 0.965
+        },
+        {
+          "value": 4.08,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 4.082,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 4.084,
+          "probability": 0.97
+        },
+        {
+          "value": 4.086,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 4.088,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 4.09,
+          "probability": 0.975
+        },
+        {
+          "value": 4.092,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 4.094,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 4.096,
+          "probability": 0.98
+        },
+        {
+          "value": 4.098,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 4.1,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 4.102,
+          "probability": 0.985
+        },
+        {
+          "value": 4.104,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 4.106,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 4.108,
+          "probability": 0.99
+        },
+        {
+          "value": 4.11,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 4.112,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 4.114,
+          "probability": 0.995
+        },
+        {
+          "value": 4.116,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 4.118,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 4.12,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 3.92,
+        "median": 3.92,
+        "interval80": {
+          "lower": 3.84,
+          "upper": 4.0
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/prompt.md",
+        "sha256": "c6ac590da9c231a7626b816208eb7657e60f2d4527f06d6e2bb5657a7c4dd310",
+        "bytes": 9122,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_command.json",
+        "sha256": "a0df11b2dd5dcd3905378a120a4a4b03ce0e8ba324f3031cba424d627784f28c",
+        "bytes": 773,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "ea339f28f98de519822e704e39387472ccd10defb04c1177ed4ee27e8d112aa8",
+        "bytes": 1248408,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_events.jsonl",
+        "sha256": "7f9421eddf330c5a538182addb4ed41357e120acb45061fbe014bcfc1014326a",
+        "bytes": 1248640,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_last_message.txt",
+        "sha256": "d3be7538faea68bc10595d45f6f5fc540e942078b1ae3a7a844f9ba6ebbbf3ac",
+        "bytes": 6451,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_codex_trace.json",
+        "sha256": "855bdeceb944127be4abb4920ad2e48d8720e04e0eee278f363849ea8d19da26",
+        "bytes": 509,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_stdout.txt",
+        "sha256": "d3be7538faea68bc10595d45f6f5fc540e942078b1ae3a7a844f9ba6ebbbf3ac",
+        "bytes": 6451,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_prompt.md",
+        "sha256": "578bf8bfe856c1537d5a82b322c4b7c18dbc51de43551e595c28a5bfd9a86756",
+        "bytes": 9655,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_command.json",
+        "sha256": "9982daab5c7abbd49de576fdad69b334f067f368500650ad99a3d19716f90eeb",
+        "bytes": 769,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "22ea05dc2321542b7fd49783e1bab52d8cdb6d46102168786241dece7d35576b",
+        "bytes": 1648,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "2c02e3429d4016d02325d3ea64c6d2e3e7882c81fbc6c11456c96f1c77c69e4c",
+        "bytes": 1670,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "c97d1abfddc1f2da059b5d9826587939aea0ef352b6b202481ff9d13bea81781",
+        "bytes": 1287,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "647287cbfe0f8445d6a0a77f8042639f01d61514397fe954791cc493219ed312",
+        "bytes": 504,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "c97d1abfddc1f2da059b5d9826587939aea0ef352b6b202481ff9d13bea81781",
+        "bytes": 1287,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/revision_prompt.md",
+        "sha256": "0bf309c68236de8a642a7a9671096423b997798f8da90363f9f27423c693d789",
+        "bytes": 17796,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/command.json",
+        "sha256": "5953e479bcb5976be6f224571186773d41447fbd6a46753a6cd964a42e9b8f2d",
+        "bytes": 767,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_stdout.jsonl",
+        "sha256": "ee9885b4afb2ef9ea831ad94870223e19e51a0def82afc396af24b948402302f",
+        "bytes": 7443,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_events.jsonl",
+        "sha256": "e4fe1af55dc02ab727fce7927b464d858a31fb97a88cfd604aea8f0ee881abba",
+        "bytes": 7465,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_last_message.txt",
+        "sha256": "80f584746eb716fd6605ec8763caf369b9749d9b02ea6960efa6edba618a0290",
+        "bytes": 6861,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/codex_trace.json",
+        "sha256": "87c95d26f6062e3ce3672030f4398db25571681b6fa9622ece8e3116ac04d4b6",
+        "bytes": 504,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/stdout.txt",
+        "sha256": "80f584746eb716fd6605ec8763caf369b9749d9b02ea6960efa6edba618a0290",
+        "bytes": 6861,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/raw_response.txt",
+        "sha256": "80f584746eb716fd6605ec8763caf369b9749d9b02ea6960efa6edba618a0290",
+        "bytes": 6861,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/parsed_cells.json",
+        "sha256": "3b19e2daa7f31ca59db39098ab5f952cb9bebcdebeea194076579bc73a09d2e9",
+        "bytes": 7819,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/normalized_cells.json",
+        "sha256": "63627cdf8ecd950785d35375d7439ef0df51ed9d885660095365ac58ecbddb3a",
+        "bytes": 24673,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/distribution.json",
+        "sha256": "8817170453115e08b5ca8160d881bb0908402b627588a378325edb9c8ec1020c",
+        "bytes": 13410,
+        "createdAt": "2026-07-21T01:30:49Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/validation.json",
+        "sha256": "60fa9d59a7d9ef9ed3ee1f577fe8298a75db6efae7cb10b4be7f2d822178c9f7",
+        "bytes": 137,
+        "createdAt": "2026-07-21T01:30:49Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-21T01:30:49Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "3174f5fa5f91019bb888f3ba89ae7468e4bd8402b0b3fe012b6e775afb76cb13"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-30-49z-cms-nursing-home-compare-reported-total-nurse-staffing-hprd-us-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval explanation has a numeric inconsistency: an 80% half-width of 0.08 is about 3.8x the stated 1.28*sigma value of 0.021, not beyond 1.75x.",
+          "actionRequested": "Correct the multiplier language or restate the widening rationale without the incorrect 1.75x comparison."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "prior_update_interval",
+          "summary": "The compact prior/update/interval step mixes irregularly spaced and partly rounded/mirrored anchors, so the realized-volatility estimate should be framed as a rough sanity check rather than a clean time-series volatility estimate.",
+          "actionRequested": "Add a phrase that the sigma estimate is heuristic because the historical anchors are sparse, irregular, and include rounded or mirrored values."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Format ciHigh as 4.00 in narrative text for visual consistency with the three-decimal resolver, though the JSON numeric value is acceptable."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify the date or vintage of the marketplace preview anchor if known, since it is otherwise a weaker historical point."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval-method critique by correcting the widening multiplier to about 3.8x and framing sigma as a heuristic given sparse, irregular, partly rounded or mirrored anchors; no resolver, source, point, or interval endpoint changes were needed.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval-method critique by correcting the widening multiplier to about 3.8x and framing sigma as a heuristic given sparse, irregular, partly rounded or mirrored anchors; no resolver, source, point, or interval endpoint changes were needed.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval-method critique by correcting the widening multiplier to about 3.8x and framing sigma as a heuristic given sparse, irregular, partly rounded or mirrored anchors; no resolver, source, point, or interval endpoint changes were needed.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval-method critique by correcting the widening multiplier to about 3.8x and framing sigma as a heuristic given sparse, irregular, partly rounded or mirrored anchors; no resolver, source, point, or interval endpoint changes were needed.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publishable after a small interval-method cleanup; resolver, unit, first-print rule, prior, update, tails, and forecast fields are otherwise coherent."
+    }
+  }
+]

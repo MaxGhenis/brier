@@ -1,0 +1,373 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T02:10:52Z",
+  "runStartedAt": "2026-07-21T02:10:52Z",
+  "series": "ssa.ssi.recipients.colorado",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "ssi-recipients-colorado-july-2026",
+    "period": "2026-07",
+    "series": "ssa.ssi.recipients.colorado",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T02:10:52Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "978fdde402ccf43313bb8905f3a83c3489094a3915c04632f425da6c1ca55e27"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The resolver correctly targets July 2026 SSA SSI Monthly Statistics Table 4, but the latest June evidence/sourceContext cites Table 10/Table 15 even though the same-variant June Table 4 page exists and contains Colorado total recipients of 66,417.",
+        "actionRequested": "Replace the June history/tool/sourceContext references with the June 2026 Table 4 URL and describe the June anchor as Table 4 row Colorado, Total column; drop the Table 10/Table 15 supplementation cross-check unless it is clearly labeled as non-resolving context."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The trace uses last-print persistence as the prior, but does not clearly state whether any formal time-series/model candidate was run or ruled out for this repeated monthly series.",
+        "actionRequested": "Add one sentence in the prior/update step stating that persistence is the selected time-series prior, or explicitly rule out a separate model candidate because the fetched sample is short/irregular."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The -0.050 thousand downward adjustment is plausible but only loosely tied to current evidence, since May-to-June was nearly flat and the rationale is residual first-half momentum.",
+        "actionRequested": "Either shrink the movement closer to June persistence or state more concretely why the January-to-June decline should still dominate the nearly flat May-to-June print."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If available, include March 2026 Table 4 or explain its absence so the volatility sample does not appear selectively gapped."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Rename the June historicalContext label from federal-payment to same-variant Table 4 total recipients for consistency with the resolver."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the June Table 4 provenance correction, renamed the June anchor consistently, dropped the non-resolving Table 10/Table 15 context, explicitly selected persistence as the time-series prior, and shrank the downward update closer to June persistence because May-to-June was nearly flat.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the June Table 4 provenance correction, renamed the June anchor consistently, dropped the non-resolving Table 10/Table 15 context, explicitly selected persistence as the time-series prior, and shrank the downward update closer to June persistence because May-to-June was nearly flat.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the June Table 4 provenance correction, renamed the June anchor consistently, dropped the non-resolving Table 10/Table 15 context, explicitly selected persistence as the time-series prior, and shrank the downward update closer to June persistence because May-to-June was nearly flat.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the June Table 4 provenance correction, renamed the June anchor consistently, dropped the non-resolving Table 10/Table 15 context, explicitly selected persistence as the time-series prior, and shrank the downward update closer to June persistence because May-to-June was nearly flat.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the June Table 4 provenance correction, renamed the June anchor consistently, dropped the non-resolving Table 10/Table 15 context, explicitly selected persistence as the time-series prior, and shrank the downward update closer to June persistence because May-to-June was nearly flat.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is close, but publication should fix a provenance inconsistency around the latest June anchor and tighten the model-prior/update explanation."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/prompt.md",
+      "sha256": "35749aae13416bf9ce58685ca825a0a8cf830ddf2e31f44880d9c6e721d66029",
+      "bytes": 7930,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_command.json",
+      "sha256": "349f8cda3e0ef9afaf6c866226bf4b9f4ece716b35a06c2bd45367df0e814a19",
+      "bytes": 738,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c50c5fad70157cb2ccc380ba877b8837033cb83f745af35c1aa3fb757e70bd7a",
+      "bytes": 2608072,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_codex_events.jsonl",
+      "sha256": "1e93c28f1f5820f29054d3c05a1ccc9f61444cc293bf266eb52a7bf2bb5b66c5",
+      "bytes": 2608279,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_codex_last_message.txt",
+      "sha256": "45a715f1856203d3d07ef9bba726b1356f6ee6ca6c96fbd0a3766c6766cdae76",
+      "bytes": 7346,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_codex_trace.json",
+      "sha256": "e4abd87e7f33f44633c7f4571364584686ee8760a930da6e6bca27d607e64d5a",
+      "bytes": 508,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_stdout.txt",
+      "sha256": "45a715f1856203d3d07ef9bba726b1356f6ee6ca6c96fbd0a3766c6766cdae76",
+      "bytes": 7346,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_prompt.md",
+      "sha256": "571f3cb8ac0a57c131314337cbc1b5dee49fa47fb9d3f061f414e8de26e30487",
+      "bytes": 9533,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_command.json",
+      "sha256": "25cdaf78705160d70e70c1c8e697ea563b855993bd57e33619bb9be003d46353",
+      "bytes": 734,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "2e93ce936773c48bb72f54b6279fb13bdfbfce3800d91207dba7e44f0d91b29c",
+      "bytes": 2823609,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "3973e7426091e48f59ad8e6f0438f3025cb55c13faa06ddf6c5d7a51678f1121",
+      "bytes": 2823838,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "1412692095f2016b730ba46f779e441ce99b67e58f97c8bc433bdc521eefcb97",
+      "bytes": 1953,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "94b88942828f5350a35e8fc74bce684c5c957c6dbbf7d331d713b5861aac8b00",
+      "bytes": 509,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "1412692095f2016b730ba46f779e441ce99b67e58f97c8bc433bdc521eefcb97",
+      "bytes": 1953,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/revision_prompt.md",
+      "sha256": "58282863da51e621e2dd0c0c6e4f697140ca7fdc5e1786c4bb6b612c51449b43",
+      "bytes": 18165,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/command.json",
+      "sha256": "46c59b0f549784d516c5e24ee4efd540bad4f3d7a18033b40dbc4c06620effb0",
+      "bytes": 732,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/codex_stdout.jsonl",
+      "sha256": "6f5226dbc5ff00ac04a5541011b8288af9daa07b9a315b2a9b71c02110b091be",
+      "bytes": 8273,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/codex_events.jsonl",
+      "sha256": "e1f888d004a5712341310bf0bc1c0069900bbae2be9c768aa9f26d88b6344873",
+      "bytes": 8295,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/codex_last_message.txt",
+      "sha256": "8cc63412fcc1a6a0f12393b203d42eb76d6adcad7030b03122c26434d2323093",
+      "bytes": 7683,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/codex_trace.json",
+      "sha256": "3b5d96024b5f0b2f4ae03dfea8c57d712a02bc237b44ef547518193e466d65f1",
+      "bytes": 504,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/stdout.txt",
+      "sha256": "8cc63412fcc1a6a0f12393b203d42eb76d6adcad7030b03122c26434d2323093",
+      "bytes": 7683,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/raw_response.txt",
+      "sha256": "8cc63412fcc1a6a0f12393b203d42eb76d6adcad7030b03122c26434d2323093",
+      "bytes": 7683,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/parsed_cells.json",
+      "sha256": "49d57b5268fa4af7e5cc22d6f800bc490315ce986fa121b5cd4aee0ba76af097",
+      "bytes": 8689,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/normalized_cells.json",
+      "sha256": "1e20837c8217396facf9476f41157ff71b4e4f67900c9abb4ce35df18439c6c6",
+      "bytes": 25802,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/distribution.json",
+      "sha256": "9f7caa305e11938b1aca0c02f62bf31c3ea2f55a6c97e8f11489dff08dbb6af1",
+      "bytes": 13669,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/validation.json",
+      "sha256": "d5cb64f982f121b7e801e2516299aac36248e6c36229eef138095a0d0932a04f",
+      "bytes": 134,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/cells.with_activity.json",
+      "sha256": "8f6135ab683e23d4462ccc03c9215516f2654723eead16801f29e2f65346f049",
+      "bytes": 42703,
+      "createdAt": "2026-07-21T02:10:52Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t02-10-52z-ssa-ssi-recipients-colorado-2026-07/manifest.json",
+      "sha256": "5afeb7b491d93285d5927b604d162466d4bff9a9ed2f6f0f226c09b055c1b087",
+      "bytes": 15479,
+      "createdAt": "2026-07-21T02:10:52Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "ssi-recipients-colorado-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "782baf1b9ec04ced8d00fac1794c5eb48220eb390b71c17aaea2bc10d2080614"
+}
