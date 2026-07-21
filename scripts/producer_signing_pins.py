@@ -9,10 +9,17 @@ SIGNATURE_DOMAIN = b"thesis-record-snapshot/v1\0"
 SIGNATURE_SUFFIX = ".producer.sig"
 PUBLIC_KEY_RELPATH = "records/trust/producer-ed25519.pem"
 
-# Dormant until the separately reviewed trust-root ceremony. The ceremony sets
-# both values in the same commit that adds PUBLIC_KEY_RELPATH.
-PRODUCER_SPKI_SHA256: str | None = None
-ACTIVATION_SNAPSHOT: str | None = None
+# Armed by the 2026-07-21 trust-root ceremony (Max-authorized). The private
+# key exists only as the BRIER_PRODUCER_SIGNING_KEY Actions secret; the public
+# key landed via the attested record-forecasts publish_trust_key dispatch
+# (commit e6aa9000, records provenance OK). Every snapshot strictly after the
+# activation boundary must carry a valid .producer.sig sibling.
+PRODUCER_SPKI_SHA256: str | None = (
+    "b96f4556ebe77bf97a1b7421a131ff49bec68b450bb92591cdf4b135c8d21e30"
+)
+ACTIVATION_SNAPSHOT: str | None = (
+    "records/2026-07-21/digest-29850168611-1.json"
+)
 
 
 def producer_signing_active() -> bool:
