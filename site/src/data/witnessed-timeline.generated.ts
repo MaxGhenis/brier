@@ -406,6 +406,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T21:39:15Z",
       "witnessDigest": "records/2026-07-10/digest-29125288080-1.json"
     },
+    "2789bd0e586bab824a4ca1ea9aef85e5d26208cfc43ea95ebb8ae7b0306d683d": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-21T09:36:04Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-21T09:36:04Z",
+      "witnessDigest": "records/2026-07-21/digest-29818799890-1.json"
+    },
     "295cdaa1199621fd5c291b5f3509bc01bf784598f465aa299590926df3a68f59": {
       "coverage": "direct",
       "custodyInventoryVersion": 2,
@@ -1288,6 +1297,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T15:58:33Z",
       "witnessDigest": "records/2026-07-10/digest-29105618542-1.json"
     },
+    "850cf36292abbf34ca4c3e540699db8b8e938476f4a95b8c83093a3dd89dbbcd": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-21T09:36:04Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-21T09:36:04Z",
+      "witnessDigest": "records/2026-07-21/digest-29818799890-1.json"
+    },
     "858890bd2aa00610b6f68d0dba575ceda962a4e8621d55801ef7f4054517f02a": {
       "coverage": "direct",
       "custodyInventoryVersion": 2,
@@ -1377,6 +1395,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "inventoryStatus": "complete",
       "tsaGenTime": "2026-07-10T21:39:15Z",
       "witnessDigest": "records/2026-07-10/digest-29125288080-1.json"
+    },
+    "8b048486adf9a390403ff53f0b5d56705ad117b620b6de8a535cf1eb09ea4a91": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-21T09:36:04Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-21T09:36:04Z",
+      "witnessDigest": "records/2026-07-21/digest-29818799890-1.json"
     },
     "8be860a1609d0552e529429d9dded7b406abf7021485045f7c41ee7e4291f54e": {
       "coverage": "direct",
@@ -1891,6 +1918,24 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T04:29:34Z",
       "witnessDigest": "records/2026-07-10/digest-genesis-enumeration-v1.json"
     },
+    "c2d83eadc84eb40855db725bca3c403e4b41cf404d9f0e67d69c9d23172b34a1": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-21T09:36:04Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-21T09:36:04Z",
+      "witnessDigest": "records/2026-07-21/digest-29818799890-1.json"
+    },
+    "c41afdc69b44d60041ec6b4544c7e129edfb97f2903073ee83a45498fad21b4f": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-21T09:36:04Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-21T09:36:04Z",
+      "witnessDigest": "records/2026-07-21/digest-29818799890-1.json"
+    },
     "c4f0aec1213b192feef012c9ebc6e3a814b37a1cb877f576da99305b6f1f078c": {
       "coverage": "direct",
       "custodyInventoryVersion": 2,
@@ -2340,6 +2385,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "inventoryStatus": "complete",
       "tsaGenTime": "2026-07-10T15:58:33Z",
       "witnessDigest": "records/2026-07-10/digest-29105618542-1.json"
+    },
+    "fb253167c9c6351f1d6d208b1ca5b8dec818dd13b8b58c1a823bb87cbe4cc464": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-21T09:36:04Z",
+      "headlineEligible": false,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-21T09:36:04Z",
+      "witnessDigest": "records/2026-07-21/digest-29818799890-1.json"
     },
     "fbeddd1e8c7765df73f4dbaedb9e842c7d1db1db90105f3a9127b0504e76f022": {
       "coverage": "direct",
