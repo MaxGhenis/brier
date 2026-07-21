@@ -36,9 +36,12 @@ live records tree is unchanged, and neither dormant command path imports
 - Added the Python-3.11-gated `custody` extra and regenerated `uv.lock`
   offline. The generated wheel and source-distribution hashes exactly match
   the two known-good `receipt==0.2.0` hashes from the brief.
+- Wired the recorder workflow to pass the Actions secret only to the signer,
+  between snapshot creation and RFC 3161 witnessing. Focused signing,
+  integrity, and provenance tests pass: 67 passed.
 
 ## Next
 
-- Add the workflow signing step and ceremony runbook.
+- Add the ceremony runbook.
 - Run Black, Ruff, targeted tests, and the full pytest suite; perform the
   dormant-path and orphan-file self-audit; write the final report.

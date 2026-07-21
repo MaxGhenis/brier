@@ -698,3 +698,17 @@ def test_proposer_dormant_mode_is_a_silent_no_op(
     assert captured.out == ""
     assert captured.err == ""
     assert not record_chain.producer_signature_path(post_activation).exists()
+
+
+def test_recorder_workflow_signs_between_snapshot_creation_and_witnessing() -> None:
+    workflow = (ROOT / ".github/workflows/record-forecasts.yml").read_text()
+    snapshot_output = workflow.index('echo "digest=$DIGEST"')
+    signer = workflow.index("- name: Sign record snapshot")
+    witness = workflow.index("- name: Obtain independent RFC 3161 witnesses")
+
+    assert snapshot_output < signer < witness
+    assert (
+        "BRIER_PRODUCER_SIGNING_KEY: " "${{ secrets.BRIER_PRODUCER_SIGNING_KEY }}"
+    ) in workflow
+    assert "python3 scripts/sign_record_snapshot.py" in workflow
+    assert '"${{ steps.snapshot.outputs.digest }}"' in workflow
