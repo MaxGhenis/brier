@@ -106,6 +106,42 @@ runner records that runtime model in `manifest.json` and in generated cell
 metadata. If it differs from the agent default in `agent.yaml`, the manifest
 also keeps `configuredModel` for comparison.
 
+## Credential hygiene
+
+Incident 2026-07-21: during an aging-wave batch, the codex agent ran
+`env | rg -i 'CENSUS|API|KEY'` while hunting for a Census API key, and 18
+credential env vars inherited from the interactive shell landed verbatim in
+recorded trace files; GitHub push protection was the only thing that kept
+them out of the public repo. The runner now enforces two independent layers,
+covering the draft, pre-submit review, and final stages of both the native
+Codex path and the `--command` path:
+
+1. **Allowlisted subprocess environment.** Agent subprocesses receive only
+   `PATH`, `HOME`, `TERM`, `SHELL`, `TMPDIR`, `LANG`, `LC_ALL`, `LC_CTYPE`,
+   and `CODEX_HOME` (`AGENT_ENV_ALLOWLIST` in `run_thesis_analyst.py`) — an
+   allowlist, never a denylist — so an env dump has nothing secret to print.
+   Codex authenticates through `CODEX_HOME/auth.json` (subscription login or
+   CI `codex login --with-api-key`), not env vars. A `--command` agent that
+   genuinely needs another variable requires a deliberate, reviewed
+   extension of the allowlist.
+2. **Stream redaction before sealing.** Every captured agent stream —
+   codex stdout/stderr JSONL, events, last message, `--command`
+   stdout/stderr, recorded argv, and saved `--response-file` content — is
+   redacted before any artifact is written. Redaction covers
+   `NAME=value` lines and `"name": "value"` JSON fields with
+   credential-shaped names (`KEY`/`TOKEN`/`SECRET`/`PASSWORD`), plus
+   well-known token formats (`sk-ant-`, `sk-proj-`, `sk-or-`, legacy `sk-`,
+   `ghp_`, `github_pat_`, `xoxb-`/`xoxp-`, `AIza`, `eyJhbGciOi` JWTs, and
+   `AKIA`), replacing matches with `[REDACTED]`. JSON documents and JSONL
+   event lines are redacted value-wise so they stay parseable, and clean
+   content passes through byte-identical. Because redaction happens before
+   sealing, custody roots commit to the already-clean bytes — a post-hoc
+   scrub that breaks attestation is never needed again.
+
+`tests/test_thesis_analyst_env_hygiene.py` replays the incident end to end
+with planted secrets and asserts both layers, including that redacted runs
+still validate and pass custody verification.
+
 ## Saved-response and dry-run modes
 
 Use a saved response when a model run happened elsewhere:

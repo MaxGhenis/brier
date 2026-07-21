@@ -149,8 +149,8 @@ Resolution and scoring code should preserve these invariants:
 For Python runner changes:
 
 ```bash
-uv run --extra dev ruff check scripts/run_thesis_analyst.py scripts/thesis_records_to_comparisons.py tests/test_thesis_analyst_runner.py
-uv run --extra dev pytest tests/test_thesis_analyst_runner.py
+uv run --extra dev ruff check scripts/run_thesis_analyst.py scripts/thesis_records_to_comparisons.py tests/test_thesis_analyst_runner.py tests/test_thesis_analyst_env_hygiene.py
+uv run --extra dev pytest tests/test_thesis_analyst_runner.py tests/test_thesis_analyst_env_hygiene.py
 ```
 
 For site changes:
