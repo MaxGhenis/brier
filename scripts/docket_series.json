@@ -385,6 +385,132 @@
           "releasePolicy": "registered_query_snapshot"
         }
       }
+    },
+    {
+      "series": "bls.cps.employed_people_by_occupation.business_financial_operations",
+      "cadence": "monthly",
+      "slug": "cps-business-financial-employment-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+          "sourceSeriesId": "bls.cps.employed_people_by_occupation.business_financial_operations",
+          "field": "Business and financial operations occupations",
+          "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cps.employed_people_by_occupation.computer_mathematical",
+      "cadence": "monthly",
+      "slug": "cps-computer-math-employment-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+          "sourceSeriesId": "bls.cps.employed_people_by_occupation.computer_mathematical",
+          "field": "Computer and mathematical occupations",
+          "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cps.employed_people_by_occupation.healthcare_support",
+      "cadence": "monthly",
+      "slug": "cps-healthcare-support-employment-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+          "sourceSeriesId": "bls.cps.employed_people_by_occupation.healthcare_support",
+          "field": "Healthcare support occupations",
+          "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cps.employed_people_by_occupation.office_administrative_support",
+      "cadence": "monthly",
+      "slug": "cps-office-admin-employment-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+          "sourceSeriesId": "bls.cps.employed_people_by_occupation.office_administrative_support",
+          "field": "Office and administrative support occupations",
+          "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cps.employed_people_by_occupation.production",
+      "cadence": "monthly",
+      "slug": "cps-production-employment-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+          "sourceSeriesId": "bls.cps.employed_people_by_occupation.production",
+          "field": "Production occupations",
+          "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cps.employed_people_by_occupation.transportation_material_moving",
+      "cadence": "monthly",
+      "slug": "cps-transport-material-moving-employment-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+          "sourceSeriesId": "bls.cps.employed_people_by_occupation.transportation_material_moving",
+          "field": "Transportation and material moving occupations",
+          "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
     }
   ]
 }

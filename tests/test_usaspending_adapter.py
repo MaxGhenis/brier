@@ -192,3 +192,19 @@ def test_append_gate_verdict_ignores_skipped_twins() -> None:
     # All-skipped means the gate never judged the proposal: refuse.
     assert verdict([{"conclusion": "skipped"}]) is False
     assert verdict([]) is False
+
+
+def test_every_registry_binding_template_conforms() -> None:
+    # The 7-key rule holds registry-wide, not just for USAspending: any
+    # template carrying derived keys could never authorize a binding.
+    doc = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    checked = 0
+    for entry in doc["series"]:
+        binding = (entry.get("extras") or {}).get("sourceBinding")
+        if binding is None:
+            continue
+        checked += 1
+        assert set(binding) == SOURCE_BINDING_TEMPLATE_KEYS, entry["series"]
+        assert binding["adapter"] in register_targets.SOURCE_ADAPTERS
+        assert binding["releasePolicy"] in register_targets.RELEASE_POLICIES
+    assert checked > 0
