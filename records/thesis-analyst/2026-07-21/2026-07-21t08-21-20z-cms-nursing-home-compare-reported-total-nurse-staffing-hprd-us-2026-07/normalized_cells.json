@@ -1,0 +1,950 @@
+[
+  {
+    "slug": "nursing-home-staffing-hprd-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US nursing home nurse staffing HPRD, July 2026",
+    "question": "What will CMS Care Compare State US Averages report for the NATION row, Reported Total Nurse Staffing Hours per Resident per Day, in the first July 2026 quarterly staffing update?",
+    "unit": "ratio",
+    "pointEstimate": 3.89,
+    "ciLow": 3.82,
+    "ciHigh": 3.96,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-29",
+    "resolutionSource": "CMS Care Compare nursing home provider data, State US Averages file (NH_StateUSAverages), NATION row, Reported Total Nurse Staffing Hours per Resident per Day",
+    "resolutionSourceUrl": "https://data.cms.gov/provider-data/dataset/xcdc-v8bm",
+    "resolutionRule": "Resolve to the NATION row value of 'Reported Total Nurse Staffing Hours per Resident per Day' in the first NH_StateUSAverages file CMS posts at the Care Compare refresh scheduled for 2026-07-29 (the July 2026 quarterly staffing update; schedule per the dataset metastore next-update field), rounded to three decimals. The refresh carries nurse staffing measures onto the next Payroll-Based Journal quarter. If CMS posts the refresh on a different calendar day, resolve to the first file posted at that refresh; ignore later monthly refreshes and revisions.",
+    "dataPointId": "cms.nursing_home_compare.reported_total_nurse_staffing_hprd_us.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 national average, one-decimal public mirror display",
+        "value": 3.9
+      },
+      {
+        "label": "2026-05 national average, one-decimal public mirror display",
+        "value": 3.9
+      },
+      {
+        "label": "2026-04 national average, one-decimal public mirror display",
+        "value": 3.9
+      },
+      {
+        "label": "2026-02 national average, one-decimal public mirror display",
+        "value": 3.9
+      },
+      {
+        "label": "2025-11 national average, one-decimal public mirror display",
+        "value": 3.9
+      },
+      {
+        "label": "CMS final-rule total staffing standard",
+        "value": 3.48
+      }
+    ],
+    "drivers": [
+      "recent national average has been flat at 3.9 in one-decimal public CMS-derived displays",
+      "July refresh is a quarterly staffing vintage update, so more movement risk than a non-staffing monthly refresh",
+      "minimum staffing rule repeal removes a modest near-term compliance push",
+      "labor supply, PBJ quarter composition, and facility census mix can move HPRD modestly",
+      "official first print should ignore later monthly revisions"
+    ],
+    "sourceContext": [
+      "https://data.cms.gov/provider-data/dataset/xcdc-v8bm",
+      "https://data.cms.gov/provider-data/archived-data/nursing-homes",
+      "https://projects.propublica.org/nursing-homes/affiliate/a-573",
+      "https://projects.propublica.org/nursing-homes/affiliate/a-111",
+      "https://projects.propublica.org/nursing-homes/affiliate/a-182",
+      "https://projects.propublica.org/nursing-homes/affiliate/a-300",
+      "https://www.cms.gov/newsroom/fact-sheets/medicare-and-medicaid-programs-minimum-staffing-standards-long-term-care-facilities-and-medicaid-0",
+      "https://www.reginfo.gov/public/do/eAgendaViewRule?RIN=0938-AV25&pubId=202510"
+    ],
+    "runAt": "2026-07-21T08:26:59Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for July 2026 CMS nursing home total nurse staffing HPRD"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: use the CMS Care Compare Provider Data Catalog State US Averages dataset xcdc-v8bm, file family NH_StateUSAverages, NATION row, and the Reported Total Nurse Staffing Hours per Resident per Day measure. This is the reported total nurse staffing HPRD variant, not case-mix adjusted staffing, weekend staffing, RN-only staffing, or turnover."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the CMS Provider Data Catalog State US Averages dataset page for xcdc-v8bm and read current metadata.",
+        "result": "CMS lists State US Averages identifier xcdc-v8bm with Last Modified June 1, 2026, Released June 24, 2026, and Planned Update July 29, 2026; the dataset page says each row displays a state or territory average plus the national average."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the CMS Provider Data Catalog nursing homes archive page for recent refresh history.",
+        "result": "The archive page lists nursing-homes snapshots dated 2026-06-24, 2026-05-27, 2026-04-29, 2026-03-25, 2026-02-25, and 2026-01-14, plus 2025 snapshots including 2025-12-15, 2025-11-20, 2025-09-24, and 2025-07-30."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.lookup",
+        "call": "Checked ProPublica Nursing Home Inspect pages that mirror CMS nursing home public data for rounded national-average staffing context across vintages.",
+        "result": "ProPublica pages show National average reported nurse hours/resident/day of 3.9 for June 2026, 3.9 for May 2026, 3.9 for April 2026, 3.9 for February 2026, and 3.9 for November 2025; the same June 2026 pages show national average nurse turnover near 46.1%."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked CMS final-rule and current regulatory status sources for staffing policy mechanism context.",
+        "result": "CMS's 2024 final-rule fact sheet set a total nurse staffing standard of 3.48 HPRD, including 0.55 RN HPRD and 2.45 nurse-aide HPRD, with non-rural Phase 2 within 2 years and rural Phase 2 within 3 years; the 2026 Unified Agenda entry for RIN 0938-AV25 says OBBBA precludes implementation, administration, or enforcement until September 30, 2034."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for a national average level series with monthly/quarterly CMS Care Compare refreshes, the strongest prior is the recent same-series national level. The available pre-resolution public reference class here is one-decimal CMS-derived mirror displays, not exact three-decimal first-print NH_StateUSAverages observations, and it is flat at 3.9 from November 2025 through June 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism effects: the level anchor is 3.9 rounded; momentum is essentially flat; the July quarterly staffing update can incorporate a new Payroll-Based Journal quarter and therefore deserves a little more dispersion than monthly metadata-only refreshes; the policy mechanism is slightly downward because the 3.48 HPRD enforcement push was delayed/repealed, but 3.48 is below the observed national average, so this is directional judgment rather than an estimated historical effect."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = latest one-decimal CMS-derived national average of 3.9 using the November 2025, February 2026, April 2026, May 2026, and June 2026 proxy reference class; exact archived three-decimal first-print NATION values were not available in the draft evidence. Adjustment components: -0.01 directional policy judgment for removal of near-term compliance pressure, +0.00 for flat recent momentum, +0.00 for national aggregation, giving 3.90 - 0.01 = 3.89. Successive changes in the rounded proxy history are 0.0, 0.0, 0.0, and 0.0, so rounded observed sigma = 0.000; because one-decimal displays can hide roughly +/-0.05 movements around the exact CMS row and July is a quarterly PBJ staffing refresh, I use sigma = 0.045 as a display-granularity and quarterly-risk floor. 1.28*sigma = 1.28*0.045 = 0.0576, rounded to 0.058; widening modestly for quarterly vintage risk gives an 80% half-width of 0.070, so 3.89 +/- 0.07 = [3.82, 3.96]."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and falsification: upside risk would be a surprisingly high-acuity or high-staffing PBJ quarter, post-acute census mix shift, or facilities maintaining staffing above pre-repeal plans, which would land above the interval if the national row prints above 3.96. Downside risk is workforce loosening, margin pressure, or a census-denominator change lowering HPRD, which would land below the interval if the first print is under 3.82. Outside the interval would require a larger exact national movement than is visible in the recent rounded reference class."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking interval critique by labeling the history as one-decimal proxy evidence, stating that exact archived three-decimal first-print values were unavailable in the draft evidence, and justifying sigma = 0.045 from display granularity plus quarterly PBJ refresh risk; accepted the suggestion to mark the -0.01 policy adjustment as directional judgment."
+      },
+      {
+        "kind": "forecast",
+        "point": 3.89,
+        "ciLow": 3.82,
+        "ciHigh": 3.96
+      }
+    ],
+    "agentReportedRunAt": "2026-07-21T08:21:29Z",
+    "runStartedAt": "2026-07-21T08:21:20Z",
+    "promptMode": "fast",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 3.715,
+        "upper": 4.065
+      },
+      "points": [
+        {
+          "value": 3.715,
+          "probability": 0.0
+        },
+        {
+          "value": 3.71675,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 3.7185,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 3.72025,
+          "probability": 0.005
+        },
+        {
+          "value": 3.722,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 3.72375,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 3.7255,
+          "probability": 0.01
+        },
+        {
+          "value": 3.72725,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 3.729,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 3.73075,
+          "probability": 0.015
+        },
+        {
+          "value": 3.7325,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 3.73425,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 3.736,
+          "probability": 0.02
+        },
+        {
+          "value": 3.73775,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 3.7395,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 3.74125,
+          "probability": 0.025
+        },
+        {
+          "value": 3.743,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 3.74475,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 3.7465,
+          "probability": 0.03
+        },
+        {
+          "value": 3.74825,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 3.75,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 3.75175,
+          "probability": 0.035
+        },
+        {
+          "value": 3.7535,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 3.75525,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 3.757,
+          "probability": 0.04
+        },
+        {
+          "value": 3.75875,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 3.7605,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 3.76225,
+          "probability": 0.045
+        },
+        {
+          "value": 3.764,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 3.76575,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 3.7675,
+          "probability": 0.05
+        },
+        {
+          "value": 3.76925,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 3.771,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 3.77275,
+          "probability": 0.055
+        },
+        {
+          "value": 3.7745,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 3.77625,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 3.778,
+          "probability": 0.06
+        },
+        {
+          "value": 3.77975,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 3.7815,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 3.78325,
+          "probability": 0.065
+        },
+        {
+          "value": 3.785,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 3.78675,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 3.7885,
+          "probability": 0.07
+        },
+        {
+          "value": 3.79025,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 3.792,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 3.79375,
+          "probability": 0.075
+        },
+        {
+          "value": 3.7955,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 3.79725,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 3.799,
+          "probability": 0.08
+        },
+        {
+          "value": 3.80075,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 3.8025,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 3.80425,
+          "probability": 0.085
+        },
+        {
+          "value": 3.806,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 3.80775,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 3.8095,
+          "probability": 0.09
+        },
+        {
+          "value": 3.81125,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 3.813,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 3.81475,
+          "probability": 0.095
+        },
+        {
+          "value": 3.8165,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 3.81825,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 3.82,
+          "probability": 0.1
+        },
+        {
+          "value": 3.82175,
+          "probability": 0.11
+        },
+        {
+          "value": 3.8235,
+          "probability": 0.12
+        },
+        {
+          "value": 3.82525,
+          "probability": 0.13
+        },
+        {
+          "value": 3.827,
+          "probability": 0.14
+        },
+        {
+          "value": 3.82875,
+          "probability": 0.15
+        },
+        {
+          "value": 3.8305,
+          "probability": 0.16
+        },
+        {
+          "value": 3.83225,
+          "probability": 0.17
+        },
+        {
+          "value": 3.834,
+          "probability": 0.18
+        },
+        {
+          "value": 3.83575,
+          "probability": 0.19
+        },
+        {
+          "value": 3.8375,
+          "probability": 0.2
+        },
+        {
+          "value": 3.83925,
+          "probability": 0.21
+        },
+        {
+          "value": 3.841,
+          "probability": 0.22
+        },
+        {
+          "value": 3.84275,
+          "probability": 0.23
+        },
+        {
+          "value": 3.8445,
+          "probability": 0.24
+        },
+        {
+          "value": 3.84625,
+          "probability": 0.25
+        },
+        {
+          "value": 3.848,
+          "probability": 0.26
+        },
+        {
+          "value": 3.84975,
+          "probability": 0.27
+        },
+        {
+          "value": 3.8515,
+          "probability": 0.28
+        },
+        {
+          "value": 3.85325,
+          "probability": 0.29
+        },
+        {
+          "value": 3.855,
+          "probability": 0.3
+        },
+        {
+          "value": 3.85675,
+          "probability": 0.31
+        },
+        {
+          "value": 3.8585,
+          "probability": 0.32
+        },
+        {
+          "value": 3.86025,
+          "probability": 0.33
+        },
+        {
+          "value": 3.862,
+          "probability": 0.34
+        },
+        {
+          "value": 3.86375,
+          "probability": 0.35
+        },
+        {
+          "value": 3.8655,
+          "probability": 0.36
+        },
+        {
+          "value": 3.86725,
+          "probability": 0.37
+        },
+        {
+          "value": 3.869,
+          "probability": 0.38
+        },
+        {
+          "value": 3.87075,
+          "probability": 0.39
+        },
+        {
+          "value": 3.8725,
+          "probability": 0.4
+        },
+        {
+          "value": 3.87425,
+          "probability": 0.41
+        },
+        {
+          "value": 3.876,
+          "probability": 0.42
+        },
+        {
+          "value": 3.87775,
+          "probability": 0.43
+        },
+        {
+          "value": 3.8795,
+          "probability": 0.44
+        },
+        {
+          "value": 3.88125,
+          "probability": 0.45
+        },
+        {
+          "value": 3.883,
+          "probability": 0.46
+        },
+        {
+          "value": 3.88475,
+          "probability": 0.47
+        },
+        {
+          "value": 3.8865,
+          "probability": 0.48
+        },
+        {
+          "value": 3.88825,
+          "probability": 0.49
+        },
+        {
+          "value": 3.89,
+          "probability": 0.5
+        },
+        {
+          "value": 3.89175,
+          "probability": 0.51
+        },
+        {
+          "value": 3.8935,
+          "probability": 0.52
+        },
+        {
+          "value": 3.89525,
+          "probability": 0.53
+        },
+        {
+          "value": 3.897,
+          "probability": 0.54
+        },
+        {
+          "value": 3.89875,
+          "probability": 0.55
+        },
+        {
+          "value": 3.9005,
+          "probability": 0.56
+        },
+        {
+          "value": 3.90225,
+          "probability": 0.57
+        },
+        {
+          "value": 3.904,
+          "probability": 0.58
+        },
+        {
+          "value": 3.90575,
+          "probability": 0.59
+        },
+        {
+          "value": 3.9075,
+          "probability": 0.6
+        },
+        {
+          "value": 3.90925,
+          "probability": 0.61
+        },
+        {
+          "value": 3.911,
+          "probability": 0.62
+        },
+        {
+          "value": 3.91275,
+          "probability": 0.63
+        },
+        {
+          "value": 3.9145,
+          "probability": 0.64
+        },
+        {
+          "value": 3.91625,
+          "probability": 0.65
+        },
+        {
+          "value": 3.918,
+          "probability": 0.66
+        },
+        {
+          "value": 3.91975,
+          "probability": 0.67
+        },
+        {
+          "value": 3.9215,
+          "probability": 0.68
+        },
+        {
+          "value": 3.92325,
+          "probability": 0.69
+        },
+        {
+          "value": 3.925,
+          "probability": 0.7
+        },
+        {
+          "value": 3.92675,
+          "probability": 0.71
+        },
+        {
+          "value": 3.9285,
+          "probability": 0.72
+        },
+        {
+          "value": 3.93025,
+          "probability": 0.73
+        },
+        {
+          "value": 3.932,
+          "probability": 0.74
+        },
+        {
+          "value": 3.93375,
+          "probability": 0.75
+        },
+        {
+          "value": 3.9355,
+          "probability": 0.76
+        },
+        {
+          "value": 3.93725,
+          "probability": 0.77
+        },
+        {
+          "value": 3.939,
+          "probability": 0.78
+        },
+        {
+          "value": 3.94075,
+          "probability": 0.79
+        },
+        {
+          "value": 3.9425,
+          "probability": 0.8
+        },
+        {
+          "value": 3.94425,
+          "probability": 0.81
+        },
+        {
+          "value": 3.946,
+          "probability": 0.82
+        },
+        {
+          "value": 3.94775,
+          "probability": 0.83
+        },
+        {
+          "value": 3.9495,
+          "probability": 0.84
+        },
+        {
+          "value": 3.95125,
+          "probability": 0.85
+        },
+        {
+          "value": 3.953,
+          "probability": 0.86
+        },
+        {
+          "value": 3.95475,
+          "probability": 0.87
+        },
+        {
+          "value": 3.9565,
+          "probability": 0.88
+        },
+        {
+          "value": 3.95825,
+          "probability": 0.89
+        },
+        {
+          "value": 3.96,
+          "probability": 0.9
+        },
+        {
+          "value": 3.96175,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 3.9635,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 3.96525,
+          "probability": 0.905
+        },
+        {
+          "value": 3.967,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 3.96875,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 3.9705,
+          "probability": 0.91
+        },
+        {
+          "value": 3.97225,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 3.974,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 3.97575,
+          "probability": 0.915
+        },
+        {
+          "value": 3.9775,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 3.97925,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 3.981,
+          "probability": 0.92
+        },
+        {
+          "value": 3.98275,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 3.9845,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 3.98625,
+          "probability": 0.925
+        },
+        {
+          "value": 3.988,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 3.98975,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 3.9915,
+          "probability": 0.93
+        },
+        {
+          "value": 3.99325,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 3.995,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 3.99675,
+          "probability": 0.935
+        },
+        {
+          "value": 3.9985,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 4.00025,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 4.002,
+          "probability": 0.94
+        },
+        {
+          "value": 4.00375,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 4.0055,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 4.00725,
+          "probability": 0.945
+        },
+        {
+          "value": 4.009,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 4.01075,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 4.0125,
+          "probability": 0.95
+        },
+        {
+          "value": 4.01425,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 4.016,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 4.01775,
+          "probability": 0.955
+        },
+        {
+          "value": 4.0195,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 4.02125,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 4.023,
+          "probability": 0.96
+        },
+        {
+          "value": 4.02475,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 4.0265,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 4.02825,
+          "probability": 0.965
+        },
+        {
+          "value": 4.03,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 4.03175,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 4.0335,
+          "probability": 0.97
+        },
+        {
+          "value": 4.03525,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 4.037,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 4.03875,
+          "probability": 0.975
+        },
+        {
+          "value": 4.0405,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 4.04225,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 4.044,
+          "probability": 0.98
+        },
+        {
+          "value": 4.04575,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 4.0475,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 4.04925,
+          "probability": 0.985
+        },
+        {
+          "value": 4.051,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 4.05275,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 4.0545,
+          "probability": 0.99
+        },
+        {
+          "value": 4.05625,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 4.058,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 4.05975,
+          "probability": 0.995
+        },
+        {
+          "value": 4.0615,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 4.06325,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 4.065,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 3.89,
+        "median": 3.89,
+        "interval80": {
+          "lower": 3.82,
+          "upper": 3.96
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

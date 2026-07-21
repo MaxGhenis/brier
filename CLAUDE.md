@@ -117,6 +117,14 @@ which the site fetches at build time. Deploy by pushing `main`; run the
 recorder workflow (`gh workflow run record-forecasts.yml --ref main`) right
 after new predictions go live so their pre-registration timestamp is tight.
 
+Topic views (`site/src/data/topics.ts`, served at `/topics/[slug]`) are
+standing rule-based collections keyed on dataPointId prefixes. When a
+spawned series belongs to a topic, add its `agency.program.metric` prefix
+to that topic in the same commit as the wave module — `topics.test.ts`
+fails on prefixes that match no published cell, so prefix and cells must
+land together. Rolled successors of a series join their topics
+automatically because the prefix is period-free.
+
 ### Site (`site/`)
 
 Next.js App Router site with Tailwind CSS v4, deployed to Vercel as the

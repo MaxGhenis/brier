@@ -670,6 +670,149 @@ for _spec in BLS_API_ADAPTERS.values():
         "published month and still carried BLS's preliminary footnote."
     )
 
+# ---------------------------------------------------------------------------
+# CMS provider-data (Care Compare) adapters (2026-07-20). Each monthly
+# refresh REPLACES the published CSV in place, so the first print for a
+# refresh is only capturable while that refresh is the live file. The
+# metastore item is the release ledger: `modified` stamps the refresh's
+# processing vintage (the first of the refresh month) and the distribution
+# URL rotates per refresh, so the adapter reads the metastore first, gates
+# on the modified month matching the cell's period, and only then downloads
+# the CSV. A capture attempted after the next refresh replaces the file
+# fails closed ("window missed") rather than resolving a later vintage.
+CMS_PROVIDER_DATA_ADAPTERS: dict[str, dict[str, Any]] = {
+    "cms.nursing_home_compare.reported_total_nurse_staffing_hprd_us": {
+        "metastore_url": (
+            "https://data.cms.gov/provider-data/api/1/metastore/schemas/"
+            "dataset/items/xcdc-v8bm"
+        ),
+        "state_row": "NATION",
+        "row_column": "State or Nation",
+        "value_column": (
+            "Reported Total Nurse Staffing Hours per Resident per Day"
+        ),
+        "processing_date_column": "Processing Date",
+        "unit": "ratio",
+        "round": 3,
+        "label": (
+            "US nursing home reported total nurse staffing hours per "
+            "resident per day (Care Compare national average)"
+        ),
+        "source_name": "cms_provider_data",
+        "source_table": (
+            "Nursing home Care Compare provider data, State US Averages "
+            "(NH_StateUSAverages)"
+        ),
+        "concept_authority": "cms",
+        "source_concept": (
+            "Reported Total Nurse Staffing Hours per Resident per Day"
+        ),
+        # Fail-closed sanity range: reported national total nurse staffing
+        # HPRD has printed in the high-3s for years; anything outside this
+        # band is a wrong column, wrong row, or upstream restructuring.
+        "sanity_range": (2.0, 6.0),
+        "evidence_notes": (
+            "First print for {period} captured from {source_url}: the CMS "
+            "provider-data metastore's modified date placed the live "
+            "NH_StateUSAverages file inside the {period} refresh window at "
+            "capture, and the file's own Processing Date column agreed."
+        ),
+    },
+}
+
+
+def cms_provider_data_metastore(
+    spec: dict[str, Any],
+) -> tuple[str, str, str]:
+    """(modified_date, download_url, retrieved_at) from the metastore item."""
+    request = urllib.request.Request(
+        spec["metastore_url"],
+        headers={"User-Agent": INTL_USER_AGENT},
+    )
+    retrieved_at = utc_now()
+    with urllib.request.urlopen(request, timeout=120) as response:
+        payload = json.loads(response.read().decode())
+    modified = str(payload.get("modified") or "")
+    distributions = payload.get("distribution") or []
+    download_url = ""
+    for distribution in distributions:
+        candidate = str(distribution.get("downloadURL") or "")
+        if candidate.lower().endswith(".csv"):
+            download_url = candidate
+            break
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", modified) or not download_url:
+        raise ValueError(
+            f"metastore item missing modified/downloadURL: {spec['metastore_url']}"
+        )
+    return modified, download_url, retrieved_at
+
+
+def cms_provider_data_gate(period: str, modified: str) -> str | None:
+    """None when `modified` is inside the period's refresh window, else the
+    reason the capture must defer ("pending") or refuse ("missed")."""
+    window_start = f"{period}-01"
+    year, month = int(period[:4]), int(period[5:7])
+    if month == 12:
+        year, month = year + 1, 1
+    else:
+        month += 1
+    window_end = f"{year}-{month:02d}-01"
+    if modified < window_start:
+        return (
+            f"pending: metastore modified {modified} still before the "
+            f"{period} refresh window"
+        )
+    if modified >= window_end:
+        return (
+            f"missed: metastore modified {modified} is past the {period} "
+            f"refresh window; the first print is no longer the live file"
+        )
+    return None
+
+
+def cms_provider_data_value(
+    csv_bytes: bytes, spec: dict[str, Any], modified: str
+) -> tuple[float | None, str | None]:
+    """(value, refusal_reason) for the spec's row/column in the live CSV."""
+    reader = csv.DictReader(io.StringIO(csv_bytes.decode("utf-8-sig")))
+    row_column = spec["row_column"]
+    value_column = spec["value_column"]
+    if row_column not in (reader.fieldnames or []) or value_column not in (
+        reader.fieldnames or []
+    ):
+        return None, (
+            f"columns {row_column!r}/{value_column!r} not both present; "
+            "upstream file restructured"
+        )
+    target_row = next(
+        (row for row in reader if row.get(row_column) == spec["state_row"]),
+        None,
+    )
+    if target_row is None:
+        return None, f"row {spec['state_row']!r} not found"
+    processing_column = spec.get("processing_date_column")
+    if processing_column and target_row.get(processing_column) not in (
+        None,
+        "",
+        modified,
+    ):
+        return None, (
+            f"file Processing Date {target_row.get(processing_column)!r} "
+            f"disagrees with metastore modified {modified!r}"
+        )
+    raw_value = (target_row.get(value_column) or "").strip()
+    try:
+        value = float(raw_value)
+    except ValueError:
+        return None, f"non-numeric value {raw_value!r} in {value_column!r}"
+    low, high = spec["sanity_range"]
+    if not (low <= value <= high):
+        return None, (
+            f"value {value} outside sanity range [{low}, {high}]; wrong "
+            "row/column or upstream restructuring"
+        )
+    return round(value, spec.get("round", 4)), None
+
 MONTH_NUMBERS = {
     name: number
     for number, name in enumerate(
@@ -2221,6 +2364,29 @@ def pending_adapter_refs(
                     )
                 )
             continue
+        cms_stem = next(
+            (
+                stem
+                for stem in CMS_PROVIDER_DATA_ADAPTERS
+                if ref.startswith(stem + ".")
+            ),
+            None,
+        )
+        if cms_stem:
+            parsed = parse_ref_period(ref, cms_stem)
+            if parsed and parsed[0] == "month":
+                out.append(
+                    (
+                        ref,
+                        "cms_provider_data",
+                        CMS_PROVIDER_DATA_ADAPTERS[cms_stem],
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
         for stem, spec in ALFRED_ADAPTERS.items():
             if not ref.startswith(stem + "."):
                 continue
@@ -3725,6 +3891,10 @@ def main() -> int:
     ] = {}
     a19_cache: dict[str, tuple[dict[str, float], bytes | None, str, str]] = {}
     intl_cache: dict[Any, tuple] = {}
+    # CMS provider-data: one metastore read per dataset item and one CSV
+    # download per distribution URL, shared across cells on the same file.
+    cms_metastore_cache: dict[str, tuple[str, str, str] | None] = {}
+    cms_csv_cache: dict[str, bytes | None] = {}
     for ref, kind, spec, period_type, period, source_vintage, forecast in (
         adapter_todo
     ):
@@ -3820,6 +3990,51 @@ def main() -> int:
             release_day = dt.date.fromisoformat(retrieved_at[:10])
             source_file = "timeseries/data (BLS Public Data API v2)"
             extension = "json"
+        elif kind == "cms_provider_data":
+            metastore_key = spec["metastore_url"]
+            if metastore_key not in cms_metastore_cache:
+                try:
+                    cms_metastore_cache[metastore_key] = (
+                        cms_provider_data_metastore(spec)
+                    )
+                except Exception as exc:  # noqa: BLE001 - defer, don't crash
+                    print(f"  CMS metastore fetch failed (deferring): {ref} — {exc}")
+                    cms_metastore_cache[metastore_key] = None
+            metastore = cms_metastore_cache[metastore_key]
+            if metastore is None:
+                continue
+            modified, download_url, retrieved_at = metastore
+            gate = cms_provider_data_gate(period, modified)
+            if gate:
+                if gate.startswith("missed"):
+                    print(f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — {gate}")
+                else:
+                    print(f"  refresh not posted yet (deferring): {ref} — {gate}")
+                continue
+            if download_url not in cms_csv_cache:
+                request = urllib.request.Request(
+                    download_url, headers={"User-Agent": INTL_USER_AGENT}
+                )
+                try:
+                    with urllib.request.urlopen(request, timeout=300) as r:
+                        cms_csv_cache[download_url] = r.read()
+                except Exception as exc:  # noqa: BLE001 - defer, don't crash
+                    print(f"  CMS CSV fetch failed (deferring): {ref} — {exc}")
+                    cms_csv_cache[download_url] = None
+            raw = cms_csv_cache[download_url]
+            if raw is None:
+                continue
+            value, refusal = cms_provider_data_value(raw, spec, modified)
+            if refusal:
+                print(f"  CMS PARSE REFUSAL (refusing): {ref} — {refusal}")
+                continue
+            # The live file IS the refresh's first print while the gate
+            # holds; the capture day is the source vintage.
+            release_day = dt.date.fromisoformat(retrieved_at[:10])
+            source_url = download_url
+            series_id = spec["state_row"]
+            source_file = download_url.rsplit("/", 1)[-1]
+            extension = "csv"
         elif kind == "usaspending":
             if usaspending_contracts is None:
                 usaspending_contracts = registration_contracts()

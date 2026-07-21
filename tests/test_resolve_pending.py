@@ -2511,3 +2511,92 @@ def test_custody_seal_accepts_xlsx_response_archives(tmp_path) -> None:
         assert manifest["custodyInventoryVersion"] == 2
     finally:
         resolve_pending.ROOT = original_root
+
+
+def test_pending_adapter_refs_maps_cms_provider_data_cells() -> None:
+    log = {
+        "entries": [
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "nh-staffing",
+                "resolutionDate": "2026-07-29",
+                "unit": "ratio",
+                "interval80": {"lower": 3.8, "upper": 3.95},
+            },
+        ],
+        "resolutionLinks": [
+            {
+                "status": "pending",
+                "forecastSlug": "nh-staffing",
+                "targetFactRef": (
+                    "cms.nursing_home_compare"
+                    ".reported_total_nurse_staffing_hprd_us"
+                    ".2026-07.first_print"
+                ),
+            },
+        ],
+    }
+
+    todo = resolve_pending.pending_adapter_refs(log)
+
+    assert len(todo) == 1
+    ref, kind, spec, period_type, period, release_date, forecast = todo[0]
+    assert kind == "cms_provider_data"
+    assert spec["state_row"] == "NATION"
+    assert spec["unit"] == forecast["unit"] == "ratio"
+    assert (period_type, period) == ("month", "2026-07")
+    assert release_date == "2026-07-29"
+
+
+def test_cms_provider_data_gate_windows() -> None:
+    gate = resolve_pending.cms_provider_data_gate
+    assert gate("2026-07", "2026-06-01").startswith("pending")
+    assert gate("2026-07", "2026-07-01") is None
+    assert gate("2026-07", "2026-07-31") is None
+    assert gate("2026-07", "2026-08-01").startswith("missed")
+    # December window rolls into the next year.
+    assert gate("2026-12", "2026-12-15") is None
+    assert gate("2026-12", "2027-01-01").startswith("missed")
+
+
+CMS_SPEC = resolve_pending.CMS_PROVIDER_DATA_ADAPTERS[
+    "cms.nursing_home_compare.reported_total_nurse_staffing_hprd_us"
+]
+
+CMS_CSV = (
+    '"State or Nation","Overall Rating",'
+    '"Reported Total Nurse Staffing Hours per Resident per Day",'
+    '"Processing Date"\n'
+    'NATION,3.0,3.87157,2026-07-01\n'
+    'AK,3.3,6.92970,2026-07-01\n'
+).encode()
+
+
+def test_cms_provider_data_value_reads_nation_row() -> None:
+    value, refusal = resolve_pending.cms_provider_data_value(
+        CMS_CSV, CMS_SPEC, "2026-07-01"
+    )
+    assert refusal is None
+    assert value == 3.872
+
+
+def test_cms_provider_data_value_fails_closed() -> None:
+    # Missing value column.
+    broken = CMS_CSV.replace(b"Reported Total Nurse Staffing", b"Renamed")
+    value, refusal = resolve_pending.cms_provider_data_value(
+        broken, CMS_SPEC, "2026-07-01"
+    )
+    assert value is None and "not both present" in refusal
+
+    # File Processing Date disagreeing with the metastore vintage.
+    value, refusal = resolve_pending.cms_provider_data_value(
+        CMS_CSV, CMS_SPEC, "2026-08-01"
+    )
+    assert value is None and "disagrees" in refusal
+
+    # Value outside the fail-closed sanity range (wrong row/column class).
+    silly = CMS_CSV.replace(b"3.87157", b"387.157")
+    value, refusal = resolve_pending.cms_provider_data_value(
+        silly, CMS_SPEC, "2026-07-01"
+    )
+    assert value is None and "sanity range" in refusal
