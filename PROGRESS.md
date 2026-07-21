@@ -2,10 +2,10 @@
 
 ## State
 
-Implementation and documentation are complete; final full-suite validation and
-self-audit remain. Producer signing is still dormant: both activation constants
-are `None`, the live records tree is unchanged, and neither dormant command
-path imports `receipt`.
+Implementation, documentation, validation, and self-audit are complete.
+Producer signing is dormant as designed: both activation constants are `None`,
+the live records tree is unchanged, and neither dormant command path imports
+`receipt`.
 
 ## Done
 
@@ -31,8 +31,8 @@ path imports `receipt`.
 - Closed a discovered symlinked-date-directory escape in both verifier and
   proposer; neither now accepts a snapshot nor writes a signature through a
   symlinked path component.
-- Ran the 30 producer-signing tests against the cached byte-identical
-  `receipt==0.2.0` package: 30 passed.
+- Ran the producer-signing tests against the cached byte-identical
+  `receipt==0.2.0` package; the final focused result was 32 passed.
 - Added the Python-3.11-gated `custody` extra and regenerated `uv.lock`
   offline. The generated wheel and source-distribution hashes exactly match
   the two known-good `receipt==0.2.0` hashes from the brief.
@@ -42,8 +42,16 @@ path imports `receipt`.
 - Added the ceremony runbook with local key generation, direct secret upload,
   SPKI computation, exact HEAD activation boundary, provenance/runtime gates,
   and an honest key-epoch requirement for rotation.
+- Black, Ruff, offline lock validation, and `git diff --check` pass. The final
+  full suite ran against the exact cached `receipt==0.2.0` package: 702 passed
+  in 451.58 seconds.
+- Completed the base-to-HEAD self-audit: no records or forbidden workflows were
+  changed; signature siblings are closed over by the chain verifier and remain
+  outside run-body custody roots; dormant behavior differs only by intentional
+  stray-signature, half-armed, and symlink-path refusals.
 
 ## Next
 
-- Run Black, Ruff, targeted tests, and the full pytest suite; perform the
-  dormant-path and orphan-file self-audit; write the final report.
+- No work remains for this dormant implementation branch.
+- Before activation, land the runtime and attested-publisher prerequisites in
+  the ceremony runbook, then perform the separate reviewed trust-root ceremony.
