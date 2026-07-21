@@ -1,0 +1,391 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T01:11:54Z",
+  "runStartedAt": "2026-07-21T01:11:54Z",
+  "series": "bls.cps.employed_people_by_occupation.production",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "cps-production-employment-july-2026",
+    "country": "US",
+    "dataPointId": "bls.cps.employed_people_by_occupation.production.july_2026.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-21T01:00:49Z",
+    "registeredAtUtc": "2026-07-21T01:00:49Z",
+    "registrationCommit": "36b3b6b19986083e354c0bd56b0090751cfaeba7",
+    "registrationState": "preregistered",
+    "series": "bls.cps.employed_people_by_occupation.production",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-06",
+        "start": "2026-07-29"
+      },
+      "field": "Production occupations",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "bls.cps.employed_people_by_occupation.production",
+      "sourceUrl": "https://www.bls.gov/web/empsit/cpseea19.htm",
+      "table": "CPS Employment Situation Table A-19, employed persons by occupation, not seasonally adjusted (thousands)",
+      "transform": {
+        "factor": 0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e6122e1a77edbc28a7204a5b63f7b17fc1f4147009df5e69f180e83c7894b601",
+    "targetRegistrationPath": "records/targets/2026-07-21-e6122e1a77edbc28a7204a5b63f7b17fc1f4147009df5e69f180e83c7894b601.json",
+    "targetUnit": "millions",
+    "valueScale": 0.001
+  },
+  "registrationCommit": "36b3b6b19986083e354c0bd56b0090751cfaeba7",
+  "targetContentHash": "e6122e1a77edbc28a7204a5b63f7b17fc1f4147009df5e69f180e83c7894b601",
+  "targetRegistrationPath": "records/targets/2026-07-21-e6122e1a77edbc28a7204a5b63f7b17fc1f4147009df5e69f180e83c7894b601.json",
+  "registeredAtUtc": "2026-07-21T01:00:49Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.6-sol",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T01:11:54Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "ff1bed07f3bad5bfd2ad33a32f7cc64d2c40d179b1e1813403e72dc5c4837635"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The resolver/source text says Table A-13/A-19 even though the ledger binding is cpseea19.htm, CPS Employment Situation Table A-19, field Production occupations; the official release date also appears to be 2026-08-07 while the ledger resolutionDate is 2026-08-06.",
+        "actionRequested": "State the resolver as canonical Table A-19/cpseea19.htm and first-print July 2026 value, keep resolutionDate tied to the registered 2026-08-06 ledger date, and keep the official-calendar discrepancy as an explicit note rather than blending A-13/A-19 in the resolver."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The -0.200 million movement from June persistence is material and is mainly justified by one June-to-July comparison from 2025 plus a qualitative weak-momentum claim.",
+        "actionRequested": "Either add a short multi-year June-to-July NSA production-occupation seasonal sample, or explicitly say the update is mostly a judgmental shrinkage from the single 2025 seasonal drop and recent soft year-over-year context."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Include the June 2025 value in historicalContext if it remains central to the seasonal update."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that archived A-13 references are evidence lookups only if older releases used different table numbering, while the target resolver remains Table A-19."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted canonical Table A-19 resolver wording, explicit treatment of the August 7 official-calendar discrepancy, inclusion of June 2025 context, and characterization of the -0.200 million update as judgmental shrinkage from a limited seasonal sample.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: Accepted canonical Table A-19 resolver wording, explicit treatment of the August 7 official-calendar discrepancy, inclusion of June 2025 context, and characterization of the -0.200 million update as judgmental shrinkage from a limited seasonal sample.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted canonical Table A-19 resolver wording, explicit treatment of the August 7 official-calendar discrepancy, inclusion of June 2025 context, and characterization of the -0.200 million update as judgmental shrinkage from a limited seasonal sample.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: Accepted canonical Table A-19 resolver wording, explicit treatment of the August 7 official-calendar discrepancy, inclusion of June 2025 context, and characterization of the -0.200 million update as judgmental shrinkage from a limited seasonal sample.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publishable, but it should tighten resolver wording to the canonical Table A-19 target and better support the large July seasonal adjustment with a broader or explicitly limited seasonal sample."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/prompt.md",
+      "sha256": "3fc3c2231bbe8a531505b4ffc42430e4426f1773512f5238df0a15a33d578f4b",
+      "bytes": 8999,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_command.json",
+      "sha256": "6889b36b82a1bdaf392672fbc3d2b773287142830af7e3388dddf3ee137e7bf0",
+      "bytes": 727,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "e175a8d0b310297ea658ea7064c8ce2536808f5a4b916ac33bcc44d73d78a95f",
+      "bytes": 7976,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_codex_stderr.log",
+      "sha256": "a0130b34771128d5648c27701a4f525ea305ac0b4dfe95e9e44fc5a3d98b1c1a",
+      "bytes": 233,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_codex_events.jsonl",
+      "sha256": "a1d71032751a709fec2be8f522ba1ed6dcbf318dd578cdbaa6c393ccddc21fba",
+      "bytes": 7977,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_codex_last_message.txt",
+      "sha256": "98f5f976f8ff68ab7115f667d3f0885374b83ecbab1a95da463be9a9565efcd3",
+      "bytes": 5123,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_codex_trace.json",
+      "sha256": "827ca38e8ee32b2ba38a372dc478a337a3c6c61ba5290ef1568ee5b8928f627d",
+      "bytes": 512,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_stdout.txt",
+      "sha256": "98f5f976f8ff68ab7115f667d3f0885374b83ecbab1a95da463be9a9565efcd3",
+      "bytes": 5123,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/draft_stderr.txt",
+      "sha256": "23bb0f4ff5a120cf3a543aa9d0df05effd72d3e3c26d4631c5529d2346186279",
+      "bytes": 248,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_prompt.md",
+      "sha256": "0b17e7d15b213567606b23e4352be6b613dd4a1821354d012a898f6618fa0a37",
+      "bytes": 8275,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_command.json",
+      "sha256": "b63d4a60069be6d917096c2e69f1406601774d327c8eef4bd83ffe3eee75c8fb",
+      "bytes": 719,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "ba6cf735f6738f51075851103fc89d8e23be877bdbd6f56d9bfc9c4a5b949faf",
+      "bytes": 2779,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "5dd1c9c819b24201e00555f2709cb35ca5648890745240f2f5d9a11237606d96",
+      "bytes": 233,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "8978f12e9265978d3ce695be3485aa9b0e4b930b503cb36449fa7d6135d961e1",
+      "bytes": 2814,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "38a3e677b253bdf8a4b2668077f8b9d6bc4f5440ce212b6885215ca6900fa99d",
+      "bytes": 1602,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "e135e6517cfc31ac073624eec985cea881d9b57bbc9752cd57e6322b15d584bb",
+      "bytes": 502,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "38a3e677b253bdf8a4b2668077f8b9d6bc4f5440ce212b6885215ca6900fa99d",
+      "bytes": 1602,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "a96695735fea21767da6939391579b98276b5b5656d33cad1fd9e35fc7fe8164",
+      "bytes": 248,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/revision_prompt.md",
+      "sha256": "b7cc57a6e55b7442c2910b82160d7fa566b05e540e6d1bff079a35642f960d84",
+      "bytes": 16660,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/command.json",
+      "sha256": "a2920ea1f173c593308dc33933d948c145f3a12d6e3a564d2ac99faf72818cbf",
+      "bytes": 721,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/codex_stdout.jsonl",
+      "sha256": "fd5a87b5067d20552845c8473a67efbbb224a0eb5a6aa657209d3f795d495aa5",
+      "bytes": 6097,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/codex_stderr.log",
+      "sha256": "ee93000bc1e7cc2e2849ebd20f80b61b67e220995dc83407b67a9eee69eeee0a",
+      "bytes": 233,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/codex_events.jsonl",
+      "sha256": "4274c5ce2f21a05705df8f841a8c6edd4a0a87eca3a6079ea8f03c92e9f10d52",
+      "bytes": 6119,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/codex_last_message.txt",
+      "sha256": "f314081644cc4d1c491868d4fcaf5ee5a87f68b2bed5c552d19589bd5f95fd1f",
+      "bytes": 5529,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/codex_trace.json",
+      "sha256": "7438ac4b3b5b9791687bf8cab5e394ba2b32a4c5f414818d7f92a632c98b0e73",
+      "bytes": 504,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/stdout.txt",
+      "sha256": "f314081644cc4d1c491868d4fcaf5ee5a87f68b2bed5c552d19589bd5f95fd1f",
+      "bytes": 5529,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/stderr.txt",
+      "sha256": "0d0e2114a99a84fa0fe1edd6639ef440247e60ff427edd9615f74ba9c1a350da",
+      "bytes": 248,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/raw_response.txt",
+      "sha256": "f314081644cc4d1c491868d4fcaf5ee5a87f68b2bed5c552d19589bd5f95fd1f",
+      "bytes": 5529,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/parsed_cells.json",
+      "sha256": "fb2a93e994087defdd3cdd96365793d068ecf517fc918d77f005aef176324dbb",
+      "bytes": 6494,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/normalized_cells.json",
+      "sha256": "5fd6492717d612f01facb42561b5564f9a80fa277bb0932799843e7328f49212",
+      "bytes": 24186,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/distribution.json",
+      "sha256": "a36f4593c85dadba35d1cedece5fcc9e670b788763086bb27d091b11900b64ea",
+      "bytes": 13908,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/validation.json",
+      "sha256": "228ef0c6bb62a3907e83be60bbf629bf2c8dafb75f9b622337fd33cf269632e8",
+      "bytes": 136,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/cells.with_activity.json",
+      "sha256": "c1d614c0f61ee3d1e41526b10852e74d3163891084c823a65c4dd73b93f6d986",
+      "bytes": 40725,
+      "createdAt": "2026-07-21T01:11:54Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t01-11-54z-bls-cps-employed-people-by-occupation-production-2026-07/manifest.json",
+      "sha256": "5adabdff4fa71dd69dfebc0b28d8b7f6fa77c9dffae51bde722f988337387070",
+      "bytes": 16651,
+      "createdAt": "2026-07-21T01:11:54Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "cps-production-employment-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "a7ff153a1a05f8100e1a64f05998c79c749ee60a700111357faf266985afa0b6"
+}

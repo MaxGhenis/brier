@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is publication-ready apart from a source-binding mismatch with the canonical ledger resolver.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft names a future DOL release URL as the resolutionSourceUrl, while the canonical ledger sourceBinding resolves via ALFRED/FRED CCSA advance vintage at alfred.stlouisfed.org with the first-print rule.",
+      "actionRequested": "Align the resolver fields to the ledger contract: use the ALFRED CCSA graph CSV/source binding for the machine resolver, while keeping DOL ETA as the underlying agency source in reasoning if desired."
+    }
+  ],
+  "optionalSuggestions": [
+    "State explicitly that 2026-08-06 is the expected ETA release date within the ledger's 2026-08-04 to 2026-08-08 expected release window.",
+    "Mention that the 0.005 million upward adjustment is small relative to the 0.018 million 80% half-width, so the forecast remains mostly persistence-driven."
+  ]
+}
