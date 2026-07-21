@@ -1,0 +1,171 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T16:34:47Z",
+  "runStartedAt": "2026-07-21T16:34:47Z",
+  "series": "census.acs.broadband_subscription_65_plus.share",
+  "period": "2025",
+  "conditional": null,
+  "targetContext": {
+    "series": "census.acs.broadband_subscription_65_plus.share",
+    "period": "2025",
+    "catalogSlug": "broadband-subscription-65-plus-2025",
+    "country": "US",
+    "targetUnit": "percent",
+    "dataPointId": "census.acs.broadband_subscription_65_plus.share.2025.first_print",
+    "resolutionDate": "2026-09-10",
+    "resolutionSource": "U.S. Census Bureau American Community Survey 1-Year Estimates Detailed Table B28005. CRITICAL VINTAGE DISCIPLINE: base rates MUST come from ACS 1-YEAR estimates (ACSDT1Y products) for each history year, never 5-year (ACSDT5Y) tables \u2014 5-year values lag the 1-year series by roughly two years and have corrupted prior runs of this target. Fetch per-year values keylessly from https://data.census.gov/api/access/data/table?id=ACSDT1Y{YEAR}.B28005&g=010XX00US and compute 100*B28005_017E/B28005_014E. Keep the published question text exactly: U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
+    "resolutionSourceUrl": "https://data.census.gov/table/ACSDT1Y2025.B28005?q=B28005",
+    "resolutionRule": "Resolve to 100 * B28005_017E / B28005_014E for geography United States in the first public 2025 ACS 1-Year Estimates Detailed Table B28005 print, rounded to one decimal percentage point. Use the original Census first-posted estimate and ignore later revisions or corrections unless Census replaces the first public file before the public release completes."
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": null,
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/prompt.md",
+      "sha256": "7ce8cec1d2675e292f50a3ab29edc910cfcfe89f3e12379ad21458981e8231a5",
+      "bytes": 9610,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/command.json",
+      "sha256": "372438a0e932c39024783a6a7d3f88f00014c7dbbaa49e32d4a8e96f42d8f64a",
+      "bytes": 784,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/codex_stdout.jsonl",
+      "sha256": "deb08d14a97846cc09d6f4b8e5561745a7aef756ab7debb36263ca1aaa54084f",
+      "bytes": 1336290,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/codex_events.jsonl",
+      "sha256": "321c6730986fef7ba7e1bad741e5d00165ec68e75fc3142548b383ba358aa5f7",
+      "bytes": 1336434,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/codex_last_message.txt",
+      "sha256": "c9a8040def99f89be9478d22073ef700667d07c7ff0c6599d40630fff5a78cbe",
+      "bytes": 9314,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/codex_trace.json",
+      "sha256": "6280e4e5c88cf838da5e7d7cc7c7eef76f9e8b58b43e150cb581befa3d92d4b1",
+      "bytes": 512,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/stdout.txt",
+      "sha256": "c9a8040def99f89be9478d22073ef700667d07c7ff0c6599d40630fff5a78cbe",
+      "bytes": 9314,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/raw_response.txt",
+      "sha256": "c9a8040def99f89be9478d22073ef700667d07c7ff0c6599d40630fff5a78cbe",
+      "bytes": 9314,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/parsed_cells.json",
+      "sha256": "5a9c5d69c30c8718003d94f26dde4cb393fd2668a1f522949e90839aaf49a6c8",
+      "bytes": 10323,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/normalized_cells.json",
+      "sha256": "fd047a504b5b21a87ec9c44fdea836ba533127dbbbdf9e3818e112e9fea3a175",
+      "bytes": 27182,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/distribution.json",
+      "sha256": "d9672d77ae5fc020b6487421a2ca8eeb2a5d515baf88ec31f01bef25e8296f6f",
+      "bytes": 13415,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/validation.json",
+      "sha256": "7e8ace56417e8800383cd2977f4b5afac4fce4230f43816f7b81480204662ad3",
+      "bytes": 136,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/cells.with_activity.json",
+      "sha256": "75c2428dda5210686c1998fdaaa6524baf8015ee3f22ba8dcc4b3749c5c867cb",
+      "bytes": 32191,
+      "createdAt": "2026-07-21T16:34:47Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-34-47z-census-acs-broadband-subscription-65-plus-share-2025/manifest.json",
+      "sha256": "f99c970c157a7b40c904f2ff22c06c38dc6827afdd3e13c1fca40faa0bca92d7",
+      "bytes": 7084,
+      "createdAt": "2026-07-21T16:34:47Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "broadband-subscription-65-plus-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "f750139c5ec60fc1cad203afda6c08cc9fba440766181fba548a7db20bc6a84e"
+}

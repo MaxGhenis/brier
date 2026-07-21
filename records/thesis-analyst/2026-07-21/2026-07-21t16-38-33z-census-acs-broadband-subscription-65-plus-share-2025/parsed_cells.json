@@ -1,0 +1,108 @@
+[
+  {
+    "slug": "broadband-subscription-65-plus-2025",
+    "country": "US",
+    "type": "data",
+    "title": "ACS 65+ Broadband Subscription Share, 2025",
+    "question": "U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
+    "unit": "percent",
+    "pointEstimate": 86.0,
+    "ciLow": 83.9,
+    "ciHigh": 88.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-10",
+    "resolutionSource": "U.S. Census Bureau American Community Survey 1-Year Estimates Detailed Table B28005. EVIDENCE CONSTRAINT FOR THIS RUN: prior Thesis run artifacts for this series are known to carry a corrupted history (wrong-vintage values) \u2014 do NOT use any prior Thesis activity artifact as a data source; every historicalContext value must come from a live fetch executed in THIS run of the keyless JSON endpoint https://data.census.gov/api/access/data/table?id=ACSDT1Y{YEAR}.B28005&g=010XX00US (replace {YEAR} with 2022, 2023, 2024), reading response.data header row for the B28005_014E and B28005_017E columns and computing 100*B28005_017E/B28005_014E. If a fetch fails, state the failure honestly rather than substituting archived values. Keep the published question text exactly: U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
+    "resolutionSourceUrl": "https://data.census.gov/table/ACSDT1Y2025.B28005?q=B28005",
+    "resolutionRule": "Resolve to 100 * B28005_017E / B28005_014E for geography United States in the first public 2025 ACS 1-Year Estimates Detailed Table B28005 print, rounded to one decimal percentage point. Use the original Census first-posted estimate and ignore later revisions or corrections unless Census replaces the first public file before the public release completes.",
+    "dataPointId": "census.acs.broadband_subscription_65_plus.share.2025.first_print",
+    "historicalContext": [
+      {
+        "label": "2022 ACS 1-year U.S. B28005 65+ broadband share",
+        "value": 81.6
+      },
+      {
+        "label": "2023 ACS 1-year U.S. B28005 65+ broadband share",
+        "value": 83.6
+      },
+      {
+        "label": "2024 ACS 1-year U.S. B28005 65+ broadband share",
+        "value": 84.8
+      }
+    ],
+    "drivers": [
+      "Aging-cohort replacement raises 65+ internet adoption",
+      "Broadband definition includes cellular data, satellite, fixed wireless, and other non-dial-up subscriptions",
+      "Adoption gains should slow as the remaining offline 65+ population is more selected by age, income, disability, and rurality",
+      "Affordable Connectivity Program expiration creates affordability drag for some low-income older households",
+      "ACS first-print sampling and weighting noise can move this national age subgroup around one percentage point"
+    ],
+    "sourceContext": [
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2022.B28005&g=010XX00US",
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2023.B28005&g=010XX00US",
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2024.B28005&g=010XX00US",
+      "https://api.census.gov/data/2024/acs/acs1/groups/B28005.html",
+      "https://www.census.gov/data/what-is-data-census-gov/upcoming-releases.html"
+    ],
+    "runAt": "2026-07-21T16:38:57Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for 2025 ACS 65+ Broadband Subscription Share"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is Census ACS Detailed Table B28005, universe population in households, United States, 2025 ACS 1-year first print. The numerator is B28005_017E, 65 years and over, has a computer, with a broadband Internet subscription; the denominator is B28005_014E, total 65 years and over. The variant is ACS 1-Year Estimates Detailed Tables, not 5-year, supplemental, PUMS, or later revised tables."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch keyless data.census.gov JSON endpoint for ACSDT1Y2022.B28005, g=010XX00US, and read B28005_014E and B28005_017E",
+        "result": "Fetched 2022 ACS 1-year United States B28005 counts: B28005_014E 56,337,585 and B28005_017E 45,989,221; computed 100*45,989,221/56,337,585 = 81.6 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch keyless data.census.gov JSON endpoint for ACSDT1Y2023.B28005, g=010XX00US, and read B28005_014E and B28005_017E",
+        "result": "Fetched 2023 ACS 1-year United States B28005 counts: B28005_014E 57,740,580 and B28005_017E 48,245,700; computed 100*48,245,700/57,740,580 = 83.6 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch keyless data.census.gov JSON endpoint for ACSDT1Y2024.B28005, g=010XX00US, and read B28005_014E and B28005_017E",
+        "result": "Fetched 2024 ACS 1-year United States B28005 counts: B28005_014E 59,125,675 and B28005_017E 50,144,228; computed 100*50,144,228/59,125,675 = 84.8 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspect Census variable metadata for 2024 ACS 1-year B28005 and official release schedule context",
+        "result": "Fetched B28005 metadata with 78 variables, including B28005_014E for total 65 years and over and B28005_017E for 65 years and over with a computer and a broadband Internet subscription; fetched official Census schedule context listing 9/10/2026 as the 2025 ACS 1-year first-release date used by the ledger."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the primary reference class is the same U.S. ACS 1-year B28005 age-65-plus series from 2022-2024. It rose from 81.6 percent in 2022 to 83.6 percent in 2023 and 84.8 percent in 2024, so the outside-view base rate is a still-rising but decelerating older-adult broadband adoption share."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism: level starts from the 2024 same-series first-print value of 84.8 percent. Momentum remains positive because each entering 65-year-old cohort is more connected than the oldest cohorts leaving the population, and the broadband category includes cellular data plans. One-off BEAD deployment effects are limited for 2025 ACS collection-year subscriptions, while ACP expiration adds affordability drag for some low-income older households."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the latest same-series 2024 U.S. ACS 1-year B28005 share of 84.8 percent. Historical sample is the fetched same-series annual changes 2022-2023: 83.6 - 81.6 = +2.0 and 2023-2024: 84.8 - 83.6 = +1.2 percentage points, giving sigma = sqrt((1.924^2 + 1.254^2) / 2) = 1.6 percentage points as an annual-change RMS uncertainty proxy. Mechanism update adds +1.4 points for cohort replacement and continued mobile/fixed-wireless diffusion, minus 0.2 for affordability drag and saturation, yielding point 86.0. The 80% half-width is about 1.28*sigma = 1.28*1.6 = 2.1, so bounds are 86.0 - 2.1 = 83.9 and 86.0 + 2.1 = 88.1."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a stronger-than-expected jump in cellular-data-plan reporting or older-adult smartphone adoption, which would land above the interval if the 2025 share exceeds 88.1 percent. Downside risk is affordability churn after subsidy expiration, survey-composition noise, or a stall among the oldest and lowest-income households, which would land below the interval if the first print is under 83.9 percent. An outside the interval result would most likely reflect a definitional/table issue, large ACS sampling/weighting movement, or an adoption break beyond ordinary trend continuation."
+      },
+      {
+        "kind": "text",
+        "text": "Prior run update: prior Thesis artifacts for this series were treated as tainted for evidence purposes and not used as source data. Existing catalog point estimates and intervals were not used; only the ledger target identity, resolver fields, and the newly fetched official 2022-2024 same-endpoint history informed this forecast."
+      },
+      {
+        "kind": "forecast",
+        "point": 86.0,
+        "ciLow": 83.9,
+        "ciHigh": 88.1
+      }
+    ]
+  }
+]

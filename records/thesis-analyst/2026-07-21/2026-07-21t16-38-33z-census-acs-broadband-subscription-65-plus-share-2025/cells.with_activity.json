@@ -1,0 +1,1036 @@
+[
+  {
+    "slug": "broadband-subscription-65-plus-2025",
+    "country": "US",
+    "type": "data",
+    "title": "ACS 65+ Broadband Subscription Share, 2025",
+    "question": "U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
+    "unit": "percent",
+    "pointEstimate": 86.0,
+    "ciLow": 83.9,
+    "ciHigh": 88.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-10",
+    "resolutionSource": "U.S. Census Bureau American Community Survey 1-Year Estimates Detailed Table B28005. EVIDENCE CONSTRAINT FOR THIS RUN: prior Thesis run artifacts for this series are known to carry a corrupted history (wrong-vintage values) \u2014 do NOT use any prior Thesis activity artifact as a data source; every historicalContext value must come from a live fetch executed in THIS run of the keyless JSON endpoint https://data.census.gov/api/access/data/table?id=ACSDT1Y{YEAR}.B28005&g=010XX00US (replace {YEAR} with 2022, 2023, 2024), reading response.data header row for the B28005_014E and B28005_017E columns and computing 100*B28005_017E/B28005_014E. If a fetch fails, state the failure honestly rather than substituting archived values. Keep the published question text exactly: U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
+    "resolutionSourceUrl": "https://data.census.gov/table/ACSDT1Y2025.B28005?q=B28005",
+    "resolutionRule": "Resolve to 100 * B28005_017E / B28005_014E for geography United States in the first public 2025 ACS 1-Year Estimates Detailed Table B28005 print, rounded to one decimal percentage point. Use the original Census first-posted estimate and ignore later revisions or corrections unless Census replaces the first public file before the public release completes.",
+    "dataPointId": "census.acs.broadband_subscription_65_plus.share.2025.first_print",
+    "historicalContext": [
+      {
+        "label": "2022 ACS 1-year U.S. B28005 65+ broadband share",
+        "value": 81.6
+      },
+      {
+        "label": "2023 ACS 1-year U.S. B28005 65+ broadband share",
+        "value": 83.6
+      },
+      {
+        "label": "2024 ACS 1-year U.S. B28005 65+ broadband share",
+        "value": 84.8
+      }
+    ],
+    "drivers": [
+      "Aging-cohort replacement raises 65+ internet adoption",
+      "Broadband definition includes cellular data, satellite, fixed wireless, and other non-dial-up subscriptions",
+      "Adoption gains should slow as the remaining offline 65+ population is more selected by age, income, disability, and rurality",
+      "Affordable Connectivity Program expiration creates affordability drag for some low-income older households",
+      "ACS first-print sampling and weighting noise can move this national age subgroup around one percentage point"
+    ],
+    "sourceContext": [
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2022.B28005&g=010XX00US",
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2023.B28005&g=010XX00US",
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2024.B28005&g=010XX00US",
+      "https://api.census.gov/data/2024/acs/acs1/groups/B28005.html",
+      "https://www.census.gov/data/what-is-data-census-gov/upcoming-releases.html"
+    ],
+    "runAt": "2026-07-21T16:41:17Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for 2025 ACS 65+ Broadband Subscription Share"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is Census ACS Detailed Table B28005, universe population in households, United States, 2025 ACS 1-year first print. The numerator is B28005_017E, 65 years and over, has a computer, with a broadband Internet subscription; the denominator is B28005_014E, total 65 years and over. The variant is ACS 1-Year Estimates Detailed Tables, not 5-year, supplemental, PUMS, or later revised tables."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch keyless data.census.gov JSON endpoint for ACSDT1Y2022.B28005, g=010XX00US, and read B28005_014E and B28005_017E",
+        "result": "Fetched 2022 ACS 1-year United States B28005 counts: B28005_014E 56,337,585 and B28005_017E 45,989,221; computed 100*45,989,221/56,337,585 = 81.6 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch keyless data.census.gov JSON endpoint for ACSDT1Y2023.B28005, g=010XX00US, and read B28005_014E and B28005_017E",
+        "result": "Fetched 2023 ACS 1-year United States B28005 counts: B28005_014E 57,740,580 and B28005_017E 48,245,700; computed 100*48,245,700/57,740,580 = 83.6 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch keyless data.census.gov JSON endpoint for ACSDT1Y2024.B28005, g=010XX00US, and read B28005_014E and B28005_017E",
+        "result": "Fetched 2024 ACS 1-year United States B28005 counts: B28005_014E 59,125,675 and B28005_017E 50,144,228; computed 100*50,144,228/59,125,675 = 84.8 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Inspect Census variable metadata for 2024 ACS 1-year B28005 and official release schedule context",
+        "result": "Fetched B28005 metadata with 78 variables, including B28005_014E for total 65 years and over and B28005_017E for 65 years and over with a computer and a broadband Internet subscription; fetched official Census schedule context listing 9/10/2026 as the 2025 ACS 1-year first-release date used by the ledger."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the primary reference class is the same U.S. ACS 1-year B28005 age-65-plus series from 2022-2024. It rose from 81.6 percent in 2022 to 83.6 percent in 2023 and 84.8 percent in 2024, so the outside-view base rate is a still-rising but decelerating older-adult broadband adoption share."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism: level starts from the 2024 same-series first-print value of 84.8 percent. Momentum remains positive because each entering 65-year-old cohort is more connected than the oldest cohorts leaving the population, and the broadband category includes cellular data plans. One-off BEAD deployment effects are limited for 2025 ACS collection-year subscriptions, while ACP expiration adds affordability drag for some low-income older households."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the latest same-series 2024 U.S. ACS 1-year B28005 share of 84.8 percent. Historical sample is the fetched same-series annual changes 2022-2023: 83.6 - 81.6 = +2.0 and 2023-2024: 84.8 - 83.6 = +1.2 percentage points, giving sigma = sqrt((1.924^2 + 1.254^2) / 2) = 1.6 percentage points as an annual-change RMS uncertainty proxy. Mechanism update adds +1.4 points for cohort replacement and continued mobile/fixed-wireless diffusion, minus 0.2 for affordability drag and saturation, yielding point 86.0. The 80% half-width is about 1.28*sigma = 1.28*1.6 = 2.1, so bounds are 86.0 - 2.1 = 83.9 and 86.0 + 2.1 = 88.1."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a stronger-than-expected jump in cellular-data-plan reporting or older-adult smartphone adoption, which would land above the interval if the 2025 share exceeds 88.1 percent. Downside risk is affordability churn after subsidy expiration, survey-composition noise, or a stall among the oldest and lowest-income households, which would land below the interval if the first print is under 83.9 percent. An outside the interval result would most likely reflect a definitional/table issue, large ACS sampling/weighting movement, or an adoption break beyond ordinary trend continuation."
+      },
+      {
+        "kind": "text",
+        "text": "Prior run update: prior Thesis artifacts for this series were treated as tainted for evidence purposes and not used as source data. Existing catalog point estimates and intervals were not used; only the ledger target identity, resolver fields, and the newly fetched official 2022-2024 same-endpoint history informed this forecast."
+      },
+      {
+        "kind": "forecast",
+        "point": 86.0,
+        "ciLow": 83.9,
+        "ciHigh": 88.1
+      }
+    ],
+    "agentReportedRunAt": "2026-07-21T16:38:57Z",
+    "runStartedAt": "2026-07-21T16:38:33Z",
+    "promptMode": "fast",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 80.75,
+        "upper": 91.25
+      },
+      "points": [
+        {
+          "value": 80.75,
+          "probability": 0.0
+        },
+        {
+          "value": 80.8025,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 80.855,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 80.9075,
+          "probability": 0.005
+        },
+        {
+          "value": 80.96,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 81.0125,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 81.065,
+          "probability": 0.01
+        },
+        {
+          "value": 81.1175,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 81.17,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 81.2225,
+          "probability": 0.015
+        },
+        {
+          "value": 81.275,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 81.3275,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 81.38,
+          "probability": 0.02
+        },
+        {
+          "value": 81.4325,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 81.485,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 81.5375,
+          "probability": 0.025
+        },
+        {
+          "value": 81.59,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 81.6425,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 81.695,
+          "probability": 0.03
+        },
+        {
+          "value": 81.7475,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 81.8,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 81.8525,
+          "probability": 0.035
+        },
+        {
+          "value": 81.905,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 81.9575,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 82.01,
+          "probability": 0.04
+        },
+        {
+          "value": 82.0625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 82.115,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 82.1675,
+          "probability": 0.045
+        },
+        {
+          "value": 82.22,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 82.2725,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 82.325,
+          "probability": 0.05
+        },
+        {
+          "value": 82.3775,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 82.43,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 82.4825,
+          "probability": 0.055
+        },
+        {
+          "value": 82.535,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 82.5875,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 82.64,
+          "probability": 0.06
+        },
+        {
+          "value": 82.6925,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 82.745,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 82.7975,
+          "probability": 0.065
+        },
+        {
+          "value": 82.85,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 82.9025,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 82.955,
+          "probability": 0.07
+        },
+        {
+          "value": 83.0075,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 83.06,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 83.1125,
+          "probability": 0.075
+        },
+        {
+          "value": 83.165,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 83.2175,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 83.27,
+          "probability": 0.08
+        },
+        {
+          "value": 83.3225,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 83.375,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 83.4275,
+          "probability": 0.085
+        },
+        {
+          "value": 83.48,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 83.5325,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 83.585,
+          "probability": 0.09
+        },
+        {
+          "value": 83.6375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 83.69,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 83.7425,
+          "probability": 0.095
+        },
+        {
+          "value": 83.795,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 83.8475,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 83.9,
+          "probability": 0.1
+        },
+        {
+          "value": 83.9525,
+          "probability": 0.11
+        },
+        {
+          "value": 84.005,
+          "probability": 0.12
+        },
+        {
+          "value": 84.0575,
+          "probability": 0.13
+        },
+        {
+          "value": 84.11,
+          "probability": 0.14
+        },
+        {
+          "value": 84.1625,
+          "probability": 0.15
+        },
+        {
+          "value": 84.215,
+          "probability": 0.16
+        },
+        {
+          "value": 84.2675,
+          "probability": 0.17
+        },
+        {
+          "value": 84.32,
+          "probability": 0.18
+        },
+        {
+          "value": 84.3725,
+          "probability": 0.19
+        },
+        {
+          "value": 84.425,
+          "probability": 0.2
+        },
+        {
+          "value": 84.4775,
+          "probability": 0.21
+        },
+        {
+          "value": 84.53,
+          "probability": 0.22
+        },
+        {
+          "value": 84.5825,
+          "probability": 0.23
+        },
+        {
+          "value": 84.635,
+          "probability": 0.24
+        },
+        {
+          "value": 84.6875,
+          "probability": 0.25
+        },
+        {
+          "value": 84.74,
+          "probability": 0.26
+        },
+        {
+          "value": 84.7925,
+          "probability": 0.27
+        },
+        {
+          "value": 84.845,
+          "probability": 0.28
+        },
+        {
+          "value": 84.8975,
+          "probability": 0.29
+        },
+        {
+          "value": 84.95,
+          "probability": 0.3
+        },
+        {
+          "value": 85.0025,
+          "probability": 0.31
+        },
+        {
+          "value": 85.055,
+          "probability": 0.32
+        },
+        {
+          "value": 85.1075,
+          "probability": 0.33
+        },
+        {
+          "value": 85.16,
+          "probability": 0.34
+        },
+        {
+          "value": 85.2125,
+          "probability": 0.35
+        },
+        {
+          "value": 85.265,
+          "probability": 0.36
+        },
+        {
+          "value": 85.3175,
+          "probability": 0.37
+        },
+        {
+          "value": 85.37,
+          "probability": 0.38
+        },
+        {
+          "value": 85.4225,
+          "probability": 0.39
+        },
+        {
+          "value": 85.475,
+          "probability": 0.4
+        },
+        {
+          "value": 85.5275,
+          "probability": 0.41
+        },
+        {
+          "value": 85.58,
+          "probability": 0.42
+        },
+        {
+          "value": 85.6325,
+          "probability": 0.43
+        },
+        {
+          "value": 85.685,
+          "probability": 0.44
+        },
+        {
+          "value": 85.7375,
+          "probability": 0.45
+        },
+        {
+          "value": 85.79,
+          "probability": 0.46
+        },
+        {
+          "value": 85.8425,
+          "probability": 0.47
+        },
+        {
+          "value": 85.895,
+          "probability": 0.48
+        },
+        {
+          "value": 85.9475,
+          "probability": 0.49
+        },
+        {
+          "value": 86.0,
+          "probability": 0.5
+        },
+        {
+          "value": 86.0525,
+          "probability": 0.51
+        },
+        {
+          "value": 86.105,
+          "probability": 0.52
+        },
+        {
+          "value": 86.1575,
+          "probability": 0.53
+        },
+        {
+          "value": 86.21,
+          "probability": 0.54
+        },
+        {
+          "value": 86.2625,
+          "probability": 0.55
+        },
+        {
+          "value": 86.315,
+          "probability": 0.56
+        },
+        {
+          "value": 86.3675,
+          "probability": 0.57
+        },
+        {
+          "value": 86.42,
+          "probability": 0.58
+        },
+        {
+          "value": 86.4725,
+          "probability": 0.59
+        },
+        {
+          "value": 86.525,
+          "probability": 0.6
+        },
+        {
+          "value": 86.5775,
+          "probability": 0.61
+        },
+        {
+          "value": 86.63,
+          "probability": 0.62
+        },
+        {
+          "value": 86.6825,
+          "probability": 0.63
+        },
+        {
+          "value": 86.735,
+          "probability": 0.64
+        },
+        {
+          "value": 86.7875,
+          "probability": 0.65
+        },
+        {
+          "value": 86.84,
+          "probability": 0.66
+        },
+        {
+          "value": 86.8925,
+          "probability": 0.67
+        },
+        {
+          "value": 86.945,
+          "probability": 0.68
+        },
+        {
+          "value": 86.9975,
+          "probability": 0.69
+        },
+        {
+          "value": 87.05,
+          "probability": 0.7
+        },
+        {
+          "value": 87.1025,
+          "probability": 0.71
+        },
+        {
+          "value": 87.155,
+          "probability": 0.72
+        },
+        {
+          "value": 87.2075,
+          "probability": 0.73
+        },
+        {
+          "value": 87.26,
+          "probability": 0.74
+        },
+        {
+          "value": 87.3125,
+          "probability": 0.75
+        },
+        {
+          "value": 87.365,
+          "probability": 0.76
+        },
+        {
+          "value": 87.4175,
+          "probability": 0.77
+        },
+        {
+          "value": 87.47,
+          "probability": 0.78
+        },
+        {
+          "value": 87.5225,
+          "probability": 0.79
+        },
+        {
+          "value": 87.575,
+          "probability": 0.8
+        },
+        {
+          "value": 87.6275,
+          "probability": 0.81
+        },
+        {
+          "value": 87.68,
+          "probability": 0.82
+        },
+        {
+          "value": 87.7325,
+          "probability": 0.83
+        },
+        {
+          "value": 87.785,
+          "probability": 0.84
+        },
+        {
+          "value": 87.8375,
+          "probability": 0.85
+        },
+        {
+          "value": 87.89,
+          "probability": 0.86
+        },
+        {
+          "value": 87.9425,
+          "probability": 0.87
+        },
+        {
+          "value": 87.995,
+          "probability": 0.88
+        },
+        {
+          "value": 88.0475,
+          "probability": 0.89
+        },
+        {
+          "value": 88.1,
+          "probability": 0.9
+        },
+        {
+          "value": 88.1525,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 88.205,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 88.2575,
+          "probability": 0.905
+        },
+        {
+          "value": 88.31,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 88.3625,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 88.415,
+          "probability": 0.91
+        },
+        {
+          "value": 88.4675,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 88.52,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 88.5725,
+          "probability": 0.915
+        },
+        {
+          "value": 88.625,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 88.6775,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 88.73,
+          "probability": 0.92
+        },
+        {
+          "value": 88.7825,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 88.835,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 88.8875,
+          "probability": 0.925
+        },
+        {
+          "value": 88.94,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 88.9925,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 89.045,
+          "probability": 0.93
+        },
+        {
+          "value": 89.0975,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 89.15,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 89.2025,
+          "probability": 0.935
+        },
+        {
+          "value": 89.255,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 89.3075,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 89.36,
+          "probability": 0.94
+        },
+        {
+          "value": 89.4125,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 89.465,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 89.5175,
+          "probability": 0.945
+        },
+        {
+          "value": 89.57,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 89.6225,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 89.675,
+          "probability": 0.95
+        },
+        {
+          "value": 89.7275,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 89.78,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 89.8325,
+          "probability": 0.955
+        },
+        {
+          "value": 89.885,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 89.9375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 89.99,
+          "probability": 0.96
+        },
+        {
+          "value": 90.0425,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 90.095,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 90.1475,
+          "probability": 0.965
+        },
+        {
+          "value": 90.2,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 90.2525,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 90.305,
+          "probability": 0.97
+        },
+        {
+          "value": 90.3575,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 90.41,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 90.4625,
+          "probability": 0.975
+        },
+        {
+          "value": 90.515,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 90.5675,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 90.62,
+          "probability": 0.98
+        },
+        {
+          "value": 90.6725,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 90.725,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 90.7775,
+          "probability": 0.985
+        },
+        {
+          "value": 90.83,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 90.8825,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 90.935,
+          "probability": 0.99
+        },
+        {
+          "value": 90.9875,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 91.04,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 91.0925,
+          "probability": 0.995
+        },
+        {
+          "value": 91.145,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 91.1975,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 91.25,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 86.0,
+        "median": 86.0,
+        "interval80": {
+          "lower": 83.9,
+          "upper": 88.1
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/prompt.md",
+        "sha256": "5e33a180b07c96e9ef9fb248228c594f617be028646c2479855aa03f9f599e86",
+        "bytes": 9839,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/command.json",
+        "sha256": "cf69bd35e8f7b82f64c7c21b6ae78c2504f1f2b317c484b88babf0a85f206d17",
+        "bytes": 784,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/codex_stdout.jsonl",
+        "sha256": "9e8b2624fc1c0128ceaffc331ceddadd02cc5f672deb8e8d50ba802e570400b6",
+        "bytes": 2650704,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/codex_events.jsonl",
+        "sha256": "e43b454476dab91d516d52e6097bc57f537ef55b7461810ba464dc1c5e24f254",
+        "bytes": 2650904,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/codex_last_message.txt",
+        "sha256": "4e6d01fee017c4f283db5305619c877d91698c5aa7fb021c7635db37b19e58a0",
+        "bytes": 7932,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/codex_trace.json",
+        "sha256": "0a446b6f2540715107616e56f25c6e54e282b7a3bc886aa2ed8b810c293c2635",
+        "bytes": 512,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/stdout.txt",
+        "sha256": "4e6d01fee017c4f283db5305619c877d91698c5aa7fb021c7635db37b19e58a0",
+        "bytes": 7932,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/raw_response.txt",
+        "sha256": "4e6d01fee017c4f283db5305619c877d91698c5aa7fb021c7635db37b19e58a0",
+        "bytes": 7932,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/parsed_cells.json",
+        "sha256": "b0fea3eef42bfe65f12e7cb45ccc456662a61c33542f6c9c08aad58da4bb9c2b",
+        "bytes": 8764,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/normalized_cells.json",
+        "sha256": "6b0c610d8699ed87ebad2c30e6f81b199eacfa8801da71843fe1d474df0a0433",
+        "bytes": 25911,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/distribution.json",
+        "sha256": "a4cd534e62e8a93e0c3da9c7f35d3cc1af1f835f8b57fe1c516008cfa88fbaa2",
+        "bytes": 13703,
+        "createdAt": "2026-07-21T16:38:33Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t16-38-33z-census-acs-broadband-subscription-65-plus-share-2025/validation.json",
+        "sha256": "7e8ace56417e8800383cd2977f4b5afac4fce4230f43816f7b81480204662ad3",
+        "bytes": 136,
+        "createdAt": "2026-07-21T16:38:33Z"
+      }
+    ]
+  }
+]
