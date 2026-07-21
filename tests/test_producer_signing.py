@@ -11,6 +11,12 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+if sys.version_info < (3, 11):
+    pytest.skip(
+        "receipt==0.2.0 requires Python 3.11 or newer",
+        allow_module_level=True,
+    )
+
 import producer_signing_pins as producer_pins  # noqa: E402
 import sign_record_snapshot as producer_signer  # noqa: E402
 import verify_record_chain as record_chain  # noqa: E402
@@ -645,14 +651,19 @@ def test_proposer_refuses_and_scrubs_a_malformed_private_key(
     assert not record_chain.producer_signature_path(post_activation).exists()
 
 
-def test_proposer_refuses_when_the_private_key_is_absent(
+@pytest.mark.parametrize("secret", [None, ""])
+def test_proposer_refuses_when_the_private_key_is_absent_or_empty(
     synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
     monkeypatch: pytest.MonkeyPatch,
+    secret: str | None,
 ) -> None:
     records, _first, activation, post_activation = synthetic_chain
     _private_key, public_key = generate_signing_keypair()
     activate_signing(monkeypatch, records, activation, public_key)
-    monkeypatch.delenv(producer_signer.SIGNING_KEY_ENV, raising=False)
+    if secret is None:
+        monkeypatch.delenv(producer_signer.SIGNING_KEY_ENV, raising=False)
+    else:
+        monkeypatch.setenv(producer_signer.SIGNING_KEY_ENV, secret)
 
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)

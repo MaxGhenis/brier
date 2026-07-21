@@ -352,7 +352,7 @@ def sign_record_snapshots(
         )
 
     secret = os.environ.pop(SIGNING_KEY_ENV, None)
-    if secret is None:
+    if not secret:
         raise ProducerSigningError(
             f"{SIGNING_KEY_ENV} is required while producer signing is active"
         )
