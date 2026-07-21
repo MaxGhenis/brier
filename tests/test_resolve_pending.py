@@ -2600,3 +2600,50 @@ def test_cms_provider_data_value_fails_closed() -> None:
         silly, CMS_SPEC, "2026-07-01"
     )
     assert value is None and "sanity range" in refusal
+
+
+CMS_OCC_SPEC = resolve_pending.CMS_PROVIDER_DATA_ADAPTERS[
+    "cms.care_compare.nursing_home_occupancy_pct"
+]
+
+CMS_PROVIDER_CSV = (
+    '"Federal Provider Number","Number of Certified Beds",'
+    '"Average Number of Residents per Day","Processing Date"\n'
+    "015009,100,80.0,2026-07-01\n"
+    "015010,50,45.5,2026-07-01\n"
+    "015011,,not reported,2026-07-01\n"
+    "015012,200,150.5,2026-07-01\n"
+).encode()
+
+
+def test_cms_provider_data_value_aggregate_sum_ratio() -> None:
+    spec = {**CMS_OCC_SPEC, "aggregate": {**CMS_OCC_SPEC["aggregate"], "min_rows": 3}}
+    value, refusal = resolve_pending.cms_provider_data_value(
+        CMS_PROVIDER_CSV, spec, "2026-07-01"
+    )
+    assert refusal is None
+    # (80 + 45.5 + 150.5) / (100 + 50 + 200) * 100 = 78.857...
+    assert value == 78.86
+
+
+def test_cms_provider_data_value_aggregate_fails_closed() -> None:
+    spec = {**CMS_OCC_SPEC, "aggregate": {**CMS_OCC_SPEC["aggregate"], "min_rows": 3}}
+    # Truncated download: fewer usable rows than the floor.
+    truncated = b"\n".join(CMS_PROVIDER_CSV.split(b"\n")[:3]) + b"\n"
+    value, refusal = resolve_pending.cms_provider_data_value(
+        truncated, spec, "2026-07-01"
+    )
+    assert value is None and "usable rows" in refusal
+
+    # Processing Date drift on the first row.
+    value, refusal = resolve_pending.cms_provider_data_value(
+        CMS_PROVIDER_CSV, spec, "2026-08-01"
+    )
+    assert value is None and "disagrees" in refusal
+
+    # Renamed denominator column.
+    renamed = CMS_PROVIDER_CSV.replace(b"Number of Certified Beds", b"Beds")
+    value, refusal = resolve_pending.cms_provider_data_value(
+        renamed, spec, "2026-07-01"
+    )
+    assert value is None and "not both present" in refusal

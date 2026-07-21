@@ -718,6 +718,49 @@ CMS_PROVIDER_DATA_ADAPTERS: dict[str, dict[str, Any]] = {
             "capture, and the file's own Processing Date column agreed."
         ),
     },
+    # Computed metric: national occupancy = sum(residents/day) over
+    # sum(certified beds) across every facility row in the Provider
+    # Information file — one division over one official file, per the
+    # cell's registered resolution rule.
+    "cms.care_compare.nursing_home_occupancy_pct": {
+        "metastore_url": (
+            "https://data.cms.gov/provider-data/api/1/metastore/schemas/"
+            "dataset/items/4pq5-n9py"
+        ),
+        "aggregate": {
+            "numerator_column": "Average Number of Residents per Day",
+            "denominator_column": "Number of Certified Beds",
+            "scale": 100.0,
+            # A truncated download would silently bias a sum ratio; the
+            # file has carried ~14k-15k certified facilities for years.
+            "min_rows": 10000,
+        },
+        "processing_date_column": "Processing Date",
+        "unit": "percent",
+        "round": 2,
+        "label": (
+            "US nursing home occupancy, average residents per day as a "
+            "share of certified beds (Care Compare provider file)"
+        ),
+        "source_name": "cms_provider_data",
+        "source_table": (
+            "Nursing home Care Compare provider data, Provider Information "
+            "(NH_ProviderInfo)"
+        ),
+        "concept_authority": "cms",
+        "source_concept": (
+            "Average Number of Residents per Day / Number of Certified Beds"
+        ),
+        "sanity_range": (60.0, 95.0),
+        "evidence_notes": (
+            "First print for {period} captured from {source_url}: the CMS "
+            "provider-data metastore's modified date placed the live "
+            "NH_ProviderInfo file inside the {period} refresh window at "
+            "capture; occupancy computed as sum of Average Number of "
+            "Residents per Day over sum of Number of Certified Beds across "
+            "all facility rows with both fields populated."
+        ),
+    },
 }
 
 
@@ -773,38 +816,98 @@ def cms_provider_data_gate(period: str, modified: str) -> str | None:
 def cms_provider_data_value(
     csv_bytes: bytes, spec: dict[str, Any], modified: str
 ) -> tuple[float | None, str | None]:
-    """(value, refusal_reason) for the spec's row/column in the live CSV."""
+    """(value, refusal_reason) for the spec's metric in the live CSV.
+
+    Two modes: a single row/column read (`state_row` + `value_column`), or
+    an `aggregate` sum-ratio across every row (numerator over denominator,
+    rows with either field unparseable skipped). Both cross-check the
+    file's Processing Date against the metastore vintage and fail closed
+    on restructured columns or out-of-band results.
+    """
     reader = csv.DictReader(io.StringIO(csv_bytes.decode("utf-8-sig")))
-    row_column = spec["row_column"]
-    value_column = spec["value_column"]
-    if row_column not in (reader.fieldnames or []) or value_column not in (
-        reader.fieldnames or []
-    ):
-        return None, (
-            f"columns {row_column!r}/{value_column!r} not both present; "
-            "upstream file restructured"
-        )
-    target_row = next(
-        (row for row in reader if row.get(row_column) == spec["state_row"]),
-        None,
-    )
-    if target_row is None:
-        return None, f"row {spec['state_row']!r} not found"
+    fieldnames = reader.fieldnames or []
     processing_column = spec.get("processing_date_column")
-    if processing_column and target_row.get(processing_column) not in (
-        None,
-        "",
-        modified,
-    ):
-        return None, (
-            f"file Processing Date {target_row.get(processing_column)!r} "
-            f"disagrees with metastore modified {modified!r}"
+
+    def processing_date_mismatch(row: dict[str, Any]) -> str | None:
+        if processing_column and row.get(processing_column) not in (
+            None,
+            "",
+            modified,
+        ):
+            return (
+                f"file Processing Date {row.get(processing_column)!r} "
+                f"disagrees with metastore modified {modified!r}"
+            )
+        return None
+
+    aggregate = spec.get("aggregate")
+    if aggregate:
+        numerator_column = aggregate["numerator_column"]
+        denominator_column = aggregate["denominator_column"]
+        if numerator_column not in fieldnames or (
+            denominator_column not in fieldnames
+        ):
+            return None, (
+                f"columns {numerator_column!r}/{denominator_column!r} not "
+                "both present; upstream file restructured"
+            )
+        numerator_total = 0.0
+        denominator_total = 0.0
+        rows_used = 0
+        first_row_checked = False
+        for row in reader:
+            if not first_row_checked:
+                first_row_checked = True
+                mismatch = processing_date_mismatch(row)
+                if mismatch:
+                    return None, mismatch
+            try:
+                numerator = float((row.get(numerator_column) or "").strip())
+                denominator = float(
+                    (row.get(denominator_column) or "").strip()
+                )
+            except ValueError:
+                continue
+            numerator_total += numerator
+            denominator_total += denominator
+            rows_used += 1
+        min_rows = aggregate.get("min_rows", 1)
+        if rows_used < min_rows:
+            return None, (
+                f"only {rows_used} usable rows (< {min_rows}); truncated "
+                "download or upstream restructuring"
+            )
+        if denominator_total <= 0:
+            return None, "denominator sum is not positive"
+        value = (
+            numerator_total / denominator_total * aggregate.get("scale", 1.0)
         )
-    raw_value = (target_row.get(value_column) or "").strip()
-    try:
-        value = float(raw_value)
-    except ValueError:
-        return None, f"non-numeric value {raw_value!r} in {value_column!r}"
+    else:
+        row_column = spec["row_column"]
+        value_column = spec["value_column"]
+        if row_column not in fieldnames or value_column not in fieldnames:
+            return None, (
+                f"columns {row_column!r}/{value_column!r} not both present; "
+                "upstream file restructured"
+            )
+        target_row = next(
+            (
+                row
+                for row in reader
+                if row.get(row_column) == spec["state_row"]
+            ),
+            None,
+        )
+        if target_row is None:
+            return None, f"row {spec['state_row']!r} not found"
+        mismatch = processing_date_mismatch(target_row)
+        if mismatch:
+            return None, mismatch
+        raw_value = (target_row.get(value_column) or "").strip()
+        try:
+            value = float(raw_value)
+        except ValueError:
+            return None, f"non-numeric value {raw_value!r} in {value_column!r}"
     low, high = spec["sanity_range"]
     if not (low <= value <= high):
         return None, (
@@ -4032,7 +4135,7 @@ def main() -> int:
             # holds; the capture day is the source vintage.
             release_day = dt.date.fromisoformat(retrieved_at[:10])
             source_url = download_url
-            series_id = spec["state_row"]
+            series_id = spec.get("state_row", "ALL_FACILITIES")
             source_file = download_url.rsplit("/", 1)[-1]
             extension = "csv"
         elif kind == "usaspending":

@@ -1,0 +1,413 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-21T09:20:11Z",
+  "runStartedAt": "2026-07-21T09:20:11Z",
+  "series": "census.acs.broadband_subscription_65_plus.share.colorado",
+  "period": "2025",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "colorado-broadband-subscription-65-plus-2025",
+    "country": "US",
+    "dataPointId": "census.acs.broadband_subscription_65_plus.share.colorado.2025.first_print",
+    "period": "2025",
+    "resolutionDate": "2026-09-10",
+    "series": "census.acs.broadband_subscription_65_plus.share.colorado",
+    "targetUnit": "percent"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-21T09:20:11Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f2caacac9ae7d98b85937fdcf59cd32525d85c562bac620001929d4d449e373c"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "base_rate",
+        "summary": "The stated persistence prior is the 2024 U.S. 65+ broadband share rather than Colorado's own prior value for the same Census ACS B28005 target.",
+        "actionRequested": "Fetch and state Colorado B28005_017E / B28005_014E for recent ACS 1-year years, at minimum 2024 and preferably 2021-2024, and use that as the main persistence/base-rate prior or explicitly justify why it is unusable."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "model_prior",
+        "summary": "The time-series prior is based on national annual changes, not the target state's same-series time path.",
+        "actionRequested": "Use Colorado's own same-series annual changes as the model prior if available; if still using the national series, state that it is only a supplemental benchmark and explain why it dominates Colorado history."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The +1.7 Colorado premium is qualitatively justified by income, poverty, and composition but is not anchored to observed Colorado B28005 levels.",
+        "actionRequested": "Quantify the Colorado-vs-U.S. gap in the latest available same-table year and use that to justify any movement from the prior."
+      },
+      {
+        "findingId": "review.finding.4",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The interval uses national annual-change RMS and then a small ad hoc widening for state ACS noise; this may understate or mischaracterize target-specific uncertainty.",
+        "actionRequested": "Base the interval on Colorado realized annual changes, ACS margin-of-error behavior for the state 65+ subgroup, or an explicit blend of national trend volatility plus state sampling uncertainty."
+      },
+      {
+        "findingId": "review.finding.5",
+        "severity": "blocking",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step names a historical sample, adjustment, and sigma, but the sample is not the target history and the Colorado adjustment is not decomposed from observed Colorado data.",
+        "actionRequested": "Rewrite that step to name the Colorado historical sample, the starting Colorado prior, any national-trend or demographic adjustment components, the interval method, and the resulting bounds."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the ledger resolution date while noting that the public 2025 ACS release calendar was not independently confirmed yet."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add the latest Colorado ACS B28005 count pair to historicalContext so reviewers can audit the computed share directly."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Leave the no-catalog-circularity statement; it is useful and clear."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.4",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.5",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking critiques by replacing the national persistence prior and sigma sample with Colorado's own 2021-2024 same-series B28005 history, quantifying the latest Colorado-vs-U.S. gap, and recalibrating the interval from Colorado annual changes with a state sampling-noise widening. Kept the ledger resolver and 2026-09-10 date.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft has a sound resolver and coherent final numbers, but it relies on U.S. and California history while omitting the directly available Colorado same-series history needed for the prior, update, and interval."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/prompt.md",
+      "sha256": "ba5f0f466c2d5bf008e33b5c1756e59bc2fc53995c7a6c09f1cbca0a7fc9ec22",
+      "bytes": 8336,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_command.json",
+      "sha256": "b2faea0893f3b6aaaacbd8dd835302b8bea8252aa5b186615207933380a0bd55",
+      "bytes": 796,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_codex_stdout.jsonl",
+      "sha256": "5bd2930103f6ba8b1fd1a03d1f7b5171a071859617936cd5db6caaf2cbdbfe45",
+      "bytes": 3809238,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_codex_events.jsonl",
+      "sha256": "68007db3b9b6ea0de72396b483e4125d1d4fb9d54beb11c9d528d9b0fa8d2c13",
+      "bytes": 3809459,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_codex_last_message.txt",
+      "sha256": "9fbc3ec6eea001161e70175b9afe3295b8ddd6fddadcfa186d91c5a095d5e5ed",
+      "bytes": 8806,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_codex_trace.json",
+      "sha256": "45ac0d22c52dc952feb44a63155195914c8ab41ecc7e02c6fd16bdf5ea962a8a",
+      "bytes": 510,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_stdout.txt",
+      "sha256": "9fbc3ec6eea001161e70175b9afe3295b8ddd6fddadcfa186d91c5a095d5e5ed",
+      "bytes": 8806,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_prompt.md",
+      "sha256": "2c198522e697ee1531c7118dd8ecfdc2ab45e82043e23f79023265e06fccb9e0",
+      "bytes": 11166,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_command.json",
+      "sha256": "cd5f9c41d5d0dd5f19eb957e29dbc7e40d00ad7fd63862d8085d97f41bf530c4",
+      "bytes": 792,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "bdedbc8a589fa3f93fd7ffe946c498d37326eceb2ffd27a94033a206297fa0b0",
+      "bytes": 3716,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_codex_events.jsonl",
+      "sha256": "7a5efc88f8b7ce4ed9ac2b23cfead59bf25af467e4237719af7eb385e9bc282d",
+      "bytes": 3736,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_codex_last_message.txt",
+      "sha256": "9c5fa1b210053bca25ea6b003dcdf5f8b4d96996d698bf806d4764f10bf1bd18",
+      "bytes": 2705,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_codex_trace.json",
+      "sha256": "0a172606ada31eb0c3c2563a3f0331fad44a4fb85a4ff8209a2d0921b26495c4",
+      "bytes": 505,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_stdout.txt",
+      "sha256": "9c5fa1b210053bca25ea6b003dcdf5f8b4d96996d698bf806d4764f10bf1bd18",
+      "bytes": 2705,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/revision_prompt.md",
+      "sha256": "f6b47a51b897fc535e12fe8ae2e8275354f117f9f4b1aa0bb6a6d42566d93544",
+      "bytes": 20783,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/command.json",
+      "sha256": "bddeb96b73adf128840370d67d0bc21d680d436b35c2b1a2786dc351c646699c",
+      "bytes": 790,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/codex_stdout.jsonl",
+      "sha256": "c9b09b3c44c012b2e6da17a0f6bbb229c32543363a8dd20230ac145981f458a5",
+      "bytes": 2624082,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/codex_events.jsonl",
+      "sha256": "e10849cc16f209df6bb0b0664108b4ec59bcb09a90f325a325c08f537e4646d7",
+      "bytes": 2624215,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/codex_last_message.txt",
+      "sha256": "53b43423c720ca136ac4727e3cdeb34f38e9f69bea53ae03f1e3d6143aa56b39",
+      "bytes": 8840,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/codex_trace.json",
+      "sha256": "43c6595dc3ad4e06c520a9df464f9b0b29fc8b5d5c23c1baafe0e4d53eeb9d62",
+      "bytes": 509,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/stdout.txt",
+      "sha256": "53b43423c720ca136ac4727e3cdeb34f38e9f69bea53ae03f1e3d6143aa56b39",
+      "bytes": 8840,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/raw_response.txt",
+      "sha256": "53b43423c720ca136ac4727e3cdeb34f38e9f69bea53ae03f1e3d6143aa56b39",
+      "bytes": 8840,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/parsed_cells.json",
+      "sha256": "23c843eecf1833b850e823e0698cee9b9ac42fa4dbce616490807a4a824e6e15",
+      "bytes": 9921,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/normalized_cells.json",
+      "sha256": "006a45c6c662a3ad611b9a51674a219d0e69b90a576d40fff2f4396fc4eea6c3",
+      "bytes": 27048,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/distribution.json",
+      "sha256": "d68c29feb9ce44396e02aab5197af1c0ab1c19ac5ed81e1d6be44ebf3b1fb3e8",
+      "bytes": 13683,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/validation.json",
+      "sha256": "2c38cf9cd575f2b580cfec0e5448256ece69fc97bdcb03053a1a1c4acd1a7645",
+      "bytes": 145,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/cells.with_activity.json",
+      "sha256": "1e7569b1951d883bd639428c2375d875b36ec0b5f5dcc86a3c7d44a9a359e34c",
+      "bytes": 47794,
+      "createdAt": "2026-07-21T09:20:11Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-20-11z-census-acs-broadband-subscription-65-plus-share-colorado-2025/manifest.json",
+      "sha256": "dadad4d1b7607f0d7f655ae374045f87989ae0aa84cc8eeafbcd2c34dd07e16d",
+      "bytes": 19144,
+      "createdAt": "2026-07-21T09:20:11Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "colorado-broadband-subscription-65-plus-2025",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "2789bd0e586bab824a4ca1ea9aef85e5d26208cfc43ea95ebb8ae7b0306d683d"
+}

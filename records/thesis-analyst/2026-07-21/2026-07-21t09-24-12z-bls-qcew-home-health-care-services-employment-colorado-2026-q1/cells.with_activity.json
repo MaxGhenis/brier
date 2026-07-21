@@ -1,0 +1,1053 @@
+[
+  {
+    "slug": "colorado-home-health-employment-2026q1",
+    "country": "US",
+    "type": "data",
+    "title": "Colorado Home Health Employment, 2026 Q1",
+    "question": "What will the U.S. Bureau of Labor Statistics QCEW first print report for Colorado statewide private-ownership NAICS 621610 Home Health Care Services not seasonally adjusted employment in 2026 Q1, measured as the rounded quarterly average of January, February, and March monthly employment levels?",
+    "unit": "count",
+    "pointEstimate": 29600,
+    "ciLow": 28200,
+    "ciHigh": 31000,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-28",
+    "resolutionSource": "BLS QCEW CSV API, Colorado statewide (area_fips 08000), private ownership (own_code 5), NAICS 621610 Home Health Care Services, quarterly average of month1-month3 employment levels",
+    "resolutionSourceUrl": "https://data.bls.gov/cew/data/api/2026/1/industry/621610.csv",
+    "resolutionRule": "Resolve to the Colorado statewide private-ownership NAICS 621610 Home Health Care Services row in the BLS QCEW 2026 Q1 industry CSV captured from the first public full-data update released on 2026-08-28, using area_fips=08000, own_code=5, industry_code=621610, and size_code=0. Compute round((month1_emplvl + month2_emplvl + month3_emplvl) / 3) to the nearest whole count. Use the first public print only; ignore later revisions, annual-final updates, later corrections, or changes to the live CSV after first-print capture.",
+    "dataPointId": "bls.qcew.home_health_care_services.employment.colorado.2026_q1.first_print",
+    "historicalContext": [
+      {
+        "label": "2024-01 Colorado private NAICS 621610 employment, recorded run artifact",
+        "value": 25927
+      },
+      {
+        "label": "2024-04 Colorado private NAICS 621610 employment, recorded run artifact",
+        "value": 26626
+      },
+      {
+        "label": "2024-05 Colorado private NAICS 621610 employment, recorded run artifact",
+        "value": 26845
+      },
+      {
+        "label": "2024-06 Colorado private NAICS 621610 employment, recorded run artifact",
+        "value": 26683
+      },
+      {
+        "label": "2024-07 Colorado private NAICS 621610 employment, recorded run artifact",
+        "value": 27176
+      },
+      {
+        "label": "2024-08 Colorado private NAICS 621610 employment, recorded run artifact",
+        "value": 27419
+      },
+      {
+        "label": "2025 national private NAICS 621610 annual employment, thousands, BLS/FRED mirror in recorded run",
+        "value": 1911.4
+      }
+    ],
+    "drivers": [
+      "Latest inspected Colorado same-series level was 27419 in August 2024",
+      "Colorado inspected 2024 path rose 1492 jobs from January to August",
+      "National same-industry annual employment rose 5.0 percent from 2024 to 2025",
+      "Persistence plus modest trend beats unsupported extrapolation",
+      "Payment, staffing, disclosure, and recoding risks widen the interval"
+    ],
+    "sourceContext": [
+      "https://app.thesisinstitute.org/specs.json",
+      "https://www.bls.gov/cew/release-calendar.htm",
+      "https://www.bls.gov/cew/additional-resources/open-data/csv-data-slices.htm",
+      "https://www.bls.gov/cew/about-data/downloadable-file-layouts/quarterly/naics-based-quarterly-layout.htm",
+      "https://data.bls.gov/cew/data/api/2026/1/industry/621610.csv",
+      "records/thesis-analyst/2026-07-21/2026-07-21t09-13-35z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/raw_response.txt"
+    ],
+    "runAt": "2026-07-21T09:28:38Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Colorado QCEW home health employment, 2026 Q1"
+      },
+      {
+        "kind": "text",
+        "text": "Framing: the target is BLS QCEW Colorado statewide private ownership, NAICS 621610 Home Health Care Services, not seasonally adjusted, 2026 Q1 first print. The resolving statistic is the rounded average of month1_emplvl, month2_emplvl, and month3_emplvl for area_fips 08000, own_code 5, industry_code 621610, size_code 0."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open https://app.thesisinstitute.org/specs.json and search for colorado-home-health-employment-2026q1.",
+        "result": "Search completed this run; no matching text for colorado-home-health-employment-2026q1 was found in specs.json via the web finder, so I keep the ledger-provided slug colorado-home-health-employment-2026q1 rather than creating a duplicate slug."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open BLS QCEW release calendar for 2026 Q1 release date.",
+        "result": "BLS QCEW calendar inspected this run: 1st Quarter 2026 release date is Friday, Aug. 28, 2026 at 10:00 AM; 2nd Quarter 2026 is Wednesday, Dec. 2, 2026 at 10:00 AM; 4th Quarter 2025 was Tuesday, June 2, 2026 at 10:00 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Open BLS QCEW CSV data-slice documentation and quarterly layout documentation.",
+        "result": "BLS QCEW documentation inspected this run: industry slices use URLs like https://data.bls.gov/cew/data/api/2024/1/industry/10.csv; quarterly fields include area_fips, own_code, industry_code, agglvl_code, size_code, year, qtr, qtrly_estabs, month1_emplvl, month2_emplvl, and month3_emplvl; the NAICS quarterly layout separately lists month1_emplvl as field 15, month2_emplvl as field 16, and month3_emplvl as field 17 when title fields are included."
+      },
+      {
+        "kind": "tool",
+        "tool": "recorded_artifact.lookup",
+        "call": "Inspect public Thesis recorded run raw_response.txt for this exact target because local curl could not retrieve the raw BLS CSV body in this sandbox.",
+        "result": "Recorded public run artifact inspected this run reports fetched Colorado private NAICS 621610 employment: Jan 2024 25927, Apr 2024 26626, May 2024 26845, Jun 2024 26683, Jul 2024 27176, Aug 2024 27419; it also reports national BLS/FRED Home Health Care Services employment of 1820.6 thousand in 2024 and 1911.4 thousand in 2025."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the same-series Colorado history inspected this run rose from 25927 in January 2024 to 27419 in August 2024, a gain of 1492 jobs or 5.8 percent over seven months. The broader same-industry national reference class rose from 1820.6 thousand in 2024 to 1911.4 thousand in 2025, a 90.8 thousand gain or 5.0 percent. Last observed state-level persistence is 27419, with a trend prior toward the high-20-thousands rather than a flat no-growth forecast."
+      },
+      {
+        "kind": "text",
+        "text": "Model candidates under thesis_model_candidate_v1: persistence candidate point 27419, p10 26400, p50 27419, p90 28450, 80% interval 26400-28450, 90% interval 26000-28900, interval_method residual_scale_from_inspected_monthly_changes, calibration_n 5, train_cutoff 2024-08, walk_forward_score unavailable; national-growth-scaled candidate point round(27419 * 1.05^1.6) = 29650, p10 28300, p50 29650, p90 31000, 80% interval 28300-31000, 90% interval 27800-31600, interval_method residual_plus_horizon_scale, calibration_n 5, train_cutoff 2024-08, walk_forward_score unavailable. I select the growth-scaled candidate, rounded to 29600, because same-industry national 2025 growth is direct enough to move beyond flat persistence."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: prior is last observed Colorado same-series persistence at 27419 using the inspected January-August 2024 sample. Adjustment components are +8.1 percent cumulative trend from 1.6 years at the 5.0 percent national same-industry annual growth rate, +0.0 extra for Colorado momentum because the observed state run-up is already in the August level, and -0.3 percent for payment/staffing constraints, giving 27419 * 1.081 * 0.997 = 29550, rounded to point 29600. Dispersion uses inspected monthly changes 699, 219, -162, 493, and 243 jobs; RMS sigma = sqrt((699^2 + 219^2 + 162^2 + 493^2 + 243^2) / 5) = 416 jobs. Horizon scaling for a small state-industry quarterly average gives sigma = 416 * sqrt(6) = 1019; 80% half-width = 1.28 * 1019 = 1304, widened to 1400 for disclosure, recoding, and first-print risk. Final 80% interval is 29600 - 1400 = 28200 and 29600 + 1400 = 31000."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanics: level anchors at 27419 in the latest inspected Colorado month. Momentum is positive but not double-counted beyond the national-growth trend. One-off upside could come from stronger home- and community-based-care demand; downside could come from Medicare/Medicaid payment pressure, staffing shortages, or state-industry reclassification. I found no target-specific policy conditional to model."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration and tails: below 28200 would likely require stalled agency hiring, reimbursement pressure, provider consolidation, labor shortages, or a negative classification/disclosure event. Above 31000 would likely require Colorado home-health demand or payer support to push employment more than 13 percent above the August 2024 level by Q1 2026, or a positive recoding into NAICS 621610. A normal continuation of the inspected 2024 path should stay inside the interval."
+      },
+      {
+        "kind": "forecast",
+        "point": 29600,
+        "ciLow": 28200,
+        "ciHigh": 31000
+      }
+    ],
+    "agentReportedRunAt": "2026-07-21T09:24:22Z",
+    "runStartedAt": "2026-07-21T09:24:12Z",
+    "promptMode": "full",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 26100.0,
+        "upper": 33100.0
+      },
+      "points": [
+        {
+          "value": 26100.0,
+          "probability": 0.0
+        },
+        {
+          "value": 26135.0,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 26170.0,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 26205.0,
+          "probability": 0.005
+        },
+        {
+          "value": 26240.0,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 26275.0,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 26310.0,
+          "probability": 0.01
+        },
+        {
+          "value": 26345.0,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 26380.0,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 26415.0,
+          "probability": 0.015
+        },
+        {
+          "value": 26450.0,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 26485.0,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 26520.0,
+          "probability": 0.02
+        },
+        {
+          "value": 26555.0,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 26590.0,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 26625.0,
+          "probability": 0.025
+        },
+        {
+          "value": 26660.0,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 26695.0,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 26730.0,
+          "probability": 0.03
+        },
+        {
+          "value": 26765.0,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 26800.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 26835.0,
+          "probability": 0.035
+        },
+        {
+          "value": 26870.0,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 26905.0,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 26940.0,
+          "probability": 0.04
+        },
+        {
+          "value": 26975.0,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 27010.0,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 27045.0,
+          "probability": 0.045
+        },
+        {
+          "value": 27080.0,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 27115.0,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 27150.0,
+          "probability": 0.05
+        },
+        {
+          "value": 27185.0,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 27220.0,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 27255.0,
+          "probability": 0.055
+        },
+        {
+          "value": 27290.0,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 27325.0,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 27360.0,
+          "probability": 0.06
+        },
+        {
+          "value": 27395.0,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 27430.0,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 27465.0,
+          "probability": 0.065
+        },
+        {
+          "value": 27500.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 27535.0,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 27570.0,
+          "probability": 0.07
+        },
+        {
+          "value": 27605.0,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 27640.0,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 27675.0,
+          "probability": 0.075
+        },
+        {
+          "value": 27710.0,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 27745.0,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 27780.0,
+          "probability": 0.08
+        },
+        {
+          "value": 27815.0,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 27850.0,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 27885.0,
+          "probability": 0.085
+        },
+        {
+          "value": 27920.0,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 27955.0,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 27990.0,
+          "probability": 0.09
+        },
+        {
+          "value": 28025.0,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 28060.0,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 28095.0,
+          "probability": 0.095
+        },
+        {
+          "value": 28130.0,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 28165.0,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 28200.0,
+          "probability": 0.1
+        },
+        {
+          "value": 28235.0,
+          "probability": 0.11
+        },
+        {
+          "value": 28270.0,
+          "probability": 0.12
+        },
+        {
+          "value": 28305.0,
+          "probability": 0.13
+        },
+        {
+          "value": 28340.0,
+          "probability": 0.14
+        },
+        {
+          "value": 28375.0,
+          "probability": 0.15
+        },
+        {
+          "value": 28410.0,
+          "probability": 0.16
+        },
+        {
+          "value": 28445.0,
+          "probability": 0.17
+        },
+        {
+          "value": 28480.0,
+          "probability": 0.18
+        },
+        {
+          "value": 28515.0,
+          "probability": 0.19
+        },
+        {
+          "value": 28550.0,
+          "probability": 0.2
+        },
+        {
+          "value": 28585.0,
+          "probability": 0.21
+        },
+        {
+          "value": 28620.0,
+          "probability": 0.22
+        },
+        {
+          "value": 28655.0,
+          "probability": 0.23
+        },
+        {
+          "value": 28690.0,
+          "probability": 0.24
+        },
+        {
+          "value": 28725.0,
+          "probability": 0.25
+        },
+        {
+          "value": 28760.0,
+          "probability": 0.26
+        },
+        {
+          "value": 28795.0,
+          "probability": 0.27
+        },
+        {
+          "value": 28830.0,
+          "probability": 0.28
+        },
+        {
+          "value": 28865.0,
+          "probability": 0.29
+        },
+        {
+          "value": 28900.0,
+          "probability": 0.3
+        },
+        {
+          "value": 28935.0,
+          "probability": 0.31
+        },
+        {
+          "value": 28970.0,
+          "probability": 0.32
+        },
+        {
+          "value": 29005.0,
+          "probability": 0.33
+        },
+        {
+          "value": 29040.0,
+          "probability": 0.34
+        },
+        {
+          "value": 29075.0,
+          "probability": 0.35
+        },
+        {
+          "value": 29110.0,
+          "probability": 0.36
+        },
+        {
+          "value": 29145.0,
+          "probability": 0.37
+        },
+        {
+          "value": 29180.0,
+          "probability": 0.38
+        },
+        {
+          "value": 29215.0,
+          "probability": 0.39
+        },
+        {
+          "value": 29250.0,
+          "probability": 0.4
+        },
+        {
+          "value": 29285.0,
+          "probability": 0.41
+        },
+        {
+          "value": 29320.0,
+          "probability": 0.42
+        },
+        {
+          "value": 29355.0,
+          "probability": 0.43
+        },
+        {
+          "value": 29390.0,
+          "probability": 0.44
+        },
+        {
+          "value": 29425.0,
+          "probability": 0.45
+        },
+        {
+          "value": 29460.0,
+          "probability": 0.46
+        },
+        {
+          "value": 29495.0,
+          "probability": 0.47
+        },
+        {
+          "value": 29530.0,
+          "probability": 0.48
+        },
+        {
+          "value": 29565.0,
+          "probability": 0.49
+        },
+        {
+          "value": 29600.0,
+          "probability": 0.5
+        },
+        {
+          "value": 29635.0,
+          "probability": 0.51
+        },
+        {
+          "value": 29670.0,
+          "probability": 0.52
+        },
+        {
+          "value": 29705.0,
+          "probability": 0.53
+        },
+        {
+          "value": 29740.0,
+          "probability": 0.54
+        },
+        {
+          "value": 29775.0,
+          "probability": 0.55
+        },
+        {
+          "value": 29810.0,
+          "probability": 0.56
+        },
+        {
+          "value": 29845.0,
+          "probability": 0.57
+        },
+        {
+          "value": 29880.0,
+          "probability": 0.58
+        },
+        {
+          "value": 29915.0,
+          "probability": 0.59
+        },
+        {
+          "value": 29950.0,
+          "probability": 0.6
+        },
+        {
+          "value": 29985.0,
+          "probability": 0.61
+        },
+        {
+          "value": 30020.0,
+          "probability": 0.62
+        },
+        {
+          "value": 30055.0,
+          "probability": 0.63
+        },
+        {
+          "value": 30090.0,
+          "probability": 0.64
+        },
+        {
+          "value": 30125.0,
+          "probability": 0.65
+        },
+        {
+          "value": 30160.0,
+          "probability": 0.66
+        },
+        {
+          "value": 30195.0,
+          "probability": 0.67
+        },
+        {
+          "value": 30230.0,
+          "probability": 0.68
+        },
+        {
+          "value": 30265.0,
+          "probability": 0.69
+        },
+        {
+          "value": 30300.0,
+          "probability": 0.7
+        },
+        {
+          "value": 30335.0,
+          "probability": 0.71
+        },
+        {
+          "value": 30370.0,
+          "probability": 0.72
+        },
+        {
+          "value": 30405.0,
+          "probability": 0.73
+        },
+        {
+          "value": 30440.0,
+          "probability": 0.74
+        },
+        {
+          "value": 30475.0,
+          "probability": 0.75
+        },
+        {
+          "value": 30510.0,
+          "probability": 0.76
+        },
+        {
+          "value": 30545.0,
+          "probability": 0.77
+        },
+        {
+          "value": 30580.0,
+          "probability": 0.78
+        },
+        {
+          "value": 30615.0,
+          "probability": 0.79
+        },
+        {
+          "value": 30650.0,
+          "probability": 0.8
+        },
+        {
+          "value": 30685.0,
+          "probability": 0.81
+        },
+        {
+          "value": 30720.0,
+          "probability": 0.82
+        },
+        {
+          "value": 30755.0,
+          "probability": 0.83
+        },
+        {
+          "value": 30790.0,
+          "probability": 0.84
+        },
+        {
+          "value": 30825.0,
+          "probability": 0.85
+        },
+        {
+          "value": 30860.0,
+          "probability": 0.86
+        },
+        {
+          "value": 30895.0,
+          "probability": 0.87
+        },
+        {
+          "value": 30930.0,
+          "probability": 0.88
+        },
+        {
+          "value": 30965.0,
+          "probability": 0.89
+        },
+        {
+          "value": 31000.0,
+          "probability": 0.9
+        },
+        {
+          "value": 31035.0,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 31070.0,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 31105.0,
+          "probability": 0.905
+        },
+        {
+          "value": 31140.0,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 31175.0,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 31210.0,
+          "probability": 0.91
+        },
+        {
+          "value": 31245.0,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 31280.0,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 31315.0,
+          "probability": 0.915
+        },
+        {
+          "value": 31350.0,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 31385.0,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 31420.0,
+          "probability": 0.92
+        },
+        {
+          "value": 31455.0,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 31490.0,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 31525.0,
+          "probability": 0.925
+        },
+        {
+          "value": 31560.0,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 31595.0,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 31630.0,
+          "probability": 0.93
+        },
+        {
+          "value": 31665.0,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 31700.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 31735.0,
+          "probability": 0.935
+        },
+        {
+          "value": 31770.0,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 31805.0,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 31840.0,
+          "probability": 0.94
+        },
+        {
+          "value": 31875.0,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 31910.0,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 31945.0,
+          "probability": 0.945
+        },
+        {
+          "value": 31980.0,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 32015.0,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 32050.0,
+          "probability": 0.95
+        },
+        {
+          "value": 32085.0,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 32120.0,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 32155.0,
+          "probability": 0.955
+        },
+        {
+          "value": 32190.0,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 32225.0,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 32260.0,
+          "probability": 0.96
+        },
+        {
+          "value": 32295.0,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 32330.0,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 32365.0,
+          "probability": 0.965
+        },
+        {
+          "value": 32400.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 32435.0,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 32470.0,
+          "probability": 0.97
+        },
+        {
+          "value": 32505.0,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 32540.0,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 32575.0,
+          "probability": 0.975
+        },
+        {
+          "value": 32610.0,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 32645.0,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 32680.0,
+          "probability": 0.98
+        },
+        {
+          "value": 32715.0,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 32750.0,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 32785.0,
+          "probability": 0.985
+        },
+        {
+          "value": 32820.0,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 32855.0,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 32890.0,
+          "probability": 0.99
+        },
+        {
+          "value": 32925.0,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 32960.0,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 32995.0,
+          "probability": 0.995
+        },
+        {
+          "value": 33030.0,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 33065.0,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 33100.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 29600,
+        "median": 29600,
+        "interval80": {
+          "lower": 28200,
+          "upper": 31000
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/prompt.md",
+        "sha256": "b62d9b5ea03c56073eec26c5c22aa9fcf0f10034dbc051990ea54ac612eaf1a5",
+        "bytes": 17615,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/command.json",
+        "sha256": "20d7bb86f7b0db6641aea60fc30965d247b1aa9b3f63a5431d4577194ff59bf4",
+        "bytes": 794,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/codex_stdout.jsonl",
+        "sha256": "4fd628f06d2a35172f51f154f698a09a214e97d172080b5ea8c3a81071bba3da",
+        "bytes": 1613356,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/codex_events.jsonl",
+        "sha256": "3869fc3585dca4e8908a8a1ec7e4c6a94efd9588f0c26fd39db9b29ade53cf47",
+        "bytes": 1613760,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/codex_last_message.txt",
+        "sha256": "04de8c9eddeb21b8c542c19c4c5c7a65c120471214885cb48efb91e66be4b42c",
+        "bytes": 8629,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/codex_trace.json",
+        "sha256": "38124cfa68e6c2fcfc90d9d72e5dbb314097026485feab3491594727b97a3773",
+        "bytes": 513,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/stdout.txt",
+        "sha256": "04de8c9eddeb21b8c542c19c4c5c7a65c120471214885cb48efb91e66be4b42c",
+        "bytes": 8629,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/raw_response.txt",
+        "sha256": "04de8c9eddeb21b8c542c19c4c5c7a65c120471214885cb48efb91e66be4b42c",
+        "bytes": 8629,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/parsed_cells.json",
+        "sha256": "d6d168ed78603d12a64fde0331362c9a134272a697b134c1b19b09181cee6e03",
+        "bytes": 9601,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/normalized_cells.json",
+        "sha256": "c951a38b0a912b78a35ce3e48d7514a52b8744b9f43e42e7e4c0ad0e15aa184d",
+        "bytes": 26913,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/distribution.json",
+        "sha256": "822bef7ddcfadc17a8d2e974660b6cac6e6b25fd05dced6c1ca188fb982e7440",
+        "bytes": 13868,
+        "createdAt": "2026-07-21T09:24:12Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-21/2026-07-21t09-24-12z-bls-qcew-home-health-care-services-employment-colorado-2026-q1/validation.json",
+        "sha256": "6994e6466ab6861fc8e543238ec9aaa86077ec341d084da7d62b08053dba8b07",
+        "bytes": 475,
+        "createdAt": "2026-07-21T09:24:12Z"
+      }
+    ]
+  }
+]
