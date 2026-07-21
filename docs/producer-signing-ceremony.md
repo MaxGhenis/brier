@@ -11,10 +11,12 @@ allowlisted, attested publication path.
   a snapshot, the wave-reproducibility job, and the prospect, roll, and strategy
   dockets. An active verifier deliberately refuses if `receipt` is absent.
 - Provide a reviewed publisher path whose push is attested by an allowlisted
-  workflow. The public key lives under `records/trust/`, so adding it in an
+  workflow. Provided: the `publish_trust_key` input on the record-forecasts
+  dispatch writes the key from the `BRIER_PRODUCER_PUBLIC_KEY_PEM` repository
+  variable into the run's attested records push. The public key lives under `records/trust/`, so adding it in an
   ordinary local or PR-merge records commit would fail records provenance.
 - Confirm that `records/CHAIN_HEAD.json` names the current reachable chain
-  head and that the full suite is green at the locked `receipt==0.2.0` pin.
+  head and that the full suite is green at the locked `receipt==0.3.0` pin.
 
 ## Generate and pin the key
 

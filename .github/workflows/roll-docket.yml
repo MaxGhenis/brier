@@ -47,6 +47,7 @@ jobs:
       registration_set_hash: ${{ steps.sync.outputs.registration_set_hash }}
       registration_artifact: ${{ steps.targets.outputs.registration_artifact }}
     steps:
+      - uses: astral-sh/setup-uv@v5
       - uses: actions/checkout@v5
         with:
           ref: main
@@ -125,7 +126,7 @@ jobs:
               exit 1
             fi
             git pull --rebase origin main
-            python3 scripts/verify_record_chain.py records
+            uv run --locked --extra custody python scripts/verify_record_chain.py records
             while IFS= read -r -d '' root; do
               python3 scripts/verify_custody.py "$(dirname "$root")"
             done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
@@ -289,6 +290,7 @@ jobs:
           echo "The register or unprivileged generation job failed" >&2
           exit 1
 
+      - uses: astral-sh/setup-uv@v5
       - uses: actions/checkout@v5
         if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         with:
@@ -345,7 +347,7 @@ jobs:
         if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
         run: |
           set -euo pipefail
-          python3 scripts/verify_record_chain.py records
+          uv run --locked --extra custody python scripts/verify_record_chain.py records
           while IFS= read -r -d '' root; do
             python3 scripts/verify_custody.py "$(dirname "$root")"
           done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
@@ -443,7 +445,7 @@ jobs:
               --trusted-targets /tmp/trusted-registration/roll-targets.json \
               --publish-validated-at-utc "$VALIDATED_AT" \
               --allow-published-wave
-            python3 scripts/verify_record_chain.py records
+            uv run --locked --extra custody python scripts/verify_record_chain.py records
             while IFS= read -r -d '' root; do
               python3 scripts/verify_custody.py "$(dirname "$root")"
             done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)

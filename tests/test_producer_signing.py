@@ -721,5 +721,10 @@ def test_recorder_workflow_signs_between_snapshot_creation_and_witnessing() -> N
     assert (
         "BRIER_PRODUCER_SIGNING_KEY: " "${{ secrets.BRIER_PRODUCER_SIGNING_KEY }}"
     ) in workflow
-    assert "python3 scripts/sign_record_snapshot.py" in workflow
+    # The signer must run under the locked custody environment: an armed
+    # signer needs receipt installed, and --locked pins it by hash.
+    assert (
+        "uv run --locked --extra custody python scripts/sign_record_snapshot.py"
+    ) in workflow
+    assert "python3 scripts/sign_record_snapshot.py" not in workflow
     assert '"${{ steps.snapshot.outputs.digest }}"' in workflow
