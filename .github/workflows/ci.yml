@@ -93,12 +93,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Full history for the same genesis-enumeration Git binding as above.
+      - uses: astral-sh/setup-uv@v5
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Verify immutable record chain
-        run: python3 scripts/verify_record_chain.py records
+        run: uv run --locked --extra custody python scripts/verify_record_chain.py records
 
       - name: Regenerate newest custody-era wave
         run: python3 scripts/verify_wave_reproducibility.py

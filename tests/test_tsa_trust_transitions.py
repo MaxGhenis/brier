@@ -18,7 +18,19 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import producer_signing_pins as producer_pins  # noqa: E402
 import verify_record_chain as record_chain  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _dormant_producer_signing(monkeypatch: pytest.MonkeyPatch) -> None:
+    """These fixtures build synthetic chains that never contain the real
+    activation snapshot; they exercise enumeration/witness/integrity
+    properties, so producer signing is explicitly dormant here. Armed-state
+    coverage lives in tests/test_producer_signing.py."""
+
+    monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
+    monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
 import witness_snapshot as witness_module  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 from record_forecast_snapshot import add_trust_bundle_updates  # noqa: E402
