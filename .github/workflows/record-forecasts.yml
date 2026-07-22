@@ -177,7 +177,7 @@ jobs:
             exit 1
           fi
 
-          snapshot_args=(python3 scripts/record_forecast_snapshot.py \
+          snapshot_args=(uv run --locked --extra custody python scripts/record_forecast_snapshot.py \
             --records records \
             --source-dir "$SOURCE_DIR" \
             --run-id "$RUN_ID" \
@@ -232,7 +232,7 @@ jobs:
         run: |
           set -euo pipefail
           DIGEST="${{ steps.snapshot.outputs.digest }}"
-          python3 scripts/witness_snapshot.py \
+          uv run --locked --extra custody python scripts/witness_snapshot.py \
             --records records \
             --digest "$DIGEST"
 
@@ -245,7 +245,7 @@ jobs:
       # tests/test_record_integrity.py fails on every clone until someone
       # refreshes them by hand.
       - name: Refresh witnessed timeline
-        run: python3 scripts/witnessed_timeline.py
+        run: uv run --locked --extra custody python scripts/witnessed_timeline.py
 
       - name: Commit snapshot
         id: snapshot_push

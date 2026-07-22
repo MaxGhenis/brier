@@ -85,7 +85,12 @@ def test_recorder_requires_exact_expected_sha_and_pinned_deployments() -> None:
 
 def test_recorder_workflow_uses_the_multi_tsa_witness_writer() -> None:
     workflow = (ROOT / ".github/workflows/record-forecasts.yml").read_text()
-    assert "python3 scripts/witness_snapshot.py" in workflow
+    # The witness writer imports the chain verifier, which needs receipt now
+    # that producer signing is armed, so it runs under the locked custody env.
+    assert (
+        "uv run --locked --extra custody python scripts/witness_snapshot.py"
+    ) in workflow
+    assert "python3 scripts/witness_snapshot.py" not in workflow
     assert "thesis_rfc3161_witness_v1" not in workflow
 
 
