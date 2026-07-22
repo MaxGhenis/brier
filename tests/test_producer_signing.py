@@ -173,15 +173,30 @@ def assert_chain_error(
     assert str(caught.value) == expected
 
 
-def test_live_records_tree_verifies_while_producer_signing_is_dormant() -> None:
+def test_live_records_tree_verifies_under_the_committed_armed_pins() -> None:
+    """The 2026-07-21 ceremony armed the committed pins; the live tree must
+    verify under them (key present, boundary = the ceremony snapshot)."""
+
+    assert producer_pins.producer_signing_active() is True
+    assert verify_chain(ROOT / "records").ordered
+
+
+def test_live_records_tree_verifies_while_producer_signing_is_dormant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
+    monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
     assert producer_pins.producer_signing_active() is False
     assert verify_chain(ROOT / "records").ordered
 
 
 def test_dormant_signing_rejects_a_stray_signature_anywhere(
     synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     records, _first, _activation, _post_activation = synthetic_chain
+    monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
+    monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
     stray = records / "unrelated" / "stray.producer.sig"
     stray.parent.mkdir(parents=True)
     stray.write_bytes(b"stray")
@@ -218,6 +233,8 @@ def test_dormant_verification_does_not_import_receipt(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     records, _first, _activation, _post_activation = synthetic_chain
+    monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
+    monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
     real_import = builtins.__import__
 
     def guarded_import(name: str, *args: object, **kwargs: object) -> object:
@@ -700,8 +717,11 @@ def test_proposer_refuses_to_overwrite_an_invalid_existing_signature(
 def test_proposer_dormant_mode_is_a_silent_no_op(
     synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
     capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     records, _first, _activation, post_activation = synthetic_chain
+    monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
+    monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
 
     assert producer_signer.main(["--records", str(records)]) == 0
 
