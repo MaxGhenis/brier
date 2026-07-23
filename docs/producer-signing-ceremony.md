@@ -27,7 +27,7 @@ This command writes only the public PEM to the checkout and does not print
 either key:
 
 ```bash
-uv run --locked --extra custody python -c 'from pathlib import Path; import subprocess; from receipt.sign import generate_signing_keypair; private_pem, public_pem = generate_signing_keypair(); subprocess.run(["gh", "secret", "set", "BRIER_PRODUCER_SIGNING_KEY", "--repo", "MaxGhenis/brier"], input=private_pem, check=True); Path("records/trust/producer-ed25519.pem").write_bytes(public_pem)'
+uv run --locked --extra custody python -c 'from pathlib import Path; import subprocess; from receipt.sign import generate_signing_keypair; private_pem, public_pem = generate_signing_keypair(); subprocess.run(["gh", "secret", "set", "BRIER_PRODUCER_SIGNING_KEY", "--repo", "ThesisInstitute/thesis"], input=private_pem, check=True); Path("records/trust/producer-ed25519.pem").write_bytes(public_pem)'
 ```
 
 The private key must exist only as the

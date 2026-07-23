@@ -108,7 +108,7 @@ brier doctor claude --fix
 The plugin path is still available if you prefer slash commands:
 
 ```bash
-claude plugin marketplace add MaxGhenis/brier
+claude plugin marketplace add ThesisInstitute/thesis
 claude plugin install brier@maxghenis-plugins
 ```
 

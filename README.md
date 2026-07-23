@@ -209,7 +209,7 @@ This installs the packaged Claude skill and registers the MCP server in user sco
 The plugin path still works if you prefer the slash-command workflow:
 
 ```bash
-claude plugin marketplace add MaxGhenis/brier
+claude plugin marketplace add ThesisInstitute/thesis
 claude plugin install brier@maxghenis-plugins
 ```
 
@@ -268,8 +268,8 @@ Brier implements a structured decision process:
 ## Development
 
 ```bash
-git clone https://github.com/MaxGhenis/brier
-cd brier
+git clone https://github.com/ThesisInstitute/thesis
+cd thesis
 pip install -e ".[dev,experiments]"
 pytest
 python -m build
@@ -293,9 +293,12 @@ The package is published to PyPI from GitHub Releases using PyPI Trusted Publish
 **Setup (one-time):**
 1. In PyPI, open the `brier` project publishing settings:
    - `https://pypi.org/manage/project/brier/settings/publishing/`
+   - ⚠️ After the 2026-07-22 repo transfer the trusted publisher MUST be
+     re-registered with the new owner/repository below, or releases fail
+     with `invalid-publisher`.
 2. Add a GitHub Actions trusted publisher with:
-   - Owner: `MaxGhenis`
-   - Repository name: `brier`
+   - Owner: `ThesisInstitute`
+   - Repository name: `thesis`
    - Workflow name: `publish.yml`
    - Environment name: leave blank unless you later add a GitHub environment
 

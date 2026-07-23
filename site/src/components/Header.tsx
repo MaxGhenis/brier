@@ -177,7 +177,7 @@ export function Header({
             Research
           </a>
           <a
-            href="https://github.com/MaxGhenis/brier"
+            href="https://github.com/ThesisInstitute/thesis"
             className="no-underline transition-colors duration-200 hover:no-underline"
             style={{ color: "var(--theme-text-muted)" }}
             aria-label="GitHub"

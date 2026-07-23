@@ -158,7 +158,7 @@ brier calibration`}</CodeBlock>
               If you prefer the older plugin flow instead of local Claude
               skills, it still works:
             </p>
-            <CodeBlock>{`claude plugin marketplace add MaxGhenis/brier
+            <CodeBlock>{`claude plugin marketplace add ThesisInstitute/thesis
 claude plugin install brier@maxghenis-plugins
 # then use /brier:decide`}</CodeBlock>
           </div>
@@ -451,13 +451,13 @@ Review date: 2026-09-01`,
               Read the paper
             </Link>
             <a
-              href="https://github.com/MaxGhenis/brier/blob/main/docs/agent-workflows.md"
+              href="https://github.com/ThesisInstitute/thesis/blob/main/docs/agent-workflows.md"
               className="inline-flex items-center gap-2 py-[0.75em] px-5 [font-family:var(--font-display)] text-[0.88rem] font-medium no-underline rounded-lg bg-white text-[#415463] border border-[#BED0DB]"
             >
               Agent workflow markdown
             </a>
             <a
-              href="https://github.com/MaxGhenis/brier"
+              href="https://github.com/ThesisInstitute/thesis"
               className="inline-flex items-center gap-2 py-[0.75em] px-5 [font-family:var(--font-display)] text-[0.88rem] font-medium no-underline rounded-lg bg-white text-[#415463] border border-[#BED0DB]"
             >
               Repository

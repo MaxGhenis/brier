@@ -22,7 +22,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 from canonical_json import canonical_bytes  # noqa: E402
 
-DEFAULT_REPOSITORY = "MaxGhenis/brier"
+DEFAULT_REPOSITORY = "ThesisInstitute/thesis"
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 SUBJECT_SCHEMA = "thesis_records_push_subject_v1"
 

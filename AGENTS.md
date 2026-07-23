@@ -213,12 +213,19 @@ provenance scripts) are the containment for that class and are a
 repository-settings decision. Repository administration remains outside
 the control's reach entirely.
 
-Third parties can check any records commit by rebuilding the subject with
-`scripts/attest_subject.py --commit <sha>` and running
-`gh attestation verify <subject-file> --repo MaxGhenis/brier
---cert-identity-regex <pattern>` where the pattern is
-`cert_identity_pattern()` from `scripts/verify_records_attestations.py` —
-or simply running that verifier, which does both.
+Third parties should check records commits by running
+`scripts/verify_records_attestations.py` itself — it is era-aware.
+Commits signed before the 2026-07-22 transfer (MaxGhenis/brier →
+ThesisInstitute/thesis) carry the old slug in their subject bytes and
+certificate, and their attestations live in GitHub's OWNER-keyed store
+under `--owner MaxGhenis`, not under the current repo; every acceptance
+additionally requires the certificate to name the immutable repository
+id 1113415529. A manual `gh attestation verify --repo
+ThesisInstitute/thesis` therefore works only for post-transfer commits,
+and five 2026-07-2x commits are permanently waived as unattested local
+pushes (`WAIVED_UNATTESTED_COMMITS` in the verifier — a public admission
+list, separate by design from `waivers.json`'s grandfather sets, which
+cover data-shape grandfathering rather than provenance misses).
 
 ### Waiver ratchet
 

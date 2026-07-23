@@ -163,7 +163,7 @@ export default async function CalibrationPage() {
           <a href="/log.json">log.json</a> and{" "}
           <a href="/brier/reward.json">reward.json</a>; the daily
           pre-registration chain lives in the{" "}
-          <a href="https://github.com/MaxGhenis/brier/tree/main/records">
+          <a href="https://github.com/ThesisInstitute/thesis/tree/main/records">
             public records repository
           </a>
           .
@@ -176,7 +176,7 @@ export default async function CalibrationPage() {
           witness-verified scores. A run enters the headline when its sealed
           custody root was externally witnessed — an RFC 3161 timestamp in
           the{" "}
-          <a href="https://github.com/MaxGhenis/brier/blob/main/records/witnessed-timeline.json">
+          <a href="https://github.com/ThesisInstitute/thesis/blob/main/records/witnessed-timeline.json">
             witnessed chronology
           </a>{" "}
           extracted from the public record chain — before the observation,

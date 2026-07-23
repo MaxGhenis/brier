@@ -747,7 +747,7 @@ export default function ThesisPage() {
           <p>
             Written by <a href="https://maxghenis.com">Max Ghenis</a>.
             Brier is{" "}
-            <a href="https://github.com/MaxGhenis/brier">open source</a>.
+            <a href="https://github.com/ThesisInstitute/thesis">open source</a>.
           </p>
         </footer>
       </article>

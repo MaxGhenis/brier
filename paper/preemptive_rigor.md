@@ -1573,7 +1573,7 @@ difference — is listed as future work.
 ## Code availability
 
 All code for running stability-under-probing experiments is available at
-<https://github.com/MaxGhenis/brier> under an open-source license. The
+<https://github.com/ThesisInstitute/thesis> under an open-source license. The
 repository includes the complete experiment infrastructure, analysis
 pipeline, and raw results. To reproduce the experiments, install the
 package with `pip install -e ".[dev]"` and run
@@ -1585,4 +1585,4 @@ package with `pip install -e ".[dev]"` and run
     probabilistic forecasts whose calibration discipline it imports into
     decision-making. Framework documentation: <https://brier.institute>.
     Source code and experiment data:
-    <https://github.com/MaxGhenis/brier>.
+    <https://github.com/ThesisInstitute/thesis>.

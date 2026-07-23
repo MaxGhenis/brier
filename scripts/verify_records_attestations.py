@@ -56,6 +56,96 @@ FRESH_COMMIT_GRACE_SECONDS = 15 * 60
 VERIFY_RETRIES = 6
 VERIFY_RETRY_DELAY_SECONDS = 20
 
+# The immutable GitHub repository id, invariant across transfers/renames.
+# Every accepted attestation's certificate must name it, so certificates
+# minted by a DIFFERENT repository that later occupies a historical slug
+# can never vouch for a records commit (Sol era-review finding 1).
+PINNED_SOURCE_REPOSITORY_ID = "1113415529"
+
+# Repository identity eras. A GitHub transfer/rename changes the slug that
+# appears inside both the signed subject bytes and the Sigstore certificate
+# identity, but attestations are immutable: each commit must be verified
+# against the slug that was current when its workflow signed it. GitHub's
+# attestation store is keyed by the OWNER at signing time and does not
+# follow a transfer, so each era also pins the owner account whose store
+# holds its bundles (verified empirically 2026-07-22: the historical
+# store lives under /users/MaxGhenis, repository_id 1113415529). Each
+# entry pins (boundary_commit, slug, store_owner): a commit that is an
+# ancestor of the boundary was attested under that slug and is looked up
+# via `gh attestation verify --owner store_owner`. Entries are consulted
+# in order, first ancestor match wins; commits matching no era use the
+# live slug with a --repo lookup.
+REPOSITORY_ERAS: tuple[tuple[str, str, str], ...] = (
+    # 2026-07-22: MaxGhenis/brier transferred to ThesisInstitute and
+    # renamed to thesis. Everything up to this boundary (the last main
+    # commit before the transfer) was attested under the old slug.
+    ("e62143459d4acc2d527529c774e35a6331008a8c", "MaxGhenis/brier", "MaxGhenis"),
+)
+
+# Records commits that were pushed OUTSIDE the allowlisted workflows and
+# therefore have no attestation to verify. Each waiver is a permanent,
+# public admission, never a silent pass: the audit prints a WAIVED line.
+# 2026-07-22: an operator session pushed the Next50 aging/broadband wave
+# from a local machine instead of through the workflow path; the cells'
+# content is covered by the witness chain, but their push provenance is
+# not, and this list is the honest record of that miss. Shrink-only.
+WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
+    "8d1e6aa5c678035218a2ed310b259d855108b058": "Next50 wave local push",
+    "56f14cc760f2a55cc789e499a0129a51f2e8bb75": "Next50 wave local push",
+    "9e5d820916408af773912aa97267e4fc914c4d94": "Next50 wave local push",
+    "4a4ac86dbf92b51a14d9fd29626bdd19b482cf0a": "Next50 wave local push",
+    "08aac46200a7745621fd64f828734c716dcf7a69": "Next50 wave local push",
+}
+ERA_BOUNDARY_RE = re.compile(r"^[0-9a-f]{40}$")
+ERA_SLUG_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+ERA_OWNER_RE = re.compile(r"^[A-Za-z0-9-]+$")
+
+
+def validate_repository_eras() -> None:
+    """Structurally validate EVERY era entry before any matching.
+
+    First-match resolution must never mask a malformed later entry
+    (Sol era-review finding 3).
+    """
+
+    for boundary, slug, owner in REPOSITORY_ERAS:
+        if not ERA_BOUNDARY_RE.fullmatch(boundary):
+            raise ProvenanceError(f"malformed era boundary: {boundary!r}")
+        if not ERA_SLUG_RE.fullmatch(slug):
+            raise ProvenanceError(f"malformed era slug: {slug!r}")
+        if not ERA_OWNER_RE.fullmatch(owner):
+            raise ProvenanceError(f"malformed era owner: {owner!r}")
+        exists = subprocess.run(
+            ["git", "cat-file", "-e", f"{boundary}^{{commit}}"],
+            cwd=ROOT,
+            capture_output=True,
+        )
+        if exists.returncode != 0:
+            raise ProvenanceError(
+                f"era boundary is not a commit in this repository: {boundary}"
+            )
+
+
+def era_repository(commit: str, current: str) -> tuple[str, str] | None:
+    """(slug, store_owner) for an era commit, or None for the live era."""
+
+    validate_repository_eras()
+    for boundary, slug, owner in REPOSITORY_ERAS:
+        proc = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", commit, boundary],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        if proc.returncode == 0:
+            return (slug, owner)
+        if proc.returncode != 1:
+            raise ProvenanceError(
+                f"era ancestry check failed for {commit} vs {boundary}: "
+                f"{proc.stderr.strip()}"
+            )
+    return None
+
 
 class ProvenanceError(RuntimeError):
     """A records commit failed provenance verification."""
@@ -147,10 +237,69 @@ def cert_identity_pattern(repository: str) -> str:
     )
 
 
-def verify_commit(commit: str, repository: str) -> str:
-    """Verify one commit's attestation; return the accepted signer identity."""
+def pinned_id_results(payload: object) -> list:
+    """The verified results whose certificate names the pinned repo id.
 
-    payload = subject_bytes(repository, commit)
+    The id is immutable across transfers and renames, so a certificate
+    minted by any other repository — including a future occupant of a
+    historical slug — never counts (Sol era-review finding 1). gh returns
+    one array entry per verified attestation; results are FILTERED rather
+    than all-required, so a coexisting foreign-id result can neither
+    authorize a commit nor deny service, and (Sol round-3 P2) can never
+    control the logged signer attribution either. Certificates are read
+    only from verificationResult.signature.certificate, never
+    attester-influenced statement fields.
+    """
+
+    results = payload if isinstance(payload, list) else [payload]
+    pinned = []
+    for result in results:
+        if not isinstance(result, dict):
+            continue
+        verification = result.get("verificationResult")
+        certificate = (
+            verification.get("signature", {}).get("certificate", {})
+            if isinstance(verification, dict)
+            else {}
+        )
+        if not isinstance(certificate, dict):
+            continue
+        if (
+            certificate.get("sourceRepositoryIdentifier")
+            == PINNED_SOURCE_REPOSITORY_ID
+        ):
+            pinned.append(result)
+    if not pinned:
+        raise ProvenanceError(
+            "no verified certificate carries pinned source repository id "
+            + PINNED_SOURCE_REPOSITORY_ID
+        )
+    return pinned
+
+
+def verify_commit(
+    commit: str, repository: str, era: tuple[str, str] | None = None
+) -> str:
+    """Verify one commit's attestation; return the accepted signer identity.
+
+    ``era`` is ``(slug, store_owner)`` for commits signed before a
+    transfer/rename, else ``None`` for the live era. Era commits verify
+    ENTIRELY under their era identity — subject bytes and certificate
+    regex use the era slug, and the lookup uses ``--owner store_owner``
+    because GitHub's attestation store is keyed by the signing-time owner
+    and does not follow transfers. Live commits look up via ``--repo``.
+    Both paths additionally require the certificate to carry the pinned
+    immutable repository id, so neither slug reuse nor owner-store
+    breadth can admit a foreign repository's certificate.
+    """
+
+    if era is None:
+        era_slug, store_flag = repository, ("--repo", repository)
+    else:
+        era_slug, store_flag = era[0], ("--owner", era[1])
+    if not ERA_SLUG_RE.fullmatch(era_slug):
+        raise ProvenanceError(f"malformed verification slug: {era_slug!r}")
+    payload = subject_bytes(era_slug, commit)
     with tempfile.TemporaryDirectory() as tmp:
         subject_path = pathlib.Path(tmp) / subject_name(commit)
         subject_path.write_bytes(payload)
@@ -167,10 +316,9 @@ def verify_commit(commit: str, repository: str) -> str:
                     "attestation",
                     "verify",
                     str(subject_path),
-                    "--repo",
-                    repository,
+                    *store_flag,
                     "--cert-identity-regex",
-                    cert_identity_pattern(repository),
+                    cert_identity_pattern(era_slug),
                     "--format",
                     "json",
                 ],
@@ -179,13 +327,18 @@ def verify_commit(commit: str, repository: str) -> str:
                 check=False,
             )
             if completed.returncode == 0:
-                # gh already enforced the certificate identity; parse it back
-                # out of the certificate fields for the log line only.
+                # gh already enforced the certificate identity. The pinned
+                # repository id is enforced HERE, fail-closed, on the same
+                # verified certificate; the identity parse-back is for the
+                # log line only.
                 try:
                     parsed = json.loads(completed.stdout)
-                except json.JSONDecodeError:
-                    parsed = None
-                identities = extract_certificate_identities(parsed)
+                except json.JSONDecodeError as exc:
+                    raise ProvenanceError(
+                        f"{commit}: gh verify output was not JSON"
+                    ) from exc
+                pinned = pinned_id_results(parsed)
+                identities = extract_certificate_identities(pinned)
                 return sorted(identities)[0] if identities else "<verified>"
             last_error = (completed.stderr or completed.stdout).strip()
             if attempt < attempts:
@@ -238,6 +391,7 @@ def main() -> int:
     elif ".." not in rev_range:
         raise ProvenanceError(f"--range must be A..B, got {rev_range!r}")
 
+    validate_repository_eras()
     commits = [
         commit
         for commit in records_commits(rev_range)
@@ -248,9 +402,19 @@ def main() -> int:
         return 0
 
     failures: list[str] = []
+    waived = 0
     for commit in commits:
+        if commit in WAIVED_UNATTESTED_COMMITS:
+            waived += 1
+            print(
+                f"records provenance WAIVED: {commit} "
+                f"({WAIVED_UNATTESTED_COMMITS[commit]})"
+            )
+            continue
         try:
-            identity = verify_commit(commit, repository)
+            identity = verify_commit(
+                commit, repository, era_repository(commit, repository)
+            )
             print(f"records provenance OK: {commit} <- {identity}")
         except ProvenanceError as exc:
             failures.append(str(exc))
@@ -263,7 +427,11 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    print(f"records provenance OK: {len(commits)} commit(s) verified")
+    verified = len(commits) - waived
+    summary = f"records provenance OK: {verified} commit(s) verified"
+    if waived:
+        summary += f", {waived} permanently waived (unattested local pushes)"
+    print(summary)
     return 0
 
 
