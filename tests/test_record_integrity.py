@@ -21,12 +21,19 @@ import verify_record_chain as record_chain  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
-def _dormant_producer_signing(monkeypatch: pytest.MonkeyPatch) -> None:
-    """These fixtures build synthetic chains that never contain the real
-    activation snapshot; they exercise enumeration/witness/integrity
-    properties, so producer signing is explicitly dormant here. Armed-state
-    coverage lives in tests/test_producer_signing.py."""
+def _dormant_producer_signing(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Synthetic-chain fixtures never contain the real activation snapshot;
+    they exercise enumeration/witness/integrity properties, so producer
+    signing is dormant for them. Tests marked ``live_records`` verify the
+    REAL tree, which has carried producer signatures since the first signed
+    snapshot (2026-07-22, digest-29881445405-1) and must run under the
+    committed armed pins. Armed-state signature coverage lives in
+    tests/test_producer_signing.py."""
 
+    if request.node.get_closest_marker("live_records"):
+        return
     monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
     monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
 import witnessed_timeline as timeline_module  # noqa: E402
@@ -521,6 +528,7 @@ def test_code_pinned_v2_bundle_loads_both_independent_anchors() -> None:
         )
 
 
+@pytest.mark.live_records
 def test_real_tokens_use_pinned_freetsa_identity_and_expose_times() -> None:
     # Real tokens are always in the past, so the actual clock is the right
     # verification time; a frozen instant broke on every new recording.
@@ -1057,6 +1065,7 @@ def test_token_signed_by_rogue_self_signed_tsa_fails_pinned_verification(
         )
 
 
+@pytest.mark.live_records
 def test_current_witnessed_timeline_does_not_backdate_unwitnessed_roots() -> None:
     timeline = extract_timeline(ROOT / "records")
     assert (ROOT / "records/witnessed-timeline.json").read_bytes() == (
@@ -1084,6 +1093,7 @@ def test_current_witnessed_timeline_does_not_backdate_unwitnessed_roots() -> Non
         )
 
 
+@pytest.mark.live_records
 def test_timeline_extracts_direct_and_transitive_cutover_coverage(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

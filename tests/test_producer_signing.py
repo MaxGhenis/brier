@@ -181,15 +181,6 @@ def test_live_records_tree_verifies_under_the_committed_armed_pins() -> None:
     assert verify_chain(ROOT / "records").ordered
 
 
-def test_live_records_tree_verifies_while_producer_signing_is_dormant(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(producer_pins, "PRODUCER_SPKI_SHA256", None)
-    monkeypatch.setattr(producer_pins, "ACTIVATION_SNAPSHOT", None)
-    assert producer_pins.producer_signing_active() is False
-    assert verify_chain(ROOT / "records").ordered
-
-
 def test_dormant_signing_rejects_a_stray_signature_anywhere(
     synthetic_chain: tuple[pathlib.Path, pathlib.Path, pathlib.Path, pathlib.Path],
     monkeypatch: pytest.MonkeyPatch,
