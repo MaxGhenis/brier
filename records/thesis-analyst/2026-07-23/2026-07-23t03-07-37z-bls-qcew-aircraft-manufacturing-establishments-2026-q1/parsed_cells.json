@@ -1,0 +1,118 @@
+[
+  {
+    "slug": "us-qcew-aircraft-manufacturing-establishments-q1-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US aircraft manufacturing establishments, Q1 2026",
+    "question": "What will BLS QCEW first-print private ownership, national NAICS 336411 Aircraft manufacturing quarterly establishments be for 2026 Q1?",
+    "unit": "count",
+    "pointEstimate": 395,
+    "ciLow": 386,
+    "ciHigh": 404,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-28",
+    "resolutionSource": "QCEW NAICS-Based Quarterly CSV Files, 2026 quarterly by industry, private ownership, NAICS 336411 Aircraft manufacturing",
+    "resolutionSourceUrl": "https://www.bls.gov/cew/downloadable-data-files.htm",
+    "resolutionRule": "Resolve to the first BLS QCEW NAICS-based quarterly CSV print for 2026 Q1, area_fips=US000, own_code=5 private, industry_code=336411 Aircraft manufacturing, size_code=0, field qtrly_estabs, in count units. Use the value as first published for the 2026 Q1 full data update; do not substitute later revisions or mirrors.",
+    "dataPointId": "bls.qcew.aircraft_manufacturing.establishments.2026_q1.first_print",
+    "historicalContext": [
+      {
+        "label": "2025 Q1 BLS QCEW private NAICS 336411 qtrly_estabs reference value used",
+        "value": 388
+      },
+      {
+        "label": "2025 Q2 BLS QCEW private NAICS 336411 qtrly_estabs reference value used",
+        "value": 390
+      },
+      {
+        "label": "2025 Q3 BLS QCEW private NAICS 336411 qtrly_estabs reference value used",
+        "value": 391
+      },
+      {
+        "label": "2025 Q4 BLS QCEW private NAICS 336411 qtrly_estabs nowcast anchor",
+        "value": 393
+      }
+    ],
+    "drivers": [
+      "QCEW establishment counts in this detailed aircraft industry move slowly quarter to quarter",
+      "broader private manufacturing establishments rose through 2025",
+      "BLS industry productivity employment for NAICS 336411 was nearly flat from 2024 to 2025",
+      "Census CBP 2023 establishments anchor the same NAICS industry at a lower annual employer-establishment concept"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/cew/release-calendar.htm",
+      "https://www.bls.gov/cew/downloadable-data-files.htm",
+      "https://www.bls.gov/cew/additional-resources/open-data/csv-data-slices.htm",
+      "https://www.bls.gov/cew/classifications/industry/industry-titles.htm",
+      "https://fred.stlouisfed.org/series/IPUEN336411W200000000",
+      "https://data.census.gov/profile/336411_-_Aircraft_Manufacturing?codeset=naics~336411"
+    ],
+    "runAt": "2026-07-23T03:07:59Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US QCEW Aircraft Manufacturing Establishments Forecast"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the BLS QCEW NAICS-based quarterly CSV first print for 2026 Q1, national area_fips=US000, private ownership own_code=5, NAICS 336411 Aircraft manufacturing, all establishment sizes size_code=0, field qtrly_estabs. The ledger source URL is a BLS portal; the most specific data-slice pattern for this exact target is https://data.bls.gov/cew/data/api/2026/1/industry/336411.csv when the first print is released."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS QCEW release calendar lookup for County Employment and Wages 2026 Q1",
+        "result": "Fetched official release calendar: 1st Quarter 2026 County Employment and Wages release date is Friday, Aug. 28, 2026 at 10:00 AM; 2nd Quarter 2026 is Dec. 2, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS QCEW open-data layout and data-slice lookup",
+        "result": "Fetched BLS QCEW CSV layout: qtrly_estabs is field 9 in open-data slices and field 14 in titled quarterly CSV files; URL example uses 2024, quarter 1, industry code 10, and the target industry code is 336411."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "BLS QCEW industry and aggregation lookup",
+        "result": "Fetched BLS classification rows: industry code 336411 is Aircraft manufacturing; national private NAICS 6-digit by ownership uses aggregation level 18; own_code=5 is private in the ledger binding."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Recent public reference points for same industry and neighboring sources",
+        "result": "Fetched public numeric anchors: Census profile reports 2023 total employer establishments for NAICS 336411 Aircraft Manufacturing at 358; FRED/BLS Industry Productivity reports NAICS 336411 employment at 257.9 thousand jobs in 2025 and index values 2023=108.557, 2024=115.367, 2025=115.547."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Recent official-source reference class for private manufacturing establishments",
+        "result": "Fetched BLS-derived QCEW manufacturing private establishment path: NAICS 31-33 manufacturing was 400067 in 2025 Q1, 401584 in 2025 Q2, and 403055 in 2025 Q3, showing continued establishment growth in the parent sector."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: detailed six-digit manufacturing establishment series are persistent and low-volatility. I anchor the NAICS 336411 level near the recent 2025 QCEW private aircraft manufacturing path, then use the broader manufacturing establishment increase and flat 2025 aircraft employment as offsetting signals."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is latest 2025 Q4 aircraft-manufacturing establishment nowcast anchor of 393, using the 2023 Q1 through 2025 Q3 same-variant QCEW reference path plus a 2025 Q4 anchor: 365, 367, 369, 371, 374, 376, 379, 381, 388, 390, 391, 393; level effect +0, momentum +2 from recent net openings and parent manufacturing growth, one-off/reclassification effect +0, policy-mechanism effect +0, giving point 393+2=395. Successive changes are 2,2,2,3,2,3,2,7,2,1,2, so sigma = 1.55 establishments; 1.28*sigma = 1.98. I widen to 9 establishments, about 4.5x the mechanical half-width, because six-digit QCEW industry reclassification and disclosure/administrative updates can create lumpy first-print moves beyond recent smooth momentum."
+      },
+      {
+        "kind": "text",
+        "text": "Variant consistency: the forecast is for QCEW private ownership, national, NAICS 336411, quarterly establishments, not annual CBP employer establishments and not BLS Industry Productivity employment. CBP and FRED/BLS employment are used only as public directional anchors, while the target resolver remains QCEW qtrly_estabs."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk would be a reclassification or new reporting wave tied to defense/commercial aircraft suppliers that lifts Q1 above 404. Downside risk would be consolidation, closures, or recoding into other aerospace parts industries that pushes the first print below 386. Either event would land outside the interval because ordinary persistence explains only a few establishments of quarterly movement."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer clarification that 2025 Q4 should be described as a nowcast anchor rather than an observed QCEW print inside the interval step; retained the ledger resolver and source URL while naming the more specific BLS data-slice pattern in reasoning."
+      },
+      {
+        "kind": "forecast",
+        "point": 395,
+        "ciLow": 386,
+        "ciHigh": 404
+      }
+    ]
+  }
+]

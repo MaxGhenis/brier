@@ -1,0 +1,46 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.laus.colorado.labor_force
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "colorado-labor-force-july-2026"
+- targetUnit: "thousands"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+a8316c3b1952b0229a8db6c77e53007b337bfe9bd6c26da5a4d759801fb4af33
+
+# Draft forecast response
+{"slug":"colorado-labor-force-july-2026","country":"US","type":"data","title":"Colorado labor force, July 2026","question":"BLS Local Area Unemployment Statistics, Colorado civilian labor force, seasonally adjusted, July 2026, first print","unit":"thousands","pointEstimate":3182.2,"ciLow":3179.8,"ciHigh":3184.6,"confidence":0.8,"resolutionDate":"2026-08-21","resolutionSource":"U.S. Bureau of Labor Statistics State Employment and Unemployment, Table 1","resolutionSourceUrl":"https://www.bls.gov/news.release/laus.t01.htm","resolutionRule":"Resolve to the first BLS State Employment and Unemployment Table 1 print for July 2026, Colorado row, seasonally adjusted civilian labor force. Use the BLS-published persons value for the July 2026 preliminary print, convert to thousands by dividing by 1,000, and round to one decimal thousand. Ignore later LAUS revisions, annual benchmark revisions, FRED mirror updates, and later archived revised tables.","dataPointId":"bls.laus.colorado.labor_force.2026-07.first_print","historicalContext":[{"label":"Jan 2026 Colorado labor force SA","value":3248.8},{"label":"Feb 2026 Colorado labor force SA","value":3238.5},{"label":"Mar 2026 Colorado labor force SA","value":3227.9},{"label":"Apr 2026 Colorado labor force SA","value":3215.6},{"label":"May 2026 Colorado labor force SA revised","value":3206.2},{"label":"Jun 2026 Colorado labor force SA preliminary","value":3193.3}],"drivers":["Colorado LAUS labor force has declined for five straight observed months","Recent seasonally adjusted monthly declines cluster around 9.4 to 12.9 thousand","July target is BLS LAUS Table 1 seasonally adjusted civilian labor force, not the not-seasonally-adjusted COLFN series","June unemployment rate stayed 3.9 percent, so the latest labor-force decline did not come from a visible unemployment-rate jump","First-print risk is dominated by state CPS sampling and LAUS model noise"],"sourceContext":["https://www.bls.gov/news.release/laus.t01.htm","https://www.bls.gov/eag/eag.co.htm","https://www.bls.gov/schedule/2026/08_sched.htm","https://www.bls.gov/news.release/empsit.a.htm"],"runAt":"2026-07-23T02:51:01Z","reasoning":[{"kind":"heading","text":"Forecast for Colorado July 2026 labor force"},{"kind":"text","text":"Framing and exact resolver: this target is the BLS LAUS Colorado civilian labor force, seasonally adjusted, for July 2026, first print, in State Employment and Unemployment Table 1. The relevant BLS series code is LASST080000000000006: state 08, measure 06 labor force, seasonally adjusted. The target unit is thousands, so BLS person counts are divided by 1,000."},{"kind":"tool","tool":"official.lookup","call":"Checked the official BLS August 2026 release calendar for the State Employment and Unemployment publication date.","result":"Fetched the verified release slot: State Employment and Unemployment (Monthly) for July 2026 is scheduled for August 21, 2026 at 10:00 AM Eastern; the same calendar page also lists Employment Situation for July 2026 on August 7, 2026 at 08:30 AM."},{"kind":"tool","tool":"official.lookup","call":"Checked the latest official BLS State Employment and Unemployment Table 1 for seasonally adjusted state labor force data.","result":"Fetched Colorado seasonally adjusted labor force values in persons: June 2025 = 3,258,203, April 2026 = 3,215,558, May 2026 revised = 3,206,175, and June 2026 preliminary = 3,193,263; June 2026 unemployed = 124,750 and unemployment rate = 3.9 percent."},{"kind":"tool","tool":"official.lookup","call":"Checked the BLS Colorado Economy at a Glance page for the recent monthly sequence in the same seasonally adjusted variant.","result":"Fetched Colorado civilian labor force in thousands: January 2026 = 3,248.8, February 2026 = 3,238.5, March 2026 = 3,227.9, April 2026 = 3,215.6, May 2026 = 3,206.2, and June 2026 preliminary = 3,193.3; the page says these labor-force values are number of persons in thousands, seasonally adjusted."},{"kind":"tool","tool":"official.lookup","call":"Checked BLS national Employment Situation household table for a contemporaneous labor-force participation backdrop.","result":"Fetched U.S. seasonally adjusted civilian labor force in thousands: April 2026 = 169,995, May 2026 = 170,078, and June 2026 = 169,358; U.S. participation rate fell from 61.8 percent in May 2026 to 61.5 percent in June 2026."},{"kind":"text","text":"Base rate/reference class: the cleanest base rate is Colorado's own recent seasonally adjusted LAUS labor-force path, because state labor-force levels are highly persistent and this is a one-month-ahead first-print target. The January through June 2026 sequence moved from 3,248.8 thousand to 3,193.3 thousand, a five-month decline of about 55.5 thousand."},{"kind":"text","text":"Level, momentum, one-off, and mechanism: the latest level is around 3.193 million and momentum is sharply negative but smooth. The mechanism is state CPS/LAUS model movement and labor-force participation, not payroll jobs. I use the same seasonally adjusted LAUS variant throughout; I do not mix in not-seasonally-adjusted COLFN anchors."},{"kind":"text","text":"Prior/update/interval: prior model is one-month persistence plus recent-change continuation using January-June 2026 Colorado seasonally adjusted labor-force history. Successive changes in thousands were -10.3, -10.6, -12.3, -9.4, and -12.9; the mean monthly change is -11.1 thousand and sigma = 1.46 thousand. The point is 3,193.3 - 11.1 = 3,182.2 thousand. The normal 80% half-width is 1.28*sigma = 1.87 thousand; I widen to 2.4 thousand, about 1.3x, for first-print state CPS noise, the preliminary June anchor, and the small five-change sample, giving final implied bounds 3,179.8 to 3,184.6 thousand."},{"kind":"math","text":"Point and interval arithmetic in thousands: latest official June 2026 preliminary value 3,193.263 plus mean recent change -11.105 = 3,182.158, rounded to 3,182.2. Realized-change sigma = 1.462, so 1.28*sigma = 1.872; widened half-width 2.4 gives ciLow = 3,182.2 - 2.4 = 3,179.8 and ciHigh = 3,182.2 + 2.4 = 3,184.6."},{"kind":"text","text":"Counter-consideration: upside risk is a July participation rebound, a reversal of the June state-model drop, or stronger household employment that would land above the interval near 3,185 thousand or higher. Downside risk is another unusually large LAUS model decline, weaker household employment, or out-migration/participation slippage that would land below the interval near 3,180 thousand. Outside the interval would most likely reflect state CPS sampling/model noise rather than a clean real-time Colorado labor-market signal."},{"kind":"forecast","point":3182.2,"ciLow":3179.8,"ciHigh":3184.6}]}

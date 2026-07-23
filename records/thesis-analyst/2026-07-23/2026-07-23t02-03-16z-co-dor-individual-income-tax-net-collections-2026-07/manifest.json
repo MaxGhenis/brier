@@ -1,0 +1,372 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-23T02:03:16Z",
+  "runStartedAt": "2026-07-23T02:03:16Z",
+  "series": "co.dor.individual_income_tax.net_collections",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "colorado-income-tax-collections-july-2026",
+    "period": "2026-07",
+    "series": "co.dor.individual_income_tax.net_collections",
+    "targetUnit": "usd_billions"
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-23T02:03:16Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f9ee76b7a055d1c3b1ada0423e187292ac8af221e4f614e6f8952484d6066096"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "model_prior",
+        "summary": "The prior is based on annual LCS monthly-average equivalents and only two July stress observations, despite the official CDOR series reportedly covering July 2019 to date.",
+        "actionRequested": "Use actual CDOR monthly net individual income tax collections, preferably July observations and nearby-month seasonality from 2019-2025, or explicitly state why that official time series could not be used."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "blocking",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is widened from sigma computed on three annual monthly-average values, which does not measure realized monthly cash-collection volatility.",
+        "actionRequested": "Recompute or justify the interval from realized CDOR monthly or July-specific volatility, or provide an explicit uncertainty model tied to observed cash-flow variation."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "warning",
+        "rubricItem": "update",
+        "summary": "The -0.050 July seasonality adjustment is directionally plausible but not quantified from July shares or recent July outcomes.",
+        "actionRequested": "Tie the July adjustment to observed July-vs-average collections in the CDOR history, or label it as judgmental and explain its scale."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Prefer official CDOR values over the Tax Foundation citation for July 2019 and July 2020 if the CDOR workbook contains them."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the 2026-08-31 ledger resolution date, but note if it is an operational deadline rather than the expected publication day."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the original interval was too narrow for a monthly cash-flow target and widened it using the available public numeric history values themselves. I also accepted the need to label the July adjustment as judgmental because extractable official CDOR workbook rows beyond the two cited July stress points were not available in the draft trace; I kept the ledger resolution date and noted it as operational.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the original interval was too narrow for a monthly cash-flow target and widened it using the available public numeric history values themselves. I also accepted the need to label the July adjustment as judgmental because extractable official CDOR workbook rows beyond the two cited July stress points were not available in the draft trace; I kept the ledger resolution date and noted it as operational.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique that the original interval was too narrow for a monthly cash-flow target and widened it using the available public numeric history values themselves. I also accepted the need to label the July adjustment as judgmental because extractable official CDOR workbook rows beyond the two cited July stress points were not available in the draft trace; I kept the ledger resolution date and noted it as operational.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the original interval was too narrow for a monthly cash-flow target and widened it using the available public numeric history values themselves. I also accepted the need to label the July adjustment as judgmental because extractable official CDOR workbook rows beyond the two cited July stress points were not available in the draft trace; I kept the ledger resolution date and noted it as operational.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique that the original interval was too narrow for a monthly cash-flow target and widened it using the available public numeric history values themselves. I also accepted the need to label the July adjustment as judgmental because extractable official CDOR workbook rows beyond the two cited July stress points were not available in the draft trace; I kept the ledger resolution date and noted it as operational.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable only after strengthening the historical/model prior and interval method with actual CDOR monthly or July-specific collections history rather than annual averages and two stress points."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/prompt.md",
+      "sha256": "1e28676e146c670de6a699b110f0c02a80864029cb7e3fbeed5030723cc6dda8",
+      "bytes": 7958,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_command.json",
+      "sha256": "fe65992e1a5d58b2448a4c010e4c13ae55b357ee645cad583a3387950a1fefcf",
+      "bytes": 755,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "8fbb904d1b8db02335ff15678fa89732fd352577e833cfc524244ff4419589b8",
+      "bytes": 1601756,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_codex_events.jsonl",
+      "sha256": "c56577dec4fce2134bbce8e60b171dd0a125c44295b493d5edb21fb0d3325bd6",
+      "bytes": 1601857,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_codex_last_message.txt",
+      "sha256": "6a847856506412d45289bce5e798e1037a53d2a31c33349a5f6e3e287aa94801",
+      "bytes": 9662,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_codex_trace.json",
+      "sha256": "4ddb55d40124e69439eac6aaa567d0c1b12da089fc39988e886555fe6ad69194",
+      "bytes": 509,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_stdout.txt",
+      "sha256": "6a847856506412d45289bce5e798e1037a53d2a31c33349a5f6e3e287aa94801",
+      "bytes": 9662,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_prompt.md",
+      "sha256": "22f0cceced46f8a6d171fdefdec6b83efdb5cdef3cd19f2ad7ff55757e8587f6",
+      "bytes": 11877,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_command.json",
+      "sha256": "b1d690f5845cde85d91e833e1ef928d5a825e452888cb0a3ace995c79a6d572f",
+      "bytes": 751,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "9067283ada90dc6424e5704e7fc9d9244d0eff5abb528fc5e744655e51d8164c",
+      "bytes": 3227,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "ccf10095d6b7468d2b11bc5292df1a256e63edbb0b06c29f2ea713f3c18e3c81",
+      "bytes": 3249,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "79a1b648a18cb05802c4eeb3febfe8e3510db50f6c8fef27b641cbed32ec18dc",
+      "bytes": 1877,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "2781b5e7aa6fbb8d33817ae2cb50e98eecd43d4f712138eeab200795bbbd5b08",
+      "bytes": 504,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "79a1b648a18cb05802c4eeb3febfe8e3510db50f6c8fef27b641cbed32ec18dc",
+      "bytes": 1877,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/revision_prompt.md",
+      "sha256": "f4c7b0c2fd847d8bf45ed1349019fa01abd6237769cefc5e578c7e45ee5e8b32",
+      "bytes": 20433,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/command.json",
+      "sha256": "1a4a1fe2852fa23cab165c309171da5e8e3134ad0e919c6f68fd297e825ae5d0",
+      "bytes": 749,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/codex_stdout.jsonl",
+      "sha256": "28dc491c934d9b80891df5503042aa06964185fde1b74441643f45106d4d6fc0",
+      "bytes": 1798814,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/codex_events.jsonl",
+      "sha256": "354250c896824e6afc56b22e298000eda9d4e3eb5dbc219fec03c5d671cf9f41",
+      "bytes": 1799033,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/codex_last_message.txt",
+      "sha256": "9f3198ea45e23ef5cb8372dae3b63cd892be3b53f972d9b8af4f65cb25eb1ae7",
+      "bytes": 10422,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/codex_trace.json",
+      "sha256": "2b75dcb446503c2436564c72ead598dfdbd5ee02104adb25c2d47264afa6437f",
+      "bytes": 509,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/stdout.txt",
+      "sha256": "9f3198ea45e23ef5cb8372dae3b63cd892be3b53f972d9b8af4f65cb25eb1ae7",
+      "bytes": 10422,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/raw_response.txt",
+      "sha256": "9f3198ea45e23ef5cb8372dae3b63cd892be3b53f972d9b8af4f65cb25eb1ae7",
+      "bytes": 10422,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/parsed_cells.json",
+      "sha256": "e2c4be49ab62381646066f8c7829fd5376a1d619ef034eb19d70d3a65b4ee91b",
+      "bytes": 11495,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/normalized_cells.json",
+      "sha256": "970d937824a54bf80ddab5a176df5329d96e47f0f9db632c7b1326439c7647be",
+      "bytes": 28396,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/distribution.json",
+      "sha256": "7c37ff24d732cea5e4d920f3059930266b6271b01ebdd7f4507a88074a0a08ac",
+      "bytes": 13457,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/validation.json",
+      "sha256": "dbdd7beca1ec08d5351d3ed523cfdd077723fff2c4b688f5af14350b58130311",
+      "bytes": 142,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/cells.with_activity.json",
+      "sha256": "c0bc7f2278f50d7755b89162b461bd1381a5f8f074a3d0a7ba1c3ac6daeb926f",
+      "bytes": 46351,
+      "createdAt": "2026-07-23T02:03:16Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-03-16z-co-dor-individual-income-tax-net-collections-2026-07/manifest.json",
+      "sha256": "907b62f02aa4bf24b9828cd34ac01ac047d2cbc6e434721443734d2c094f9cd7",
+      "bytes": 16601,
+      "createdAt": "2026-07-23T02:03:16Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "colorado-income-tax-collections-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "fea507483eafe878301fc0aabcf2f94c4f8fb5432f37739ed96bc9285bcc45b7"
+}

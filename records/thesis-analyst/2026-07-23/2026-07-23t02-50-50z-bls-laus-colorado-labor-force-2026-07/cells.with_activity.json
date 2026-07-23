@@ -1,0 +1,1233 @@
+[
+  {
+    "slug": "colorado-labor-force-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "Colorado labor force, July 2026",
+    "question": "BLS Local Area Unemployment Statistics, Colorado civilian labor force, seasonally adjusted, July 2026, first print",
+    "unit": "thousands",
+    "pointEstimate": 3182.2,
+    "ciLow": 3179,
+    "ciHigh": 3185.4,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-21",
+    "resolutionSource": "U.S. Bureau of Labor Statistics State Employment and Unemployment, Table 1",
+    "resolutionSourceUrl": "https://www.bls.gov/news.release/laus.t01.htm",
+    "resolutionRule": "Resolve to the first BLS State Employment and Unemployment Table 1 print for July 2026, Colorado row, seasonally adjusted civilian labor force, as released on August 21, 2026. Use the BLS-published persons value for the July 2026 preliminary print, convert to thousands by dividing by 1,000, and round to one decimal thousand. The Table 1 URL is mutable, so use the first July 2026 print captured or released on August 21, 2026, not later revised content at the same URL. Ignore later LAUS revisions, annual benchmark revisions, FRED mirror updates, and later archived revised tables.",
+    "dataPointId": "bls.laus.colorado.labor_force.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "Jan 2026 Colorado labor force SA",
+        "value": 3248.8
+      },
+      {
+        "label": "Feb 2026 Colorado labor force SA",
+        "value": 3238.5
+      },
+      {
+        "label": "Mar 2026 Colorado labor force SA",
+        "value": 3227.9
+      },
+      {
+        "label": "Apr 2026 Colorado labor force SA",
+        "value": 3215.6
+      },
+      {
+        "label": "May 2026 Colorado labor force SA revised",
+        "value": 3206.2
+      },
+      {
+        "label": "Jun 2026 Colorado labor force SA preliminary",
+        "value": 3193.3
+      }
+    ],
+    "drivers": [
+      "Colorado LAUS labor force has declined for five straight observed months",
+      "Recent seasonally adjusted monthly declines cluster around 9.4 to 12.9 thousand",
+      "July target is BLS LAUS Table 1 seasonally adjusted civilian labor force, not the not-seasonally-adjusted COLFN series",
+      "June unemployment rate stayed 3.9 percent, so the latest labor-force decline did not come from a visible unemployment-rate jump",
+      "First-print risk is dominated by state CPS sampling and LAUS model noise"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/news.release/laus.t01.htm",
+      "https://www.bls.gov/eag/eag.co.htm",
+      "https://www.bls.gov/schedule/2026/08_sched.htm",
+      "https://www.bls.gov/news.release/empsit.a.htm"
+    ],
+    "runAt": "2026-07-23T02:54:19Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Colorado July 2026 labor force"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this target is the BLS LAUS Colorado civilian labor force, seasonally adjusted, for July 2026, first print, in State Employment and Unemployment Table 1. The relevant BLS series code is LASST080000000000006: state 08, measure 06 labor force, seasonally adjusted. The target unit is thousands, so BLS person counts are divided by 1,000."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the official BLS August 2026 release calendar for the State Employment and Unemployment publication date.",
+        "result": "Fetched the verified release slot: State Employment and Unemployment (Monthly) for July 2026 is scheduled for August 21, 2026 at 10:00 AM Eastern; the same calendar page also lists Employment Situation for July 2026 on August 7, 2026 at 08:30 AM."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the latest official BLS State Employment and Unemployment Table 1 for seasonally adjusted state labor force data.",
+        "result": "Fetched Colorado seasonally adjusted labor force values in persons: June 2025 = 3,258,203, April 2026 = 3,215,558, May 2026 revised = 3,206,175, and June 2026 preliminary = 3,193,263; June 2026 unemployed = 124,750 and unemployment rate = 3.9 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS Colorado Economy at a Glance page for the recent monthly sequence in the same seasonally adjusted variant.",
+        "result": "Fetched Colorado civilian labor force in thousands: January 2026 = 3,248.8, February 2026 = 3,238.5, March 2026 = 3,227.9, April 2026 = 3,215.6, May 2026 = 3,206.2, and June 2026 preliminary = 3,193.3; the page says these labor-force values are number of persons in thousands, seasonally adjusted."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS national Employment Situation household table for a contemporaneous labor-force participation backdrop.",
+        "result": "Fetched U.S. seasonally adjusted civilian labor force in thousands: April 2026 = 169,995, May 2026 = 170,078, and June 2026 = 169,358; U.S. participation rate fell from 61.8 percent in May 2026 to 61.5 percent in June 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the cleanest base rate is Colorado's own recent seasonally adjusted LAUS labor-force path, because state labor-force levels are highly persistent and this is a one-month-ahead first-print target. The January through June 2026 sequence moved from 3,248.8 thousand to 3,193.3 thousand, a five-month decline of about 55.5 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism: the latest level is around 3.193 million and momentum is sharply negative but smooth. The mechanism is state CPS/LAUS model movement and labor-force participation, not payroll jobs. I use the same seasonally adjusted LAUS variant throughout; I do not mix in not-seasonally-adjusted COLFN anchors."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: prior model is one-month persistence plus recent-change continuation using the narrow Jan-Jun 2026 Colorado seasonally adjusted labor-force history only. Successive changes in thousands were -10.3, -10.6, -12.3, -9.4, and -12.9; the mean monthly change is -11.1 thousand and sigma = 1.46 thousand. The point is 3,193.3 - 11.1 = 3,182.2 thousand. The normal 80% half-width is 1.28*sigma = 1.87 thousand; because the five-change sample is monotonic and likely understates normal one-month LAUS first-print uncertainty, I widen to 3.2 thousand, about 1.7x, for state CPS noise, the preliminary June anchor, and the small sample, giving final implied bounds 3,179.0 to 3,185.4 thousand."
+      },
+      {
+        "kind": "math",
+        "text": "Point and interval arithmetic in thousands: latest official June 2026 preliminary value 3,193.263 plus mean recent change -11.105 = 3,182.158, rounded to 3,182.2. Realized-change sigma = 1.462, so 1.28*sigma = 1.872; widened half-width 3.2 gives ciLow = 3,182.2 - 3.2 = 3,179.0 and ciHigh = 3,182.2 + 3.2 = 3,185.4."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is a July participation rebound, a reversal of the June state-model drop, or stronger household employment that would land above the interval near 3,185.4 thousand or higher. Downside risk is another unusually large LAUS model decline, weaker household employment, or out-migration/participation slippage that would land below the interval near 3,179.0 thousand. Outside the interval would most likely reflect state CPS sampling/model noise rather than a clean real-time Colorado labor-market signal."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the interval critique by widening the 80% interval from a 2.4 thousand half-width to 3.2 thousand and explicitly flagging the narrow Jan-Jun 2026 sample; accepted the mutable Table 1 URL clarification in the resolution rule; no critique items rejected."
+      },
+      {
+        "kind": "forecast",
+        "point": 3182.2,
+        "ciLow": 3179,
+        "ciHigh": 3185.4
+      }
+    ],
+    "agentReportedRunAt": "2026-07-23T02:53:38Z",
+    "runStartedAt": "2026-07-23T02:50:50Z",
+    "promptMode": "fast",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 3174.2,
+        "upper": 3190.2
+      },
+      "points": [
+        {
+          "value": 3174.2,
+          "probability": 0.0
+        },
+        {
+          "value": 3174.28,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 3174.36,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 3174.44,
+          "probability": 0.005
+        },
+        {
+          "value": 3174.52,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 3174.6,
+          "probability": 0.00833333333334
+        },
+        {
+          "value": 3174.68,
+          "probability": 0.01
+        },
+        {
+          "value": 3174.76,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 3174.84,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 3174.92,
+          "probability": 0.015
+        },
+        {
+          "value": 3175.0,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 3175.08,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 3175.16,
+          "probability": 0.02
+        },
+        {
+          "value": 3175.24,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 3175.32,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 3175.4,
+          "probability": 0.025
+        },
+        {
+          "value": 3175.48,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 3175.56,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 3175.64,
+          "probability": 0.03
+        },
+        {
+          "value": 3175.72,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 3175.8,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 3175.88,
+          "probability": 0.035
+        },
+        {
+          "value": 3175.96,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 3176.04,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 3176.12,
+          "probability": 0.04
+        },
+        {
+          "value": 3176.2,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 3176.28,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 3176.36,
+          "probability": 0.045
+        },
+        {
+          "value": 3176.44,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 3176.52,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 3176.6,
+          "probability": 0.05
+        },
+        {
+          "value": 3176.68,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 3176.76,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 3176.84,
+          "probability": 0.055
+        },
+        {
+          "value": 3176.92,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 3177.0,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 3177.08,
+          "probability": 0.06
+        },
+        {
+          "value": 3177.16,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 3177.24,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 3177.32,
+          "probability": 0.065
+        },
+        {
+          "value": 3177.4,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 3177.48,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 3177.56,
+          "probability": 0.07
+        },
+        {
+          "value": 3177.64,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 3177.72,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 3177.8,
+          "probability": 0.075
+        },
+        {
+          "value": 3177.88,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 3177.96,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 3178.04,
+          "probability": 0.08
+        },
+        {
+          "value": 3178.12,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 3178.2,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 3178.28,
+          "probability": 0.085
+        },
+        {
+          "value": 3178.36,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 3178.44,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 3178.52,
+          "probability": 0.09
+        },
+        {
+          "value": 3178.6,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 3178.68,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 3178.76,
+          "probability": 0.095
+        },
+        {
+          "value": 3178.84,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 3178.92,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 3179.0,
+          "probability": 0.1
+        },
+        {
+          "value": 3179.08,
+          "probability": 0.11
+        },
+        {
+          "value": 3179.16,
+          "probability": 0.12
+        },
+        {
+          "value": 3179.24,
+          "probability": 0.13
+        },
+        {
+          "value": 3179.32,
+          "probability": 0.14
+        },
+        {
+          "value": 3179.4,
+          "probability": 0.15
+        },
+        {
+          "value": 3179.48,
+          "probability": 0.16
+        },
+        {
+          "value": 3179.56,
+          "probability": 0.17
+        },
+        {
+          "value": 3179.64,
+          "probability": 0.18
+        },
+        {
+          "value": 3179.72,
+          "probability": 0.19
+        },
+        {
+          "value": 3179.8,
+          "probability": 0.2
+        },
+        {
+          "value": 3179.88,
+          "probability": 0.21
+        },
+        {
+          "value": 3179.96,
+          "probability": 0.22
+        },
+        {
+          "value": 3180.04,
+          "probability": 0.23
+        },
+        {
+          "value": 3180.12,
+          "probability": 0.24
+        },
+        {
+          "value": 3180.2,
+          "probability": 0.25
+        },
+        {
+          "value": 3180.28,
+          "probability": 0.26
+        },
+        {
+          "value": 3180.36,
+          "probability": 0.27
+        },
+        {
+          "value": 3180.44,
+          "probability": 0.28
+        },
+        {
+          "value": 3180.52,
+          "probability": 0.29
+        },
+        {
+          "value": 3180.6,
+          "probability": 0.3
+        },
+        {
+          "value": 3180.68,
+          "probability": 0.31
+        },
+        {
+          "value": 3180.76,
+          "probability": 0.32
+        },
+        {
+          "value": 3180.84,
+          "probability": 0.33
+        },
+        {
+          "value": 3180.92,
+          "probability": 0.34
+        },
+        {
+          "value": 3181.0,
+          "probability": 0.35
+        },
+        {
+          "value": 3181.08,
+          "probability": 0.36
+        },
+        {
+          "value": 3181.16,
+          "probability": 0.37
+        },
+        {
+          "value": 3181.24,
+          "probability": 0.38
+        },
+        {
+          "value": 3181.32,
+          "probability": 0.39
+        },
+        {
+          "value": 3181.4,
+          "probability": 0.4
+        },
+        {
+          "value": 3181.48,
+          "probability": 0.41
+        },
+        {
+          "value": 3181.56,
+          "probability": 0.42
+        },
+        {
+          "value": 3181.64,
+          "probability": 0.43
+        },
+        {
+          "value": 3181.72,
+          "probability": 0.44
+        },
+        {
+          "value": 3181.8,
+          "probability": 0.45
+        },
+        {
+          "value": 3181.88,
+          "probability": 0.46
+        },
+        {
+          "value": 3181.96,
+          "probability": 0.47
+        },
+        {
+          "value": 3182.04,
+          "probability": 0.48
+        },
+        {
+          "value": 3182.12,
+          "probability": 0.49
+        },
+        {
+          "value": 3182.2,
+          "probability": 0.5
+        },
+        {
+          "value": 3182.28,
+          "probability": 0.51
+        },
+        {
+          "value": 3182.36,
+          "probability": 0.52
+        },
+        {
+          "value": 3182.44,
+          "probability": 0.53
+        },
+        {
+          "value": 3182.52,
+          "probability": 0.54
+        },
+        {
+          "value": 3182.6,
+          "probability": 0.55
+        },
+        {
+          "value": 3182.68,
+          "probability": 0.56
+        },
+        {
+          "value": 3182.76,
+          "probability": 0.57
+        },
+        {
+          "value": 3182.84,
+          "probability": 0.58
+        },
+        {
+          "value": 3182.92,
+          "probability": 0.59
+        },
+        {
+          "value": 3183.0,
+          "probability": 0.6
+        },
+        {
+          "value": 3183.08,
+          "probability": 0.61
+        },
+        {
+          "value": 3183.16,
+          "probability": 0.62
+        },
+        {
+          "value": 3183.24,
+          "probability": 0.63
+        },
+        {
+          "value": 3183.32,
+          "probability": 0.64
+        },
+        {
+          "value": 3183.4,
+          "probability": 0.65
+        },
+        {
+          "value": 3183.48,
+          "probability": 0.66
+        },
+        {
+          "value": 3183.56,
+          "probability": 0.67
+        },
+        {
+          "value": 3183.64,
+          "probability": 0.68
+        },
+        {
+          "value": 3183.72,
+          "probability": 0.69
+        },
+        {
+          "value": 3183.8,
+          "probability": 0.7
+        },
+        {
+          "value": 3183.88,
+          "probability": 0.71
+        },
+        {
+          "value": 3183.96,
+          "probability": 0.72
+        },
+        {
+          "value": 3184.04,
+          "probability": 0.73
+        },
+        {
+          "value": 3184.12,
+          "probability": 0.74
+        },
+        {
+          "value": 3184.2,
+          "probability": 0.75
+        },
+        {
+          "value": 3184.28,
+          "probability": 0.76
+        },
+        {
+          "value": 3184.36,
+          "probability": 0.77
+        },
+        {
+          "value": 3184.44,
+          "probability": 0.78
+        },
+        {
+          "value": 3184.52,
+          "probability": 0.79
+        },
+        {
+          "value": 3184.6,
+          "probability": 0.8
+        },
+        {
+          "value": 3184.68,
+          "probability": 0.81
+        },
+        {
+          "value": 3184.76,
+          "probability": 0.82
+        },
+        {
+          "value": 3184.84,
+          "probability": 0.83
+        },
+        {
+          "value": 3184.92,
+          "probability": 0.84
+        },
+        {
+          "value": 3185.0,
+          "probability": 0.85
+        },
+        {
+          "value": 3185.08,
+          "probability": 0.86
+        },
+        {
+          "value": 3185.16,
+          "probability": 0.87
+        },
+        {
+          "value": 3185.24,
+          "probability": 0.88
+        },
+        {
+          "value": 3185.32,
+          "probability": 0.89
+        },
+        {
+          "value": 3185.4,
+          "probability": 0.9
+        },
+        {
+          "value": 3185.48,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 3185.56,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 3185.64,
+          "probability": 0.905
+        },
+        {
+          "value": 3185.72,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 3185.8,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 3185.88,
+          "probability": 0.91
+        },
+        {
+          "value": 3185.96,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 3186.04,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 3186.12,
+          "probability": 0.915
+        },
+        {
+          "value": 3186.2,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 3186.28,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 3186.36,
+          "probability": 0.92
+        },
+        {
+          "value": 3186.44,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 3186.52,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 3186.6,
+          "probability": 0.925
+        },
+        {
+          "value": 3186.68,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 3186.76,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 3186.84,
+          "probability": 0.93
+        },
+        {
+          "value": 3186.92,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 3187.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 3187.08,
+          "probability": 0.935
+        },
+        {
+          "value": 3187.16,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 3187.24,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 3187.32,
+          "probability": 0.94
+        },
+        {
+          "value": 3187.4,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 3187.48,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 3187.56,
+          "probability": 0.945
+        },
+        {
+          "value": 3187.64,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 3187.72,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 3187.8,
+          "probability": 0.95
+        },
+        {
+          "value": 3187.88,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 3187.96,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 3188.04,
+          "probability": 0.955
+        },
+        {
+          "value": 3188.12,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 3188.2,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 3188.28,
+          "probability": 0.96
+        },
+        {
+          "value": 3188.36,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 3188.44,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 3188.52,
+          "probability": 0.965
+        },
+        {
+          "value": 3188.6,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 3188.68,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 3188.76,
+          "probability": 0.97
+        },
+        {
+          "value": 3188.84,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 3188.92,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 3189.0,
+          "probability": 0.975
+        },
+        {
+          "value": 3189.08,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 3189.16,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 3189.24,
+          "probability": 0.98
+        },
+        {
+          "value": 3189.32,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 3189.4,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 3189.48,
+          "probability": 0.985
+        },
+        {
+          "value": 3189.56,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 3189.64,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 3189.72,
+          "probability": 0.99
+        },
+        {
+          "value": 3189.8,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 3189.88,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 3189.96,
+          "probability": 0.995
+        },
+        {
+          "value": 3190.04,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 3190.12,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 3190.2,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 3182.2,
+        "median": 3182.2,
+        "interval80": {
+          "lower": 3179,
+          "upper": 3185.4
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/prompt.md",
+        "sha256": "a8316c3b1952b0229a8db6c77e53007b337bfe9bd6c26da5a4d759801fb4af33",
+        "bytes": 8033,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_command.json",
+        "sha256": "74b8a3e89c5284deea815bd1192bc3f99501aa0a63b055b2a15577157b4d10f4",
+        "bytes": 740,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "1f17ee38a1fd2b569f8d83ba4121f369db05a1bee81a43513d46b764cbe2e340",
+        "bytes": 1368757,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_codex_events.jsonl",
+        "sha256": "bebc20c6befaabec28e815c637d7232641446cb53a7116d3bf0664cc92684184",
+        "bytes": 1368870,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_codex_last_message.txt",
+        "sha256": "aca0ca782c5463f94f4c141ed2405c2cac1911844ace6c067a1d0b661e2b5983",
+        "bytes": 6700,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_codex_trace.json",
+        "sha256": "45a62d3395f90c6915fa319f3da9336b7dfd5b73c5dd2880a82ca2db8d16f22a",
+        "bytes": 508,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_stdout.txt",
+        "sha256": "aca0ca782c5463f94f4c141ed2405c2cac1911844ace6c067a1d0b661e2b5983",
+        "bytes": 6700,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_prompt.md",
+        "sha256": "ba2f496eba8770c02813b8a9d1e55c52b31c224b4215a7a3f2e5d2680ec91794",
+        "bytes": 8886,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_command.json",
+        "sha256": "7fe37734bdad47ba78cb7b2fccdb1585f341d3aa31bc3d0a0433ac8cdad4eea4",
+        "bytes": 736,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "aa1fc74ff6966528ef97de3e39f3487f65bf7cbde8a1a6b4aab4fdec70610330",
+        "bytes": 2318,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "eff714e1b2a38ad7c392c5fa9beeaf763a5313abf42a913acff9652465e5497c",
+        "bytes": 2350,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "ae8c476de0e754f34cf501827c92ad6156d618d28fc17eaf35841060c06f5789",
+        "bytes": 1090,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "9e1870e80c304168bde84f76b76dd33460b30ac629fa846190ddd9484f4fd72f",
+        "bytes": 504,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "ae8c476de0e754f34cf501827c92ad6156d618d28fc17eaf35841060c06f5789",
+        "bytes": 1090,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/revision_prompt.md",
+        "sha256": "3261c20118d55eff6d84d0dd8d48eba94903d0c99b1e458c5a7cd67aa542489b",
+        "bytes": 16759,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/command.json",
+        "sha256": "899ffbe6a4ef47b53cb0a1fc96f19183649cdfcca8caec0c942b0de3461ff0b0",
+        "bytes": 734,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/codex_stdout.jsonl",
+        "sha256": "7b5f3f3896d45b2530c3f0c882ee7a561a0dfac71af7a4b602e48fa75c5df060",
+        "bytes": 8263,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/codex_events.jsonl",
+        "sha256": "4775d14a3e3a5794601426cef100f1f8138a5db7f8c67251bf10bae958722177",
+        "bytes": 8313,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/codex_last_message.txt",
+        "sha256": "478f209cf1abed5d4bc1e22f2f4821df0adfb892f83fc64c9375dd337c080aa6",
+        "bytes": 7285,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/codex_trace.json",
+        "sha256": "c5b6b13119d44639f14fd964dd7030b76fe085543026f224e228c924ffbc1fc4",
+        "bytes": 505,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/stdout.txt",
+        "sha256": "478f209cf1abed5d4bc1e22f2f4821df0adfb892f83fc64c9375dd337c080aa6",
+        "bytes": 7285,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/raw_response.txt",
+        "sha256": "478f209cf1abed5d4bc1e22f2f4821df0adfb892f83fc64c9375dd337c080aa6",
+        "bytes": 7285,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/parsed_cells.json",
+        "sha256": "c228263abeeae67406e2ad86ddc3077ad422fc136427e0bf7462184a306ae9e4",
+        "bytes": 8243,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/normalized_cells.json",
+        "sha256": "d68853373a4d85dea5968516ad667dd07e94c34f610d68cd79003deb1dfdccf7",
+        "bytes": 25514,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/distribution.json",
+        "sha256": "f3a911c5fe1160cad4fbf21db773c3db4635e1f2c8b0b9b2e87d1a6afb0fc55a",
+        "bytes": 13827,
+        "createdAt": "2026-07-23T02:50:50Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/validation.json",
+        "sha256": "3ad828bbf2baaec49801af9bc6a23e77f849a17a1c4a88b521aad20d3e3d0cc5",
+        "bytes": 131,
+        "createdAt": "2026-07-23T02:50:50Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-23T02:50:50Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "597f787fd641cff25aabaee6f066541c30775d04c4dc870093c0d282513c91dd"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-50-50z-bls-laus-colorado-labor-force-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is based on only five recent month-to-month changes during a monotonic decline, so the realized-volatility estimate may understate normal one-month LAUS first-print uncertainty.",
+          "actionRequested": "Either justify why the five-change Jan-Jun 2026 sample is adequate for this target, or add a broader historical one-month change/forecast-error volatility check and adjust or defend the 3179.8-3184.6 interval."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "State explicitly that the BLS Table 1 URL is mutable and that resolution should use the first July 2026 print as captured/released on August 21, 2026, not whatever later appears at the same URL."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The prior/update/interval step is strong; consider naming the historical sample as 'Jan-Jun 2026 only' in the final prose to make the narrow sample choice unmistakable."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the interval critique by widening the 80% interval from a 2.4 thousand half-width to 3.2 thousand and explicitly flagging the narrow Jan-Jun 2026 sample; accepted the mutable Table 1 URL clarification in the resolution rule; no critique items rejected.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval critique by widening the 80% interval from a 2.4 thousand half-width to 3.2 thousand and explicitly flagging the narrow Jan-Jun 2026 sample; accepted the mutable Table 1 URL clarification in the resolution rule; no critique items rejected.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the interval critique by widening the 80% interval from a 2.4 thousand half-width to 3.2 thousand and explicitly flagging the narrow Jan-Jun 2026 sample; accepted the mutable Table 1 URL clarification in the resolution rule; no critique items rejected.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publishable after tightening the interval justification; resolver, unit, first-print rule, release date, and forecast fields are otherwise coherent with the target contract."
+    }
+  }
+]

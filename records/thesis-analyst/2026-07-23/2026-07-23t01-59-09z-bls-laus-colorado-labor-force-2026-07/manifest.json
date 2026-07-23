@@ -1,0 +1,347 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-23T01:59:09Z",
+  "runStartedAt": "2026-07-23T01:59:09Z",
+  "series": "bls.laus.colorado.labor_force",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "colorado-labor-force-july-2026",
+    "period": "2026-07",
+    "series": "bls.laus.colorado.labor_force",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-23T01:59:09Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "6718e5ebd790a35e8b00bd83af36fb01f70f5bbc9b13a9a9b3c6f00805aaa680"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The cited FRED May 2026 value is 3,206.153 thousand while historicalContext and the interval arithmetic use the current BLS-revised May value of 3,206.175 thousand.",
+        "actionRequested": "Either remove the stale FRED May figure from the evidence text or explicitly note that the current BLS Table 1 revised May to 3,206.175 thousand and that this revised value is used in the change calculation."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider adding the likely archive URL pattern for the July 2026 first print once available, while retaining the live BLS Table 1 resolver."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval method is acceptable, but noting the five-change sample size limitation would make the uncertainty justification more transparent."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer warning by clarifying that FRED showed a stale May mirror value while current BLS Table 1 revised May to 3,206.175 thousand and that the BLS-revised value is used for arithmetic; also accepted the optional uncertainty note by naming the five-change sample limitation. Rejected adding a speculative archive URL because the live Table 1 resolver is the stable official source available before release.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning by clarifying that FRED showed a stale May mirror value while current BLS Table 1 revised May to 3,206.175 thousand and that the BLS-revised value is used for arithmetic; also accepted the optional uncertainty note by naming the five-change sample limitation. Rejected adding a speculative archive URL because the live Table 1 resolver is the stable official source available before release.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer warning by clarifying that FRED showed a stale May mirror value while current BLS Table 1 revised May to 3,206.175 thousand and that the BLS-revised value is used for arithmetic; also accepted the optional uncertainty note by naming the five-change sample limitation. Rejected adding a speculative archive URL because the live Table 1 resolver is the stable official source available before release.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with no blocking issues; resolver, prior, update, interval arithmetic, tails, units, and JSON fields are broadly coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/prompt.md",
+      "sha256": "a8316c3b1952b0229a8db6c77e53007b337bfe9bd6c26da5a4d759801fb4af33",
+      "bytes": 8033,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_command.json",
+      "sha256": "096d98e7104183cbaa6795c84ce22ec56f0ce0c8f3a607e78430651d0e3e84db",
+      "bytes": 740,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "5ca273c45ea9714df705c9dd2c86ce021f5f3da713f012a2a708632299967634",
+      "bytes": 1287762,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_codex_events.jsonl",
+      "sha256": "7ff844c4b30c6fc12a00a6993810f9dc13fcc2e651723b8770db99dfeec11432",
+      "bytes": 1287888,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_codex_last_message.txt",
+      "sha256": "faec480d30b84de04bc4de6ad7b18919823b7c127f38d245ec871a07f76527d9",
+      "bytes": 6468,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_codex_trace.json",
+      "sha256": "6ae996efc42f34d9e836d90ddd98eb6df9ffa818969e8ddcc53fd69844189875",
+      "bytes": 509,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_stdout.txt",
+      "sha256": "faec480d30b84de04bc4de6ad7b18919823b7c127f38d245ec871a07f76527d9",
+      "bytes": 6468,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_prompt.md",
+      "sha256": "fdd0387ab3af67b2003a66ed55d5c833f132cdfff7aa580e6ddbe27fbf4ea1f8",
+      "bytes": 8654,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_command.json",
+      "sha256": "17c5339d8e029650bb8472f9872564beced5aa1d797aba43ebbb5d4d32b87bea",
+      "bytes": 736,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "339e5819eef091d051c785f8b22f39be3219dcde1b8dae240cb22672479ad35b",
+      "bytes": 2861,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "c6084eb01051a10580234e19a334e6a332be3422f63fe449dff7159cbca4cb58",
+      "bytes": 2873,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "564690340fb6e23c39ded03ad48d377a25fa33715ec9643e98c98c147a311f74",
+      "bytes": 940,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "5b531dccd64a2abb3e5223563046296506b38609d280fd9785727e545e5ed1ed",
+      "bytes": 507,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "564690340fb6e23c39ded03ad48d377a25fa33715ec9643e98c98c147a311f74",
+      "bytes": 940,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/revision_prompt.md",
+      "sha256": "cea68bd0d93e3142bf78985590ec34d319de9b8214780eaf08742c02cee2feca",
+      "bytes": 16377,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/command.json",
+      "sha256": "cf80267767c807b4aaf6c7479dcdbde1560244ca7fccf63f6294ba333e3a497b",
+      "bytes": 734,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/codex_stdout.jsonl",
+      "sha256": "455c45d64238b4019d7cf9285162d94f26445ed8624ec5d33db00be0cad0fa7d",
+      "bytes": 7677,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/codex_events.jsonl",
+      "sha256": "17ab09838da208e7555e4e597247b2be4008739d4f1e759ea3a281b9c3414a2f",
+      "bytes": 7699,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/codex_last_message.txt",
+      "sha256": "81dba61a2f60a49275c60706270aca35e2d534c43db4e3eeacb78bfb0ce88b84",
+      "bytes": 7106,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/codex_trace.json",
+      "sha256": "9b2bebc632375795d1ecf31e481e83c85363caf197daab2a5de16173aefc463f",
+      "bytes": 503,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/stdout.txt",
+      "sha256": "81dba61a2f60a49275c60706270aca35e2d534c43db4e3eeacb78bfb0ce88b84",
+      "bytes": 7106,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/raw_response.txt",
+      "sha256": "81dba61a2f60a49275c60706270aca35e2d534c43db4e3eeacb78bfb0ce88b84",
+      "bytes": 7106,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/parsed_cells.json",
+      "sha256": "e5aff865996f1d703038dffcfe67129621540d096d208fd457f590905b7446fd",
+      "bytes": 8057,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/normalized_cells.json",
+      "sha256": "8ee88da1dcc380f914c90b942c960751280f38df57fcb41be987fb8f2f7f3721",
+      "bytes": 25330,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/distribution.json",
+      "sha256": "cd9858b02e66ba29e9951111e02c143c24e56d10f42a72e778e7cb6349dce793",
+      "bytes": 13829,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/validation.json",
+      "sha256": "3ad828bbf2baaec49801af9bc6a23e77f849a17a1c4a88b521aad20d3e3d0cc5",
+      "bytes": 131,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/cells.with_activity.json",
+      "sha256": "7cb4e0792f369af24380dff0080af09d1576b73645c112101408f317763dd073",
+      "bytes": 40507,
+      "createdAt": "2026-07-23T01:59:09Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t01-59-09z-bls-laus-colorado-labor-force-2026-07/manifest.json",
+      "sha256": "9f8f7d43b4dde4af49dfec6b045e1240f736895c0a2e23481438742a5280efe7",
+      "bytes": 14045,
+      "createdAt": "2026-07-23T01:59:09Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "colorado-labor-force-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "b70241e55c442bdccdfef578fc499ba27b37848f5f00ad397d030a08ef3703b4"
+}

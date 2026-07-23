@@ -1,0 +1,27 @@
+{
+  "summary": "Draft is publishable only after strengthening the historical/model prior and interval method with actual CDOR monthly or July-specific collections history rather than annual averages and two stress points.",
+  "requiredFixes": [
+    {
+      "rubricItem": "model_prior",
+      "severity": "blocking",
+      "summary": "The prior is based on annual LCS monthly-average equivalents and only two July stress observations, despite the official CDOR series reportedly covering July 2019 to date.",
+      "actionRequested": "Use actual CDOR monthly net individual income tax collections, preferably July observations and nearby-month seasonality from 2019-2025, or explicitly state why that official time series could not be used."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "The 80% interval is widened from sigma computed on three annual monthly-average values, which does not measure realized monthly cash-collection volatility.",
+      "actionRequested": "Recompute or justify the interval from realized CDOR monthly or July-specific volatility, or provide an explicit uncertainty model tied to observed cash-flow variation."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "warning",
+      "summary": "The -0.050 July seasonality adjustment is directionally plausible but not quantified from July shares or recent July outcomes.",
+      "actionRequested": "Tie the July adjustment to observed July-vs-average collections in the CDOR history, or label it as judgmental and explain its scale."
+    }
+  ],
+  "optionalSuggestions": [
+    "Prefer official CDOR values over the Tax Foundation citation for July 2019 and July 2020 if the CDOR workbook contains them.",
+    "Keep the 2026-08-31 ledger resolution date, but note if it is an operational deadline rather than the expected publication day."
+  ]
+}

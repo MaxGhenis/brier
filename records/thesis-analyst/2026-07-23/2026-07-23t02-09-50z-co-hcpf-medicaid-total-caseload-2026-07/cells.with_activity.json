@@ -1,0 +1,1247 @@
+[
+  {
+    "slug": "colorado-medicaid-caseload-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "Colorado Medicaid caseload, July 2026",
+    "question": "Colorado Department of Health Care Policy and Financing FY 2026-27 Medical Premiums Expenditure and Caseload Report, Medicaid Caseload Without Retroactivity TOTAL for July 2026, first print",
+    "unit": "thousands",
+    "pointEstimate": 1241.0,
+    "ciLow": 1228.5,
+    "ciHigh": 1253.5,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-15",
+    "resolutionSource": "Colorado Department of Health Care Policy and Financing Monthly Member Caseload Report",
+    "resolutionSourceUrl": "https://hcpf.colorado.gov/budget/FY-Premiums-Expenditures-Caseload-Reports",
+    "resolutionRule": "Resolve to the first Colorado HCPF monthly Medical Premiums Expenditure and Caseload Report value for July 2026 on the MEDICAID CASELOAD WITHOUT RETROACTIVITY table, TOTAL column, sourced from REX01/COLD (MARS) R-474701. Use the first official print only; convert whole members to thousands by dividing by 1,000 and round to one decimal thousand. Ignore later restatements, county-table suppressions, CMS Medicaid/CHIP enrollment mirrors, and revised HCPF reports after the first print.",
+    "dataPointId": "co.hcpf.medicaid.total_caseload.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "July 2025 Medicaid Caseload Without Retroactivity TOTAL, thousands",
+        "value": 1232.489
+      },
+      {
+        "label": "October 2025 Medicaid Caseload Without Retroactivity TOTAL, thousands",
+        "value": 1235.943
+      },
+      {
+        "label": "November 2025 Medicaid Caseload Without Retroactivity TOTAL, thousands",
+        "value": 1221.808
+      },
+      {
+        "label": "December 2025 Medicaid Caseload Without Retroactivity TOTAL, thousands",
+        "value": 1229.956
+      },
+      {
+        "label": "January 2026 Medicaid Caseload Without Retroactivity TOTAL, thousands",
+        "value": 1236.302
+      },
+      {
+        "label": "March 2026 Medicaid Member Caseload by County total all ages, thousands",
+        "value": 1234.627
+      }
+    ],
+    "drivers": [
+      "recent HCPF Medicaid caseload has been broadly stable near 1.23 to 1.24 million",
+      "November 2025 drop looks like an administrative one-off rather than a new trend",
+      "July is before major January 2027 federal Medicaid work-requirement effects",
+      "HCPF sustainability actions affect benefits and LTSS more clearly than near-term total eligibility",
+      "first-print risk comes from preliminary REX01/COLD reporting and later restatement risk"
+    ],
+    "sourceContext": [
+      "https://hcpf.colorado.gov/budget/FY-Premiums-Expenditures-Caseload-Reports",
+      "https://hcpf.colorado.gov/sites/hcpf/files/2026%20February%2C%20Joint%20Budget%20Committee%20Monthly%20Premiums%20Report_0.pdf",
+      "https://hcpf.colorado.gov/sites/hcpf/files/2026%20January%2C%20Joint%20Budget%20Committee%20Monthly%20Premiums%20Report%20%28Clean%20Version%29.pdf",
+      "https://spl.cde.state.co.us/artemis/hcpserials/hcp63510internet/hcp63510202603internet.pdf",
+      "https://ebs.publicnow.com/view/2D3289EE778E285EE23A8F91E94F8667FE38B870",
+      "https://hcpf.colorado.gov/impact"
+    ],
+    "runAt": "2026-07-23T02:14:52Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for Colorado July 2026 Medicaid caseload"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this is the Colorado HCPF Medicaid Caseload Without Retroactivity TOTAL in the monthly Medical Premiums Expenditure and Caseload Report, not CMS Medicaid/CHIP enrollment and not the county table. The table note identifies the source as REX01/COLD (MARS) R-474701 and says the number of days captured is equal to the number of days in the report month."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the HCPF Premiums, Expenditures and Caseload Reports page for the official series page and release timing note.",
+        "result": "Fetched HCPF page text: the reports describe monthly spending and caseload statistics; the page says reports contain data about the prior month and gives the example that an August link references August activity, while the report is dated September; the February 2026 report link was listed with 3 artifacts: Letter, Report, and Report-XLS."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the HCPF February 2026 Medical Premiums Expenditure and Caseload Report and read the Medicaid Caseload Without Retroactivity total sequence.",
+        "result": "Fetched HCPF whole-member totals: July 2025 = 1,232,489, August 2025 = 1,235,329, September 2025 = 1,235,008, October 2025 = 1,235,943, November 2025 = 1,221,808, December 2025 = 1,229,956, and January 2026 = 1,236,302."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened the HCPF January 2026 and December 2025 reports to cross-check the same table across first-print/reposted report vintages.",
+        "result": "Fetched cross-check totals: the January 2026 report showed July 2025 = 1,232,489, August 2025 = 1,235,329, September 2025 = 1,235,008, October 2025 = 1,235,943, November 2025 = 1,221,808, and December 2025 = 1,229,956; the December 2025 report showed November 2025 = 1,221,808."
+      },
+      {
+        "kind": "tool",
+        "tool": "public.archive.lookup",
+        "call": "Opened the Colorado State Publications Library HCPF Medicaid Member Caseload by County March 2026 PDF as a sanctioned public archive cross-check, not the final resolver.",
+        "result": "Fetched March 2026 county-table totals: Members Age 20 and Under = 504,945, Members Age 21 and Over = 729,682, and Total Members - All Ages = 1,234,627."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.calendar",
+        "call": "Checked the HCPF report timing note and public HCPF announcement mirror for July 2026 publication timing.",
+        "result": "Fetched timing evidence: HCPF report notes say data are preliminary based on information available as of the 15th day of the reported month; the public mirror of HCPF content lists Caseload Report (July 2026) published 07/15/2026 at 13:15 and distributed at 19:15 UTC."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.policy.lookup",
+        "call": "Opened HCPF's federal Medicaid-change impact page for near-term policy mechanisms affecting Colorado Medicaid caseload.",
+        "result": "Fetched HCPF policy numbers and dates: work/community engagement requirements are active January 2027, member impact is approximately 375,000 members before exemptions, and retroactive coverage restrictions are also active January 2027."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the base rate is Colorado's own HCPF Medicaid Caseload Without Retroactivity monthly TOTAL sequence from July 2025 through January 2026, with the March 2026 county total used only as a public cross-check. The official reference class sits tightly around 1,232 to 1,236 thousand except for the November administrative dip to 1,221.808 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and policy mechanisms: latest same-table level is 1,236.302 thousand in January 2026; the March county-table cross-check is 1,234.627 thousand, so I avoid extrapolating strong growth. Momentum is mildly positive after the November dip, because December and January rebounded by 8.148 and 6.346 thousand. The November 2025 drop is treated as one-off reporting/eligibility churn. Major federal community-engagement and retroactive-coverage mechanisms begin in January 2027, so they do not materially reduce the July 2026 point."
+      },
+      {
+        "kind": "text",
+        "text": "Prior/update/interval: persistence prior = January 2026 HCPF same-table total of 1,236.302 thousand, checked against the March 2026 county-table total of 1,234.627 thousand. Historical sample is July 2025 through January 2026 HCPF same-table totals; adjustment components are +3.8 thousand ordinary six-month drift, +1.5 thousand post-November normalization, and -0.6 thousand for the lower March county cross-check, giving about 1,241.0 thousand. Interval method uses successive HCPF monthly changes in thousands: +2.840, -0.321, +0.935, -14.135, +8.148, +6.346; sigma = 7.913 thousand and 1.28*sigma = 10.129 thousand. I widen modestly to a 12.5 thousand half-width, about 1.2x, for six-month horizon and first-print preliminary-report risk, giving final implied bounds 1,228.5 to 1,253.5 thousand."
+      },
+      {
+        "kind": "math",
+        "text": "Point calculation in thousands: January 2026 same-table total 1,236.302 + 3.8 ordinary drift + 1.5 post-dip normalization - 0.6 March cross-check haircut = 1,241.002, rounded to 1,241.0. Interval calculation: monthly-change sigma = 7.913, so 1.28*sigma = 10.129; widened half-width = 12.5, so ciLow = 1,241.0 - 12.5 = 1,228.5 and ciHigh = 1,241.0 + 12.5 = 1,253.5."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-consideration: upside risk is that July captures renewed Medicaid expansion adult enrollment, continued HB 22-1289 adult growth, or another rebound from the November 2025 administrative dip, which would land above the interval over 1,253.5 thousand. Downside risk is that renewal churn, eligibility cleanup, or benefit-policy confusion pulls enrollment back toward the November 2025 low, which would land below the interval under 1,228.5 thousand. Outside the interval would most likely require either a large eligibility-system restatement in the first print or an abrupt administrative policy change before July 15."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking timing critique. The ledger resolutionDate remains 2026-07-15 and the draft runAt is 2026-07-23T02:10:04Z, after the cited publication timing, so this record is timing-tainted and should not be treated as an eligible pre-resolution forecast unless an auditable pre-2026-07-15 run is supplied or the ledger date is corrected by official evidence. I retained the forecast numbers only to preserve the drafted cell and made the timing issue explicit."
+      },
+      {
+        "kind": "forecast",
+        "point": 1241.0,
+        "ciLow": 1228.5,
+        "ciHigh": 1253.5
+      }
+    ],
+    "agentReportedRunAt": "2026-07-23T02:10:04Z",
+    "runStartedAt": "2026-07-23T02:09:50Z",
+    "promptMode": "fast",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 1209.75,
+        "upper": 1272.25
+      },
+      "points": [
+        {
+          "value": 1209.75,
+          "probability": 0.0
+        },
+        {
+          "value": 1210.0625,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 1210.375,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 1210.6875,
+          "probability": 0.005
+        },
+        {
+          "value": 1211.0,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 1211.3125,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 1211.625,
+          "probability": 0.01
+        },
+        {
+          "value": 1211.9375,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 1212.25,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 1212.5625,
+          "probability": 0.015
+        },
+        {
+          "value": 1212.875,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 1213.1875,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 1213.5,
+          "probability": 0.02
+        },
+        {
+          "value": 1213.8125,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 1214.125,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 1214.4375,
+          "probability": 0.025
+        },
+        {
+          "value": 1214.75,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 1215.0625,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 1215.375,
+          "probability": 0.03
+        },
+        {
+          "value": 1215.6875,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 1216.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 1216.3125,
+          "probability": 0.035
+        },
+        {
+          "value": 1216.625,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 1216.9375,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 1217.25,
+          "probability": 0.04
+        },
+        {
+          "value": 1217.5625,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 1217.875,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 1218.1875,
+          "probability": 0.045
+        },
+        {
+          "value": 1218.5,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 1218.8125,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 1219.125,
+          "probability": 0.05
+        },
+        {
+          "value": 1219.4375,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 1219.75,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 1220.0625,
+          "probability": 0.055
+        },
+        {
+          "value": 1220.375,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 1220.6875,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 1221.0,
+          "probability": 0.06
+        },
+        {
+          "value": 1221.3125,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 1221.625,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 1221.9375,
+          "probability": 0.065
+        },
+        {
+          "value": 1222.25,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 1222.5625,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 1222.875,
+          "probability": 0.07
+        },
+        {
+          "value": 1223.1875,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 1223.5,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 1223.8125,
+          "probability": 0.075
+        },
+        {
+          "value": 1224.125,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 1224.4375,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 1224.75,
+          "probability": 0.08
+        },
+        {
+          "value": 1225.0625,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 1225.375,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 1225.6875,
+          "probability": 0.085
+        },
+        {
+          "value": 1226.0,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 1226.3125,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 1226.625,
+          "probability": 0.09
+        },
+        {
+          "value": 1226.9375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 1227.25,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 1227.5625,
+          "probability": 0.095
+        },
+        {
+          "value": 1227.875,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 1228.1875,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 1228.5,
+          "probability": 0.1
+        },
+        {
+          "value": 1228.8125,
+          "probability": 0.11
+        },
+        {
+          "value": 1229.125,
+          "probability": 0.12
+        },
+        {
+          "value": 1229.4375,
+          "probability": 0.13
+        },
+        {
+          "value": 1229.75,
+          "probability": 0.14
+        },
+        {
+          "value": 1230.0625,
+          "probability": 0.15
+        },
+        {
+          "value": 1230.375,
+          "probability": 0.16
+        },
+        {
+          "value": 1230.6875,
+          "probability": 0.17
+        },
+        {
+          "value": 1231.0,
+          "probability": 0.18
+        },
+        {
+          "value": 1231.3125,
+          "probability": 0.19
+        },
+        {
+          "value": 1231.625,
+          "probability": 0.2
+        },
+        {
+          "value": 1231.9375,
+          "probability": 0.21
+        },
+        {
+          "value": 1232.25,
+          "probability": 0.22
+        },
+        {
+          "value": 1232.5625,
+          "probability": 0.23
+        },
+        {
+          "value": 1232.875,
+          "probability": 0.24
+        },
+        {
+          "value": 1233.1875,
+          "probability": 0.25
+        },
+        {
+          "value": 1233.5,
+          "probability": 0.26
+        },
+        {
+          "value": 1233.8125,
+          "probability": 0.27
+        },
+        {
+          "value": 1234.125,
+          "probability": 0.28
+        },
+        {
+          "value": 1234.4375,
+          "probability": 0.29
+        },
+        {
+          "value": 1234.75,
+          "probability": 0.3
+        },
+        {
+          "value": 1235.0625,
+          "probability": 0.31
+        },
+        {
+          "value": 1235.375,
+          "probability": 0.32
+        },
+        {
+          "value": 1235.6875,
+          "probability": 0.33
+        },
+        {
+          "value": 1236.0,
+          "probability": 0.34
+        },
+        {
+          "value": 1236.3125,
+          "probability": 0.35
+        },
+        {
+          "value": 1236.625,
+          "probability": 0.36
+        },
+        {
+          "value": 1236.9375,
+          "probability": 0.37
+        },
+        {
+          "value": 1237.25,
+          "probability": 0.38
+        },
+        {
+          "value": 1237.5625,
+          "probability": 0.39
+        },
+        {
+          "value": 1237.875,
+          "probability": 0.4
+        },
+        {
+          "value": 1238.1875,
+          "probability": 0.41
+        },
+        {
+          "value": 1238.5,
+          "probability": 0.42
+        },
+        {
+          "value": 1238.8125,
+          "probability": 0.43
+        },
+        {
+          "value": 1239.125,
+          "probability": 0.44
+        },
+        {
+          "value": 1239.4375,
+          "probability": 0.45
+        },
+        {
+          "value": 1239.75,
+          "probability": 0.46
+        },
+        {
+          "value": 1240.0625,
+          "probability": 0.47
+        },
+        {
+          "value": 1240.375,
+          "probability": 0.48
+        },
+        {
+          "value": 1240.6875,
+          "probability": 0.49
+        },
+        {
+          "value": 1241.0,
+          "probability": 0.5
+        },
+        {
+          "value": 1241.3125,
+          "probability": 0.51
+        },
+        {
+          "value": 1241.625,
+          "probability": 0.52
+        },
+        {
+          "value": 1241.9375,
+          "probability": 0.53
+        },
+        {
+          "value": 1242.25,
+          "probability": 0.54
+        },
+        {
+          "value": 1242.5625,
+          "probability": 0.55
+        },
+        {
+          "value": 1242.875,
+          "probability": 0.56
+        },
+        {
+          "value": 1243.1875,
+          "probability": 0.57
+        },
+        {
+          "value": 1243.5,
+          "probability": 0.58
+        },
+        {
+          "value": 1243.8125,
+          "probability": 0.59
+        },
+        {
+          "value": 1244.125,
+          "probability": 0.6
+        },
+        {
+          "value": 1244.4375,
+          "probability": 0.61
+        },
+        {
+          "value": 1244.75,
+          "probability": 0.62
+        },
+        {
+          "value": 1245.0625,
+          "probability": 0.63
+        },
+        {
+          "value": 1245.375,
+          "probability": 0.64
+        },
+        {
+          "value": 1245.6875,
+          "probability": 0.65
+        },
+        {
+          "value": 1246.0,
+          "probability": 0.66
+        },
+        {
+          "value": 1246.3125,
+          "probability": 0.67
+        },
+        {
+          "value": 1246.625,
+          "probability": 0.68
+        },
+        {
+          "value": 1246.9375,
+          "probability": 0.69
+        },
+        {
+          "value": 1247.25,
+          "probability": 0.7
+        },
+        {
+          "value": 1247.5625,
+          "probability": 0.71
+        },
+        {
+          "value": 1247.875,
+          "probability": 0.72
+        },
+        {
+          "value": 1248.1875,
+          "probability": 0.73
+        },
+        {
+          "value": 1248.5,
+          "probability": 0.74
+        },
+        {
+          "value": 1248.8125,
+          "probability": 0.75
+        },
+        {
+          "value": 1249.125,
+          "probability": 0.76
+        },
+        {
+          "value": 1249.4375,
+          "probability": 0.77
+        },
+        {
+          "value": 1249.75,
+          "probability": 0.78
+        },
+        {
+          "value": 1250.0625,
+          "probability": 0.79
+        },
+        {
+          "value": 1250.375,
+          "probability": 0.8
+        },
+        {
+          "value": 1250.6875,
+          "probability": 0.81
+        },
+        {
+          "value": 1251.0,
+          "probability": 0.82
+        },
+        {
+          "value": 1251.3125,
+          "probability": 0.83
+        },
+        {
+          "value": 1251.625,
+          "probability": 0.84
+        },
+        {
+          "value": 1251.9375,
+          "probability": 0.85
+        },
+        {
+          "value": 1252.25,
+          "probability": 0.86
+        },
+        {
+          "value": 1252.5625,
+          "probability": 0.87
+        },
+        {
+          "value": 1252.875,
+          "probability": 0.88
+        },
+        {
+          "value": 1253.1875,
+          "probability": 0.89
+        },
+        {
+          "value": 1253.5,
+          "probability": 0.9
+        },
+        {
+          "value": 1253.8125,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 1254.125,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 1254.4375,
+          "probability": 0.905
+        },
+        {
+          "value": 1254.75,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 1255.0625,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 1255.375,
+          "probability": 0.91
+        },
+        {
+          "value": 1255.6875,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 1256.0,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 1256.3125,
+          "probability": 0.915
+        },
+        {
+          "value": 1256.625,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 1256.9375,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 1257.25,
+          "probability": 0.92
+        },
+        {
+          "value": 1257.5625,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 1257.875,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 1258.1875,
+          "probability": 0.925
+        },
+        {
+          "value": 1258.5,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1258.8125,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1259.125,
+          "probability": 0.93
+        },
+        {
+          "value": 1259.4375,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1259.75,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1260.0625,
+          "probability": 0.935
+        },
+        {
+          "value": 1260.375,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1260.6875,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1261.0,
+          "probability": 0.94
+        },
+        {
+          "value": 1261.3125,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1261.625,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1261.9375,
+          "probability": 0.945
+        },
+        {
+          "value": 1262.25,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1262.5625,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1262.875,
+          "probability": 0.95
+        },
+        {
+          "value": 1263.1875,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1263.5,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1263.8125,
+          "probability": 0.955
+        },
+        {
+          "value": 1264.125,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1264.4375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1264.75,
+          "probability": 0.96
+        },
+        {
+          "value": 1265.0625,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1265.375,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1265.6875,
+          "probability": 0.965
+        },
+        {
+          "value": 1266.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1266.3125,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1266.625,
+          "probability": 0.97
+        },
+        {
+          "value": 1266.9375,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 1267.25,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 1267.5625,
+          "probability": 0.975
+        },
+        {
+          "value": 1267.875,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 1268.1875,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 1268.5,
+          "probability": 0.98
+        },
+        {
+          "value": 1268.8125,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 1269.125,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 1269.4375,
+          "probability": 0.985
+        },
+        {
+          "value": 1269.75,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 1270.0625,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 1270.375,
+          "probability": 0.99
+        },
+        {
+          "value": 1270.6875,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 1271.0,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 1271.3125,
+          "probability": 0.995
+        },
+        {
+          "value": 1271.625,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 1271.9375,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 1272.25,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 1241.0,
+        "median": 1241.0,
+        "interval80": {
+          "lower": 1228.5,
+          "upper": 1253.5
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/prompt.md",
+        "sha256": "f0792b894a46796ef861ee4f6c60b7942c54bd8b929840eb3668330e0f819cb1",
+        "bytes": 7937,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_command.json",
+        "sha256": "74ca6d4dd3968b2ddc713974e288de77eeeed265811155466acb932b999912e7",
+        "bytes": 742,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "3ed716b30bf15e3d1108120f63b5e2bfa6138e85fc013e0a7e2354af4b6bc2c0",
+        "bytes": 1496331,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_codex_events.jsonl",
+        "sha256": "50894aaef040dda241518019cd54f43047f9dbfe4e8d4f4c84bc2edcf9f6994f",
+        "bytes": 1496648,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_codex_last_message.txt",
+        "sha256": "085fefd0e8c7190b2f654e8a1b0985bb3b04547a99dff070bd663c9ea8239989",
+        "bytes": 8973,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_codex_trace.json",
+        "sha256": "38c0014831a7a14cd1b501c53a366912e4dba5165fc2cc963015aae559dd5820",
+        "bytes": 509,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_stdout.txt",
+        "sha256": "085fefd0e8c7190b2f654e8a1b0985bb3b04547a99dff070bd663c9ea8239989",
+        "bytes": 8973,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_prompt.md",
+        "sha256": "2dd4fa067e7143e1dae0b0267f639b6f88194117ac420ac00c4bb9cc7a4bec86",
+        "bytes": 11167,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_command.json",
+        "sha256": "218ee0a434adf7b3bfce1b9151caa5cbbf6d6aa0c913bf037f19729b02b541f8",
+        "bytes": 738,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "4f530047cdd2bef7913ca7e40b933c23eeecbcf29309881d3df3b877741d7066",
+        "bytes": 1360,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "c7d46edce345cdccabb43b7c5292bcee947a1232a6cf2452fcb14a19554f5297",
+        "bytes": 1382,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "d15f9f5852fbccebcaf74648ba8e1d15f9e46711e825ac41ddc489a66cd88d81",
+        "bytes": 1001,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "4a8cbe3fc89fbf1be5069b0244e91f722bca2f04e29916532258c9cbfde0cdd3",
+        "bytes": 504,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "d15f9f5852fbccebcaf74648ba8e1d15f9e46711e825ac41ddc489a66cd88d81",
+        "bytes": 1001,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/revision_prompt.md",
+        "sha256": "bc1f40ad74823b22b18e0c9e2f3e7e788097c091ba47fcb77fb448135bd15c77",
+        "bytes": 18847,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/command.json",
+        "sha256": "61353100c4d6dbb2fa986c6a03f91fa82aabe85e84a97f5c23b3ade8b7c94288",
+        "bytes": 736,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/codex_stdout.jsonl",
+        "sha256": "0d6e8c52b64e33d97bd88f2bba28da38c857b72069862095d917add0cf6ef15c",
+        "bytes": 10098,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/codex_stderr.log",
+        "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+        "bytes": 39,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/codex_events.jsonl",
+        "sha256": "5647ef19a84d2dc1190b3a47ac9d5e888621275a8c71b989555aceafd768d0f9",
+        "bytes": 10120,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/codex_last_message.txt",
+        "sha256": "ca8a337e255e4a63b0b29cd83a07b27e0dd4f4e6ffe066b55484924c70b60779",
+        "bytes": 9488,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/codex_trace.json",
+        "sha256": "8233f85eb2e37adefdd85f0838b179517df2601b26c799044baaf6187ef0aa7d",
+        "bytes": 504,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/stdout.txt",
+        "sha256": "ca8a337e255e4a63b0b29cd83a07b27e0dd4f4e6ffe066b55484924c70b60779",
+        "bytes": 9488,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/stderr.txt",
+        "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+        "bytes": 46,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/raw_response.txt",
+        "sha256": "ca8a337e255e4a63b0b29cd83a07b27e0dd4f4e6ffe066b55484924c70b60779",
+        "bytes": 9488,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/parsed_cells.json",
+        "sha256": "a3a6028328059f2b4f92fd6e105b067ac4805805d26e72916168b48625495a90",
+        "bytes": 10568,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/normalized_cells.json",
+        "sha256": "a5b3e8f310b15a0d0ab026e1fd3210330a56ab5556141042b4181b7aece41ca3",
+        "bytes": 28109,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/distribution.json",
+        "sha256": "654db03081fb9e1cf9a91cf9c603cb68fe805aeb2425e954944726046e069017",
+        "bytes": 14097,
+        "createdAt": "2026-07-23T02:09:50Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/validation.json",
+        "sha256": "917e3b38ae7b827e544fad9659ccda8ec5ac0bc9962385c387f2fa2fd0b70238",
+        "bytes": 254,
+        "createdAt": "2026-07-23T02:09:50Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-23T02:09:50Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "474d2097954466f80a795a763132cc4a95c842cba5b71306c19a6ec5d50550e7"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-09-50z-co-hcpf-medicaid-total-caseload-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "leakage",
+          "summary": "runAt is 2026-07-23T02:10:04Z, which is after the target resolutionDate of 2026-07-15 and after the cited July 2026 publication timing.",
+          "actionRequested": "Do not publish this as a pre-resolution forecast for the current target; either provide an auditable pre-2026-07-15 run or mark the target timing discrepancy explicitly if the ledger resolutionDate is wrong."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "If resubmitted with a valid pre-resolution run, keep the compact Prior/update/interval step because it satisfies the trace requirements well."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the cited 07/15/2026 publication timing is only a calendar placeholder or confirmed release evidence, since that distinction matters for leakage review."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the blocking timing critique. The ledger resolutionDate remains 2026-07-15 and the draft runAt is 2026-07-23T02:10:04Z, after the cited publication timing, so this record is timing-tainted and should not be treated as an eligible pre-resolution forecast unless an auditable pre-2026-07-15 run is supplied or the ledger date is corrected by official evidence. I retained the forecast numbers only to preserve the drafted cell and made the timing issue explicit.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the blocking timing critique. The ledger resolutionDate remains 2026-07-15 and the draft runAt is 2026-07-23T02:10:04Z, after the cited publication timing, so this record is timing-tainted and should not be treated as an eligible pre-resolution forecast unless an auditable pre-2026-07-15 run is supplied or the ledger date is corrected by official evidence. I retained the forecast numbers only to preserve the drafted cell and made the timing issue explicit.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the blocking timing critique. The ledger resolutionDate remains 2026-07-15 and the draft runAt is 2026-07-23T02:10:04Z, after the cited publication timing, so this record is timing-tainted and should not be treated as an eligible pre-resolution forecast unless an auditable pre-2026-07-15 run is supplied or the ledger date is corrected by official evidence. I retained the forecast numbers only to preserve the drafted cell and made the timing issue explicit.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is structurally strong, but it has a blocking leakage/timing problem because the run time is after the ledger resolution date."
+    }
+  }
+]

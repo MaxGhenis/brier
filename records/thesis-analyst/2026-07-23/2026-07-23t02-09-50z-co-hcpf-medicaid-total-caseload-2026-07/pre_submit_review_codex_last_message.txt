@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is structurally strong, but it has a blocking leakage/timing problem because the run time is after the ledger resolution date.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "runAt is 2026-07-23T02:10:04Z, which is after the target resolutionDate of 2026-07-15 and after the cited July 2026 publication timing.",
+      "actionRequested": "Do not publish this as a pre-resolution forecast for the current target; either provide an auditable pre-2026-07-15 run or mark the target timing discrepancy explicitly if the ledger resolutionDate is wrong."
+    }
+  ],
+  "optionalSuggestions": [
+    "If resubmitted with a valid pre-resolution run, keep the compact Prior/update/interval step because it satisfies the trace requirements well.",
+    "Clarify whether the cited 07/15/2026 publication timing is only a calendar placeholder or confirmed release evidence, since that distinction matters for leakage review."
+  ]
+}

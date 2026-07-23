@@ -49,6 +49,7 @@ const PUBLISHER_LABELS: Record<string, string> = {
   hud: "Department of Housing and Urban Development",
   ed: "Department of Education",
   ca: "State of California",
+  co: "State of Colorado",
   va: "Department of Veterans Affairs",
   hhs: "Department of Health and Human Services",
   boe: "Bank of England",

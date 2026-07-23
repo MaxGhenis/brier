@@ -1,0 +1,334 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-23T02:58:18Z",
+  "runStartedAt": "2026-07-23T02:58:18Z",
+  "series": "co.hcpf.medicaid.total_caseload",
+  "period": "2026-08",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "colorado-medicaid-caseload-august-2026",
+    "period": "2026-08",
+    "series": "co.hcpf.medicaid.total_caseload",
+    "targetUnit": "thousands",
+    "valueScale": 0.001
+  },
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.2.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "e15bf40583f8ac4365b4c8f121da9aadb86698e51b97d6433f9df028239d75d0",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-23T02:58:18Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "31af163d3ac31b347c337b54a3384197215618377f942e90cee16ac77b944bfc"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the HCPF page more explicitly in resolutionSource, e.g. \"Colorado HCPF Premiums, Expenditures and Caseload Reports\" instead of the generic \"Official agency release\"."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios could be slightly stronger if they attach rough level thresholds to the stated upside and downside mechanisms."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to name the HCPF release page explicitly in resolutionSource and to attach threshold magnitudes to upside and downside scenarios; no required fixes were raised, and the resolver, source grounding, base-rate step, and interval math remain unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the suggestion to name the HCPF release page explicitly in resolutionSource and to attach threshold magnitudes to upside and downside scenarios; no required fixes were raised, and the resolver, source grounding, base-rate step, and interval math remain unchanged.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable: resolver, prior, update, interval math, tail risks, units, and JSON fields are coherent with the ledger target."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/prompt.md",
+      "sha256": "6ddc2aa66a782f83fbc2aa414712dd33cfe6ad9901a536286bf5612f2d093496",
+      "bytes": 7939,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_command.json",
+      "sha256": "b0beb4e4502e8b57f57ac0e43c04de03bf10f9ebfafdc4239ce3e683d80f5312",
+      "bytes": 742,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_codex_stdout.jsonl",
+      "sha256": "400418f4e8e004d132967c13612ab0b0496e137627d677aebd4b5b4ccaaec04a",
+      "bytes": 4242337,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_codex_events.jsonl",
+      "sha256": "ad527bf3cdcfc1e3286a003844f5aa74ba8575d2c87afe25cda50cf81db04f56",
+      "bytes": 4243026,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_codex_last_message.txt",
+      "sha256": "b732d2dc2388ffc75bedf518ea0592ea11728ac7dcabf157fd2e9af89facde3b",
+      "bytes": 7185,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_codex_trace.json",
+      "sha256": "162af6d9bb501f7ce5bbf2a6e6ba295a36302628f6396cca1ce41431b02c52ba",
+      "bytes": 509,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_stdout.txt",
+      "sha256": "b732d2dc2388ffc75bedf518ea0592ea11728ac7dcabf157fd2e9af89facde3b",
+      "bytes": 7185,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/draft_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_prompt.md",
+      "sha256": "ab2552446bcf17213e83ac467cdfcf5698e828bac398ca516987cba7ae0e6668",
+      "bytes": 9381,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_command.json",
+      "sha256": "aba3f9127d25db556ebdeb7f1e3c8c45ad4ed6532e04707f500e9ceecb576b65",
+      "bytes": 738,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "0ed4702fe88b72778d82510900e8538a28b5617a8e3a2d6bcbcde12a0103d340",
+      "bytes": 1687,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_codex_events.jsonl",
+      "sha256": "1f9f05b6ef3c82056bcf70db9dc52914d872d3108d8ace40ed4e7d024f27ca7f",
+      "bytes": 1707,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_codex_last_message.txt",
+      "sha256": "f165ab24562c0b44704217e94c7b46e2b2454624c02441505a4606e2821a9063",
+      "bytes": 499,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_codex_trace.json",
+      "sha256": "e6dbe5ca0434c6e97bdf0c2c59ec9347db11ad789434898c2e19ea56605376f0",
+      "bytes": 504,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_stdout.txt",
+      "sha256": "f165ab24562c0b44704217e94c7b46e2b2454624c02441505a4606e2821a9063",
+      "bytes": 499,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/pre_submit_review_stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/revision_prompt.md",
+      "sha256": "fecbe9b99b97d1009863924f2003e1de85dc22b01bf6ff7809a3ab6c73745196",
+      "bytes": 16559,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/command.json",
+      "sha256": "4f165ea9dde970084737abc8f20fcaa15cf27386a1ae42a5b4b5103576966da3",
+      "bytes": 736,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/codex_stdout.jsonl",
+      "sha256": "8a070249cf126dcf21cafecaca9ed6f36f22ca62f4aa728aca7416f10647a0d4",
+      "bytes": 8206,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/codex_stderr.log",
+      "sha256": "1aa26269eb1cc57f86b235a03cda53c004edb5b1e9fc99d4da4f00843293d721",
+      "bytes": 39,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/codex_events.jsonl",
+      "sha256": "8d5b74b26c1a47a262fec4b3c627526fdba6ac40cbeefb34f137759cb058e276",
+      "bytes": 8228,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/codex_last_message.txt",
+      "sha256": "d30c5bfcd0a3eee7431ab2f030e038a51903a9217c9d26b496c34c872991a436",
+      "bytes": 7631,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/codex_trace.json",
+      "sha256": "a8a2037139fc549a129d0174b5075fca06c9b541f781db4dad0cbd73c2362f9e",
+      "bytes": 503,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/stdout.txt",
+      "sha256": "d30c5bfcd0a3eee7431ab2f030e038a51903a9217c9d26b496c34c872991a436",
+      "bytes": 7631,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/stderr.txt",
+      "sha256": "ecddf95c443de358b49cb468aa285ed00f875372c09e6ad037683b132290a4ef",
+      "bytes": 46,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/raw_response.txt",
+      "sha256": "d30c5bfcd0a3eee7431ab2f030e038a51903a9217c9d26b496c34c872991a436",
+      "bytes": 7631,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/parsed_cells.json",
+      "sha256": "e1600cb76b422130ec30608a3c06e9d890e39d48e84f9998546c7e20d87f7a56",
+      "bytes": 8575,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/normalized_cells.json",
+      "sha256": "f3867ee4ffd0401023feca368a95b0170fc896a74dcb8c6b5f2d9e41e8cfa989",
+      "bytes": 26116,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/distribution.json",
+      "sha256": "39c07446721fd052522a4d0d415bd035c7519d0649640b809fff751664f7fc02",
+      "bytes": 14097,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/validation.json",
+      "sha256": "c31f86046dda62ad48c2a0f978f0636f2bd295a838a096b1f2b5f8d287c24837",
+      "bytes": 139,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/cells.with_activity.json",
+      "sha256": "fa29369e74c27e213e40f97f6f1f5dc8e590e694aa704566da9aec5a7ceec18a",
+      "bytes": 39914,
+      "createdAt": "2026-07-23T02:58:18Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-23/2026-07-23t02-58-18z-co-hcpf-medicaid-total-caseload-2026-08/manifest.json",
+      "sha256": "038bee5af4838668a655bfac1c36047efe2fae7a2d6eceb7302217ff061ecfdd",
+      "bytes": 12834,
+      "createdAt": "2026-07-23T02:58:18Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "colorado-medicaid-caseload-august-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "9788a57ffdc548593ba78a37a5882416062a8a165e214d841723cd4b4fe4361e"
+}

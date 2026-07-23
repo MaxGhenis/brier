@@ -16,6 +16,8 @@ import { AUTO_2026_07_10_AFC0DA82_WAVE } from "./forecast-examples/auto-2026-07-
 import { AGING_CONDITIONALS_2026_07_08_WAVE } from "./forecast-examples/aging-conditionals-2026-07-08";
 import { AGING_DISABILITY_2026_07_08_WAVE } from "./forecast-examples/aging-disability-2026-07-08";
 import { AGING_WAVE2_2026_07_21_WAVE } from "./forecast-examples/aging-wave2-2026-07-21";
+import { COLORADO_CHAIN_2026_07_22_WAVE } from "./forecast-examples/colorado-chain-2026-07-22";
+import { PROSPECT_COMPLETION_2026_07_22_WAVE } from "./forecast-examples/prospect-completion-2026-07-22";
 import { PROSPECT_2026_07_08_R4_WAVE } from "./forecast-examples/prospect-2026-07-08-r4";
 import { PROSPECT_2026_07_07_WAVE } from "./forecast-examples/prospect-2026-07-07";
 import { AUTO_2026_07_07_WAVE } from "./forecast-examples/auto-2026-07-07";
@@ -5216,6 +5218,8 @@ const FORECAST_CELL_DEFINITIONS: ForecastCell[] = [
   ...AGING_CONDITIONALS_2026_07_08_WAVE,
   ...AGING_DISABILITY_2026_07_08_WAVE,
   ...AGING_WAVE2_2026_07_21_WAVE,
+  ...COLORADO_CHAIN_2026_07_22_WAVE,
+  ...PROSPECT_COMPLETION_2026_07_22_WAVE,
   ...AGING_WAVE2B_2026_07_21_WAVE,
   ...PROSPECT_2026_07_08_R4_WAVE,
   ...PROSPECT_2026_07_07_WAVE,
