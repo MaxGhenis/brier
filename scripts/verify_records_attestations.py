@@ -95,6 +95,11 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     "9e5d820916408af773912aa97267e4fc914c4d94": "Next50 wave local push",
     "4a4ac86dbf92b51a14d9fd29626bdd19b482cf0a": "Next50 wave local push",
     "08aac46200a7745621fd64f828734c716dcf7a69": "Next50 wave local push",
+    # 2026-07-22 late: the QCEW aircraft target completion was also pushed
+    # locally, hours after the waiver list shipped — same operator-session
+    # pattern, admitted the same way. The preventive ruleset (blocking
+    # non-workflow pushes to records/**) is the actual fix.
+    "8ad16ab611ab89cacaff570f43e419e0552bdbaf": "QCEW completion local push",
 }
 ERA_BOUNDARY_RE = re.compile(r"^[0-9a-f]{40}$")
 ERA_SLUG_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")

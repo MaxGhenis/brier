@@ -413,6 +413,7 @@ def test_waiver_list_is_pinned_exactly() -> None:
         "9e5d820916408af773912aa97267e4fc914c4d94",
         "4a4ac86dbf92b51a14d9fd29626bdd19b482cf0a",
         "08aac46200a7745621fd64f828734c716dcf7a69",
+        "8ad16ab611ab89cacaff570f43e419e0552bdbaf",
     }
     for sha, reason in provenance.WAIVED_UNATTESTED_COMMITS.items():
         assert provenance.ERA_BOUNDARY_RE.fullmatch(sha)
