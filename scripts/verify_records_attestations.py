@@ -100,6 +100,13 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     # pattern, admitted the same way. The preventive ruleset (blocking
     # non-workflow pushes to records/**) is the actual fix.
     "8ad16ab611ab89cacaff570f43e419e0552bdbaf": "QCEW completion local push",
+    # 2026-07-24: the anchors-gate commit also carried the fourth rejected
+    # broadband run's record directory — the failed trace whose vintage
+    # confabulation motivated the gate — pushed from the same local
+    # operator session, caught by this verifier on its own push event.
+    "4c3fa5ccb5e03c5c6ac2af8d20bbcaddafaa5871": (
+        "Anchors-gate rejection record local push"
+    ),
     # 2026-07-24: the broadband-65+ vintage repair — the anchored
     # network-enabled rerun replacing the 5-year-corrupted published cell
     # before its 2026-09-10 resolution — was an operator-session local
