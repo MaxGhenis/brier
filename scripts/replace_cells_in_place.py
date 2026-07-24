@@ -55,7 +55,7 @@ def find_cell_block(src: str, slug: str) -> tuple[int, int]:
 def main() -> int:
     target, upgrades_path = sys.argv[1], sys.argv[2]
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-    from spawned_cells_to_ts import agent_stamp, to_forecast_cell, validate
+    from spawned_cells_to_ts import to_forecast_cell, validate
 
     src = pathlib.Path(target).read_text()
     upgrades = json.load(open(upgrades_path))
@@ -100,7 +100,11 @@ def main() -> int:
                     f"({len(upgraded) - len(published)} suffix chars dropped)"
                 )
                 cell = {**cell, "resolutionSource": published}
-        errs = [e for e in validate(cell, set()) if "collide" not in e and "dataPointId" not in e]
+        errs = [
+            e
+            for e in validate(cell, set())
+            if "collide" not in e and "dataPointId" not in e
+        ]
         if errs:
             raise SystemExit(f"{slug}: upgrade fails contract: {'; '.join(errs)}")
         new = to_forecast_cell(cell)
