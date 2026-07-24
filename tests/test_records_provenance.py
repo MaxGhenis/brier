@@ -404,8 +404,10 @@ def test_era_repository_resolves_by_ancestry(tmp_path: pathlib.Path) -> None:
 
 
 def test_waiver_list_is_pinned_exactly() -> None:
-    """The waived-unattested set is a permanent public record: exactly the
-    five 2026-07-22 Next50 local pushes, full shas, disjoint from eras."""
+    """The waived-unattested set is a permanent public record: the five
+    2026-07-22 Next50 local pushes, the 2026-07-22 QCEW completion, and
+    the 2026-07-24 broadband vintage repair — full shas, disjoint from
+    eras."""
 
     assert set(provenance.WAIVED_UNATTESTED_COMMITS) == {
         "8d1e6aa5c678035218a2ed310b259d855108b058",
@@ -414,6 +416,7 @@ def test_waiver_list_is_pinned_exactly() -> None:
         "4a4ac86dbf92b51a14d9fd29626bdd19b482cf0a",
         "08aac46200a7745621fd64f828734c716dcf7a69",
         "8ad16ab611ab89cacaff570f43e419e0552bdbaf",
+        "2c02b44382a0e88e0b5104ff82fb891367be64e8",
     }
     for sha, reason in provenance.WAIVED_UNATTESTED_COMMITS.items():
         assert provenance.ERA_BOUNDARY_RE.fullmatch(sha)

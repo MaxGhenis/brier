@@ -100,6 +100,14 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     # pattern, admitted the same way. The preventive ruleset (blocking
     # non-workflow pushes to records/**) is the actual fix.
     "8ad16ab611ab89cacaff570f43e419e0552bdbaf": "QCEW completion local push",
+    # 2026-07-24: the broadband-65+ vintage repair — the anchored
+    # network-enabled rerun replacing the 5-year-corrupted published cell
+    # before its 2026-09-10 resolution — was an operator-session local
+    # push, admitted the same way. Same fix remains: the preventive
+    # ruleset blocking non-workflow pushes to records/**.
+    "2c02b44382a0e88e0b5104ff82fb891367be64e8": (
+        "Broadband vintage-repair local push"
+    ),
 }
 ERA_BOUNDARY_RE = re.compile(r"^[0-9a-f]{40}$")
 ERA_SLUG_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
