@@ -76,6 +76,44 @@ python3 scripts/run_thesis_analyst.py \
 Use `--no-codex-search` for reviewer-like runs that should not fetch new
 evidence, `--codex-sandbox` to change the execution sandbox, and
 `--codex-reasoning-effort` to change the Codex reasoning-effort config.
+
+## Network-enabled Codex runs
+
+The default read-only sandbox denies ALL sockets: `curl` inside it exits 6
+(could not resolve host) before any HTTP happens, and no config restores
+network under read-only. The hosted `--search` web tool is not a substitute
+for data APIs — it cannot fetch raw JSON from CDN-fronted agency endpoints
+(for `data.census.gov/api/access/...` it fails with "Cache miss"), and
+`api.census.gov` now requires an API key outright. The 2026-07-24 broadband
+incident showed what happens when a run's contract demands fetched numbers
+that its tools cannot fetch: four consecutive runs narrated live fetches
+while backfilling memorized ACS 5-year values (with fabricated raw counts),
+caught only by the spawn-time history anchors.
+
+For targets whose official source is such an endpoint, run with:
+
+```bash
+python3 scripts/run_thesis_analyst.py \
+  --series census.acs.broadband_subscription_65_plus.share \
+  --period 2025 \
+  --codex-model gpt-5.5 \
+  --codex-sandbox workspace-write \
+  --codex-network
+```
+
+`--codex-network` adds `sandbox_workspace_write.network_access=true` to the
+Codex invocation (recorded in `command.json` with `networkAccess: true`) and
+injects a fetch-honesty note into the fast/full prompt: fetch with
+`curl -sS`, read values only from the echoed response, and fail honestly if
+a fetch fails. Because workspace-write also makes the checkout writable, the
+runner guards the workspace around every network-enabled agent stage: it
+fingerprints the run directory and the git tree before the stage and fails
+the run closed (`workspaceMutations` in `command.json`,
+`workspaceHygiene` in `manifest.json`, `ok: false`) on any mutation beyond
+the agent's own last-message file. Custody inventory v2 independently
+rejects unreferenced files at promotion; the guard fails at run time and
+covers the rest of the worktree. Ladder modes keep their sealed contracts
+and do not gain the prompt note; the flag is for fast/full lanes only.
 Codex runs default to the read-only sandbox and may inspect local repo context
 when useful, including prior run manifests, activity artifacts, generated
 comparison data, prediction packs, ledger targets, docs, and tests. The prompt

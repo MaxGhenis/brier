@@ -426,12 +426,15 @@ def build_run_prompt(
     conditional: str | None,
     mode: str,
     target_context: dict[str, Any] | None = None,
+    network_tools: bool = False,
 ) -> tuple[str, dict]:
     prompt, meta = build_prompt(series, period, conditional)
     target_context_block = format_target_context(target_context)
     if mode == "full":
         if target_context_block:
             prompt = f"{prompt}\n\n{target_context_block}"
+        if network_tools:
+            prompt = f"{prompt}\n\n# Network access\n{NETWORK_TOOLS_NOTE.strip()}\n"
         return prompt, meta
     if mode == "fast":
         return (
@@ -441,6 +444,7 @@ def build_run_prompt(
                 conditional,
                 meta,
                 target_context,
+                network_tools=network_tools,
             ),
             meta,
         )
@@ -511,6 +515,27 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
     return "\n".join(lines)
 
 
+# Injected into agent prompts only when the runner grants sandbox network
+# access (--codex-network). The 2026-07-24 broadband incident is the origin:
+# with network blocked, the hosted web-search tool failing ("Cache miss"),
+# and the contract demanding fetched numbers, four consecutive runs invented
+# "fetched" ACS values from memory — the memorized 5-year vintage, ~3.4
+# points below the true 1-year series. The note pairs the capability with
+# the honesty contract: values come from echoed fetch output or the run
+# fails honestly.
+NETWORK_TOOLS_NOTE = (
+    "Outbound network access is enabled for this run: you may also run "
+    "curl -sS against official public data endpoints (agency APIs, data "
+    "portals, release calendars). Run each fetch so its raw response — or "
+    "the exact excerpt containing every value you use — is echoed in the "
+    "command output, and read fetched values only from that echoed "
+    "content. Never take table values from web-search result summaries or "
+    "from memory. If a fetch fails or returns an empty body, say so in a "
+    "text step and stop; a run that cannot fetch its base rate must fail "
+    "honestly rather than substitute remembered values. "
+)
+
+
 def build_fast_prompt(
     series: str,
     period: str,
@@ -519,6 +544,7 @@ def build_fast_prompt(
     target_context: dict[str, Any] | None = None,
     width_discipline: str = "sigma",
     mode_label: str = "fast",
+    network_tools: bool = False,
 ) -> str:
     """Compact prompt for scheduled public-release batches.
 
@@ -589,7 +615,8 @@ def build_fast_prompt(
         "artifacts, prior reasoning traces, and model-candidate files. You may "
         "run read-only commands such as rg, sed, cat, find, git log/status/show, "
         "`date -u +%Y-%m-%dT%H:%M:%SZ`, and short inline arithmetic commands. "
-        "Local context is admissible only when it is a public repository "
+        + (NETWORK_TOOLS_NOTE if network_tools else "")
+        + "Local context is admissible only when it is a public repository "
         "artifact, a published Thesis record, or a generated file derived from "
         "public official sources. Do not use private meeting notes, call "
         "transcripts, email/chat content, pasted attachments, personal notes, "
@@ -949,6 +976,18 @@ def fast_domain_notes(series: str) -> list[str]:
             "For SPM targets, name the population group, calendar year, and "
             "whether taxes, credits, transfers, medical expenses, or housing "
             "adjustments matter for the forecast.",
+            "For ACS table targets, fetch each history year's values from "
+            "the keyless JSON endpoint https://data.census.gov/api/access/"
+            "data/table?id=<PRODUCT><YEAR>.<TABLE>&g=010XX00US (for example "
+            "ACSDT1Y2024.B28005) and read the cited variable columns from "
+            "the returned JSON.",
+            "api.census.gov requires an API key (keyless requests redirect "
+            "to missing_key.html); never rely on it in keyless runs, and "
+            "never present remembered values as fetched ones.",
+            "ACS vintage discipline: never mix 5-year estimates into a "
+            "1-year series — 5-year values lag the 1-year series by roughly "
+            "two years; the product id in the fetch URL (ACSDT1Y vs "
+            "ACSDT5Y) is the vintage authority.",
         ]
     if series.startswith(("bls.", "bea.", "census.", "dol.", "fed.", "us.")):
         return [
@@ -1391,6 +1430,85 @@ def parse_codex_jsonl(stdout_text: str, stderr_text: str) -> dict[str, Any]:
     }
 
 
+# --- Workspace-mutation guard -----------------------------------------------
+# The read-only Codex sandbox denies all sockets (curl inside it exits 6,
+# "could not resolve host"), and the hosted web-search tool cannot fetch raw
+# JSON from CDN-fronted agency APIs (data.census.gov returns "Cache miss").
+# Network-enabled runs therefore use the workspace-write sandbox with
+# `sandbox_workspace_write.network_access=true` — which also makes the
+# checkout writable. These guards keep the honesty contract mechanical for
+# such runs: fingerprint the run dir and the git tree around the agent
+# stage, and fail the run closed on any mutation. Additions inside the run
+# dir are additionally caught at promotion by custody inventory v2 (which
+# rejects unreferenced files), and mid-run edits to sealed artifacts by the
+# manifest/custody hash mismatch; this guard fails at run time instead and
+# covers the rest of the worktree, which custody never sees.
+
+
+def git_porcelain_lines(out_dir: pathlib.Path) -> list[str] | None:
+    """Sorted `git status --porcelain` lines for ROOT, minus the run dir."""
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(ROOT), "status", "--porcelain=v1", "-uall"],
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except Exception:
+        return None
+    if proc.returncode != 0:
+        return None
+    run_dir_token = repo_relative(out_dir)
+    lines = []
+    for line in proc.stdout.splitlines():
+        if run_dir_token and run_dir_token in line:
+            continue
+        lines.append(line)
+    return sorted(lines)
+
+
+def workspace_guard_snapshot(out_dir: pathlib.Path) -> dict[str, Any]:
+    hashes: dict[str, str] = {}
+    for path in sorted(out_dir.rglob("*")):
+        if path.is_file() and not path.is_symlink():
+            hashes[str(path.relative_to(out_dir))] = sha256_bytes(path.read_bytes())
+    return {"outDirHashes": hashes, "gitStatus": git_porcelain_lines(out_dir)}
+
+
+def workspace_guard_violations(
+    pre: dict[str, Any],
+    out_dir: pathlib.Path,
+    allowed_new: set[str],
+) -> list[str]:
+    post = workspace_guard_snapshot(out_dir)
+    pre_hashes: dict[str, str] = pre["outDirHashes"]
+    post_hashes: dict[str, str] = post["outDirHashes"]
+    violations = []
+    for rel, digest in pre_hashes.items():
+        if rel not in post_hashes:
+            violations.append(f"run artifact deleted during agent stage: {rel}")
+        elif post_hashes[rel] != digest:
+            violations.append(f"run artifact modified during agent stage: {rel}")
+    for rel in post_hashes:
+        if rel not in pre_hashes and rel not in allowed_new:
+            violations.append(
+                f"unexpected file created in run dir during agent stage: {rel}"
+            )
+    pre_git = pre["gitStatus"]
+    post_git = post["gitStatus"]
+    if pre_git is not None and post_git is not None:
+        for line in sorted(set(post_git) - set(pre_git)):
+            violations.append(
+                f"workspace tree changed during agent stage: {line.strip()}"
+            )
+        for line in sorted(set(pre_git) - set(post_git)):
+            violations.append(
+                "workspace tree entry cleared during agent stage: "
+                f"{line.strip()}"
+            )
+    return violations
+
+
 def run_codex_agent_command(
     *,
     prompt: str,
@@ -1401,6 +1519,7 @@ def run_codex_agent_command(
     search: bool,
     sandbox: str,
     reasoning_effort: str | None,
+    network: bool = False,
 ) -> dict[str, Any]:
     """Run a prompt through Codex CLI/ChatGPT auth and retain the full trace."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1424,8 +1543,14 @@ def run_codex_agent_command(
     )
     if reasoning_effort:
         cmd.extend(["-c", f'reasoning_effort="{reasoning_effort}"'])
+    if network:
+        cmd.extend(["-c", "sandbox_workspace_write.network_access=true"])
     cmd.extend(["-C", str(ROOT), "-s", sandbox, prompt])
     logged_cmd = [*cmd[:-1], "<prompt>"]
+
+    guard_pre = (
+        workspace_guard_snapshot(out_dir) if sandbox != "read-only" else None
+    )
 
     started_at = utc_now()
     terminated_after_output = False
@@ -1487,11 +1612,19 @@ def run_codex_agent_command(
         stderr_text = redact_stream_text(stderr_path.read_text())
         stdout_path.unlink(missing_ok=True)
         stderr_path.unlink(missing_ok=True)
+        workspace_mutations = (
+            workspace_guard_violations(
+                guard_pre, out_dir, allowed_new={last_message_file.name}
+            )
+            if guard_pre is not None
+            else None
+        )
     except FileNotFoundError:
         finished_at = utc_now()
         return {
             "backend": "codex",
             "argv": logged_cmd,
+            "networkAccess": network,
             "startedAt": started_at,
             "finishedAt": finished_at,
             "returnCode": 127,
@@ -1514,6 +1647,7 @@ def run_codex_agent_command(
         return {
             "backend": "codex",
             "argv": logged_cmd,
+            "networkAccess": network,
             "startedAt": started_at,
             "finishedAt": finished_at,
             "returnCode": 1,
@@ -1558,6 +1692,12 @@ def run_codex_agent_command(
     return {
         "backend": "codex",
         "argv": logged_cmd,
+        "networkAccess": network,
+        **(
+            {"workspaceMutations": workspace_mutations}
+            if workspace_mutations is not None
+            else {}
+        ),
         "startedAt": started_at,
         "finishedAt": finished_at,
         "returnCode": effective_return_code,
@@ -1578,6 +1718,7 @@ def run_codex_agent_command(
             "model": model,
             "searchEnabled": search,
             "sandbox": sandbox,
+            "networkAccess": network,
             "reasoningEffort": reasoning_effort,
             "timedOut": timed_out,
             "timeoutReason": timeout_reason,
@@ -1615,6 +1756,16 @@ def append_command_artifacts(
                 {
                     "backend": command_result["backend"],
                     "argv": [redact_text(str(arg)) for arg in command_result["argv"]],
+                    **(
+                        {"networkAccess": command_result["networkAccess"]}
+                        if "networkAccess" in command_result
+                        else {}
+                    ),
+                    **(
+                        {"workspaceMutations": command_result["workspaceMutations"]}
+                        if "workspaceMutations" in command_result
+                        else {}
+                    ),
                     "returnCode": command_result["returnCode"],
                     "processReturnCode": command_result.get("processReturnCode"),
                     "timedOut": command_result.get("timedOut", False),
@@ -2404,6 +2555,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--codex-sandbox", default="read-only")
     parser.add_argument("--codex-reasoning-effort", default="low")
     parser.add_argument("--no-codex-search", action="store_true")
+    parser.add_argument(
+        "--codex-network",
+        action="store_true",
+        help=(
+            "Enable outbound network inside the Codex sandbox "
+            "(sandbox_workspace_write.network_access=true) so the agent can "
+            "curl official public data endpoints that the hosted web-search "
+            "tool cannot fetch. Requires --codex-sandbox workspace-write; "
+            "the runner then guards the workspace and fails the run closed "
+            "on any file mutation outside the expected agent outputs. The "
+            "fast/full prompts gain a fetch-honesty note; ladder modes do "
+            "not (dispatch-only CI lanes keep their sealed contracts)."
+        ),
+    )
     parser.add_argument("--pre-submit-review-command")
     parser.add_argument("--pre-submit-review-codex-model")
     parser.add_argument("--pre-submit-review-codex-search", action="store_true")
@@ -2447,6 +2612,7 @@ def run_forecaster(
             search=not args.no_codex_search,
             sandbox=args.codex_sandbox,
             reasoning_effort=args.codex_reasoning_effort,
+            network=args.codex_network,
         )
     return run_agent_command(
         args.command,
@@ -2473,6 +2639,7 @@ def run_pre_submit_reviewer(
             search=args.pre_submit_review_codex_search,
             sandbox=args.codex_sandbox,
             reasoning_effort=args.codex_reasoning_effort,
+            network=args.codex_network,
         )
     return run_agent_command(
         args.pre_submit_review_command,
@@ -2484,6 +2651,20 @@ def run_pre_submit_reviewer(
 
 def main() -> int:
     args = parse_args()
+    if args.codex_network:
+        if args.codex_sandbox == "read-only":
+            raise SystemExit(
+                "--codex-network cannot work under the read-only sandbox "
+                "(it denies all sockets, so curl exits 6 before any HTTP "
+                "happens); pass --codex-sandbox workspace-write, which "
+                "pairs the network grant with the runner's "
+                "workspace-mutation guard"
+            )
+        if not args.codex_model and not args.print_prompt:
+            raise SystemExit(
+                "--codex-network only applies to --codex-model runs; "
+                "--command agents run unsandboxed and already have network"
+            )
     run_at = utc_now()
     target_context = parse_target_context(args.target_context_json)
     prompt, meta = build_run_prompt(
@@ -2492,6 +2673,7 @@ def main() -> int:
         args.conditional,
         args.prompt_mode,
         target_context,
+        network_tools=bool(args.codex_network),
     )
     if args.print_prompt:
         print(prompt)
@@ -2544,14 +2726,26 @@ def main() -> int:
     draft_ref: dict[str, Any] | None = None
     review_ref: dict[str, Any] | None = None
     revision_prompt_ref: dict[str, Any] | None = None
+    hygiene_guarded = False
+    hygiene_mutations: list[str] = []
+
+    def collect_hygiene(stage_result: dict[str, Any]) -> dict[str, Any]:
+        nonlocal hygiene_guarded
+        if "workspaceMutations" in stage_result:
+            hygiene_guarded = True
+            hygiene_mutations.extend(stage_result["workspaceMutations"])
+        return stage_result
+
     if args.command or args.codex_model:
         if args.pre_submit_review_command or args.pre_submit_review_codex_model:
-            draft_result = run_forecaster(
-                args,
-                prompt=prompt,
-                prompt_path=out_dir / "prompt.md",
-                out_dir=out_dir,
-                prefix="draft_",
+            draft_result = collect_hygiene(
+                run_forecaster(
+                    args,
+                    prompt=prompt,
+                    prompt_path=out_dir / "prompt.md",
+                    out_dir=out_dir,
+                    prefix="draft_",
+                )
             )
             draft_ref = append_command_artifacts(
                 refs,
@@ -2583,11 +2777,13 @@ def main() -> int:
                         run_at,
                     )
                 )
-                review_result = run_pre_submit_reviewer(
-                    args,
-                    prompt=review_prompt,
-                    prompt_path=out_dir / "pre_submit_review_prompt.md",
-                    out_dir=out_dir,
+                review_result = collect_hygiene(
+                    run_pre_submit_reviewer(
+                        args,
+                        prompt=review_prompt,
+                        prompt_path=out_dir / "pre_submit_review_prompt.md",
+                        out_dir=out_dir,
+                    )
                 )
                 review_ref = append_command_artifacts(
                     refs,
@@ -2616,12 +2812,14 @@ def main() -> int:
                         run_at,
                     )
                     refs.append(revision_prompt_ref)
-                    command_result = run_forecaster(
-                        args,
-                        prompt=revision_prompt,
-                        prompt_path=out_dir / "revision_prompt.md",
-                        out_dir=out_dir,
-                        prefix="",
+                    command_result = collect_hygiene(
+                        run_forecaster(
+                            args,
+                            prompt=revision_prompt,
+                            prompt_path=out_dir / "revision_prompt.md",
+                            out_dir=out_dir,
+                            prefix="",
+                        )
                     )
                     append_command_artifacts(
                         refs,
@@ -2637,12 +2835,14 @@ def main() -> int:
                         else "revision_failed"
                     )
         else:
-            command_result = run_forecaster(
-                args,
-                prompt=prompt,
-                prompt_path=out_dir / "prompt.md",
-                out_dir=out_dir,
-                prefix="",
+            command_result = collect_hygiene(
+                run_forecaster(
+                    args,
+                    prompt=prompt,
+                    prompt_path=out_dir / "prompt.md",
+                    out_dir=out_dir,
+                    prefix="",
+                )
             )
             append_command_artifacts(
                 refs,
@@ -2827,6 +3027,12 @@ def main() -> int:
         }
     )
 
+    if hygiene_mutations:
+        print(
+            "workspace hygiene: agent stage mutated the workspace "
+            f"({len(hygiene_mutations)} violation(s)); failing the run",
+            file=sys.stderr,
+        )
     manifest = {
         "schemaVersion": "thesis_analyst_run_manifest_v1",
         "createdAt": run_at,
@@ -2839,8 +3045,19 @@ def main() -> int:
         "promptMode": args.prompt_mode,
         "agent": runtime_meta,
         "preSubmitReview": pre_submit_review,
+        **(
+            {
+                "workspaceHygiene": {
+                    "guarded": True,
+                    "mutations": hygiene_mutations,
+                }
+            }
+            if hygiene_guarded
+            else {}
+        ),
         "ok": validation["ok"]
-        and (not command_result or command_result["returnCode"] == 0),
+        and (not command_result or command_result["returnCode"] == 0)
+        and not hygiene_mutations,
         "cellsPath": repo_relative(cells_path),
         "artifacts": refs,
         "validation": validation,

@@ -117,7 +117,12 @@ validation fail closed if the run's fetched historicalContext contradicts
 the anchor (wrong series/vintage/artifact lineage; the 2026-07-21 ACS
 5-year-vs-1-year corruption is the motivating case). Anchors are
 validation-only — never injected into the prompt, so the agent still has
-to fetch the base rate itself. Resolved outcomes
+to fetch the base rate itself. For targets whose official endpoint the
+hosted web tool cannot fetch (all data.census.gov JSON; api.census.gov is
+key-gated), spawn with `--codex-sandbox workspace-write --codex-network`
+so the agent can curl the endpoint in-sandbox — the read-only sandbox
+blocks all sockets, and runs that can't fetch confabulate memorized
+older-vintage values instead (the 2026-07-24 broadband rejection). Resolved outcomes
 are recorded as observations in PolicyEngine/ledger (formerly arch-data)
 (`ledger/official_observations.jsonl`, branch `codex/thesis-ledger-facts`),
 which the site fetches at build time. Deploy by pushing `main`; run the

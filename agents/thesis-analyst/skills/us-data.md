@@ -13,6 +13,25 @@
 - Census economic indicators: release pages under
   `https://www.census.gov/economic-indicators/` (advance retail sales,
   residential construction).
+- Census ACS/decennial tables, keyless JSON:
+  `https://data.census.gov/api/access/data/table?id=<PRODUCT><YEAR>.<TABLE>&g=010XX00US`
+  (e.g. `ACSDT1Y2024.B28005`; `g=010XX00US` = United States). The response
+  is `{"response":{"data":[[header row],[value row]]}}` — read the exact
+  variable columns named by the resolver. `api.census.gov` now REQUIRES an
+  API key (keyless requests 302-redirect to `missing_key.html` with an
+  empty body), so never rely on it in keyless runs. The hosted web-search
+  tool cannot fetch these JSON endpoints (it fails with "Cache miss");
+  fetch them with `curl -sS` in a network-enabled run and read values only
+  from the echoed response. If the fetch fails, fail the run honestly —
+  never present remembered values as fetched ones.
+
+## ACS vintage discipline
+- Never mix ACS 5-year estimates into a 1-year series: 5-year values lag
+  the 1-year series by roughly two years (the 2026-07 broadband-65+ runs
+  were corrupted exactly this way). The product id in the fetch URL
+  (`ACSDT1Y` vs `ACSDT5Y`) is the vintage authority — match it to the
+  resolver's product for every history year, and label each
+  historicalContext entry with its vintage.
 
 ## Release calendars (verify EVERY resolutionDate here)
 - BLS: `https://www.bls.gov/schedule/news_release/` (CPI, Employment

@@ -822,6 +822,186 @@ def test_codex_model_run_captures_full_codex_trace(tmp_path):
     assert (out_dir / "codex_events.jsonl").read_text().count("\n") == 2
 
 
+def write_fake_codex(
+    path: Path, cell: dict, extra_lines: list[str] | None = None
+) -> None:
+    path.write_text(
+        "\n".join(
+            [
+                "#!/usr/bin/env python3",
+                "import json, pathlib, sys",
+                "args = sys.argv[1:]",
+                "last_message = pathlib.Path(args[args.index('-o') + 1])",
+                f"text = {json.dumps(json.dumps(cell))}",
+                *(extra_lines or []),
+                "last_message.write_text(text)",
+                "print(json.dumps({",
+                "  'type': 'item.completed',",
+                "  'item': {'type': 'agent_message', 'text': text}",
+                "}))",
+                "print(json.dumps({",
+                "  'type': 'turn.completed',",
+                "  'usage': {",
+                "    'input_tokens': 10,",
+                "    'output_tokens': 5,",
+                "    'cached_input_tokens': 2",
+                "  }",
+                "}))",
+            ]
+        )
+    )
+    path.chmod(0o755)
+
+
+def test_codex_network_requires_workspace_write_sandbox(tmp_path):
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--codex-network",
+            "--out-dir",
+            str(tmp_path / "run"),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode != 0
+    assert "workspace-write" in completed.stderr
+
+
+def test_codex_network_run_records_grant_and_clean_guard(tmp_path):
+    out_dir = tmp_path / "codex-network-run"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "fake_codex.py"
+    write_fake_codex(
+        fake_codex, review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8)
+    )
+
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--codex-sandbox",
+            "workspace-write",
+            "--codex-network",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    command = json.loads((out_dir / "command.json").read_text())
+    argv = command["argv"]
+    assert manifest["ok"] is True
+    assert command["networkAccess"] is True
+    assert command["workspaceMutations"] == []
+    assert "sandbox_workspace_write.network_access=true" in argv
+    assert argv[argv.index("-s") + 1] == "workspace-write"
+    assert manifest["workspaceHygiene"] == {"guarded": True, "mutations": []}
+    trace = json.loads((out_dir / "codex_trace.json").read_text())
+    assert trace["networkAccess"] is True
+    assert trace["sandbox"] == "workspace-write"
+    assert "Outbound network access is enabled" in (
+        out_dir / "prompt.md"
+    ).read_text()
+
+
+def test_codex_network_run_fails_closed_on_workspace_mutation(tmp_path):
+    out_dir = tmp_path / "codex-mutating-run"
+    codex_home = tmp_path / "codex-home"
+    codex_home.mkdir()
+    (codex_home / "auth.json").write_text("{}\n")
+    fake_codex = tmp_path / "fake_codex.py"
+    write_fake_codex(
+        fake_codex,
+        review_test_cell(point=5.1, ci_low=4.7, ci_high=5.8),
+        extra_lines=[
+            "run_dir = last_message.parent",
+            "(run_dir / 'planted.txt').write_text('agent wrote this')",
+            "prompt_md = run_dir / 'prompt.md'",
+            "prompt_md.write_text(prompt_md.read_text() + 'tampered')",
+        ],
+    )
+
+    env = {
+        **os.environ,
+        "THESIS_CODEX_BIN": str(fake_codex),
+        "CODEX_HOME": str(codex_home),
+    }
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(RUNNER),
+            "--series",
+            "test.codex_rate",
+            "--period",
+            "2030-01",
+            "--codex-model",
+            "gpt-5.5",
+            "--codex-sandbox",
+            "workspace-write",
+            "--codex-network",
+            "--out-dir",
+            str(out_dir),
+        ],
+        cwd=ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode != 0
+    manifest = json.loads((out_dir / "manifest.json").read_text())
+    command = json.loads((out_dir / "command.json").read_text())
+    assert manifest["ok"] is False
+    mutations = command["workspaceMutations"]
+    assert any("planted.txt" in mutation for mutation in mutations)
+    assert any("prompt.md" in mutation for mutation in mutations)
+    assert manifest["workspaceHygiene"]["guarded"] is True
+    assert manifest["workspaceHygiene"]["mutations"] == mutations
+
+
+def test_fast_prompt_network_note_is_gated_and_census_notes_name_endpoint():
+    series = "census.acs.broadband_subscription_65_plus.share"
+    prompt_with, _ = analyst_runner.build_run_prompt(
+        series, "2025", None, "fast", None, network_tools=True
+    )
+    prompt_without, _ = analyst_runner.build_run_prompt(
+        series, "2025", None, "fast", None
+    )
+    assert "Outbound network access is enabled" in prompt_with
+    assert "Outbound network access is enabled" not in prompt_without
+    for prompt in (prompt_with, prompt_without):
+        assert "data.census.gov/api/access/" in prompt
+        assert "ACSDT1Y" in prompt
+        assert "api.census.gov requires an API key" in prompt
+
+
 def review_test_cell(
     *,
     point: float,
@@ -1599,7 +1779,10 @@ def test_history_anchor_gate_passes_matching_values() -> None:
     cell = {
         "historicalContext": [
             {"label": "2023 ACS 1-year U.S. B28005 65+ broadband share", "value": 86.5},
-            {"label": "2024 ACS 1-year U.S. B28005 65+ broadband share", "value": 88.24},
+            {
+                "label": "2024 ACS 1-year U.S. B28005 65+ broadband share",
+                "value": 88.24,
+            },
             {"label": "2024 ACS all-household broadband share", "value": 91.0},
         ]
     }

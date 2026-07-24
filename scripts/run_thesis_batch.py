@@ -221,6 +221,10 @@ def run_one(
             argv.append("--no-codex-search")
         if args.codex_reasoning_effort:
             argv.extend(["--codex-reasoning-effort", args.codex_reasoning_effort])
+        if args.codex_sandbox:
+            argv.extend(["--codex-sandbox", args.codex_sandbox])
+        if args.codex_network:
+            argv.append("--codex-network")
     if args.no_pre_submit_review:
         pass
     elif args.pre_submit_review_codex_model:
@@ -308,6 +312,19 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--codex-model")
     parser.add_argument("--codex-reasoning-effort", default="low")
     parser.add_argument("--no-codex-search", action="store_true")
+    parser.add_argument(
+        "--codex-sandbox",
+        help="Forwarded to run_thesis_analyst.py --codex-sandbox",
+    )
+    parser.add_argument(
+        "--codex-network",
+        action="store_true",
+        help=(
+            "Forwarded to run_thesis_analyst.py --codex-network (requires "
+            "--codex-sandbox workspace-write); use for targets whose "
+            "official endpoints the hosted web-search tool cannot fetch"
+        ),
+    )
     # Review is on by default: the reviewer rubric (interval-from-realized-
     # volatility, resolver exactness, variant pinning) is exactly the failure
     # profile of unreviewed fast-mode runs. --no-pre-submit-review to opt out.
