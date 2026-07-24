@@ -1,0 +1,111 @@
+[
+  {
+    "slug": "broadband-subscription-65-plus-2025",
+    "country": "US",
+    "type": "data",
+    "title": "U.S. 65+ Broadband Subscription Share, 2025 ACS",
+    "question": "U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
+    "unit": "percent",
+    "pointEstimate": 89.8,
+    "ciLow": 88.9,
+    "ciHigh": 90.7,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-10",
+    "resolutionSource": "U.S. Census Bureau American Community Survey 1-Year Estimates Detailed Table B28005. VINTAGE DISCIPLINE: base rates MUST come from ACS 1-YEAR estimates (ACSDT1Y products) for each history year, never 5-year tables (5-year values lag the 1-year series by roughly two years and corrupted prior runs of this target), and never from prior Thesis run artifacts. Fetch per-year values live from the keyless JSON endpoint https://data.census.gov/api/access/data/table?id=ACSDT1Y{YEAR}.B28005&g=010XX00US (2022, 2023, 2024), reading the B28005_014E and B28005_017E columns and computing 100*B28005_017E/B28005_014E. Keep the published question text exactly: U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
+    "resolutionSourceUrl": "https://data.census.gov/table/ACSDT1Y2025.B28005?q=B28005",
+    "resolutionRule": "Resolve to 100 * B28005_017E / B28005_014E for geography United States in the first public 2025 ACS 1-Year Estimates Detailed Table B28005 print, rounded to one decimal percentage point. Use the original Census first-posted estimate and ignore later revisions or corrections unless Census replaces the first public file before the public release completes.",
+    "dataPointId": "census.acs.broadband_subscription_65_plus.share.2025.first_print",
+    "historicalContext": [
+      {
+        "label": "2021 ACS 1-year B28005",
+        "value": 83.1
+      },
+      {
+        "label": "2022 ACS 1-year B28005",
+        "value": 84.8
+      },
+      {
+        "label": "2023 ACS 1-year B28005",
+        "value": 86.5
+      },
+      {
+        "label": "2024 ACS 1-year B28005",
+        "value": 88.2
+      }
+    ],
+    "drivers": [
+      "Recent ACS 1-year trend rose about 1.7 percentage points per year",
+      "Broadband adoption among older households is nearing saturation, so momentum should slow modestly",
+      "Age 65+ cohort replacement supports continued gains",
+      "Survey and first-print noise are small but structural slowdown uncertainty dominates"
+    ],
+    "sourceContext": [
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2021.B28005&g=010XX00US",
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2022.B28005&g=010XX00US",
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2023.B28005&g=010XX00US",
+      "https://data.census.gov/api/access/data/table?id=ACSDT1Y2024.B28005&g=010XX00US",
+      "https://www.census.gov/data/what-is-data-census-gov/upcoming-releases.html",
+      "https://www.census.gov/about/event-calendar.html",
+      "https://www.census.gov/programs-surveys/acs/news/data-releases/2024/release-schedule.html"
+    ],
+    "runAt": "2026-07-24T14:57:59Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast 2025 ACS 65+ Broadband Subscription Share"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets ACSDT1Y2025.B28005 for United States, first public 2025 ACS 1-year Detailed Table B28005 print, using only the 1-year ACS vintage and resolving to 100*B28005_017E/B28005_014E rounded to one decimal percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch 2021 ACSDT1Y2021.B28005 from data.census.gov keyless table endpoint and read B28005_014E and B28005_017E.",
+        "result": "Fetched ACSDT1Y2021.B28005 for United States: B28005_014E=54480623, B28005_017E=45272105, computed 100*45272105/54480623=83.097627 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch 2022 ACSDT1Y2022.B28005 from data.census.gov keyless table endpoint and read B28005_014E and B28005_017E.",
+        "result": "Fetched ACSDT1Y2022.B28005 for United States: B28005_014E=56089855, B28005_017E=47560160, computed 100*47560160/56089855=84.792803 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch 2023 ACSDT1Y2023.B28005 from data.census.gov keyless table endpoint and read B28005_014E and B28005_017E.",
+        "result": "Fetched ACSDT1Y2023.B28005 for United States: B28005_014E=57550192, B28005_017E=49775058, computed 100*49775058/57550192=86.489821 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetch 2024 ACSDT1Y2024.B28005 from data.census.gov keyless table endpoint and read B28005_014E and B28005_017E.",
+        "result": "Fetched ACSDT1Y2024.B28005 for United States: B28005_014E=59418120, B28005_017E=52428758, computed 100*52428758/59418120=88.236986 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Check official Census calendar and ACS release pages for release-date context.",
+        "result": "Fetched Census upcoming releases page showing September 2026 section with 9/10/2026 and page last revised 2026-07-20; fetched Census event calendar page last revised 2026-01-29; fetched ACS 2024 release schedule showing 2024 ACS 1-year data release September 11, 2025 and 5-year data release January 29, 2026. I keep the ledger 2026-09-10 target date, noting the public ACS 2025-specific release schedule page was not found in this run."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the official ACS 1-year same-variant history is 83.1 in 2021, 84.8 in 2022, 86.5 in 2023, and 88.2 in 2024. The 2021-2024 one-year gains were about 1.70, 1.70, and 1.75 percentage points, so the outside-view anchor is continued increase from the 2024 level."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence-plus-trend prior uses 2021-2024 ACS 1-year history, latest level 88.236986, successive changes 1.695175, 1.697018, 1.747165, mean change 1.713119. A mechanical trend gives 88.236986+1.713119=89.950105. I subtract 0.15 point for saturation near 90 percent among 65+ households, giving 89.8. Dispersion from successive changes gives sigma = 0.0295, so 1.28*sigma = 0.0378. That realized-change sigma is implausibly narrow because the post-2020 ACS sample has only three smooth gains and excludes structural slowdown risk, so I widen to a 0.9-point half-width, about 24x the mechanical half-width, for an 80% interval of 88.9 to 90.7."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk: faster cohort replacement, continued device adoption, or Census composition shifts toward already-connected 65+ households could land above the interval. Downside risk: saturation around non-adopter households, affordability pressure, or a survey-composition reversal could land below the interval. Outside the interval would mainly require a break from the smooth 2021-2024 trend, not ordinary sampling noise."
+      },
+      {
+        "kind": "forecast",
+        "point": 89.8,
+        "ciLow": 88.9,
+        "ciHigh": 90.7
+      }
+    ]
+  }
+]

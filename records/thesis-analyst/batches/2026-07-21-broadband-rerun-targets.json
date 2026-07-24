@@ -8,7 +8,12 @@
       "targetUnit": "percent",
       "dataPointId": "census.acs.broadband_subscription_65_plus.share.2025.first_print",
       "resolutionDate": "2026-09-10",
-      "resolutionSource": "U.S. Census Bureau American Community Survey 1-Year Estimates Detailed Table B28005",
+      "anchors": {
+        "2022": 84.8,
+        "2023": 86.5,
+        "2024": 88.2
+      },
+      "resolutionSource": "U.S. Census Bureau American Community Survey 1-Year Estimates Detailed Table B28005. VINTAGE DISCIPLINE: base rates MUST come from ACS 1-YEAR estimates (ACSDT1Y products) for each history year, never 5-year tables (5-year values lag the 1-year series by roughly two years and corrupted prior runs of this target), and never from prior Thesis run artifacts. Fetch per-year values live from the keyless JSON endpoint https://data.census.gov/api/access/data/table?id=ACSDT1Y{YEAR}.B28005&g=010XX00US (2022, 2023, 2024), reading the B28005_014E and B28005_017E columns and computing 100*B28005_017E/B28005_014E. Keep the published question text exactly: U.S. Census Bureau American Community Survey 2025 ACS 1-Year Estimates Detailed Table B28005, population 65 years and over in households with a computer and a broadband Internet subscription divided by total population 65 years and over in households, first print, percent.",
       "resolutionSourceUrl": "https://data.census.gov/table/ACSDT1Y2025.B28005?q=B28005",
       "resolutionRule": "Resolve to 100 * B28005_017E / B28005_014E for geography United States in the first public 2025 ACS 1-Year Estimates Detailed Table B28005 print, rounded to one decimal percentage point. Use the original Census first-posted estimate and ignore later revisions or corrections unless Census replaces the first public file before the public release completes."
     }
