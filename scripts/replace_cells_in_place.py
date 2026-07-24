@@ -22,7 +22,9 @@ SPEC_FIELDS = ["slug", "question", "unit", "type", "resolutionDate", "conditiona
 
 def find_cell_block(src: str, slug: str) -> tuple[int, int]:
     """Return (start, end) of the {...} object literal whose slug matches."""
-    m = re.search(rf'slug:\s*"{re.escape(slug)}"', src)
+    # Generated modules quote keys ("slug":) while hand-wired ones may not
+    # (slug:); accept both so drift checks can never silently skip a cell.
+    m = re.search(rf'"?slug"?:\s*"{re.escape(slug)}"', src)
     if not m:
         raise SystemExit(f"slug {slug} not found in target file")
     start = src.rfind("{", 0, m.start())
@@ -62,20 +64,49 @@ def main() -> int:
         start, end = find_cell_block(src, slug)
         old = src[start:end]
         for f in SPEC_FIELDS:
-            old_val = re.search(rf'{f}:\s*"((?:[^"\\]|\\.)*)"', old)
+            old_val = re.search(rf'"?{f}"?:\s*"((?:[^"\\]|\\.)*)"', old)
+            if f in cell and not old_val:
+                raise SystemExit(
+                    f"{slug}: published spec field {f!r} not found in the "
+                    "existing cell block — refusing to replace without a "
+                    "drift check"
+                )
             if f in cell and old_val and old_val.group(1) != str(cell[f]):
                 raise SystemExit(
                     f"{slug}: published spec field {f!r} drifted —\n"
                     f"  existing: {old_val.group(1)[:120]}\n"
                     f"  upgrade:  {str(cell[f])[:120]}"
                 )
+        # resolutionSource: the published text is the ledger's canonical
+        # resolver identity. Target contexts may enrich it with fetch
+        # instructions (e.g. the VINTAGE DISCIPLINE suffix) that the agent
+        # echoes back; keep the published identity and drop the suffix,
+        # loudly. Anything other than a pure suffix extension aborts.
+        pub_src = re.search(r'"?resolutionSource"?:\s*"((?:[^"\\]|\\.)*)"', old)
+        if pub_src and "resolutionSource" in cell:
+            published = json.loads(f'"{pub_src.group(1)}"')
+            upgraded = str(cell["resolutionSource"])
+            if upgraded != published:
+                if not upgraded.startswith(published):
+                    raise SystemExit(
+                        f"{slug}: resolutionSource drifted beyond an "
+                        "instruction-suffix extension —\n"
+                        f"  existing: {published[:120]}\n"
+                        f"  upgrade:  {upgraded[:120]}"
+                    )
+                print(
+                    f"{slug}: keeping published resolutionSource; upgrade "
+                    "carried an instruction-enriched variant "
+                    f"({len(upgraded) - len(published)} suffix chars dropped)"
+                )
+                cell = {**cell, "resolutionSource": published}
         errs = [e for e in validate(cell, set()) if "collide" not in e and "dataPointId" not in e]
         if errs:
             raise SystemExit(f"{slug}: upgrade fails contract: {'; '.join(errs)}")
         new = to_forecast_cell(cell)
         # carry forward fields the upgrade may not restate
         for f in ("dataPointId", "policyParameter"):
-            kept = re.search(rf'{f}:\s*"((?:[^"\\]|\\.)*)"', old)
+            kept = re.search(rf'"?{f}"?:\s*"((?:[^"\\]|\\.)*)"', old)
             if kept and f not in new:
                 new[f] = kept.group(1)
         block = json.dumps(new, indent=2, ensure_ascii=False)
