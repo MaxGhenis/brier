@@ -1593,3 +1593,49 @@ def test_canonical_steps_are_stripped_to_contract_keys(tmp_path: Path) -> None:
         "result": "42",
     }
     assert steps[2] == {"kind": "forecast", "point": 5, "ciLow": 4, "ciHigh": 6}
+
+
+def test_history_anchor_gate_passes_matching_values() -> None:
+    cell = {
+        "historicalContext": [
+            {"label": "2023 ACS 1-year U.S. B28005 65+ broadband share", "value": 86.5},
+            {"label": "2024 ACS 1-year U.S. B28005 65+ broadband share", "value": 88.24},
+            {"label": "2024 ACS all-household broadband share", "value": 91.0},
+        ]
+    }
+    errors = analyst_runner.history_anchor_errors(
+        cell, {"anchors": {"2023": 86.5, "2024": 88.2}}
+    )
+    assert errors == []
+
+
+def test_history_anchor_gate_refuses_wrong_vintage() -> None:
+    # The corrupted lineage: 5-year values labeled as the 1-year series.
+    cell = {
+        "historicalContext": [
+            {"label": "2024 ACS 1-year U.S. B28005 65+ broadband share", "value": 84.8},
+        ]
+    }
+    errors = analyst_runner.history_anchor_errors(
+        cell, {"anchors": {"2024": 88.2}}
+    )
+    assert len(errors) == 1
+    assert "contradict" in errors[0] and "88.2" in errors[0]
+
+
+def test_history_anchor_gate_requires_anchored_periods() -> None:
+    cell = {"historicalContext": [{"label": "2022 share", "value": 84.8}]}
+    errors = analyst_runner.history_anchor_errors(
+        cell, {"anchors": {"2024": 88.2}}
+    )
+    assert len(errors) == 1 and "no historicalContext entry" in errors[0]
+
+
+def test_history_anchor_gate_flows_through_target_context_validation() -> None:
+    cell = {
+        "historicalContext": [{"label": "2024 first print", "value": 84.8}],
+    }
+    errors = analyst_runner.target_context_validation_errors(
+        cell, {"anchors": {"2024": 88.2}}
+    )
+    assert any("anchor" in error for error in errors)

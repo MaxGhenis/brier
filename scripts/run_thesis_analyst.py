@@ -2158,6 +2158,63 @@ def target_context_validation_errors(
                 f"binding hosts {sorted(allowed)!r}"
             )
     errors.extend(first_print_resolution_rule_errors(cell, target_context))
+    errors.extend(history_anchor_errors(cell, target_context))
+    return errors
+
+
+def history_anchor_errors(
+    cell: dict[str, Any],
+    target_context: dict[str, Any],
+) -> list[str]:
+    """Fail closed when fetched history contradicts operator-verified anchors.
+
+    `anchors` in the target context maps a period token (a substring the
+    matching historicalContext label must contain, e.g. "2024") to the
+    official value verified out-of-band from the resolver's own source.
+    Anchors are deliberately NOT injected into the prompt
+    (format_target_context omits the key): the agent must fetch its base
+    rate independently, and this gate refuses runs whose fetched values
+    carry a wrong series, vintage, or artifact-derived lineage — the
+    spawn-time mirror of the resolve-time anchor checks in
+    resolve_pending.py. An anchored period must appear in the history, and
+    at least one entry mentioning it must match the anchor within
+    max(0.5%, 0.05) — the slack covers rounding, never a vintage swap.
+    """
+    anchors = target_context.get("anchors")
+    if not isinstance(anchors, dict) or not anchors:
+        return []
+    history = cell.get("historicalContext") or []
+    errors = []
+    for key, expected_raw in anchors.items():
+        try:
+            expected = float(expected_raw)
+        except (TypeError, ValueError):
+            errors.append(f"anchor {key!r}: non-numeric anchor value {expected_raw!r}")
+            continue
+        tolerance = max(abs(expected) * 0.005, 0.05)
+        mentioned = [
+            entry
+            for entry in history
+            if isinstance(entry, dict) and str(key) in str(entry.get("label", ""))
+        ]
+        if not mentioned:
+            errors.append(
+                f"anchor {key!r}: no historicalContext entry mentions this "
+                "period — anchored periods must appear in the fetched base rate"
+            )
+            continue
+        values = []
+        for entry in mentioned:
+            try:
+                values.append(float(entry.get("value")))
+            except (TypeError, ValueError):
+                continue
+        if not any(abs(value - expected) <= tolerance for value in values):
+            errors.append(
+                f"anchor {key!r}: history value(s) {values} contradict the "
+                f"verified official value {expected} (tolerance {tolerance:g}) "
+                "— wrong series, vintage, or source lineage"
+            )
     return errors
 
 

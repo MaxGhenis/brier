@@ -110,7 +110,14 @@ derives point + 80% CI from the data, and emits JSON with a full trace and
 `python3 scripts/spawned_cells_to_ts.py site/src/data/forecast-examples/<name>.ts CONST_NAME in.json`,
 which enforces the same trace-depth rubric CI does
 (`site/src/__tests__/trace-depth.test.ts`): >=7 steps, >=3 real tool steps,
-math derivation, base rate, disconfirming consideration. Resolved outcomes
+math derivation, base rate, disconfirming consideration. When the official
+history is verifiable out-of-band, pin it: `anchors` in the target context
+(`{"2024": 88.2, ...}` — period label token to official value) makes runner
+validation fail closed if the run's fetched historicalContext contradicts
+the anchor (wrong series/vintage/artifact lineage; the 2026-07-21 ACS
+5-year-vs-1-year corruption is the motivating case). Anchors are
+validation-only — never injected into the prompt, so the agent still has
+to fetch the base rate itself. Resolved outcomes
 are recorded as observations in PolicyEngine/ledger (formerly arch-data)
 (`ledger/official_observations.jsonl`, branch `codex/thesis-ledger-facts`),
 which the site fetches at build time. Deploy by pushing `main`; run the
