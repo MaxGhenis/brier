@@ -1,0 +1,952 @@
+[
+  {
+    "slug": "fed-g17-industrial-production-total-index-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Total Industrial Production MoM, Jul 2026",
+    "question": "Federal Reserve G.17 total industrial production index, seasonally adjusted monthly percent change for July 2026, first print.",
+    "unit": "percent_growth",
+    "pointEstimate": 0.1,
+    "ciLow": -0.6,
+    "ciHigh": 0.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-18",
+    "resolutionSource": "Federal Reserve G.17 Industrial Production and Capacity Utilization",
+    "resolutionSourceUrl": "https://www.federalreserve.gov/releases/g17/current/table11.htm",
+    "resolutionRule": "Resolve to the first Federal Reserve G.17 monthly release for July 2026, Table 11 IP percent change / Total IP monthly rate, seasonally adjusted, preliminary first print. Use the one-decimal percent change printed by the agency on the initial August 18, 2026 release; ignore later revisions, same-day corrections not included in the first posted release, and the planned autumn 2026 annual revision.",
+    "dataPointId": "fed.g17.industrial_production.total_index_mom.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "June 2026 preliminary monthly percent change",
+        "value": 0.1
+      },
+      {
+        "label": "May 2026 revised monthly percent change",
+        "value": 0.1
+      },
+      {
+        "label": "April 2026 revised monthly percent change",
+        "value": 0.8
+      },
+      {
+        "label": "March 2026 revised monthly percent change",
+        "value": -0.3
+      },
+      {
+        "label": "February 2026 revised monthly percent change",
+        "value": 0.9
+      },
+      {
+        "label": "January 2026 revised monthly percent change",
+        "value": -0.4
+      }
+    ],
+    "drivers": [
+      "Recent total IP momentum is mildly positive after Q2 growth but June slowed to 0.1 percent.",
+      "Manufacturing was flat in June while mining and utilities each added 0.4 percent, leaving the July balance sensitive to energy and weather components.",
+      "The 2023-2026 reference class has frequent monthly reversals around a near-flat base rate, so a small positive point with a wide 80 percent interval is appropriate.",
+      "Capacity utilization at 76.1 percent remains below its long-run average, limiting evidence for a strong sustained production acceleration."
+    ],
+    "sourceContext": [
+      "https://www.federalreserve.gov/releases/g17/",
+      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+      "https://www.federalreserve.gov/releases/g17/current/table1.htm",
+      "https://www.federalreserve.gov/releases/g17/current/table11.htm",
+      "https://fred.stlouisfed.org/series/INDPRO"
+    ],
+    "runAt": "2026-07-25T16:00:25Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for July 2026 Total Industrial Production MoM"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the Federal Reserve G.17 Total IP monthly percent change, seasonally adjusted, for July 2026 on the first official print. The same seasonally adjusted Total IP variant is used for the anchors and interval; the ledger sourceBinding names INDPRO, while the forecasted value is the G.17 monthly percent-change print derived from that total index target."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate / reference class anchor is official G.17 monthly Total IP percent changes from 2023 through June 2026, with the latest persistence anchor at 0.1 percent because both May and June 2026 printed 0.1 percent. Across that 42-month sample the mean is about 0.07 percent, so I start from a near-flat monthly prior before applying current-release adjustments."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Federal Reserve G.17 release dates page for the official August 2026 calendar date.",
+        "result": "The Federal Reserve G.17 calendar lists 2026 releases including July 17 as the most recent monthly release and August 18, 2026 as the next monthly release; monthly releases are issued at 9:15 a.m."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the Federal Reserve current G.17 release summary dated July 17, 2026.",
+        "result": "The current release says total industrial production ticked up 0.1 percent in June 2026, grew at a 4.0 percent annual rate in Q2, stood at 102.6 percent of its 2017 average, was 1.1 percent above June 2025, and capacity utilization was 76.1 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Federal Reserve G.17 Table 1 for the recent monthly Total IP and major industry group changes.",
+        "result": "Table 1 reports Total IP monthly changes for Jan-Jun 2026 of -0.4, 0.9, -0.3, 0.8, 0.1, and 0.1 percent; June 2026 manufacturing was 0.0 percent, mining was 0.4 percent, and utilities was 0.4 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Federal Reserve G.17 Table 11 for the historical reference class and index levels.",
+        "result": "Table 11 reports Total IP monthly percent changes of -0.3, 1.0, -0.1, 0.1, -0.2, 0.5, 0.4, -0.3, 0.0, -0.4, -0.2, 0.5 for 2025 and -0.4, 0.9, -0.3, 0.8, 0.1, 0.1 for Jan-Jun 2026; the same Table 11 history for 2023-2024 was included in the 42-month sigma calculation; it also lists IP index levels of 101.0, 101.9, 101.6, 102.4, 102.6, and 102.6 for Jan-Jun 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked FRED INDPRO as a public mirror for recent total index levels and the next release marker, while keeping the Federal Reserve as resolver.",
+        "result": "FRED INDPRO shows Jun 2026 at 102.6395, May 2026 at 102.5606, Apr 2026 at 102.4196, Mar 2026 at 101.6172, and Feb 2026 at 101.9263; it lists the next release date as Aug 18, 2026."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is 0.1 percent from the latest June and May prints, with a 2023-Jun 2026 official Table 11 reference-class base rate near 0.07 percent; adjustment components are +0.05 for Q2 annualized strength, -0.05 for flat June manufacturing and below-average utilization, and 0.00 for unknown July weather/energy noise, leaving a 0.10 point. For the interval, use the 42 monthly change values from 2023-Jun 2026, including the 2023-2024 Table 11 monthly changes plus the enumerated 2025-Jan 2026 values; sigma = 0.55 percentage point from those fetched values, so 1.28*sigma = 0.70 percentage point. Point 0.10 minus/plus 0.70 gives -0.60 to 0.80."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a hot-weather utilities jump plus another mining gain or auto rebound, which would land above the interval if July Total IP prints above 0.8 percent. Downside risk is a reversal in durable manufacturing or utilities after June strength, which would land below the interval if the first print is below -0.6 percent; outside the interval would require a broad sector move rather than ordinary month-to-month noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer request to state the base-rate and 0.1 percent persistence anchor before inside-view evidence, and accepted the request to clarify that 2023-2024 Table 11 monthly changes are part of the 42-month sigma calculation. Kept FRED only as a public mirror and retained Federal Reserve G.17 Table 11 as the resolving authority."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.1,
+        "ciLow": -0.6,
+        "ciHigh": 0.8
+      }
+    ],
+    "agentReportedRunAt": "2026-07-25T15:58:18Z",
+    "runStartedAt": "2026-07-25T15:58:01Z",
+    "promptMode": "fast",
+    "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+    "targetContentHash": "1c094ee348b852723e3688fabd1382fc7f4f49e12b96cd97b987441d17a4ba27",
+    "targetRegistrationPath": "records/targets/2026-07-25-1c094ee348b852723e3688fabd1382fc7f4f49e12b96cd97b987441d17a4ba27.json",
+    "registeredAtUtc": "2026-07-25T15:18:08Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -1.65,
+        "upper": 1.85
+      },
+      "points": [
+        {
+          "value": -1.65,
+          "probability": 0.0
+        },
+        {
+          "value": -1.6325,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -1.615,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -1.5975,
+          "probability": 0.005
+        },
+        {
+          "value": -1.58,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -1.5625,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -1.545,
+          "probability": 0.01
+        },
+        {
+          "value": -1.5275,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -1.51,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -1.4925,
+          "probability": 0.015
+        },
+        {
+          "value": -1.475,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -1.4575,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -1.44,
+          "probability": 0.02
+        },
+        {
+          "value": -1.4225,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -1.405,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -1.3875,
+          "probability": 0.025
+        },
+        {
+          "value": -1.37,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -1.3525,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -1.335,
+          "probability": 0.03
+        },
+        {
+          "value": -1.3175,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -1.3,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -1.2825,
+          "probability": 0.035
+        },
+        {
+          "value": -1.265,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -1.2475,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -1.23,
+          "probability": 0.04
+        },
+        {
+          "value": -1.2125,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -1.195,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -1.1775,
+          "probability": 0.045
+        },
+        {
+          "value": -1.16,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -1.1425,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -1.125,
+          "probability": 0.05
+        },
+        {
+          "value": -1.1075,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -1.09,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -1.0725,
+          "probability": 0.055
+        },
+        {
+          "value": -1.055,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -1.0375,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -1.02,
+          "probability": 0.06
+        },
+        {
+          "value": -1.0025,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -0.985,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -0.9675,
+          "probability": 0.065
+        },
+        {
+          "value": -0.95,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -0.9325,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -0.915,
+          "probability": 0.07
+        },
+        {
+          "value": -0.8975,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -0.88,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -0.8625,
+          "probability": 0.075
+        },
+        {
+          "value": -0.845,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -0.8275,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -0.81,
+          "probability": 0.08
+        },
+        {
+          "value": -0.7925,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -0.775,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -0.7575,
+          "probability": 0.085
+        },
+        {
+          "value": -0.74,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -0.7225,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -0.705,
+          "probability": 0.09
+        },
+        {
+          "value": -0.6875,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -0.67,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -0.6525,
+          "probability": 0.095
+        },
+        {
+          "value": -0.635,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -0.6175,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -0.6,
+          "probability": 0.1
+        },
+        {
+          "value": -0.5825,
+          "probability": 0.11
+        },
+        {
+          "value": -0.565,
+          "probability": 0.12
+        },
+        {
+          "value": -0.5475,
+          "probability": 0.13
+        },
+        {
+          "value": -0.53,
+          "probability": 0.14
+        },
+        {
+          "value": -0.5125,
+          "probability": 0.15
+        },
+        {
+          "value": -0.495,
+          "probability": 0.16
+        },
+        {
+          "value": -0.4775,
+          "probability": 0.17
+        },
+        {
+          "value": -0.46,
+          "probability": 0.18
+        },
+        {
+          "value": -0.4425,
+          "probability": 0.19
+        },
+        {
+          "value": -0.425,
+          "probability": 0.2
+        },
+        {
+          "value": -0.4075,
+          "probability": 0.21
+        },
+        {
+          "value": -0.39,
+          "probability": 0.22
+        },
+        {
+          "value": -0.3725,
+          "probability": 0.23
+        },
+        {
+          "value": -0.355,
+          "probability": 0.24
+        },
+        {
+          "value": -0.3375,
+          "probability": 0.25
+        },
+        {
+          "value": -0.32,
+          "probability": 0.26
+        },
+        {
+          "value": -0.3025,
+          "probability": 0.27
+        },
+        {
+          "value": -0.285,
+          "probability": 0.28
+        },
+        {
+          "value": -0.2675,
+          "probability": 0.29
+        },
+        {
+          "value": -0.25,
+          "probability": 0.3
+        },
+        {
+          "value": -0.2325,
+          "probability": 0.31
+        },
+        {
+          "value": -0.215,
+          "probability": 0.32
+        },
+        {
+          "value": -0.1975,
+          "probability": 0.33
+        },
+        {
+          "value": -0.18,
+          "probability": 0.34
+        },
+        {
+          "value": -0.1625,
+          "probability": 0.35
+        },
+        {
+          "value": -0.145,
+          "probability": 0.36
+        },
+        {
+          "value": -0.1275,
+          "probability": 0.37
+        },
+        {
+          "value": -0.11,
+          "probability": 0.38
+        },
+        {
+          "value": -0.0925,
+          "probability": 0.39
+        },
+        {
+          "value": -0.075,
+          "probability": 0.4
+        },
+        {
+          "value": -0.0575,
+          "probability": 0.41
+        },
+        {
+          "value": -0.04,
+          "probability": 0.42
+        },
+        {
+          "value": -0.0225,
+          "probability": 0.43
+        },
+        {
+          "value": -0.005,
+          "probability": 0.44
+        },
+        {
+          "value": 0.0125,
+          "probability": 0.45
+        },
+        {
+          "value": 0.03,
+          "probability": 0.46
+        },
+        {
+          "value": 0.0475,
+          "probability": 0.47
+        },
+        {
+          "value": 0.065,
+          "probability": 0.48
+        },
+        {
+          "value": 0.0825,
+          "probability": 0.49
+        },
+        {
+          "value": 0.1,
+          "probability": 0.5
+        },
+        {
+          "value": 0.1175,
+          "probability": 0.51
+        },
+        {
+          "value": 0.135,
+          "probability": 0.52
+        },
+        {
+          "value": 0.1525,
+          "probability": 0.53
+        },
+        {
+          "value": 0.17,
+          "probability": 0.54
+        },
+        {
+          "value": 0.1875,
+          "probability": 0.55
+        },
+        {
+          "value": 0.205,
+          "probability": 0.56
+        },
+        {
+          "value": 0.2225,
+          "probability": 0.57
+        },
+        {
+          "value": 0.24,
+          "probability": 0.58
+        },
+        {
+          "value": 0.2575,
+          "probability": 0.59
+        },
+        {
+          "value": 0.275,
+          "probability": 0.6
+        },
+        {
+          "value": 0.2925,
+          "probability": 0.61
+        },
+        {
+          "value": 0.31,
+          "probability": 0.62
+        },
+        {
+          "value": 0.3275,
+          "probability": 0.63
+        },
+        {
+          "value": 0.345,
+          "probability": 0.64
+        },
+        {
+          "value": 0.3625,
+          "probability": 0.65
+        },
+        {
+          "value": 0.38,
+          "probability": 0.66
+        },
+        {
+          "value": 0.3975,
+          "probability": 0.67
+        },
+        {
+          "value": 0.415,
+          "probability": 0.68
+        },
+        {
+          "value": 0.4325,
+          "probability": 0.69
+        },
+        {
+          "value": 0.45,
+          "probability": 0.7
+        },
+        {
+          "value": 0.4675,
+          "probability": 0.71
+        },
+        {
+          "value": 0.485,
+          "probability": 0.72
+        },
+        {
+          "value": 0.5025,
+          "probability": 0.73
+        },
+        {
+          "value": 0.52,
+          "probability": 0.74
+        },
+        {
+          "value": 0.5375,
+          "probability": 0.75
+        },
+        {
+          "value": 0.555,
+          "probability": 0.76
+        },
+        {
+          "value": 0.5725,
+          "probability": 0.77
+        },
+        {
+          "value": 0.59,
+          "probability": 0.78
+        },
+        {
+          "value": 0.6075,
+          "probability": 0.79
+        },
+        {
+          "value": 0.625,
+          "probability": 0.8
+        },
+        {
+          "value": 0.6425,
+          "probability": 0.81
+        },
+        {
+          "value": 0.66,
+          "probability": 0.82
+        },
+        {
+          "value": 0.6775,
+          "probability": 0.83
+        },
+        {
+          "value": 0.695,
+          "probability": 0.84
+        },
+        {
+          "value": 0.7125,
+          "probability": 0.85
+        },
+        {
+          "value": 0.73,
+          "probability": 0.86
+        },
+        {
+          "value": 0.7475,
+          "probability": 0.87
+        },
+        {
+          "value": 0.765,
+          "probability": 0.88
+        },
+        {
+          "value": 0.7825,
+          "probability": 0.89
+        },
+        {
+          "value": 0.8,
+          "probability": 0.9
+        },
+        {
+          "value": 0.8175,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 0.835,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 0.8525,
+          "probability": 0.905
+        },
+        {
+          "value": 0.87,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 0.8875,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 0.905,
+          "probability": 0.91
+        },
+        {
+          "value": 0.9225,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 0.94,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 0.9575,
+          "probability": 0.915
+        },
+        {
+          "value": 0.975,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 0.9925,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 1.01,
+          "probability": 0.92
+        },
+        {
+          "value": 1.0275,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 1.045,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 1.0625,
+          "probability": 0.925
+        },
+        {
+          "value": 1.08,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1.0975,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1.115,
+          "probability": 0.93
+        },
+        {
+          "value": 1.1325,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1.15,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1.1675,
+          "probability": 0.935
+        },
+        {
+          "value": 1.185,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1.2025,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1.22,
+          "probability": 0.94
+        },
+        {
+          "value": 1.2375,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1.255,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1.2725,
+          "probability": 0.945
+        },
+        {
+          "value": 1.29,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1.3075,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1.325,
+          "probability": 0.95
+        },
+        {
+          "value": 1.3425,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1.36,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1.3775,
+          "probability": 0.955
+        },
+        {
+          "value": 1.395,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1.4125,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1.43,
+          "probability": 0.96
+        },
+        {
+          "value": 1.4475,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1.465,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1.4825,
+          "probability": 0.965
+        },
+        {
+          "value": 1.5,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1.5175,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1.535,
+          "probability": 0.97
+        },
+        {
+          "value": 1.5525,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 1.57,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 1.5875,
+          "probability": 0.975
+        },
+        {
+          "value": 1.605,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 1.6225,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 1.64,
+          "probability": 0.98
+        },
+        {
+          "value": 1.6575,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 1.675,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 1.6925,
+          "probability": 0.985
+        },
+        {
+          "value": 1.71,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 1.7275,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 1.745,
+          "probability": 0.99
+        },
+        {
+          "value": 1.7625,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 1.78,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 1.7975,
+          "probability": 0.995
+        },
+        {
+          "value": 1.815,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 1.8325,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 1.85,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 0.1,
+        "median": 0.1,
+        "interval80": {
+          "lower": -0.6,
+          "upper": 0.8
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    }
+  }
+]

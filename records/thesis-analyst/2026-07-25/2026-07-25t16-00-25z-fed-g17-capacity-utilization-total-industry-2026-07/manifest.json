@@ -1,0 +1,379 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-25T16:00:25Z",
+  "runStartedAt": "2026-07-25T16:00:25Z",
+  "series": "fed.g17.capacity_utilization.total_industry",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "fed-g17-capacity-utilization-total-industry-july-2026",
+    "country": "US",
+    "dataPointId": "fed.g17.capacity_utilization.total_industry.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-25T15:18:08Z",
+    "registeredAtUtc": "2026-07-25T15:18:08Z",
+    "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+    "registrationState": "preregistered",
+    "series": "fed.g17.capacity_utilization.total_industry",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org",
+        "www.federalreserve.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-21",
+        "start": "2026-08-13"
+      },
+      "field": "TCU",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "TCU",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TCU",
+      "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "a51d56b832ff97c356a370807bab06ccf4e39b9e37608915beb9eff4dac89265",
+    "targetRegistrationPath": "records/targets/2026-07-25-a51d56b832ff97c356a370807bab06ccf4e39b9e37608915beb9eff4dac89265.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+  "targetContentHash": "a51d56b832ff97c356a370807bab06ccf4e39b9e37608915beb9eff4dac89265",
+  "targetRegistrationPath": "records/targets/2026-07-25-a51d56b832ff97c356a370807bab06ccf4e39b9e37608915beb9eff4dac89265.json",
+  "registeredAtUtc": "2026-07-25T15:18:08Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.3.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "5d0da8127872d91bb45a6b54b80dcb1dd79aa042594ef2a4cbd944dfca4d6fd2",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-25T16:00:25Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "55baa138c55920554ddc2c2023a1963c532d4e7c4299baca23613b1662d7e2cb"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The persistence/base-rate prior is present, but it appears after several current-evidence tool results and driver statements, so the reasoning order does not cleanly state the prior before inside-view updates.",
+        "actionRequested": "Move or restate the persistence prior near the start of the reasoning before sector, IP, mining, utilities, or manufacturing update evidence is applied."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that the official rounded Table 7 value may be one decimal while the ALFRED TCU binding preserves more decimals, and that the target remains percent either way."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the compact prior/update/interval paragraph; it satisfies the trace-depth requirements well."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the base-rate ordering critique by restating the persistence prior before the sector and inside-view adjustment evidence; accepted the optional resolver clarity note about one-decimal official Table 7 values versus more detailed ALFRED TCU values.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the base-rate ordering critique by restating the persistence prior before the sector and inside-view adjustment evidence; accepted the optional resolver clarity note about one-decimal official Table 7 values versus more detailed ALFRED TCU values.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the base-rate ordering critique by restating the persistence prior before the sector and inside-view adjustment evidence; accepted the optional resolver clarity note about one-decimal official Table 7 values versus more detailed ALFRED TCU values.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with only a minor ordering/clarity fix around the stated prior."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/prompt.md",
+      "sha256": "095df5383f9c9cd0ea4103ecdd76e1acb5d62c51f3c57ce7fbead359394ca7a2",
+      "bytes": 8963,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_command.json",
+      "sha256": "1c05d906ffaf2e645d36a5b791e2157002611c93c510473f5f7bf1e292593be6",
+      "bytes": 748,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "e76fb532a9c4d79b8d1c88ac0675ad62cc7a27370388df0c296c5bc3c86d690f",
+      "bytes": 13485,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_codex_stderr.log",
+      "sha256": "b09447578c8088ef937ddb7288c08574a45fc2d1ad9066ae003d134f40bed73a",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_codex_events.jsonl",
+      "sha256": "26239b0f97a580a9fde132dad85032f62b0352341874f6d8c245d3b7d5168ce8",
+      "bytes": 13445,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_codex_last_message.txt",
+      "sha256": "dc91e5a72e1fd04831951141ebd3a41c21620bceb9c8ad71b82454eea370e6ad",
+      "bytes": 6255,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_codex_trace.json",
+      "sha256": "b9a48334de6baf0ea08a229d45d39482e15ab63f27e87bc462830f37a67dedbc",
+      "bytes": 534,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_stdout.txt",
+      "sha256": "dc91e5a72e1fd04831951141ebd3a41c21620bceb9c8ad71b82454eea370e6ad",
+      "bytes": 6255,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/draft_stderr.txt",
+      "sha256": "35ba9d9357887a34870a9b72c6ebcfdc9776d2b3ffbed6a05c52410f05678526",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_prompt.md",
+      "sha256": "3aa9330b526c6f6578a84cae2d66ca37aa4cb134278acfb3260a56fa208fbccc",
+      "bytes": 9371,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_command.json",
+      "sha256": "83907ce3f077bd30d222461f2c8672113c7294ae4378b6ea1cadf1dcd201e5a3",
+      "bytes": 744,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "9042fa69f57c224198f196bc9ca91a8f4f66125f4d45912a62e8d7c938e2fec7",
+      "bytes": 1960,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "edf6b9ab4fc79bf9481e6b3618360a6fd0953f9e88ad208fb47238e01a504aaa",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "b8caa42461a055781f909292361f82287a0b4f5e5ae0fd3868f6fba62d763fd4",
+      "bytes": 1981,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "22bf38c2a06382334805c14d07ab693938d2a2ffbb80d89579396fbb507d69a5",
+      "bytes": 925,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "7ad0feb1fb71cf62cdcaf6124b2c5ae1be65a0e73ec46c04b79e0d7eeef0bde9",
+      "bytes": 527,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "22bf38c2a06382334805c14d07ab693938d2a2ffbb80d89579396fbb507d69a5",
+      "bytes": 925,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "db07d80d83ebd7558328aca0734ee443685fc80421308b14d60ce4c86f3b92ef",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/revision_prompt.md",
+      "sha256": "e0afc8a56b072a971acae766363f5081cad86e39fea2bbfb7f8945d27d6da932",
+      "bytes": 17079,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/command.json",
+      "sha256": "8740b76660ec831d20ba67d2724ddefdcf3134a9935aa0118c9dd85ac5cbf114",
+      "bytes": 742,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/codex_stdout.jsonl",
+      "sha256": "03cd4ce15773971ab412c7a3cb08d3f1ab0853cd7b13e53ea3c46f9e822c9dce",
+      "bytes": 7286,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/codex_stderr.log",
+      "sha256": "44851e0c745d4e3ffef68448371b3ede223574ad8acfbccfaace612fd44aceaf",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/codex_events.jsonl",
+      "sha256": "12fce638f16f0d8ce92fe6783e609870574766d00495fcf887f0c71972538022",
+      "bytes": 7308,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/codex_last_message.txt",
+      "sha256": "aceaa31c7b53f9dc9f7a0441509cf8acb85d8eeed188cb5dc0028900300aba22",
+      "bytes": 6719,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/codex_trace.json",
+      "sha256": "f14fadb010d92a8db00fbb0f5db0df24a5223ed25b6d919da22ffb6fc0c056dd",
+      "bytes": 527,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/stdout.txt",
+      "sha256": "aceaa31c7b53f9dc9f7a0441509cf8acb85d8eeed188cb5dc0028900300aba22",
+      "bytes": 6719,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/stderr.txt",
+      "sha256": "c2342c867fc868711bf33ca110f25eaaab18ebe0020602202b5eead6f44c49e1",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/raw_response.txt",
+      "sha256": "aceaa31c7b53f9dc9f7a0441509cf8acb85d8eeed188cb5dc0028900300aba22",
+      "bytes": 6719,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/parsed_cells.json",
+      "sha256": "cb3f335813b6275690c69e207cda4be5f9312c6df8d9c01f6f28233b38069894",
+      "bytes": 7657,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/normalized_cells.json",
+      "sha256": "701a0a66f8185f255d1fab80270c0dfbb132c4da3865e437e9e7b6448875b882",
+      "bytes": 25081,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/distribution.json",
+      "sha256": "2cb6744d7c85293923ea00684a741fbbbf6c44e3ed74912826114f20402c12df",
+      "bytes": 13640,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/validation.json",
+      "sha256": "5e5d5757968b05339e25737036ce6dc44e0435f359cd2afb91306bcd82c30601",
+      "bytes": 154,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/cells.with_activity.json",
+      "sha256": "20264b50d2c8b9b127c88494525f4799dda748cbc3b38eade4dd69001b1396d0",
+      "bytes": 40169,
+      "createdAt": "2026-07-25T16:00:25Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-00-25z-fed-g17-capacity-utilization-total-industry-2026-07/manifest.json",
+      "sha256": "54b865ca504c8dd1bda4fe7943cbf01b636f89f6ad39aded9f8bd25d61304fe7",
+      "bytes": 15306,
+      "createdAt": "2026-07-25T16:00:25Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "fed-g17-capacity-utilization-total-industry-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "0dcb92dde45060a4a1107ca5db6fee87fc9cc4cae81c33944d0af7f4f671d528"
+}

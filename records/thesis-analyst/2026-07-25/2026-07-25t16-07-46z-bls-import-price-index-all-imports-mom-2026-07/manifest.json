@@ -1,0 +1,366 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-25T16:07:46Z",
+  "runStartedAt": "2026-07-25T16:07:46Z",
+  "series": "bls.import_price_index.all_imports_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bls-import-price-index-all-imports-mom-july-2026",
+    "country": "US",
+    "dataPointId": "bls.import_price_index.all_imports_mom.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-25T15:18:08Z",
+    "registeredAtUtc": "2026-07-25T15:18:08Z",
+    "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+    "registrationState": "preregistered",
+    "series": "bls.import_price_index.all_imports_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org",
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-21",
+        "start": "2026-08-13"
+      },
+      "field": "IR",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "IR",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IR",
+      "table": "U.S. Import Price Indexes, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "8983b218a33d3fd3bc5b3336383aeb665cc0dcb05f4ca3ec4c6bb3791c189c4e",
+    "targetRegistrationPath": "records/targets/2026-07-25-8983b218a33d3fd3bc5b3336383aeb665cc0dcb05f4ca3ec4c6bb3791c189c4e.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+  "targetContentHash": "8983b218a33d3fd3bc5b3336383aeb665cc0dcb05f4ca3ec4c6bb3791c189c4e",
+  "targetRegistrationPath": "records/targets/2026-07-25-8983b218a33d3fd3bc5b3336383aeb665cc0dcb05f4ca3ec4c6bb3791c189c4e.json",
+  "registeredAtUtc": "2026-07-25T15:18:08Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.3.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "5d0da8127872d91bb45a6b54b80dcb1dd79aa042594ef2a4cbd944dfca4d6fd2",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-25T16:07:46Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "b9ff823fa15b98add5137a4ae31c15b1b60ddb2d513b2c3441f0c657d9e367d3"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that the interval is based on only six recent monthly observations; a broader historical realized-volatility check would make the uncertainty claim more robust."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The oil-price update would be stronger if the cited late-July quote source were summarized with date/time and whether it reflects spot or futures pricing."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestion to flag that the volatility interval uses only six recent monthly observations; rejected adding more detail on the late-July oil quote because the final must use only evidence already available in the draft.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestion to flag that the volatility interval uses only six recent monthly observations; rejected adding more detail on the late-July oil quote because the final must use only evidence already available in the draft.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable: it matches the BLS first-print target, states a recent persistence prior, gives an explicit volatility-based interval, and keeps the forecast coherent with the JSON fields."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/prompt.md",
+      "sha256": "4911d72165fe97915a51e0222e871ac9b38143c38eb8dacf26e64e7e204fb8cd",
+      "bytes": 8895,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_command.json",
+      "sha256": "b7b353c800b74e5e92f50b62c200abb63b1dda0e3443ff753c0dd37cd5e0025b",
+      "bytes": 743,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "54b6306c283ee5b8c5ecd0d6bebd5f3c4a2820ce77270fc3eafd9f221eddbd3c",
+      "bytes": 10698,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "32527ee69579bf8ebba8bb334d47d186cce5d5f243b69bbd58b1a63ce7de2ef6",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "6c342fc3bcbb13a7e3e342100113bcfc47bb77f7615265f16b8f404bc2ed6c99",
+      "bytes": 10716,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "dc9f63c64c98252dc21ce785a2b97fa56f23905c173fe2356fe6ebb8368a3304",
+      "bytes": 5394,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_codex_trace.json",
+      "sha256": "3e2325a7d23455bc3bae96d35c93a5489cf77ae68a1a95eb74534d7ac59c0d53",
+      "bytes": 533,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_stdout.txt",
+      "sha256": "dc9f63c64c98252dc21ce785a2b97fa56f23905c173fe2356fe6ebb8368a3304",
+      "bytes": 5394,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/draft_stderr.txt",
+      "sha256": "5d4b1e0fad1523fee978ccae55dbaffe31ab479c7c94041a59ed99350e229784",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "1a9580d0ced1db104a0f320f3dc9e7c682ecd7cf86f5e264192184fd63a9212b",
+      "bytes": 8442,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "50b8f959f300558a93f6d18a31602ceb12030806a3bf00c7dab5c3f25dadf5dc",
+      "bytes": 739,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "7e33ce61258726c9db124c4d2f8974b302a1143e42dad18fd3437292c1c8c3cf",
+      "bytes": 1628,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "22dac003db3013e9eef6108c419bd2be2eb41296175bb447aebe619e07c8c10b",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "e1e5f7487a3fc556fcb2f6e0b45e02e0419c5da3dc90ac5bb27b9662dc6e9a9c",
+      "bytes": 1648,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "7bfb2d3e6bfd78f45de8c118fb104d8a4be229a0b3ea740dc7a1985a4c8d3663",
+      "bytes": 591,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "2a0265bf58a31173a16ef12c85d1d634fb38286fb125b9e1283adcc2c2b53c9d",
+      "bytes": 531,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "7bfb2d3e6bfd78f45de8c118fb104d8a4be229a0b3ea740dc7a1985a4c8d3663",
+      "bytes": 591,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "312aaee25a59b5a9fbee222130d4dce2d9ed171df1a4e7e0e501c51b9026a16f",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/revision_prompt.md",
+      "sha256": "e7cbf631b349d26da64a9a2d57e0a2d717944f4ec51e1b548a18d8994b03bcfe",
+      "bytes": 15816,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/command.json",
+      "sha256": "0fb089a8f2665d4e4400714779bd8e9049eef4d3894c2754b09970e6c600f959",
+      "bytes": 737,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "0164e8e3f7eb946cb93b84335dc9efba7491d4b02408ed09cb7d858f7247b70d",
+      "bytes": 6436,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/codex_stderr.log",
+      "sha256": "1a58ebddf42cdbf3d665abfa2a7928fd2bd15b53a30928153ee36da51f02fed7",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/codex_events.jsonl",
+      "sha256": "8f3e78ee475daccf1477fbc8cf944941cce927226d4be235877d941a2d4d7fef",
+      "bytes": 6458,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/codex_last_message.txt",
+      "sha256": "016ecdf68ee165bf562b8154802459a958ebc5397352cc9c41ca7ec60336bf2b",
+      "bytes": 5862,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/codex_trace.json",
+      "sha256": "bb250ad15e87b9dc94b7833285db6292dd2bb77e90e20872dca15adea579dabe",
+      "bytes": 526,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/stdout.txt",
+      "sha256": "016ecdf68ee165bf562b8154802459a958ebc5397352cc9c41ca7ec60336bf2b",
+      "bytes": 5862,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/stderr.txt",
+      "sha256": "c0b7e92d28072ce8d1e9c06368b5dfc2a124cdf8da6d9c853acc95b6fc69d583",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/raw_response.txt",
+      "sha256": "016ecdf68ee165bf562b8154802459a958ebc5397352cc9c41ca7ec60336bf2b",
+      "bytes": 5862,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/parsed_cells.json",
+      "sha256": "67e8943d3faff226c3133c7009bfc66f2f40ccc68edfd5f11f02446e302a4b37",
+      "bytes": 6820,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/normalized_cells.json",
+      "sha256": "f0ca13a0ffebebab0df61994762535223c86f3db378943ebb2242c9e0f2a015b",
+      "bytes": 24157,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/distribution.json",
+      "sha256": "a4d02099c15f4657b58abd31c2e656c298b92bc67f9db38a818a59a0640bf632",
+      "bytes": 13553,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/validation.json",
+      "sha256": "df8aed2aea70dae671eec340835335aaca0e0fc7433a9f096284e92fcad44213",
+      "bytes": 149,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/cells.with_activity.json",
+      "sha256": "05935f3dfa5ed0693ab5a88680ab7ef8b0f1569c54651b04c0857b579158c686",
+      "bytes": 38228,
+      "createdAt": "2026-07-25T16:07:46Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-07-46z-bls-import-price-index-all-imports-mom-2026-07/manifest.json",
+      "sha256": "a701f25977ba06dbeb4f552a499ee47b685671a4b8681aa3a75fe812d4075439",
+      "bytes": 14347,
+      "createdAt": "2026-07-25T16:07:46Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bls-import-price-index-all-imports-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "d69459fb35dd65682ab1afadd1a0d93892b5c9c27ed85c78176648f618cdb154"
+}

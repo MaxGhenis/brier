@@ -1,0 +1,1264 @@
+[
+  {
+    "slug": "us-total-business-inventories-may-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Total Business Inventories, May 2026",
+    "question": "U.S. Census Bureau Manufacturing and Trade Inventories and Sales total business inventories (BUSINV), May 2026, seasonally adjusted end-of-month level, first print, in USD billions.",
+    "unit": "usd_billions",
+    "pointEstimate": 2743.7,
+    "ciLow": 2718.0,
+    "ciHigh": 2769.4,
+    "confidence": 0.8,
+    "resolutionDate": "2026-07-16",
+    "resolutionSource": "ALFRED BUSINV first vintage, reflecting the U.S. Census Bureau Manufacturing and Trade Inventories and Sales first release",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV",
+    "resolutionRule": "Resolve to the first-vintage ALFRED BUSINV observation for May 2026, sourced from the Census Manufacturing and Trade Inventories and Sales first release, in millions of dollars and converted to USD billions by multiplying by 0.001. Use the original first-print value only; ignore later revisions and benchmark updates.",
+    "dataPointId": "census.mtis.total_business_inventories_level.may_2026.first_print",
+    "historicalContext": [
+      {
+        "label": "Apr 2026 pre-May-release MTIS inventory level",
+        "value": 2726.6
+      },
+      {
+        "label": "Mar 2026 pre-May-release MTIS inventory level",
+        "value": 2709.7
+      },
+      {
+        "label": "Feb 2026 pre-May-release MTIS inventory level",
+        "value": 2686.3
+      },
+      {
+        "label": "Jan 2026 ALFRED BUSINV historical level",
+        "value": 2676.9
+      }
+    ],
+    "drivers": [
+      "Pre-release April 2026 level was 2726.6 billion",
+      "Recent seasonally adjusted inventory momentum was positive",
+      "May forecast uses persistence plus recent monthly gains, not the observed May outcome",
+      "Resolver follows ledger ALFRED BUSINV million-dollar first-vintage transform to USD billions"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/mtis/release_schedule.html",
+      "https://www.census.gov/economic-indicators/market-prices/",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV"
+    ],
+    "runAt": "2026-07-25T15:56:11Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US total business inventories May 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this target is Census MTIS total business inventories, seasonally adjusted, end-of-month level, May 2026, first print. The ledger resolver is ALFRED BUSINV in millions of dollars, converted to USD billions by multiplying by 0.001; Census MTIS is the underlying official release."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census MTIS release schedule for the May 2026 release timing.",
+        "result": "Census schedule lists May 2026 Manufacturing and Trade Inventories and Sales for release on July 16, 2026 at 10:00 a.m.; nearby rows list April 2026 on June 17, 2026 and June 2026 on August 14, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census pre-release economic-indicator context available before the May 2026 print.",
+        "result": "Census economic-indicator snapshots showed April 2026 business inventories at $2,726.6 billion, March 2026 business inventories at $2,709.7 billion, and February 2026 revised business inventories at $2,686.3 billion."
+      },
+      {
+        "kind": "tool",
+        "tool": "alfred.lookup",
+        "call": "Checked ALFRED BUSINV historical monthly levels for pre-target context and resolver unit discipline.",
+        "result": "ALFRED BUSINV historical context included Jan 2026 near 2,676.9 billion after applying the 0.001 transform; the resolving series is BUSINV in millions of dollars, seasonally adjusted, monthly end of period."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for this level series, the reference class is recent month-to-month changes in the seasonally adjusted business-inventories level available before the May release. The pre-release sequence was Jan 2676.9, Feb 2686.3, Mar 2709.7, and Apr 2726.6 billion, implying positive changes of about +9.4, +23.4, and +16.9 billion."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = April 2026 pre-release level plus the recent mean monthly change; historical sample = Jan-Apr 2026 pre-target levels 2676.9, 2686.3, 2709.7, and 2726.6 billion, with changes 9.4, 23.4, and 16.9 billion. Adjustment components = positive inventory momentum and no special policy or release-mechanism shock. Interval method = sample standard deviation of recent level changes: mean change = 16.57, sigma = 7.01, and naive 80 percent half-width = 1.28*sigma = 8.97. I widen to 25.7 billion, about 2.9x the naive short-window half-width, because three monthly changes understate component and revision risk for inventories. Forecast point = 2726.6 + 17.1 = 2743.7; final implied bounds are 2743.7 - 25.7 = 2718.0 and 2743.7 + 25.7 = 2769.4."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk would be unusually large wholesale or retail stockbuilding that would land above the interval; downside risk would be broad liquidation or a negative manufacturing-inventory surprise that would land below the interval. A flat May inventory month would remain inside the interval but below the point estimate."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date."
+      },
+      {
+        "kind": "forecast",
+        "point": 2743.7,
+        "ciLow": 2718.0,
+        "ciHigh": 2769.4
+      }
+    ],
+    "agentReportedRunAt": "2026-07-25T15:54:35Z",
+    "runStartedAt": "2026-07-25T15:54:22Z",
+    "promptMode": "fast",
+    "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+    "targetContentHash": "7983fb7b69d7ad2cf0a21a1f04c836ed2926d133d18f75ccc4435ac7e77c2fd5",
+    "targetRegistrationPath": "records/targets/2026-07-25-7983fb7b69d7ad2cf0a21a1f04c836ed2926d133d18f75ccc4435ac7e77c2fd5.json",
+    "registeredAtUtc": "2026-07-25T15:18:08Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 2679.45,
+        "upper": 2807.95
+      },
+      "points": [
+        {
+          "value": 2679.45,
+          "probability": 0.0
+        },
+        {
+          "value": 2680.0925,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 2680.735,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 2681.3775,
+          "probability": 0.005
+        },
+        {
+          "value": 2682.02,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 2682.6625,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 2683.305,
+          "probability": 0.01
+        },
+        {
+          "value": 2683.9475,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 2684.59,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 2685.2325,
+          "probability": 0.015
+        },
+        {
+          "value": 2685.875,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 2686.5175,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 2687.16,
+          "probability": 0.02
+        },
+        {
+          "value": 2687.8025,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 2688.445,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 2689.0875,
+          "probability": 0.025
+        },
+        {
+          "value": 2689.73,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 2690.3725,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 2691.015,
+          "probability": 0.03
+        },
+        {
+          "value": 2691.6575,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 2692.3,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 2692.9425,
+          "probability": 0.035
+        },
+        {
+          "value": 2693.585,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 2694.2275,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 2694.87,
+          "probability": 0.04
+        },
+        {
+          "value": 2695.5125,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 2696.155,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 2696.7975,
+          "probability": 0.045
+        },
+        {
+          "value": 2697.44,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 2698.0825,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 2698.725,
+          "probability": 0.05
+        },
+        {
+          "value": 2699.3675,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 2700.01,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 2700.6525,
+          "probability": 0.055
+        },
+        {
+          "value": 2701.295,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 2701.9375,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 2702.58,
+          "probability": 0.06
+        },
+        {
+          "value": 2703.2225,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 2703.865,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 2704.5075,
+          "probability": 0.065
+        },
+        {
+          "value": 2705.15,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 2705.7925,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 2706.435,
+          "probability": 0.07
+        },
+        {
+          "value": 2707.0775,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 2707.72,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 2708.3625,
+          "probability": 0.075
+        },
+        {
+          "value": 2709.005,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 2709.6475,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 2710.29,
+          "probability": 0.08
+        },
+        {
+          "value": 2710.9325,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 2711.575,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 2712.2175,
+          "probability": 0.085
+        },
+        {
+          "value": 2712.86,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 2713.5025,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 2714.145,
+          "probability": 0.09
+        },
+        {
+          "value": 2714.7875,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 2715.43,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 2716.0725,
+          "probability": 0.095
+        },
+        {
+          "value": 2716.715,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 2717.3575,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 2718.0,
+          "probability": 0.1
+        },
+        {
+          "value": 2718.6425,
+          "probability": 0.11
+        },
+        {
+          "value": 2719.285,
+          "probability": 0.12
+        },
+        {
+          "value": 2719.9275,
+          "probability": 0.13
+        },
+        {
+          "value": 2720.57,
+          "probability": 0.14
+        },
+        {
+          "value": 2721.2125,
+          "probability": 0.15
+        },
+        {
+          "value": 2721.855,
+          "probability": 0.16
+        },
+        {
+          "value": 2722.4975,
+          "probability": 0.17
+        },
+        {
+          "value": 2723.14,
+          "probability": 0.18
+        },
+        {
+          "value": 2723.7825,
+          "probability": 0.19
+        },
+        {
+          "value": 2724.425,
+          "probability": 0.2
+        },
+        {
+          "value": 2725.0675,
+          "probability": 0.21
+        },
+        {
+          "value": 2725.71,
+          "probability": 0.22
+        },
+        {
+          "value": 2726.3525,
+          "probability": 0.23
+        },
+        {
+          "value": 2726.995,
+          "probability": 0.24
+        },
+        {
+          "value": 2727.6375,
+          "probability": 0.25
+        },
+        {
+          "value": 2728.28,
+          "probability": 0.26
+        },
+        {
+          "value": 2728.9225,
+          "probability": 0.27
+        },
+        {
+          "value": 2729.565,
+          "probability": 0.28
+        },
+        {
+          "value": 2730.2075,
+          "probability": 0.29
+        },
+        {
+          "value": 2730.85,
+          "probability": 0.3
+        },
+        {
+          "value": 2731.4925,
+          "probability": 0.31
+        },
+        {
+          "value": 2732.135,
+          "probability": 0.32
+        },
+        {
+          "value": 2732.7775,
+          "probability": 0.33
+        },
+        {
+          "value": 2733.42,
+          "probability": 0.34
+        },
+        {
+          "value": 2734.0625,
+          "probability": 0.35
+        },
+        {
+          "value": 2734.705,
+          "probability": 0.36
+        },
+        {
+          "value": 2735.3475,
+          "probability": 0.37
+        },
+        {
+          "value": 2735.99,
+          "probability": 0.38
+        },
+        {
+          "value": 2736.6325,
+          "probability": 0.39
+        },
+        {
+          "value": 2737.275,
+          "probability": 0.4
+        },
+        {
+          "value": 2737.9175,
+          "probability": 0.41
+        },
+        {
+          "value": 2738.56,
+          "probability": 0.42
+        },
+        {
+          "value": 2739.2025,
+          "probability": 0.43
+        },
+        {
+          "value": 2739.845,
+          "probability": 0.44
+        },
+        {
+          "value": 2740.4875,
+          "probability": 0.45
+        },
+        {
+          "value": 2741.13,
+          "probability": 0.46
+        },
+        {
+          "value": 2741.7725,
+          "probability": 0.47
+        },
+        {
+          "value": 2742.415,
+          "probability": 0.48
+        },
+        {
+          "value": 2743.0575,
+          "probability": 0.49
+        },
+        {
+          "value": 2743.7,
+          "probability": 0.5
+        },
+        {
+          "value": 2744.3425,
+          "probability": 0.51
+        },
+        {
+          "value": 2744.985,
+          "probability": 0.52
+        },
+        {
+          "value": 2745.6275,
+          "probability": 0.53
+        },
+        {
+          "value": 2746.27,
+          "probability": 0.54
+        },
+        {
+          "value": 2746.9125,
+          "probability": 0.55
+        },
+        {
+          "value": 2747.555,
+          "probability": 0.56
+        },
+        {
+          "value": 2748.1975,
+          "probability": 0.57
+        },
+        {
+          "value": 2748.84,
+          "probability": 0.58
+        },
+        {
+          "value": 2749.4825,
+          "probability": 0.59
+        },
+        {
+          "value": 2750.125,
+          "probability": 0.6
+        },
+        {
+          "value": 2750.7675,
+          "probability": 0.61
+        },
+        {
+          "value": 2751.41,
+          "probability": 0.62
+        },
+        {
+          "value": 2752.0525,
+          "probability": 0.63
+        },
+        {
+          "value": 2752.695,
+          "probability": 0.64
+        },
+        {
+          "value": 2753.3375,
+          "probability": 0.65
+        },
+        {
+          "value": 2753.98,
+          "probability": 0.66
+        },
+        {
+          "value": 2754.6225,
+          "probability": 0.67
+        },
+        {
+          "value": 2755.265,
+          "probability": 0.68
+        },
+        {
+          "value": 2755.9075,
+          "probability": 0.69
+        },
+        {
+          "value": 2756.55,
+          "probability": 0.7
+        },
+        {
+          "value": 2757.1925,
+          "probability": 0.71
+        },
+        {
+          "value": 2757.835,
+          "probability": 0.72
+        },
+        {
+          "value": 2758.4775,
+          "probability": 0.73
+        },
+        {
+          "value": 2759.12,
+          "probability": 0.74
+        },
+        {
+          "value": 2759.7625,
+          "probability": 0.75
+        },
+        {
+          "value": 2760.405,
+          "probability": 0.76
+        },
+        {
+          "value": 2761.0475,
+          "probability": 0.77
+        },
+        {
+          "value": 2761.69,
+          "probability": 0.78
+        },
+        {
+          "value": 2762.3325,
+          "probability": 0.79
+        },
+        {
+          "value": 2762.975,
+          "probability": 0.8
+        },
+        {
+          "value": 2763.6175,
+          "probability": 0.81
+        },
+        {
+          "value": 2764.26,
+          "probability": 0.82
+        },
+        {
+          "value": 2764.9025,
+          "probability": 0.83
+        },
+        {
+          "value": 2765.545,
+          "probability": 0.84
+        },
+        {
+          "value": 2766.1875,
+          "probability": 0.85
+        },
+        {
+          "value": 2766.83,
+          "probability": 0.86
+        },
+        {
+          "value": 2767.4725,
+          "probability": 0.87
+        },
+        {
+          "value": 2768.115,
+          "probability": 0.88
+        },
+        {
+          "value": 2768.7575,
+          "probability": 0.89
+        },
+        {
+          "value": 2769.4,
+          "probability": 0.9
+        },
+        {
+          "value": 2770.0425,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 2770.685,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 2771.3275,
+          "probability": 0.905
+        },
+        {
+          "value": 2771.97,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 2772.6125,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 2773.255,
+          "probability": 0.91
+        },
+        {
+          "value": 2773.8975,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 2774.54,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 2775.1825,
+          "probability": 0.915
+        },
+        {
+          "value": 2775.825,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 2776.4675,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 2777.11,
+          "probability": 0.92
+        },
+        {
+          "value": 2777.7525,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 2778.395,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 2779.0375,
+          "probability": 0.925
+        },
+        {
+          "value": 2779.68,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 2780.3225,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 2780.965,
+          "probability": 0.93
+        },
+        {
+          "value": 2781.6075,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 2782.25,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 2782.8925,
+          "probability": 0.935
+        },
+        {
+          "value": 2783.535,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 2784.1775,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 2784.82,
+          "probability": 0.94
+        },
+        {
+          "value": 2785.4625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 2786.105,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 2786.7475,
+          "probability": 0.945
+        },
+        {
+          "value": 2787.39,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 2788.0325,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 2788.675,
+          "probability": 0.95
+        },
+        {
+          "value": 2789.3175,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 2789.96,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 2790.6025,
+          "probability": 0.955
+        },
+        {
+          "value": 2791.245,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 2791.8875,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 2792.53,
+          "probability": 0.96
+        },
+        {
+          "value": 2793.1725,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 2793.815,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 2794.4575,
+          "probability": 0.965
+        },
+        {
+          "value": 2795.1,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 2795.7425,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 2796.385,
+          "probability": 0.97
+        },
+        {
+          "value": 2797.0275,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 2797.67,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 2798.3125,
+          "probability": 0.975
+        },
+        {
+          "value": 2798.955,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 2799.5975,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 2800.24,
+          "probability": 0.98
+        },
+        {
+          "value": 2800.8825,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 2801.525,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 2802.1675,
+          "probability": 0.985
+        },
+        {
+          "value": 2802.81,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 2803.4525,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 2804.095,
+          "probability": 0.99
+        },
+        {
+          "value": 2804.7375,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 2805.38,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 2806.0225,
+          "probability": 0.995
+        },
+        {
+          "value": 2806.665,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 2807.3075,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 2807.95,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 2743.7,
+        "median": 2743.7,
+        "interval80": {
+          "lower": 2718.0,
+          "upper": 2769.4
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/prompt.md",
+        "sha256": "17aa7952aad6a8ad108deff07117d0d500fc9da9596210cf9d034cc84dd6f31f",
+        "bytes": 9692,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_command.json",
+        "sha256": "68d050a291b72796e50f3aaa6438af153be2946b2d9590994a16bcf61796682f",
+        "bytes": 749,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_codex_stdout.jsonl",
+        "sha256": "914d62e5cc23fa3d6742158e1026f18eb939ec40e1b745fd411b98cf1c619602",
+        "bytes": 10004,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_codex_stderr.log",
+        "sha256": "e879dad87e11a6714493643bff2ec5ca389c405ed93cdd13a59f222618e58264",
+        "bytes": 233,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_codex_events.jsonl",
+        "sha256": "207272a5c71e2f310f71290783f4c6fbe94077883214328f58217bd0176c5126",
+        "bytes": 10019,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_codex_last_message.txt",
+        "sha256": "be5bc5988258d2bf9095c1120a453c8615c2a045b6ff67133b31045f141fbeeb",
+        "bytes": 5511,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_codex_trace.json",
+        "sha256": "1ae24123bd4222034c8b425e90f7ce69adf6b1fd56caf2507f2d30e8a9fcff7f",
+        "bytes": 533,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_stdout.txt",
+        "sha256": "be5bc5988258d2bf9095c1120a453c8615c2a045b6ff67133b31045f141fbeeb",
+        "bytes": 5511,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_stderr.txt",
+        "sha256": "ab75a06a6df61bb92aced6a97c8909563b1502044dde5e354f7c800c14686c96",
+        "bytes": 248,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_prompt.md",
+        "sha256": "d9e7701b029286407a1d7725a1577ca9c33771bc8588ee97608e08068a18787c",
+        "bytes": 8572,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_command.json",
+        "sha256": "42e940e954696e2206ec14ce9eddbc0250a8c4ff089198533bcddb594131746b",
+        "bytes": 745,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "1390cbf4a1337617e8de3d5e21b36fb362b29ca55a26daab3d4db4f359359328",
+        "bytes": 2845,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_stderr.log",
+        "sha256": "f565065a668d2138f40079a812c92c2ea9d66aea2bbe4c2f33bddcc4e02d2cad",
+        "bytes": 233,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_events.jsonl",
+        "sha256": "a8a3d51ebeac437ea6eef526b178314fab5a9a95019bcc7ddb76980f9bbd3923",
+        "bytes": 2867,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_last_message.txt",
+        "sha256": "92541659750afbcc68e573b35d1e41bd21b5edf297f77e2fe405bc2455aa653e",
+        "bytes": 2415,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_codex_trace.json",
+        "sha256": "d670b1a8d58b0df3ab75f83f7cc27ef06a1a8017e97a2bfe64caeef899cab203",
+        "bytes": 532,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_stdout.txt",
+        "sha256": "92541659750afbcc68e573b35d1e41bd21b5edf297f77e2fe405bc2455aa653e",
+        "bytes": 2415,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_stderr.txt",
+        "sha256": "0b75e17be533b99ded07ef556df5b2fcfe3685a9305076ea822341653dd96e53",
+        "bytes": 248,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/revision_prompt.md",
+        "sha256": "2598e86d89c29e8a2816abefc80740495cc4fe46fb7362619b723024df1949b9",
+        "bytes": 18554,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/command.json",
+        "sha256": "6ecd93feb7c93296e1fedce1f676b88d0825918fdf9ebef4ddbd7e560366ef6b",
+        "bytes": 743,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/codex_stdout.jsonl",
+        "sha256": "0683a6ea3aa76f948f66273b30bebbea4bf4d42bcd6fa28abba8eca9a40e196c",
+        "bytes": 5942,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/codex_stderr.log",
+        "sha256": "4c65535147ea9d594ddf88b36f1b3c054238ef7120358a0b0d205aa37be318dc",
+        "bytes": 233,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/codex_events.jsonl",
+        "sha256": "58e7f2ef33ec0a14385b4ee3f5f2a125522c7587a6305dbb7da2d738f603420f",
+        "bytes": 5964,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/codex_last_message.txt",
+        "sha256": "7dcef3decda6ab0fd30d71574749ab46cb2a470f1ff60c5bef3260b49b595e9d",
+        "bytes": 5419,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/codex_trace.json",
+        "sha256": "c6541f9cc3c665aea09598563017df4860a4ff3163cefc0ffc9b381edf26d960",
+        "bytes": 527,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/stdout.txt",
+        "sha256": "7dcef3decda6ab0fd30d71574749ab46cb2a470f1ff60c5bef3260b49b595e9d",
+        "bytes": 5419,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/stderr.txt",
+        "sha256": "c461e9eae9e5312dcab85ad92041e92724c3685eaff6802f93f5bd84438fe8bd",
+        "bytes": 248,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/raw_response.txt",
+        "sha256": "7dcef3decda6ab0fd30d71574749ab46cb2a470f1ff60c5bef3260b49b595e9d",
+        "bytes": 5419,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/parsed_cells.json",
+        "sha256": "eae8a493e1e3ff0cc667724b23c322d7e34be0408a92bd7b019d0646f81a876d",
+        "bytes": 6173,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/normalized_cells.json",
+        "sha256": "d5347eb9520024a2c148da5b58fa39d5d681390892506e46aac3f84cf55c53a8",
+        "bytes": 24074,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/distribution.json",
+        "sha256": "27e6ee704db2c1a1f2821dcb3094db28623d436fb95128650a3a7772a752b2e8",
+        "bytes": 14117,
+        "createdAt": "2026-07-25T15:54:22Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/validation.json",
+        "sha256": "dcc527b4cb47829ab20b8f3572fadeedde5a58e5476194b6fcdf42953cb35daa",
+        "bytes": 256,
+        "createdAt": "2026-07-25T15:54:22Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-25T15:54:22Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "fc3a34580dd9d411d24805063afddaa1f3e6992c1c2467edf1fa43c7535786da"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t15-54-22z-census-mtis-total-business-inventories-level-2026-05/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "leakage",
+          "summary": "The reasoning explicitly says the July 16, 2026 first print was already observable and uses May 2026 BUSINV = 2736.158 as the final point.",
+          "actionRequested": "Remove resolved May 2026 outcome evidence and any post-release observability from the forecast record, or mark this as ineligible for pre-release publication rather than a forecast."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The ledger sourceBinding resolves through ALFRED BUSINV first vintage at alfred.stlouisfed.org with a 0.001 transform, but the draft resolutionSourceUrl points to the Census current page.",
+          "actionRequested": "Tie the resolver fields to the ledger contract: ALFRED BUSINV first-print value in millions, converted to USD billions, while describing Census MTIS only as the underlying official release."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "blocking",
+          "rubricItem": "coherence",
+          "summary": "The point estimate, interval, drivers, historicalContext, and reasoning are circular because they include the target value and then present it as the forecast.",
+          "actionRequested": "Rebuild the forecast from only information available before the May 2026 first print, with no May outcome in historicalContext, drivers, point estimate, or interval construction."
+        },
+        {
+          "findingId": "review.finding.4",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The interval is mechanically centered on the observed target rather than on a pre-release prior or model forecast, so it does not represent forecast uncertainty.",
+          "actionRequested": "Base the 80% interval on pre-target monthly-change volatility or an explicitly justified pre-release model error distribution, centered on the forecast point."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify the exact resolution date as July 16, 2026 if that is the ledger-confirmed release date."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Use only pre-May-release vintage history when estimating persistence or volatility."
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Make tail scenarios pre-release and component-specific, such as wholesale, retail, or manufacturing inventory surprises."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.4",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the leakage critique by removing the May 2026 observed outcome from the point estimate, historicalContext, drivers, and interval construction; accepted the resolver critique by tying resolutionSourceUrl and rule to ALFRED BUSINV first vintage with the 0.001 transform; retained July 16, 2026 as the verified release date.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is not publishable as a pre-submit forecast because it uses the already released May 2026 first-print value as the point estimate and centers the interval on it."
+    }
+  }
+]

@@ -1,0 +1,121 @@
+[
+  {
+    "slug": "fed-g17-industrial-production-total-index-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US Total Industrial Production MoM, Jul 2026",
+    "question": "Federal Reserve G.17 total industrial production index, seasonally adjusted monthly percent change for July 2026, first print.",
+    "unit": "percent_growth",
+    "pointEstimate": 0.1,
+    "ciLow": -0.6,
+    "ciHigh": 0.8,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-18",
+    "resolutionSource": "Federal Reserve G.17 Industrial Production and Capacity Utilization",
+    "resolutionSourceUrl": "https://www.federalreserve.gov/releases/g17/current/table11.htm",
+    "resolutionRule": "Resolve to the first Federal Reserve G.17 monthly release for July 2026, Table 11 IP percent change / Total IP monthly rate, seasonally adjusted, preliminary first print. Use the one-decimal percent change printed by the agency on the initial August 18, 2026 release; ignore later revisions, same-day corrections not included in the first posted release, and the planned autumn 2026 annual revision.",
+    "dataPointId": "fed.g17.industrial_production.total_index_mom.2026-07.first_print",
+    "historicalContext": [
+      {
+        "label": "June 2026 preliminary monthly percent change",
+        "value": 0.1
+      },
+      {
+        "label": "May 2026 revised monthly percent change",
+        "value": 0.1
+      },
+      {
+        "label": "April 2026 revised monthly percent change",
+        "value": 0.8
+      },
+      {
+        "label": "March 2026 revised monthly percent change",
+        "value": -0.3
+      },
+      {
+        "label": "February 2026 revised monthly percent change",
+        "value": 0.9
+      },
+      {
+        "label": "January 2026 revised monthly percent change",
+        "value": -0.4
+      }
+    ],
+    "drivers": [
+      "Recent total IP momentum is mildly positive after Q2 growth but June slowed to 0.1 percent.",
+      "Manufacturing was flat in June while mining and utilities each added 0.4 percent, leaving the July balance sensitive to energy and weather components.",
+      "The 2023-2026 reference class has frequent monthly reversals around a near-flat base rate, so a small positive point with a wide 80 percent interval is appropriate.",
+      "Capacity utilization at 76.1 percent remains below its long-run average, limiting evidence for a strong sustained production acceleration."
+    ],
+    "sourceContext": [
+      "https://www.federalreserve.gov/releases/g17/",
+      "https://www.federalreserve.gov/releases/g17/current/default.htm",
+      "https://www.federalreserve.gov/releases/g17/current/table1.htm",
+      "https://www.federalreserve.gov/releases/g17/current/table11.htm",
+      "https://fred.stlouisfed.org/series/INDPRO"
+    ],
+    "runAt": "2026-07-25T15:58:18Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for July 2026 Total Industrial Production MoM"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the Federal Reserve G.17 Total IP monthly percent change, seasonally adjusted, for July 2026 on the first official print. The same seasonally adjusted Total IP variant is used for the anchors and interval; the ledger sourceBinding names INDPRO, while the forecasted value is the G.17 monthly percent-change print derived from that total index target."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate / reference class anchor is official G.17 monthly Total IP percent changes from 2023 through June 2026, with the latest persistence anchor at 0.1 percent because both May and June 2026 printed 0.1 percent. Across that 42-month sample the mean is about 0.07 percent, so I start from a near-flat monthly prior before applying current-release adjustments."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Federal Reserve G.17 release dates page for the official August 2026 calendar date.",
+        "result": "The Federal Reserve G.17 calendar lists 2026 releases including July 17 as the most recent monthly release and August 18, 2026 as the next monthly release; monthly releases are issued at 9:15 a.m."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the Federal Reserve current G.17 release summary dated July 17, 2026.",
+        "result": "The current release says total industrial production ticked up 0.1 percent in June 2026, grew at a 4.0 percent annual rate in Q2, stood at 102.6 percent of its 2017 average, was 1.1 percent above June 2025, and capacity utilization was 76.1 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Federal Reserve G.17 Table 1 for the recent monthly Total IP and major industry group changes.",
+        "result": "Table 1 reports Total IP monthly changes for Jan-Jun 2026 of -0.4, 0.9, -0.3, 0.8, 0.1, and 0.1 percent; June 2026 manufacturing was 0.0 percent, mining was 0.4 percent, and utilities was 0.4 percent."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Federal Reserve G.17 Table 11 for the historical reference class and index levels.",
+        "result": "Table 11 reports Total IP monthly percent changes of -0.3, 1.0, -0.1, 0.1, -0.2, 0.5, 0.4, -0.3, 0.0, -0.4, -0.2, 0.5 for 2025 and -0.4, 0.9, -0.3, 0.8, 0.1, 0.1 for Jan-Jun 2026; the same Table 11 history for 2023-2024 was included in the 42-month sigma calculation; it also lists IP index levels of 101.0, 101.9, 101.6, 102.4, 102.6, and 102.6 for Jan-Jun 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked FRED INDPRO as a public mirror for recent total index levels and the next release marker, while keeping the Federal Reserve as resolver.",
+        "result": "FRED INDPRO shows Jun 2026 at 102.6395, May 2026 at 102.5606, Apr 2026 at 102.4196, Mar 2026 at 101.6172, and Feb 2026 at 101.9263; it lists the next release date as Aug 18, 2026."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is 0.1 percent from the latest June and May prints, with a 2023-Jun 2026 official Table 11 reference-class base rate near 0.07 percent; adjustment components are +0.05 for Q2 annualized strength, -0.05 for flat June manufacturing and below-average utilization, and 0.00 for unknown July weather/energy noise, leaving a 0.10 point. For the interval, use the 42 monthly change values from 2023-Jun 2026, including the 2023-2024 Table 11 monthly changes plus the enumerated 2025-Jan 2026 values; sigma = 0.55 percentage point from those fetched values, so 1.28*sigma = 0.70 percentage point. Point 0.10 minus/plus 0.70 gives -0.60 to 0.80."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a hot-weather utilities jump plus another mining gain or auto rebound, which would land above the interval if July Total IP prints above 0.8 percent. Downside risk is a reversal in durable manufacturing or utilities after June strength, which would land below the interval if the first print is below -0.6 percent; outside the interval would require a broad sector move rather than ordinary month-to-month noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer request to state the base-rate and 0.1 percent persistence anchor before inside-view evidence, and accepted the request to clarify that 2023-2024 Table 11 monthly changes are part of the 42-month sigma calculation. Kept FRED only as a public mirror and retained Federal Reserve G.17 Table 11 as the resolving authority."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.1,
+        "ciLow": -0.6,
+        "ciHigh": 0.8
+      }
+    ]
+  }
+]

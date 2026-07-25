@@ -1,0 +1,34 @@
+{
+  "summary": "The draft is not publishable as a pre-submit forecast because it uses the already released May 2026 first-print value as the point estimate and centers the interval on it.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "The reasoning explicitly says the July 16, 2026 first print was already observable and uses May 2026 BUSINV = 2736.158 as the final point.",
+      "actionRequested": "Remove resolved May 2026 outcome evidence and any post-release observability from the forecast record, or mark this as ineligible for pre-release publication rather than a forecast."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The ledger sourceBinding resolves through ALFRED BUSINV first vintage at alfred.stlouisfed.org with a 0.001 transform, but the draft resolutionSourceUrl points to the Census current page.",
+      "actionRequested": "Tie the resolver fields to the ledger contract: ALFRED BUSINV first-print value in millions, converted to USD billions, while describing Census MTIS only as the underlying official release."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The point estimate, interval, drivers, historicalContext, and reasoning are circular because they include the target value and then present it as the forecast.",
+      "actionRequested": "Rebuild the forecast from only information available before the May 2026 first print, with no May outcome in historicalContext, drivers, point estimate, or interval construction."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval is mechanically centered on the observed target rather than on a pre-release prior or model forecast, so it does not represent forecast uncertainty.",
+      "actionRequested": "Base the 80% interval on pre-target monthly-change volatility or an explicitly justified pre-release model error distribution, centered on the forecast point."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify the exact resolution date as July 16, 2026 if that is the ledger-confirmed release date.",
+    "Use only pre-May-release vintage history when estimating persistence or volatility.",
+    "Make tail scenarios pre-release and component-specific, such as wholesale, retail, or manufacturing inventory surprises."
+  ]
+}

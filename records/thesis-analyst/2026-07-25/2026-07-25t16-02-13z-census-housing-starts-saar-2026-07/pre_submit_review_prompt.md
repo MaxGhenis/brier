@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: census.housing_starts.saar
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "census-housing-starts-saar-july-2026"
+- country: "US"
+- targetUnit: "millions"
+- dataPointId: "census.housing_starts.saar.2026-07.first_print"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org", "www.census.gov"], "expectedReleaseWindow": {"end": "2026-08-21", "start": "2026-08-13"}, "field": "HOUST", "releasePolicy": "first_print", "sourceSeriesId": "HOUST", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=HOUST", "table": "New Residential Construction, seasonally adjusted annual rates", "transform": {"factor": 0.001, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-25-073e7fcf7886b8c861d413549339410a956f2eb86554266f89fbeea6aa7bc373.json"
+- targetContentHash: "073e7fcf7886b8c861d413549339410a956f2eb86554266f89fbeea6aa7bc373"
+- registrationCommit: "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af"
+- registeredAtUtc: "2026-07-25T15:18:08Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+e3f356403a418400a1371e336a340e244b8a36e9e72752fb0ea4af6a5b9fea04
+
+# Draft forecast response
+{"slug":"census-housing-starts-saar-july-2026","country":"US","type":"data","title":"US housing starts SAAR, July 2026","question":"What will the Census/HUD first print of privately owned housing starts, total units, seasonally adjusted annual rate, be for July 2026?","unit":"millions","pointEstimate":1.37,"ciLow":1.09,"ciHigh":1.65,"confidence":0.8,"resolutionDate":"2026-08-18","resolutionSource":"U.S. Census Bureau and HUD New Residential Construction release, Table 3","resolutionSourceUrl":"https://www.census.gov/construction/nrc/current/","resolutionRule":"Resolve to the first officially published Census/HUD New Residential Construction estimate for July 2026 privately owned housing starts, total units, seasonally adjusted annual rate, Table 3. Convert thousands of units to millions by multiplying by 0.001 and round to the nearest 0.001 million. Use the initial August 18, 2026 print only; ignore later revisions and benchmark updates.","dataPointId":"census.housing_starts.saar.2026-07.first_print","historicalContext":[{"label":"June 2026 first print HOUST SAAR","value":1.427},{"label":"May 2026 first print HOUST SAAR","value":1.177},{"label":"April 2026 first print HOUST SAAR","value":1.465},{"label":"March 2026 first print HOUST SAAR","value":1.502},{"label":"January 2026 first print HOUST SAAR","value":1.487}],"drivers":["June starts rebound was concentrated in volatile multifamily starts","June permits at 1.367 million SAAR point to softer near-term starts than June starts","Single-family starts were nearly flat around 0.895 million SAAR","High rates and elevated new-home inventory restrain a sustained upside break","Monthly starts dispersion is large, so the 80% interval remains wide"],"sourceContext":["https://www.census.gov/construction/soc/schedule.html","https://www.census.gov/construction/nrc/current/","https://www.census.gov/construction/nrc/data/series.html","https://alfred.stlouisfed.org/release?rid=27","https://fred.stlouisfed.org/series/HOUST/n"],"runAt":"2026-07-25T16:02:32Z","reasoning":[{"kind":"heading","text":"July 2026 US housing starts SAAR forecast"},{"kind":"text","text":"Framing and exact resolver: the target is Census/HUD New Residential Construction Table 3, privately owned housing starts, total units, seasonally adjusted annual rate, for July 2026, first print. The ledger unit is millions, so HOUST thousands are multiplied by 0.001."},{"kind":"tool","tool":"official.lookup","call":"Checked the Census Survey of Construction release schedule for the July 2026 New Residential Construction release.","result":"The Census schedule lists July 2026 New Residential Construction at 8:30 a.m. on August 18, 2026; it also lists June 2026 on July 17, 2026 and May 2026 on June 16, 2026."},{"kind":"tool","tool":"official.lookup","call":"Read the July 17, 2026 Census/HUD New Residential Construction release for June 2026 starts and related components.","result":"June 2026 privately owned housing starts were 1,427,000 SAAR; revised May starts were 1,199,000; June single-family starts were 895,000; June starts in buildings with 5 units or more were 513,000; June permits were 1,367,000."},{"kind":"tool","tool":"official.lookup","call":"Read the June 16, 2026 Census/HUD New Residential Construction release for the May first print and revised April comparison.","result":"May 2026 privately owned housing starts were first printed at 1,177,000 SAAR; revised April starts were 1,392,000; May single-family starts were 882,000; May starts in buildings with 5 units or more were 284,000; May permits were 1,413,000."},{"kind":"tool","tool":"official.lookup","call":"Checked ALFRED/FRED HOUST release/history pages and Census historical series context for recent first-print/reference values.","result":"Recent HOUST first-print/reference values used for dispersion were January 2026 1.487 million, February 2026 1.346 million, March 2026 1.502 million, April 2026 1.465 million, May 2026 1.177 million, and June 2026 1.427 million SAAR."},{"kind":"text","text":"Base rate/reference class: the recent first-print level reference class averages about 1.401 million over January-June 2026, with values oscillating between 1.177 million and 1.502 million. That base rate says a July print near 1.35-1.45 million is more plausible than either a new collapse or a durable break above 1.55 million."},{"kind":"math","text":"Prior/update/interval: persistence prior is the latest official first print, 1.427 million, cross-checked against the six-month first-print mean of 1.401 million. Adjustment components: -0.04 million for likely giveback from June's volatile multifamily jump from 0.284 million in May to 0.513 million in June, -0.02 million because June permits at 1.367 million trail starts, and about +0.00 to +0.01 million because single-family starts were stable near 0.895 million. This gives a point near 1.37 million. Interval method uses successive first-print changes from Jan-Jun: -0.141, +0.156, -0.037, -0.288, +0.250 million; sigma = 0.218 million, so 1.28*sigma = 0.279 million. Rounded 80% bounds are 1.37 - 0.28 = 1.09 and 1.37 + 0.28 = 1.65 million."},{"kind":"text","text":"Counter-considerations: upside risk is another multifamily-heavy month or faster conversion of permits to starts, which would land above the interval if total starts exceed 1.65 million. Downside risk is a reversal of June multifamily starts plus weaker single-family starts under high mortgage rates, which would land below the interval if total starts fall under 1.09 million."},{"kind":"forecast","point":1.37,"ciLow":1.09,"ciHigh":1.65}]}

@@ -1,0 +1,392 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-25T15:58:01Z",
+  "runStartedAt": "2026-07-25T15:58:01Z",
+  "series": "fed.g17.industrial_production.total_index_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "fed-g17-industrial-production-total-index-mom-july-2026",
+    "country": "US",
+    "dataPointId": "fed.g17.industrial_production.total_index_mom.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-25T15:18:08Z",
+    "registeredAtUtc": "2026-07-25T15:18:08Z",
+    "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+    "registrationState": "preregistered",
+    "series": "fed.g17.industrial_production.total_index_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org",
+        "www.federalreserve.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-21",
+        "start": "2026-08-13"
+      },
+      "field": "INDPRO",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "INDPRO",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=INDPRO",
+      "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "1c094ee348b852723e3688fabd1382fc7f4f49e12b96cd97b987441d17a4ba27",
+    "targetRegistrationPath": "records/targets/2026-07-25-1c094ee348b852723e3688fabd1382fc7f4f49e12b96cd97b987441d17a4ba27.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+  "targetContentHash": "1c094ee348b852723e3688fabd1382fc7f4f49e12b96cd97b987441d17a4ba27",
+  "targetRegistrationPath": "records/targets/2026-07-25-1c094ee348b852723e3688fabd1382fc7f4f49e12b96cd97b987441d17a4ba27.json",
+  "registeredAtUtc": "2026-07-25T15:18:08Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.3.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "5d0da8127872d91bb45a6b54b80dcb1dd79aa042594ef2a4cbd944dfca4d6fd2",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-25T15:58:01Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "61c8f90746b9331a607e2c529903f6807c369fe7a390274e5bcd3587db9b1b4a"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The prior is present, but it appears after current-evidence tool notes and driver language, so the draft does not cleanly state the base-rate/persistence anchor before inside-view updates.",
+        "actionRequested": "Move or duplicate the base-rate sentence near the start of reasoning before current June/Q2 manufacturing/utilization discussion, naming the 2023-Jun 2026 sample and the 0.1 percent persistence anchor."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The interval method cites 42 monthly values from 2023-Jun 2026, but the visible evidence only enumerates 2025 and Jan-Jun 2026 values, so the historical sample behind sigma is not fully auditable from the draft text.",
+        "actionRequested": "Add a compact note that the 2023-2024 Table 11 monthly changes were included in the 42-month sigma calculation, or state where those fetched values are recorded."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Use the Federal Reserve release dates page or eventual archived August 18 release page as the resolver URL if the catalog supports a stable first-print archive link."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep FRED/ALFRED described only as a mirror or index-level history aid, with Federal Reserve G.17 Table 11 as the resolving authority."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer request to state the base-rate and 0.1 percent persistence anchor before inside-view evidence, and accepted the request to clarify that 2023-2024 Table 11 monthly changes are part of the 42-month sigma calculation. Kept FRED only as a public mirror and retained Federal Reserve G.17 Table 11 as the resolving authority.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the reviewer request to state the base-rate and 0.1 percent persistence anchor before inside-view evidence, and accepted the request to clarify that 2023-2024 Table 11 monthly changes are part of the 42-month sigma calculation. Kept FRED only as a public mirror and retained Federal Reserve G.17 Table 11 as the resolving authority.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer request to state the base-rate and 0.1 percent persistence anchor before inside-view evidence, and accepted the request to clarify that 2023-2024 Table 11 monthly changes are part of the 42-month sigma calculation. Kept FRED only as a public mirror and retained Federal Reserve G.17 Table 11 as the resolving authority.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer request to state the base-rate and 0.1 percent persistence anchor before inside-view evidence, and accepted the request to clarify that 2023-2024 Table 11 monthly changes are part of the 42-month sigma calculation. Kept FRED only as a public mirror and retained Federal Reserve G.17 Table 11 as the resolving authority.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Publishable with only minor clarity tightening: resolver, unit, first-print rule, prior/update math, interval, tails, and JSON fields are broadly coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/prompt.md",
+      "sha256": "2da01e7a91a04191d4e00021db56165ffa2596bdeb723f97a7c48dc76e045fd5",
+      "bytes": 8985,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_command.json",
+      "sha256": "2d0e01827d5a0e56474a10eb6e4171dee5cf78d771b550299e1055473666269c",
+      "bytes": 750,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c672be918ad8e3032bb10da350b4bb34adf2383bf5d920ce2270f1b6dd51b71d",
+      "bytes": 13636,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "301930bfa8fd450fed982e969fdb8e01ddde843718c9efcf6155c1543569e618",
+      "bytes": 233,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "adc743fa29d422aed0185c8523f5007e7a38c2c888ddc59290d386a60778e563",
+      "bytes": 13622,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "135a55994e81f2bbb46b3cc63f719aa2152dacb315da233cc998c531f38155b4",
+      "bytes": 6343,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_codex_trace.json",
+      "sha256": "b9e6b0c5c5e044501d94a20b0b2b3b0dab824d5bb4841c66ce4e2f384dd6565b",
+      "bytes": 533,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_stdout.txt",
+      "sha256": "135a55994e81f2bbb46b3cc63f719aa2152dacb315da233cc998c531f38155b4",
+      "bytes": 6343,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/draft_stderr.txt",
+      "sha256": "f782f42d3135b04807d7e867c04b7daac00755f6e109c4d6345034ac5952bc31",
+      "bytes": 248,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "2ce4d731b12be95e4cfe6f7ece85e3fc3c21d81bedf3156a5d5ae95adc278daf",
+      "bytes": 9481,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "ad3a9f18f12152538595fe958c3c246bf182b9b3779f828ba142ed0284527c2b",
+      "bytes": 746,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "83fe8434a45554fc0be3f4d4b37cb7843b8121e93d5be4314b91560986a8d403",
+      "bytes": 2404,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "28dd4e6ce5ad1b628a6cecc0c7af75cb1ce2bf62ec9eeb3d3865b64268a68d27",
+      "bytes": 233,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "751900734fe17ee11fcc92e4edbc90726c4aa07c52fcce4ae0d0c2334aac3caa",
+      "bytes": 2424,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "92fd81dfa3730ab33330f6097c9afdd6613cb10c0e32d35a76c3c3cad4e4d09d",
+      "bytes": 1458,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "5afd8709af5973732579f7ad54c91ab035b7406d196ccbb52855c08fad63d6a7",
+      "bytes": 528,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "92fd81dfa3730ab33330f6097c9afdd6613cb10c0e32d35a76c3c3cad4e4d09d",
+      "bytes": 1458,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "09e146ae711b3d2024b3d3fa904a097506b59c06bf5439b0bbc4b5cea114281e",
+      "bytes": 248,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/revision_prompt.md",
+      "sha256": "d64769ec2237adec3b377d6f4786892d338261607a3716f45ce927997840e5fd",
+      "bytes": 17722,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/command.json",
+      "sha256": "777b73d711bdb7b5294c937107f052d73bbc9aecc8d92d4e847cee66ebbd7a3d",
+      "bytes": 744,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "1213209c7f2aaa3f051a31e31c6c2fbb75da712f197cc323f2eaf5cc82f88954",
+      "bytes": 7466,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/codex_stderr.log",
+      "sha256": "1361904972f66c50ffb4656ba154d74d16fa3b2e1dd5399f9e222460dc8ecb98",
+      "bytes": 233,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/codex_events.jsonl",
+      "sha256": "291ba6803fe171766b481c3b7e8bf2d2983f0e114e23557301ab01a012b1376a",
+      "bytes": 7488,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/codex_last_message.txt",
+      "sha256": "2da7df9fee112169ca94139ff7a05a91768f2915208ce3691d5592d93d1d0ddb",
+      "bytes": 6895,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/codex_trace.json",
+      "sha256": "7faffced1a22585666df3ce3c7b6171cdec659f21cbe496ae9e8371b8682ab18",
+      "bytes": 527,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/stdout.txt",
+      "sha256": "2da7df9fee112169ca94139ff7a05a91768f2915208ce3691d5592d93d1d0ddb",
+      "bytes": 6895,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/stderr.txt",
+      "sha256": "cd5172b0b600a898087058b3b87fe2ff50e54f61b379814e6530fe7182c768f1",
+      "bytes": 248,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/raw_response.txt",
+      "sha256": "2da7df9fee112169ca94139ff7a05a91768f2915208ce3691d5592d93d1d0ddb",
+      "bytes": 6895,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/parsed_cells.json",
+      "sha256": "cc1b5e3f04615a1da6449b38c4b80229cc6f1291c951e4a58294fc7028f2277f",
+      "bytes": 7839,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/normalized_cells.json",
+      "sha256": "2178adb5067e6330b2eb4cafb642a0664e01cb7e22c3bf88dc50ebf19e01bd8a",
+      "bytes": 25216,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/distribution.json",
+      "sha256": "f2ed4e234406a943cb673f0bd2277550d351cb9a98617ed040890127e0546e07",
+      "bytes": 13593,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/validation.json",
+      "sha256": "5ad3923977941a5d2d7e2d9c63f5a3fcbb92d8a1af98ef58ba324c95af2f1259",
+      "bytes": 156,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/cells.with_activity.json",
+      "sha256": "6c211d3ff56d9dc5393f92556e47319231899a8a2aa0fc98c72791dde2bcb02f",
+      "bytes": 41864,
+      "createdAt": "2026-07-25T15:58:01Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t15-58-01z-fed-g17-industrial-production-total-index-mom-2026-07/manifest.json",
+      "sha256": "8b76796758b83a256bdd38f8fece44ff92f7a41cd7c607929ed373aafcac2ab5",
+      "bytes": 16752,
+      "createdAt": "2026-07-25T15:58:01Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "fed-g17-industrial-production-total-index-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "accc16c913b834d45d6b5e0b02e1cb7fd0e953336b5eff8dbaaa73d82372bdb9"
+}

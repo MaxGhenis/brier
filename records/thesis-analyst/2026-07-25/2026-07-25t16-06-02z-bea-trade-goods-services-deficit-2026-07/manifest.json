@@ -1,0 +1,392 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-25T16:06:02Z",
+  "runStartedAt": "2026-07-25T16:06:02Z",
+  "series": "bea.trade.goods_services_deficit",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-goods-services-trade-deficit-july-2026",
+    "country": "US",
+    "dataPointId": "bea.trade.goods_services_deficit.2026_07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-25T15:18:08Z",
+    "registeredAtUtc": "2026-07-25T15:18:08Z",
+    "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+    "registrationState": "preregistered",
+    "series": "bea.trade.goods_services_deficit",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org",
+        "www.bea.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-08",
+        "start": "2026-08-31"
+      },
+      "field": "BOPGSTB",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "BOPGSTB",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BOPGSTB",
+      "table": "U.S. International Trade in Goods and Services, Exhibit 1",
+      "transform": {
+        "factor": -0.001,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "406ea378939f61f263dd2ddc4e3ffd7534f5b5e6e0e8c94a228cbbeb28e7c8ac",
+    "targetRegistrationPath": "records/targets/2026-07-25-406ea378939f61f263dd2ddc4e3ffd7534f5b5e6e0e8c94a228cbbeb28e7c8ac.json",
+    "targetUnit": "usd_billions",
+    "valueScale": -0.001
+  },
+  "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+  "targetContentHash": "406ea378939f61f263dd2ddc4e3ffd7534f5b5e6e0e8c94a228cbbeb28e7c8ac",
+  "targetRegistrationPath": "records/targets/2026-07-25-406ea378939f61f263dd2ddc4e3ffd7534f5b5e6e0e8c94a228cbbeb28e7c8ac.json",
+  "registeredAtUtc": "2026-07-25T15:18:08Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.3.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "5d0da8127872d91bb45a6b54b80dcb1dd79aa042594ef2a4cbd944dfca4d6fd2",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-25T16:06:02Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "15393380dc63f2efc48a5bc3f5dc2e85d7c09914ed1fc20d709bbd505c849726"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "base_rate",
+        "summary": "The reasoning states a 2026 Jan-May mean base rate of about 59.6, but the compact math step switches to a May persistence prior of 77.6, so the outside-view prior is not consistently stated before updates.",
+        "actionRequested": "Revise the prior/update text to name one primary prior, or explicitly separate the base-rate prior from the persistence prior and show the bridge from 59.6 or 77.6 to the 69.0 point estimate."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact step includes the requested components, but the adjustment components are framed as inside-view movements from May while the preceding paragraph says the outside-view anchor is the recent 2026 base rate.",
+        "actionRequested": "Make the compact step internally consistent by listing: base-rate sample, chosen prior, why that prior dominates, update components, interval method, and bounds in the same order."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider saying the 5-month level sigma is a short-sample uncertainty proxy rather than realized forecast-error volatility."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The future BEA URL is plausible, but the reasoning should rely on the schedule/node and Exhibit 1 resolver rather than assuming the exact URL will resolve before publication."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the base-rate and persistence-prior bridge explicit, treating May persistence as the chosen prior because of release proximity while using the 2026 reference-class base rate for the mean-reversion update; retained the resolver, source grounding, release date, and interval arithmetic.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the critique to make the base-rate and persistence-prior bridge explicit, treating May persistence as the chosen prior because of release proximity while using the 2026 reference-class base rate for the mean-reversion update; retained the resolver, source grounding, release date, and interval arithmetic.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to make the base-rate and persistence-prior bridge explicit, treating May persistence as the chosen prior because of release proximity while using the 2026 reference-class base rate for the mean-reversion update; retained the resolver, source grounding, release date, and interval arithmetic.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the critique to make the base-rate and persistence-prior bridge explicit, treating May persistence as the chosen prior because of release proximity while using the 2026 reference-class base rate for the mean-reversion update; retained the resolver, source grounding, release date, and interval arithmetic.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable after clarifying the prior/update framing; resolver, unit, first-print rule, date, interval arithmetic, and JSON fields are otherwise coherent."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/prompt.md",
+      "sha256": "cdaf7ff2e0eac5ef5bc16aea4180cf86e4b28da824cf55e5bc53ce1bed29a2f6",
+      "bytes": 8917,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_command.json",
+      "sha256": "a7b0ff9866f44b408ebaaac81124b3cf7862a59881d5ba02062467eff2d7bf81",
+      "bytes": 737,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "2e0c0858ac4c9ba4b860ca311913c7d140d8a639db9e67bcb1ff4428d388c13d",
+      "bytes": 8776,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_codex_stderr.log",
+      "sha256": "0176fd5cb51f4e6a551580bb55d8163b34e089730e367f6e1e8181dbd247f776",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_codex_events.jsonl",
+      "sha256": "5f0334082e40201790265082676aa9534472c747ee9ef3a2752621feb963d70a",
+      "bytes": 8785,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_codex_last_message.txt",
+      "sha256": "d0b38b2323e13cc4abd3cfa0879f7d20231a7ade15592dfde057d55226c15a72",
+      "bytes": 6101,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_codex_trace.json",
+      "sha256": "17828df2d4e1a201886e068e909c520e27568c1713a4931521e2bebface69271",
+      "bytes": 533,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_stdout.txt",
+      "sha256": "d0b38b2323e13cc4abd3cfa0879f7d20231a7ade15592dfde057d55226c15a72",
+      "bytes": 6101,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/draft_stderr.txt",
+      "sha256": "b2fe17d9e32bc539d82f9b0d188756d7745a43769c0c6c08548f312cd6fa882d",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_prompt.md",
+      "sha256": "98bdff7e3237cb46a01224d1d7c2ec69366ad7fd3e6dffe16701d541f5887f8d",
+      "bytes": 9171,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_command.json",
+      "sha256": "f168f5528abb60bf335066b8f9a0a836442104f907ac8daf1d9ff18697d36e13",
+      "bytes": 733,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "a3d98039e32b442a0a9005550cb0923419a22d58f94433f8a12b900afc88a3a4",
+      "bytes": 2508,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "3b2d2047dcc1123e0550282acb7bfca1ac333e84e9f130eb8323c99769a83036",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "067eafc50085a63426ebf16161ec74ca98f44a1ab78b03626a269ba09d25d1ee",
+      "bytes": 2528,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "8f844a709b020baddda918f14ca447ccae0523fd47ec3f4176d0f898b72fcc67",
+      "bytes": 1489,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "903bf11d503530af8cf5ea5283f3e533a80d4117be74323b35d69f214cf70bec",
+      "bytes": 532,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "8f844a709b020baddda918f14ca447ccae0523fd47ec3f4176d0f898b72fcc67",
+      "bytes": 1489,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "079d0e3e3b1e5a75d9723f889dca75c6edde4462db1442f850b50c490fcb73db",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/revision_prompt.md",
+      "sha256": "bd07ff82f7d311886c1652f53572ec326233e030665e51326078da7af48e96d1",
+      "bytes": 17443,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/command.json",
+      "sha256": "66cb84d35c9fcbca4401f5ee448c17f3e58e8e0dbf6bf0d404f02d21a62e07c4",
+      "bytes": 731,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/codex_stdout.jsonl",
+      "sha256": "79d1972c02a124db7cb4eee5363c5be6b5a1797a7bd2c8e1adcad8b26e1291cd",
+      "bytes": 7305,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/codex_stderr.log",
+      "sha256": "1f8104013c99fcc2d6eaef26d0914c2b183ba0aa4e71e65d947432875eba4145",
+      "bytes": 233,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/codex_events.jsonl",
+      "sha256": "510e7aa29ae6ca5b0bce5418267b8f4d3cf8dea933cf03220eeaf85c190c83d0",
+      "bytes": 7327,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/codex_last_message.txt",
+      "sha256": "618c920149db34d1e6a4c7283d81d8cc8bea90cd0e622b9d0047c6af087fb762",
+      "bytes": 6750,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/codex_trace.json",
+      "sha256": "2e20cca7639028962701c63fd6b6b78e656287f6d6a45e76ec14393c3e874fff",
+      "bytes": 531,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/stdout.txt",
+      "sha256": "618c920149db34d1e6a4c7283d81d8cc8bea90cd0e622b9d0047c6af087fb762",
+      "bytes": 6750,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/stderr.txt",
+      "sha256": "bc1bed2f36daabb4e4876601a5ff1e88fa44b0da0c5c7f209f57db43ccfe4328",
+      "bytes": 248,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/raw_response.txt",
+      "sha256": "618c920149db34d1e6a4c7283d81d8cc8bea90cd0e622b9d0047c6af087fb762",
+      "bytes": 6750,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/parsed_cells.json",
+      "sha256": "2e60a4316ac73ef281713c1acc1a698eeba9dfd8bfdf3f8716a29158c4c913af",
+      "bytes": 7613,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/normalized_cells.json",
+      "sha256": "d7caf4c8d9f153f9bd5fb01910cdf70b40bc076ccebafc169447f2efe85cb6f1",
+      "bytes": 25101,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/distribution.json",
+      "sha256": "8157c14479453cc12a46cd6a0d5c889f0ce186350fe5c2614e5aee0f5f2d10a3",
+      "bytes": 13704,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/validation.json",
+      "sha256": "49e0d90e107a995c8934e67f002e28a8fb497ace4290efe7a78333055624662f",
+      "bytes": 142,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/cells.with_activity.json",
+      "sha256": "f29d341bd48f49487049173d6277edb4a507b238ac2e8c951b5417209ce47d25",
+      "bytes": 41215,
+      "createdAt": "2026-07-25T16:06:02Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t16-06-02z-bea-trade-goods-services-deficit-2026-07/manifest.json",
+      "sha256": "642c6c5f6366b8ed66845734b53973e72361e719d7999802b6aaf39d7b17f123",
+      "bytes": 16102,
+      "createdAt": "2026-07-25T16:06:02Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-goods-services-trade-deficit-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "f4658eb49b3c6f3bf377cd0c9bced9ed423252a73c548fc42c5a1f9b1f0e88e7"
+}

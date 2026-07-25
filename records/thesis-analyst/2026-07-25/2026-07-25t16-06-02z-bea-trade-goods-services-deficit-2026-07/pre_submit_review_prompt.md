@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bea.trade.goods_services_deficit
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-goods-services-trade-deficit-july-2026"
+- country: "US"
+- targetUnit: "usd_billions"
+- dataPointId: "bea.trade.goods_services_deficit.2026_07.first_print"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org", "www.bea.gov"], "expectedReleaseWindow": {"end": "2026-09-08", "start": "2026-08-31"}, "field": "BOPGSTB", "releasePolicy": "first_print", "sourceSeriesId": "BOPGSTB", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BOPGSTB", "table": "U.S. International Trade in Goods and Services, Exhibit 1", "transform": {"factor": -0.001, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-25-406ea378939f61f263dd2ddc4e3ffd7534f5b5e6e0e8c94a228cbbeb28e7c8ac.json"
+- targetContentHash: "406ea378939f61f263dd2ddc4e3ffd7534f5b5e6e0e8c94a228cbbeb28e7c8ac"
+- registrationCommit: "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af"
+- registeredAtUtc: "2026-07-25T15:18:08Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+cdaf7ff2e0eac5ef5bc16aea4180cf86e4b28da824cf55e5bc53ce1bed29a2f6
+
+# Draft forecast response
+{"slug":"us-goods-services-trade-deficit-july-2026","country":"US","type":"data","title":"US goods and services trade deficit, July 2026","question":"What will the first-print U.S. Census Bureau and BEA seasonally adjusted goods and services trade deficit be for July 2026, balance of payments basis, in billions of U.S. dollars?","unit":"usd_billions","pointEstimate":69,"ciLow":56.1,"ciHigh":81.9,"confidence":0.8,"resolutionDate":"2026-09-03","resolutionSource":"U.S. Census Bureau and U.S. Bureau of Economic Analysis, U.S. International Trade in Goods and Services","resolutionSourceUrl":"https://www.bea.gov/news/2026/us-international-trade-goods-and-services-july-2026","resolutionRule":"Resolve to the first-print seasonally adjusted goods and services balance in Exhibit 1 of the U.S. International Trade in Goods and Services release for July 2026, balance of payments basis, converted to a positive deficit in usd_billions and rounded to one decimal place. Use the initially released July 2026 value only; ignore later monthly, annual, benchmark, or same-series revisions.","dataPointId":"bea.trade.goods_services_deficit.2026_07.first_print","historicalContext":[{"label":"May 2026 deficit, latest FRED BOPGSTB mirror","value":77.585},{"label":"April 2026 deficit, revised in May release","value":54.57},{"label":"March 2026 deficit, FRED BOPGSTB mirror","value":56.585},{"label":"February 2026 deficit, FRED BOPGSTB mirror","value":54.98},{"label":"January 2026 deficit, FRED BOPGSTB mirror","value":54.185}],"drivers":["May goods deficit jumped to 106.5 while the services surplus was 28.9","Recent 2026 deficits before May clustered near 54-57 billion","May exports fell 10.5 and imports rose 12.5, so the latest level is partly a broad import/export shock","Nonmonetary gold and capital-goods components were unusually visible in the May movement","Two-month-ahead July forecast allows partial mean reversion but keeps a wider-than-normal deficit bias"],"sourceContext":["https://www.bea.gov/news/schedule/","https://www.bea.gov/node/42997","https://www.bea.gov/news/2026/us-international-trade-goods-and-services-may-2026","https://fred.stlouisfed.org/series/BOPGSTB","https://www.bea.gov/data/intl-trade-investment/international-trade-goods-and-services"],"runAt":"2026-07-25T16:06:12Z","reasoning":[{"kind":"heading","text":"Forecast: July 2026 U.S. goods and services trade deficit"},{"kind":"text","text":"Framing and exact resolver: this targets the July 2026 first print of the U.S. International Trade in Goods and Services headline goods-and-services balance, seasonally adjusted and on a balance of payments basis, reported in Exhibit 1. The ledger transform turns BOPGSTB's negative millions-of-dollars balance into a positive usd_billions deficit; the agency first print is authoritative over later revisions."},{"kind":"tool","tool":"official.lookup","call":"Checked BEA 2026 release schedule and the BEA scheduled-release node for U.S. International Trade in Goods and Services, July 2026.","result":"BEA schedule lists U.S. International Trade in Goods and Services, July 2026 on September 3, 2026 at 8:30 a.m.; BEA node 42997 also shows Scheduled Date September 3 08:30 and Release Title July 2026."},{"kind":"tool","tool":"official.lookup","call":"Fetched the latest official BEA/Census release for May 2026 to anchor the same variant and near-term components.","result":"May 2026 goods and services deficit was 77.6 billion, up 23.0 billion from April's revised 54.6 billion; exports were 317.7 billion and imports were 395.3 billion."},{"kind":"tool","tool":"official.lookup","call":"Read May 2026 release detail for goods/services decomposition and one-off movement clues.","result":"The May goods deficit increased 23.6 billion to 106.5 billion, the services surplus increased 0.6 billion to 28.9 billion, exports of goods decreased 11.3 billion to 210.6 billion, and imports of goods increased 12.3 billion to 317.0 billion."},{"kind":"tool","tool":"alfred_fred.lookup","call":"Fetched the public FRED mirror for BOPGSTB recent monthly observations, using it only as a history mirror while retaining BEA/Census as the resolution source.","result":"BOPGSTB observations were May 2026 -77,585 million, April 2026 -54,570 million, March 2026 -56,585 million, February 2026 -54,980 million, and January 2026 -54,185 million; converted positive deficits are 77.585, 54.570, 56.585, 54.980, and 54.185 usd_billions."},{"kind":"text","text":"Reference class and base rate: the same-variant 2026 monthly first/latest-reference sample after the annual-revision release context has a positive-deficit mean of about 59.6 billion, but May's 77.6 billion print says the immediate trade-flow regime is above that base rate. I use the recent 2026 base rate as the outside-view anchor and pull the two-month-ahead July point partway from May toward the January-April cluster."},{"kind":"math","text":"Prior/update/interval: persistence prior = May 2026 deficit 77.6; historical sample = Jan-May 2026 positive BOPGSTB deficits of 54.185, 54.980, 56.585, 54.570, 77.585; adjustment components = -6.0 for partial reversal of May's goods shock and gold/export weakness, -2.5 for import normalization toward the January-April cluster, -0.1 for a roughly stable services surplus near 28.9, giving 77.6 - 8.6 = 69.0. For this flow series I size dispersion from the values themselves: sample sigma = 10.1 usd_billions, so 80% half-width is about 1.28*sigma = 1.28*10.1 = 12.9; final bounds are 69.0 - 12.9 = 56.1 and 69.0 + 12.9 = 81.9."},{"kind":"text","text":"Counter-considerations: upside risk for a larger positive deficit would be another July import surge in consumer goods, autos, semiconductors, crude oil, or a further export slump, which would land above the interval if the deficit exceeds 81.9 billion. Downside risk would be a quick reversal of May's import jump, a rebound in goods exports, or weaker domestic demand for imported goods, which would land below the interval if the deficit is under 56.1 billion."},{"kind":"forecast","point":69,"ciLow":56.1,"ciHigh":81.9}]}

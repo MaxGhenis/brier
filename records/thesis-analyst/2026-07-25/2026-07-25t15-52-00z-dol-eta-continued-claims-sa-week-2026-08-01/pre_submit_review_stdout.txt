@@ -1,0 +1,22 @@
+{
+  "summary": "Draft is mostly coherent, but it conflicts with the canonical ledger resolver/source binding and needs that fixed before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft uses DOL data.pdf as the resolution source, while the canonical ledger contract binds this target to the ALFRED/FRED CCSA advance vintage CSV with allowedHost alfred.stlouisfed.org.",
+      "actionRequested": "Change the resolution source URL/text to match the ledger sourceBinding, or explicitly state the ledger/source discrepancy in reasoning while keeping the same slug, dataPointId, unit, and target."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft states a single resolutionDate of 2026-08-13, while the ledger gives an expected release window of 2026-08-11 through 2026-08-15 and a releasePolicy of advance_vintage.",
+      "actionRequested": "Tie the resolution date/rule to the ledger's advance-vintage policy and expected release window, while preserving the intended first-print target."
+    }
+  ],
+  "optionalSuggestions": [
+    "The prior/update/interval step is strong; keep the sigma, sqrt(3) scaling, and implied bounds together because they make the interval auditable.",
+    "Clarify whether the July 18 initial claims value is from the same July 23 DOL release, since it is part of the material downward adjustment.",
+    "Tail scenarios are usable, but the upside tail could name the approximate increase from 1.796 million needed to exceed 1.831 million."
+  ]
+}
