@@ -519,10 +519,11 @@ def format_target_context(target_context: dict[str, Any] | None) -> str:
 # access (--codex-network). The 2026-07-24 broadband incident is the origin:
 # with network blocked, the hosted web-search tool failing ("Cache miss"),
 # and the contract demanding fetched numbers, four consecutive runs invented
-# "fetched" ACS values from memory — the memorized 5-year vintage, ~3.4
-# points below the true 1-year series. The note pairs the capability with
-# the honesty contract: values come from echoed fetch output or the run
-# fails honestly.
+# "fetched" ACS values. Those values match no published ACS vintage at all
+# (~3.4 points below the true 1-year series, ~1 point above the 5-year),
+# and their cited raw counts are wrong by up to 2.3 million — fabrication,
+# not a vintage mix-up. The note pairs the capability with the honesty
+# contract: values come from echoed fetch output or the run fails honestly.
 NETWORK_TOOLS_NOTE = (
     "Outbound network access is enabled for this run: you may also run "
     "curl -sS against official public data endpoints (agency APIs, data "
@@ -985,9 +986,9 @@ def fast_domain_notes(series: str) -> list[str]:
             "to missing_key.html); never rely on it in keyless runs, and "
             "never present remembered values as fetched ones.",
             "ACS vintage discipline: never mix 5-year estimates into a "
-            "1-year series — 5-year values lag the 1-year series by roughly "
-            "two years; the product id in the fetch URL (ACSDT1Y vs "
-            "ACSDT5Y) is the vintage authority.",
+            "1-year series — the 5-year file is a five-year average, so "
+            "its level trails the 1-year series; the product id in the "
+            "fetch URL (ACSDT1Y vs ACSDT5Y) is the vintage authority.",
         ]
     if series.startswith(("bls.", "bea.", "census.", "dol.", "fed.", "us.")):
         return [

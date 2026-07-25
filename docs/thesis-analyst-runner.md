@@ -87,8 +87,12 @@ for data APIs — it cannot fetch raw JSON from CDN-fronted agency endpoints
 `api.census.gov` now requires an API key outright. The 2026-07-24 broadband
 incident showed what happens when a run's contract demands fetched numbers
 that its tools cannot fetch: four consecutive runs narrated live fetches
-while backfilling memorized ACS 5-year values (with fabricated raw counts),
-caught only by the spawn-time history anchors.
+while inventing the values. The invented 65+ broadband series
+(79.4/81.6/83.5/84.8 for 2021-2024) matches neither the ACS 1-year file
+(83.1/84.8/86.5/88.2) nor the 5-year file (78.6/80.6/82.6/84.6), and its
+"fetched" raw counts are wrong by up to 2.3 million — so this is
+fabrication, not a vintage mix-up, and no vintage-only rule would have
+caught it. The spawn-time history anchors did.
 
 For targets whose official source is such an endpoint, run with:
 

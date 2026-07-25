@@ -121,8 +121,10 @@ to fetch the base rate itself. For targets whose official endpoint the
 hosted web tool cannot fetch (all data.census.gov JSON; api.census.gov is
 key-gated), spawn with `--codex-sandbox workspace-write --codex-network`
 so the agent can curl the endpoint in-sandbox — the read-only sandbox
-blocks all sockets, and runs that can't fetch confabulate memorized
-older-vintage values instead (the 2026-07-24 broadband rejection). Resolved outcomes
+blocks all sockets, and runs that can't fetch fabricate plausible values
+instead (the 2026-07-24 broadband rejection: a 65+ share series matching
+neither the ACS 1-year nor 5-year file, with raw counts off by up to 2.3
+million — invented, not a vintage mix-up). Resolved outcomes
 are recorded as observations in PolicyEngine/ledger (formerly arch-data)
 (`ledger/official_observations.jsonl`, branch `codex/thesis-ledger-facts`),
 which the site fetches at build time. Deploy by pushing `main`; run the

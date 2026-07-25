@@ -26,12 +26,20 @@
   never present remembered values as fetched ones.
 
 ## ACS vintage discipline
-- Never mix ACS 5-year estimates into a 1-year series: 5-year values lag
-  the 1-year series by roughly two years (the 2026-07 broadband-65+ runs
-  were corrupted exactly this way). The product id in the fetch URL
-  (`ACSDT1Y` vs `ACSDT5Y`) is the vintage authority — match it to the
-  resolver's product for every history year, and label each
+- Never mix ACS 5-year estimates into a 1-year series: the 5-year file is
+  a five-year average, so its level trails the 1-year series. Verified for
+  B28005 65+ broadband, United States: 5-year 2024 = 84.6, which is close
+  to 1-year 2022 = 84.8, while 1-year 2024 = 88.2. The product id in the
+  fetch URL (`ACSDT1Y` vs `ACSDT5Y`) is the vintage authority — match it
+  to the resolver's product for every history year, and label each
   historicalContext entry with its vintage.
+- A run that cannot fetch does NOT quietly fall back to another vintage.
+  The 2026-07 broadband-65+ runs reported 79.4/81.6/83.5/84.8 for
+  2021-2024, which matches NEITHER the 1-year file
+  (83.1/84.8/86.5/88.2) NOR the 5-year file (78.6/80.6/82.6/84.6), and
+  cited raw counts wrong by up to 2.3 million. Plausible-looking numbers
+  with no published source are the failure mode: echo the fetch, or fail
+  the run and say the fetch failed.
 
 ## Release calendars (verify EVERY resolutionDate here)
 - BLS: `https://www.bls.gov/schedule/news_release/` (CPI, Employment
