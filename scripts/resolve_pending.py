@@ -606,6 +606,7 @@ BLS_ANCHOR_TOLERANCE = 0.02
 BLS_API_ADAPTERS: dict[str, dict[str, Any]] = {
     "bls.ces.aerospace_product_and_parts_employment": {
         "series_id": "CES3133640001",
+        "period_type": "month",
         "unit": "thousands",
         "label": "US aerospace product and parts employment (SA)",
         "source_name": "bls_ces",
@@ -625,6 +626,7 @@ BLS_API_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     "bls.ces.ship_and_boat_building_employment": {
         "series_id": "CES3133660001",
+        "period_type": "month",
         "unit": "thousands",
         "label": "US ship and boat building employment (SA)",
         "source_name": "bls_ces",
@@ -644,6 +646,7 @@ BLS_API_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     "bls.ces.federal_department_of_defense_employment": {
         "series_id": "CES9091911001",
+        "period_type": "month",
         "unit": "thousands",
         "label": "US federal Department of Defense employment (SA)",
         "source_name": "bls_ces",
@@ -661,14 +664,89 @@ BLS_API_ADAPTERS: dict[str, dict[str, Any]] = {
             "2026-04": 474.9,
         },
     },
+    "bls.cpi.u.annual_pct_change": {
+        "series_id": "CUUR0000SA0",
+        "period_type": "year",
+        "transform": "annual_average_pct_change",
+        "unit": "percent",
+        "round": 1,
+        "label": "US CPI-U annual-average inflation",
+        "source_name": "bls_cpi",
+        "source_table": (
+            "Consumer Price Index for All Urban Consumers, US city average, all items"
+        ),
+        "concept_authority": "bls",
+        "source_concept": "CUUR0000SA0",
+        # The target and prior year require 24 monthly observations. Fetch one
+        # year past the target as well: otherwise a query capped at target
+        # December could falsely look current after January has published.
+        "anchor_start_year": 2021,
+        "fetch_end_year_offset": 1,
+        "anchors": {
+            "2022": 8.0,
+            "2023": 4.1,
+            "2024": 2.9,
+            "2025": 2.6,
+        },
+    },
 }
 for _spec in BLS_API_ADAPTERS.values():
-    _spec["evidence_notes"] = (
-        "First print for {period} captured from {source_url} (BLS Public "
-        "Data API v2, current estimates only) inside the first-print "
-        "window: at capture the value was still the series' latest "
-        "published month and still carried BLS's preliminary footnote."
-    )
+    if _spec["period_type"] == "month":
+        _spec["evidence_notes"] = (
+            "First print for {period} captured from {source_url} (BLS Public "
+            "Data API v2, current estimates only) inside the first-print "
+            "window: at capture the value was still the series' latest "
+            "published month and still carried BLS's preliminary footnote."
+        )
+    else:
+        _spec["evidence_notes"] = (
+            "Annual-average percent change for {period}, calculated from all "
+            "12 monthly CPI-U observations in {period} and the prior year "
+            "from {source_url}; captured while December was still the API's "
+            "latest month."
+        )
+
+# QCEW open-data preparation. The parser and fetch path are deliberately
+# fail-closed until the mandatory three live-source anchors can be reproduced
+# and recorded in ANCHORS.md. The current execution environment cannot reach
+# data.bls.gov, and a repository forecast is not an acceptable substitute for
+# an official observation. Changing ``anchor_status`` without adding at least
+# three anchors still fails the runtime gate.
+QCEW_API_URL = (
+    "https://data.bls.gov/cew/data/api/{year}/{quarter}/industry/{industry}.csv"
+)
+QCEW_ADAPTERS: dict[str, dict[str, Any]] = {
+    "bls.qcew.aircraft_manufacturing.establishments": {
+        # Live-verified 2026-07-25 against data.bls.gov/cew/data/api
+        # (US000, own_code 5, agglvl 18, size 0, NAICS 336411,
+        # field qtrly_estabs); the runtime gate re-fetches and re-compares
+        # every anchor before trusting the adapter.
+        "anchor_status": "VERIFIED",
+        "anchors": {"2024-07": 1314, "2024-10": 1332, "2025-01": 1379},
+        "area_fips": "US000",
+        "own_code": "5",
+        "industry_code": "336411",
+        "agglvl_code": "18",
+        "size_code": "0",
+        "field": "qtrly_estabs",
+        "unit": "count",
+        "label": "US private aircraft manufacturing establishments",
+        "measure_concept": "bls.qcew.aircraft_manufacturing.establishments",
+        "source_name": "bls_qcew",
+        "source_table": (
+            "QCEW NAICS-based quarterly industry CSV, private ownership, "
+            "NAICS 336411 Aircraft manufacturing"
+        ),
+        "concept_authority": "bls",
+        "source_concept": (
+            "area_fips=US000;own_code=5;industry_code=336411;"
+            "size_code=0;field=qtrly_estabs"
+        ),
+        # Keep the registered www.bls.gov source page on the fact. The exact
+        # fetched data.bls.gov response is separately hash-bound and archived.
+        "source_page": "https://www.bls.gov/cew/downloadable-data-files.htm",
+    },
+}
 
 # ---------------------------------------------------------------------------
 # CMS provider-data (Care Compare) adapters (2026-07-20). Each monthly
@@ -2024,7 +2102,11 @@ def intl_fetch(
 
 
 def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
-    """(period_type, YYYY-MM) parsed from a dataPointId's period tail."""
+    """Parse a dataPointId period tail to ``(period_type, canonical value)``.
+
+    Month and quarter values use their canonical starting month (``YYYY-MM``);
+    calendar and fiscal years use ``YYYY``.
+    """
     tail = ref[len(stem) + 1 :]
     tail = re.sub(
         r"\.(first_print|registered_query_snapshot|advance|second|third|flash"
@@ -2047,10 +2129,19 @@ def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     m = re.fullmatch(r"fy_?(\d{4})", tail)
     if m:
         return "fiscal_year", m.group(1)
+    m = re.fullmatch(r"(\d{4})", tail)
+    if m:
+        return "year", m.group(1)
     return None
 
 
 def prior_period_date(period_date: str, period_type: str) -> str:
+    if period_type in {"year", "fiscal_year"}:
+        if not re.fullmatch(r"\d{4}", period_date):
+            raise ValueError(f"{period_type} period must be YYYY, got {period_date!r}")
+        return str(int(period_date) - 1)
+    if not re.fullmatch(r"\d{4}-\d{2}", period_date):
+        raise ValueError(f"{period_type} period must be YYYY-MM, got {period_date!r}")
     year, month = int(period_date[:4]), int(period_date[5:7])
     step = 3 if period_type == "quarter" else 1
     month -= step
@@ -2125,11 +2216,12 @@ def generic_fact(
         "geography": INTL_GEOGRAPHY.get(spec.get("country", ""), US_GEOGRAPHY),
         "entity": spec.get("entity", {"name": "economy", "role": "aggregate"}),
         "measure": {
-            "concept": re.sub(
-            r"\.(first_print|registered_query_snapshot|flash|preliminary)$",
-            "",
-            ref,
-        ),
+            "concept": spec.get("measure_concept")
+            or re.sub(
+                r"\.(first_print|registered_query_snapshot|flash|preliminary)$",
+                "",
+                ref,
+            ),
             "unit": spec["unit"],
             "source_concept": spec.get("fred", spec.get("source_concept", "")),
             "concept_relation": "source_label",
@@ -2247,22 +2339,204 @@ def bls_anchor_mismatches(
     return problems
 
 
+def bls_annual_average_pct_change(
+    rows: dict[str, dict[str, Any]], year: str
+) -> float | None:
+    """Annual-average percent change from two complete calendar years.
+
+    BLS's keyless API does not include the optional M13 annual-average row.
+    Computing from M01--M12 keeps the resolver keyless and makes completeness
+    explicit.
+    """
+    if not re.fullmatch(r"\d{4}", year):
+        raise ValueError(f"annual BLS period must be YYYY, got {year!r}")
+    prior = str(int(year) - 1)
+    target_states = [rows.get(f"{year}-{month:02d}") for month in range(1, 13)]
+    prior_states = [rows.get(f"{prior}-{month:02d}") for month in range(1, 13)]
+    if any(state is None for state in [*target_states, *prior_states]):
+        return None
+    target_average = sum(state["value"] for state in target_states if state) / 12
+    prior_average = sum(state["value"] for state in prior_states if state) / 12
+    if prior_average == 0:
+        return None
+    return round((target_average / prior_average - 1) * 100, 1) + 0.0
+
+
+def bls_annual_anchor_mismatches(
+    rows: dict[str, dict[str, Any]], anchors: dict[str, float]
+) -> list[str]:
+    """Derived annual anchors that do not reproduce official BLS values."""
+    problems = []
+    for year, expected in sorted(anchors.items()):
+        got = bls_annual_average_pct_change(rows, year)
+        if got is None:
+            problems.append(f"{year}=missing/incomplete (official {expected})")
+        elif got != expected:
+            problems.append(f"{year}={got} (official {expected})")
+    return problems
+
+
+def bls_annual_first_print(
+    rows: dict[str, dict[str, Any]], year: str
+) -> tuple[float | None, str | None]:
+    """Capture an annual CPI value only while target December is latest."""
+    target_december = f"{year}-12"
+    latest_period = max(rows, default=None)
+    if latest_period is None or latest_period < target_december:
+        return None, None
+    if latest_period > target_december:
+        return None, (
+            f"{year} is complete but {latest_period} is now published; the "
+            "annual first-print window was missed — resolve manually from an "
+            "archived vintage"
+        )
+    value = bls_annual_average_pct_change(rows, year)
+    if value is None:
+        return None, (
+            f"{year} December is latest but the target/prior 24-month window "
+            "is incomplete; refusing a partial annual average"
+        )
+    return value, None
+
+
 def bls_first_print(
     rows: dict[str, dict[str, Any]], period: str
 ) -> tuple[float | None, str | None]:
     """(value, refusal): a value only while `period` is still the series'
     latest preliminary print; a present-but-revised period is refused, an
     absent one defers."""
+    latest_period = max(rows, default=None)
     state = rows.get(period)
     if state is None:
+        if latest_period is not None and latest_period > period:
+            return None, (
+                f"{period} is absent although later period {latest_period} "
+                "is published; the first-print window was missed or the "
+                "target period was not published"
+            )
         return None, None
-    if not (state["latest"] and state["preliminary"]):
+    if not (period == latest_period and state["latest"] and state["preliminary"]):
         return None, (
             f"{period} is published but no longer the latest preliminary "
             "print; the first-print window was missed — resolve manually "
             "from an archived vintage"
         )
     return state["value"], None
+
+
+def qcew_api_url(spec: dict[str, Any], period: str) -> str:
+    """Official QCEW industry-slice URL for canonical quarter ``YYYY-MM``."""
+    if not re.fullmatch(r"\d{4}-(01|04|07|10)", period):
+        raise ValueError(f"QCEW period must be a quarter start, got {period!r}")
+    quarter = (int(period[5:7]) - 1) // 3 + 1
+    return QCEW_API_URL.format(
+        year=period[:4],
+        quarter=quarter,
+        industry=spec["industry_code"],
+    )
+
+
+def qcew_source_series_id(spec: dict[str, Any], period: str) -> str:
+    quarter = (int(period[5:7]) - 1) // 3 + 1
+    return (
+        f"area_fips={spec['area_fips']};own_code={spec['own_code']};"
+        f"industry_code={spec['industry_code']};size_code={spec['size_code']};"
+        f"year={period[:4]};qtr={quarter}"
+    )
+
+
+def qcew_value_from_csv(
+    raw: bytes, spec: dict[str, Any], period: str
+) -> tuple[float | None, str | None]:
+    """Extract one disclosed, exact QCEW row; ambiguous input fails closed."""
+    quarter = str((int(period[5:7]) - 1) // 3 + 1)
+    expected = {
+        "area_fips": spec["area_fips"],
+        "own_code": spec["own_code"],
+        "industry_code": spec["industry_code"],
+        "agglvl_code": spec["agglvl_code"],
+        "size_code": spec["size_code"],
+        "year": period[:4],
+        "qtr": quarter,
+    }
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        return None, "response is not UTF-8 CSV"
+    reader = csv.DictReader(io.StringIO(text))
+    required = {*expected, "disclosure_code", spec["field"]}
+    if reader.fieldnames is None or not required.issubset(
+        {name.strip() for name in reader.fieldnames}
+    ):
+        return None, "QCEW CSV is missing required columns"
+    matches: list[dict[str, str]] = []
+    for source_row in reader:
+        row = {
+            str(key).strip(): str(value or "").strip()
+            for key, value in source_row.items()
+        }
+        if all(row.get(key) == value for key, value in expected.items()):
+            matches.append(row)
+    if len(matches) != 1:
+        return None, f"expected one exact QCEW row, found {len(matches)}"
+    row = matches[0]
+    disclosure_code = row.get("disclosure_code", "")
+    if disclosure_code:
+        return None, (
+            f"exact QCEW row is not disclosed (disclosure_code={disclosure_code!r})"
+        )
+    try:
+        value = float(row[spec["field"]])
+    except (KeyError, TypeError, ValueError):
+        return None, f"{spec['field']} is not numeric"
+    if not math.isfinite(value) or not value.is_integer() or value < 0:
+        return None, f"{spec['field']} is not a nonnegative integer count"
+    return value, None
+
+
+def qcew_anchor_mismatches(
+    values: dict[str, float | None], anchors: dict[str, float]
+) -> list[str]:
+    """Require and compare at least three live-retrieved historical values."""
+    if len(anchors) < 3:
+        return [f"only {len(anchors)} verified anchors; at least 3 required"]
+    problems = []
+    for period, expected in sorted(anchors.items()):
+        got = values.get(period)
+        if got is None:
+            problems.append(f"{period}=missing (official {expected})")
+        elif got != expected:
+            problems.append(f"{period}={got} (official {expected})")
+    return problems
+
+
+def qcew_adapter_verified(spec: dict[str, Any]) -> bool:
+    """Whether the adapter has passed the mandatory live-anchor gate."""
+    return (
+        spec.get("anchor_status") == "VERIFIED" and len(spec.get("anchors") or {}) >= 3
+    )
+
+
+def qcew_fetch_period(
+    spec: dict[str, Any], period: str
+) -> tuple[float | None, bytes | None, str, str, str | None]:
+    """Fetch and parse one official QCEW quarterly industry slice."""
+    url = qcew_api_url(spec, period)
+    retrieved_at = utc_now()
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "text/csv",
+            "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            raw = response.read()
+    except (urllib.error.HTTPError, urllib.error.URLError):
+        return None, None, url, retrieved_at, None
+    value, refusal = qcew_value_from_csv(raw, spec, period)
+    return value, raw, url, retrieved_at, refusal
 
 
 def claims_fact(
@@ -2454,12 +2728,32 @@ def pending_adapter_refs(
         )
         if bls_stem:
             parsed = parse_ref_period(ref, bls_stem)
-            if parsed:
+            spec = BLS_API_ADAPTERS[bls_stem]
+            if parsed and parsed[0] == spec["period_type"]:
                 out.append(
                     (
                         ref,
                         "bls_api",
-                        BLS_API_ADAPTERS[bls_stem],
+                        spec,
+                        parsed[0],
+                        parsed[1],
+                        release_date,
+                        forecast,
+                    )
+                )
+            continue
+        qcew_stem = next(
+            (stem for stem in QCEW_ADAPTERS if ref.startswith(stem + ".")),
+            None,
+        )
+        if qcew_stem:
+            parsed = parse_ref_period(ref, qcew_stem)
+            if parsed and parsed[0] == "quarter":
+                out.append(
+                    (
+                        ref,
+                        "qcew",
+                        QCEW_ADAPTERS[qcew_stem],
                         parsed[0],
                         parsed[1],
                         release_date,
@@ -4008,6 +4302,11 @@ def main() -> int:
     bls_cache: dict[
         tuple[str, int, int], tuple[dict, bytes | None, str, str]
     ] = {}
+    qcew_cache: dict[
+        tuple[str, str],
+        tuple[float | None, bytes | None, str, str, str | None],
+    ] = {}
+    qcew_contracts: dict[str, dict[str, Any]] | None = None
     a19_cache: dict[str, tuple[dict[str, float], bytes | None, str, str]] = {}
     intl_cache: dict[Any, tuple] = {}
     # CMS provider-data: one metastore read per dataset item and one CSV
@@ -4085,21 +4384,31 @@ def main() -> int:
             extension = "csv"
         elif kind == "bls_api":
             series_id = spec["series_id"]
-            bls_key = (series_id, spec["anchor_start_year"], int(period[:4]))
+            bls_key = (
+                series_id,
+                spec["anchor_start_year"],
+                int(period[:4]) + spec.get("fetch_end_year_offset", 0),
+            )
             if bls_key not in bls_cache:
                 bls_cache[bls_key] = bls_series_rows(*bls_key)
             rows, raw, source_url, retrieved_at = bls_cache[bls_key]
             if raw is None:
                 print(f"  BLS API fetch failed: {ref}")
                 continue
-            mismatches = bls_anchor_mismatches(rows, spec["anchors"])
+            if period_type == "year":
+                mismatches = bls_annual_anchor_mismatches(rows, spec["anchors"])
+            else:
+                mismatches = bls_anchor_mismatches(rows, spec["anchors"])
             if mismatches:
                 print(
                     f"  ANCHOR MISMATCH (refusing, wrong series?): {ref} "
                     + "; ".join(mismatches)
                 )
                 continue
-            value, refusal = bls_first_print(rows, period)
+            if period_type == "year":
+                value, refusal = bls_annual_first_print(rows, period)
+            else:
+                value, refusal = bls_first_print(rows, period)
             if refusal:
                 print(f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — {refusal}")
                 continue
@@ -4109,6 +4418,80 @@ def main() -> int:
             release_day = dt.date.fromisoformat(retrieved_at[:10])
             source_file = "timeseries/data (BLS Public Data API v2)"
             extension = "json"
+        elif kind == "qcew":
+            if not qcew_adapter_verified(spec):
+                print(
+                    f"  QCEW ADAPTER UNVERIFIED (refusing): {ref} — "
+                    "three live official-source anchors are required"
+                )
+                continue
+            # QCEW slices are mutable current files. The registered release
+            # window is one day, so a later run must not relabel a revision as
+            # the first print.
+            if today > release_day:
+                print(
+                    f"  FIRST-PRINT WINDOW MISSED (refusing): {ref} — "
+                    f"registered release day was {release_day}"
+                )
+                continue
+            if qcew_contracts is None:
+                qcew_contracts = registration_contracts()
+            registration = qcew_contracts.get(ref) or {}
+            contract = registration.get("contract") or {}
+            binding = contract.get("sourceBinding") or {}
+            expected_series_id = qcew_source_series_id(spec, period)
+            expected_window = {
+                "start": release_day.isoformat(),
+                "end": release_day.isoformat(),
+            }
+            source_host = urlparse(spec["source_page"]).hostname
+            if (
+                binding.get("adapter") != "generic-url"
+                or binding.get("sourceUrl") != spec["source_page"]
+                or binding.get("field") != spec["field"]
+                or binding.get("sourceSeriesId") != expected_series_id
+                or binding.get("releasePolicy") != "first_print"
+                or binding.get("expectedReleaseWindow") != expected_window
+                or source_host not in (binding.get("allowedHosts") or [])
+                or binding.get("transform") != {"operation": "identity", "factor": 1}
+            ):
+                print(f"  BINDING/ADAPTER MISMATCH (refusing, registry drift?): {ref}")
+                continue
+            anchor_values: dict[str, float | None] = {}
+            anchor_fetch_failed = False
+            for anchor_period in spec["anchors"]:
+                cache_key = (spec["industry_code"], anchor_period)
+                if cache_key not in qcew_cache:
+                    qcew_cache[cache_key] = qcew_fetch_period(spec, anchor_period)
+                anchor_value, anchor_raw, _, _, anchor_refusal = qcew_cache[cache_key]
+                if anchor_raw is None or anchor_refusal:
+                    anchor_fetch_failed = True
+                anchor_values[anchor_period] = anchor_value
+            if anchor_fetch_failed:
+                print(f"  QCEW anchor fetch/parse failed (deferring): {ref}")
+                continue
+            mismatches = qcew_anchor_mismatches(anchor_values, spec["anchors"])
+            if mismatches:
+                print(
+                    f"  ANCHOR MISMATCH (refusing, wrong QCEW row?): {ref} — "
+                    + "; ".join(mismatches)
+                )
+                continue
+            cache_key = (spec["industry_code"], period)
+            if cache_key not in qcew_cache:
+                qcew_cache[cache_key] = qcew_fetch_period(spec, period)
+            value, raw, fetched_url, retrieved_at, refusal = qcew_cache[cache_key]
+            if refusal:
+                print(f"  QCEW PARSE REFUSAL (refusing): {ref} — {refusal}")
+                continue
+            source_url = spec["source_page"]
+            source_file = fetched_url
+            series_id = (
+                f"QCEW-{spec['area_fips']}-{spec['own_code']}-"
+                f"{spec['industry_code']}-{spec['size_code']}"
+            )
+            release_day = dt.date.fromisoformat(retrieved_at[:10])
+            extension = "csv"
         elif kind == "cms_provider_data":
             metastore_key = spec["metastore_url"]
             if metastore_key not in cms_metastore_cache:

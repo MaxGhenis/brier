@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import sys
@@ -199,12 +200,65 @@ def test_parse_ref_period_handles_all_dialects() -> None:
          ("quarter", "2026-01")),
         ("bea.real_gdp.saar.2026_q3.advance_estimate", "bea.real_gdp.saar",
          ("quarter", "2026-07")),
+        ("bls.cpi.u.annual_pct_change.2026",
+         "bls.cpi.u.annual_pct_change", ("year", "2026")),
+        ("census.official_poverty_rate.2025.first_print",
+         "census.official_poverty_rate", ("year", "2025")),
     ]
     for ref, stem, expected in cases:
         assert resolve_pending.parse_ref_period(ref, stem) == expected
     assert resolve_pending.parse_ref_period(
         "bls.cps.unemployment_rate.sometime", "bls.cps.unemployment_rate"
     ) is None
+
+
+def test_parse_ref_period_handles_every_catalog_annual_id() -> None:
+    # Inventory grep over the published registry/catalog as of this change.
+    # New bare-year IDs deliberately make this ratchet fail until reviewed.
+    expected = {
+        "bea.gdpc1.q4q4.2026",
+        "bls.cpi.u.annual_pct_change.2026",
+        "census.acs.broadband_subscription_65_plus.share.2025.first_print",
+        "census.asec.direct_purchase_coverage_rate.2025",
+        "census.asec.median_household_income.2025",
+        "census.asec.median_household_income.2026",
+        "census.asec.uninsured_rate_under_65.2026",
+        "census.asec.uninsured_rate_under_65.2028",
+        "census.official_poverty_rate.2025",
+        "census.spm.all_people_poverty_rate.2025",
+        "census.spm.child_poverty_rate.2025",
+        "census.spm.child_poverty_rate.2026",
+        "census.spm.child_poverty_rate.2027",
+        "census.spm.child_poverty_rate.2028",
+        "census.spm.poverty_rate_65_plus.2025.first_print",
+        "hhs.aspe.poverty_guideline.household_size_4.48dc.2027",
+        (
+            "ssa.annual_statistical_supplement.table_6b5."
+            "retired_worker_awards.share_claimed_age_62.2025.first_print"
+        ),
+        "ssa.cola.annual_adjustment.2027.first_print",
+    }
+    generated = (
+        ROOT / "site" / "src" / "data" / "ledger-targets.generated.ts"
+    ).read_text()
+    found = set(
+        re.findall(
+            r'dataPointId: "([^"]+\.\d{4}(?:\.first_print)?)"',
+            generated,
+        )
+    )
+    assert found == expected
+    for ref in found:
+        bare = re.sub(r"\.first_print$", "", ref)
+        stem, year = bare.rsplit(".", 1)
+        assert resolve_pending.parse_ref_period(ref, stem) == ("year", year)
+
+
+def test_prior_period_date_supports_years_and_validates_shapes() -> None:
+    assert resolve_pending.prior_period_date("2026", "year") == "2025"
+    assert resolve_pending.prior_period_date("2026", "fiscal_year") == "2025"
+    with pytest.raises(ValueError, match="must be YYYY"):
+        resolve_pending.prior_period_date("2026-01", "year")
 
 
 def test_apply_transform_level_diff_and_pct() -> None:
@@ -613,6 +667,18 @@ def test_bls_first_print_defers_absent_and_refuses_revised() -> None:
     # April is published but revised: refusing is the only honest option.
     value, refusal = resolve_pending.bls_first_print(rows, "2026-04")
     assert value is None and "first-print window" in refusal
+    # An absent target stops deferring once a later period appears. This
+    # distinguishes "not published yet" from a permanently missed/omitted
+    # target and prevents a pending cell from rotting forever.
+    later = {
+        "2026-07": {
+            "value": 477.0,
+            "latest": True,
+            "preliminary": True,
+        }
+    }
+    value, refusal = resolve_pending.bls_first_print(later, "2026-06")
+    assert value is None and "later period 2026-07" in refusal
 
 
 def test_bls_anchor_gate_tolerates_revisions_but_not_wrong_series() -> None:
@@ -634,7 +700,24 @@ def test_bls_anchor_gate_tolerates_revisions_but_not_wrong_series() -> None:
     assert resolve_pending.bls_anchor_mismatches({}, anchors) != []
 
 
-def test_pending_adapter_refs_maps_bls_defense_cells() -> None:
+@pytest.mark.parametrize(
+    ("stem", "series_id"),
+    [
+        (
+            "bls.ces.aerospace_product_and_parts_employment",
+            "CES3133640001",
+        ),
+        (
+            "bls.ces.ship_and_boat_building_employment",
+            "CES3133660001",
+        ),
+        (
+            "bls.ces.federal_department_of_defense_employment",
+            "CES9091911001",
+        ),
+    ],
+)
+def test_pending_adapter_refs_maps_bls_defense_cells(stem: str, series_id: str) -> None:
     log = {
         "entries": [
             {
@@ -649,10 +732,7 @@ def test_pending_adapter_refs_maps_bls_defense_cells() -> None:
             {
                 "status": "pending",
                 "forecastSlug": "dod",
-                "targetFactRef": (
-                    "bls.ces.federal_department_of_defense_employment"
-                    ".june_2026.first_print"
-                ),
+                "targetFactRef": f"{stem}.june_2026.first_print",
             },
         ],
     }
@@ -662,11 +742,285 @@ def test_pending_adapter_refs_maps_bls_defense_cells() -> None:
     assert len(todo) == 1
     ref, kind, spec, period_type, period, release_date, forecast = todo[0]
     assert kind == "bls_api"
-    assert spec["series_id"] == "CES9091911001"
+    assert spec["series_id"] == series_id
     # The main loop's unit-mismatch gate compares these two operands.
     assert spec["unit"] == forecast["unit"] == "thousands"
     assert (period_type, period) == ("month", "2026-06")
     assert release_date == "2026-07-02"
+
+
+def _bls_rows_from_annual_averages(
+    averages: dict[str, float],
+) -> dict[str, dict[str, object]]:
+    rows: dict[str, dict[str, object]] = {}
+    for year, average in averages.items():
+        for month in range(1, 13):
+            rows[f"{year}-{month:02d}"] = {
+                "value": average,
+                "latest": False,
+                "preliminary": False,
+            }
+    latest = max(rows)
+    rows[latest]["latest"] = True
+    return rows
+
+
+def test_bls_annual_cpi_reproduces_official_anchors() -> None:
+    # Live BLS annual-average index levels (also recorded in ANCHORS.md).
+    rows = _bls_rows_from_annual_averages(
+        {
+            "2021": 270.970,
+            "2022": 292.655,
+            "2023": 304.702,
+            "2024": 313.689,
+            "2025": 321.943,
+        }
+    )
+    anchors = {"2022": 8.0, "2023": 4.1, "2024": 2.9, "2025": 2.6}
+    assert resolve_pending.bls_annual_anchor_mismatches(rows, anchors) == []
+    for year, expected in anchors.items():
+        assert resolve_pending.bls_annual_average_pct_change(rows, year) == expected
+
+
+def test_bls_annual_first_print_window_requires_complete_target_year() -> None:
+    rows = _bls_rows_from_annual_averages({"2025": 321.943, "2026": 330.0})
+    expected = round((330.0 / 321.943 - 1) * 100, 1)
+    assert resolve_pending.bls_annual_first_print(rows, "2026") == (
+        expected,
+        None,
+    )
+
+    before_december = dict(rows)
+    before_december.pop("2026-12")
+    assert resolve_pending.bls_annual_first_print(before_december, "2026") == (
+        None,
+        None,
+    )
+
+    incomplete = dict(rows)
+    incomplete.pop("2025-06")
+    value, refusal = resolve_pending.bls_annual_first_print(incomplete, "2026")
+    assert value is None and "24-month window is incomplete" in refusal
+
+    after_window = {
+        **rows,
+        "2027-01": {
+            "value": 331.0,
+            "latest": True,
+            "preliminary": False,
+        },
+    }
+    value, refusal = resolve_pending.bls_annual_first_print(after_window, "2026")
+    assert value is None and "2027-01 is now published" in refusal
+
+
+def test_pending_adapter_refs_maps_annual_cpi_and_rejects_ces_year() -> None:
+    log = {
+        "entries": [
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "cpi",
+                "resolutionDate": "2027-01-15",
+                "unit": "percent",
+            },
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "bad-ces",
+                "resolutionDate": "2027-01-15",
+                "unit": "thousands",
+            },
+        ],
+        "resolutionLinks": [
+            {
+                "status": "pending",
+                "forecastSlug": "cpi",
+                "targetFactRef": "bls.cpi.u.annual_pct_change.2026",
+            },
+            {
+                "status": "pending",
+                "forecastSlug": "bad-ces",
+                "targetFactRef": (
+                    "bls.ces.federal_department_of_defense_employment.2026"
+                ),
+            },
+        ],
+    }
+
+    todo = resolve_pending.pending_adapter_refs(log)
+
+    assert len(todo) == 1
+    ref, kind, spec, period_type, period, release_date, _ = todo[0]
+    assert ref == "bls.cpi.u.annual_pct_change.2026"
+    assert kind == "bls_api"
+    assert spec["series_id"] == "CUUR0000SA0"
+    assert spec["unit"] == "percent"
+    assert (period_type, period) == ("year", "2026")
+    assert release_date == "2027-01-15"
+
+
+def test_generic_fact_preserves_calendar_year_period() -> None:
+    ref = "bls.cpi.u.annual_pct_change.2026"
+    spec = resolve_pending.BLS_API_ADAPTERS["bls.cpi.u.annual_pct_change"]
+    fact = resolve_pending.generic_fact(
+        ref,
+        spec,
+        "year",
+        "2026",
+        2.7,
+        dt.date(2027, 1, 15),
+        "https://api.bls.gov/publicAPI/v2/timeseries/data/CUUR0000SA0",
+        "timeseries/data (BLS Public Data API v2)",
+    )
+    assert fact["period"] == {"type": "year", "value": "2026"}
+
+
+QCEW_AIRCRAFT_CSV = (
+    '"area_fips","own_code","industry_code","agglvl_code","size_code",'
+    '"year","qtr","disclosure_code","qtrly_estabs","month1_emplvl"\n'
+    '"US000","0","336411","18","0","2025","3","","420","600000"\n'
+    '"US000","5","336411","18","0","2025","3","","391","580000"\n'
+    '"01000","5","336411","58","0","2025","3","N","7","10000"\n'
+).encode()
+
+
+def test_qcew_parser_selects_exact_national_private_aircraft_row() -> None:
+    spec = resolve_pending.QCEW_ADAPTERS[
+        "bls.qcew.aircraft_manufacturing.establishments"
+    ]
+    value, refusal = resolve_pending.qcew_value_from_csv(
+        QCEW_AIRCRAFT_CSV, spec, "2025-07"
+    )
+    assert value == 391
+    assert refusal is None
+    assert resolve_pending.qcew_api_url(spec, "2025-07") == (
+        "https://data.bls.gov/cew/data/api/2025/3/industry/336411.csv"
+    )
+    assert resolve_pending.qcew_source_series_id(spec, "2026-01") == (
+        "area_fips=US000;own_code=5;industry_code=336411;size_code=0;year=2026;qtr=1"
+    )
+
+
+def test_qcew_parser_fails_closed_on_ambiguous_suppressed_or_bad_rows() -> None:
+    spec = resolve_pending.QCEW_ADAPTERS[
+        "bls.qcew.aircraft_manufacturing.establishments"
+    ]
+    duplicate = QCEW_AIRCRAFT_CSV + (
+        b'"US000","5","336411","18","0","2025","3","","392","580000"\n'
+    )
+    value, refusal = resolve_pending.qcew_value_from_csv(duplicate, spec, "2025-07")
+    assert value is None and "found 2" in refusal
+
+    suppressed = QCEW_AIRCRAFT_CSV.replace(
+        b'"US000","5","336411","18","0","2025","3","","391"',
+        b'"US000","5","336411","18","0","2025","3","N","391"',
+    )
+    value, refusal = resolve_pending.qcew_value_from_csv(suppressed, spec, "2025-07")
+    assert value is None and "not disclosed" in refusal
+
+    unknown_disclosure = QCEW_AIRCRAFT_CSV.replace(
+        b'"US000","5","336411","18","0","2025","3","","391"',
+        b'"US000","5","336411","18","0","2025","3","X","391"',
+    )
+    value, refusal = resolve_pending.qcew_value_from_csv(
+        unknown_disclosure, spec, "2025-07"
+    )
+    assert value is None and "disclosure_code='X'" in refusal
+
+    non_integer = QCEW_AIRCRAFT_CSV.replace(b',"391",', b',"391.5",')
+    value, refusal = resolve_pending.qcew_value_from_csv(non_integer, spec, "2025-07")
+    assert value is None and "nonnegative integer" in refusal
+
+    negative = QCEW_AIRCRAFT_CSV.replace(b',"391",', b',"-1",')
+    value, refusal = resolve_pending.qcew_value_from_csv(negative, spec, "2025-07")
+    assert value is None and "nonnegative integer" in refusal
+
+
+def test_qcew_anchor_gate_requires_three_verified_values() -> None:
+    assert resolve_pending.qcew_anchor_mismatches(
+        {"2025-01": 388.0, "2025-04": 390.0},
+        {"2025-01": 388.0, "2025-04": 390.0},
+    ) == ["only 2 verified anchors; at least 3 required"]
+    anchors = {"2025-01": 388.0, "2025-04": 390.0, "2025-07": 391.0}
+    assert resolve_pending.qcew_anchor_mismatches(anchors, anchors) == []
+    assert resolve_pending.qcew_anchor_mismatches(
+        {**anchors, "2025-07": 999.0}, anchors
+    ) == ["2025-07=999.0 (official 391.0)"]
+
+
+def test_qcew_target_maps_and_the_anchor_gate_is_armed() -> None:
+    ref = "bls.qcew.aircraft_manufacturing.establishments.2026_q1.first_print"
+    log = {
+        "entries": [
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": "qcew-aircraft",
+                "resolutionDate": "2026-08-28",
+                "unit": "count",
+            }
+        ],
+        "resolutionLinks": [
+            {
+                "status": "pending",
+                "forecastSlug": "qcew-aircraft",
+                "targetFactRef": ref,
+            }
+        ],
+    }
+
+    todo = resolve_pending.pending_adapter_refs(log)
+
+    assert len(todo) == 1
+    _, kind, spec, period_type, period, release_date, _ = todo[0]
+    assert kind == "qcew"
+    assert (period_type, period) == ("quarter", "2026-01")
+    assert release_date == "2026-08-28"
+    # Armed 2026-07-25: three live-verified anchors (see ANCHORS.md);
+    # the runtime still re-fetches and re-compares them every run.
+    assert resolve_pending.qcew_adapter_verified(spec)
+    assert spec["anchor_status"] == "VERIFIED"
+    assert len(spec["anchors"]) >= 3
+
+
+def test_qcew_fact_matches_registered_series_binding() -> None:
+    ref = "bls.qcew.aircraft_manufacturing.establishments.2026_q1.first_print"
+    series = "bls.qcew.aircraft_manufacturing.establishments"
+    spec = resolve_pending.QCEW_ADAPTERS[series]
+    source_url = spec["source_page"]
+    fact = resolve_pending.generic_fact(
+        ref,
+        spec,
+        "quarter",
+        "2026-01",
+        395.0,
+        dt.date(2026, 8, 28),
+        source_url,
+        resolve_pending.qcew_api_url(spec, "2026-01"),
+    )
+    registration = {
+        "targetContentHash": "a" * 64,
+        "contract": {
+            "dataPointId": ref,
+            "series": series,
+            "period": "2026-Q1",
+            "unit": "count",
+            "sourceBinding": {
+                "allowedHosts": ["www.bls.gov"],
+                "releasePolicy": "first_print",
+                "table": spec["source_table"],
+                "field": spec["field"],
+                "transform": {"operation": "identity", "factor": 1},
+            },
+        },
+        "ledgerPin": None,
+    }
+
+    projection = resolve_pending.source_binding_projection(
+        registration, fact, QCEW_AIRCRAFT_CSV
+    )
+
+    assert fact["measure"]["concept"] == series
+    assert projection["concept"] == series
+    assert projection["sourceUrl"] == source_url
 
 
 def test_bls_json_archive_passes_custody_verification(tmp_path) -> None:
