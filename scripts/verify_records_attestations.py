@@ -115,6 +115,18 @@ WAIVED_UNATTESTED_COMMITS: dict[str, str] = {
     "2c02b44382a0e88e0b5104ff82fb891367be64e8": (
         "Broadband vintage-repair local push"
     ),
+    # 2026-07-25: correcting the broadband failure account touched the
+    # broadband rerun TARGET file, which lives under records/ — so a text
+    # correction to operator config counted as a records push. It slipped
+    # past the pre-push guard added that same day because a worktree-scoped
+    # core.hooksPath shadowed the repo setting, leaving the guard inert in
+    # every Claude Code worktree (now set per worktree; see AGENTS.md).
+    # Open question for the operator: batches/*-targets.json are inputs, not
+    # attested outputs, and arguably do not belong inside the protected
+    # prefix at all.
+    "346e506feba487f8d016a078c3f7ab16b846b51b": (
+        "Broadband target-file correction local push"
+    ),
 }
 ERA_BOUNDARY_RE = re.compile(r"^[0-9a-f]{40}$")
 ERA_SLUG_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
