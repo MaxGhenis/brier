@@ -1242,6 +1242,28 @@
           "releasePolicy": "first_print"
         }
       }
+    },
+    {
+      "series": "abs.labour.employment_change.australia",
+      "cadence": "monthly",
+      "slug": "abs-labour-employment-change-australia-{month}-{year}",
+      "extras": {
+        "valueScale": 1,
+        "targetUnit": "thousands",
+        "country": "AU",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "field": "LF/M3.3.1599.20.AUS.M",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "LF/M3.3.1599.20.AUS.M",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M3.3.1599.20.AUS.M?lastNObservations=30&format=jsondata",
+          "table": "Labour Force, Australia (dataflow LF: employed persons, seasonally adjusted, Australia; month-over-month change)",
+          "transform": {
+            "factor": 1,
+            "operation": "identity"
+          }
+        }
+      }
     }
   ]
 }
