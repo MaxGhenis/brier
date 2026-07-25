@@ -303,6 +303,629 @@
       "slug": "us-nonfarm-productivity-q{quarter}-{year}-prelim"
     },
     {
+      "series": "fed.g17.industrial_production.total_index_mom",
+      "cadence": "monthly",
+      "slug": "fed-g17-industrial-production-total-index-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=INDPRO",
+          "sourceSeriesId": "INDPRO",
+          "field": "INDPRO",
+          "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "fed.g17.manufacturing_production_mom",
+      "cadence": "monthly",
+      "slug": "us-manufacturing-production-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IPMAN",
+          "sourceSeriesId": "IPMAN",
+          "field": "IPMAN",
+          "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "fed.g17.capacity_utilization.total_industry",
+      "cadence": "monthly",
+      "slug": "fed-g17-capacity-utilization-total-industry-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TCU",
+          "sourceSeriesId": "TCU",
+          "field": "TCU",
+          "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "fed.g17.capacity_utilization.manufacturing",
+      "cadence": "monthly",
+      "slug": "us-manufacturing-capacity-utilization-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN",
+          "sourceSeriesId": "MCUMFN",
+          "field": "MCUMFN",
+          "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.housing_starts.saar",
+      "cadence": "monthly",
+      "slug": "census-housing-starts-saar-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "millions",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=HOUST",
+          "sourceSeriesId": "HOUST",
+          "field": "HOUST",
+          "table": "New Residential Construction, seasonally adjusted annual rates",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.housing.permits_saar",
+      "cadence": "monthly",
+      "slug": "us-building-permits-{month}-{year}",
+      "extras": {
+        "targetUnit": "thousands",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PERMIT",
+          "sourceSeriesId": "PERMIT",
+          "field": "PERMIT",
+          "table": "New Residential Construction, seasonally adjusted annual rates",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.housing.completions_saar",
+      "cadence": "monthly",
+      "slug": "us-housing-completions-{month}-{year}",
+      "extras": {
+        "targetUnit": "thousands",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=COMPUTSA",
+          "sourceSeriesId": "COMPUTSA",
+          "field": "COMPUTSA",
+          "table": "New Residential Construction, seasonally adjusted annual rates",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.new_residential_sales.new_single_family_houses_sold_saar",
+      "cadence": "monthly",
+      "slug": "us-new-home-sales-saar-{month}-{year}",
+      "extras": {
+        "targetUnit": "thousands",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=HSN1F",
+          "sourceSeriesId": "HSN1F",
+          "field": "HSN1F",
+          "table": "New Residential Sales, Table 1",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.m3.durable_goods_new_orders_mom",
+      "cadence": "monthly",
+      "slug": "us-durable-goods-orders-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DGORDER",
+          "sourceSeriesId": "DGORDER",
+          "field": "DGORDER",
+          "table": "Manufacturers' Shipments, Inventories, and Orders, full report",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.m3.durable_goods_shipments_mom",
+      "cadence": "monthly",
+      "slug": "us-durable-goods-shipments-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=AMDMVS",
+          "sourceSeriesId": "AMDMVS",
+          "field": "AMDMVS",
+          "table": "Manufacturers' Shipments, Inventories, and Orders, full report",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.construction_spending.total_mom",
+      "cadence": "monthly",
+      "slug": "us-construction-spending-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TTLCONS",
+          "sourceSeriesId": "TTLCONS",
+          "field": "TTLCONS",
+          "table": "Value of Construction Put in Place Survey",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "census.mtis.total_business_inventories_level",
+      "cadence": "monthly",
+      "slug": "us-total-business-inventories-{month}-{year}",
+      "extras": {
+        "valueScale": 0.001,
+        "targetUnit": "usd_billions",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV",
+          "sourceSeriesId": "BUSINV",
+          "field": "BUSINV",
+          "table": "Manufacturing and Trade Inventories and Sales",
+          "transform": {
+            "operation": "multiply",
+            "factor": 0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bea.trade.goods_services_deficit",
+      "cadence": "monthly",
+      "slug": "us-goods-services-trade-deficit-{month}-{year}",
+      "extras": {
+        "valueScale": -0.001,
+        "targetUnit": "usd_billions",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BOPGSTB",
+          "sourceSeriesId": "BOPGSTB",
+          "field": "BOPGSTB",
+          "table": "U.S. International Trade in Goods and Services, Exhibit 1",
+          "transform": {
+            "operation": "multiply",
+            "factor": -0.001
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.import_price_index.all_imports_mom",
+      "cadence": "monthly",
+      "slug": "bls-import-price-index-all-imports-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IR",
+          "sourceSeriesId": "IR",
+          "field": "IR",
+          "table": "U.S. Import Price Indexes, Table 1",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.export_prices.all_commodities_mom",
+      "cadence": "monthly",
+      "slug": "us-export-prices-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IQ",
+          "sourceSeriesId": "IQ",
+          "field": "IQ",
+          "table": "U.S. Export Price Indexes, Table 2",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.ppi.final_demand_monthly_change",
+      "cadence": "monthly",
+      "slug": "bls-ppi-final-demand-monthly-change-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PPIFIS",
+          "sourceSeriesId": "PPIFIS",
+          "field": "PPIFIS",
+          "table": "Producer Price Index, final demand, seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.eci.total_compensation_private_industry_qoq",
+      "cadence": "quarterly",
+      "slug": "us-employment-cost-index-total-compensation-q{quarter}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECICOM",
+          "sourceSeriesId": "ECICOM",
+          "field": "ECICOM",
+          "table": "Employment Cost Index, Table 1",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.eci.private_wages_salaries_qoq",
+      "cadence": "quarterly",
+      "slug": "us-eci-private-wages-salaries-q{quarter}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECIWAG",
+          "sourceSeriesId": "ECIWAG",
+          "field": "ECIWAG",
+          "table": "Employment Cost Index, Table 2",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim",
+      "cadence": "quarterly",
+      "slug": "us-unit-labor-costs-q{quarter}-{year}-prelim",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PRS85006112",
+          "sourceSeriesId": "PRS85006112",
+          "field": "PRS85006112",
+          "table": "Productivity and Costs, nonfarm business sector",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "fed.g19.consumer_credit_total_annual_rate",
+      "cadence": "monthly",
+      "slug": "us-consumer-credit-annual-rate-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TOTALSLAR",
+          "sourceSeriesId": "TOTALSLAR",
+          "field": "TOTALSLAR",
+          "table": "G.19 Consumer Credit, outstanding, seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "fed.g19.consumer_credit_revolving_annual_rate",
+      "cadence": "monthly",
+      "slug": "us-revolving-consumer-credit-annual-rate-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=REVOLSLAR",
+          "sourceSeriesId": "REVOLSLAR",
+          "field": "REVOLSLAR",
+          "table": "G.19 Consumer Credit, outstanding, seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "fed.g19.consumer_credit_nonrevolving_annual_rate",
+      "cadence": "monthly",
+      "slug": "us-nonrevolving-consumer-credit-annual-rate-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=NONREVSLAR",
+          "sourceSeriesId": "NONREVSLAR",
+          "field": "NONREVSLAR",
+          "table": "G.19 Consumer Credit, outstanding, seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cpi.shelter_mom",
+      "cadence": "monthly",
+      "slug": "us-cpi-shelter-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SAH1",
+          "sourceSeriesId": "CUSR0000SAH1",
+          "field": "CUSR0000SAH1",
+          "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cpi.rent_primary_residence_mom",
+      "cadence": "monthly",
+      "slug": "us-cpi-primary-rent-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SEHA",
+          "sourceSeriesId": "CUSR0000SEHA",
+          "field": "CUSR0000SEHA",
+          "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cpi.owners_equivalent_rent_mom",
+      "cadence": "monthly",
+      "slug": "us-cpi-owners-equivalent-rent-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SEHC",
+          "sourceSeriesId": "CUSR0000SEHC",
+          "field": "CUSR0000SEHC",
+          "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cpi.services_less_energy_mom",
+      "cadence": "monthly",
+      "slug": "us-cpi-services-less-energy-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASLE",
+          "sourceSeriesId": "CUSR0000SASLE",
+          "field": "CUSR0000SASLE",
+          "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cpi.services_less_rent_shelter_mom",
+      "cadence": "monthly",
+      "slug": "us-cpi-services-less-rent-shelter-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASL2RS",
+          "sourceSeriesId": "CUSR0000SASL2RS",
+          "field": "CUSR0000SASL2RS",
+          "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.jolts.hires_rate",
+      "cadence": "monthly",
+      "slug": "jolts-hires-rate-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=JTSHIR",
+          "sourceSeriesId": "JTSHIR",
+          "field": "JTSHIR",
+          "table": "JOLTS news release, Table 1",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.ces.average_hourly_earnings_private",
+      "cadence": "monthly",
+      "slug": "average-hourly-earnings-mom-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent_growth",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CES0500000003",
+          "sourceSeriesId": "CES0500000003",
+          "field": "CES0500000003",
+          "table": "Employment Situation, Table B-3",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.lns11300000",
+      "cadence": "monthly",
+      "slug": "labor-force-participation-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CIVPART",
+          "sourceSeriesId": "CIVPART",
+          "field": "CIVPART",
+          "table": "Employment Situation, Table A-1",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "bls.cps.u6_underemployment_rate",
+      "cadence": "monthly",
+      "slug": "u6-underemployment-rate-{month}-{year}",
+      "extras": {
+        "targetUnit": "percent",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=U6RATE",
+          "sourceSeriesId": "U6RATE",
+          "field": "U6RATE",
+          "table": "Employment Situation, Table A-15",
+          "transform": {
+            "operation": "multiply",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
       "series": "usaspending.dod.prime_award_obligations",
       "cadence": "annual",
       "slug": "us-dod-prime-award-obligations-{period}",

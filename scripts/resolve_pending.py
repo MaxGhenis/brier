@@ -541,6 +541,360 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "source_table": "Personal Income and Outlays, Table 1",
         "concept_authority": "bea",
     },
+    # US docket expansion (drafted 2026-07-24, anchor-verified 2026-07-25
+    # through the alfredgraph vintage transport — three anchors per series,
+    # recorded in ANCHORS.md; six carry one flagged late-vintage anchor).
+    "fed.g17.industrial_production.total_index_mom": {
+        "fred": "INDPRO",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US industrial production, monthly change",
+        "source_name": "federal_reserve_g17",
+        "source_table": (
+            "G.17 Industrial Production and Capacity Utilization, "
+            "monthly seasonally adjusted"
+        ),
+        "concept_authority": "federal_reserve",
+    },
+    "fed.g17.manufacturing_production_mom": {
+        "fred": "IPMAN",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US manufacturing industrial production, monthly change",
+        "source_name": "federal_reserve_g17",
+        "source_table": (
+            "G.17 Industrial Production and Capacity Utilization, "
+            "monthly seasonally adjusted"
+        ),
+        "concept_authority": "federal_reserve",
+    },
+    "fed.g17.capacity_utilization.total_industry": {
+        "fred": "TCU",
+        "transform": "level",
+        "unit": "percent",
+        "round": 1,
+        "label": "US total industry capacity utilization",
+        "source_name": "federal_reserve_g17",
+        "source_table": (
+            "G.17 Industrial Production and Capacity Utilization, "
+            "monthly seasonally adjusted"
+        ),
+        "concept_authority": "federal_reserve",
+    },
+    "fed.g17.capacity_utilization.manufacturing": {
+        "fred": "MCUMFN",
+        "transform": "level",
+        "unit": "percent",
+        "round": 1,
+        "label": "US manufacturing capacity utilization",
+        "source_name": "federal_reserve_g17",
+        "source_table": (
+            "G.17 Industrial Production and Capacity Utilization, "
+            "monthly seasonally adjusted"
+        ),
+        "concept_authority": "federal_reserve",
+    },
+    "census.housing_starts.saar": {
+        "fred": "HOUST",
+        "transform": "level",
+        "unit": "millions",
+        "scale": 0.001,
+        "round": 3,
+        "label": "US housing starts, seasonally adjusted annual rate",
+        "source_name": "census_housing",
+        "source_table": (
+            "New Residential Construction, seasonally adjusted annual rates"
+        ),
+        "concept_authority": "census",
+    },
+    "census.housing.permits_saar": {
+        "fred": "PERMIT",
+        "transform": "level",
+        "unit": "thousands",
+        "round": 0,
+        "label": "US building permits, seasonally adjusted annual rate",
+        "source_name": "census_housing",
+        "source_table": (
+            "New Residential Construction, seasonally adjusted annual rates"
+        ),
+        "concept_authority": "census",
+    },
+    "census.housing.completions_saar": {
+        "fred": "COMPUTSA",
+        "transform": "level",
+        "unit": "thousands",
+        "round": 0,
+        "label": "US housing completions, seasonally adjusted annual rate",
+        "source_name": "census_housing",
+        "source_table": (
+            "New Residential Construction, seasonally adjusted annual rates"
+        ),
+        "concept_authority": "census",
+    },
+    "census.new_residential_sales.new_single_family_houses_sold_saar": {
+        "fred": "HSN1F",
+        "transform": "level",
+        "unit": "thousands",
+        "round": 0,
+        "label": "US new single-family home sales, seasonally adjusted annual rate",
+        "source_name": "census_new_home_sales",
+        "source_table": "New Residential Sales, Table 1",
+        "concept_authority": "census",
+    },
+    "census.m3.durable_goods_new_orders_mom": {
+        "fred": "DGORDER",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US durable goods new orders, monthly change",
+        "source_name": "census_m3",
+        "source_table": (
+            "Manufacturers' Shipments, Inventories, and Orders, full report"
+        ),
+        "concept_authority": "census",
+    },
+    "census.m3.durable_goods_shipments_mom": {
+        "fred": "AMDMVS",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US durable goods shipments, monthly change",
+        "source_name": "census_m3",
+        "source_table": (
+            "Manufacturers' Shipments, Inventories, and Orders, full report"
+        ),
+        "concept_authority": "census",
+    },
+    "census.construction_spending.total_mom": {
+        "fred": "TTLCONS",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US total construction spending, monthly change",
+        "source_name": "census_construction",
+        "source_table": "Value of Construction Put in Place Survey",
+        "concept_authority": "census",
+    },
+    "census.mtis.total_business_inventories_level": {
+        "fred": "BUSINV",
+        "transform": "level",
+        "unit": "usd_billions",
+        "scale": 0.001,
+        "round": 1,
+        "label": "US manufacturing and trade inventories",
+        "source_name": "census_business_inventories",
+        "source_table": "Manufacturing and Trade Inventories and Sales",
+        "concept_authority": "census",
+    },
+    "bea.trade.goods_services_deficit": {
+        "fred": "BOPGSTB",
+        "transform": "level",
+        "unit": "usd_billions",
+        "scale": -0.001,
+        "round": 1,
+        "label": "US international trade deficit in goods and services",
+        "source_name": "bea_census_trade",
+        "source_table": (
+            "U.S. International Trade in Goods and Services, Exhibit 1"
+        ),
+        "concept_authority": "bea",
+    },
+    "bls.import_price_index.all_imports_mom": {
+        "fred": "IR",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US all-commodities import prices, monthly change",
+        "source_name": "bls_import_export_prices",
+        "source_table": "U.S. Import Price Indexes, Table 1",
+        "concept_authority": "bls",
+    },
+    "bls.export_prices.all_commodities_mom": {
+        "fred": "IQ",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US all-commodities export prices, monthly change",
+        "source_name": "bls_import_export_prices",
+        "source_table": "U.S. Export Price Indexes, Table 2",
+        "concept_authority": "bls",
+    },
+    "bls.ppi.final_demand_monthly_change": {
+        "fred": "PPIFIS",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US PPI final demand, monthly change",
+        "source_name": "bls_ppi",
+        "source_table": "Producer Price Index, final demand, seasonally adjusted",
+        "concept_authority": "bls",
+    },
+    "bls.eci.total_compensation_private_industry_qoq": {
+        "fred": "ECICOM",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": (
+            "US employment cost index, private-industry total compensation, "
+            "quarterly change"
+        ),
+        "source_name": "bls_eci",
+        "source_table": "Employment Cost Index, Table 1",
+        "concept_authority": "bls",
+    },
+    "bls.eci.private_wages_salaries_qoq": {
+        "fred": "ECIWAG",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": (
+            "US employment cost index, private wages and salaries, "
+            "quarterly change"
+        ),
+        "source_name": "bls_eci",
+        "source_table": "Employment Cost Index, Table 2",
+        "concept_authority": "bls",
+    },
+    "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim": {
+        "fred": "PRS85006112",
+        "transform": "level",
+        "unit": "percent_growth",
+        "round": 1,
+        "label": (
+            "US nonfarm business unit labor costs, quarterly change at "
+            "seasonally adjusted annual rate"
+        ),
+        "source_name": "bls_productivity",
+        "source_table": "Productivity and Costs, nonfarm business sector",
+        "concept_authority": "bls",
+    },
+    "fed.g19.consumer_credit_total_annual_rate": {
+        "fred": "TOTALSLAR",
+        "transform": "level",
+        "unit": "percent_growth",
+        "round": 1,
+        "label": "US total consumer credit, annual rate of change",
+        "source_name": "federal_reserve_g19",
+        "source_table": (
+            "G.19 Consumer Credit, outstanding, seasonally adjusted"
+        ),
+        "concept_authority": "federal_reserve",
+    },
+    "fed.g19.consumer_credit_revolving_annual_rate": {
+        "fred": "REVOLSLAR",
+        "transform": "level",
+        "unit": "percent_growth",
+        "round": 1,
+        "label": "US revolving consumer credit, annual rate of change",
+        "source_name": "federal_reserve_g19",
+        "source_table": (
+            "G.19 Consumer Credit, outstanding, seasonally adjusted"
+        ),
+        "concept_authority": "federal_reserve",
+    },
+    "fed.g19.consumer_credit_nonrevolving_annual_rate": {
+        "fred": "NONREVSLAR",
+        "transform": "level",
+        "unit": "percent_growth",
+        "round": 1,
+        "label": "US nonrevolving consumer credit, annual rate of change",
+        "source_name": "federal_reserve_g19",
+        "source_table": (
+            "G.19 Consumer Credit, outstanding, seasonally adjusted"
+        ),
+        "concept_authority": "federal_reserve",
+    },
+    "bls.cpi.shelter_mom": {
+        "fred": "CUSR0000SAH1",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US CPI shelter, monthly change",
+        "source_name": "bls_cpi",
+        "source_table": (
+            "Consumer Price Index, U.S. city average, monthly "
+            "seasonally adjusted"
+        ),
+        "concept_authority": "bls",
+    },
+    "bls.cpi.rent_primary_residence_mom": {
+        "fred": "CUSR0000SEHA",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US CPI rent of primary residence, monthly change",
+        "source_name": "bls_cpi",
+        "source_table": (
+            "Consumer Price Index, U.S. city average, monthly "
+            "seasonally adjusted"
+        ),
+        "concept_authority": "bls",
+    },
+    "bls.cpi.owners_equivalent_rent_mom": {
+        "fred": "CUSR0000SEHC",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US CPI owners' equivalent rent, monthly change",
+        "source_name": "bls_cpi",
+        "source_table": (
+            "Consumer Price Index, U.S. city average, monthly "
+            "seasonally adjusted"
+        ),
+        "concept_authority": "bls",
+    },
+    "bls.cpi.services_less_energy_mom": {
+        "fred": "CUSR0000SASLE",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US CPI services less energy services, monthly change",
+        "source_name": "bls_cpi",
+        "source_table": (
+            "Consumer Price Index, U.S. city average, monthly "
+            "seasonally adjusted"
+        ),
+        "concept_authority": "bls",
+    },
+    "bls.cpi.services_less_rent_shelter_mom": {
+        "fred": "CUSR0000SASL2RS",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US CPI services less rent of shelter, monthly change",
+        "source_name": "bls_cpi",
+        "source_table": (
+            "Consumer Price Index, U.S. city average, monthly "
+            "seasonally adjusted"
+        ),
+        "concept_authority": "bls",
+    },
+    "bls.jolts.hires_rate": {
+        "fred": "JTSHIR",
+        "transform": "level",
+        "unit": "percent",
+        "round": 1,
+        "label": "US hires rate, total nonfarm",
+        "source_name": "bls_jolts",
+        "source_table": "JOLTS news release, Table 1",
+        "concept_authority": "bls",
+    },
+    "bls.ces.average_hourly_earnings_private": {
+        "fred": "CES0500000003",
+        "transform": "pct_change_1d",
+        "unit": "percent_growth",
+        "label": "US average hourly earnings, monthly change",
+        "source_name": "bls_ces",
+        "source_table": "Employment Situation, Table B-3",
+        "concept_authority": "bls",
+    },
+    "bls.lns11300000": {
+        "fred": "CIVPART",
+        "transform": "level",
+        "unit": "percent",
+        "round": 1,
+        "label": "US labor force participation rate",
+        "source_name": "bls_cps",
+        "source_table": "Employment Situation, Table A-1",
+        "concept_authority": "bls",
+    },
+    "bls.cps.u6_underemployment_rate": {
+        "fred": "U6RATE",
+        "transform": "level",
+        "unit": "percent",
+        "round": 1,
+        "label": "US U-6 underemployment rate",
+        "source_name": "bls_cps",
+        "source_table": "Employment Situation, Table A-15",
+        "concept_authority": "bls",
+    },
 }
 
 # CPS Table A-19 detail rows have no FRED mirror, so they resolve from an
@@ -2117,7 +2471,9 @@ def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     m = re.fullmatch(r"([a-z]+)_(\d{4})", tail)
     if m and m.group(1) in MONTH_NUMBERS:
         return "month", f"{m.group(2)}-{MONTH_NUMBERS[m.group(1)]:02d}"
-    m = re.fullmatch(r"(\d{4})-(\d{2})", tail)
+    # Registration canonicalizes a bare YYYY-MM target period to YYYY_MM.
+    # Keep accepting older hyphenated IDs as well.
+    m = re.fullmatch(r"(\d{4})[-_](\d{2})", tail)
     if m:
         return "month", f"{m.group(1)}-{m.group(2)}"
     m = re.fullmatch(r"q([1-4])_(\d{4})", tail)

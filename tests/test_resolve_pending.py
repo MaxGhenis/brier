@@ -24,6 +24,16 @@ from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 from verify_custody import verify_run  # noqa: E402
 
 
+def _alfred_docket_entries() -> list[dict]:
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    return [
+        entry
+        for entry in docket["series"]
+        if (entry.get("extras") or {}).get("sourceBinding", {}).get("adapter")
+        == "alfred-fred"
+    ]
+
+
 def test_archives_raw_response_and_attaches_append_provenance(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
@@ -338,6 +348,78 @@ def test_pending_adapter_refs_maps_and_gates_units() -> None:
     # International series route to the native-source adapters.
     intl = refs["statcan.cpi.allitems.yoy.2026-05"]
     assert intl[1] == "intl" and intl[4] == "2026-05"
+
+
+def test_alfred_docket_templates_match_specs_and_route_by_cadence() -> None:
+    entries = _alfred_docket_entries()
+    # SOL-BRIEF's expansion should add roughly the size of the pre-existing
+    # docket, not merely one or two token series.
+    assert len(entries) >= 30
+
+    forecasts = []
+    links = []
+    expected_periods = {}
+    expected_specs = {}
+    for index, entry in enumerate(entries):
+        series = entry["series"]
+        extras = entry["extras"]
+        binding = extras["sourceBinding"]
+        spec = resolve_pending.ALFRED_ADAPTERS[series]
+
+        assert binding["sourceSeriesId"] == spec["fred"]
+        assert binding["field"] == spec["fred"]
+        assert binding["sourceUrl"] == (
+            "https://alfred.stlouisfed.org/graph/"
+            f"alfredgraph.csv?id={spec['fred']}"
+        )
+        assert binding["table"] == spec["source_table"]
+        assert binding["transform"] == {
+            "operation": "multiply",
+            "factor": spec.get("scale", 1),
+        }
+        assert extras.get("valueScale", 1) == spec.get("scale", 1)
+        assert binding["releasePolicy"] == "first_print"
+        assert extras["targetUnit"] == spec["unit"]
+
+        cadence = entry["cadence"]
+        assert cadence in {"monthly", "quarterly"}
+        if cadence == "monthly":
+            # This is the exact shape derive_data_point_id emits for a new
+            # target whose registry period is 2030-06.
+            ref = f"{series}.2030_06.first_print"
+            expected_period = ("month", "2030-06")
+        else:
+            ref = f"{series}.2030_q2.first_print"
+            expected_period = ("quarter", "2030-04")
+        slug = f"alfred-docket-{index}"
+        forecasts.append(
+            {
+                "kind": "prediction_recorded",
+                "forecastSlug": slug,
+                "resolutionDate": "2030-07-31",
+                "unit": spec["unit"],
+            }
+        )
+        links.append(
+            {
+                "status": "pending",
+                "forecastSlug": slug,
+                "targetFactRef": ref,
+            }
+        )
+        expected_periods[ref] = expected_period
+        expected_specs[ref] = spec
+
+    routed = resolve_pending.pending_adapter_refs(
+        {"entries": forecasts, "resolutionLinks": links}
+    )
+    assert len(routed) == len(entries)
+    for ref, kind, spec, period_type, period, release_date, forecast in routed:
+        assert kind == "alfred"
+        assert (period_type, period) == expected_periods[ref]
+        assert spec is expected_specs[ref]
+        assert release_date == "2030-07-31"
+        assert forecast["unit"] == spec["unit"]
 
 
 def test_manifest_dedupes_shared_response_archives(tmp_path) -> None:

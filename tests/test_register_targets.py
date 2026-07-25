@@ -18,6 +18,16 @@ import register_wave  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 
 
+def _alfred_docket_entries() -> list[dict]:
+    docket = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    return [
+        entry
+        for entry in docket["series"]
+        if (entry.get("extras") or {}).get("sourceBinding", {}).get("adapter")
+        == "alfred-fred"
+    ]
+
+
 def sample_target() -> dict:
     return {
         "series": "agency.test.rate",
@@ -425,6 +435,45 @@ def test_claims_binding_is_data_driven_and_advance_vintage() -> None:
         "allowedHosts": ["alfred.stlouisfed.org"],
         "expectedReleaseWindow": {"start": "2030-01-08", "end": "2030-01-12"},
     }
+
+
+def test_alfred_docket_templates_build_registration_contracts() -> None:
+    entries = _alfred_docket_entries()
+    assert len(entries) >= 30
+
+    for entry in entries:
+        cadence = entry["cadence"]
+        assert cadence in {"monthly", "quarterly"}
+        period = "2030-06" if cadence == "monthly" else "2030-Q2"
+        target = {
+            "series": entry["series"],
+            "period": period,
+            "catalogSlug": entry["slug"].format(
+                period=period,
+                month="june",
+                quarter=2,
+                year=2030,
+            ),
+            **entry["extras"],
+        }
+
+        contract = register_targets.build_contract(target, dt.date(2030, 1, 1))
+        template = entry["extras"]["sourceBinding"]
+        binding = contract["sourceBinding"]
+
+        assert register_targets._binding_matches_template(binding, template)
+        assert contract["unit"] == entry["extras"]["targetUnit"]
+        assert contract["valueScale"] == entry["extras"].get("valueScale", 1)
+        assert contract["dataPointId"] == (
+            f"{entry['series']}.2030_06.first_print"
+            if cadence == "monthly"
+            else f"{entry['series']}.2030_q2.first_print"
+        )
+        assert binding["allowedHosts"] == ["alfred.stlouisfed.org"]
+        assert binding["expectedReleaseWindow"] == {
+            "start": "2030-01-02",
+            "end": "2030-03-17",
+        }
 
 
 def test_publisher_contract_enforces_allowed_hosts_membership() -> None:
