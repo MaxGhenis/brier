@@ -3140,3 +3140,25 @@ def test_write_side_accepts_the_intl_period_suffixed_concept_exactly() -> None:
             assert "concept" in str(error)
         else:
             raise AssertionError(f"malformed concept accepted: {bad}")
+
+
+def test_binding_adapter_mismatch_guards_family_routing() -> None:
+    """A registration's binding adapter is authoritative: a generic-url
+    registration (the prospect miner's) must never be resolved by a
+    series-stem family that shares the series name (the 2026-07-25
+    new-home-sales collision), while matching and legacy registrations
+    pass through."""
+
+    def reg(adapter):
+        return {"contract": {"sourceBinding": {"adapter": adapter}}}
+
+    mismatch = resolve_pending.binding_adapter_mismatch
+    assert mismatch("alfred", reg("generic-url")) == "generic-url"
+    assert mismatch("alfred", reg("alfred-fred")) is None
+    assert mismatch("usaspending", reg("usaspending-api")) is None
+    assert mismatch("usaspending", reg("generic-url")) == "generic-url"
+    # Legacy targets without registrations or bindings stay resolvable.
+    assert mismatch("alfred", None) is None
+    assert mismatch("alfred", {"contract": {}}) is None
+    # Families without a declared adapter set are not constrained here.
+    assert mismatch("intl", reg("generic-url")) is None

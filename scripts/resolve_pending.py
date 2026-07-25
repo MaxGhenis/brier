@@ -4899,6 +4899,38 @@ def attach_resolution_provenance(
     return output
 
 
+FAMILY_ADAPTERS = {
+    # The registration's binding adapter is authoritative for HOW a target
+    # resolves. A family leg may only resolve targets whose registered
+    # adapter belongs to it (or that predate bindings entirely); most
+    # notably, a generic-url registration (the prospect miner's binding)
+    # must never be resolved by a series-stem family that happens to share
+    # the series name — the 2026-07-25 new-home-sales collision, where a
+    # 2026-07-10 generic-url registration met a newly added ALFRED stem.
+    "alfred": {"alfred-fred"},
+    "bls_api": {"bls-api"},
+    "qcew": {"bls-qcew"},
+    "usaspending": {"usaspending-api"},
+}
+
+
+def binding_adapter_mismatch(
+    kind: str, registration: dict[str, Any] | None
+) -> str | None:
+    """The registered adapter name if this family must not resolve it."""
+
+    if not registration:
+        return None
+    binding = (registration.get("contract") or {}).get("sourceBinding") or {}
+    adapter = binding.get("adapter")
+    if not adapter:
+        return None
+    allowed = FAMILY_ADAPTERS.get(kind)
+    if allowed is None:
+        return None
+    return None if adapter in allowed else str(adapter)
+
+
 def resolution_run_dir(retrieved_at: str) -> pathlib.Path:
     stamp = retrieved_at.lower().replace(":", "-")
     return (
@@ -5062,6 +5094,7 @@ def main() -> int:
     # download per distribution URL, shared across cells on the same file.
     cms_metastore_cache: dict[str, tuple[str, str, str] | None] = {}
     cms_csv_cache: dict[str, bytes | None] = {}
+    loop_contracts = registration_contracts()
     for ref, kind, spec, period_type, period, source_vintage, forecast in (
         adapter_todo
     ):
@@ -5077,6 +5110,13 @@ def main() -> int:
             print(
                 f"  UNIT MISMATCH (refusing): {ref} cell={unit!r} "
                 f"adapter={spec['unit']!r}"
+            )
+            continue
+        mismatched = binding_adapter_mismatch(kind, loop_contracts.get(ref))
+        if mismatched:
+            print(
+                f"  BINDING/ADAPTER MISMATCH (skipping, registered "
+                f"adapter={mismatched!r} is not a {kind} family): {ref}"
             )
             continue
         if kind == "intl":
@@ -5570,20 +5610,36 @@ def main() -> int:
     run_dir = resolution_run_dir(run_retrieved_at)
     run_dir.mkdir(parents=True, exist_ok=False)
     target_contracts = registration_contracts()
-    new_rows = [
-        attach_resolution_provenance(
-            row,
-            run_dir=run_dir,
-            series_id=series_id,
-            vintage=vintage,
-            raw=raw,
-            retrieved_at=retrieved_at,
-            ledger_repo_sha=ledger_repo_sha,
-            target_contracts=target_contracts,
-            extension=extension,
-        )
-        for row, series_id, vintage, raw, retrieved_at, extension in fetched_rows
-    ]
+    new_rows = []
+    provenance_refusals: list[str] = []
+    for row, series_id, vintage, raw, retrieved_at, extension in fetched_rows:
+        try:
+            new_rows.append(
+                attach_resolution_provenance(
+                    row,
+                    run_dir=run_dir,
+                    series_id=series_id,
+                    vintage=vintage,
+                    raw=raw,
+                    retrieved_at=retrieved_at,
+                    ledger_repo_sha=ledger_repo_sha,
+                    target_contracts=target_contracts,
+                    extension=extension,
+                )
+            )
+        except ValueError as exc:
+            # One target's contract refusal must not hold every other
+            # resolution hostage (the 2026-07-23/25 outages): append the
+            # sound rows, report the refusal loudly, and fail the run at
+            # the end so the alarm still fires.
+            ref = str(row.get("source_record_id", "?"))
+            provenance_refusals.append(f"{ref}: {exc}")
+            print(f"  PROVENANCE REFUSED (excluded from append): {ref} — {exc}")
+    if not new_rows:
+        print("every fetched row was refused; nothing to append")
+        for line in provenance_refusals:
+            print(f"  refused: {line}")
+        return 1
 
     updated = (
         content.rstrip("\n")
@@ -5626,6 +5682,12 @@ def main() -> int:
         f"{args.ledger_repo}@{args.ledger_branch}:{args.ledger_path} "
         f"via reviewed proposal (merged at {merged_sha})"
     )
+    if provenance_refusals:
+        print(
+            f"{len(provenance_refusals)} row(s) refused contract binding; "
+            "appended the rest — fix the registrations above"
+        )
+        return 1
     return 0
 
 
