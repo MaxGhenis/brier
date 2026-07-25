@@ -429,8 +429,16 @@ describe("forecast catalog", () => {
       expect(scoredRow.auxiliaryJudges.traceQualityScore).toEqual(
         expect.any(Number),
       );
-      expect(scoredRow.preSubmitReview.status).toBe("not_requested");
-      expect(scoredRow.preSubmitReview.reviewed).toBe(false);
+      // Which scored run this samples changes with every resolution wave;
+      // strategy-suite runs carry completed pre-submit reviews (the 7/25
+      // wave surfaced one). Assert the CONTRACT, not a data state: a valid
+      // status, with `reviewed` derived exactly from completion.
+      expect(["not_requested", "completed", "skipped", "failed"]).toContain(
+        scoredRow.preSubmitReview.status,
+      );
+      expect(scoredRow.preSubmitReview.reviewed).toBe(
+        scoredRow.preSubmitReview.status === "completed",
+      );
       expect(scoredRow.distributionProvenance).toMatch(
         /^(agent_reported|interval_seeded)$/,
       );
