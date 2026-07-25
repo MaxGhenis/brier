@@ -185,6 +185,25 @@ resolvable, fully traced, scored public-data forecasts.
 
 ### Records provenance (workflow attestations)
 
+### The records-path guard (run this in every clone)
+
+`records/**` belongs to the allowlisted workflows: they attest every push,
+and the provenance audit fails main for any records commit that lacks one.
+GitHub cannot enforce this server-side — public source repositories cannot
+carry push rulesets at all (verified 2026-07-25: the API refuses with
+"Source public repos cannot have push rules"), so the preventive half is a
+committed pre-push hook. Activate it once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+It refuses any local push that touches `records/**`, prints the offending
+paths, and can be overridden deliberately with
+`THESIS_ALLOW_RECORDS_PUSH=1` — an override that still lands unattested and
+still costs a permanent public waiver. Six such waivers already exist
+(`WAIVED_UNATTESTED_COMMITS`); each one is an admission, not an exemption.
+
 Every workflow that pushes `records/**` to `main` attests a canonical
 subject naming the pushed commit (`scripts/attest_subject.py`, via the
 composite action `.github/actions/attest-records-push`, Sigstore/GitHub

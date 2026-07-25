@@ -1,0 +1,38 @@
+#!/bin/sh
+# Records-path guard. GitHub cannot enforce this server-side (public source
+# repos cannot have push rulesets — verified 2026-07-25, HTTP 422), so this
+# is the local half of the control: records/** belongs to the allowlisted
+# workflows, which attest every push. Local pushes have twice produced
+# permanently waived, unattested commits (2026-07-20/21 Next50 wave,
+# 2026-07-22 QCEW completion). The CI audit still catches what slips past.
+#
+# Break glass, deliberately, when you truly mean it:
+#   THESIS_ALLOW_RECORDS_PUSH=1 git push ...
+ZERO=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
+status=0
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+    [ "$local_sha" = "$ZERO" ] && continue
+    if [ "$remote_sha" = "$ZERO" ]; then
+        range="origin/main..$local_sha"
+    else
+        range="$remote_sha..$local_sha"
+    fi
+    touched=$(git diff --name-only "$range" -- records/ 2>/dev/null | head -5)
+    [ -z "$touched" ] && continue
+    if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
+        echo "pre-push: records/** push allowed by THESIS_ALLOW_RECORDS_PUSH=1" >&2
+        continue
+    fi
+    echo "" >&2
+    echo "BLOCKED: this push changes records/** from a local clone." >&2
+    echo "$touched" | sed 's/^/  /' >&2
+    echo "" >&2
+    echo "records/** is written by the allowlisted workflows, which attest" >&2
+    echo "each push. A local push lands unattested and can only be recorded" >&2
+    echo "as a permanent public waiver (six already exist)." >&2
+    echo "Use the workflow that owns this record, or set" >&2
+    echo "THESIS_ALLOW_RECORDS_PUSH=1 if you genuinely mean to waive it." >&2
+    echo "" >&2
+    status=1
+done
+exit $status
