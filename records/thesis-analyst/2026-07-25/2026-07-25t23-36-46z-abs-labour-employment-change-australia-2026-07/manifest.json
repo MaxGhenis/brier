@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-25T23:36:46Z",
+  "runStartedAt": "2026-07-25T23:36:46Z",
+  "series": "abs.labour.employment_change.australia",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "abs-labour-employment-change-australia-july-2026",
+    "country": "AU",
+    "dataPointId": "abs.labour.employment_change.australia.july_2026.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-25T23:27:53Z",
+    "registeredAtUtc": "2026-07-25T23:27:53Z",
+    "registrationCommit": "6d2b1a2c61155c88851ab8dad6099ae6f9ef5823",
+    "registrationState": "preregistered",
+    "series": "abs.labour.employment_change.australia",
+    "sourceBinding": {
+      "adapter": "generic-url",
+      "allowedHosts": [
+        "data.api.abs.gov.au"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-27",
+        "start": "2026-08-19"
+      },
+      "field": "LF/M3.3.1599.20.AUS.M",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "LF/M3.3.1599.20.AUS.M",
+      "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M3.3.1599.20.AUS.M?lastNObservations=30&format=jsondata",
+      "table": "Labour Force, Australia (dataflow LF: employed persons, seasonally adjusted, Australia; month-over-month change)",
+      "transform": {
+        "factor": 1,
+        "operation": "identity"
+      }
+    },
+    "targetContentHash": "a8757927ffb64fa7d106a7b1d738ad0b0ca995229848a7271482d80b828bac1a",
+    "targetRegistrationPath": "records/targets/2026-07-25-a8757927ffb64fa7d106a7b1d738ad0b0ca995229848a7271482d80b828bac1a.json",
+    "targetUnit": "thousands",
+    "valueScale": 1
+  },
+  "registrationCommit": "6d2b1a2c61155c88851ab8dad6099ae6f9ef5823",
+  "targetContentHash": "a8757927ffb64fa7d106a7b1d738ad0b0ca995229848a7271482d80b828bac1a",
+  "targetRegistrationPath": "records/targets/2026-07-25-a8757927ffb64fa7d106a7b1d738ad0b0ca995229848a7271482d80b828bac1a.json",
+  "registeredAtUtc": "2026-07-25T23:27:53Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-25T23:36:46Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "1a2e64a5f32fc8ed0eceeb7231b41cdd01a3a987e402a7aadece27c93825487c"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The forecast's resolutionSourceUrl points to an ABS human release page, while the ledger contract names the canonical resolver as the ABS Data API URL for LF/M3.3.1599.20.AUS.M.",
+        "actionRequested": "Set or add the canonical resolver URL to https://data.api.abs.gov.au/rest/data/LF/M3.3.1599.20.AUS.M?lastNObservations=30&format=jsondata and make clear the human ABS July 2026 page is supporting context, not the final resolver."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the resolver text, explicitly say the resolved value is the first observed July 2026 API observation for LF/M3.3.1599.20.AUS.M, with later revisions ignored."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The compact prior/update/interval step is strong; keep it as the core audit trail."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the ABS Data API URL for LF/M3.3.1599.20.AUS.M the resolutionSourceUrl and clarifying that resolution uses the first July 2026 API observation with later revisions ignored; retained the human ABS release page only as supporting source context.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the ABS Data API URL for LF/M3.3.1599.20.AUS.M the resolutionSourceUrl and clarifying that resolution uses the first July 2026 API observation with later revisions ignored; retained the human ABS release page only as supporting source context.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the ABS Data API URL for LF/M3.3.1599.20.AUS.M the resolutionSourceUrl and clarifying that resolution uses the first July 2026 API observation with later revisions ignored; retained the human ABS release page only as supporting source context.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is broadly publishable, but the resolver URL should be aligned to the canonical ABS API source binding rather than the human ABS release page."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/prompt.md",
+      "sha256": "72bcc1aad2fa67455c70c3627c21046223adf66fcad7d161b1453ddc76878b65",
+      "bytes": 8911,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_command.json",
+      "sha256": "19bd061bdb147c95560a0b43766f0df84f026ec60dd65eb1f17ae9e9afb2b2d6",
+      "bytes": 743,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "623747b3e177310d332a7c14236f8b099642898e99af43a3c85f65085e9551e8",
+      "bytes": 15983,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_codex_stderr.log",
+      "sha256": "c69af0fd4a87b85fa3cd8c1ad72ccac7638832ad1f7fd16456f12896ed0455a7",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_codex_events.jsonl",
+      "sha256": "c064bcdddacbcd2d7a3dcfb15afffc90e1ee4ebacacdb09a6572af147841b5cf",
+      "bytes": 15971,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_codex_last_message.txt",
+      "sha256": "cf6b7cd620967cb4e55696c62ce9f16811a5b5e2bb453bdba87c808fbd362987",
+      "bytes": 6224,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_codex_trace.json",
+      "sha256": "34e9dc3bc4264955a47c7fa9cfcc1dd25680ae0ca4910898bac329aeae7c2e13",
+      "bytes": 533,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_stdout.txt",
+      "sha256": "cf6b7cd620967cb4e55696c62ce9f16811a5b5e2bb453bdba87c808fbd362987",
+      "bytes": 6224,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/draft_stderr.txt",
+      "sha256": "f883b4478e2c0d4c58787f8166e4f3942a9d4777332500e7b520cf7cf48e3a64",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_prompt.md",
+      "sha256": "ee450d7eca4f3beb1a51caeb65869ee23d7083e8845b60da5109e838310ff7a8",
+      "bytes": 9407,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_command.json",
+      "sha256": "b056ebc9073236fb7bb75af5c02a7c4d9ada702c2e5552728b5ce559e20a4087",
+      "bytes": 739,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "dc2157afa2e7461a25dc1bc79fa329e8717e1690a96baf47c8ce21723e5c822e",
+      "bytes": 1280,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "3a0a9d22e6f51a6632a9f1066ebcdc75f3a44c1f6a613e8380714a37022d4fc6",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "4646808f1b4d9d206dac96b805e173253579494e62f8613f48f7d7b3907cd338",
+      "bytes": 1302,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "facc6a403e3a334a04c57627285e788a4c5aa2edbeabb4c7714723f0df7db804",
+      "bytes": 938,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "4e9b390bef1065d230be628c4bc604e9519ea015890479fca997ba375c458f2b",
+      "bytes": 527,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "facc6a403e3a334a04c57627285e788a4c5aa2edbeabb4c7714723f0df7db804",
+      "bytes": 938,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "14504e5c03b4ab9093347991601bc560099791832eae73a48540269fbaf8312f",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/revision_prompt.md",
+      "sha256": "f3dba3ffce74f86d8f7ed711f9a4fe910926883e8c2abc4e6d2e99de1f03655d",
+      "bytes": 17009,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/command.json",
+      "sha256": "1c51f409fe6f90df02407032c24a4f2a13202780e112e15d591c31b71f098b9d",
+      "bytes": 737,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/codex_stdout.jsonl",
+      "sha256": "b039d0df489fa07baa6726066f83b1e40d173b511b4d0816b6a69a92bd3cdb5a",
+      "bytes": 7120,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/codex_stderr.log",
+      "sha256": "ca301e14e9f12ca5f286062807855c610b997564708065a5d4e4142df7b29b43",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/codex_events.jsonl",
+      "sha256": "c532cb00e9fb74584e62dddce29a02d9c44dbbbf18844cdc477289e56e89d958",
+      "bytes": 7142,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/codex_last_message.txt",
+      "sha256": "d37913f6e124c774b8467372c78e452a39426cd4748ce7f4ee674a83410f5dba",
+      "bytes": 6573,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/codex_trace.json",
+      "sha256": "1c906eed2e00ccbe13a6cf12654844bcc05928331a0c6fdef7e135ef3f443079",
+      "bytes": 527,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/stdout.txt",
+      "sha256": "d37913f6e124c774b8467372c78e452a39426cd4748ce7f4ee674a83410f5dba",
+      "bytes": 6573,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/stderr.txt",
+      "sha256": "00601f56f34cce4c4dd2cab7bae32a05e4fed957bb2f00207508070733148f76",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/raw_response.txt",
+      "sha256": "d37913f6e124c774b8467372c78e452a39426cd4748ce7f4ee674a83410f5dba",
+      "bytes": 6573,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/parsed_cells.json",
+      "sha256": "9580f8c67d165138c083b8d7458b638fff37070038d6c601dc5e08eb7341135b",
+      "bytes": 7422,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/normalized_cells.json",
+      "sha256": "a4c9c2131b8f1b64455b64ff54bb0c0e0fb7d11f8cd9ce5b76394867f46a249f",
+      "bytes": 24817,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/distribution.json",
+      "sha256": "3e9898e1ecd47486512d550cfd15f5c843df0f8ce764b82e9aed476c5170ec83",
+      "bytes": 13611,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/validation.json",
+      "sha256": "ed2810c62acaa99093db157b7e3da834f64422df6c5c82b523f41570fd430db2",
+      "bytes": 149,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/cells.with_activity.json",
+      "sha256": "b1684ea0d35492abd5ac59f72787b6b8fcdda504a23d8641fba4545fc0394b68",
+      "bytes": 39898,
+      "createdAt": "2026-07-25T23:36:46Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/manifest.json",
+      "sha256": "ae132a6e1592519214981b3ab09b5eed0174f31498eb54cd808dbf323b19aa3f",
+      "bytes": 15347,
+      "createdAt": "2026-07-25T23:36:46Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "abs-labour-employment-change-australia-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "0d28db18480915c3f48a9737991b5d06bcab2694a3186541ccb38c09e26dad73"
+}

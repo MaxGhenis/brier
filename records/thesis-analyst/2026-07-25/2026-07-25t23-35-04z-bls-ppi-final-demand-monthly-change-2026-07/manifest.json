@@ -1,0 +1,379 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-25T23:35:04Z",
+  "runStartedAt": "2026-07-25T23:35:04Z",
+  "series": "bls.ppi.final_demand_monthly_change",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "bls-ppi-final-demand-monthly-change-july-2026",
+    "country": "US",
+    "dataPointId": "bls.wp.WPSFD4.2026-07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-25T23:27:53Z",
+    "registeredAtUtc": "2026-07-25T23:27:53Z",
+    "registrationCommit": "6d2b1a2c61155c88851ab8dad6099ae6f9ef5823",
+    "registrationState": "preregistered",
+    "series": "bls.ppi.final_demand_monthly_change",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org",
+        "www.bls.gov"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-19",
+        "start": "2026-08-11"
+      },
+      "field": "PPIFIS",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "PPIFIS",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PPIFIS",
+      "table": "Producer Price Index, final demand, seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "7753f0f1a5d658edcefcd448d480f21171af349f95e6902b968abb25deb8d3b4",
+    "targetRegistrationPath": "records/targets/2026-07-25-7753f0f1a5d658edcefcd448d480f21171af349f95e6902b968abb25deb8d3b4.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "6d2b1a2c61155c88851ab8dad6099ae6f9ef5823",
+  "targetContentHash": "7753f0f1a5d658edcefcd448d480f21171af349f95e6902b968abb25deb8d3b4",
+  "targetRegistrationPath": "records/targets/2026-07-25-7753f0f1a5d658edcefcd448d480f21171af349f95e6902b968abb25deb8d3b4.json",
+  "registeredAtUtc": "2026-07-25T23:27:53Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-25T23:35:04Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "841dc1d28a3566420362954152eab45c27159b80d4538d1f33e4b7fbfbeaf03c"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a persistence/reference-class prior but does not explicitly say whether a separate time-series model was used or ruled out.",
+        "actionRequested": "Add one sentence stating that no separate AR/forecasting model was used beyond the 13-month persistence/reference-class prior, or briefly describe the time-series prior if one was used."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider noting that EIA retail gasoline is only a directional energy proxy, not the PPI energy component itself."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider explaining that the decimal point estimate and interval are forecast values even though resolution will use the BLS one-decimal first print."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the model-prior clarification by stating that no separate AR or other forecasting model was used beyond the 13-month persistence/reference-class prior; also accepted concise clarifications that EIA gasoline is only a directional proxy and that resolution uses the BLS one-decimal first print.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the model-prior clarification by stating that no separate AR or other forecasting model was used beyond the 13-month persistence/reference-class prior; also accepted concise clarifications that EIA gasoline is only a directional proxy and that resolution uses the BLS one-decimal first print.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the model-prior clarification by stating that no separate AR or other forecasting model was used beyond the 13-month persistence/reference-class prior; also accepted concise clarifications that EIA gasoline is only a directional proxy and that resolution uses the BLS one-decimal first print.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publishable with only minor clarification needed around the model-prior framing."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/prompt.md",
+      "sha256": "178d1466a4fdc80f14d7840ef8dcb0627668db88f2f8c8edf40d8126d5231ceb",
+      "bytes": 8897,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_command.json",
+      "sha256": "71f4779c64a899827b0698ce156ab01e57eceb81e99eff7ace42fce634094644",
+      "bytes": 740,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c266818dbbce0b41a1087ea05b8c1bca9fe5dd556e45ee30bea4845fcbcf24b4",
+      "bytes": 13133,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_codex_stderr.log",
+      "sha256": "57c126acd8b1e130faad9556a0f7813283a657acbbbed552a0d48e026d35c23e",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_codex_events.jsonl",
+      "sha256": "caedf2bf905ca2fcaade2b6ffdbab0c1719fb687395df26d9f15b2a5a6ff9c22",
+      "bytes": 13125,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_codex_last_message.txt",
+      "sha256": "6cd2f3c2da97ec5ccf5a9700476315eb11a29edf8564ded703cb87881983dda0",
+      "bytes": 5906,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_codex_trace.json",
+      "sha256": "35253b35d00ffda14c57695d4204a3be29926483ff3c5ca8ab5cc015dbd21b83",
+      "bytes": 533,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_stdout.txt",
+      "sha256": "6cd2f3c2da97ec5ccf5a9700476315eb11a29edf8564ded703cb87881983dda0",
+      "bytes": 5906,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/draft_stderr.txt",
+      "sha256": "b27379b741286ff8bbfd44cbf3ab82c9b03f0af5e4b4cd9f8267dabcf0b8f9b1",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_prompt.md",
+      "sha256": "a2cbffb93fe80e2f9515d4988609cfa80fd248055a4264f2fbe22e452b4659cb",
+      "bytes": 8956,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_command.json",
+      "sha256": "a23846be3c6dd5335226c5c0fe315142572d0f990c0ff9adfc9909dc6ee9f75f",
+      "bytes": 736,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "019a3db7667897adad3c8f4824bae4cdbdd4d65d0dd65ce6f7868061304da317",
+      "bytes": 1247,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "d666cf4fabdc055a2c1e37df8e4a1b88a51b2970aa5ec230e2b252d0bc892f1b",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "a4ad59add18738a3b2b23787537e94b113b7c7d31702e3cd9d5a3daa6b34b145",
+      "bytes": 1269,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "a3ad380571cb33160c1ecea3bd3416c16a5cc527179af524c117c3140d020abc",
+      "bytes": 891,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "c4200c0af62ea21dc2f3a76d22bb56c85a090ed82d103c2a6e12b552e0d7456a",
+      "bytes": 527,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "a3ad380571cb33160c1ecea3bd3416c16a5cc527179af524c117c3140d020abc",
+      "bytes": 891,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "43fbbf948feaef3b1cec0e155c90d49feb961dbe57768a36b6c384dbb9a5cf46",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/revision_prompt.md",
+      "sha256": "eee7796be3140a29bd7eb71798ff520413e9acea37d983350d032f789ae680bf",
+      "bytes": 16630,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/command.json",
+      "sha256": "f87b842ec80a80951be903c5c9b90f5adfdf5fc400c922cf41a1aacd2341a39d",
+      "bytes": 734,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/codex_stdout.jsonl",
+      "sha256": "601fb8d58de4de995d2559bbd9ec475ffef7217b5ae9ac730fa5123cdfe9f503",
+      "bytes": 7147,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/codex_stderr.log",
+      "sha256": "4edf740ef91ab46a41bae5e756baa0a46d2b5dc0fa698fa5bff4d6639ff2c7ca",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/codex_events.jsonl",
+      "sha256": "f4c7cc6ef7883c07b21398699713ee69d02bc966179355e8884411bde2f0cd00",
+      "bytes": 7169,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/codex_last_message.txt",
+      "sha256": "38e570ff7bc7b2c89ef8432fc055ce2b85652e49a180d750b6de022152a753d6",
+      "bytes": 6581,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/codex_trace.json",
+      "sha256": "1b092b2e686083bb52f9a4eb38b0074fa2c7dc97cda2f3dea7368701c1f86381",
+      "bytes": 530,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/stdout.txt",
+      "sha256": "38e570ff7bc7b2c89ef8432fc055ce2b85652e49a180d750b6de022152a753d6",
+      "bytes": 6581,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/stderr.txt",
+      "sha256": "bef8dc6e91701287f9899d6a9f2f794d0c79f7a79c123179ed8cc1ecef017bd3",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/raw_response.txt",
+      "sha256": "38e570ff7bc7b2c89ef8432fc055ce2b85652e49a180d750b6de022152a753d6",
+      "bytes": 6581,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/parsed_cells.json",
+      "sha256": "f2059b67bdc0e0574ac22f6508571272aeeace24f75e0b0937ccddf4fc476572",
+      "bytes": 7512,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/normalized_cells.json",
+      "sha256": "39552379643162c31454e3f177c9c8a6688d4203edbcc9f131a7b7d34dc65357",
+      "bytes": 25074,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/distribution.json",
+      "sha256": "7c53493abf8dccd8cf562cf7509f519822ea0052f0a607e9f047ca62feab5161",
+      "bytes": 13778,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/validation.json",
+      "sha256": "f0aec8c59b50ac27af469c2c11109122c1587095ed1d8ad7e2bc465ed10a1466",
+      "bytes": 146,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/cells.with_activity.json",
+      "sha256": "6d156d3f7f34b64b684157ccfe972db67c2fee9ac2dde9036fd7cf251a99a0e0",
+      "bytes": 39983,
+      "createdAt": "2026-07-25T23:35:04Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/manifest.json",
+      "sha256": "49fe3dfdf65add692b11aae9735a77caba308227614f27d9e066d3e36aadbdbb",
+      "bytes": 15029,
+      "createdAt": "2026-07-25T23:35:04Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "bls-ppi-final-demand-monthly-change-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "c68761417ff40abf2a9c66132dcfa182b1a401876a7220229278d022b5516299"
+}

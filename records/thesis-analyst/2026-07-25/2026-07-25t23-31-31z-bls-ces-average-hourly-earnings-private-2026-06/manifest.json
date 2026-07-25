@@ -1,0 +1,407 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-25T23:31:31Z",
+  "runStartedAt": "2026-07-25T23:31:31Z",
+  "series": "bls.ces.average_hourly_earnings_private",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "average-hourly-earnings-mom-june-2026",
+    "country": "US",
+    "dataPointId": "bls.ces.average_hourly_earnings_private.june_2026.first_print",
+    "period": "2026-06",
+    "registeredAt": "2026-07-25T15:18:08Z",
+    "registeredAtUtc": "2026-07-25T15:18:08Z",
+    "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+    "registrationState": "preregistered",
+    "series": "bls.ces.average_hourly_earnings_private",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-09",
+        "start": "2026-07-01"
+      },
+      "field": "CES0500000003",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "CES0500000003",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CES0500000003",
+      "table": "Employment Situation, Table B-3",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "4e95b3f8be235216f79894e8fefeb3decf704b26f7a9ccfda13a0626158771f2",
+    "targetRegistrationPath": "records/targets/2026-07-25-4e95b3f8be235216f79894e8fefeb3decf704b26f7a9ccfda13a0626158771f2.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+  "targetContentHash": "4e95b3f8be235216f79894e8fefeb3decf704b26f7a9ccfda13a0626158771f2",
+  "targetRegistrationPath": "records/targets/2026-07-25-4e95b3f8be235216f79894e8fefeb3decf704b26f7a9ccfda13a0626158771f2.json",
+  "registeredAtUtc": "2026-07-25T15:18:08Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-25T23:31:31Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "c9a1a880085f0f744b3c93bf6f6385215807b146c2abe7922e3f83266ec63f1f"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "leakage",
+        "summary": "The draft cites the July 2, 2026 BLS June Employment Situation archive and includes the resolved June value of 0.3%, with runAt on 2026-07-25 after resolution.",
+        "actionRequested": "Remove all June 2026 outcome evidence, including the BLS June archive citation, 'June 2026 first print' historicalContext entry, and any reasoning based on the actual $37.64/0.3% release."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The draft resolver uses the BLS archive URL as final source, while the canonical ledger sourceBinding names the ALFRED/FRED adapter and source URL for CES0500000003.",
+        "actionRequested": "Align the resolver text and source fields to the ledger contract, or explicitly state the ledger/source discrepancy in reasoning while keeping the same target slug and dataPointId."
+      },
+      {
+        "findingId": "review.finding.3",
+        "severity": "blocking",
+        "rubricItem": "prior_update_interval",
+        "summary": "The compact prior/update/interval step is contaminated by post-resolution evidence and therefore cannot support the forecast.",
+        "actionRequested": "Rebuild the prior/update/interval step using only information available before the June 2026 first print, naming the historical sample, adjustment components, interval method, and implied bounds."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the point and interval fields coherent after removing leaked outcome evidence."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Use only May 2026 and earlier official/FRED-mirror history for the base-rate and volatility calculations."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by removing the June 2026 outcome, June archive source, and June historicalContext value; accepted the resolver critique by stating the BLS official Table B-3 resolver while noting the ledger ALFRED first-vintage adapter; rebuilt the prior/update/interval from May 2026 and earlier history only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by removing the June 2026 outcome, June archive source, and June historicalContext value; accepted the resolver critique by stating the BLS official Table B-3 resolver while noting the ledger ALFRED first-vintage adapter; rebuilt the prior/update/interval from May 2026 and earlier history only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.3",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the leakage critique by removing the June 2026 outcome, June archive source, and June historicalContext value; accepted the resolver critique by stating the BLS official Table B-3 resolver while noting the ledger ALFRED first-vintage adapter; rebuilt the prior/update/interval from May 2026 and earlier history only.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by removing the June 2026 outcome, June archive source, and June historicalContext value; accepted the resolver critique by stating the BLS official Table B-3 resolver while noting the ledger ALFRED first-vintage adapter; rebuilt the prior/update/interval from May 2026 and earlier history only.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the leakage critique by removing the June 2026 outcome, June archive source, and June historicalContext value; accepted the resolver critique by stating the BLS official Table B-3 resolver while noting the ledger ALFRED first-vintage adapter; rebuilt the prior/update/interval from May 2026 and earlier history only.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Blocking issue: the draft uses the already-released June 2026 first print as evidence, so it is not a valid pre-resolution forecast."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/prompt.md",
+      "sha256": "8736f7190f8901adf5f8285f11780933f06fcc1085542a859f08939ab3ec373f",
+      "bytes": 8903,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_command.json",
+      "sha256": "513600108faaeffd162fe7f77dfef02a4599394a6ad63f2199b6338cf5bce522",
+      "bytes": 744,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "6207ccb95d65abc62d91c7e969908eba72ca68ab7010b874d206e3753c359e9c",
+      "bytes": 12967,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_codex_stderr.log",
+      "sha256": "39700e202793b18a24e7c1d757eabdc7ac3593523480f5a90d2eea9808f226ad",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_codex_events.jsonl",
+      "sha256": "8bf6de52a5ea79af263ef205ab4316e4feb99908da916a637cbe0a58af6dcedb",
+      "bytes": 12989,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_codex_last_message.txt",
+      "sha256": "6b0540c86da5804310050b6ea577aee306f133bc1e7d08c96df1630a328fc7ef",
+      "bytes": 5159,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_codex_trace.json",
+      "sha256": "022c23c05ec5866e987e3c18e82f360d5a8bbc20ed37b580d93f1dbce45596e1",
+      "bytes": 533,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_stdout.txt",
+      "sha256": "6b0540c86da5804310050b6ea577aee306f133bc1e7d08c96df1630a328fc7ef",
+      "bytes": 5159,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/draft_stderr.txt",
+      "sha256": "5e714a2b9b72de0dad43658dd2ea86fc5df3bb20c9433b7a7da34beac1b08b99",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_prompt.md",
+      "sha256": "a66f03d463f08945430cf81d76d508e4769562363b7fbb4a6bad20decf4b980a",
+      "bytes": 8215,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_command.json",
+      "sha256": "be2b191e727bfdb773b949f9dcbbf2d55f7c67a95317885600afe9f66573ea79",
+      "bytes": 740,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "0df028ebcf5fb5430bfc2b8311829a9c7a072bcc5c14c0b7bdf7e9529cd02965",
+      "bytes": 2205,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "22e74b8d7923f7ee4b96d1910668db79eb11531e07845a53af11dff1504b74f9",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "bd67fc17fb34ec04a5cdd29eda7de37b64abf87ad73da974116e951491c60c8b",
+      "bytes": 2227,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "45093ad8d264f5e9d18c25fd7dcfff11439471d17143ba2d817763be0b007411",
+      "bytes": 1805,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "188be55b1a0b866f8027236224df09081c83d43f8dda2cf09760decdb42f2b1b",
+      "bytes": 527,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "45093ad8d264f5e9d18c25fd7dcfff11439471d17143ba2d817763be0b007411",
+      "bytes": 1805,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "8363b5eac0eb7e706e591965bc97d024b750cd2a3c95e48d360301cd319ab28a",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/revision_prompt.md",
+      "sha256": "33e1a19f9385e425d21168f2486bf6d7faff77588d98b017e924f6c644fe3070",
+      "bytes": 16803,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/command.json",
+      "sha256": "d328f33ed3b88001c0a04a7889e737b08b1dc4faf50d12aba2eaa25e082055a1",
+      "bytes": 738,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/codex_stdout.jsonl",
+      "sha256": "451c6811c4c12d2d3e6080a20378aed313d743754ce6dfbcc3e9fa2839a79e4e",
+      "bytes": 6078,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/codex_stderr.log",
+      "sha256": "93ce9c366c30b72282ade064d0c1356f9f74fe42d3c9c765a6c6cbf6ceca9300",
+      "bytes": 233,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/codex_events.jsonl",
+      "sha256": "43d684f40dc5b93b5a83cbc4cf4fdd92e710a6a45ca8cf5939affa53fa971be8",
+      "bytes": 6100,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/codex_last_message.txt",
+      "sha256": "6a40588eb1f195a2f093553468bd7b6d05207cc247108c8031044f6caf6e25a6",
+      "bytes": 5537,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/codex_trace.json",
+      "sha256": "624c3b7a2805ad1367e33f00dce38d5843472cce7e586b01ca43439132af6a9c",
+      "bytes": 527,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/stdout.txt",
+      "sha256": "6a40588eb1f195a2f093553468bd7b6d05207cc247108c8031044f6caf6e25a6",
+      "bytes": 5537,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/stderr.txt",
+      "sha256": "ffb0b9e412f1b9958b10f2f8ef2177cb1d01e9abb20bcc3928ad86947186e717",
+      "bytes": 248,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/raw_response.txt",
+      "sha256": "6a40588eb1f195a2f093553468bd7b6d05207cc247108c8031044f6caf6e25a6",
+      "bytes": 5537,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/parsed_cells.json",
+      "sha256": "c2b67c2e66dc18b113dc016ea235a2858d11fb3970eba66d818c67a5c79b642e",
+      "bytes": 6352,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/normalized_cells.json",
+      "sha256": "2ff8364b201ba4237953e5f5a169bd9adc2f9fa338ffc1cd78beb3a9145394c0",
+      "bytes": 23632,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/distribution.json",
+      "sha256": "f85f86ed8c12ba061b5fd525d36b4daaf8849c7bfc34618d06183ba70443dd90",
+      "bytes": 13496,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/validation.json",
+      "sha256": "cd7af51907d2d797225eb66b971f5d60f56a6c8b4fd27573a1ef6f455b145e6f",
+      "bytes": 383,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/cells.with_activity.json",
+      "sha256": "4d78096fca158de3b149ebd608e6d3d77bca6f5f6a74d39dca0c7249f369dbbf",
+      "bytes": 40811,
+      "createdAt": "2026-07-25T23:31:31Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/manifest.json",
+      "sha256": "dde1620fd74c6f6ca11c90862e6c0604fd1bfd6557002202ba88e5edc8f381d6",
+      "bytes": 17240,
+      "createdAt": "2026-07-25T23:31:31Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "average-hourly-earnings-mom-june-2026",
+        "ok": false,
+        "errors": [
+          "resolutionDate 2026-07-02 is not after runAt 2026-07-25 \u2014 target already published (leakage)",
+          "resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "0a069e4eea35652b44077f5a9311ed63ac3cda95cffe9e4ea10632d889be6052"
+}

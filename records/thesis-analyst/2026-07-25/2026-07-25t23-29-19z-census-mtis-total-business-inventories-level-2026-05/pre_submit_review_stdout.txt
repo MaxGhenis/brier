@@ -1,0 +1,27 @@
+{
+  "summary": "The draft is structurally coherent but has blocking leakage from the already-published May 2026 outcome and a resolver/source mismatch against the canonical ledger binding.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "The reasoning cites the May 2026 official/PDF value and FRED/ALFRED May 2026 BUSINV value, which is the target outcome.",
+      "actionRequested": "Remove all May 2026 observed values and any reasoning derived from them; base the forecast only on information available before the first-print release."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft resolver uses the Census current page/PDF, while the canonical ledger contract binds resolution to ALFRED-FRED BUSINV first_print with transform factor 0.001.",
+      "actionRequested": "Make the JSON resolver fields and reasoning explicitly match the ledger sourceBinding, or state the suspected ledger discrepancy while keeping the forecast tied to the same slug/dataPointId."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "blocking",
+      "summary": "The inside-view update is contaminated by post-release evidence, including the actual May inventories, sales, and inventory/sales ratio.",
+      "actionRequested": "Recompute the update using only pre-release indicators and clearly separate allowed current evidence from unavailable target-month outcome data."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the prior/update/interval math format; it is compact and mostly satisfies the trace-depth requirements once leakage is removed.",
+    "Clarify whether April 2026 input is first-print or revised, since the target is a first-print May forecast and revisions can affect persistence baselines."
+  ]
+}

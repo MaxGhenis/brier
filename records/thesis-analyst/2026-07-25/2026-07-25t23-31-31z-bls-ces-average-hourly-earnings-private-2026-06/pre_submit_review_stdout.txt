@@ -1,0 +1,27 @@
+{
+  "summary": "Blocking issue: the draft uses the already-released June 2026 first print as evidence, so it is not a valid pre-resolution forecast.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "The draft cites the July 2, 2026 BLS June Employment Situation archive and includes the resolved June value of 0.3%, with runAt on 2026-07-25 after resolution.",
+      "actionRequested": "Remove all June 2026 outcome evidence, including the BLS June archive citation, 'June 2026 first print' historicalContext entry, and any reasoning based on the actual $37.64/0.3% release."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft resolver uses the BLS archive URL as final source, while the canonical ledger sourceBinding names the ALFRED/FRED adapter and source URL for CES0500000003.",
+      "actionRequested": "Align the resolver text and source fields to the ledger contract, or explicitly state the ledger/source discrepancy in reasoning while keeping the same target slug and dataPointId."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "blocking",
+      "summary": "The compact prior/update/interval step is contaminated by post-resolution evidence and therefore cannot support the forecast.",
+      "actionRequested": "Rebuild the prior/update/interval step using only information available before the June 2026 first print, naming the historical sample, adjustment components, interval method, and implied bounds."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the point and interval fields coherent after removing leaked outcome evidence.",
+    "Use only May 2026 and earlier official/FRED-mirror history for the base-rate and volatility calculations."
+  ]
+}

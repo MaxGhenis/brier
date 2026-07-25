@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is publishable after tightening the canonical resolver URL/source binding to match the ledger.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft uses the human table URL as resolutionSourceUrl, while the ledger sourceBinding specifies the StatCan WDS endpoint for vector v41690973.",
+      "actionRequested": "Set or explicitly reference the canonical resolver endpoint https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods and keep the table page only as supporting context."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify that the sigma is computed from successive changes in the July 2025-June 2026 year-over-year rates, not from levels or forecast errors.",
+    "Mention that the August 17, 2026 date is the official expected first-print release window from the target ledger."
+  ]
+}

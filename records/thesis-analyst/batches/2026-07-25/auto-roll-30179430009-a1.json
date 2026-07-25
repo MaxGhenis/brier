@@ -1,0 +1,245 @@
+{
+  "schemaVersion": "thesis_batch_manifest_v1",
+  "startedAt": "2026-07-25T23:29:19Z",
+  "finishedAt": "2026-07-25T23:38:24Z",
+  "promptMode": "fast",
+  "timeoutSeconds": 540,
+  "targets": 5,
+  "ok": 3,
+  "failed": 2,
+  "results": [
+    {
+      "target": {
+        "catalogSlug": "us-total-business-inventories-may-2026",
+        "country": "US",
+        "dataPointId": "census.mtis.total_business_inventories_level.may_2026.first_print",
+        "period": "2026-05",
+        "registeredAt": "2026-07-25T15:18:08Z",
+        "registeredAtUtc": "2026-07-25T15:18:08Z",
+        "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+        "registrationState": "preregistered",
+        "series": "census.mtis.total_business_inventories_level",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-07-21",
+            "start": "2026-07-13"
+          },
+          "field": "BUSINV",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "BUSINV",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=BUSINV",
+          "table": "Manufacturing and Trade Inventories and Sales",
+          "transform": {
+            "factor": 0.001,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "7983fb7b69d7ad2cf0a21a1f04c836ed2926d133d18f75ccc4435ac7e77c2fd5",
+        "targetRegistrationPath": "records/targets/2026-07-25-7983fb7b69d7ad2cf0a21a1f04c836ed2926d133d18f75ccc4435ac7e77c2fd5.json",
+        "targetUnit": "usd_billions",
+        "valueScale": 0.001
+      },
+      "startedAt": "2026-07-25T23:29:19Z",
+      "finishedAt": "2026-07-25T23:31:31Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-29-19z-census-mtis-total-business-inventories-level-2026-05/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-29-19z-census-mtis-total-business-inventories-level-2026-05/cells.with_activity.json",
+      "stdoutTail": "ds/thesis-analyst/2026-07-25/2026-07-25t23-29-19z-census-mtis-total-business-inventories-level-2026-05/distribution.json\",\n      \"sha256\": \"5a5426610d6fabc9e975a37cee86b7da9ecc5bd7d75ea5bc109671c270436917\",\n      \"bytes\": 13829,\n      \"createdAt\": \"2026-07-25T23:29:19Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-29-19z-census-mtis-total-business-inventories-level-2026-05/validation.json\",\n      \"sha256\": \"dcc527b4cb47829ab20b8f3572fadeedde5a58e5476194b6fcdf42953cb35daa\",\n      \"bytes\": 256,\n      \"createdAt\": \"2026-07-25T23:29:19Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-29-19z-census-mtis-total-business-inventories-level-2026-05/cells.with_activity.json\",\n      \"sha256\": \"58f01874596abeda94c77dc27f585205d5098cd65644fa9de1649f8ca25cebde\",\n      \"bytes\": 41660,\n      \"createdAt\": \"2026-07-25T23:29:19Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-29-19z-census-mtis-total-business-inventories-level-2026-05/manifest.json\",\n      \"sha256\": \"1013b2da3bb09e41a8c9838823dc28a8cc04191ce8fc196b6403da3a0bcce980\",\n      \"bytes\": 17558,\n      \"createdAt\": \"2026-07-25T23:29:19Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"us-total-business-inventories-may-2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"resolutionDate 2026-07-16 is not after runAt 2026-07-25 \\u2014 target already published (leakage)\"\n        ]\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"c1e09468289c8b90ae5ad8a135033779d99f828a1130f590d3ce502eba5cc774\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "resolutionDate 2026-07-16 is not after runAt 2026-07-25 \u2014 target already published (leakage)"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "average-hourly-earnings-mom-june-2026",
+        "country": "US",
+        "dataPointId": "bls.ces.average_hourly_earnings_private.june_2026.first_print",
+        "period": "2026-06",
+        "registeredAt": "2026-07-25T15:18:08Z",
+        "registeredAtUtc": "2026-07-25T15:18:08Z",
+        "registrationCommit": "add78fbd9af9ca9b0c7389a9a44a7ec839f2f4af",
+        "registrationState": "preregistered",
+        "series": "bls.ces.average_hourly_earnings_private",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-07-09",
+            "start": "2026-07-01"
+          },
+          "field": "CES0500000003",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "CES0500000003",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CES0500000003",
+          "table": "Employment Situation, Table B-3",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "4e95b3f8be235216f79894e8fefeb3decf704b26f7a9ccfda13a0626158771f2",
+        "targetRegistrationPath": "records/targets/2026-07-25-4e95b3f8be235216f79894e8fefeb3decf704b26f7a9ccfda13a0626158771f2.json",
+        "targetUnit": "percent_growth",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-25T23:31:31Z",
+      "finishedAt": "2026-07-25T23:33:29Z",
+      "returnCode": 1,
+      "ok": false,
+      "manifestPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/cells.with_activity.json",
+      "stdoutTail": "n.json\",\n      \"sha256\": \"f85f86ed8c12ba061b5fd525d36b4daaf8849c7bfc34618d06183ba70443dd90\",\n      \"bytes\": 13496,\n      \"createdAt\": \"2026-07-25T23:31:31Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/validation.json\",\n      \"sha256\": \"cd7af51907d2d797225eb66b971f5d60f56a6c8b4fd27573a1ef6f455b145e6f\",\n      \"bytes\": 383,\n      \"createdAt\": \"2026-07-25T23:31:31Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/cells.with_activity.json\",\n      \"sha256\": \"4d78096fca158de3b149ebd608e6d3d77bca6f5f6a74d39dca0c7249f369dbbf\",\n      \"bytes\": 40811,\n      \"createdAt\": \"2026-07-25T23:31:31Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-31-31z-bls-ces-average-hourly-earnings-private-2026-06/manifest.json\",\n      \"sha256\": \"dde1620fd74c6f6ca11c90862e6c0604fd1bfd6557002202ba88e5edc8f381d6\",\n      \"bytes\": 17240,\n      \"createdAt\": \"2026-07-25T23:31:31Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": false,\n    \"cells\": [\n      {\n        \"slug\": \"average-hourly-earnings-mom-june-2026\",\n        \"ok\": false,\n        \"errors\": [\n          \"resolutionDate 2026-07-02 is not after runAt 2026-07-25 \\u2014 target already published (leakage)\",\n          \"resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']\"\n        ]\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"0a069e4eea35652b44077f5a9311ed63ac3cda95cffe9e4ea10632d889be6052\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": [
+        "resolutionDate 2026-07-02 is not after runAt 2026-07-25 \u2014 target already published (leakage)",
+        "resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']"
+      ]
+    },
+    {
+      "target": {
+        "catalogSlug": "canada-cpi-annual-rate-july-2026",
+        "country": "CA",
+        "dataPointId": "statcan.cpi.allitems.yoy.2026_07.first_print",
+        "expectedReleaseDate": "2026-08-17",
+        "period": "2026-07",
+        "registeredAt": "2026-07-25T23:27:53Z",
+        "registeredAtUtc": "2026-07-25T23:27:53Z",
+        "registrationCommit": "6d2b1a2c61155c88851ab8dad6099ae6f9ef5823",
+        "registrationState": "preregistered",
+        "releaseCalendarUrl": "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf",
+        "series": "statcan.cpi.allitems.yoy",
+        "sourceBinding": {
+          "adapter": "statcan-wds",
+          "allowedHosts": [
+            "www150.statcan.gc.ca"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-17",
+            "start": "2026-08-17"
+          },
+          "field": "v41690973",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "v41690973",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods",
+          "table": "Consumer Price Index, Table 18-10-0004-01 (all-items, Canada)",
+          "transform": {
+            "factor": 1,
+            "operation": "percent_change_year_ago"
+          }
+        },
+        "targetContentHash": "a24f1a3ab57804bc4638b888ad161bfd9a6d0495df9d828011e9f4b8d772fe57",
+        "targetRegistrationPath": "records/targets/2026-07-25-a24f1a3ab57804bc4638b888ad161bfd9a6d0495df9d828011e9f4b8d772fe57.json",
+        "targetUnit": "percent",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-25T23:33:29Z",
+      "finishedAt": "2026-07-25T23:35:04Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-33-29z-statcan-cpi-allitems-yoy-2026-07/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-33-29z-statcan-cpi-allitems-yoy-2026-07/cells.with_activity.json",
+      "stdoutTail": "\"3a509f644dbd58e65c2eb589a9107e92ea066374b6edfc0ccc0e256f9e7863d7\",\n      \"bytes\": 24042,\n      \"createdAt\": \"2026-07-25T23:33:29Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-33-29z-statcan-cpi-allitems-yoy-2026-07/distribution.json\",\n      \"sha256\": \"43427866a873d5654c60d6f616cebd2a0e6d546f36749efda5e0c0c33b644c1a\",\n      \"bytes\": 13476,\n      \"createdAt\": \"2026-07-25T23:33:29Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-33-29z-statcan-cpi-allitems-yoy-2026-07/validation.json\",\n      \"sha256\": \"3b02530bed70ca216535467eb20fa4a10f02d1dcbb1e3cd0a8c272d6255410b4\",\n      \"bytes\": 133,\n      \"createdAt\": \"2026-07-25T23:33:29Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-33-29z-statcan-cpi-allitems-yoy-2026-07/cells.with_activity.json\",\n      \"sha256\": \"0ab9b4d8349019e549475a9802af7972744ca2c97bf23512267ab1f6d57b202c\",\n      \"bytes\": 38689,\n      \"createdAt\": \"2026-07-25T23:33:29Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-33-29z-statcan-cpi-allitems-yoy-2026-07/manifest.json\",\n      \"sha256\": \"7899e4e76e033d907735c86450b4d238ac853ae0d01283303664994f5dba1f4e\",\n      \"bytes\": 14851,\n      \"createdAt\": \"2026-07-25T23:33:29Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"canada-cpi-annual-rate-july-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"fc1023ea5d7017eebbb02a002e6e55b5b4a2e4365db8f65638f7fd864642dfca\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "bls-ppi-final-demand-monthly-change-july-2026",
+        "country": "US",
+        "dataPointId": "bls.wp.WPSFD4.2026-07.first_print",
+        "period": "2026-07",
+        "registeredAt": "2026-07-25T23:27:53Z",
+        "registeredAtUtc": "2026-07-25T23:27:53Z",
+        "registrationCommit": "6d2b1a2c61155c88851ab8dad6099ae6f9ef5823",
+        "registrationState": "preregistered",
+        "series": "bls.ppi.final_demand_monthly_change",
+        "sourceBinding": {
+          "adapter": "alfred-fred",
+          "allowedHosts": [
+            "alfred.stlouisfed.org",
+            "www.bls.gov"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-19",
+            "start": "2026-08-11"
+          },
+          "field": "PPIFIS",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "PPIFIS",
+          "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PPIFIS",
+          "table": "Producer Price Index, final demand, seasonally adjusted",
+          "transform": {
+            "factor": 1,
+            "operation": "multiply"
+          }
+        },
+        "targetContentHash": "7753f0f1a5d658edcefcd448d480f21171af349f95e6902b968abb25deb8d3b4",
+        "targetRegistrationPath": "records/targets/2026-07-25-7753f0f1a5d658edcefcd448d480f21171af349f95e6902b968abb25deb8d3b4.json",
+        "targetUnit": "percent_growth",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-25T23:35:04Z",
+      "finishedAt": "2026-07-25T23:36:46Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/cells.with_activity.json",
+      "stdoutTail": "4dc65357\",\n      \"bytes\": 25074,\n      \"createdAt\": \"2026-07-25T23:35:04Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/distribution.json\",\n      \"sha256\": \"7c53493abf8dccd8cf562cf7509f519822ea0052f0a607e9f047ca62feab5161\",\n      \"bytes\": 13778,\n      \"createdAt\": \"2026-07-25T23:35:04Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/validation.json\",\n      \"sha256\": \"f0aec8c59b50ac27af469c2c11109122c1587095ed1d8ad7e2bc465ed10a1466\",\n      \"bytes\": 146,\n      \"createdAt\": \"2026-07-25T23:35:04Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/cells.with_activity.json\",\n      \"sha256\": \"6d156d3f7f34b64b684157ccfe972db67c2fee9ac2dde9036fd7cf251a99a0e0\",\n      \"bytes\": 39983,\n      \"createdAt\": \"2026-07-25T23:35:04Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-35-04z-bls-ppi-final-demand-monthly-change-2026-07/manifest.json\",\n      \"sha256\": \"49fe3dfdf65add692b11aae9735a77caba308227614f27d9e066d3e36aadbdbb\",\n      \"bytes\": 15029,\n      \"createdAt\": \"2026-07-25T23:35:04Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"bls-ppi-final-demand-monthly-change-july-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"c68761417ff40abf2a9c66132dcfa182b1a401876a7220229278d022b5516299\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    },
+    {
+      "target": {
+        "catalogSlug": "abs-labour-employment-change-australia-july-2026",
+        "country": "AU",
+        "dataPointId": "abs.labour.employment_change.australia.july_2026.first_print",
+        "period": "2026-07",
+        "registeredAt": "2026-07-25T23:27:53Z",
+        "registeredAtUtc": "2026-07-25T23:27:53Z",
+        "registrationCommit": "6d2b1a2c61155c88851ab8dad6099ae6f9ef5823",
+        "registrationState": "preregistered",
+        "series": "abs.labour.employment_change.australia",
+        "sourceBinding": {
+          "adapter": "generic-url",
+          "allowedHosts": [
+            "data.api.abs.gov.au"
+          ],
+          "expectedReleaseWindow": {
+            "end": "2026-08-27",
+            "start": "2026-08-19"
+          },
+          "field": "LF/M3.3.1599.20.AUS.M",
+          "releasePolicy": "first_print",
+          "sourceSeriesId": "LF/M3.3.1599.20.AUS.M",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M3.3.1599.20.AUS.M?lastNObservations=30&format=jsondata",
+          "table": "Labour Force, Australia (dataflow LF: employed persons, seasonally adjusted, Australia; month-over-month change)",
+          "transform": {
+            "factor": 1,
+            "operation": "identity"
+          }
+        },
+        "targetContentHash": "a8757927ffb64fa7d106a7b1d738ad0b0ca995229848a7271482d80b828bac1a",
+        "targetRegistrationPath": "records/targets/2026-07-25-a8757927ffb64fa7d106a7b1d738ad0b0ca995229848a7271482d80b828bac1a.json",
+        "targetUnit": "thousands",
+        "valueScale": 1
+      },
+      "startedAt": "2026-07-25T23:36:46Z",
+      "finishedAt": "2026-07-25T23:38:24Z",
+      "returnCode": 0,
+      "ok": true,
+      "manifestPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/manifest.json",
+      "cellsPath": "records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/cells.with_activity.json",
+      "stdoutTail": "  \"bytes\": 24817,\n      \"createdAt\": \"2026-07-25T23:36:46Z\"\n    },\n    {\n      \"artifactType\": \"run_distribution\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/distribution.json\",\n      \"sha256\": \"3e9898e1ecd47486512d550cfd15f5c843df0f8ce764b82e9aed476c5170ec83\",\n      \"bytes\": 13611,\n      \"createdAt\": \"2026-07-25T23:36:46Z\"\n    },\n    {\n      \"artifactType\": \"validation_report\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/validation.json\",\n      \"sha256\": \"ed2810c62acaa99093db157b7e3da834f64422df6c5c82b523f41570fd430db2\",\n      \"bytes\": 149,\n      \"createdAt\": \"2026-07-25T23:36:46Z\"\n    },\n    {\n      \"artifactType\": \"cells_with_activity\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/cells.with_activity.json\",\n      \"sha256\": \"b1684ea0d35492abd5ac59f72787b6b8fcdda504a23d8641fba4545fc0394b68\",\n      \"bytes\": 39898,\n      \"createdAt\": \"2026-07-25T23:36:46Z\"\n    },\n    {\n      \"artifactType\": \"manifest\",\n      \"path\": \"records/thesis-analyst/2026-07-25/2026-07-25t23-36-46z-abs-labour-employment-change-australia-2026-07/manifest.json\",\n      \"sha256\": \"ae132a6e1592519214981b3ab09b5eed0174f31498eb54cd808dbf323b19aa3f\",\n      \"bytes\": 15347,\n      \"createdAt\": \"2026-07-25T23:36:46Z\",\n      \"hashMode\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\"\n    }\n  ],\n  \"validation\": {\n    \"ok\": true,\n    \"cells\": [\n      {\n        \"slug\": \"abs-labour-employment-change-australia-july-2026\",\n        \"ok\": true,\n        \"errors\": []\n      }\n    ]\n  },\n  \"custodyInventoryVersion\": 2,\n  \"runMode\": \"analyst\",\n  \"manifestHashSemantics\": \"canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256\",\n  \"custodyRootSha256\": \"0d28db18480915c3f48a9737991b5d06bcab2694a3186541ccb38c09e26dad73\"\n}\n",
+      "stderrTail": "",
+      "validationErrors": []
+    }
+  ]
+}
