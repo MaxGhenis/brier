@@ -288,19 +288,30 @@ python3 -m brier.experiments stability --strongest-validation --model gpt-5.2  #
 
 ### Publishing to PyPI
 
-The package is published to PyPI from GitHub Releases using PyPI Trusted Publishing.
+The `publish.yml` workflow builds the package and uploads it with PyPI
+Trusted Publishing when a GitHub release is published.
 
-**Setup (one-time):**
-1. In PyPI, open the `brier` project publishing settings:
-   - `https://pypi.org/manage/project/brier/settings/publishing/`
-   - ⚠️ After the 2026-07-22 repo transfer the trusted publisher MUST be
-     re-registered with the new owner/repository below, or releases fail
-     with `invalid-publisher`.
-2. Add a GitHub Actions trusted publisher with:
+**Current state (verified 2026-07-25): there is no `brier` project on
+PyPI.** The API returns 404 for it, so nothing is installable from PyPI
+today and no trusted publisher exists to migrate after the repository
+transfer. The workflow last ran for the v0.2.x tags in March 2026; treat
+it as dormant rather than as evidence of a published package.
+
+**To start publishing (only if a release is actually wanted):** the
+project does not exist yet, so it needs a *pending* publisher, registered
+at the account level rather than on a project page:
+
+1. Open `https://pypi.org/manage/account/publishing/`.
+2. Add a pending publisher with:
+   - PyPI Project Name: `brier`
    - Owner: `ThesisInstitute`
    - Repository name: `thesis`
    - Workflow name: `publish.yml`
-   - Environment name: leave blank unless you later add a GitHub environment
+   - Environment name: leave blank (the publish job defines no environment)
+
+The first release then creates the project. Note the package name still
+carries the pre-Thesis `brier` naming; decide whether to rename before
+claiming a name on PyPI.
 
 **To publish a new version:**
 1. Update version in `pyproject.toml`
