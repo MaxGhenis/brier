@@ -1479,6 +1479,25 @@ export type ResolutionContractBinding = "contract_bound" | "legacy_unbound";
 
 export const CONTRACT_BINDING_POLICY_VERSION = "contract-binding-v1";
 
+const REVIEWED_ABS_LEGACY_SERIES_ALIAS = {
+  dataPointId:
+    "abs.labour.unemployment_rate.australia.july_2026.first_print",
+  targetContentHash:
+    "cf3a2f76bb15d9f5eb9f5ae19d2e96b55111cf6842a1c8c8412b915ae614a85b",
+  canonicalSeries: "abs.labour.unemployment_rate",
+} as const;
+
+function hasReviewedLegacySeriesAlias(
+  target: TargetRegisteredLedgerEntry,
+): boolean {
+  return (
+    target.dataPointId === REVIEWED_ABS_LEGACY_SERIES_ALIAS.dataPointId &&
+    target.targetContentHash ===
+      REVIEWED_ABS_LEGACY_SERIES_ALIAS.targetContentHash &&
+    target.series === REVIEWED_ABS_LEGACY_SERIES_ALIAS.canonicalSeries
+  );
+}
+
 export function classifyResolutionContractBinding(
   target: TargetRegisteredLedgerEntry | undefined,
   observation: ObservationRecordedLedgerEntry,
@@ -1571,19 +1590,19 @@ export function getResolutionContractViolation(
       "response bytes"
     );
   }
-  // Check the OBSERVATION's own identity against the registration, not the
-  // projection's self-declared copy. The projection is written by the same
-  // resolver that wrote the row, so trusting projection-vs-registration is
-  // tautological — an unrelated publisher/period could still "match". The
-  // observation's own series (from its dataPointId), unit, and publisher
-  // host are what bind it to the target (finding 1). A genuine parse proof
-  // that the value came from the archived bytes needs a trusted resolver
-  // and is the step-5 hardening for an untrusted writer.
+  // Check the OBSERVATION's own identity against the canonical registration,
+  // not the projection's self-declared copy. Exactly one reviewed ABS
+  // registration predates canonical id stems; its immutable id and content
+  // hash scope that compatibility exception. Every other target must retain
+  // the independent observation-id-series == registration-series check.
   const observedSeries = ledgerSeriesId(observation.dataPointId);
-  if (target.series && observedSeries !== target.series) {
+  const expectedObservationSeries = hasReviewedLegacySeriesAlias(target)
+    ? ledgerSeriesId(target.dataPointId)
+    : target.series;
+  if (observedSeries !== expectedObservationSeries) {
     return (
       `observation series ${JSON.stringify(observedSeries)} does not match ` +
-      `the registered series ${JSON.stringify(target.series)}`
+      `the registration series ${JSON.stringify(expectedObservationSeries)}`
     );
   }
   if (projection.series !== target.series) {

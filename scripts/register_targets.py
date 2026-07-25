@@ -49,7 +49,23 @@ LEDGER_PIN_PATH = (
     / "ledger-pin.json"
 )
 LEDGER_PIN_BINDING_KEYS = {"repo", "branch", "sha", "jsonlSha256", "lineCount"}
-SOURCE_ADAPTERS = {"alfred-fred", "generic-url", "usaspending-api"}
+SOURCE_ADAPTERS = {
+    "abs-data-api",
+    "abs-release-page",
+    "alfred-fred",
+    "eurostat-api",
+    "generic-url",
+    "ons-timeseries",
+    "statcan-wds",
+    "usaspending-api",
+}
+NATIVE_INTL_SOURCE_ADAPTERS = {
+    "abs-data-api",
+    "abs-release-page",
+    "eurostat-api",
+    "ons-timeseries",
+    "statcan-wds",
+}
 RELEASE_POLICIES = {"first_print", "advance_vintage", "registered_query_snapshot"}
 SOURCE_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
 SERIES_BINDINGS: dict[str, dict[str, Any]] = {
@@ -204,11 +220,49 @@ def _add_months(day: dt.date, months: int) -> dt.date:
     )
 
 
+def source_binding_seed(
+    target: dict[str, Any], previous: dict[str, Any] | None
+) -> dict[str, Any]:
+    """Return the same effective binding seed for every registration stage."""
+    supplied = target.get("sourceBinding")
+    if isinstance(supplied, dict):
+        return supplied
+    inherited = (previous or {}).get("sourceBinding")
+    return inherited if isinstance(inherited, dict) else {}
+
+
 def expected_release_window(
     target: dict[str, Any], previous: dict[str, Any] | None, registration_date: dt.date
 ) -> dict[str, str]:
     supplied = target.get("expectedReleaseWindow")
-    if isinstance(supplied, dict) and supplied.get("start") and supplied.get("end"):
+    seed_binding = source_binding_seed(target, previous)
+    adapter = (
+        seed_binding.get("adapter")
+        if isinstance(seed_binding, dict)
+        else None
+    )
+    has_explicit_window = bool(
+        isinstance(supplied, dict)
+        and supplied.get("start")
+        and supplied.get("end")
+    )
+    if adapter in NATIVE_INTL_SOURCE_ADAPTERS:
+        calendar_url = target.get("releaseCalendarUrl")
+        if (
+            not isinstance(calendar_url, str)
+            or urlparse(calendar_url).scheme.lower() != "https"
+            or not urlparse(calendar_url).hostname
+        ):
+            raise RegistrationError(
+                "native international target requires an HTTPS "
+                "releaseCalendarUrl"
+            )
+        if not has_explicit_window and not target.get("expectedReleaseDate"):
+            raise RegistrationError(
+                "native international target requires an explicit official "
+                "expectedReleaseDate or expectedReleaseWindow"
+            )
+    if has_explicit_window:
         start, end = _iso_date(str(supplied["start"])), _iso_date(str(supplied["end"]))
     elif target.get("expectedReleaseDate"):
         start = end = _iso_date(str(target["expectedReleaseDate"]))
@@ -244,6 +298,11 @@ def expected_release_window(
         )
     if end < start:
         raise RegistrationError("expected release window ends before it starts")
+    if adapter in NATIVE_INTL_SOURCE_ADAPTERS and start <= registration_date:
+        raise RegistrationError(
+            "native international release window must start after the "
+            "registration date"
+        )
     return {"start": start.isoformat(), "end": end.isoformat()}
 
 
@@ -277,6 +336,19 @@ def derive_data_point_id(
             period=period.removeprefix("week_")
         )
         return f"{series}.{suffix}"
+    seed_binding = source_binding_seed(target, previous)
+    seed_adapter = (
+        seed_binding.get("adapter")
+        if isinstance(seed_binding, dict)
+        else None
+    )
+    if seed_adapter in NATIVE_INTL_SOURCE_ADAPTERS:
+        # Do not perpetuate a legacy descriptive alias from the previous
+        # target. New native registrations use the docket's canonical series
+        # as their id stem, so the resolver, target contract, and site scoring
+        # agree on identity end to end.
+        token = period.lower().replace("-", "_")
+        return f"{series}.{token}.first_print"
     if previous and previous.get("dataPointId") and previous.get("period"):
         prior_id = str(previous["dataPointId"])
         old_variants = _period_variants(str(previous["period"]))
@@ -286,7 +358,6 @@ def derive_data_point_id(
             replacement = _replacement_period_variant(old, period)
             return prior_id.replace(old, replacement, 1)
     token = period.lower().replace("-", "_")
-    seed_binding = target.get("sourceBinding")
     seed_policy = (
         seed_binding.get("releasePolicy") if isinstance(seed_binding, dict) else None
     )
@@ -335,10 +406,7 @@ def derive_source_binding(
     window: dict[str, str],
     value_scale: float,
 ) -> dict[str, Any]:
-    supplied = target.get("sourceBinding")
-    previous_binding = (previous or {}).get("sourceBinding")
-    seed = supplied if isinstance(supplied, dict) else previous_binding
-    seed = seed if isinstance(seed, dict) else {}
+    seed = source_binding_seed(target, previous)
     series = str(target["series"])
     if series in SERIES_BINDINGS:
         registered = SERIES_BINDINGS[series]
@@ -710,6 +778,63 @@ def _binding_matches_template(binding: Any, template: Any) -> bool:
         if key not in SOURCE_BINDING_DERIVED_KEYS
     }
     return canonical_bytes(projection) == canonical_bytes(template)
+
+
+def validate_native_calendar_contract(
+    contract: dict[str, Any], target: dict[str, Any], docket_entry: dict[str, Any]
+) -> None:
+    """Bind a native registration's exact window to committed calendar data."""
+    binding = contract.get("sourceBinding")
+    adapter = binding.get("adapter") if isinstance(binding, dict) else None
+    if adapter not in NATIVE_INTL_SOURCE_ADAPTERS:
+        return
+    release_dates = docket_entry.get("releaseDates")
+    release_date = (
+        release_dates.get(contract.get("period"))
+        if isinstance(release_dates, dict)
+        else None
+    )
+    calendar_url = docket_entry.get("releaseCalendarUrl")
+    if not isinstance(release_date, str) or not isinstance(calendar_url, str):
+        raise RegistrationError(
+            "committed native docket entry lacks the target period's "
+            "release date or calendar URL"
+        )
+    expected_window = {"start": release_date, "end": release_date}
+    if binding.get("expectedReleaseWindow") != expected_window:
+        raise RegistrationError(
+            "native target release window disagrees with the committed "
+            "docket calendar"
+        )
+    if target.get("releaseCalendarUrl") != calendar_url:
+        raise RegistrationError(
+            "native target releaseCalendarUrl disagrees with the committed "
+            "docket calendar"
+        )
+
+
+def require_native_docket_template(
+    contract: dict[str, Any], template_matches: list[dict[str, Any]]
+) -> None:
+    """Require one committed series/calendar authority for native targets."""
+    binding = contract.get("sourceBinding")
+    adapter = binding.get("adapter") if isinstance(binding, dict) else None
+    if adapter not in NATIVE_INTL_SOURCE_ADAPTERS:
+        return
+    if len(template_matches) != 1:
+        raise RegistrationError(
+            "native international target requires exactly one committed "
+            "docket template for "
+            f"{contract.get('dataPointId')} in series {contract.get('series')}"
+        )
+    extras = template_matches[0].get("extras")
+    template = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    if not isinstance(template, dict):
+        raise RegistrationError(
+            "native international target requires a committed sourceBinding "
+            "template for "
+            f"{contract.get('dataPointId')} in series {contract.get('series')}"
+        )
 
 
 def _binding_is_committed_template(
@@ -1186,6 +1311,7 @@ def bind_registration_commits(
         template_matches = [
             entry for entry in docket_entries if entry["series"] == series
         ]
+        require_native_docket_template(contract, template_matches)
         if len(template_matches) > 1:
             raise RegistrationError(
                 "ambiguous committed docket template for "
@@ -1214,6 +1340,7 @@ def bind_registration_commits(
                         "committed docket template for "
                         f"{data_point_id} in series {series}"
                     )
+            validate_native_calendar_contract(contract, target, entry)
         commits = _git_output(
             "log",
             source_commit,

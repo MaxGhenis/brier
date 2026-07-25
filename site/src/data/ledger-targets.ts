@@ -3,14 +3,27 @@ import { GENERATED_FORECAST_TARGETS } from "./ledger-targets.generated";
 
 export const TARGET_PREREGISTRATION_ORPHAN_GRACE_DAYS = 7;
 
+export type TargetSourceAdapter =
+  | "abs-data-api"
+  | "abs-release-page"
+  | "alfred-fred"
+  | "eurostat-api"
+  | "generic-url"
+  | "ons-timeseries"
+  | "statcan-wds"
+  | "usaspending-api";
+
 export interface TargetSourceBinding {
-  adapter: "alfred-fred" | "generic-url";
+  adapter: TargetSourceAdapter;
   sourceUrl: string;
   sourceSeriesId: string;
   field: string;
   table: string;
   transform: unknown;
-  releasePolicy: "first_print" | "advance_vintage";
+  releasePolicy:
+    | "first_print"
+    | "advance_vintage"
+    | "registered_query_snapshot";
   // Every host the series' first prints have actually appeared on,
   // fixed at registration time; the resolution URL's host must be a
   // member. Absent on single-host legacy bindings, which stay pinned

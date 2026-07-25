@@ -1356,23 +1356,29 @@ MONTH_NUMBERS = {
         start=1,
     )
 }
+MONTH_ABBREVIATION_NUMBERS = {
+    name[:3]: number for name, number in MONTH_NUMBERS.items()
+}
 
 # ---------------------------------------------------------------------------
 # International native-source adapters (2026-07-10). ALFRED has no vintage
 # coverage for these series, so each adapter binds the official national
 # source the cells' resolver rules name. Every mapping below reproduced the
-# cells' OWN recorded historicalContext anchors before being added, and the
-# same anchor set is re-verified at fetch time (`anchors` on each spec) so a
-# wrong series, wrong unit, or upstream restructuring fails closed instead
-# of resolving a wrong fact. Where a recorded anchor and the official record
-# disagreed, the official release-day artifact adjudicated; the evidence is
-# documented inline per source.
+# cells' OWN recorded historicalContext anchors before becoming executable.
+# Captured fixtures establish admission; live response identity, units,
+# release windows, and status flags reject source drift at execution. Fixed
+# historical anchors are deliberately not required to remain in bounded
+# latest-N live responses: fixture reproduction is the immutable admission
+# gate, while response identity is the durable recurring-execution gate.
+# Candidate specs that lack three captured checks remain in
+# INTL_BLOCKED_ADAPTERS and are never claimed. Where a recorded anchor and the
+# official record disagreed, the official release-day artifact adjudicated.
 #
 # First-print discipline per source (anchors are FIRST prints; live APIs
 # serve revised values on backfills):
-#   - Sources whose published series are not revised (StatCan CPI, ABS
-#     monthly CPI original, e-Stat CPI indexes) resolve from the current
-#     value fetched between releases: that value IS the first print when
+#   - Sources whose published series are not revised (StatCan CPI and ABS
+#     monthly CPI original) resolve from the current value fetched between
+#     releases: that value IS the first print when
 #     captured before the next release (the exact response bytes plus
 #     retrievedAt are archived, so the vintage claim is auditable).
 #   - Revision-prone series (LFS-style surveys, monthly GDP, EI counts)
@@ -1398,7 +1404,12 @@ US_GEOGRAPHY = {
 INTL_GEOGRAPHY = {
     "CA": {"level": "country", "id": "CA", "vintage": "current", "name": "Canada"},
     "AU": {"level": "country", "id": "AU", "vintage": "current", "name": "Australia"},
-    "JP": {"level": "country", "id": "JP", "vintage": "current", "name": "Japan"},
+    "UK": {
+        "level": "country",
+        "id": "UK",
+        "vintage": "current",
+        "name": "United Kingdom",
+    },
     # "region" is the arch fact schema's level for supranational scopes
     # (ALLOWED_GEOGRAPHY_LEVELS in PolicyEngine/ledger arch/core.py).
     "EA": {
@@ -1409,9 +1420,9 @@ INTL_GEOGRAPHY = {
     },
 }
 
-STATCAN_WDS_RANGE = (
-    "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange"
-    "?vectorIds={vector}&startRefPeriod={start}&endReferencePeriod={end}"
+STATCAN_WDS_LATEST = (
+    "https://www150.statcan.gc.ca/t1/wds/rest/"
+    "getDataFromVectorsAndLatestNPeriods"
 )
 ABS_DATA_URL = (
     "https://data.api.abs.gov.au/rest/data/{flow}/{key}"
@@ -1419,23 +1430,9 @@ ABS_DATA_URL = (
 )
 EUROSTAT_DATA_URL = (
     "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/{dataset}/{key}"
-    "?format=JSON&startPeriod={start}"
+    "?format=JSON&lastNObservations={last_n}"
 )
-
-# Cells whose recorded historicalContext contradicts the official series are
-# never auto-resolved, even after their release date: resolving them would
-# grade a target whose own registration evidence is unreliable. Each entry
-# documents the contradiction; clearing one requires a human/analyst pass.
-INTL_RESOLUTION_HOLDS = {
-    "statjp.cpi.tokyo_all_items_annual_rate.july_2026.preliminary": (
-        "the July-wave run recorded Tokyo anchors 2.9/2.9/3.5/3.4/3.4 "
-        "(Feb-Jun 2026), but the official 2020-base Tokyo ku-area series "
-        "prints 1.5/1.4/1.5/1.4/1.7 (Statistics Bureau kubu.pdf published "
-        "2026-06-26 and e-Stat table 1-2); the recorded context appears to "
-        "be a different vintage/series and must be reviewed before this "
-        "cell may resolve"
-    ),
-}
+ONS_DATA_URL = "https://api.beta.ons.gov.uk/v1/data?uri={uri}"
 
 # Pinned immutable snapshots per data month, one URL list per period tried
 # in order (same custody model as A19_SNAPSHOT_URLS: web.archive.org serves
@@ -1472,52 +1469,20 @@ ABS_BA_SNAPSHOT_URLS: dict[str, list[str]] = {
     ],
 }
 
-# Statistics Bureau of Japan artifacts, pinned per period. The Tokyo ku-area
-# CPI preliminary exists in machine-readable form only as the e-Stat table
-# 1-2 workbook; each release mints a new immutable statInfId, so the pinned
-# URL is itself a vintage artifact (keyless download, no e-Stat appId
-# required). The LFS and household-spending pages are the release pages
-# themselves; the parser refuses any artifact whose own printed reference
-# month differs from the target period, so a rolled-over live page can
-# never resolve an older cell (the trailing Wayback URL keeps the period
-# resolvable after rollover).
-JP_TOKYO_CPI_XLSX_URLS: dict[str, list[str]] = {
-    "2026-06": [
-        "https://www.e-stat.go.jp/stat-search/file-download"
-        "?statInfId=000040461676&fileKind=0",
-        "https://web.archive.org/web/20260710/https://www.e-stat.go.jp/stat-search/"
-        "file-download?statInfId=000040461676&fileKind=0",
-    ],
-}
-JP_LFS_LIVE_URLS = [
-    "https://www.stat.go.jp/data/roudou/sokuhou/tsuki/index.html",
-]
-JP_LFS_PAGE_URLS: dict[str, list[str]] = {
-    "2026-05": [
-        "https://web.archive.org/web/20260710/https://www.stat.go.jp/data/roudou/"
-        "sokuhou/tsuki/index.html",
-    ],
-}
-JP_KAKEI_LIVE_URLS = [
-    "https://www.stat.go.jp/data/kakei/sokuhou/tsuki/index.html",
-]
-JP_KAKEI_PAGE_URLS: dict[str, list[str]] = {
-    "2026-05": [
-        "https://web.archive.org/web/20260710/https://www.stat.go.jp/data/kakei/"
-        "sokuhou/tsuki/index.html",
-    ],
-}
-
 # One spec per dataPointId stem; dataPointId dialects of the same fact share
 # a spec dict (and therefore one cached fetch and one archived response).
-# `anchors` are the cells' recorded first prints re-checked at fetch time;
-# `anchor_tolerance` encodes each source's documented revision behavior.
+# `verified_anchors` are immutable fixture-backed admission checks. `anchors`
+# is reserved for a live sentinel only when a source supplies a durable
+# invariant that cannot age out of its bounded response; none of the admitted
+# recurring international APIs currently does.
 _STATCAN_CPI_SPEC = {
     "kind": "statcan",
     "series_id": "statcan-v41690973",
-    "source_file": "getDataFromVectorByReferencePeriodRange (WDS JSON)",
+    "admission_fixture": "statcan_cpi_v41690973.json",
+    "source_file": "getDataFromVectorsAndLatestNPeriods (WDS JSON)",
     "extension": "json",
     "vector": 41690973,
+    "latest_n": 48,
     "product": "18-10-0004-01",
     "transform": "yoy_from_index",
     "round": 1,
@@ -1528,6 +1493,10 @@ _STATCAN_CPI_SPEC = {
     "concept_authority": "statcan",
     "source_concept": "v41690973",
     "country": "CA",
+    "valid_range": (-5.0, 25.0),
+    "release_calendar_url": (
+        "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf"
+    ),
     # StatCan CPI indexes are not revised after publication (corrections
     # only), and the published 12-month change is computed from rounded
     # index values — verified 2026-07-10: computed YoY reproduced all six
@@ -1535,15 +1504,23 @@ _STATCAN_CPI_SPEC = {
     # Mar 2.4, Apr 2.8). May 2026 was released 2026-06-22 on the updated
     # basket (weights effective 2026-06-15), which chain-links within the
     # same index series.
-    "anchors": {"2026-01": 2.3, "2026-02": 1.8, "2026-03": 2.4, "2026-04": 2.8},
+    "anchors": {},
+    "verified_anchors": {
+        "2026-02": 1.8,
+        "2026-03": 2.4,
+        "2026-04": 2.8,
+        "2026-05": 3.2,
+    },
     "anchor_tolerance": 0.1,
 }
 _STATCAN_GDP_SPEC = {
     "kind": "statcan",
     "series_id": "statcan-v65201210",
-    "source_file": "getDataFromVectorByReferencePeriodRange (WDS JSON)",
+    "admission_fixture": "statcan_gdp_v65201210.json",
+    "source_file": "getDataFromVectorsAndLatestNPeriods (WDS JSON)",
     "extension": "json",
     "vector": 65201210,
+    "latest_n": 36,
     "product": "36-10-0434-01",
     "transform": "mom_pct",
     "round": 1,
@@ -1557,6 +1534,10 @@ _STATCAN_GDP_SPEC = {
     "concept_authority": "statcan",
     "source_concept": "v65201210",
     "country": "CA",
+    "valid_range": (-10.0, 10.0),
+    "release_calendar_url": (
+        "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf"
+    ),
     # Monthly GDP levels are revised at each release, moving back-month MoM
     # changes by ~0.1pp per step (recorded first prints Nov25 0.0, Dec25
     # 0.2, Jan 0.1 currently read 0.1, 0.1, -0.0). The three most recent
@@ -1564,7 +1545,15 @@ _STATCAN_GDP_SPEC = {
     # 2026-07-10 (Feb 0.2, Mar -0.1, Apr 0.5); the tolerance absorbs one
     # revision step while still refusing transform mistakes (April YoY
     # would read ~1.5, a 1.0pp miss).
-    "anchors": {"2026-02": 0.2, "2026-03": -0.1, "2026-04": 0.5},
+    # Admission evidence is immutable; these revision-prone back months are
+    # not live sentinels. Response vector identity and the first-print window
+    # are the runtime drift/vintage gates.
+    "anchors": {},
+    "verified_anchors": {
+        "2026-02": 0.2,
+        "2026-03": -0.1,
+        "2026-04": 0.5,
+    },
     "anchor_tolerance": 0.25,
     # The next monthly GDP release (~31 days later) revises the target
     # month itself, so the first print is only retrievable live until then.
@@ -1573,9 +1562,10 @@ _STATCAN_GDP_SPEC = {
 _STATCAN_EI_SPEC = {
     "kind": "statcan",
     "series_id": "statcan-v64549350",
-    "source_file": "getDataFromVectorByReferencePeriodRange (WDS JSON)",
+    "source_file": "getDataFromVectorsAndLatestNPeriods (WDS JSON)",
     "extension": "json",
     "vector": 64549350,
+    "latest_n": 36,
     "product": "14-10-0011-01",
     "transform": "level",
     "scale": 0.001,
@@ -1590,6 +1580,8 @@ _STATCAN_EI_SPEC = {
     "concept_authority": "statcan",
     "source_concept": "v64549350",
     "country": "CA",
+    "valid_range": (100.0, 2000.0),
+    "release_calendar_url": "https://www.statcan.gc.ca/o1/en/calendar",
     "entity": {"name": "person", "role": "ei_beneficiary"},
     # EI counts are administrative and re-seasonally-adjusted each release:
     # the latest month held exactly (Apr 544.44 recorded = 544.44 today),
@@ -1597,17 +1589,105 @@ _STATCAN_EI_SPEC = {
     # -> 547.44), and February drifted ~8k over three releases, so only
     # the two freshest anchors are checked, at a tolerance wide enough for
     # documented SA refits but far below any wrong-series miss.
-    "anchors": {"2026-03": 548.0, "2026-04": 544.44},
-    "anchor_tolerance": 2.5,
+    # Back months revise, so first-print anchors are checked against captured
+    # release payloads in tests/fixtures and ANCHORS.md, not against today's
+    # mutable table.
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-02": 542.11,
+        "2026-03": 548.0,
+        "2026-04": 544.44,
+        "2026-05": 543.69,
+    },
+    "anchor_tolerance": 0.01,
     "first_print_window_days": 24,
+}
+_STATCAN_LFS_UR_SPEC = {
+    "kind": "statcan",
+    "series_id": "statcan-v2062815",
+    "source_file": "getDataFromVectorsAndLatestNPeriods (WDS JSON)",
+    "extension": "json",
+    "vector": 2062815,
+    "latest_n": 36,
+    "product": "14-10-0287-01",
+    "transform": "level",
+    "round": 1,
+    "unit": "percent",
+    "label": "Canada unemployment rate (SA)",
+    "source_name": "statcan",
+    "source_table": (
+        "Labour Force Survey, Table 14-10-0287-01 "
+        "(unemployment rate, Canada, SA)"
+    ),
+    "concept_authority": "statcan",
+    "source_concept": "v2062815",
+    "country": "CA",
+    "valid_range": (0.0, 25.0),
+    "release_calendar_url": (
+        "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf"
+    ),
+    "anchors": {
+        "2026-03": 6.7,
+        "2026-04": 6.9,
+        "2026-05": 6.6,
+        "2026-06": 6.5,
+    },
+    "candidate_anchors": {
+        "2026-03": 6.7,
+        "2026-04": 6.9,
+        "2026-05": 6.6,
+        "2026-06": 6.5,
+    },
+    "anchor_tolerance": 0.1,
+    "first_print_window_days": 18,
+}
+_STATCAN_LFS_EMP_SPEC = {
+    "kind": "statcan",
+    "series_id": "statcan-v2062811",
+    "source_file": "getDataFromVectorsAndLatestNPeriods (WDS JSON)",
+    "extension": "json",
+    "vector": 2062811,
+    "latest_n": 36,
+    "product": "14-10-0287-01",
+    "transform": "mom_diff",
+    "round": 0,
+    "unit": "thousands",
+    "label": "Canada employment change (SA)",
+    "source_name": "statcan",
+    "source_table": (
+        "Labour Force Survey, Table 14-10-0287-01 "
+        "(employment, Canada, SA; month-over-month change)"
+    ),
+    "concept_authority": "statcan",
+    "source_concept": "v2062811",
+    "country": "CA",
+    "entity": {"name": "person", "role": "employed"},
+    "valid_range": (-1000.0, 1000.0),
+    "release_calendar_url": (
+        "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf"
+    ),
+    # LFS levels rebenchmark; release-vintage fixtures carry the first-print
+    # history and the live request is admitted only inside its registered
+    # release window.
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-03": 14.0,
+        "2026-04": -18.0,
+        "2026-05": 88.0,
+        "2026-06": 18.0,
+    },
+    "anchor_tolerance": 0.1,
+    "first_print_window_days": 18,
 }
 _ABS_CPI_SPEC = {
     "kind": "abs",
     "series_id": "abs-cpi-allgroups-yoy",
+    "admission_fixture": "abs_cpi_all_groups_yoy.json",
     "source_file": "ABS Data API SDMX-JSON",
     "extension": "json",
     "flow": "CPI",
     "key": "3.10001.10.50.M",
+    "latest_n": 30,
     "transform": "level",
     "round": 1,
     "unit": "percent",
@@ -1621,6 +1701,11 @@ _ABS_CPI_SPEC = {
     "concept_authority": "abs",
     "source_concept": "CPI/3.10001.10.50.M",
     "country": "AU",
+    "valid_range": (-5.0, 25.0),
+    "release_calendar_url": (
+        "https://www.abs.gov.au/statistics/economy/"
+        "price-indexes-and-inflation/consumer-price-index-australia"
+    ),
     # Australia moved from the CPI_M indicator (final observation 2025-09)
     # to the complete monthly CPI published under dataflow CPI with
     # FREQ=M; the recorded anchors match the complete CPI exactly and
@@ -1628,16 +1713,24 @@ _ABS_CPI_SPEC = {
     # cells' series is the complete CPI. Original-series annual rates are
     # not revised; verified 2026-07-10 with six exact anchor matches
     # (Nov25 3.4, Dec25 3.8, Jan 3.8, Feb 3.7, Mar 4.6, Apr 4.2).
-    "anchors": {"2026-02": 3.7, "2026-03": 4.6, "2026-04": 4.2},
+    "anchors": {},
+    "verified_anchors": {
+        "2026-02": 3.7,
+        "2026-03": 4.6,
+        "2026-04": 4.2,
+        "2026-05": 4.0,
+    },
     "anchor_tolerance": 0.1,
 }
 _ABS_UR_SPEC = {
     "kind": "abs",
     "series_id": "abs-lf-unemployment-rate",
+    "admission_fixture": "abs_lfs_unemployment_rate.json",
     "source_file": "ABS Data API SDMX-JSON",
     "extension": "json",
     "flow": "LF",
     "key": "M13.3.1599.20.AUS.M",
+    "latest_n": 30,
     "transform": "level",
     "round": 1,
     "unit": "percent",
@@ -1650,12 +1743,27 @@ _ABS_UR_SPEC = {
     "concept_authority": "abs",
     "source_concept": "LF/M13.3.1599.20.AUS.M",
     "country": "AU",
+    "valid_range": (0.0, 25.0),
+    "release_calendar_url": (
+        "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/"
+        "labour-force-australia"
+    ),
     # The Data API serves unrounded rates; rounding to one decimal (as ABS
-    # headlines) reproduced every recorded first print on 2026-07-10
-    # (Mar 4.278->4.3, Apr 4.481->4.5, May 4.356->4.4, the May release-day
-    # page confirming "decreased by 0.1ppts to 4.4%"). SA rates revise by
-    # ~0.1pp at later releases, hence the window and tolerance.
-    "anchors": {"2026-03": 4.3, "2026-04": 4.5},
+    # headlines) reproduced three recorded first prints in the real
+    # 2026-07-10 response (Mar 4.278->4.3, Apr 4.481->4.5, May
+    # 4.356->4.4, the May release-day page confirming "decreased by
+    # 0.1ppts to 4.4%"). SA rates revise by ~0.1pp at later releases,
+    # hence the window and tolerance. The July sandbox could not recapture
+    # real API bytes after June was published, so June is not an anchor.
+    # The first-print checks below are admission evidence, not mutable live
+    # sentinels. Exact flow/key dimensions plus the registered release window
+    # gate recurring execution after ABS revises historical SA rates.
+    "anchors": {},
+    "verified_anchors": {
+        "2026-03": 4.3,
+        "2026-04": 4.5,
+        "2026-05": 4.4,
+    },
     "anchor_tolerance": 0.15,
     "first_print_window_days": 18,
 }
@@ -1666,6 +1774,7 @@ _ABS_EMP_SPEC = {
     "extension": "json",
     "flow": "LF",
     "key": "M3.3.1599.20.AUS.M",
+    "latest_n": 30,
     "transform": "mom_diff",
     "round": 1,
     "unit": "thousands",
@@ -1679,6 +1788,11 @@ _ABS_EMP_SPEC = {
     "source_concept": "LF/M3.3.1599.20.AUS.M",
     "country": "AU",
     "entity": {"name": "person", "role": "employed"},
+    "valid_range": (-1000.0, 1000.0),
+    "release_calendar_url": (
+        "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/"
+        "labour-force-australia"
+    ),
     # ABS headlines the SA change against the prior month AS REVISED IN THE
     # SAME RELEASE, so the first print equals the level diff only at the
     # release's own vintage (the 2026-06-25 release page prints 14,698,500
@@ -1687,9 +1801,14 @@ _ABS_EMP_SPEC = {
     # the recorded April level (14,737.4) to 14,698.5 in one release — so
     # the anchor pins the latest release's own level, and the window keeps
     # the fetch inside the vintage that headlined the target change.
-    "anchor_transform": "raw_level",
-    "anchors": {"2026-05": 14738.8},
-    "anchor_tolerance": 60.0,
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-03": 17.9,
+        "2026-04": -18.6,
+        "2026-05": 40.3,
+        "2026-06": 76.3,
+    },
+    "anchor_tolerance": 0.1,
     "first_print_window_days": 18,
 }
 _ABS_BA_SPEC = {
@@ -1698,6 +1817,10 @@ _ABS_BA_SPEC = {
     "source_file": "building-approvals-australia release page (Wayback snapshot)",
     "extension": "html",
     "snapshots": ABS_BA_SNAPSHOT_URLS,
+    "live_url_template": (
+        "https://www.abs.gov.au/statistics/industry/"
+        "building-and-construction/building-approvals-australia/{period_slug}"
+    ),
     "unit": "percent_growth",
     "label": "Australia building approvals, total dwellings, MoM change (SA)",
     "source_name": "abs",
@@ -1705,95 +1828,31 @@ _ABS_BA_SPEC = {
     "concept_authority": "abs",
     "source_concept": "building-approvals-australia release page",
     "country": "AU",
+    "valid_range": (-100.0, 100.0),
+    "release_calendar_url": (
+        "https://www.abs.gov.au/statistics/industry/"
+        "building-and-construction/building-approvals-australia"
+    ),
     "anchors": {},
-    "anchor_tolerance": 0.0,
-}
-_STATJP_TOKYO_SPEC = {
-    "kind": "estat_xlsx",
-    "series_id": "estat-tokyo-cpi-table1-2",
-    "source_file": "e-Stat table 1-2 workbook (Tokyo ku-area, release vintage)",
-    "extension": "xlsx",
-    "snapshots": JP_TOKYO_CPI_XLSX_URLS,
-    "transform": "yoy_from_index",
-    "round": 1,
-    "unit": "percent",
-    "label": "Japan Tokyo ku-area CPI all items, annual change (preliminary)",
-    "source_name": "stat_jp",
-    "source_table": (
-        "2020-base CPI, Tokyo ku-area mid-month preliminary, e-Stat table "
-        "1-2 (all items index)"
-    ),
-    "concept_authority": "stat_jp",
-    "source_concept": "e-Stat statInfId 000040461676 (series 0001, all items)",
-    "country": "JP",
-    # The Statistics Bureau publishes the Tokyo preliminary YoY only in the
-    # release PDF (CID-encoded, not machine-readable) and the e-Stat table
-    # workbook; YoY computed from the workbook's rounded index reproduces
-    # every published rate (kubu.pdf, 2026-06-26: Jan 1.5, Feb 1.5, Mar
-    # 1.4, Apr 1.5, May 1.4, Jun 1.7), including both anchors this cell's
-    # origin wave recorded (Apr 1.5, May 1.4). CPI indexes are unrevised;
-    # the pinned statInfId is itself an immutable release vintage.
-    "anchors": {"2026-04": 1.5, "2026-05": 1.4},
+    "candidate_anchors": {
+        "2026-02": 29.7,
+        "2026-03": -10.5,
+        "2026-04": -3.4,
+        "2026-05": -1.1,
+    },
     "anchor_tolerance": 0.1,
-}
-_STATJP_LFS_SPEC = {
-    "kind": "jp_lfs_page",
-    "series_id": "statjp-lfs-monthly-page",
-    "source_file": "stat.go.jp LFS monthly summary page",
-    "extension": "html",
-    "snapshots": JP_LFS_PAGE_URLS,
-    "unit": "percent",
-    "label": "Japan unemployment rate (SA)",
-    "source_name": "stat_jp",
-    "source_table": "Labour Force Survey, monthly summary page (SA rate table)",
-    "concept_authority": "stat_jp",
-    "source_concept": "stat.go.jp roudou sokuhou monthly page",
-    "country": "JP",
-    # The release page's own SA table carries the recent months, so one
-    # fetch both anchors and resolves; verified 2026-07-10 against the
-    # 2026-06-30 release (Feb 2.6, Mar 2.7, Apr 2.5 exact; May prints
-    # 2.5). A misaligned parse fails the anchor check rather than
-    # resolving a neighboring month.
-    "anchors": {"2026-02": 2.6, "2026-03": 2.7, "2026-04": 2.5},
-    "anchor_tolerance": 0.05,
-}
-_STATJP_KAKEI_SPEC = {
-    "kind": "jp_kakei_page",
-    "series_id": "statjp-kakei-monthly-page",
-    "source_file": "stat.go.jp kakei monthly summary page",
-    "extension": "html",
-    "snapshots": JP_KAKEI_PAGE_URLS,
-    "unit": "percent_growth",
-    "label": (
-        "Japan household spending, real YoY change "
-        "(two-or-more-person households)"
-    ),
-    "source_name": "stat_jp",
-    "source_table": (
-        "Family Income and Expenditure Survey, monthly summary page "
-        "(two-or-more-person households, real consumption expenditure)"
-    ),
-    "concept_authority": "stat_jp",
-    "source_concept": "stat.go.jp kakei sokuhou monthly page",
-    "country": "JP",
-    # Kakei YoY figures are not revised across monthly releases (Feb -1.8
-    # identical across the 2026-04, 2026-05-12 and 2026-07-07 vintages).
-    # The cell's recorded March anchor (-0.5) is refuted by the official
-    # record — the 2026-05-12 release printed March at -2.9 (Wayback
-    # 2026-05-20 capture) and it still reads -2.9 today — so March is a
-    # transcription error in the origin wave and is excluded; February and
-    # April verify the row/column alignment instead.
-    "anchors": {"2026-02": -1.8, "2026-04": -0.5},
-    "anchor_tolerance": 0.05,
 }
 _EUROSTAT_HICP_SPEC = {
     "kind": "eurostat",
     "series_id": "eurostat-prc-hicp-minr-ea",
+    "admission_fixture": "eurostat_hicp_flash.json",
     "source_file": "Eurostat dissemination API JSON-stat",
     "extension": "json",
     "dataset": "prc_hicp_minr",
     "key": "M.RCH_A.TOTAL.EA21",
+    "latest_n": 36,
     "require_flag": True,
+    "accepted_flags": ["e"],
     "unit": "percent",
     "label": "Euro area HICP all-items flash estimate, annual rate",
     "source_name": "eurostat",
@@ -1804,6 +1863,10 @@ _EUROSTAT_HICP_SPEC = {
     "concept_authority": "eurostat",
     "source_concept": "prc_hicp_minr/M.RCH_A.TOTAL.EA21",
     "country": "EA",
+    "valid_range": (-5.0, 25.0),
+    "release_calendar_url": (
+        "https://ec.europa.eu/eurostat/news/euro-indicators/release-calendar"
+    ),
     # Eurostat loads the euro-area flash into prc_hicp_minr on release
     # morning flagged as an estimate; finals (~2 weeks later) replace the
     # value and drop the flag, so `require_flag` refuses any fetch that
@@ -1812,7 +1875,15 @@ _EUROSTAT_HICP_SPEC = {
     # still flagged, matching the 2026-07-01 release headline "Euro area
     # annual inflation down to 2.8%". The pre-2026 dataset (prc_hicp_manr)
     # was frozen at 2025-12 by the ECOICOP-2 migration.
-    "anchors": {"2026-03": 2.6, "2026-04": 3.0, "2026-05": 3.2},
+    # The mutable current table already revised March from the 2.5 flash to
+    # 2.6. The status-flag gate, registered release window, and captured
+    # release fixtures enforce flash vintage instead of tolerating that.
+    "anchors": {},
+    "verified_anchors": {
+        "2026-04": 3.0,
+        "2026-05": 3.2,
+        "2026-06": 2.8,
+    },
     "anchor_tolerance": 0.1,
 }
 _EUROSTAT_UNEMP_SPEC = {
@@ -1822,6 +1893,7 @@ _EUROSTAT_UNEMP_SPEC = {
     "extension": "json",
     "dataset": "une_rt_m",
     "key": "M.SA.TOTAL.PC_ACT.T.EA21",
+    "latest_n": 36,
     "require_flag": False,
     "unit": "percent",
     "label": "Euro area unemployment rate (SA)",
@@ -1830,15 +1902,180 @@ _EUROSTAT_UNEMP_SPEC = {
     "concept_authority": "eurostat",
     "source_concept": "une_rt_m/M.SA.TOTAL.PC_ACT.T.EA21",
     "country": "EA",
+    "valid_range": (0.0, 30.0),
+    "release_calendar_url": (
+        "https://ec.europa.eu/eurostat/news/euro-indicators/release-calendar"
+    ),
     # une_rt_m updates only on its monthly release day and revises back
     # months by <=0.2pp (ei_lm_m_vtg carries the documented vintages).
     # Verified 2026-07-10: the four freshest recorded first prints match
     # exactly (Feb 6.4, Mar 6.3, Apr 6.2, May 6.2; dataset updated
     # 2026-07-02, the May release day). An older recorded January anchor
     # (6.1) now reads 6.3 — documented revision drift, excluded.
-    "anchors": {"2026-03": 6.3, "2026-04": 6.2},
-    "anchor_tolerance": 0.2,
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-02": 6.2,
+        "2026-03": 6.2,
+        "2026-04": 6.3,
+        "2026-05": 6.2,
+    },
+    "anchor_tolerance": 0.1,
     "first_print_window_days": 21,
+}
+_EUROSTAT_CONSTRUCTION_SPEC = {
+    "kind": "eurostat",
+    "series_id": "eurostat-sts-copr-m-ea21",
+    "source_file": "Eurostat dissemination API JSON-stat",
+    "extension": "json",
+    "dataset": "sts_copr_m",
+    "key": "M.I21.SCA.PRD.F.EA21",
+    "latest_n": 36,
+    "transform": "level",
+    "round": 1,
+    "unit": "index_points",
+    "label": "Euro area construction production index (SCA, 2021=100)",
+    "source_name": "eurostat",
+    "source_table": (
+        "Production in construction, sts_copr_m "
+        "(2021=100, SCA, total construction, EA21)"
+    ),
+    "concept_authority": "eurostat",
+    "source_concept": "sts_copr_m/M.I21.SCA.PRD.F.EA21",
+    "country": "EA",
+    "valid_range": (20.0, 300.0),
+    "release_calendar_url": (
+        "https://ec.europa.eu/eurostat/news/euro-indicators/release-calendar"
+    ),
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-02": 103.3,
+        "2026-03": 103.6,
+        "2026-04": 105.5,
+        "2026-05": 105.0,
+    },
+    "anchor_tolerance": 0.1,
+    "first_print_window_days": 21,
+}
+_ONS_CPI_SPEC = {
+    "kind": "ons",
+    "series_id": "ons-d7g7-mm23",
+    "source_file": "ONS v1 time-series JSON",
+    "extension": "json",
+    "uri": "/economy/inflationandpriceindices/timeseries/d7g7/mm23",
+    "transform": "level",
+    "round": 1,
+    "unit": "percent",
+    "label": "UK CPI annual rate",
+    "source_name": "ons",
+    "source_table": "MM23 consumer price inflation time series, D7G7",
+    "concept_authority": "ons",
+    "source_concept": "D7G7/MM23",
+    "country": "UK",
+    "valid_range": (-5.0, 25.0),
+    "release_calendar_url": "https://www.ons.gov.uk/releasecalendar",
+    "anchors": {
+        "2026-03": 3.3,
+        "2026-04": 2.8,
+        "2026-05": 2.8,
+        "2026-06": 2.6,
+    },
+    "candidate_anchors": {
+        "2026-03": 3.3,
+        "2026-04": 2.8,
+        "2026-05": 2.8,
+        "2026-06": 2.6,
+    },
+    "anchor_tolerance": 0.1,
+}
+_ONS_CLAIMANT_SPEC = {
+    "kind": "ons",
+    "series_id": "ons-bcjd-unem",
+    "source_file": "ONS v1 time-series JSON",
+    "extension": "json",
+    "uri": (
+        "/employmentandlabourmarket/peoplenotinwork/outofworkbenefits/"
+        "timeseries/bcjd/unem"
+    ),
+    "transform": "level",
+    "round": 1,
+    "unit": "thousands",
+    "label": "UK Claimant Count, people aged 16+, SA",
+    "source_name": "ons",
+    "source_table": "UNEM claimant count time series, BCJD",
+    "concept_authority": "ons",
+    "source_concept": "BCJD/UNEM",
+    "country": "UK",
+    "entity": {"name": "person", "role": "claimant"},
+    "valid_range": (0.0, 10000.0),
+    "release_calendar_url": "https://www.ons.gov.uk/releasecalendar",
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-03": 1694.3,
+        "2026-05": 1711.9,
+        "2026-06": 1688.6,
+    },
+    "anchor_tolerance": 0.1,
+    "first_print_window_days": 24,
+}
+_ONS_RETAIL_SPEC = {
+    "kind": "ons",
+    "series_id": "ons-j5ec-drsi",
+    "source_file": "ONS v1 time-series JSON",
+    "extension": "json",
+    "uri": (
+        "/businessindustryandtrade/retailindustry/timeseries/j5ec/drsi"
+    ),
+    "transform": "level",
+    "round": 1,
+    "unit": "percent_growth",
+    "label": "Great Britain retail sales volume, MoM (SA)",
+    "source_name": "ons",
+    "source_table": "DRSI retail sales index time series, J5EC",
+    "concept_authority": "ons",
+    "source_concept": "J5EC/DRSI",
+    "country": "UK",
+    "valid_range": (-30.0, 30.0),
+    "release_calendar_url": "https://www.ons.gov.uk/releasecalendar",
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-03": 0.7,
+        "2026-04": -1.3,
+        "2026-05": 1.2,
+        "2026-06": 1.0,
+    },
+    "anchor_tolerance": 0.1,
+    "first_print_window_days": 24,
+}
+_ONS_PSNB_SPEC = {
+    "kind": "ons",
+    "series_id": "ons-j5ii-pusf",
+    "source_file": "ONS v1 time-series JSON",
+    "extension": "json",
+    "uri": (
+        "/economy/governmentpublicsectorandtaxes/publicsectorfinance/"
+        "timeseries/j5ii/pusf"
+    ),
+    "transform": "level",
+    "scale": -0.001,
+    "round": 1,
+    "unit": "gbp_billions",
+    "label": "UK public sector net borrowing excluding public sector banks",
+    "source_name": "ons",
+    "source_table": "PUSF public sector finances time series, J5II",
+    "concept_authority": "ons",
+    "source_concept": "J5II/PUSF",
+    "country": "UK",
+    "valid_range": (-100.0, 300.0),
+    "release_calendar_url": "https://www.ons.gov.uk/releasecalendar",
+    "anchors": {},
+    "candidate_anchors": {
+        "2026-03": 12.6,
+        "2026-04": 24.3,
+        "2026-05": 23.3,
+        "2026-06": 16.0,
+    },
+    "anchor_tolerance": 0.1,
+    "first_print_window_days": 24,
 }
 _EUROSTAT_RETAIL_SPEC = {
     "kind": "eurostat_release",
@@ -1856,6 +2093,172 @@ _EUROSTAT_RETAIL_SPEC = {
     "anchors": {},
     "anchor_tolerance": 0.0,
 }
+
+
+def _install_intl_binding(
+    spec: dict[str, Any],
+    *,
+    adapter: str,
+    source_url: str,
+    source_series_id: str,
+    field: str,
+    operation: str,
+    factor: float = 1,
+) -> None:
+    spec["binding"] = {
+        "adapter": adapter,
+        "sourceUrl": source_url,
+        "sourceSeriesId": source_series_id,
+        "field": field,
+        "table": spec["source_table"],
+        "transform": {"operation": operation, "factor": factor},
+        "releasePolicy": "first_print",
+    }
+
+
+for _spec in (_STATCAN_CPI_SPEC,):
+    _install_intl_binding(
+        _spec,
+        adapter="statcan-wds",
+        source_url=STATCAN_WDS_LATEST,
+        source_series_id=f"v{_spec['vector']}",
+        field=f"v{_spec['vector']}",
+        operation="percent_change_year_ago",
+    )
+for _spec in (_STATCAN_GDP_SPEC,):
+    _install_intl_binding(
+        _spec,
+        adapter="statcan-wds",
+        source_url=STATCAN_WDS_LATEST,
+        source_series_id=f"v{_spec['vector']}",
+        field=f"v{_spec['vector']}",
+        operation="percent_change_previous_period",
+    )
+for _spec in (_STATCAN_EI_SPEC,):
+    _install_intl_binding(
+        _spec,
+        adapter="statcan-wds",
+        source_url=STATCAN_WDS_LATEST,
+        source_series_id=f"v{_spec['vector']}",
+        field=f"v{_spec['vector']}",
+        operation="multiply",
+        factor=0.001,
+    )
+for _spec in (_STATCAN_LFS_UR_SPEC,):
+    _install_intl_binding(
+        _spec,
+        adapter="statcan-wds",
+        source_url=STATCAN_WDS_LATEST,
+        source_series_id=f"v{_spec['vector']}",
+        field=f"v{_spec['vector']}",
+        operation="identity",
+    )
+for _spec in (_STATCAN_LFS_EMP_SPEC,):
+    _install_intl_binding(
+        _spec,
+        adapter="statcan-wds",
+        source_url=STATCAN_WDS_LATEST,
+        source_series_id=f"v{_spec['vector']}",
+        field=f"v{_spec['vector']}",
+        operation="difference_previous_period",
+    )
+
+for _spec in (_ABS_CPI_SPEC, _ABS_UR_SPEC):
+    _source_id = f"{_spec['flow']}/{_spec['key']}"
+    _install_intl_binding(
+        _spec,
+        adapter="abs-data-api",
+        source_url=ABS_DATA_URL.format(
+            flow=_spec["flow"],
+            key=_spec["key"],
+            last_n=_spec["latest_n"],
+        ),
+        source_series_id=_source_id,
+        field=_source_id,
+        operation="identity",
+    )
+_install_intl_binding(
+    _ABS_EMP_SPEC,
+    adapter="abs-data-api",
+    source_url=ABS_DATA_URL.format(
+        flow=_ABS_EMP_SPEC["flow"],
+        key=_ABS_EMP_SPEC["key"],
+        last_n=_ABS_EMP_SPEC["latest_n"],
+    ),
+    source_series_id=f"{_ABS_EMP_SPEC['flow']}/{_ABS_EMP_SPEC['key']}",
+    field=f"{_ABS_EMP_SPEC['flow']}/{_ABS_EMP_SPEC['key']}",
+    operation="difference_previous_period",
+)
+_install_intl_binding(
+    _ABS_BA_SPEC,
+    adapter="abs-release-page",
+    source_url=_ABS_BA_SPEC["live_url_template"],
+    source_series_id="building-approvals-australia.total-dwellings.sa",
+    field="Total dwellings approved, seasonally adjusted, monthly change",
+    operation="identity",
+)
+for _spec in (
+    _EUROSTAT_HICP_SPEC,
+    _EUROSTAT_UNEMP_SPEC,
+    _EUROSTAT_CONSTRUCTION_SPEC,
+):
+    _source_id = f"{_spec['dataset']}/{_spec['key']}"
+    _install_intl_binding(
+        _spec,
+        adapter="eurostat-api",
+        source_url=EUROSTAT_DATA_URL.format(
+            dataset=_spec["dataset"],
+            key=_spec["key"],
+            last_n=_spec["latest_n"],
+        ),
+        source_series_id=_source_id,
+        field=_source_id,
+        operation="identity",
+    )
+for _spec, _operation, _factor in (
+    (_ONS_CPI_SPEC, "identity", 1),
+    (_ONS_CLAIMANT_SPEC, "identity", 1),
+    (_ONS_RETAIL_SPEC, "identity", 1),
+    (_ONS_PSNB_SPEC, "multiply", -0.001),
+):
+    _source_id = _spec["source_concept"]
+    _install_intl_binding(
+        _spec,
+        adapter="ons-timeseries",
+        source_url=ONS_DATA_URL.format(uri=_spec["uri"]),
+        source_series_id=_source_id,
+        field=_source_id.split("/", 1)[0],
+        operation=_operation,
+        factor=_factor,
+    )
+
+# Network destinations are part of each adapter contract. The request helper
+# validates both the requested URL and the final URL after redirects.
+for _spec in (
+    _STATCAN_CPI_SPEC,
+    _STATCAN_GDP_SPEC,
+    _STATCAN_EI_SPEC,
+    _STATCAN_LFS_UR_SPEC,
+    _STATCAN_LFS_EMP_SPEC,
+):
+    _spec["allowed_hosts"] = ["www150.statcan.gc.ca"]
+for _spec in (_ABS_CPI_SPEC, _ABS_UR_SPEC, _ABS_EMP_SPEC):
+    _spec["allowed_hosts"] = ["data.api.abs.gov.au"]
+_ABS_BA_SPEC["allowed_hosts"] = ["www.abs.gov.au", "web.archive.org"]
+for _spec in (
+    _EUROSTAT_HICP_SPEC,
+    _EUROSTAT_UNEMP_SPEC,
+    _EUROSTAT_CONSTRUCTION_SPEC,
+):
+    _spec["allowed_hosts"] = ["ec.europa.eu"]
+_EUROSTAT_RETAIL_SPEC["allowed_hosts"] = ["ec.europa.eu", "web.archive.org"]
+for _spec in (
+    _ONS_CPI_SPEC,
+    _ONS_CLAIMANT_SPEC,
+    _ONS_RETAIL_SPEC,
+    _ONS_PSNB_SPEC,
+):
+    _spec["allowed_hosts"] = ["api.beta.ons.gov.uk"]
 
 USASPENDING_API_ROOT = "https://api.usaspending.gov/api/v2"
 
@@ -2392,7 +2795,7 @@ def snapshot_window_state(today: dt.date, window: Any) -> str:
     return "open"
 
 
-INTL_ADAPTERS: dict[str, dict[str, Any]] = {
+INTL_ADAPTER_CANDIDATES: dict[str, dict[str, Any]] = {
     # Canada (two CPI dataPointId dialects name the same fact)
     "statcan.cpi.all_items_annual_rate.canada": _STATCAN_CPI_SPEC,
     "statcan.cpi.allitems.yoy": _STATCAN_CPI_SPEC,
@@ -2401,256 +2804,569 @@ INTL_ADAPTERS: dict[str, dict[str, Any]] = {
         _STATCAN_GDP_SPEC
     ),
     "statcan.employment_insurance.regular_beneficiaries.canada": _STATCAN_EI_SPEC,
+    "statcan.employment_insurance.regular_beneficiaries": _STATCAN_EI_SPEC,
+    "statcan.lfs.unemployment_rate.canada": _STATCAN_LFS_UR_SPEC,
+    "statcan.lfs.employment_change.canada": _STATCAN_LFS_EMP_SPEC,
     # Australia (three CPI dialects: recorded wave, live-comparison, docket)
     "abs.cpi.all_groups_annual_rate.australia": _ABS_CPI_SPEC,
     "abs.cpi_indicator.allgroups.yoy": _ABS_CPI_SPEC,
     "abs.cpi.all_groups.yoy": _ABS_CPI_SPEC,
     "abs.labour.unemployment_rate.australia": _ABS_UR_SPEC,
+    "abs.labour.unemployment_rate": _ABS_UR_SPEC,
     "abs.labour.employment_change.australia": _ABS_EMP_SPEC,
     "abs.building_approvals.total_dwellings_mom.australia": _ABS_BA_SPEC,
-    # Japan
-    "statjp.cpi.tokyo_all_items_annual_rate": _STATJP_TOKYO_SPEC,
-    "statjp.lfs.unemployment_rate.japan": _STATJP_LFS_SPEC,
-    "statjp.household_spending.real_yoy.two_or_more_person_households": (
-        _STATJP_KAKEI_SPEC
-    ),
     # Euro area (two flash HICP dialects name the same fact)
     "eurostat.hicp.all_items_annual_rate.euro_area": _EUROSTAT_HICP_SPEC,
     "eurostat.ea.hicp.flash.yoy": _EUROSTAT_HICP_SPEC,
+    "eurostat.hicp.flash.yoy": _EUROSTAT_HICP_SPEC,
     "eurostat.unemployment_rate.euro_area": _EUROSTAT_UNEMP_SPEC,
+    "eurostat.unemployment_rate": _EUROSTAT_UNEMP_SPEC,
+    "eurostat.construction.production_index": _EUROSTAT_CONSTRUCTION_SPEC,
     "eurostat.retail_trade.volume_mom.euro_area": _EUROSTAT_RETAIL_SPEC,
+    # United Kingdom
+    "ons.cpi.annual_rate": _ONS_CPI_SPEC,
+    "ons.labour.claimant_count": _ONS_CLAIMANT_SPEC,
+    "ons.retail_sales.volume_mom": _ONS_RETAIL_SPEC,
+    "ons.pusf.j5ii.public_sector_net_borrowing_ex_banks": _ONS_PSNB_SPEC,
+}
+
+# Only pairs that reproduced at least three official first prints from real
+# captured payload bytes are executable. The remaining fully specified
+# candidates stay visible for audit and future admission once their immutable
+# release payloads are captured; they are deliberately not claimed.
+_INTL_ADMITTED_STEMS = {
+    "abs.cpi.all_groups_annual_rate.australia",
+    "abs.cpi.all_groups.yoy",
+    "abs.cpi_indicator.allgroups.yoy",
+    "abs.labour.unemployment_rate",
+    "abs.labour.unemployment_rate.australia",
+    "eurostat.ea.hicp.flash.yoy",
+    "eurostat.hicp.all_items_annual_rate.euro_area",
+    "eurostat.hicp.flash.yoy",
+    "statcan.36-10-0434-01.all_industries.month_to_month_percent_change",
+    "statcan.cpi.all_items_annual_rate.canada",
+    "statcan.cpi.allitems.yoy",
+    "statcan.gdp_by_industry.monthly_growth",
+}
+INTL_ADAPTERS: dict[str, dict[str, Any]] = {
+    stem: spec
+    for stem, spec in INTL_ADAPTER_CANDIDATES.items()
+    if stem in _INTL_ADMITTED_STEMS
+}
+INTL_BLOCKED_ADAPTERS: dict[str, dict[str, Any]] = {
+    stem: spec
+    for stem, spec in INTL_ADAPTER_CANDIDATES.items()
+    if stem not in _INTL_ADMITTED_STEMS
+}
+INTL_REGISTRY_ADAPTERS: dict[str, dict[str, Any]] = {
+    "abs.cpi.all_groups.yoy": _ABS_CPI_SPEC,
+    "abs.labour.unemployment_rate": _ABS_UR_SPEC,
+    "eurostat.hicp.flash.yoy": _EUROSTAT_HICP_SPEC,
+    "statcan.cpi.allitems.yoy": _STATCAN_CPI_SPEC,
+    "statcan.gdp_by_industry.monthly_growth": _STATCAN_GDP_SPEC,
+}
+
+# One legacy registration is safe to execute with a native parser even though
+# it predates the adapter enum: its immutable contract already pins the exact
+# ABS dataflow/key URL, field family, identity transform, unit, host set, and
+# first-print window. The complete contract and target hash are both checked,
+# so this is not a generic-url compatibility escape hatch. Other legacy
+# international registrations remain refused unless individually reviewed and
+# added here.
+LEGACY_INTL_EXECUTOR_CONTRACTS: dict[str, dict[str, Any]] = {
+    "cf3a2f76bb15d9f5eb9f5ae19d2e96b55111cf6842a1c8c8412b915ae614a85b": {
+        "catalogSlug": "australia-unemployment-rate-july-2026",
+        "country": "AU",
+        "dataPointId": (
+            "abs.labour.unemployment_rate.australia.july_2026.first_print"
+        ),
+        "period": "2026-07",
+        "series": "abs.labour.unemployment_rate",
+        "sourceBinding": {
+            "adapter": "generic-url",
+            "allowedHosts": ["data.api.abs.gov.au", "www.abs.gov.au"],
+            "expectedReleaseWindow": {
+                "end": "2026-08-27",
+                "start": "2026-08-19",
+            },
+            "field": "M13",
+            "releasePolicy": "first_print",
+            "sourceSeriesId": "LF/M13.3.1599.20.AUS.M",
+            "sourceUrl": (
+                "https://data.api.abs.gov.au/rest/data/"
+                "LF/M13.3.1599.20.AUS.M?format=jsondata"
+            ),
+            "table": (
+                "Labour Force, Australia (dataflow LF): unemployment rate, "
+                "persons, seasonally adjusted; first print captured on "
+                "release day"
+            ),
+            "transform": {"factor": 1, "operation": "multiply"},
+        },
+        "unit": "percent",
+        "valueScale": 1,
+    },
 }
 
 
-def http_get(url: str, timeout: int = 120) -> tuple[bytes, str]:
-    """Fetch raw bytes with the resolver UA; returns (bytes, retrievedAt)."""
-    request = urllib.request.Request(url, headers={"User-Agent": INTL_USER_AGENT})
+def longest_adapter_stem(
+    ref: str, adapters: dict[str, dict[str, Any]]
+) -> str | None:
+    """Return the most-specific matching stem, independent of dict order."""
+    matches = [stem for stem in adapters if ref.startswith(stem + ".")]
+    return max(matches, key=len, default=None)
+
+
+INTL_BINDING_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+
+
+def intl_binding_template(spec: dict[str, Any]) -> dict[str, Any]:
+    """The byte-significant seven-key registry template for an adapter."""
+    binding = spec.get("binding")
+    if not isinstance(binding, dict) or set(binding) != INTL_BINDING_KEYS:
+        raise ValueError(
+            f"{spec.get('series_id', 'international adapter')} has no exact "
+            "seven-key registry binding"
+        )
+    return binding
+
+
+def intl_binding_mismatches(
+    spec: dict[str, Any], binding: dict[str, Any]
+) -> list[str]:
+    """Return registry/adapter drift before any source request is made."""
+    try:
+        expected = intl_binding_template(spec)
+    except ValueError:
+        return ["adapterTemplate"]
+    mismatches = [
+        key
+        for key in sorted(INTL_BINDING_KEYS)
+        if binding.get(key) != expected[key]
+    ]
+    allowed = set(binding.get("allowedHosts") or [])
+    if not set(spec["allowed_hosts"]).issubset(allowed):
+        mismatches.append("allowedHosts")
+    return mismatches
+
+
+def intl_execution_spec(
+    registration: dict[str, Any], spec: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Return a native execution spec for an exact current or legacy contract.
+
+    Current registrations must byte-match the committed seven-key adapter
+    template. A legacy registration is executable only when both its canonical
+    content hash and its complete contract match a reviewed fingerprint.
+    """
+    contract = registration.get("contract")
+    if not isinstance(contract, dict):
+        return None
+    binding = contract.get("sourceBinding")
+    if not isinstance(binding, dict):
+        return None
+    # A matching seven-key binding is not enough on its own: the immutable
+    # contract must also name the canonical registry series for this exact
+    # parser spec. Otherwise an unrelated target could borrow a valid binding
+    # and be resolved by the wrong series implementation.
+    registry_spec = INTL_REGISTRY_ADAPTERS.get(str(contract.get("series")))
+    if registry_spec is not spec:
+        return None
+    if not intl_binding_mismatches(spec, binding):
+        return {**spec, "target_series": contract.get("series")}
+
+    content_hash = registration.get("targetContentHash")
+    legacy_contract = LEGACY_INTL_EXECUTOR_CONTRACTS.get(str(content_hash))
+    if (
+        legacy_contract is None
+        or contract != legacy_contract
+        or spec.get("series_id") != _ABS_UR_SPEC["series_id"]
+    ):
+        return None
+    return {
+        **spec,
+        "target_series": contract["series"],
+        "request_url": binding["sourceUrl"],
+        "allowed_hosts": tuple(binding["allowedHosts"]),
+        "legacy_target_content_hash": content_hash,
+    }
+
+
+def adapter_unit_matches(
+    spec: dict[str, Any], forecast_entry: dict[str, Any] | None
+) -> bool:
+    unit = (forecast_entry or {}).get("unit")
+    return unit == spec["unit"]
+
+
+def intl_value_valid(spec: dict[str, Any], value: float) -> bool:
+    """Schema/unit-scale gate independent of the forecast being scored."""
+    if not math.isfinite(value):
+        return False
+    lower, upper = spec.get("valid_range", (-math.inf, math.inf))
+    return lower <= value <= upper
+
+
+def _url_host(url: str) -> str:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme.lower() != "https":
+        raise ValueError(f"source URL must use HTTPS: {url!r}")
+    host = (parsed.hostname or "").lower()
+    if not host:
+        raise ValueError(f"source URL has no host: {url!r}")
+    return host
+
+
+def _require_allowed_host(url: str, allowed_hosts: list[str] | tuple[str, ...]) -> None:
+    host = _url_host(url)
+    if host not in allowed_hosts:
+        raise ValueError(
+            f"source host {host!r} is not in adapter allowlist "
+            f"{sorted(allowed_hosts)!r}"
+        )
+
+
+class _PinnedRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Validate every redirect destination before urllib connects to it."""
+
+    def __init__(self, allowed_hosts: list[str] | tuple[str, ...]) -> None:
+        super().__init__()
+        self.allowed_hosts = allowed_hosts
+
+    def redirect_request(
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> urllib.request.Request | None:
+        _require_allowed_host(newurl, self.allowed_hosts)
+        return super().redirect_request(
+            req, fp, code, msg, headers, newurl
+        )
+
+
+def http_request(
+    request: urllib.request.Request,
+    *,
+    allowed_hosts: list[str] | tuple[str, ...],
+    timeout: int = 120,
+) -> tuple[bytes, str, str]:
+    """Fetch raw bytes while pinning both request and redirect destinations."""
+    _require_allowed_host(request.full_url, allowed_hosts)
     retrieved_at = utc_now()
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return response.read(), retrieved_at
+    opener = urllib.request.build_opener(
+        _PinnedRedirectHandler(allowed_hosts)
+    )
+    with opener.open(request, timeout=timeout) as response:
+        final_url = response.geturl()
+        _require_allowed_host(final_url, allowed_hosts)
+        return response.read(), retrieved_at, final_url
 
 
-def fetch_first(urls: list[str]) -> tuple[bytes, str, str]:
+def http_get(
+    url: str,
+    *,
+    allowed_hosts: list[str] | tuple[str, ...],
+    timeout: int = 120,
+) -> tuple[bytes, str, str]:
+    """Fetch raw bytes with the resolver UA and a pinned host allowlist."""
+    request = urllib.request.Request(url, headers={"User-Agent": INTL_USER_AGENT})
+    return http_request(request, allowed_hosts=allowed_hosts, timeout=timeout)
+
+
+def fetch_first(
+    urls: list[str], *, allowed_hosts: list[str] | tuple[str, ...]
+) -> tuple[bytes, str, str]:
     """Try pinned URLs in order; returns (bytes, url, retrievedAt)."""
     last_error: Exception | None = None
     for url in urls:
         try:
-            raw, retrieved_at = http_get(url)
-            return raw, url, retrieved_at
+            raw, retrieved_at, final_url = http_get(
+                url, allowed_hosts=allowed_hosts
+            )
+            return raw, final_url, retrieved_at
         except Exception as exc:  # noqa: BLE001 - next pin is the fallback
             last_error = exc
     raise RuntimeError(f"all pinned URLs failed (last: {last_error})")
 
 
-def statcan_series(vector: int) -> tuple[dict[str, float], bytes, str, str]:
-    """StatCan WDS values keyed YYYY-MM (range covers YoY-12 + anchors)."""
-    today = dt.date.today()
-    url = STATCAN_WDS_RANGE.format(
-        vector=vector,
-        start=f"{today.year - 3}-01-01",
-        end=today.isoformat(),
-    )
-    raw, retrieved_at = http_get(url)
+def statcan_series_from_payload(raw: bytes, vector: int) -> dict[str, float]:
+    """Parse one vector from a StatCan latest-N WDS JSON response."""
     payload = json.loads(raw.decode())
-    if not payload or payload[0].get("status") != "SUCCESS":
+    if (
+        not isinstance(payload, list)
+        or len(payload) != 1
+        or payload[0].get("status") != "SUCCESS"
+    ):
         raise ValueError(f"WDS status not SUCCESS for vector {vector}")
-    points = payload[0]["object"]["vectorDataPoint"]
-    series = {
+    response_object = payload[0].get("object")
+    if (
+        not isinstance(response_object, dict)
+        or response_object.get("vectorId") != vector
+    ):
+        got = (
+            response_object.get("vectorId")
+            if isinstance(response_object, dict)
+            else None
+        )
+        raise ValueError(
+            f"WDS returned vector {got!r}, expected {vector}"
+        )
+    points = response_object.get("vectorDataPoint")
+    if not isinstance(points, list):
+        raise ValueError(f"WDS vector {vector} has no data points")
+    return {
         str(p["refPer"])[:7]: float(p["value"])
         for p in points
-        if p.get("value") is not None
+        if isinstance(p, dict) and p.get("value") is not None
     }
-    return series, raw, url, retrieved_at
 
 
-def abs_series(flow: str, key: str) -> tuple[dict[str, float], bytes, str, str]:
-    """ABS Data API (SDMX-JSON 2.0) single-series values keyed YYYY-MM."""
-    url = ABS_DATA_URL.format(flow=flow, key=key, last_n=30)
-    raw, retrieved_at = http_get(url)
+def statcan_series(
+    vector: int,
+    *,
+    latest_n: int,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> tuple[dict[str, float], bytes, str, str]:
+    """StatCan WDS latest-N POST; archive its vector-identifying response."""
+    body = json.dumps(
+        [{"vectorId": int(vector), "latestN": int(latest_n)}],
+        separators=(",", ":"),
+    ).encode()
+    request = urllib.request.Request(
+        STATCAN_WDS_LATEST,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": INTL_USER_AGENT,
+        },
+        method="POST",
+    )
+    raw, retrieved_at, url = http_request(
+        request, allowed_hosts=allowed_hosts
+    )
+    return statcan_series_from_payload(raw, vector), raw, url, retrieved_at
+
+
+def normalize_sdmx_period(period: str) -> str:
+    """Normalize monthly/quarterly SDMX periods to the ledger's YYYY-MM key."""
+    quarter = re.fullmatch(r"(\d{4})-Q([1-4])", period)
+    if quarter:
+        return (
+            f"{quarter.group(1)}-"
+            f"{(int(quarter.group(2)) - 1) * 3 + 1:02d}"
+        )
+    if re.fullmatch(r"\d{4}-\d{2}", period):
+        return period
+    raise ValueError(f"unsupported SDMX period {period!r}")
+
+
+def abs_series_from_payload(raw: bytes, flow: str, key: str) -> dict[str, float]:
+    """Parse one ABS SDMX-JSON 2.0 series."""
     payload = json.loads(raw.decode())
     data = payload["data"]
     structure = data["structures"][0]
-    times = [
-        v["id"]
-        for dim in structure["dimensions"]["observation"]
-        if dim["id"] == "TIME_PERIOD"
-        for v in dim["values"]
-    ]
-    all_series = data["dataSets"][0]["series"]
+    data_sets = data.get("dataSets")
+    if not isinstance(data_sets, list) or len(data_sets) != 1:
+        raise ValueError(f"ABS key {flow}/{key}: response has no single dataset")
+    dataset = data_sets[0]
+    links = dataset.get("links") or []
+    expected_urn_part = f"DataStructure=ABS:{flow}("
+    if not any(
+        expected_urn_part in str(link.get("urn") or "")
+        for link in links
+        if isinstance(link, dict)
+    ):
+        raise ValueError(f"ABS response is not dataflow {flow}")
+    all_series = dataset.get("series")
+    if not isinstance(all_series, dict):
+        raise ValueError(f"ABS key {flow}/{key}: response has no series map")
     if len(all_series) != 1:
         raise ValueError(f"ABS key {flow}/{key} matched {len(all_series)} series")
-    observations = next(iter(all_series.values()))["observations"]
-    series = {
-        times[int(index)]: float(values[0])
+    series_index, series_payload = next(iter(all_series.items()))
+    series_dimensions = structure["dimensions"].get("series")
+    indexes = series_index.split(":")
+    if (
+        not isinstance(series_dimensions, list)
+        or len(series_dimensions) != len(indexes)
+    ):
+        raise ValueError(f"ABS key {flow}/{key}: series dimensions drifted")
+    actual_key_parts: list[str] = []
+    for dimension, index in zip(series_dimensions, indexes, strict=True):
+        values = dimension.get("values")
+        try:
+            actual_key_parts.append(str(values[int(index)]["id"]))
+        except (IndexError, KeyError, TypeError, ValueError) as exc:
+            raise ValueError(
+                f"ABS key {flow}/{key}: invalid series dimension index"
+            ) from exc
+    actual_key = ".".join(actual_key_parts)
+    if actual_key != key:
+        raise ValueError(
+            f"ABS returned key {actual_key!r}, expected {key!r}"
+        )
+    time_dimensions = [
+        dim
+        for dim in structure["dimensions"].get("observation") or []
+        if dim.get("id") == "TIME_PERIOD"
+    ]
+    if len(time_dimensions) != 1:
+        raise ValueError(f"ABS key {flow}/{key}: TIME_PERIOD dimension drifted")
+    times = [value["id"] for value in time_dimensions[0]["values"]]
+    observations = series_payload["observations"]
+    return {
+        normalize_sdmx_period(times[int(index)]): float(values[0])
         for index, values in observations.items()
         if values and values[0] is not None
     }
-    return series, raw, url, retrieved_at
 
 
-def eurostat_series(
-    dataset: str, key: str
-) -> tuple[dict[str, float], dict[str, str], bytes, str, str]:
-    """Eurostat JSON-stat values + per-period status flags, keyed YYYY-MM."""
-    today = dt.date.today()
-    url = EUROSTAT_DATA_URL.format(
-        dataset=dataset, key=key, start=f"{today.year - 2}-{today.month:02d}"
+def abs_series(
+    flow: str,
+    key: str,
+    *,
+    latest_n: int,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> tuple[dict[str, float], bytes, str, str]:
+    """ABS Data API (SDMX-JSON 2.0) single-series values."""
+    url = ABS_DATA_URL.format(flow=flow, key=key, last_n=latest_n)
+    raw, retrieved_at, final_url = http_get(
+        url, allowed_hosts=allowed_hosts
     )
-    raw, retrieved_at = http_get(url)
+    series = abs_series_from_payload(raw, flow, key)
+    return series, raw, final_url, retrieved_at
+
+
+def eurostat_series_from_payload(
+    raw: bytes, dataset: str, key: str
+) -> tuple[dict[str, float], dict[str, str]]:
+    """Parse Eurostat JSON-stat values and per-period status flags."""
     payload = json.loads(raw.decode())
     if "dimension" not in payload:
         raise ValueError(f"eurostat {dataset}/{key}: {str(payload)[:160]}")
+    extension = payload.get("extension")
+    response_dataset = (
+        extension.get("id") if isinstance(extension, dict) else None
+    )
+    if str(response_dataset or "").lower() != dataset.lower():
+        raise ValueError(
+            f"Eurostat returned dataset {response_dataset!r}, "
+            f"expected {dataset!r}"
+        )
+    dimension_ids = payload.get("id")
+    if not isinstance(dimension_ids, list) or "time" not in dimension_ids:
+        raise ValueError(f"Eurostat {dataset}/{key}: dimension ids drifted")
+    series_dimension_ids = [
+        dimension_id
+        for dimension_id in dimension_ids
+        if dimension_id != "time"
+    ]
+    key_parts = key.split(".")
+    if len(series_dimension_ids) != len(key_parts):
+        raise ValueError(f"Eurostat {dataset}/{key}: key shape drifted")
+    for dimension_id, expected in zip(
+        series_dimension_ids, key_parts, strict=True
+    ):
+        index = (
+            payload["dimension"]
+            .get(dimension_id, {})
+            .get("category", {})
+            .get("index")
+        )
+        if not isinstance(index, dict) or set(index) != {expected}:
+            actual = sorted(index) if isinstance(index, dict) else index
+            raise ValueError(
+                f"Eurostat {dataset}/{key}: dimension {dimension_id} "
+                f"is {actual!r}, expected {[expected]!r}"
+            )
     index_to_period = {
         v: k for k, v in payload["dimension"]["time"]["category"]["index"].items()
     }
     series = {
-        index_to_period[int(flat)]: float(value)
+        normalize_sdmx_period(index_to_period[int(flat)]): float(value)
         for flat, value in payload["value"].items()
     }
     status = payload.get("status")
     flags: dict[str, str] = {}
     if isinstance(status, dict):
         flags = {
-            index_to_period[int(flat)]: str(flag)
+            normalize_sdmx_period(index_to_period[int(flat)]): str(flag)
             for flat, flag in status.items()
             if int(flat) in index_to_period
         }
-    return series, flags, raw, url, retrieved_at
+    return series, flags
 
 
-def estat_xlsx_index_series(raw: bytes) -> dict[str, float]:
-    """All-items index by YYYY-MM from an e-Stat CPI table 1-x workbook.
+def eurostat_series(
+    dataset: str,
+    key: str,
+    *,
+    latest_n: int,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> tuple[dict[str, float], dict[str, str], bytes, str, str]:
+    """Eurostat dissemination API JSON-stat values and status flags."""
+    url = EUROSTAT_DATA_URL.format(
+        dataset=dataset, key=key, last_n=latest_n
+    )
+    raw, retrieved_at, final_url = http_get(
+        url, allowed_hosts=allowed_hosts
+    )
+    series, flags = eurostat_series_from_payload(raw, dataset, key)
+    return series, flags, raw, final_url, retrieved_at
 
-    Cells map by column letter (recent rows are sparse, so document order
-    lies); the all-items column is the one whose header row carries item
-    code 0001.
-    """
-    import zipfile
-    from xml.etree import ElementTree
 
-    ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
-    archive = zipfile.ZipFile(io.BytesIO(raw))
-    shared: list[str] = []
-    for item in ElementTree.fromstring(
-        archive.read("xl/sharedStrings.xml")
-    ).iter(f"{ns}si"):
-        shared.append("".join(t.text or "" for t in item.iter(f"{ns}t")))
-    rows: list[dict[str, str]] = []
-    for row in ElementTree.fromstring(
-        archive.read("xl/worksheets/sheet1.xml")
-    ).iter(f"{ns}row"):
-        cells: dict[str, str] = {}
-        for cell in row.iter(f"{ns}c"):
-            value = cell.find(f"{ns}v")
-            column = re.match(r"([A-Z]+)", cell.get("r", ""))
-            if value is None or column is None:
-                continue
-            cells[column.group(1)] = (
-                shared[int(value.text)] if cell.get("t") == "s" else value.text
-            )
-        rows.append(cells)
-    code_row = next(r for r in rows if any(v == "0001" for v in r.values()))
-    items_column = next(c for c, v in code_row.items() if v == "0001")
+def ons_series_from_payload(raw: bytes, series_id: str) -> dict[str, float]:
+    """Parse the monthly observations returned by the keyless ONS v1 API."""
+    payload = json.loads(raw.decode())
+    months = payload.get("months")
+    if not isinstance(months, list):
+        raise ValueError(f"ONS {series_id}: response has no months array")
     series: dict[str, float] = {}
-    for row in rows:
-        month = next(
-            (
-                v.strip()
-                for v in row.values()
-                if isinstance(v, str) and re.fullmatch(r"(19|20)\d{4}\s*", v)
-            ),
-            None,
-        )
-        if month and items_column in row:
-            try:
-                series[f"{month[:4]}-{month[4:6]}"] = float(row[items_column])
-            except ValueError:
-                continue
+    for point in months:
+        if not isinstance(point, dict):
+            continue
+        date_label = str(point.get("date") or "").strip().upper()
+        match = re.fullmatch(r"(\d{4}) ([A-Z]{3})", date_label)
+        if (
+            not match
+            or match.group(2).lower() not in MONTH_ABBREVIATION_NUMBERS
+        ):
+            continue
+        raw_value = point.get("value")
+        if raw_value in (None, "", ".."):
+            continue
+        series[
+            f"{match.group(1)}-"
+            f"{MONTH_ABBREVIATION_NUMBERS[match.group(2).lower()]:02d}"
+        ] = float(str(raw_value).replace(",", ""))
+    if not series:
+        raise ValueError(f"ONS {series_id}: no numeric monthly observations")
     return series
 
 
-def decode_jp(raw: bytes) -> str:
-    for encoding in ("shift_jis", "cp932", "utf-8"):
-        try:
-            return raw.decode(encoding)
-        except UnicodeDecodeError:
-            continue
-    return raw.decode("shift_jis", errors="replace")
-
-
-def _jp_month_labels(text: str) -> list[str]:
-    """YYYY-MM labels for a stat.go.jp monthly table header segment.
-
-    Headers run like '2026年2月 3月 4月 5月': bare months inherit the last
-    seen year.
-    """
-    labels: list[str] = []
-    year = None
-    for match in re.finditer(r"(\d{4})年(\d{1,2})月|(?<![年\d])(\d{1,2})月", text):
-        if match.group(1):
-            year = int(match.group(1))
-            labels.append(f"{year}-{int(match.group(2)):02d}")
-        elif year is not None:
-            labels.append(f"{year}-{int(match.group(3)):02d}")
-    return labels
-
-
-def jp_lfs_unemployment_series(raw: bytes) -> dict[str, float]:
-    """SA unemployment rates by month from the LFS monthly summary page."""
-    text = re.sub(r"<[^>]+>", " ", decode_jp(raw))
-    text = text.replace("&nbsp;", " ").replace("&#160;", " ")
-    text = re.sub(r"[\s　]+", " ", text)
-    segment = re.search(
-        r"月次（季節調整値）(.{0,240}?)完全失業率((?:\s*[\d.]+%)+)", text
+def ons_series(
+    uri: str,
+    series_id: str,
+    *,
+    allowed_hosts: list[str] | tuple[str, ...],
+) -> tuple[dict[str, float], bytes, str, str]:
+    """Fetch one keyless ONS v1 time-series JSON document."""
+    url = ONS_DATA_URL.format(uri=uri)
+    raw, retrieved_at, final_url = http_get(
+        url, allowed_hosts=allowed_hosts
     )
-    if not segment:
-        raise ValueError("LFS page: SA table not found")
-    labels = _jp_month_labels(segment.group(1))
-    values = [float(v) for v in re.findall(r"([\d.]+)%", segment.group(2))]
-    # The value row leads with calendar-year averages (one per bare year
-    # label); the monthly values are the trailing ones matching the month
-    # labels.
-    if len(values) < len(labels):
-        raise ValueError("LFS page: fewer rate values than month labels")
-    return dict(zip(labels, values[len(values) - len(labels) :]))
-
-
-def jp_kakei_real_yoy_series(raw: bytes) -> dict[str, float]:
-    """Real YoY spending changes (two-or-more-person households) by month."""
-    text = re.sub(r"<[^>]+>", "|", decode_jp(raw))
-    text = text.replace("&nbsp;", " ").replace("&#160;", " ")
-    text = re.sub(r"[ \t　]+", " ", text)
-    flat = re.sub(r"[|\s]+", " ", text)
-    header = re.search(r"月次（前年同月比(.{0,200}?)【二人以上の世帯】", flat)
-    if not header:
-        raise ValueError("kakei page: monthly header not found")
-    labels = _jp_month_labels(header.group(1))
-    row = re.search(
-        r"【二人以上の世帯】\s*消費支出（実質）(.*?)(?:≪|実収入|【単身世帯】)",
-        flat,
-    )
-    if not row:
-        raise ValueError("kakei page: real consumption row not found")
-    # YoY values are the bare numbers; bracketed 【..】 values are the MoM
-    # SA series and are dropped. ▲ marks negatives.
-    yoy: list[float] = []
-    for token in re.finditer(r"(【[^】]*】)|(▲?\d+(?:\.\d+)?)", row.group(1)):
-        if token.group(1):
-            continue
-        yoy.append(float(token.group(2).replace("▲", "-")))
-    # The row leads with calendar-year averages; monthly values trail.
-    if len(yoy) < len(labels):
-        raise ValueError("kakei page: fewer YoY values than month labels")
-    return dict(zip(labels, yoy[len(yoy) - len(labels) :]))
-
-
-def jp_page_reference_period(raw: bytes) -> str | None:
-    """The page's own printed reference month ('2026年(令和8年)5月分')."""
-    text = re.sub(r"[\s　]+", "", decode_jp(raw))
-    match = re.search(r"(\d{4})年（令和\d+年）(\d{1,2})月分", text)
-    if not match:
-        return None
-    return f"{match.group(1)}-{int(match.group(2)):02d}"
+    return ons_series_from_payload(raw, series_id), raw, final_url, retrieved_at
 
 
 MONTH_NAMES = {number: name.capitalize() for name, number in MONTH_NUMBERS.items()}
@@ -2692,19 +3408,19 @@ def abs_ba_headline(raw: bytes, period: str) -> float | None:
 def intl_transformed_value(
     spec: dict[str, Any], series: dict[str, float], period: str
 ) -> float | None:
-    """Apply the spec's transform at `period` over a YYYY-MM keyed series."""
+    """Apply the spec's transform over normalized monthly/quarterly keys."""
     transform = spec.get("transform", "level")
     if period not in series:
         return None
     if transform == "level":
         value = series[period]
     elif transform == "mom_diff":
-        prior = prior_period_date(period, "month")
+        prior = prior_period_date(period, spec.get("period_type", "month"))
         if prior not in series:
             return None
         value = series[period] - series[prior]
     elif transform == "mom_pct":
-        prior = prior_period_date(period, "month")
+        prior = prior_period_date(period, spec.get("period_type", "month"))
         if prior not in series or not series[prior]:
             return None
         value = (series[period] / series[prior] - 1) * 100
@@ -2756,7 +3472,8 @@ def flash_vintage_missing(
     flash value on the same endpoint; resolving past that point would record
     the final as if it were the flash first print.
     """
-    return bool(spec.get("require_flag")) and period not in flags
+    accepted = set(spec.get("accepted_flags") or ("e", "p"))
+    return bool(spec.get("require_flag")) and flags.get(period) not in accepted
 
 
 def intl_fetch(
@@ -2774,31 +3491,62 @@ def intl_fetch(
     if kind == "statcan":
         cache_key = ("statcan", spec["vector"])
         if cache_key not in cache:
-            series, raw, url, retrieved_at = statcan_series(spec["vector"])
+            series, raw, url, retrieved_at = statcan_series(
+                spec["vector"],
+                latest_n=spec.get("latest_n", 36),
+                allowed_hosts=spec["allowed_hosts"],
+            )
             cache[cache_key] = (series, {}, raw, url, retrieved_at)
     elif kind == "abs":
-        cache_key = ("abs", spec["flow"], spec["key"])
+        request_url = spec.get("request_url")
+        cache_key = ("abs", spec["flow"], spec["key"], request_url)
         if cache_key not in cache:
-            series, raw, url, retrieved_at = abs_series(spec["flow"], spec["key"])
+            if request_url:
+                raw, retrieved_at, url = http_get(
+                    str(request_url), allowed_hosts=spec["allowed_hosts"]
+                )
+                series = abs_series_from_payload(
+                    raw, spec["flow"], spec["key"]
+                )
+            else:
+                series, raw, url, retrieved_at = abs_series(
+                    spec["flow"],
+                    spec["key"],
+                    latest_n=spec.get("latest_n", 30),
+                    allowed_hosts=spec["allowed_hosts"],
+                )
             cache[cache_key] = (series, {}, raw, url, retrieved_at)
     elif kind == "eurostat":
         cache_key = ("eurostat", spec["dataset"], spec["key"])
         if cache_key not in cache:
             series, flags, raw, url, retrieved_at = eurostat_series(
-                spec["dataset"], spec["key"]
+                spec["dataset"],
+                spec["key"],
+                latest_n=spec.get("latest_n", 36),
+                allowed_hosts=spec["allowed_hosts"],
             )
             cache[cache_key] = (series, flags, raw, url, retrieved_at)
-    elif kind in ("estat_xlsx", "jp_lfs_page", "jp_kakei_page",
-                  "eurostat_release", "abs_ba_release"):
-        # JP release pages replace their content monthly with no interim
-        # revision, so the live page is tried first (this is how future
-        # months resolve on release day without a new pin) and the parse's
-        # own reference-month check rejects a rolled-over or stale page.
-        # Snapshot-only kinds (approvals' two-release cycle, retail's
-        # numbered release slugs) resolve exclusively from pinned URLs.
-        urls = list(spec.get("live_urls") or []) + list(
-            spec["snapshots"].get(period) or []
-        )
+    elif kind == "ons":
+        cache_key = ("ons", spec["uri"])
+        if cache_key not in cache:
+            series, raw, url, retrieved_at = ons_series(
+                spec["uri"],
+                spec["series_id"],
+                allowed_hosts=spec["allowed_hosts"],
+            )
+            cache[cache_key] = (series, {}, raw, url, retrieved_at)
+    elif kind in ("eurostat_release", "abs_ba_release"):
+        # Approvals' two-release cycle and retail's numbered release slugs
+        # resolve exclusively from pinned URLs.
+        urls: list[str] = []
+        if spec.get("live_url_template"):
+            month = dt.date.fromisoformat(f"{period}-01")
+            urls.append(
+                spec["live_url_template"].format(
+                    period_slug=month.strftime("%b-%Y").lower()
+                )
+            )
+        urls.extend(spec["snapshots"].get(period) or [])
         if not urls:
             raise LookupError(f"no pinned artifact registered for {period}")
         cache_key = (kind, spec["series_id"], period)
@@ -2806,34 +3554,22 @@ def intl_fetch(
             failures: list[str] = []
             for url in urls:
                 try:
-                    raw, retrieved_at = http_get(url)
-                    if kind == "estat_xlsx":
-                        series = estat_xlsx_index_series(raw)
-                        # The workbook is one release vintage; its newest
-                        # month must be the target, else wrong vintage.
-                        if not series or max(series) != period:
-                            raise ValueError(
-                                f"workbook's latest month is not {period}"
-                            )
-                    elif kind in ("jp_lfs_page", "jp_kakei_page"):
-                        reference = jp_page_reference_period(raw)
-                        if reference != period:
-                            raise ValueError(
-                                f"page reference month {reference} is not "
-                                f"the target {period}"
-                            )
-                        series = (
-                            jp_lfs_unemployment_series(raw)
-                            if kind == "jp_lfs_page"
-                            else jp_kakei_real_yoy_series(raw)
-                        )
-                    elif kind == "eurostat_release":
+                    raw, retrieved_at, final_url = http_get(
+                        url, allowed_hosts=spec["allowed_hosts"]
+                    )
+                    if kind == "eurostat_release":
                         value = eurostat_retail_headline(raw, period)
                         series = {} if value is None else {period: value}
                     else:
                         value = abs_ba_headline(raw, period)
                         series = {} if value is None else {period: value}
-                    cache[cache_key] = (series, {}, raw, url, retrieved_at)
+                    cache[cache_key] = (
+                        series,
+                        {},
+                        raw,
+                        final_url,
+                        retrieved_at,
+                    )
                     break
                 except Exception as exc:  # noqa: BLE001 - try the next pin
                     failures.append(f"{url}: {exc}")
@@ -2865,7 +3601,7 @@ def parse_ref_period(ref: str, stem: str) -> tuple[str, str] | None:
     # Registration canonicalizes a bare YYYY-MM target period to YYYY_MM.
     # Keep accepting older hyphenated IDs as well.
     m = re.fullmatch(r"(\d{4})[-_](\d{2})", tail)
-    if m:
+    if m and 1 <= int(m.group(2)) <= 12:
         return "month", f"{m.group(1)}-{m.group(2)}"
     m = re.fullmatch(r"q([1-4])_(\d{4})", tail)
     if m:
@@ -2953,6 +3689,12 @@ def generic_fact(
     source_url: str,
     source_file: str,
 ) -> dict:
+    source_periods = [period]
+    transform = spec.get("transform", "level")
+    if transform in {"mom_diff", "mom_pct"}:
+        source_periods.append(prior_period_date(period, period_type))
+    elif transform == "yoy_from_index":
+        source_periods.append(f"{int(period[:4]) - 1}-{period[5:7]}")
     return {
         "source_record_id": ref,
         "label": f"{spec['label']}, {period}",
@@ -2964,6 +3706,7 @@ def generic_fact(
         "entity": spec.get("entity", {"name": "economy", "role": "aggregate"}),
         "measure": {
             "concept": spec.get("measure_concept")
+            or spec.get("target_series")
             or re.sub(
                 r"\.(first_print|registered_query_snapshot|flash|preliminary)$",
                 "",
@@ -2994,7 +3737,9 @@ def generic_fact(
                 "(anchor-verified adapter)"
             ),
         },
-        "source_row_keys": [period],
+        # Derived changes consume both observations; preserve that lineage
+        # instead of pretending the target month's row alone produced them.
+        "source_row_keys": source_periods,
         "source_cell_keys": [spec.get("fred", spec.get("source_concept", ""))],
     }
 
@@ -3402,22 +4147,20 @@ def pending_adapter_refs(
         release_date = str(forecast.get("resolutionDate") or "")
         if not release_date:
             continue
-        intl_stem = next(
-            (
-                stem
-                for stem in INTL_ADAPTERS
-                if ref.startswith(stem + ".")
-            ),
-            None,
-        )
+        intl_stem = longest_adapter_stem(ref, INTL_ADAPTERS)
         if intl_stem:
             parsed = parse_ref_period(ref, intl_stem)
-            if parsed and parsed[0] == "month":
+            spec = INTL_ADAPTERS[intl_stem]
+            if parsed and parsed[0] == spec.get("period_type", "month"):
                 out.append(
                     (
                         ref,
                         "intl",
-                        INTL_ADAPTERS[intl_stem],
+                        {
+                            **spec,
+                            "period_type": parsed[0],
+                            "target_series": intl_stem,
+                        },
                         parsed[0],
                         parsed[1],
                         release_date,
@@ -5090,6 +5833,11 @@ def main() -> int:
     qcew_contracts: dict[str, dict[str, Any]] | None = None
     a19_cache: dict[str, tuple[dict[str, float], bytes | None, str, str]] = {}
     intl_cache: dict[Any, tuple] = {}
+    # International requests are checked against the immutable registered
+    # contract before any network call. Existing registrations whose source
+    # templates predate a native adapter fail closed and require a future
+    # registration rather than silently changing source semantics.
+    target_contracts = registration_contracts()
     # CMS provider-data: one metastore read per dataset item and one CSV
     # download per distribution URL, shared across cells on the same file.
     cms_metastore_cache: dict[str, tuple[str, str, str] | None] = {}
@@ -5106,7 +5854,7 @@ def main() -> int:
             print(f"  release {release_day} not reached: {ref}")
             continue
         unit = (forecast or {}).get("unit")
-        if unit and unit != spec["unit"]:
+        if not adapter_unit_matches(spec, forecast):
             print(
                 f"  UNIT MISMATCH (refusing): {ref} cell={unit!r} "
                 f"adapter={spec['unit']!r}"
@@ -5120,20 +5868,47 @@ def main() -> int:
             )
             continue
         if kind == "intl":
-            hold_reason = INTL_RESOLUTION_HOLDS.get(ref)
-            if hold_reason:
-                print(f"  ON HOLD (not resolving): {ref} — {hold_reason}")
-                continue
-            window = spec.get("first_print_window_days")
-            if window is not None and today > release_day + dt.timedelta(
-                days=window
-            ):
-                print(
-                    f"  FIRST-PRINT WINDOW ELAPSED (deferring, needs a "
-                    f"pinned vintage): {ref} released {release_day}, "
-                    f"window {window}d"
+            registration = target_contracts.get(ref)
+            if registration:
+                contract = registration["contract"]
+                binding = contract.get("sourceBinding") or {}
+                mismatches = intl_binding_mismatches(spec, binding)
+                execution_spec = intl_execution_spec(registration, spec)
+                if execution_spec is None:
+                    print(
+                        "  BINDING/ADAPTER MISMATCH (refusing, registry "
+                        f"drift?): {ref} — {', '.join(mismatches)}"
+                    )
+                    continue
+                release_window = binding.get("expectedReleaseWindow")
+                if snapshot_window_state(release_day, release_window) != "open":
+                    print(
+                        "  FORECAST/REGISTERED RELEASE DATE MISMATCH "
+                        f"(refusing): {ref} — forecast {release_day} is outside "
+                        f"{release_window!r}"
+                    )
+                    continue
+                window_state = snapshot_window_state(
+                    today, release_window
                 )
-                continue
+                if window_state != "open":
+                    print(
+                        f"  FIRST-PRINT WINDOW {window_state.upper()} "
+                        f"(refusing): {ref}"
+                    )
+                    continue
+                spec = execution_spec
+            else:
+                window = spec.get("first_print_window_days")
+                if window is not None and today > release_day + dt.timedelta(
+                    days=window
+                ):
+                    print(
+                        f"  FIRST-PRINT WINDOW ELAPSED (deferring, needs a "
+                        f"pinned vintage): {ref} released {release_day}, "
+                        f"window {window}d"
+                    )
+                    continue
             try:
                 series, flags, raw, source_url, retrieved_at = intl_fetch(
                     spec, period, intl_cache
@@ -5582,7 +6357,11 @@ def main() -> int:
         if value is None or raw is None:
             print(f"  not yet published: {ref}")
             continue
-        if not value_plausible(value, forecast):
+        if kind == "intl":
+            plausible = intl_value_valid(spec, value)
+        else:
+            plausible = value_plausible(value, forecast)
+        if not plausible:
             print(
                 f"  IMPLAUSIBLE VALUE (refusing, wrong series/transform?): "
                 f"{ref} -> {value}"

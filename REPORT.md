@@ -116,3 +116,199 @@ first-print anchors.
 [bls-jolts]: https://www.bls.gov/schedule/news_release/jolts.htm
 [bls-eci]: https://www.bls.gov/schedule/news_release/eci.htm
 [bls-productivity]: https://www.bls.gov/schedule/news_release/prod2.htm
+
+---
+
+# International resolver adapters report
+
+## Outcome
+
+This lane adds fail-closed native resolution infrastructure for Statistics
+Canada, ABS, Eurostat, and ONS. Five unique series/adapter pairs, represented
+by 12 data-point-id stems, pass the mandatory three-first-print fixture gate
+and are executable. Unverified candidates remain visible but unclaimed in
+`INTL_BLOCKED_ADAPTERS`.
+
+The recurring path is operational for binding-compatible targets:
+
+- the docket supplies an agency-calendar date for the exact reference period;
+- registration refuses native targets without that date and its HTTPS calendar
+  citation, creates an exact one-day window, and uses the canonical docket
+  series as the new data-point-id stem;
+- the resolver verifies contract bytes, response source identity, unit,
+  release date/window, transform, and first-print status before producing a
+  fact;
+- the site accepts the one reviewed legacy descriptive id stem only under its
+  exact target id and content hash, while its parser-derived projection still
+  has to match the canonical registered series.
+
+One of the five existing admitted-stem registrations has a separately
+reviewed, exact-hash legacy executor. Four older registrations remain
+deliberately blocked because their immutable contracts are contradictory or
+cannot be satisfied. The lane does not weaken registration checks to make
+them pass.
+
+## Implementation
+
+`scripts/resolve_pending.py` now provides:
+
+- Statistics Canada WDS POST parsing for a single pinned vector;
+- ABS SDMX-JSON parsing for one exact dataflow and full dimension key;
+- Eurostat JSON-stat parsing for one exact dataset/key, including flash
+  estimate flags;
+- ONS time-series JSON parsing, including ONS three-letter monthly labels;
+- candidate ABS/Eurostat release-page parsers, kept non-executable until their
+  own fixture admission;
+- exact unit/range/transform checks and correct two-row lineage for derived
+  month-over-month and year-over-year values;
+- HTTPS request and redirect allowlists, archived response bytes, and refusal
+  when the registered seven-key source binding drifts;
+- immutable fixture anchors for admission, while durable response identity,
+  unit, release-window, and status checks gate recurring live execution. Fixed
+  2026 anchors are not required to remain forever in bounded latest-N
+  responses.
+
+`scripts/roll_docket.py` now copies exact period-keyed official dates into
+native targets, advances past periods whose release date has already passed,
+and skips a period when the finite published schedule has no entry. This
+prevents a post-release run from preregistering an already observed outcome.
+`scripts/register_targets.py` refuses cadence-inferred native windows,
+requires exactly one committed docket source-binding template whose calendar
+agrees with the contract, and canonicalizes new native data-point ids.
+`scripts/prospect_targets.py` and the site source-binding types recognize the
+native adapter names.
+
+## Executable coverage
+
+| Agency | Admitted unique series | Native adapter | Executable stems |
+| --- | --- | --- | ---: |
+| Statistics Canada | CPI all-items YoY; monthly GDP growth | `statcan-wds` | 4 |
+| ABS | Monthly CPI annual rate; seasonally adjusted unemployment rate | `abs-data-api` | 5 |
+| Eurostat | Euro-area HICP flash annual rate | `eurostat-api` | 3 |
+| ONS | None yet | Candidate `ons-timeseries` implementation only | 0 |
+| Japan | None | Skipped: no keyless e-Stat JSON path | 0 |
+
+## Anchor summary
+
+The detailed expected-versus-got table and every official release link are in
+`ANCHORS.md`. All results below are reproduced by the parser from real,
+trimmed official response bytes whose original archive hashes are recorded in
+`tests/fixtures/international/README.md`.
+
+| Pair | Periods checked | Checks | Result |
+| --- | --- | ---: | --- |
+| Statistics Canada CPI all-items YoY | 2026-02 through 2026-05 | 4 | exact at published 0.1-point precision |
+| Statistics Canada monthly GDP growth | 2026-02 through 2026-04 | 3 | exact at published 0.1-point precision |
+| ABS monthly CPI annual rate | 2026-02 through 2026-05 | 4 | exact at published 0.1-point precision |
+| ABS unemployment rate, SA | 2026-03 through 2026-05 | 3 | exact after published one-decimal rounding |
+| Eurostat euro-area HICP flash YoY | 2026-04 through 2026-06 | 3 | exact; June retains estimate flag `e` |
+
+The authentic ABS Labour Force response archived on 10 July ends at May.
+June was dropped from admission rather than represented with synthetic API
+bytes.
+
+## Official release calendars
+
+Each admitted registry series carries `releaseCalendarUrl` and a finite
+`releaseDates` mapping:
+
+- Statistics Canada CPI and GDP use the agency's 2026–27 release-date PDF;
+- ABS CPI and Labour Force use their official release pages/calendars;
+- Eurostat HICP flash uses the Euro indicators calendar.
+
+The roller inserts `expectedReleaseDate`; registration makes
+`expectedReleaseWindow.start == expectedReleaseWindow.end ==` that date.
+Missing dates, a missing/ambiguous committed series entry, or a date that
+disagrees with the committed docket fail closed. Already released periods are
+advanced before target creation. This replaces monthly cadence extrapolation
+for native international targets.
+
+## Existing-registration audit
+
+### Reviewed legacy executor
+
+`abs.labour.unemployment_rate.australia.july_2026.first_print` is admitted
+only under registration hash
+`cf3a2f76bb15d9f5eb9f5ae19d2e96b55111cf6842a1c8c8412b915ae614a85b`.
+The code checks the complete contract as well as the hash, fetches its exact
+registered ABS Data API URL/key, parses the exact dimensions, and uses its
+19–27 August window. The official 20 August release lies inside that window.
+Any changed field, host, URL, period, unit, transform, or hash refuses.
+
+### Still blocked
+
+| Existing target | Why native execution is unsafe |
+| --- | --- |
+| `abs.cpi.all_groups.yoy.2026-07.first_print` | The immutable contract names a June release page and generic series identity for a July monthly target. |
+| `abs.cpi.all_groups_annual_rate.australia.june_2026.first_print` | Its API identity is otherwise compatible, but the registered window ends 28 July while the official and forecast release date is 29 July; the resolver can never honestly satisfy both. |
+| `statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-06.first_print` | The contract pins a generic table page and generic field/series rather than one WDS vector and machine transform. |
+| `statcan.36-10-0434-01.all_industries.month_to_month_percent_change.2026-07.first_print` | The URL pins the right vector, but the immutable machine transform says identity-style multiplication while the target requires month-over-month percent change. |
+
+A trusted migration could mint replacement targets, but this lane does not
+rewrite or reinterpret immutable registrations.
+
+## Registry changes and removal audit
+
+The docket upgrades four existing recurring templates to exact native
+bindings:
+
+- `eurostat.hicp.flash.yoy`
+- `abs.cpi.all_groups.yoy`
+- `abs.labour.unemployment_rate`
+- `statcan.gdp_by_industry.monthly_growth`
+
+It adds `statcan.cpi.allitems.yoy`.
+
+Three recurring entries removed during the interrupted run were restored
+unchanged:
+
+- `eurostat.unemployment_rate`
+- `statcan.employment_insurance.regular_beneficiaries`
+- `statjp.cpi.tokyo_all_items_yoy`
+
+Repository searches found published/catalog/registration references to all
+three identities and no renamed successor. Their `generic-url` bindings remain
+unchanged because their native candidates have not passed fixture admission.
+The template-less waiver population remains 21 entries, matching its
+21-entry manifest; no waiver was added or silently healed.
+
+## Rejected and blocked work
+
+| Source | Blocked items | Reason |
+| --- | --- | --- |
+| Statistics Canada | LFS unemployment, LFS employment change, EI regular beneficiaries | Exact WDS candidates exist, but no three-period release-vintage fixture set; each is revision-prone. |
+| ABS | Employment change, quarterly CPI, building approvals | No three captured first-print payloads for each exact candidate; approvals has only one release-day snapshot. |
+| Eurostat | Unemployment, industrial production, construction, retail trade | No three captured first-print payloads for each exact candidate. |
+| ONS | CPI, claimant count, retail sales, PSNB | The parser/fetch contract exists, but no real captured JSON fixture set; candidates remain non-executable. |
+| e-Stat / Statistics Bureau of Japan | Tokyo CPI, LFS, household spending | The official JSON API requires an application id. Per the brief, the lane skipped e-Stat implementation rather than substituting unverified XLSX/HTML parsing. |
+
+## Verification and handoff
+
+- Required gate,
+  `uv run pytest tests/test_resolve_pending.py tests/test_register_targets.py -q`:
+  **143 passed**
+- Calendar integration included,
+  `uv run pytest tests/test_resolve_pending.py tests/test_register_targets.py tests/test_roll_docket.py -q`:
+  **161 passed**
+- Waiver ratchet, `uv run pytest tests/test_waiver_ratchet.py -q`:
+  **4 passed**
+- Prospect workflow and USAspending compatibility:
+  **38 passed**
+- Ruff on all changed Python and test files: **passed**
+- `jq -e . scripts/docket_series.json`: **passed**
+- `git diff --check`: **passed**
+- Site regressions for the exact reviewed legacy id alias, a different id
+  alias, and the reviewed id under a different hash: **3 passed**
+- Site TypeScript check, `bunx tsc --noEmit`: **passed**
+- Site webpack compilation and TypeScript: **passed**. Static prerender then
+  stopped only because the sandbox could not resolve
+  `raw.githubusercontent.com`.
+- Full site tests: **365 passed, 47 skipped, 12 failed**, all 12 failures plus
+  one suite setup failure sharing the same blocked
+  `raw.githubusercontent.com` DNS fetch.
+- No file under `records/` was modified.
+
+The checkout was 18 commits behind `origin/main` at final inspection. Per the
+continuation instructions, this lane did not fetch, rebase, commit, push, or
+otherwise alter Git history. The integrator must transplant these working-tree
+changes onto current main while preserving upstream concept-routing changes.

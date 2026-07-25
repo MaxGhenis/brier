@@ -19,6 +19,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import ledger_release_chain  # noqa: E402
+import register_targets  # noqa: E402
 import resolve_pending  # noqa: E402
 from canonical_json import canonical_bytes, canonical_sha256  # noqa: E402
 from verify_custody import verify_run  # noqa: E402
@@ -2523,6 +2524,15 @@ def test_assertion_version_binds_measure_mapping_and_lineage() -> None:
 
 
 def test_parse_ref_period_handles_international_dialects() -> None:
+    rolled_ref = register_targets.derive_data_point_id(
+        {
+            "series": "statcan.cpi.allitems.yoy",
+            "period": "2026-07",
+            "sourceBinding": {"releasePolicy": "first_print"},
+        },
+        None,
+    )
+    assert rolled_ref == "statcan.cpi.allitems.yoy.2026_07.first_print"
     cases = [
         (
             "statcan.cpi.all_items_annual_rate.canada.may_2026.first_print",
@@ -2543,9 +2553,9 @@ def test_parse_ref_period_handles_international_dialects() -> None:
             ("month", "2026-06"),
         ),
         (
-            "statjp.cpi.tokyo_all_items_annual_rate.june_2026.preliminary",
-            "statjp.cpi.tokyo_all_items_annual_rate",
-            ("month", "2026-06"),
+            rolled_ref,
+            "statcan.cpi.allitems.yoy",
+            ("month", "2026-07"),
         ),
     ]
     for ref, stem, expected in cases:
@@ -2555,6 +2565,10 @@ def test_parse_ref_period_handles_international_dialects() -> None:
         "eurostat.hicp.all_items_annual_rate.euro_area.may_2026"
         ".final_first_print",
         "eurostat.hicp.all_items_annual_rate.euro_area",
+    ) is None
+    assert resolve_pending.parse_ref_period(
+        "statcan.cpi.allitems.yoy.2026_13.first_print",
+        "statcan.cpi.allitems.yoy",
     ) is None
 
 
@@ -2574,27 +2588,25 @@ def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
         ("statcan.cpi.allitems.yoy.2026-05", "percent"),
         ("statcan.gdp_by_industry.monthly_growth.april_2026.first_print",
          "percent_growth"),
-        ("statcan.employment_insurance.regular_beneficiaries.canada"
-         ".may_2026.first_print", "thousands"),
         ("abs.cpi.all_groups.yoy.2026-06.first_print", "percent"),
         ("abs.labour.unemployment_rate.australia.may_2026.first_print",
          "percent"),
-        ("abs.labour.employment_change.australia.may_2026.first_print",
-         "thousands"),
-        ("abs.building_approvals.total_dwellings_mom.australia.may_2026"
-         ".first_print", "percent_growth"),
-        ("statjp.cpi.tokyo_all_items_annual_rate.june_2026.preliminary",
-         "percent"),
-        ("statjp.lfs.unemployment_rate.japan.may_2026.first_print", "percent"),
-        ("statjp.household_spending.real_yoy.two_or_more_person_households"
-         ".may_2026.first_print", "percent_growth"),
         ("eurostat.hicp.all_items_annual_rate.euro_area.june_2026.flash",
          "percent"),
         ("eurostat.ea.hicp.flash.yoy.2026-06", "percent"),
-        ("eurostat.unemployment_rate.euro_area.may_2026.first_print",
-         "percent"),
-        ("eurostat.retail_trade.volume_mom.euro_area.may_2026.first_print",
-         "percent_growth"),
+    ]
+    blocked_refs = [
+        "statcan.employment_insurance.regular_beneficiaries.canada"
+        ".may_2026.first_print",
+        "abs.labour.employment_change.australia.may_2026.first_print",
+        "abs.building_approvals.total_dwellings_mom.australia.may_2026"
+        ".first_print",
+        "statjp.cpi.tokyo_all_items_annual_rate.june_2026.preliminary",
+        "eurostat.unemployment_rate.euro_area.may_2026.first_print",
+        "ons.cpi.annual_rate.may_2026.first_print",
+        # The admitted sources are monthly. A quarterly-looking tail must not
+        # be claimed and transformed with monthly prior-period arithmetic.
+        "statcan.cpi.allitems.yoy.2026_q2.first_print",
     ]
     log = {
         "entries": [
@@ -2605,6 +2617,14 @@ def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
             {"status": "pending", "forecastSlug": f"cell-{i}",
              "targetFactRef": ref}
             for i, (ref, _) in enumerate(refs_and_units)
+        ]
+        + [
+            {
+                "status": "pending",
+                "forecastSlug": "cell-0",
+                "targetFactRef": ref,
+            }
+            for ref in blocked_refs
         ]
         + [
             # Belgium is owned by its own lane; the euro-area stems must
@@ -2629,11 +2649,348 @@ def test_pending_adapter_refs_claims_international_stems_with_units() -> None:
         "eurostat.une_rt_m.unemployment_rate.belgium.2026_06.first_print"
         not in claimed
     )
+    assert not set(blocked_refs) & set(claimed)
+
+
+def _international_fixture(name: str) -> bytes:
+    return (ROOT / "tests" / "fixtures" / "international" / name).read_bytes()
+
+
+def test_recorded_international_fixtures_reproduce_admitted_anchors() -> None:
+    unique_specs = {
+        spec["series_id"]: spec
+        for spec in resolve_pending.INTL_ADAPTERS.values()
+    }
+    for spec in unique_specs.values():
+        raw = _international_fixture(spec["admission_fixture"])
+        flags: dict[str, str] = {}
+        if spec["kind"] == "statcan":
+            series = resolve_pending.statcan_series_from_payload(
+                raw, spec["vector"]
+            )
+        elif spec["kind"] == "abs":
+            series = resolve_pending.abs_series_from_payload(
+                raw, spec["flow"], spec["key"]
+            )
+        elif spec["kind"] == "eurostat":
+            series, flags = resolve_pending.eurostat_series_from_payload(
+                raw, spec["dataset"], spec["key"]
+            )
+        else:
+            raise AssertionError(f"unhandled admitted kind {spec['kind']}")
+        got = {
+            period: resolve_pending.intl_transformed_value(
+                spec, series, period
+            )
+            for period in spec["verified_anchors"]
+        }
+        assert got == spec["verified_anchors"]
+        if spec["kind"] == "eurostat":
+            assert flags == {"2026-06": "e"}
+
+
+def test_international_parsers_refuse_wrong_source_identity() -> None:
+    statcan_spec = resolve_pending.INTL_ADAPTERS[
+        "statcan.cpi.allitems.yoy"
+    ]
+    statcan_payload = json.loads(
+        _international_fixture(statcan_spec["admission_fixture"])
+    )
+    statcan_payload[0]["object"]["vectorId"] = 999
+    with pytest.raises(ValueError, match="returned vector"):
+        resolve_pending.statcan_series_from_payload(
+            json.dumps(statcan_payload).encode(), statcan_spec["vector"]
+        )
+
+    abs_spec = resolve_pending.INTL_ADAPTERS[
+        "abs.labour.unemployment_rate"
+    ]
+    abs_raw = _international_fixture(abs_spec["admission_fixture"])
+    with pytest.raises(ValueError, match="not dataflow"):
+        resolve_pending.abs_series_from_payload(
+            abs_raw, "CPI", abs_spec["key"]
+        )
+    with pytest.raises(ValueError, match="returned key"):
+        resolve_pending.abs_series_from_payload(
+            abs_raw, abs_spec["flow"], "M13.3.1599.20.NSW.M"
+        )
+
+    eurostat_spec = resolve_pending.INTL_ADAPTERS[
+        "eurostat.hicp.flash.yoy"
+    ]
+    eurostat_raw = _international_fixture(
+        eurostat_spec["admission_fixture"]
+    )
+    with pytest.raises(ValueError, match="returned dataset"):
+        resolve_pending.eurostat_series_from_payload(
+            eurostat_raw, "une_rt_m", eurostat_spec["key"]
+        )
+    with pytest.raises(ValueError, match="dimension geo"):
+        resolve_pending.eurostat_series_from_payload(
+            eurostat_raw,
+            eurostat_spec["dataset"],
+            "M.RCH_A.TOTAL.DE",
+        )
+
+
+def test_admitted_international_specs_have_three_anchors_and_calendars() -> None:
+    unique_specs = {id(spec): spec for spec in resolve_pending.INTL_ADAPTERS.values()}
+    assert len(unique_specs) == 5
+    fixture_root = ROOT / "tests" / "fixtures" / "international"
+    for spec in unique_specs.values():
+        assert len(spec["verified_anchors"]) >= 3
+        assert (fixture_root / spec["admission_fixture"]).is_file()
+        assert spec["release_calendar_url"].startswith("https://")
+        # Fixture anchors are permanent admission evidence. Bounded latest-N
+        # live responses must not acquire a fixed historical dependency that
+        # makes a recurring adapter expire when those periods age out.
+        assert spec.get("anchors") == {}
+        assert set(resolve_pending.intl_binding_template(spec)) == (
+            resolve_pending.INTL_BINDING_KEYS
+        )
+        assert spec["allowed_hosts"]
+    for spec in {
+        id(spec): spec
+        for spec in resolve_pending.INTL_BLOCKED_ADAPTERS.values()
+    }.values():
+        assert "verified_anchors" not in spec
+        assert "admission_fixture" not in spec
+
+
+def test_only_reviewed_legacy_international_contract_gets_native_executor(
+    monkeypatch,
+) -> None:
+    content_hash, contract = next(
+        iter(resolve_pending.LEGACY_INTL_EXECUTOR_CONTRACTS.items())
+    )
+    registration = {
+        "targetContentHash": content_hash,
+        "contract": contract,
+    }
+    spec = resolve_pending.INTL_ADAPTERS[
+        "abs.labour.unemployment_rate.australia"
+    ]
+    execution = resolve_pending.intl_execution_spec(registration, spec)
+    assert execution is not None
+    assert execution["request_url"] == contract["sourceBinding"]["sourceUrl"]
+    assert execution["target_series"] == contract["series"]
+
+    raw = _international_fixture(spec["admission_fixture"])
+    calls: list[str] = []
+
+    def fake_http_get(url, *, allowed_hosts, timeout=120):
+        calls.append(url)
+        assert set(allowed_hosts) == set(
+            contract["sourceBinding"]["allowedHosts"]
+        )
+        return raw, "2026-08-20T01:30:00Z", url
+
+    monkeypatch.setattr(resolve_pending, "http_get", fake_http_get)
+    series, flags, got_raw, source_url, retrieved_at = (
+        resolve_pending.intl_fetch(execution, "2026-07", {})
+    )
+    assert calls == [contract["sourceBinding"]["sourceUrl"]]
+    assert series["2026-05"] == pytest.approx(4.35594887)
+    assert flags == {}
+    assert got_raw == raw
+    assert source_url == calls[0]
+    assert retrieved_at == "2026-08-20T01:30:00Z"
+
+    altered = json.loads(json.dumps(contract))
+    altered["sourceBinding"]["field"] = "neighboring-series"
+    assert (
+        resolve_pending.intl_execution_spec(
+            {"targetContentHash": content_hash, "contract": altered}, spec
+        )
+        is None
+    )
+    assert (
+        resolve_pending.intl_execution_spec(
+            {"targetContentHash": "0" * 64, "contract": contract}, spec
+        )
+        is None
+    )
+
+
+def test_current_native_executor_requires_exact_registry_series_spec_pair() -> None:
+    spec = resolve_pending.INTL_REGISTRY_ADAPTERS[
+        "abs.labour.unemployment_rate"
+    ]
+    binding = {
+        **json.loads(
+            json.dumps(resolve_pending.intl_binding_template(spec))
+        ),
+        "allowedHosts": list(spec["allowed_hosts"]),
+        "expectedReleaseWindow": {
+            "start": "2026-09-24",
+            "end": "2026-09-24",
+        },
+    }
+    registration = {
+        "targetContentHash": "0" * 64,
+        "contract": {
+            "series": "abs.labour.unemployment_rate",
+            "sourceBinding": binding,
+        },
+    }
+    assert resolve_pending.intl_execution_spec(registration, spec) is not None
+
+    borrowed = json.loads(json.dumps(registration))
+    borrowed["contract"]["series"] = "unrelated.other.series"
+    assert resolve_pending.intl_execution_spec(borrowed, spec) is None
+
+
+def test_existing_legacy_international_targets_fail_closed_except_reviewed_one(
+) -> None:
+    expected = {
+        "abs.cpi.all_groups.yoy.2026-07.first_print": False,
+        (
+            "abs.cpi.all_groups_annual_rate.australia."
+            "june_2026.first_print"
+        ): False,
+        (
+            "abs.labour.unemployment_rate.australia."
+            "july_2026.first_print"
+        ): True,
+        (
+            "statcan.36-10-0434-01.all_industries."
+            "month_to_month_percent_change.2026-06.first_print"
+        ): False,
+        (
+            "statcan.36-10-0434-01.all_industries."
+            "month_to_month_percent_change.2026-07.first_print"
+        ): False,
+    }
+    registrations = resolve_pending.registration_contracts()
+    for data_point_id, admitted in expected.items():
+        stem = resolve_pending.longest_adapter_stem(
+            data_point_id, resolve_pending.INTL_ADAPTERS
+        )
+        assert stem is not None
+        execution = resolve_pending.intl_execution_spec(
+            registrations[data_point_id],
+            resolve_pending.INTL_ADAPTERS[stem],
+        )
+        assert (execution is not None) is admitted
+
+
+def test_docket_and_admitted_adapter_bindings_are_byte_identical() -> None:
+    docket = json.loads(
+        (ROOT / "scripts" / "docket_series.json").read_text()
+    )["series"]
+    registered = {
+        entry["series"]: entry["extras"]["sourceBinding"]
+        for entry in docket
+        if (entry.get("extras") or {}).get("sourceBinding", {}).get("adapter")
+        in {
+            "abs-data-api",
+            "abs-release-page",
+            "eurostat-api",
+            "ons-timeseries",
+            "statcan-wds",
+        }
+    }
+    assert set(registered) == set(resolve_pending.INTL_REGISTRY_ADAPTERS)
+    for series, spec in resolve_pending.INTL_REGISTRY_ADAPTERS.items():
+        assert canonical_bytes(registered[series]) == canonical_bytes(
+            resolve_pending.intl_binding_template(spec)
+        )
+
+
+def test_international_unit_host_binding_and_window_refusals() -> None:
+    spec = resolve_pending.INTL_ADAPTERS["abs.labour.unemployment_rate"]
+    assert resolve_pending.adapter_unit_matches(spec, {"unit": "percent"})
+    assert not resolve_pending.adapter_unit_matches(
+        spec, {"unit": "percentage_points"}
+    )
+    assert not resolve_pending.adapter_unit_matches(spec, None)
+    assert resolve_pending.intl_value_valid(spec, 4.4)
+    assert not resolve_pending.intl_value_valid(spec, 4400)
+
+    resolve_pending._require_allowed_host(
+        "https://data.api.abs.gov.au/rest/data/LF/example",
+        spec["allowed_hosts"],
+    )
+    with pytest.raises(ValueError, match="allowlist"):
+        resolve_pending._require_allowed_host(
+            "https://evil.example/rest/data/LF/example",
+            spec["allowed_hosts"],
+        )
+    with pytest.raises(ValueError, match="HTTPS"):
+        resolve_pending._require_allowed_host(
+            "http://data.api.abs.gov.au/rest/data/LF/example",
+            spec["allowed_hosts"],
+        )
+    redirects = resolve_pending._PinnedRedirectHandler(
+        spec["allowed_hosts"]
+    )
+    request = resolve_pending.urllib.request.Request(
+        "https://data.api.abs.gov.au/rest/data/LF/example"
+    )
+    with pytest.raises(ValueError, match="allowlist"):
+        redirects.redirect_request(
+            request,
+            None,
+            302,
+            "Found",
+            {},
+            "https://evil.example/redirected",
+        )
+    with pytest.raises(ValueError, match="HTTPS"):
+        redirects.redirect_request(
+            request,
+            None,
+            302,
+            "Found",
+            {},
+            "http://data.api.abs.gov.au/redirected",
+        )
+
+    binding = {
+        **resolve_pending.intl_binding_template(spec),
+        "allowedHosts": spec["allowed_hosts"],
+    }
+    assert resolve_pending.intl_binding_mismatches(spec, binding) == []
+    assert "field" in resolve_pending.intl_binding_mismatches(
+        spec, {**binding, "field": "neighboring-series"}
+    )
+    window = {"start": "2026-07-23", "end": "2026-07-23"}
+    assert (
+        resolve_pending.snapshot_window_state(dt.date(2026, 7, 22), window)
+        == "pending"
+    )
+    assert (
+        resolve_pending.snapshot_window_state(dt.date(2026, 7, 23), window)
+        == "open"
+    )
+    assert (
+        resolve_pending.snapshot_window_state(dt.date(2026, 7, 24), window)
+        == "missed"
+    )
+
+
+def test_unverified_international_candidates_are_not_executable() -> None:
+    blocked = resolve_pending.INTL_BLOCKED_ADAPTERS
+    for stem in [
+        "statcan.lfs.unemployment_rate.canada",
+        "statcan.lfs.employment_change.canada",
+        "statcan.employment_insurance.regular_beneficiaries",
+        "abs.labour.employment_change.australia",
+        "abs.building_approvals.total_dwellings_mom.australia",
+        "eurostat.unemployment_rate",
+        "eurostat.construction.production_index",
+        "ons.cpi.annual_rate",
+        "ons.labour.claimant_count",
+        "ons.retail_sales.volume_mom",
+        "ons.pusf.j5ii.public_sector_net_borrowing_ex_banks",
+    ]:
+        assert stem in blocked
+        assert stem not in resolve_pending.INTL_ADAPTERS
 
 
 def test_intl_transforms_reproduce_published_rounding() -> None:
-    # YoY from rounded index, one decimal — how StatCan and the Statistics
-    # Bureau publish 12-month CPI changes.
+    # YoY from rounded index, one decimal — how StatCan publishes 12-month
+    # CPI changes.
     spec = {"transform": "yoy_from_index", "round": 1}
     series = {"2025-05": 164.3, "2026-05": 169.6}
     assert resolve_pending.intl_transformed_value(spec, series, "2026-05") == 3.2
@@ -2660,6 +3017,43 @@ def test_intl_transforms_reproduce_published_rounding() -> None:
         )
         is None
     )
+    # A declared quarterly adapter steps back three months, not one.
+    spec = {
+        "transform": "mom_diff",
+        "period_type": "quarter",
+        "round": 1,
+    }
+    assert resolve_pending.intl_transformed_value(
+        spec,
+        {"2026-01": 95.0, "2026-03": 98.0, "2026-04": 100.0},
+        "2026-04",
+    ) == 5.0
+
+
+def test_ons_parser_handles_real_three_letter_month_labels() -> None:
+    # Values and field shape mirror the official D7G7 time-series response;
+    # this is a parser unit test, not an admission fixture.
+    raw = json.dumps(
+        {
+            "months": [
+                {"date": "2026 JUN", "value": "2.6"},
+                {"date": "2026 MAY", "value": "2.8"},
+                {"date": "not a month", "value": "99"},
+                {"date": "2026 APR", "value": ".."},
+            ]
+        }
+    ).encode()
+    assert resolve_pending.ons_series_from_payload(raw, "D7G7") == {
+        "2026-05": 2.8,
+        "2026-06": 2.6,
+    }
+    with pytest.raises(ValueError, match="no numeric monthly observations"):
+        resolve_pending.ons_series_from_payload(
+            json.dumps(
+                {"months": [{"date": "2026 APR", "value": ".."}]}
+            ).encode(),
+            "D7G7",
+        )
 
 
 def test_intl_anchor_gate_refuses_series_that_cannot_reproduce_history() -> None:
@@ -2728,46 +3122,6 @@ def test_eurostat_flash_flag_gate() -> None:
     assert not resolve_pending.flash_vintage_missing({}, {}, "2026-06")
 
 
-def test_tokyo_july_cell_is_held_for_anchor_contradiction() -> None:
-    ref = "statjp.cpi.tokyo_all_items_annual_rate.july_2026.preliminary"
-    assert ref in resolve_pending.INTL_RESOLUTION_HOLDS
-    assert "contradicts" in resolve_pending.INTL_RESOLUTION_HOLDS[ref] or (
-        "reviewed" in resolve_pending.INTL_RESOLUTION_HOLDS[ref]
-    )
-
-
-def test_jp_page_parsers_and_reference_month() -> None:
-    lfs_html = (
-        "<html><body>労働力調査（基本集計）　2026年（令和8年）5月分結果　"
-        "2026年6月30日公表 <table>年平均 月次（季節調整値） 2023年 2024年 "
-        "2025年 2026年2月 3月 4月 5月 完全失業率 2.6% 2.5% 2.5% 2.6% 2.7% "
-        "2.5% 2.5%</table></body></html>"
-    ).encode("utf-8")
-    assert resolve_pending.jp_page_reference_period(lfs_html) == "2026-05"
-    series = resolve_pending.jp_lfs_unemployment_series(lfs_html)
-    assert series["2026-02"] == 2.6
-    assert series["2026-03"] == 2.7
-    assert series["2026-04"] == 2.5
-    assert series["2026-05"] == 2.5
-
-    kakei_html = (
-        "<html><body>家計調査（二人以上の世帯）2026年（令和8年）5月分 "
-        "（2026年7月7日公表）<table>月次（前年同月比、【&nbsp;】内は前月比"
-        "（季節調整値）％） <td>2023年</td><td>2024年</td><td>2025年</td>"
-        "<td>2026年2月</td><td>3月</td><td>4月</td><td>5月</td>"
-        "<td>【二人以上の世帯】</td><td>&nbsp;消費支出（実質）</td><td></td>"
-        "<td>▲2.6</td><td>▲1.1</td><td>0.9</td><td>▲1.8</td><td>【1.5】</td>"
-        "<td>▲2.9</td><td>【▲1.3】</td><td>▲0.5</td><td>【1.6】</td>"
-        "<td>▲0.4</td><td>【3.7】</td> ≪ポイント≫</table></body></html>"
-    ).encode("utf-8")
-    assert resolve_pending.jp_page_reference_period(kakei_html) == "2026-05"
-    series = resolve_pending.jp_kakei_real_yoy_series(kakei_html)
-    assert series["2026-02"] == -1.8
-    assert series["2026-03"] == -2.9
-    assert series["2026-04"] == -0.5
-    assert series["2026-05"] == -0.4
-
-
 def test_release_page_headline_parsers_sign_and_month_binding() -> None:
     retail = (
         "<h1>Volume of retail trade up by 0.2% in the euro area and by "
@@ -2793,46 +3147,6 @@ def test_release_page_headline_parsers_sign_and_month_binding() -> None:
     assert resolve_pending.abs_ba_headline(rising, "2026-05") == 3.4
 
 
-def test_estat_xlsx_parser_maps_sparse_cells_by_column() -> None:
-    import io as io_module
-    import zipfile
-
-    shared_strings = (
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/'
-        'main" count="4" uniqueCount="4">'
-        "<si><t>類・品目符号</t></si><si><t>0001</t></si>"
-        "<si><t>0161</t></si><si><t>東京都区部</t></si></sst>"
-    )
-    # Row 2 is the code row (J=0001, K=0161); data rows carry sparse cells
-    # so document order lies about columns — exactly the recent-row shape
-    # of the real workbook.
-    sheet = (
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/'
-        '2006/main"><sheetData>'
-        '<row r="2"><c r="A2" t="s"><v>0</v></c><c r="J2" t="s"><v>1</v></c>'
-        '<c r="K2" t="s"><v>2</v></c></row>'
-        '<row r="3"><c r="B3"><v>202605</v></c><c r="I3" t="s"><v>3</v></c>'
-        '<c r="J3"><v>112.7</v></c><c r="K3"><v>112.0</v></c></row>'
-        '<row r="4"><c r="B4"><v>202606</v></c>'
-        '<c r="J4"><v>112.7</v></c></row>'
-        '<row r="5"><c r="B5"><v>202506</v></c><c r="E5"><v>6</v></c>'
-        '<c r="J5"><v>110.8</v></c></row>'
-        "</sheetData></worksheet>"
-    )
-    buffer = io_module.BytesIO()
-    with zipfile.ZipFile(buffer, "w") as archive:
-        archive.writestr("xl/sharedStrings.xml", shared_strings)
-        archive.writestr("xl/worksheets/sheet1.xml", sheet)
-    series = resolve_pending.estat_xlsx_index_series(buffer.getvalue())
-    assert series == {"2026-05": 112.7, "2026-06": 112.7, "2025-06": 110.8}
-    spec = {"transform": "yoy_from_index", "round": 1}
-    assert (
-        resolve_pending.intl_transformed_value(spec, series, "2026-06") == 1.7
-    )
-
-
 def test_intl_fact_rows_carry_country_geography_and_concept() -> None:
     spec = resolve_pending.INTL_ADAPTERS["statcan.cpi.allitems.yoy"]
     row = resolve_pending.generic_fact(
@@ -2849,6 +3163,22 @@ def test_intl_fact_rows_carry_country_geography_and_concept() -> None:
     assert row["geography"]["name"] == "Canada"
     assert row["measure"]["concept"] == "statcan.cpi.allitems.yoy.2026-05"
     assert row["measure"]["unit"] == "percent"
+    assert row["source_row_keys"] == ["2026-05", "2025-05"]
+
+    gdp_spec = resolve_pending.INTL_ADAPTERS[
+        "statcan.gdp_by_industry.monthly_growth"
+    ]
+    gdp_row = resolve_pending.generic_fact(
+        "statcan.gdp_by_industry.monthly_growth.2026-04.first_print",
+        gdp_spec,
+        "month",
+        "2026-04",
+        0.5,
+        __import__("datetime").date(2026, 6, 30),
+        "https://www150.statcan.gc.ca/t1/wds/rest/example",
+        gdp_spec["source_file"],
+    )
+    assert gdp_row["source_row_keys"] == ["2026-04", "2026-03"]
 
     flash_spec = resolve_pending.INTL_ADAPTERS["eurostat.ea.hicp.flash.yoy"]
     row = resolve_pending.generic_fact(
@@ -2900,53 +3230,6 @@ def test_intl_dialects_share_one_spec_so_dialects_share_archives() -> None:
             ".month_to_month_percent_change"
         ]
     )
-
-
-def test_custody_seal_accepts_xlsx_response_archives(tmp_path) -> None:
-    """The e-Stat workbook is a first-class resolver response.
-
-    Regression: the first international run failed custody verification
-    because the response-name schema only admitted csv/html/json.
-    """
-    original_root = resolve_pending.ROOT
-    resolve_pending.ROOT = tmp_path
-    try:
-        run_dir = tmp_path / "records" / "resolutions" / "run"
-        raw = b"PK\x03\x04 not a real workbook, bytes are opaque here"
-        archive = resolve_pending.archive_response(
-            run_dir,
-            series_id="estat-tokyo-cpi-table1-2",
-            vintage="2026-06-26",
-            raw=raw,
-            extension="xlsx",
-        )
-        assert archive["path"].endswith(".xlsx.gz")
-        manifest = resolve_pending.finalize_resolution_manifest(
-            run_dir,
-            {
-                "schemaVersion": "thesis_resolution_run_v1",
-                "retrievedAt": "2026-07-10T20:00:00Z",
-                "ledgerRepo": "PolicyEngine/ledger",
-                "ledgerBranch": "test",
-                "ledgerRepoSha": "0" * 40,
-                "facts": [
-                    {
-                        "dataPointId": (
-                            "statjp.cpi.tokyo_all_items_annual_rate"
-                            ".june_2026.preliminary"
-                        ),
-                        "sourceVintage": "2026-06-26",
-                        "retrievedAt": "2026-07-10T20:00:00Z",
-                        "responseArchive": archive,
-                    }
-                ],
-            },
-        )
-        result = verify_run(run_dir)
-        assert result.inventory_status == "complete"
-        assert manifest["custodyInventoryVersion"] == 2
-    finally:
-        resolve_pending.ROOT = original_root
 
 
 def test_pending_adapter_refs_maps_cms_provider_data_cells() -> None:

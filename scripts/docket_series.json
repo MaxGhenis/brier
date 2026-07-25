@@ -116,15 +116,19 @@
       "series": "eurostat.hicp.flash.yoy",
       "cadence": "monthly",
       "slug": "euro-flash-hicp-{month}-{year}",
+      "releaseCalendarUrl": "https://ec.europa.eu/eurostat/news/euro-indicators/release-calendar",
+      "releaseDates": {
+        "2026-07": "2026-07-31"
+      },
       "extras": {
         "sourceBinding": {
-          "adapter": "generic-url",
-          "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_minr/M.RCH_A.TOTAL.EA21?format=JSON",
+          "adapter": "eurostat-api",
+          "sourceUrl": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/prc_hicp_minr/M.RCH_A.TOTAL.EA21?format=JSON&lastNObservations=36",
           "sourceSeriesId": "prc_hicp_minr/M.RCH_A.TOTAL.EA21",
-          "field": "RCH_A",
-          "table": "HICP (ECOICOP ver.2) monthly rates, all-items annual rate, euro area; flash carries the provisional flag on release day",
+          "field": "prc_hicp_minr/M.RCH_A.TOTAL.EA21",
+          "table": "HICP (ECOICOP ver.2) monthly rates, prc_hicp_minr (all-items annual rate, euro area)",
           "transform": {
-            "operation": "multiply",
+            "operation": "identity",
             "factor": 1
           },
           "releasePolicy": "first_print"
@@ -154,15 +158,21 @@
       "series": "abs.cpi.all_groups.yoy",
       "cadence": "monthly",
       "slug": "australia-cpi-annual-rate-{month}-{year}",
+      "releaseCalendarUrl": "https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia",
+      "releaseDates": {
+        "2026-06": "2026-07-29",
+        "2026-07": "2026-08-26",
+        "2026-08": "2026-09-30"
+      },
       "extras": {
         "sourceBinding": {
-          "adapter": "generic-url",
-          "sourceUrl": "https://data.api.abs.gov.au/rest/data/CPI/3.10001.10.50.M?format=jsondata",
+          "adapter": "abs-data-api",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/CPI/3.10001.10.50.M?lastNObservations=30&format=jsondata",
           "sourceSeriesId": "CPI/3.10001.10.50.M",
-          "field": "3.10001.10.50.M",
-          "table": "ABS complete monthly CPI (dataflow CPI): all groups annual change, original, weighted average of eight capital cities",
+          "field": "CPI/3.10001.10.50.M",
+          "table": "Monthly Consumer Price Index (complete monthly CPI, dataflow CPI: annual change, all groups, original, weighted average of eight capital cities)",
           "transform": {
-            "operation": "multiply",
+            "operation": "identity",
             "factor": 1
           },
           "releasePolicy": "first_print"
@@ -173,15 +183,21 @@
       "series": "abs.labour.unemployment_rate",
       "cadence": "monthly",
       "slug": "australia-unemployment-rate-{month}-{year}",
+      "releaseCalendarUrl": "https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia",
+      "releaseDates": {
+        "2026-06": "2026-07-23",
+        "2026-07": "2026-08-20",
+        "2026-08": "2026-09-24"
+      },
       "extras": {
         "sourceBinding": {
-          "adapter": "generic-url",
-          "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M13.3.1599.20.AUS.M?format=jsondata",
+          "adapter": "abs-data-api",
+          "sourceUrl": "https://data.api.abs.gov.au/rest/data/LF/M13.3.1599.20.AUS.M?lastNObservations=30&format=jsondata",
           "sourceSeriesId": "LF/M13.3.1599.20.AUS.M",
-          "field": "M13",
-          "table": "Labour Force, Australia (dataflow LF): unemployment rate, persons, seasonally adjusted; first print captured on release day",
+          "field": "LF/M13.3.1599.20.AUS.M",
+          "table": "Labour Force, Australia (dataflow LF: unemployment rate, persons, total age, seasonally adjusted, Australia)",
           "transform": {
-            "operation": "multiply",
+            "operation": "identity",
             "factor": 1
           },
           "releasePolicy": "first_print"
@@ -192,15 +208,58 @@
       "series": "statcan.gdp_by_industry.monthly_growth",
       "cadence": "monthly",
       "slug": "canada-monthly-gdp-growth-{month}-{year}",
+      "releaseCalendarUrl": "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf",
+      "releaseDates": {
+        "2026-05": "2026-07-31",
+        "2026-06": "2026-08-28",
+        "2026-07": "2026-09-29",
+        "2026-08": "2026-10-30",
+        "2026-09": "2026-11-30",
+        "2026-10": "2026-12-23",
+        "2026-11": "2027-01-29",
+        "2026-12": "2027-03-01",
+        "2027-01": "2027-03-31"
+      },
       "extras": {
         "sourceBinding": {
-          "adapter": "generic-url",
-          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorByReferencePeriodRange?vectorIds=65201210",
+          "adapter": "statcan-wds",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods",
           "sourceSeriesId": "v65201210",
           "field": "v65201210",
-          "table": "Statistics Canada Table 36-10-0434-01, all industries, chained 2017 dollars SA at annual rates; MoM percent change computed from levels at the release vintage",
+          "table": "GDP by industry, Table 36-10-0434-01 (all industries, chained 2017 dollars, SA at annual rates)",
           "transform": {
-            "operation": "multiply",
+            "operation": "percent_change_previous_period",
+            "factor": 1
+          },
+          "releasePolicy": "first_print"
+        }
+      }
+    },
+    {
+      "series": "statcan.cpi.allitems.yoy",
+      "cadence": "monthly",
+      "slug": "canada-cpi-annual-rate-{month}-{year}",
+      "releaseCalendarUrl": "https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf",
+      "releaseDates": {
+        "2026-06": "2026-07-20",
+        "2026-07": "2026-08-17",
+        "2026-08": "2026-09-14",
+        "2026-09": "2026-10-19",
+        "2026-10": "2026-11-16",
+        "2026-11": "2026-12-14",
+        "2026-12": "2027-01-18",
+        "2027-01": "2027-02-16",
+        "2027-02": "2027-03-15"
+      },
+      "extras": {
+        "sourceBinding": {
+          "adapter": "statcan-wds",
+          "sourceUrl": "https://www150.statcan.gc.ca/t1/wds/rest/getDataFromVectorsAndLatestNPeriods",
+          "sourceSeriesId": "v41690973",
+          "field": "v41690973",
+          "table": "Consumer Price Index, Table 18-10-0004-01 (all-items, Canada)",
+          "transform": {
+            "operation": "percent_change_year_ago",
             "factor": 1
           },
           "releasePolicy": "first_print"

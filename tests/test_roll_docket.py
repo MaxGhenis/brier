@@ -13,12 +13,20 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import register_targets  # noqa: E402
 from adopt_proven_series import cadence_of, slug_template  # noqa: E402
+from register_targets import (  # noqa: E402
+    RegistrationError,
+    build_contract,
+    validate_native_calendar_contract,
+)
 from roll_docket import (  # noqa: E402
+    OFFICIAL_CALENDAR_ADAPTERS,
+    advance_past_released_native_periods,
     latest_published_period,
     next_roll_period,
     not_too_far_ahead,
     snapshot_seed_target,
     step_period,
+    target_extras_for_period,
     template_regex,
 )
 
@@ -89,6 +97,106 @@ def test_far_future_rogue_slug_recovers_earliest_eligible_gap() -> None:
         {"fixture-january-2026"},
         dt.date(2026, 3, 15),
     ) == ("2026-03", "fixture-february-2026")
+
+
+def test_native_registry_date_becomes_exact_registration_window() -> None:
+    registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        row
+        for row in registry["series"]
+        if row["series"] == "abs.cpi.all_groups.yoy"
+    )
+    extras = target_extras_for_period(entry, "2026-08")
+
+    assert extras is not None
+    assert extras["expectedReleaseDate"] == "2026-09-30"
+    assert extras["releaseCalendarUrl"].startswith("https://www.abs.gov.au/")
+
+    target = {
+        "series": entry["series"],
+        "period": "2026-08",
+        "catalogSlug": "australia-cpi-annual-rate-august-2026",
+        "country": "AU",
+        "targetUnit": "percent",
+        **extras,
+    }
+    contract = build_contract(target, dt.date(2026, 7, 25))
+    assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+        "start": "2026-09-30",
+        "end": "2026-09-30",
+    }
+    validate_native_calendar_contract(contract, target, entry)
+    tampered = json.loads(json.dumps(contract))
+    tampered["sourceBinding"]["expectedReleaseWindow"]["end"] = "2026-10-01"
+    with pytest.raises(RegistrationError, match="committed docket calendar"):
+        validate_native_calendar_contract(tampered, target, entry)
+    with pytest.raises(RegistrationError, match="releaseCalendarUrl"):
+        validate_native_calendar_contract(
+            contract,
+            {**target, "releaseCalendarUrl": "https://evil.example/calendar"},
+            entry,
+        )
+
+
+def test_all_native_docket_series_commit_official_calendar_dates() -> None:
+    registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    native_entries = [
+        entry
+        for entry in registry["series"]
+        if entry.get("extras", {}).get("sourceBinding", {}).get("adapter")
+        in OFFICIAL_CALENDAR_ADAPTERS
+    ]
+
+    assert {entry["series"] for entry in native_entries} == {
+        "abs.cpi.all_groups.yoy",
+        "abs.labour.unemployment_rate",
+        "eurostat.hicp.flash.yoy",
+        "statcan.cpi.allitems.yoy",
+        "statcan.gdp_by_industry.monthly_growth",
+    }
+    for entry in native_entries:
+        assert entry["releaseCalendarUrl"].startswith("https://")
+        assert entry["releaseDates"]
+        for period, release_date in entry["releaseDates"].items():
+            assert period.startswith(("2026-", "2027-"))
+            dt.date.fromisoformat(release_date)
+
+
+def test_native_roll_skips_period_without_an_official_date(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = {
+        "series": "fixture.native",
+        "releaseCalendarUrl": "https://agency.example/releases",
+        "releaseDates": {"2026-07": "2026-08-20"},
+        "extras": {"sourceBinding": {"adapter": "abs-data-api"}},
+    }
+
+    assert target_extras_for_period(entry, "2026-08") is None
+    warning = capsys.readouterr().err
+    assert "warning: skip fixture.native 2026-08" in warning
+    assert "no valid explicit official release date" in warning
+
+
+def test_native_roll_never_forecasts_an_already_published_outcome(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entry = next(
+        row
+        for row in registry["series"]
+        if row["series"] == "statcan.cpi.allitems.yoy"
+    )
+
+    # June was released on 20 July before this docket date. The first eligible
+    # still-unknown period is July, whose official print is due 17 August.
+    assert advance_past_released_native_periods(
+        entry, "2026-06", dt.date(2026, 7, 25)
+    ) == "2026-07"
+    warning = capsys.readouterr().err
+    assert "official release 2026-07-20 is not after docket date 2026-07-25" in (
+        warning
+    )
 
 
 def test_slug_template_replaces_month_names_only_at_token_boundaries() -> None:

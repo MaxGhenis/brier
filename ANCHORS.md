@@ -162,3 +162,89 @@ denominator, and derived percentage here. No code path treats an unverified
 anchor as a resolved outcome: the production resolver will run only inside the
 preregistered 2026-10-15 through 2026-10-22 snapshot window and archives every
 request body and response.
+
+---
+
+# International adapter anchor verification
+
+Verified on 25 July 2026. An adapter is executable only when its parser and
+transform reproduce at least three recent official first prints from captured
+official response bytes. The `got` column below is the value produced by
+`scripts/resolve_pending.py` from the corresponding trimmed fixture in
+`tests/fixtures/international/`; it is not copied from the expected value.
+Fixture provenance and the SHA-256 of each full archived response are recorded
+in `tests/fixtures/international/README.md`.
+
+Aliases that share the same source identifier, parser, transform, and fixture
+count as one `(series, adapter)` pair. Five unique pairs (12 data-point-id
+stems) pass the admission rule. These fixed periods are immutable admission
+evidence, not recurring live sentinels: bounded latest-N responses eventually
+age them out. Live execution instead requires the exact response
+vector/dataflow/dataset identity, registered unit and binding, official release
+window, and (for Eurostat flash) estimate status.
+
+| Pair | Executable stems | Official request | Release calendar |
+| --- | --- | --- | --- |
+| Statistics Canada CPI all-items YoY | `statcan.cpi.allitems.yoy`; `statcan.cpi.all_items_annual_rate.canada` | WDS vector `41690973` | [Statistics Canada 2026 release dates](https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf) |
+| Statistics Canada monthly GDP growth | `statcan.gdp_by_industry.monthly_growth`; `statcan.36-10-0434-01.all_industries.month_to_month_percent_change` | WDS vector `65201210` | [Statistics Canada 2026 release dates](https://www150.statcan.gc.ca/n1/release-diffusion/2026-eng.pdf) |
+| ABS monthly CPI annual rate | `abs.cpi.all_groups.yoy`; `abs.cpi.all_groups_annual_rate.australia`; `abs.cpi_indicator.allgroups.yoy` | `CPI/3.10001.10.50.M` | [Consumer Price Index, Australia](https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/consumer-price-index-australia) |
+| ABS unemployment rate, seasonally adjusted | `abs.labour.unemployment_rate`; `abs.labour.unemployment_rate.australia` | `LF/M13.3.1599.20.AUS.M` | [Labour Force, Australia](https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia) |
+| Eurostat euro-area HICP flash YoY | `eurostat.hicp.flash.yoy`; `eurostat.ea.hicp.flash.yoy`; `eurostat.hicp.all_items_annual_rate.euro_area` | `prc_hicp_minr/M.RCH_A.TOTAL.EA21` | [Euro indicators release calendar](https://ec.europa.eu/eurostat/news/euro-indicators/release-calendar) |
+
+## Verified first prints
+
+| Pair | Period | Expected | Got | Official first-print evidence |
+| --- | --- | ---: | ---: | --- |
+| Statistics Canada CPI all-items YoY | 2026-02 | 1.8 | 1.8 | [The Daily, 16 March 2026](https://www150.statcan.gc.ca/n1/daily-quotidien/260316/dq260316a-eng.htm) |
+| Statistics Canada CPI all-items YoY | 2026-03 | 2.4 | 2.4 | [The Daily, 20 April 2026](https://www150.statcan.gc.ca/n1/daily-quotidien/260420/dq260420a-eng.htm) |
+| Statistics Canada CPI all-items YoY | 2026-04 | 2.8 | 2.8 | [The Daily, 19 May 2026](https://www150.statcan.gc.ca/n1/daily-quotidien/260519/dq260519a-eng.htm) |
+| Statistics Canada CPI all-items YoY | 2026-05 | 3.2 | 3.2 | [The Daily, 22 June 2026](https://www150.statcan.gc.ca/n1/daily-quotidien/260622/dq260622a-eng.htm) |
+| Statistics Canada monthly GDP growth | 2026-02 | 0.2 | 0.2 | [The Daily, 30 April 2026](https://www150.statcan.gc.ca/n1/daily-quotidien/260430/dq260430a-eng.htm) |
+| Statistics Canada monthly GDP growth | 2026-03 | -0.1 | -0.1 | [The Daily, 29 May 2026](https://www150.statcan.gc.ca/n1/daily-quotidien/260529/dq260529b-eng.htm) |
+| Statistics Canada monthly GDP growth | 2026-04 | 0.5 | 0.5 | [The Daily, 30 June 2026](https://www150.statcan.gc.ca/n1/daily-quotidien/260630/dq260630a-eng.htm) |
+| ABS monthly CPI annual rate | 2026-02 | 3.7 | 3.7 | [Monthly CPI, February 2026](https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/feb-2026) |
+| ABS monthly CPI annual rate | 2026-03 | 4.6 | 4.6 | [Monthly CPI, March 2026](https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/mar-2026) |
+| ABS monthly CPI annual rate | 2026-04 | 4.2 | 4.2 | [Monthly CPI, April 2026](https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/apr-2026) |
+| ABS monthly CPI annual rate | 2026-05 | 4.0 | 4.0 | [Monthly CPI, May 2026](https://www.abs.gov.au/statistics/economy/price-indexes-and-inflation/monthly-consumer-price-index-indicator/may-2026) |
+| ABS unemployment rate, seasonally adjusted | 2026-03 | 4.3 | 4.3 | [Labour Force, March 2026](https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/mar-2026) |
+| ABS unemployment rate, seasonally adjusted | 2026-04 | 4.5 | 4.5 | [Labour Force, April 2026](https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/apr-2026) |
+| ABS unemployment rate, seasonally adjusted | 2026-05 | 4.4 | 4.4 | [Labour Force, May 2026](https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/may-2026) |
+| Eurostat euro-area HICP flash YoY | 2026-04 | 3.0 | 3.0 | [Eurostat flash estimate, 30 April 2026](https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/2-30042026-ap) |
+| Eurostat euro-area HICP flash YoY | 2026-05 | 3.2 | 3.2 | [Eurostat flash estimate, 2 June 2026](https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/2-02062026-ap) |
+| Eurostat euro-area HICP flash YoY | 2026-06 | 2.8 | 2.8 | [Eurostat flash estimate, 1 July 2026](https://ec.europa.eu/eurostat/en/web/products-euro-indicators/w/2-01072026-ap) |
+
+Statistics Canada CPI and ABS original-series CPI are treated as non-revised
+apart from explicit corrections. Statistics Canada GDP and ABS Labour Force
+can revise: the archived API payload proves parser agreement, the period's
+release page establishes the first print, and resolution is limited to the
+registered first-print window. Eurostat flash resolution additionally requires
+the target observation's estimate flag (`e`); the June fixture retains it.
+
+For recurring docket targets, `scripts/docket_series.json` records exact
+period-to-release-date mappings from the calendar linked above. The roller
+copies that date into `expectedReleaseDate`; registration creates an exact
+one-day release window and refuses native targets without a valid HTTPS
+calendar citation. A period missing from the finite published schedule is
+skipped rather than extrapolated from cadence.
+
+## Explicitly unverified
+
+ABS published a June 2026 seasonally adjusted unemployment rate of 4.4 on
+[23 July 2026](https://www.abs.gov.au/statistics/labour/employment-and-unemployment/labour-force-australia/jun-2026),
+but the real ABS API response archived on 10 July ends at May. Network access
+to `data.api.abs.gov.au` was unavailable after the June release. June is
+therefore **UNVERIFIED through the adapter**, has no `got` value, and is not in
+the executable adapter's anchor set. No release-page value was projected into
+synthetic API JSON.
+
+The following candidate families are also **UNVERIFIED and not executable**.
+Candidate metadata or values observed on a current page do not substitute for
+three captured first-print payloads.
+
+| Agency | Candidate series | Admission blocker |
+| --- | --- | --- |
+| Statistics Canada | LFS unemployment rate, LFS employment change, EI regular beneficiaries | Fewer than three captured release-vintage payloads proving first-print extraction for each revision-prone series |
+| ABS | Employment change, quarterly CPI, total-dwellings building approvals | No three-period captured fixture set; the approvals release-page snapshot covers only one period |
+| Eurostat | Unemployment, industrial production, construction production, retail volume | No three-period captured first-print fixture set for the exact candidate |
+| ONS | CPI, claimant count, retail sales, public-sector net borrowing | No captured ONS JSON fixture set; current mutable series are insufficient for revision-prone first prints |
+| Statistics Bureau of Japan / e-Stat | Tokyo CPI, national LFS, household spending | The e-Stat JSON API requires an application ID per the [official API documentation](https://www.e-stat.go.jp/api/api/api/index.php/en/api-dev/how_to_use). Per the lane contract, no e-Stat adapter or release-artifact parser was added. |

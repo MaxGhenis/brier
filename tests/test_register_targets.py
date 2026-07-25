@@ -476,6 +476,191 @@ def test_alfred_docket_templates_build_registration_contracts() -> None:
         }
 
 
+@pytest.mark.parametrize(
+    ("series", "adapter", "legacy_id"),
+    [
+        (
+            "abs.labour.unemployment_rate",
+            "abs-data-api",
+            "abs.labour.unemployment_rate.australia.june_2026.first_print",
+        ),
+        (
+            "eurostat.hicp.flash.yoy",
+            "eurostat-api",
+            "eurostat.hicp.all_items_annual_rate.euro_area.2026_06.flash",
+        ),
+        (
+            "statcan.gdp_by_industry.monthly_growth",
+            "statcan-wds",
+            (
+                "statcan.36-10-0434-01.all_industries."
+                "month_to_month_percent_change.2026-06.first_print"
+            ),
+        ),
+    ],
+)
+def test_native_registration_uses_canonical_series_id_stem(
+    series: str, adapter: str, legacy_id: str
+) -> None:
+    target = {
+        "series": series,
+        "period": "2026-07",
+        "sourceBinding": {
+            "adapter": adapter,
+            "releasePolicy": "first_print",
+        },
+    }
+    previous = {"period": "2026-06", "dataPointId": legacy_id}
+
+    assert register_targets.derive_data_point_id(target, previous) == (
+        f"{series}.2026_07.first_print"
+    )
+
+
+def test_native_registration_refuses_cadence_inferred_release_window() -> None:
+    target = {
+        "series": "abs.labour.unemployment_rate",
+        "period": "2026-07",
+        "catalogSlug": "australia-unemployment-rate-july-2026",
+        "targetUnit": "percent",
+        "releaseCalendarUrl": (
+            "https://www.abs.gov.au/statistics/labour/"
+            "employment-and-unemployment/labour-force-australia"
+        ),
+        "sourceBinding": {"adapter": "abs-data-api"},
+        "previousTarget": {
+            "period": "2026-06",
+            "resolutionDate": "2026-07-23",
+            "unit": "percent",
+        },
+    }
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="explicit official expectedReleaseDate",
+    ):
+        register_targets.build_contract(target, dt.date(2026, 7, 25))
+
+    with pytest.raises(
+        register_targets.RegistrationError, match="releaseCalendarUrl"
+    ):
+        register_targets.build_contract(
+            {
+                **target,
+                "expectedReleaseDate": "2026-08-20",
+                "releaseCalendarUrl": "http://www.abs.gov.au/calendar",
+            },
+            dt.date(2026, 7, 25),
+        )
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="must start after the registration date",
+    ):
+        register_targets.build_contract(
+            {
+                **target,
+                "expectedReleaseDate": "2026-07-20",
+            },
+            dt.date(2026, 7, 25),
+        )
+
+
+def test_inherited_native_binding_keeps_canonical_id_and_official_window() -> None:
+    previous = {
+        "period": "2026-07",
+        "dataPointId": (
+            "abs.labour.unemployment_rate.australia."
+            "july_2026.first_print"
+        ),
+        "country": "AU",
+        "unit": "percent",
+        "resolutionDate": "2026-08-20",
+        "resolutionSourceUrl": (
+            "https://data.api.abs.gov.au/rest/data/"
+            "LF/M13.3.1599.20.AUS.M?format=jsondata"
+        ),
+        "sourceBinding": {
+            "adapter": "abs-data-api",
+            "sourceUrl": (
+                "https://data.api.abs.gov.au/rest/data/"
+                "LF/M13.3.1599.20.AUS.M?format=jsondata"
+            ),
+            "sourceSeriesId": "LF/M13.3.1599.20.AUS.M",
+            "field": "M13",
+            "table": "ABS Labour Force, Australia",
+            "transform": {"operation": "multiply", "factor": 1},
+            "releasePolicy": "first_print",
+            "expectedReleaseWindow": {
+                "start": "2026-08-20",
+                "end": "2026-08-20",
+            },
+            "allowedHosts": ["data.api.abs.gov.au"],
+        },
+    }
+    target = {
+        "series": "abs.labour.unemployment_rate",
+        "period": "2026-08",
+        "catalogSlug": "australia-unemployment-rate-august-2026",
+        "targetUnit": "percent",
+        "expectedReleaseDate": "2026-09-24",
+        "releaseCalendarUrl": (
+            "https://www.abs.gov.au/statistics/labour/"
+            "employment-and-unemployment/labour-force-australia"
+        ),
+        "previousTarget": previous,
+    }
+
+    contract = register_targets.build_contract(target, dt.date(2026, 7, 25))
+
+    assert contract["dataPointId"] == (
+        "abs.labour.unemployment_rate.2026_08.first_print"
+    )
+    assert contract["sourceBinding"]["adapter"] == "abs-data-api"
+    assert contract["sourceBinding"]["sourceSeriesId"] == (
+        "LF/M13.3.1599.20.AUS.M"
+    )
+    assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+        "start": "2026-09-24",
+        "end": "2026-09-24",
+    }
+
+
+def test_inherited_native_binding_still_requires_official_release_date() -> None:
+    target = {
+        "series": "abs.labour.unemployment_rate",
+        "period": "2026-08",
+        "catalogSlug": "australia-unemployment-rate-august-2026",
+        "targetUnit": "percent",
+        "releaseCalendarUrl": (
+            "https://www.abs.gov.au/statistics/labour/"
+            "employment-and-unemployment/labour-force-australia"
+        ),
+        "previousTarget": {
+            "period": "2026-07",
+            "unit": "percent",
+            "resolutionDate": "2026-08-20",
+            "sourceBinding": {
+                "adapter": "abs-data-api",
+                "sourceUrl": (
+                    "https://data.api.abs.gov.au/rest/data/"
+                    "LF/M13.3.1599.20.AUS.M?format=jsondata"
+                ),
+                "sourceSeriesId": "LF/M13.3.1599.20.AUS.M",
+                "field": "M13",
+                "table": "ABS Labour Force, Australia",
+                "transform": {"operation": "multiply", "factor": 1},
+                "releasePolicy": "first_print",
+            },
+        },
+    }
+
+    with pytest.raises(
+        register_targets.RegistrationError,
+        match="explicit official expectedReleaseDate",
+    ):
+        register_targets.build_contract(target, dt.date(2026, 7, 25))
+
+
 def test_publisher_contract_enforces_allowed_hosts_membership() -> None:
     registration = {
         "unit": "thousands",
@@ -1356,6 +1541,66 @@ def test_bind_rejects_ambiguous_head_template(tmp_path, monkeypatch) -> None:
     _commit_files(tmp_path, [docket], "make template ambiguous")
 
     with pytest.raises(register_targets.RegistrationError, match="ambiguous"):
+        register_targets.bind_registration_commits(targets_path)
+
+
+@pytest.mark.parametrize(
+    ("calendar_case", "message"),
+    [
+        ("missing-docket-entry", "exactly one committed docket template"),
+        ("template-less-docket-entry", "committed sourceBinding template"),
+        ("tampered-release-date", "disagrees with the committed docket calendar"),
+    ],
+)
+def test_bind_native_registration_requires_committed_calendar_authority(
+    tmp_path, monkeypatch, calendar_case, message
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    _, contract = _binding_upgrade_contracts()
+    contract = json.loads(json.dumps(contract))
+    contract["sourceBinding"]["adapter"] = "abs-data-api"
+    contract["sourceBinding"]["expectedReleaseWindow"] = {
+        "start": "2026-08-20",
+        "end": "2026-08-20",
+    }
+    calendar_url = (
+        "https://www.abs.gov.au/statistics/labour/"
+        "employment-and-unemployment/labour-force-australia"
+    )
+    entries: list[dict] = []
+    if calendar_case != "missing-docket-entry":
+        entry = (
+            {"series": contract["series"]}
+            if calendar_case == "template-less-docket-entry"
+            else _docket_entry(contract)
+        )
+        entry["releaseCalendarUrl"] = calendar_url
+        entry["releaseDates"] = {
+            "2026-07": (
+                "2026-08-21"
+                if calendar_case == "tampered-release-date"
+                else "2026-08-20"
+            )
+        }
+        entries.append(entry)
+    docket = _write_docket(tmp_path, entries)
+    registration = _registration(
+        contract, "2026-07-25T14:32:05Z", _pin("c" * 40, 128)
+    )
+    snapshot, targets_path = _install_registration_for_bind(
+        tmp_path, generated, registration
+    )
+    payload = json.loads(targets_path.read_text())
+    payload["targets"][0]["releaseCalendarUrl"] = calendar_url
+    targets_path.write_text(json.dumps(payload, indent=2) + "\n")
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    _commit_files(
+        tmp_path,
+        [generated, docket, snapshot],
+        f"commit native registration with {calendar_case}",
+    )
+
+    with pytest.raises(register_targets.RegistrationError, match=message):
         register_targets.bind_registration_commits(targets_path)
 
 

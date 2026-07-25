@@ -39,6 +39,15 @@ LOG_URL = "https://app.thesisinstitute.org/log.json"
 SNAPSHOT_SEED_HORIZON_DAYS = 75
 
 MONTH_NAMES = [m.lower() for m in calendar.month_name]
+OFFICIAL_CALENDAR_ADAPTERS = frozenset(
+    {
+        "abs-data-api",
+        "abs-release-page",
+        "eurostat-api",
+        "ons-timeseries",
+        "statcan-wds",
+    }
+)
 
 
 def slugify_series(series: str) -> str:
@@ -433,6 +442,96 @@ def snapshot_seed_target(
     }
 
 
+
+
+def target_extras_for_period(entry: dict, period: str) -> dict | None:
+    """Return target extras, requiring a dated calendar slot for native APIs.
+
+    A previous target's resolution date is not evidence for the next official
+    release date. Native international adapters therefore roll only when the
+    committed registry maps the exact reference period to an agency-published
+    date and records the calendar used to verify it.
+    """
+    extras = entry.get("extras") or {}
+    binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    adapter = binding.get("adapter") if isinstance(binding, dict) else None
+    if adapter not in OFFICIAL_CALENDAR_ADAPTERS:
+        return dict(extras)
+
+    release_dates = entry.get("releaseDates")
+    release_date = (
+        release_dates.get(period) if isinstance(release_dates, dict) else None
+    )
+    calendar_url = entry.get("releaseCalendarUrl")
+    try:
+        if not isinstance(release_date, str):
+            raise ValueError("missing date")
+        dt.date.fromisoformat(release_date)
+        if not isinstance(calendar_url, str) or not calendar_url.startswith(
+            "https://"
+        ):
+            raise ValueError("missing HTTPS calendar URL")
+    except ValueError:
+        print(
+            f"  warning: skip {entry.get('series', '?')} {period}: "
+            "native adapter has no valid explicit official release date "
+            "and releaseCalendarUrl in the docket registry",
+            file=sys.stderr,
+        )
+        return None
+
+    return {
+        **extras,
+        "expectedReleaseDate": release_date,
+        "releaseCalendarUrl": calendar_url,
+    }
+
+
+def advance_past_released_native_periods(
+    entry: dict, period: str, today: dt.date
+) -> str | None:
+    """Advance over never-forecast periods whose official print is now known.
+
+    The normal docket cursor advances only through published forecasts. A
+    newly adopted series can therefore point at a missed historical period.
+    Native calendar metadata lets us skip that known outcome without ever
+    generating a post-release forecast, then select the first still-unreleased
+    period that has meaningfully begun.
+    """
+    extras = entry.get("extras") or {}
+    binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    adapter = binding.get("adapter") if isinstance(binding, dict) else None
+    if adapter not in OFFICIAL_CALENDAR_ADAPTERS:
+        return period
+
+    candidate = period
+    release_dates = entry.get("releaseDates")
+    while True:
+        release_value = (
+            release_dates.get(candidate)
+            if isinstance(release_dates, dict)
+            else None
+        )
+        try:
+            release_day = dt.date.fromisoformat(str(release_value))
+        except ValueError:
+            # target_extras_for_period emits the precise missing-date warning.
+            return candidate
+        if release_day > today:
+            return candidate
+        print(
+            f"  skip {entry.get('series', '?')} {candidate}: official "
+            f"release {release_day} is not after docket date {today}",
+            file=sys.stderr,
+        )
+        following = step_period(candidate, entry["cadence"])
+        if following is None or not not_too_far_ahead(
+            following, entry["cadence"], today
+        ):
+            return None
+        candidate = following
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -467,6 +566,9 @@ def main() -> int:
             print(f"  skip {entry['series']}: no published cell to step from")
             continue
         nxt, latest_slug = next_result
+        nxt = advance_past_released_native_periods(entry, nxt, today)
+        if nxt is None:
+            continue
         latest = latest_published_period(entry, existing)
         previous_period = next(
             period
@@ -487,11 +589,14 @@ def main() -> int:
         slug = format_slug(entry["slug"], nxt, entry["cadence"])
         if slug in existing:
             continue
+        extras = target_extras_for_period(entry, nxt)
+        if extras is None:
+            continue
         target = {
             "series": entry["series"],
             "period": nxt,
             "catalogSlug": slug,
-            **entry.get("extras", {}),
+            **extras,
         }
         previous = published_forecasts.get(latest_slug)
         if previous:

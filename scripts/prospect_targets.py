@@ -302,7 +302,13 @@ def _transform_errors(value: Any, label: str = "transform") -> list[str]:
     operation = value.get("operation")
     factor = value.get("factor")
     errors = []
-    if operation not in {"identity", "multiply"}:
+    if operation not in {
+        "difference_previous_period",
+        "identity",
+        "multiply",
+        "percent_change_previous_period",
+        "percent_change_year_ago",
+    }:
         errors.append(f"bad {label} operation")
     if type(factor) not in {int, float} or not math.isfinite(float(factor)):
         errors.append(f"bad {label} factor")
@@ -313,7 +319,16 @@ def _source_binding_errors(value: Any) -> list[str]:
     if not isinstance(value, dict) or set(value) != SOURCE_BINDING_FIELDS:
         return ["bad previousTarget sourceBinding schema"]
     errors = []
-    if value.get("adapter") not in {"alfred-fred", "generic-url", "usaspending-api"}:
+    if value.get("adapter") not in {
+        "abs-data-api",
+        "abs-release-page",
+        "alfred-fred",
+        "eurostat-api",
+        "generic-url",
+        "ons-timeseries",
+        "statcan-wds",
+        "usaspending-api",
+    }:
         errors.append("bad previousTarget source adapter")
     if value.get("releasePolicy") not in {
         "first_print",

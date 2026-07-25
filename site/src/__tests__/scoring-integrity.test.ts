@@ -522,6 +522,92 @@ describe("contract-bound resolution (fail closed past the quarantine)", () => {
     expect(evaluation.score?.contractBinding).toBe("contract_bound");
   });
 
+  it("accepts a registered legacy id stem bound to a canonical series", () => {
+    // This exact early ABS target inherited a descriptive dataPointId stem
+    // that is not byte-identical to its canonical contract.series.
+    const legacyDataPointId =
+      "abs.labour.unemployment_rate.australia.july_2026.first_print";
+    const legacyTargetContentHash =
+      "cf3a2f76bb15d9f5eb9f5ae19d2e96b55111cf6842a1c8c8412b915ae614a85b";
+    const canonicalSeries = "abs.labour.unemployment_rate";
+    const legacyCell = { ...cell, dataPointId: legacyDataPointId };
+    const legacyTarget: TargetRegisteredLedgerEntry = {
+      ...registered,
+      dataPointId: legacyDataPointId,
+      observationId: `obs.${legacyDataPointId}`,
+      targetContentHash: legacyTargetContentHash,
+      series: canonicalSeries,
+    };
+    const legacyFact = boundFact({
+      dataPointId: legacyDataPointId,
+      observationId: `obs.${legacyDataPointId}`,
+      targetContentHash: legacyTargetContentHash,
+    });
+    legacyFact.sourceBindingProjection = {
+      ...legacyFact.sourceBindingProjection!,
+      series: canonicalSeries,
+    };
+    const legacyRun = getForecastRunEntries(legacyCell)[0];
+    const evaluation = evaluateResolvedForecastRun(
+      legacyCell,
+      legacyRun,
+      [legacyTarget, legacyFact],
+    );
+    expect(evaluation.exclusion).toBeUndefined();
+    expect(evaluation.score?.contractBinding).toBe("contract_bound");
+  });
+
+  it("rejects an unreviewed registered-id series alias", () => {
+    const aliasDataPointId = "test.bound.series.unreviewed_alias.2026";
+    const aliasCell = { ...cell, dataPointId: aliasDataPointId };
+    const aliasTarget: TargetRegisteredLedgerEntry = {
+      ...registered,
+      dataPointId: aliasDataPointId,
+      observationId: `obs.${aliasDataPointId}`,
+    };
+    const aliasFact = boundFact({
+      dataPointId: aliasDataPointId,
+      observationId: `obs.${aliasDataPointId}`,
+    });
+    const aliasRun = getForecastRunEntries(aliasCell)[0];
+    const evaluation = evaluateResolvedForecastRun(
+      aliasCell,
+      aliasRun,
+      [aliasTarget, aliasFact],
+    );
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("registration series");
+  });
+
+  it("rejects the reviewed legacy id under a different content hash", () => {
+    const legacyDataPointId =
+      "abs.labour.unemployment_rate.australia.july_2026.first_print";
+    const canonicalSeries = "abs.labour.unemployment_rate";
+    const legacyCell = { ...cell, dataPointId: legacyDataPointId };
+    const wrongHashTarget: TargetRegisteredLedgerEntry = {
+      ...registered,
+      dataPointId: legacyDataPointId,
+      observationId: `obs.${legacyDataPointId}`,
+      series: canonicalSeries,
+    };
+    const wrongHashFact = boundFact({
+      dataPointId: legacyDataPointId,
+      observationId: `obs.${legacyDataPointId}`,
+    });
+    wrongHashFact.sourceBindingProjection = {
+      ...wrongHashFact.sourceBindingProjection!,
+      series: canonicalSeries,
+    };
+    const legacyRun = getForecastRunEntries(legacyCell)[0];
+    const evaluation = evaluateResolvedForecastRun(
+      legacyCell,
+      legacyRun,
+      [wrongHashTarget, wrongHashFact],
+    );
+    expect(evaluation.exclusion?.reason).toBe("contract_violation");
+    expect(evaluation.exclusion?.detail).toContain("registration series");
+  });
+
   it("rejects a projection whose series contradicts the registration", () => {
     // Finding 1: the projection's declared series is checked against the
     // registration, not merely against its own copy.
