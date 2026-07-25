@@ -124,3 +124,77 @@ def test_sigma_gate_still_binds_every_other_prompt_mode() -> None:
         assert any(
             "interval derivation" in error for error in errors
         ), (mode, errors)
+
+
+def stampable_cell() -> dict:
+    """Minimal cell with the fields to_forecast_cell copies verbatim."""
+    cell = {key: "?" for key in spawned_cells_to_ts.REQUIRED}
+    cell.update(
+        {
+            "slug": "stamp-probe-cell",
+            "pointEstimate": 1.0,
+            "ciLow": 0.5,
+            "ciHigh": 1.5,
+            "confidence": 0.8,
+            "historicalContext": [{"label": "t-1", "value": 1.0}],
+            "drivers": ["driver"],
+            "sourceContext": ["https://example.gov/series"],
+            "runAt": "2026-07-24T14:57:47Z",
+            "reasoning": [],
+            "model": "gpt-5.5",
+        }
+    )
+    return cell
+
+
+def test_published_stamp_names_the_run_agent_not_the_working_tree() -> None:
+    """A published cell must carry the agent that PRODUCED it.
+
+    The stamp used to come from the live agent definition, so editing any
+    skill silently restamped every previously published cell with a version
+    that never generated it — and broke wave reproducibility until the wave
+    was regenerated into that same untruth (2026-07-25).
+    """
+
+    sealed = {
+        "agent": "thesis.analyst",
+        "agentVersion": "2.3.0",
+        "model": "gpt-5.5",
+        "promptHash": "a" * 64,
+        "toolPolicyHash": "b" * 64,
+    }
+    cell = stampable_cell()
+    cell[spawned_cells_to_ts.SEALED_AGENT_KEY] = sealed
+
+    run = spawned_cells_to_ts.to_forecast_cell(cell)["predictionRun"]
+
+    assert run["agentVersion"] == "2.3.0"
+    assert run["promptHash"] == "a" * 64
+    assert run["toolPolicyHash"] == "b" * 64
+    live = spawned_cells_to_ts.agent_stamp()
+    assert live["agentVersion"] != "2.3.0", (
+        "fixture must differ from the live agent, or this proves nothing"
+    )
+    # The private carrier key must never reach the published cell.
+    assert spawned_cells_to_ts.SEALED_AGENT_KEY not in run
+
+
+def test_stamp_falls_back_to_live_agent_when_run_sealed_none() -> None:
+    """Pre-manifest inputs keep working: fall back, never crash."""
+
+    run = spawned_cells_to_ts.to_forecast_cell(stampable_cell())["predictionRun"]
+    assert run["agentVersion"] == spawned_cells_to_ts.agent_stamp()["agentVersion"]
+
+
+def test_sealed_agent_meta_rejects_incomplete_manifest_identity(
+    tmp_path: pathlib.Path,
+) -> None:
+    """A half-filled agent block must fall back, not publish blanks."""
+
+    import json
+
+    (tmp_path / "manifest.json").write_text(
+        json.dumps({"agent": {"agent": "thesis.analyst", "agentVersion": ""}})
+    )
+    assert spawned_cells_to_ts.sealed_agent_meta(tmp_path) is None
+    assert spawned_cells_to_ts.sealed_agent_meta(tmp_path / "missing") is None

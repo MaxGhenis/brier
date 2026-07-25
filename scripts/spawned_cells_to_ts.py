@@ -264,8 +264,22 @@ def validate(cell: dict, taken: set[str]) -> list[str]:
     return errs
 
 
+# Key under which load_cells carries a run's SEALED agent metadata (from its
+# manifest) alongside the cell, so the published stamp names the agent that
+# actually produced the forecast.
+SEALED_AGENT_KEY = "_sealedAgentMeta"
+
+
 def agent_stamp() -> dict:
-    """Version/hash metadata from the live agent definition."""
+    """Version/hash metadata from the live agent definition.
+
+    Fallback only. A recorded run's stamp must come from its own sealed
+    manifest (SEALED_AGENT_KEY) — stamping live metadata made published
+    provenance track HEAD instead of the run: editing any skill silently
+    restamped every previously published cell with a version that never
+    produced it, and broke wave reproducibility until the wave was
+    regenerated into that same untruth (2026-07-25).
+    """
     import subprocess
 
     builder = (
@@ -276,6 +290,18 @@ def agent_stamp() -> dict:
         subprocess.check_output([sys.executable, str(builder), "--metadata"])
     )
     return meta
+
+
+def sealed_agent_meta(run_dir: pathlib.Path) -> dict | None:
+    """Agent identity recorded in a run's manifest, if it has one."""
+    manifest_path = run_dir / "manifest.json"
+    if not manifest_path.exists():
+        return None
+    meta = json.loads(manifest_path.read_text()).get("agent")
+    if not isinstance(meta, dict):
+        return None
+    required = ("agent", "agentVersion", "promptHash", "toolPolicyHash")
+    return meta if all(meta.get(key) for key in required) else None
 
 
 def to_forecast_cell(cell: dict) -> dict:
@@ -306,12 +332,12 @@ def to_forecast_cell(cell: dict) -> dict:
         out["conditionalOn"] = cell["conditionalOn"]
     if cell.get("predictionDistribution"):
         out["predictionDistribution"] = cell["predictionDistribution"]
-    stamp = agent_stamp()
+    stamp = cell.get(SEALED_AGENT_KEY) or agent_stamp()
     out["predictionRun"] = {
         "kind": "recorded-agent-run",
         "runAt": cell["runAt"],
         "agent": stamp["agent"],
-        "model": cell.get("model", stamp["model"]),
+        "model": cell.get("model", stamp.get("model")),
         "agentVersion": stamp["agentVersion"],
         "promptHash": stamp["promptHash"],
         "toolPolicyHash": stamp["toolPolicyHash"],
@@ -335,6 +361,10 @@ def load_cells(path: pathlib.Path) -> list[dict]:
     cells = scrub_signed_zeros(json.loads(path.read_text()))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
+    sealed_agent = sealed_agent_meta(path.parent)
+    if sealed_agent:
+        for cell in cells:
+            cell[SEALED_AGENT_KEY] = sealed_agent
     manifest_path = path.parent / "manifest.json"
     custody_path = path.parent / "custody_root.json"
     if custody_path.exists():
