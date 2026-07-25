@@ -3751,10 +3751,26 @@ def source_binding_projection(
         )
     registered_series = contract.get("series")
     if registered_series is not None and row_concept != registered_series:
-        raise ValueError(
-            f"fact measure concept {row_concept!r} does not match the "
-            f"registered series {registered_series!r} for {record_id}"
+        # International ledger rows carry the period-suffixed concept
+        # convention (concept == dataPointId minus its release-policy
+        # token: abs.labour.employment_change.australia.june_2026 for
+        # ...june_2026.first_print — every pre-existing abs/eurostat/
+        # statjp row is immutable precedent). Accept EXACTLY that
+        # identity-derived form: a strict dot-prefix of the row's own
+        # record id that strictly extends the registered series, which
+        # binds the series AND the period. Anything else still refuses.
+        suffixed_form = (
+            isinstance(row_concept, str)
+            and isinstance(record_id, str)
+            and record_id.startswith(f"{registered_series}.")
+            and record_id.startswith(f"{row_concept}.")
+            and len(row_concept) > len(registered_series)
         )
+        if not suffixed_form:
+            raise ValueError(
+                f"fact measure concept {row_concept!r} does not match the "
+                f"registered series {registered_series!r} for {record_id}"
+            )
     allowed_hosts = binding.get("allowedHosts")
     row_url = row_source.get("url") or measure.get("concept_evidence_url")
     if allowed_hosts and row_url:

@@ -2647,3 +2647,60 @@ def test_cms_provider_data_value_aggregate_fails_closed() -> None:
         renamed, spec, "2026-07-01"
     )
     assert value is None and "not both present" in refusal
+
+
+def test_write_side_accepts_the_intl_period_suffixed_concept_exactly() -> None:
+    """International ledger rows (abs/eurostat/statjp, immutable precedent)
+    carry concept == dataPointId minus the release-policy token. Only that
+    identity-derived form is accepted; wrong periods, whole record ids, and
+    unrelated series still refuse (the 2026-07-23/24 resolution outage)."""
+
+    registration = {
+        "targetContentHash": "a" * 64,
+        "contract": {
+            "dataPointId": (
+                "abs.labour.employment_change.australia.june_2026.first_print"
+            ),
+            "series": "abs.labour.employment_change.australia",
+            "period": "2026-06",
+            "unit": "thousands of persons",
+            "sourceBinding": {
+                "releasePolicy": "first_print",
+                "table": "ABS Labour Force, Australia",
+                "field": "employment_change",
+                "transform": {"operation": "multiply", "factor": 0.001},
+            },
+        },
+        "ledgerPin": None,
+    }
+
+    def row(concept: str) -> dict:
+        return {
+            "source_record_id": (
+                "abs.labour.employment_change.australia.june_2026.first_print"
+            ),
+            "value": 25.4,
+            "measure": {"concept": concept, "unit": "thousands of persons"},
+        }
+
+    ok = resolve_pending.source_binding_projection(
+        registration,
+        row("abs.labour.employment_change.australia.june_2026"),
+        b"raw",
+    )
+    assert ok["series"] == "abs.labour.employment_change.australia"
+
+    for bad in [
+        # Wrong period: not a prefix of THIS record id.
+        "abs.labour.employment_change.australia.may_2026",
+        # The whole record id (policy token included) is not a concept.
+        "abs.labour.employment_change.australia.june_2026.first_print",
+        # Unrelated series never passes, suffixed or not.
+        "abs.labour.unemployment_rate.australia.june_2026",
+    ]:
+        try:
+            resolve_pending.source_binding_projection(registration, row(bad), b"x")
+        except ValueError as error:
+            assert "concept" in str(error)
+        else:
+            raise AssertionError(f"malformed concept accepted: {bad}")
