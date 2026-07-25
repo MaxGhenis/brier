@@ -1,5 +1,5 @@
 {
-  "comment": "Registry for the auto-roll loop (scripts/roll_docket.py). Next period per series derives from the latest recorded run in records/thesis-analyst/; the live catalog slug set is the final dup guard. Only series with at least one rubric-passing published run belong here.",
+  "comment": "Registry for the auto-roll loop (scripts/roll_docket.py). Recurring series derive their next period from the latest published run; reviewed annual registered-query snapshots instead carry one explicit period and capture window and are never cadence-stepped. The live catalog slug set is the final duplicate guard.",
   "series": [
     {
       "series": "us.dol.initial_claims.sa",
@@ -928,8 +928,13 @@
     {
       "series": "usaspending.dod.prime_award_obligations",
       "cadence": "annual",
+      "period": "FY2026",
       "slug": "us-dod-prime-award-obligations-{period}",
       "extras": {
+        "expectedReleaseWindow": {
+          "start": "2026-10-15",
+          "end": "2026-10-22"
+        },
         "valueScale": 1e-09,
         "targetUnit": "billions USD",
         "sourceBinding": {
@@ -949,8 +954,13 @@
     {
       "series": "usaspending.dod.prime_contract_obligations",
       "cadence": "annual",
+      "period": "FY2026",
       "slug": "us-dod-prime-contract-obligations-{period}",
       "extras": {
+        "expectedReleaseWindow": {
+          "start": "2026-10-15",
+          "end": "2026-10-22"
+        },
         "valueScale": 1e-09,
         "targetUnit": "billions USD",
         "sourceBinding": {
@@ -970,8 +980,13 @@
     {
       "series": "usaspending.dod.new_prime_awards",
       "cadence": "annual",
+      "period": "FY2026",
       "slug": "us-dod-new-prime-awards-{period}",
       "extras": {
+        "expectedReleaseWindow": {
+          "start": "2026-10-15",
+          "end": "2026-10-22"
+        },
         "valueScale": 1e-06,
         "targetUnit": "millions",
         "sourceBinding": {
@@ -991,8 +1006,13 @@
     {
       "series": "usaspending.dod.prime_award_transactions",
       "cadence": "annual",
+      "period": "FY2026",
       "slug": "us-dod-prime-award-transactions-{period}",
       "extras": {
+        "expectedReleaseWindow": {
+          "start": "2026-10-15",
+          "end": "2026-10-22"
+        },
         "valueScale": 1e-06,
         "targetUnit": "millions",
         "sourceBinding": {
@@ -1004,6 +1024,94 @@
           "transform": {
             "operation": "multiply",
             "factor": 1e-06
+          },
+          "releasePolicy": "registered_query_snapshot"
+        }
+      }
+    },
+    {
+      "series": "usaspending.dod.unique_prime_contract_recipients",
+      "cadence": "annual",
+      "period": "FY2026",
+      "slug": "us-dod-unique-prime-contract-recipients-{period}",
+      "extras": {
+        "expectedReleaseWindow": {
+          "start": "2026-10-15",
+          "end": "2026-10-22"
+        },
+        "valueScale": 0.001,
+        "targetUnit": "thousands",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_by_category/recipient/",
+          "sourceSeriesId": "usaspending.search.spending_by_category.recipient.dod.contracts.distinct",
+          "field": "results[].recipient_id",
+          "table": "USAspending API v2 advanced search, DoD prime-contract obligations grouped by recipient, fiscal year to date",
+          "transform": {
+            "operation": "count_distinct",
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "spendingLevel": "transactions",
+            "agency": {
+              "type": "awarding",
+              "tier": "toptier",
+              "name": "Department of Defense"
+            },
+            "awardTypeCodes": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "identityField": "recipient_id",
+            "excludeNullIdentity": true,
+            "pageSize": 100,
+            "factor": 0.001
+          },
+          "releasePolicy": "registered_query_snapshot"
+        }
+      }
+    },
+    {
+      "series": "usaspending.dod.small_business_contract_obligation_share",
+      "cadence": "annual",
+      "period": "FY2026",
+      "slug": "us-dod-small-business-contract-obligation-share-{period}",
+      "extras": {
+        "expectedReleaseWindow": {
+          "start": "2026-10-15",
+          "end": "2026-10-22"
+        },
+        "valueScale": 1,
+        "targetUnit": "percent",
+        "sourceBinding": {
+          "adapter": "usaspending-api",
+          "sourceUrl": "https://api.usaspending.gov/api/v2/search/spending_over_time/",
+          "sourceSeriesId": "usaspending.search.spending_over_time.dod.contracts.small_business_obligation_share",
+          "field": "results[time_period.fiscal_year={fiscal_year}].aggregated_amount",
+          "table": "USAspending API v2 advanced search, small-business share of DoD prime-contract obligations, fiscal year to date",
+          "transform": {
+            "operation": "ratio_percent",
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "agency": {
+              "type": "awarding",
+              "tier": "toptier",
+              "name": "Department of Defense"
+            },
+            "awardTypeCodes": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ],
+            "numeratorRecipientTypeNames": [
+              "small_business"
+            ],
+            "denominatorRecipientTypeNames": [],
+            "factor": 1
           },
           "releasePolicy": "registered_query_snapshot"
         }

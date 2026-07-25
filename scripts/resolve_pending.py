@@ -1877,8 +1877,12 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         "unit": "billions USD",
         "scale": 1e-9,
         "round": 1,
+        "transform": {"operation": "multiply", "factor": 1e-9},
         "source_name": "usaspending_api",
-        "source_table": "USAspending API v2, agency 097 (DoD) award summary",
+        "source_table": (
+            "USAspending API v2, agency 097 (DoD) award summary, prime award "
+            "obligations, fiscal year to date"
+        ),
         "concept_authority": "usaspending",
         "source_concept": "obligations",
     },
@@ -1895,10 +1899,11 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         "unit": "billions USD",
         "scale": 1e-9,
         "round": 1,
+        "transform": {"operation": "multiply", "factor": 1e-9},
         "source_name": "usaspending_api",
         "source_table": (
             "USAspending API v2, agency 097 (DoD) obligations by award "
-            "category, contracts row"
+            "category, contracts row, fiscal year to date"
         ),
         "concept_authority": "usaspending",
         "source_concept": "results[category=contracts].aggregated_amount",
@@ -1914,8 +1919,12 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         "unit": "millions",
         "scale": 1e-6,
         "round": 3,
+        "transform": {"operation": "multiply", "factor": 1e-6},
         "source_name": "usaspending_api",
-        "source_table": "USAspending API v2, agency 097 (DoD) new award count",
+        "source_table": (
+            "USAspending API v2, agency 097 (DoD) new award count, fiscal "
+            "year to date"
+        ),
         "concept_authority": "usaspending",
         "source_concept": "new_award_count",
     },
@@ -1930,10 +1939,99 @@ USASPENDING_ADAPTERS: dict[str, dict[str, Any]] = {
         "unit": "millions",
         "scale": 1e-6,
         "round": 3,
+        "transform": {"operation": "multiply", "factor": 1e-6},
         "source_name": "usaspending_api",
-        "source_table": "USAspending API v2, agency 097 (DoD) award summary",
+        "source_table": (
+            "USAspending API v2, agency 097 (DoD) award summary, transaction "
+            "count, fiscal year to date"
+        ),
         "concept_authority": "usaspending",
         "source_concept": "transaction_count",
+    },
+    "usaspending.dod.unique_prime_contract_recipients": {
+        "url_template": (
+            f"{USASPENDING_API_ROOT}/search/spending_by_category/recipient/"
+        ),
+        "field": "results[].recipient_id",
+        "series_id": (
+            "usaspending.search.spending_by_category.recipient."
+            "dod.contracts.distinct"
+        ),
+        "label": (
+            "Unique identifiable recipients of US DoD prime-contract "
+            "obligations, fiscal year to date"
+        ),
+        "unit": "thousands",
+        "scale": 1e-3,
+        "round": 3,
+        "query_kind": "paginated_distinct_count",
+        "transform": {
+            "operation": "count_distinct",
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "spendingLevel": "transactions",
+            "agency": {
+                "type": "awarding",
+                "tier": "toptier",
+                "name": "Department of Defense",
+            },
+            "awardTypeCodes": ["A", "B", "C", "D"],
+            "identityField": "recipient_id",
+            "excludeNullIdentity": True,
+            "pageSize": 100,
+            "factor": 1e-3,
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, DoD prime-contract "
+            "obligations grouped by recipient, fiscal year to date"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": "distinct non-null recipient_id",
+    },
+    "usaspending.dod.small_business_contract_obligation_share": {
+        "url_template": f"{USASPENDING_API_ROOT}/search/spending_over_time/",
+        "field": (
+            "results[time_period.fiscal_year={fiscal_year}].aggregated_amount"
+        ),
+        "series_id": (
+            "usaspending.search.spending_over_time.dod.contracts."
+            "small_business_obligation_share"
+        ),
+        "label": (
+            "Small-business share of US DoD prime-contract obligations, "
+            "fiscal year to date"
+        ),
+        "unit": "percent",
+        "scale": 1,
+        "round": 2,
+        "query_kind": "ratio_percent",
+        "transform": {
+            "operation": "ratio_percent",
+            "requestMethod": "POST",
+            "fiscalYear": "{fiscal_year}",
+            "group": "fiscal_year",
+            "spendingLevel": "transactions",
+            "agency": {
+                "type": "awarding",
+                "tier": "toptier",
+                "name": "Department of Defense",
+            },
+            "awardTypeCodes": ["A", "B", "C", "D"],
+            "numeratorRecipientTypeNames": ["small_business"],
+            "denominatorRecipientTypeNames": [],
+            "factor": 1,
+        },
+        "source_name": "usaspending_api",
+        "source_table": (
+            "USAspending API v2 advanced search, small-business share of "
+            "DoD prime-contract obligations, fiscal year to date"
+        ),
+        "concept_authority": "usaspending",
+        "source_concept": (
+            "100 * small_business contract obligations / all contract "
+            "obligations"
+        ),
     },
 }
 for _spec in USASPENDING_ADAPTERS.values():
@@ -1943,6 +2041,53 @@ for _spec in USASPENDING_ADAPTERS.values():
         "continuously, so the outcome is defined as the value the pinned "
         "query returned on the registered capture date; the full response "
         "bytes are archived as evidence."
+    )
+
+USASPENDING_BINDING_TEMPLATE_KEYS = {
+    "adapter",
+    "sourceUrl",
+    "sourceSeriesId",
+    "field",
+    "table",
+    "transform",
+    "releasePolicy",
+}
+USASPENDING_BINDING_DERIVED_KEYS = {"expectedReleaseWindow", "allowedHosts"}
+
+
+def usaspending_binding_template(spec: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the complete reviewed seven-key binding represented by a spec."""
+
+    return {
+        "adapter": "usaspending-api",
+        "sourceUrl": spec["url_template"],
+        "sourceSeriesId": spec["series_id"],
+        "field": spec["field"],
+        "table": spec["source_table"],
+        "transform": spec["transform"],
+        "releasePolicy": "registered_query_snapshot",
+    }
+
+
+def usaspending_binding_matches_spec(
+    binding: Any,
+    spec: Mapping[str, Any],
+) -> bool:
+    """Require all seven registered query keys to match the executor spec."""
+
+    if not isinstance(binding, dict):
+        return False
+    if (
+        set(binding) - USASPENDING_BINDING_DERIVED_KEYS
+        != USASPENDING_BINDING_TEMPLATE_KEYS
+    ):
+        return False
+    projection = {
+        key: binding[key]
+        for key in USASPENDING_BINDING_TEMPLATE_KEYS
+    }
+    return canonical_bytes(projection) == canonical_bytes(
+        usaspending_binding_template(spec)
     )
 
 
@@ -1981,6 +2126,252 @@ def extract_json_field(payload: Any, selector: str) -> float | None:
     if isinstance(current, bool) or not isinstance(current, (int, float)):
         return None
     return float(current)
+
+
+def usaspending_fiscal_year_dates(fiscal_year: str) -> tuple[str, str]:
+    """Expand a four-digit US fiscal year to its inclusive action-date range."""
+
+    if not re.fullmatch(r"\d{4}", fiscal_year):
+        raise ValueError(f"invalid fiscal year: {fiscal_year!r}")
+    year = int(fiscal_year)
+    return f"{year - 1}-10-01", f"{year}-09-30"
+
+
+def _usaspending_advanced_filters(
+    fiscal_year: str,
+    transform: Mapping[str, Any],
+    recipient_type_names: Any = None,
+) -> dict[str, Any]:
+    """Expand the registered query-plan transform into API filters."""
+
+    if transform.get("fiscalYear") != "{fiscal_year}":
+        raise ValueError("registered USAspending plan has an invalid fiscalYear")
+    agency = transform.get("agency")
+    award_codes = transform.get("awardTypeCodes")
+    if (
+        not isinstance(agency, dict)
+        or set(agency) != {"type", "tier", "name"}
+        or not isinstance(award_codes, list)
+        or not award_codes
+        or not all(isinstance(code, str) and code for code in award_codes)
+    ):
+        raise ValueError("registered USAspending plan has malformed filters")
+    start, end = usaspending_fiscal_year_dates(fiscal_year)
+    filters: dict[str, Any] = {
+        "agencies": [copy.deepcopy(agency)],
+        "award_type_codes": list(award_codes),
+        "time_period": [{"end_date": end, "start_date": start}],
+    }
+    if recipient_type_names is not None:
+        if not isinstance(recipient_type_names, list) or not all(
+            isinstance(name, str) and name for name in recipient_type_names
+        ):
+            raise ValueError(
+                "registered USAspending plan has malformed recipient types"
+            )
+        if recipient_type_names:
+            filters["recipient_type_names"] = list(recipient_type_names)
+    return filters
+
+
+def usaspending_recipient_page_body(
+    fiscal_year: str,
+    transform: Mapping[str, Any],
+    page: int,
+) -> dict[str, Any]:
+    """Build one bound recipient-grouping page request."""
+
+    if (
+        transform.get("operation") != "count_distinct"
+        or transform.get("requestMethod") != "POST"
+        or transform.get("identityField") != "recipient_id"
+        or transform.get("excludeNullIdentity") is not True
+        or type(transform.get("pageSize")) is not int
+        or not 1 <= transform["pageSize"] <= 100
+        or type(page) is not int
+        or page < 1
+    ):
+        raise ValueError("invalid registered recipient-count query plan")
+    spending_level = transform.get("spendingLevel")
+    if spending_level != "transactions":
+        raise ValueError("invalid recipient-count spending level")
+    return {
+        "category": "recipient",
+        "filters": _usaspending_advanced_filters(fiscal_year, transform),
+        "limit": transform["pageSize"],
+        "page": page,
+        "spending_level": spending_level,
+    }
+
+
+def usaspending_share_bodies(
+    fiscal_year: str,
+    transform: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Build denominator and numerator requests from the registered ratio plan."""
+
+    if (
+        transform.get("operation") != "ratio_percent"
+        or transform.get("requestMethod") != "POST"
+        or transform.get("group") != "fiscal_year"
+        or transform.get("spendingLevel") != "transactions"
+        or transform.get("denominatorRecipientTypeNames") != []
+    ):
+        raise ValueError("invalid registered obligation-share query plan")
+    denominator = {
+        "filters": _usaspending_advanced_filters(fiscal_year, transform),
+        "group": transform["group"],
+        "spending_level": transform["spendingLevel"],
+    }
+    numerator = {
+        "filters": _usaspending_advanced_filters(
+            fiscal_year,
+            transform,
+            transform.get("numeratorRecipientTypeNames"),
+        ),
+        "group": transform["group"],
+        "spending_level": transform["spendingLevel"],
+    }
+    return denominator, numerator
+
+
+def usaspending_distinct_recipient_count(
+    pages: list[Any],
+    transform: Mapping[str, Any],
+) -> int | None:
+    """Count distinct non-null recipient IDs from a complete page sequence."""
+
+    identity_field = transform.get("identityField")
+    if identity_field != "recipient_id" or not pages:
+        return None
+    identities: set[str] = set()
+    for index, payload in enumerate(pages, start=1):
+        if not isinstance(payload, dict):
+            return None
+        results = payload.get("results")
+        metadata = payload.get("page_metadata")
+        if not isinstance(results, list) or not isinstance(metadata, dict):
+            return None
+        has_next = metadata.get("hasNext")
+        if (
+            type(metadata.get("page")) is not int
+            or metadata.get("page") != index
+            or not isinstance(has_next, bool)
+            or has_next != (index < len(pages))
+        ):
+            return None
+        for result in results:
+            if not isinstance(result, dict) or identity_field not in result:
+                return None
+            identity = result[identity_field]
+            if identity is None and transform.get("excludeNullIdentity") is True:
+                continue
+            if not isinstance(identity, str) or not identity:
+                return None
+            identities.add(identity)
+    return len(identities)
+
+
+def usaspending_fiscal_year_amount(
+    payload: Any,
+    fiscal_year: str,
+) -> float | None:
+    """Select one finite spending-over-time amount for a fiscal year."""
+
+    if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
+        return None
+    matches = []
+    for result in payload["results"]:
+        if not isinstance(result, dict):
+            continue
+        period = result.get("time_period")
+        if (
+            not isinstance(period, dict)
+            or str(period.get("fiscal_year")) != fiscal_year
+        ):
+            continue
+        amount = result.get("aggregated_amount")
+        if isinstance(amount, bool) or not isinstance(amount, (int, float)):
+            return None
+        amount = float(amount)
+        if not math.isfinite(amount):
+            return None
+        matches.append(amount)
+    return matches[0] if len(matches) == 1 else None
+
+
+def usaspending_ratio_percent(
+    numerator_payload: Any,
+    denominator_payload: Any,
+    fiscal_year: str,
+) -> float | None:
+    """Derive a finite percentage from two same-scope registered snapshots."""
+
+    numerator = usaspending_fiscal_year_amount(numerator_payload, fiscal_year)
+    denominator = usaspending_fiscal_year_amount(denominator_payload, fiscal_year)
+    if (
+        numerator is None
+        or denominator is None
+        or denominator <= 0
+        or numerator < 0
+        or numerator > denominator
+    ):
+        return None
+    value = 100 * numerator / denominator
+    return value if math.isfinite(value) else None
+
+
+def usaspending_snapshot_envelope(
+    source_url: str,
+    exchanges: list[tuple[dict[str, Any], bytes, str]],
+    derived: Mapping[str, Any],
+) -> bytes:
+    """Archive every exact POST body and raw response in one evidence artifact."""
+
+    evidence = {
+        "schemaVersion": "usaspending_registered_query_snapshot_v1",
+        "sourceUrl": source_url,
+        "exchanges": [
+            {
+                "method": "POST",
+                "requestBody": body,
+                "retrievedAt": retrieved_at,
+                "responseBodyUtf8": raw.decode("utf-8"),
+                "responseSha256": hashlib.sha256(raw).hexdigest(),
+            }
+            for body, raw, retrieved_at in exchanges
+        ],
+        "derived": dict(derived),
+    }
+    return canonical_bytes(evidence) + b"\n"
+
+
+def fetch_usaspending_json(
+    source_url: str,
+    body: dict[str, Any] | None = None,
+) -> tuple[Any, bytes, str]:
+    """Fetch one GET or canonical-JSON POST response from USAspending."""
+
+    retrieved_at = utc_now()
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": "thesis-resolver/1 (app.thesisinstitute.org)",
+    }
+    data = None
+    method = "GET"
+    if body is not None:
+        data = canonical_bytes(body)
+        headers["Content-Type"] = "application/json"
+        method = "POST"
+    request = urllib.request.Request(
+        source_url,
+        data=data,
+        headers=headers,
+        method=method,
+    )
+    with urllib.request.urlopen(request, timeout=120) as response:
+        raw = response.read()
+    return json.loads(raw.decode("utf-8")), raw, retrieved_at
 
 
 def snapshot_window_state(today: dt.date, window: Any) -> str:
@@ -4653,7 +5044,9 @@ def main() -> int:
     # year range); A-19 snapshots per month; international artifacts per
     # source key so dataPointId dialects share one archived response.
     alfred_cache: dict[tuple[str, str], tuple[dict, bytes | None, str, str]] = {}
-    usaspending_cache: dict[str, tuple[Any, bytes | None, str, str]] = {}
+    usaspending_cache: dict[
+        tuple[str, bytes | None], tuple[Any, bytes | None, str]
+    ] = {}
     usaspending_contracts: dict[str, dict[str, Any]] | None = None
     bls_cache: dict[
         tuple[str, int, int], tuple[dict, bytes | None, str, str]
@@ -4917,13 +5310,10 @@ def main() -> int:
                     f"{binding['expectedReleaseWindow']['end']}"
                 )
                 continue
-            if (
-                binding.get("sourceUrl") != spec["url_template"]
-                or binding.get("field") != spec["field"]
-            ):
+            if not usaspending_binding_matches_spec(binding, spec):
                 print(
-                    f"  BINDING/ADAPTER MISMATCH (refusing, registry drift?): "
-                    f"{ref}"
+                    "  BINDING/ADAPTER MISMATCH (refusing, full seven-key "
+                    f"registry drift?): {ref}"
                 )
                 continue
             snapshot_url = spec["url_template"].format(fiscal_year=period)
@@ -4935,46 +5325,184 @@ def main() -> int:
                     f"{host}"
                 )
                 continue
-            if snapshot_url not in usaspending_cache:
-                retrieved_at = utc_now()
-                request = urllib.request.Request(
+
+            def cached_usaspending_request(
+                body: dict[str, Any] | None = None,
+            ) -> tuple[Any, bytes | None, str]:
+                key = (
                     snapshot_url,
-                    headers={
-                        "User-Agent": "thesis-resolver/1 "
-                        "(app.thesisinstitute.org)"
-                    },
+                    canonical_bytes(body) if body is not None else None,
                 )
+                if key in usaspending_cache:
+                    return usaspending_cache[key]
                 try:
-                    with urllib.request.urlopen(request, timeout=120) as r:
-                        raw_body = r.read()
-                    usaspending_cache[snapshot_url] = (
-                        json.loads(raw_body.decode()),
-                        raw_body,
+                    usaspending_cache[key] = fetch_usaspending_json(
                         snapshot_url,
-                        retrieved_at,
+                        body,
                     )
                 except (
                     urllib.error.URLError,
                     json.JSONDecodeError,
                     UnicodeDecodeError,
+                    OSError,
+                    ValueError,
                 ) as exc:
                     print(f"  USAspending fetch failed ({exc}): {ref}")
-                    usaspending_cache[snapshot_url] = (
-                        None,
-                        None,
-                        snapshot_url,
-                        retrieved_at,
+                    usaspending_cache[key] = (None, None, utc_now())
+                return usaspending_cache[key]
+
+            query_kind = spec.get("query_kind", "scalar")
+            source_url = snapshot_url
+            if query_kind == "scalar":
+                payload, raw, retrieved_at = cached_usaspending_request()
+                if raw is None:
+                    continue
+                raw_value = extract_json_field(payload, spec["field"])
+                if raw_value is None:
+                    print(
+                        f"  FIELD NOT FOUND IN RESPONSE (refusing): {ref} — "
+                        f"{spec['field']}"
                     )
-            payload, raw, source_url, retrieved_at = usaspending_cache[
-                snapshot_url
-            ]
-            if raw is None:
-                continue
-            raw_value = extract_json_field(payload, spec["field"])
-            if raw_value is None:
+                    continue
+            elif query_kind == "paginated_distinct_count":
+                pages: list[Any] = []
+                exchanges: list[tuple[dict[str, Any], bytes, str]] = []
+                malformed_page = False
+                for page_number in range(1, 10_001):
+                    try:
+                        body = usaspending_recipient_page_body(
+                            period,
+                            binding["transform"],
+                            page_number,
+                        )
+                    except ValueError as exc:
+                        print(
+                            f"  REGISTERED QUERY PLAN INVALID (refusing): "
+                            f"{ref} — {exc}"
+                        )
+                        malformed_page = True
+                        break
+                    payload, page_raw, page_retrieved_at = (
+                        cached_usaspending_request(body)
+                    )
+                    if page_raw is None:
+                        malformed_page = True
+                        break
+                    metadata = (
+                        payload.get("page_metadata")
+                        if isinstance(payload, dict)
+                        else None
+                    )
+                    has_next = (
+                        metadata.get("hasNext")
+                        if isinstance(metadata, dict)
+                        else None
+                    )
+                    if (
+                        not isinstance(metadata, dict)
+                        or type(metadata.get("page")) is not int
+                        or metadata.get("page") != page_number
+                        or not isinstance(has_next, bool)
+                    ):
+                        print(
+                            f"  MALFORMED PAGINATION RESPONSE (refusing): {ref}"
+                        )
+                        malformed_page = True
+                        break
+                    pages.append(payload)
+                    exchanges.append((body, page_raw, page_retrieved_at))
+                    if not has_next:
+                        break
+                else:
+                    print(
+                        f"  PAGINATION LIMIT EXCEEDED (refusing): {ref}"
+                    )
+                    malformed_page = True
+                if malformed_page:
+                    continue
+                recipient_count = usaspending_distinct_recipient_count(
+                    pages,
+                    binding["transform"],
+                )
+                if recipient_count is None:
+                    print(
+                        f"  RECIPIENT COUNT DERIVATION FAILED (refusing): {ref}"
+                    )
+                    continue
+                raw_value = float(recipient_count)
+                retrieved_at = exchanges[0][2]
+                raw = usaspending_snapshot_envelope(
+                    snapshot_url,
+                    exchanges,
+                    {
+                        "operation": "count_distinct",
+                        "fiscalYear": period,
+                        "distinctRecipientCount": recipient_count,
+                    },
+                )
+            elif query_kind == "ratio_percent":
+                try:
+                    denominator_body, numerator_body = usaspending_share_bodies(
+                        period,
+                        binding["transform"],
+                    )
+                except ValueError as exc:
+                    print(
+                        f"  REGISTERED QUERY PLAN INVALID (refusing): {ref} — "
+                        f"{exc}"
+                    )
+                    continue
+                ratio_exchanges: list[tuple[dict[str, Any], bytes, str]] = []
+                ratio_payloads: list[Any] = []
+                ratio_fetch_failed = False
+                for body in (denominator_body, numerator_body):
+                    payload, response_raw, response_retrieved_at = (
+                        cached_usaspending_request(body)
+                    )
+                    if response_raw is None:
+                        ratio_fetch_failed = True
+                        break
+                    ratio_payloads.append(payload)
+                    ratio_exchanges.append(
+                        (body, response_raw, response_retrieved_at)
+                    )
+                if ratio_fetch_failed:
+                    continue
+                denominator_payload, numerator_payload = ratio_payloads
+                raw_value = usaspending_ratio_percent(
+                    numerator_payload,
+                    denominator_payload,
+                    period,
+                )
+                if raw_value is None:
+                    print(
+                        f"  OBLIGATION SHARE DERIVATION FAILED (refusing): {ref}"
+                    )
+                    continue
+                numerator_amount = usaspending_fiscal_year_amount(
+                    numerator_payload,
+                    period,
+                )
+                denominator_amount = usaspending_fiscal_year_amount(
+                    denominator_payload,
+                    period,
+                )
+                retrieved_at = ratio_exchanges[0][2]
+                raw = usaspending_snapshot_envelope(
+                    snapshot_url,
+                    ratio_exchanges,
+                    {
+                        "operation": "ratio_percent",
+                        "fiscalYear": period,
+                        "numeratorObligations": numerator_amount,
+                        "denominatorObligations": denominator_amount,
+                        "percent": raw_value,
+                    },
+                )
+            else:
                 print(
-                    f"  FIELD NOT FOUND IN RESPONSE (refusing): {ref} — "
-                    f"{spec['field']}"
+                    f"  UNKNOWN REGISTERED QUERY KIND (refusing): {ref} — "
+                    f"{query_kind}"
                 )
                 continue
             value = round(raw_value * spec.get("scale", 1), spec.get("round", 4))

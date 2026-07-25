@@ -74,3 +74,91 @@ forward resolution always captures inside the release window.
 | `fed.g19.consumer_credit_total_annual_rate` | `TOTALSLAR` | VERIFIED | 2026-02→2.23@2026-04-20; 2026-03→5.83@2026-05-20; 2026-04→4.85@2026-06-20 |
 
 Raw results: anchor_results.json (kept out of the commit; the table above is the record).
+
+---
+
+# USAspending FY2026 query anchors
+
+Checked 2026-07-24. These are transaction-level, awarding-agency queries for
+prime contract award type codes `A`, `B`, `C`, and `D`, with action dates from
+2025-10-01 through 2026-09-30. The reviewed source bindings preserve these
+query plans in `scripts/docket_series.json`; the resolver reconstructs the
+requests from those bindings and refuses any seven-key registry drift.
+
+The current official endpoint contracts confirm that
+`/api/v2/search/spending_by_category/recipient/` is a POST endpoint with
+recipient IDs and `page_metadata.hasNext`, and that
+`/api/v2/search/spending_over_time/` is a POST endpoint returning
+`aggregated_amount` by fiscal year:
+
+- https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/usaspending_api/api_contracts/contracts/v2/search/spending_by_category/recipient.md
+- https://raw.githubusercontent.com/fedspendingtransparency/usaspending-api/master/usaspending_api/api_contracts/contracts/v2/search/spending_over_time.md
+
+The current official website mapping identifies `small_business` as the
+API token for “Small Business”:
+
+- https://github.com/fedspendingtransparency/usaspending-website/blob/master/src/js/dataMapping/search/recipientType.js
+
+## Unique identifiable prime-contract recipients
+
+Endpoint:
+`https://api.usaspending.gov/api/v2/search/spending_by_category/recipient/`
+
+Canonical first-page body (subsequent bodies change only `page`):
+
+```json
+{"category":"recipient","filters":{"agencies":[{"name":"Department of Defense","tier":"toptier","type":"awarding"}],"award_type_codes":["A","B","C","D"],"time_period":[{"end_date":"2026-09-30","start_date":"2025-10-01"}]},"limit":100,"page":1,"spending_level":"transactions"}
+```
+
+Derivation: retrieve pages through the first response with `hasNext: false`,
+then count distinct, non-null `results[].recipient_id` values. This excludes
+the API’s null-ID aggregate such as `MULTIPLE RECIPIENTS`. The metric therefore
+counts identifiable USAspending recipient-profile IDs, not adjudicated legal
+entities.
+
+Probe value: **not obtained**. At 2026-07-24T18:03:41Z the exact POST attempt
+failed before connection with `Could not resolve host:
+api.usaspending.gov`. The separate network runtime also returned `fetch
+failed`, and no controllable signed-in browser session was available.
+
+## Small-business share of prime-contract obligations
+
+Endpoint:
+`https://api.usaspending.gov/api/v2/search/spending_over_time/`
+
+Canonical denominator body:
+
+```json
+{"filters":{"agencies":[{"name":"Department of Defense","tier":"toptier","type":"awarding"}],"award_type_codes":["A","B","C","D"],"time_period":[{"end_date":"2026-09-30","start_date":"2025-10-01"}]},"group":"fiscal_year","spending_level":"transactions"}
+```
+
+Canonical numerator body:
+
+```json
+{"filters":{"agencies":[{"name":"Department of Defense","tier":"toptier","type":"awarding"}],"award_type_codes":["A","B","C","D"],"recipient_type_names":["small_business"],"time_period":[{"end_date":"2026-09-30","start_date":"2025-10-01"}]},"group":"fiscal_year","spending_level":"transactions"}
+```
+
+Derivation: select the unique FY2026 `aggregated_amount` from each response and
+compute `100 * numerator / denominator`. The resolver refuses missing,
+duplicate, non-finite, negative, zero-denominator, or numerator-above-
+denominator inputs.
+
+Probe values:
+
+- All DoD prime-contract obligations: **not obtained**
+- Small-business DoD prime-contract obligations: **not obtained**
+- Derived share: **not obtained**
+
+The same 2026-07-24 network constraint blocked both exact POSTs. The
+brief’s 2026-07-15 `$246.9B` FY2026-to-date reference is deliberately not
+carried forward as a current value or substituted for the contract-only
+denominator.
+
+## Landing check
+
+Before landing, rerun the three canonical POST bodies above in a networked
+review environment and record the timestamped recipient count, numerator,
+denominator, and derived percentage here. No code path treats an unverified
+anchor as a resolved outcome: the production resolver will run only inside the
+preregistered 2026-10-15 through 2026-10-22 snapshot window and archives every
+request body and response.

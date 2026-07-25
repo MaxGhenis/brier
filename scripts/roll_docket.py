@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 """Compute the next docket targets for every registry series.
 
-The registry (scripts/docket_series.json) lists every series with a
-rubric-passing published run. For each, the docket cursor is the latest
-PUBLISHED period (recovered from the live catalog by inverting the slug
-template): failed or unpublished attempts keep the cursor in place and
-are retried on the next roll rather than silently skipped (F10). The
-records/ directories still provide attempt visibility, and the live
+For recurring registry entries, the docket cursor is the latest PUBLISHED
+period (recovered from the live catalog by inverting the slug template):
+failed or unpublished attempts keep the cursor in place and are retried on
+the next roll rather than silently skipped (F10). Reviewed annual snapshot
+entries are one-shot seeds with an explicit fiscal year and capture window.
+The records/ directories still provide attempt visibility, and the live
 catalog's slug set is the final duplicate guard.
 
 Usage:
-    python3 scripts/roll_docket.py [--cadence weekly|monthly|quarterly]
+    python3 scripts/roll_docket.py [--cadence weekly|monthly|quarterly|annual]
         [--max-targets N] [--out targets.json] [--dry-run]
 
 Emits a run_thesis_batch.py-compatible targets file. Weekly targets sort
-first (they resolve fastest), then earliest next-period first. Exits 0
-with an empty targets list when there is nothing to roll — idempotent by
-construction, so the schedule can fire as often as it likes.
+first (they resolve fastest), then reviewed one-shot snapshot seeds and
+earliest next-period first. Exits 0 with an empty targets list when there
+is nothing to roll — idempotent by construction, so the schedule can fire
+as often as it likes.
 """
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
 RECORDS = ROOT / "records" / "thesis-analyst"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
+SNAPSHOT_SEED_HORIZON_DAYS = 75
 
 MONTH_NAMES = [m.lower() for m in calendar.month_name]
 
@@ -346,9 +348,96 @@ def next_roll_period(
     return None
 
 
+def snapshot_seed_target(
+    entry: dict,
+    catalog_slugs: set[str],
+    today: dt.date,
+    *,
+    horizon_days: int = SNAPSHOT_SEED_HORIZON_DAYS,
+) -> dict | None:
+    """Admit one reviewed annual registered-query snapshot seed.
+
+    Annual snapshots deliberately do not use the normal published-period
+    cursor: their capture date cannot be inferred from cadence. The registry
+    must instead pin both the fiscal-year period and the capture window. Once
+    that concrete slug is published, this helper never steps it to another
+    fiscal year; a future seed requires another reviewed registry change.
+    """
+
+    if entry.get("cadence") != "annual":
+        return None
+    extras = entry.get("extras")
+    binding = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    if not isinstance(binding, dict) or (
+        binding.get("releasePolicy") != "registered_query_snapshot"
+    ):
+        print(
+            f"  warning: skip {entry.get('series', '?')}: annual seed is not "
+            "a registered_query_snapshot",
+            file=sys.stderr,
+        )
+        return None
+    period = entry.get("period")
+    if not isinstance(period, str) or not re.fullmatch(r"FY\d{4}", period):
+        print(
+            f"  warning: skip {entry.get('series', '?')}: malformed annual "
+            f"snapshot period {period!r}",
+            file=sys.stderr,
+        )
+        return None
+    window = extras.get("expectedReleaseWindow")
+    if not isinstance(window, dict) or set(window) != {"start", "end"}:
+        print(
+            f"  warning: skip {entry.get('series', '?')}: annual snapshot "
+            "requires an exact expectedReleaseWindow",
+            file=sys.stderr,
+        )
+        return None
+    try:
+        if not all(isinstance(window[key], str) for key in ("start", "end")):
+            raise ValueError
+        start = dt.date.fromisoformat(window["start"])
+        end = dt.date.fromisoformat(window["end"])
+    except ValueError:
+        print(
+            f"  warning: skip {entry.get('series', '?')}: malformed annual "
+            "snapshot window",
+            file=sys.stderr,
+        )
+        return None
+    if start > end:
+        print(
+            f"  warning: skip {entry.get('series', '?')}: annual snapshot "
+            "window ends before it starts",
+            file=sys.stderr,
+        )
+        return None
+    if not (today < start <= today + dt.timedelta(days=horizon_days)):
+        return None
+    try:
+        slug = entry["slug"].format(period=period.lower())
+    except (KeyError, TypeError, ValueError):
+        print(
+            f"  warning: skip {entry.get('series', '?')}: malformed annual "
+            "snapshot slug template",
+            file=sys.stderr,
+        )
+        return None
+    if slug in catalog_slugs:
+        return None
+    return {
+        "series": entry["series"],
+        "period": period,
+        "catalogSlug": slug,
+        **extras,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--cadence", choices=["weekly", "monthly", "quarterly"])
+    parser.add_argument(
+        "--cadence", choices=["weekly", "monthly", "quarterly", "annual"]
+    )
     parser.add_argument("--max-targets", type=int, default=12)
     parser.add_argument("--out")
     parser.add_argument("--dry-run", action="store_true")
@@ -361,6 +450,17 @@ def main() -> int:
     candidates: list[tuple[int, str, dict]] = []
     for entry in registry:
         if args.cadence and entry["cadence"] != args.cadence:
+            continue
+        if entry["cadence"] == "annual":
+            target = snapshot_seed_target(entry, existing, today)
+            if target is None:
+                print(
+                    f"  skip {entry['series']}: no eligible reviewed "
+                    "snapshot seed"
+                )
+                continue
+            window_start = target["expectedReleaseWindow"]["start"]
+            candidates.append((1, window_start, target))
             continue
         next_result = next_roll_period(entry, existing, observed_slugs, today)
         if next_result is None:
@@ -411,7 +511,9 @@ def main() -> int:
                 if previous.get(key) not in (None, "")
             }
             target["previousTarget"]["period"] = previous_period
-        priority = 0 if entry["cadence"] == "weekly" else 1
+        # One-shot snapshots get the middle lane so a permanently busy
+        # monthly docket cannot starve their finite preregistration window.
+        priority = 0 if entry["cadence"] == "weekly" else 2
         candidates.append((priority, nxt, target))
 
     candidates.sort(key=lambda item: (item[0], item[1]))
