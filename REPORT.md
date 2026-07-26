@@ -1,3 +1,104 @@
+# Recurring seed bootstrap report
+
+## Outcome
+
+The recurring docket now has a fail-closed bootstrap path for registry entries
+that have no published cursor. On the 2026-07-25 witnessed Thesis Log snapshot,
+the eligible target count rises from **5 to 26**: the same 5 cursor-driven
+targets plus 21 reviewed recurring seeds.
+
+The baseline's 63 `no published cell to step from` messages overstated the
+cursorless population. The old message was also printed when a series had a
+published cursor but its successor was outside the period horizon. The
+witnessed catalog contains:
+
+- 68 recurring registry entries;
+- 47 with a published cursor, of which 5 are eligible on 2026-07-25;
+- 21 with no published cursor, all 21 now seeded from official calendars;
+- 6 annual USAspending entries, which retain their separate reviewed
+  `registered_query_snapshot` path.
+
+Recurring seeds therefore apply only to the actual no-cursor set. They do not
+override or supplement any published cursor. The published
+`labor-force-participation-dec-2026` cell is recognized through an explicit
+abbreviated-month slug template and is not seeded.
+
+## Implementation
+
+`scripts/roll_docket.py` adds `recurring_seed_target`, which admits a target
+only when all of these conditions hold:
+
+- no slug matching the series template has been published;
+- `seedPeriod` is canonical for the entry's cadence and inside the normal
+  period horizon;
+- `releaseDates[seedPeriod]` is a valid date strictly after the docket date
+  and no more than 75 days ahead;
+- `releaseCalendarUrl` is an HTTPS URL;
+- the canonical seed slug is absent from the catalog.
+
+The emitted target carries `expectedReleaseDate` and
+`releaseCalendarUrl`. Its `seedPeriod` marker enters the immutable registration
+content hash. The privileged bind step consequently rechecks the exact
+one-day window, calendar URL, seed period, and source-binding template against
+the committed registry after any rebase. No workflow authority or source
+binding was weakened.
+
+Once a seed slug appears in the live catalog, `recurring_seed_target` refuses
+it and the existing published-period cursor produces the next period. The seed
+is never cadence-stepped and cannot re-fire after publication. Before
+selection is capped, recurring seeds sort by exact release date ahead of
+ordinary cursor targets so a busy docket cannot defer them past release.
+
+## Seed coverage
+
+`SEEDS.md` records every series, seed period, exact future release date, and
+official calendar URL. Coverage is complete for the 21 cursorless recurring
+entries:
+
+- 11 BLS series across ECI, JOLTS, Productivity and Costs, Employment
+  Situation, CPI, and Import/Export Price Index schedules;
+- 5 Census series across New Residential Construction, advance M3, and
+  Construction Spending schedules;
+- 5 Federal Reserve series across G.17 and G.19.
+
+No date was inferred from cadence and no cursorless recurring series was
+omitted for lack of an official calendar.
+
+The two M3 seeds are due on Monday, 2026-07-27. Because this lane must not
+commit, push, or dispatch workflows, the integrator must land and manually
+dispatch them before that date; on or after release day the strict chronology
+guard correctly refuses them rather than backfilling a forecast.
+
+## Verification
+
+- Required gate:
+  `UV_NO_SYNC=1 uv run pytest tests/test_roll_docket.py
+  tests/test_register_targets.py tests/test_resolve_pending.py
+  tests/test_usaspending_adapter.py -q` — **231 passed**.
+- Focused docket tests — **47 passed**. They cover initial admission, exact
+  registration windows, post-publication handoff, capped release-date
+  priority, malformed metadata, existing slugs, the legacy abbreviated-month
+  cursor, and all 21 real registry rows.
+- Registration tests include bind-level tamper cases for the seed period,
+  one-day release window, calendar URL, source-binding template, and missing
+  docket authority.
+- Offline dry-run against the repository's latest witnessed Thesis Log
+  snapshot:
+  `python3 scripts/roll_docket.py --dry-run --max-targets 80` with only the
+  catalog loader redirected to the witnessed bytes — **26 targets**, versus
+  the **5-target baseline** from the same snapshot.
+- The same witnessed snapshot under the workflow's production
+  `--max-targets 10` cap selects the 10 earliest-due seeds first.
+- Direct network dry-run — blocked before selection because this sandbox
+  cannot resolve `app.thesisinstitute.org`; no fallback date or catalog state
+  was guessed.
+- `ruff check` over the changed Python and test files — passed.
+- JSON parse of `scripts/docket_series.json` — passed.
+- `git diff --check` — passed.
+- No file under `records/` was modified. No commit or push was made.
+
+---
+
 # ALFRED US docket expansion report
 
 ## Outcome
@@ -56,7 +157,7 @@ first-print anchors.
 |---|---|
 | Existing-home sales (`EXHOSLUSM495S`) | NAR-licensed series with a rolling history; a mechanically auditable official first-print vintage was not demonstrated. |
 | Retail-sales control group | No single official FRED/ALFRED series represents the true control group under the existing one-series adapter. `RSFSXMV` is only ex-motor vehicles; `RSXFS` is retail trade; `RSAFS` is total retail and food services. |
-| Advance durable-goods variants | `DGORDER` and `AMDMVS` metadata update on the full M3 release. The drafts explicitly target full M3; using them for the earlier advance report is rejected. |
+| Advance durable-goods variants | The initial draft incorrectly treated `DGORDER` and `AMDMVS` as full-report-only. The reviewed seed correction binds both to Census's 2026-07-27 advance report, which is their first print. |
 | JOLTS quits rate | Already registered as `bls.jolts.quits_rate`. |
 | Nonfarm productivity | Already registered as `bls.productivity.nonfarm_qoq_prelim`. |
 | Unit labor cost index (`ULCNFB`) | Its index percent change is not the official annualized quarterly headline. The draft uses direct annual-rate series `PRS85006112` instead. |
@@ -83,9 +184,10 @@ first-print anchors.
   data-point tail `2030_06`. The resolver parser previously accepted only
   the hyphenated or month-name forms; it now accepts the canonical underscore
   form, and the routing test uses the exact ID produced by registration.
-- Durable-goods drafts name the full M3 report rather than the earlier
-  advance release. Permits remain a high-risk draft because Census publishes
-  a separate revised-permits update.
+- The recurring-seed review supersedes the draft's full-M3 assumption:
+  `DGORDER` and `AMDMVS` now name the advance report that provides their first
+  print. Permits remain a high-risk draft because Census publishes a separate
+  revised-permits update.
 - Calendar URLs are recorded per series above. No static
   `expectedReleaseDate` was introduced; a future registration must take its
   actual date from the applicable calendar.

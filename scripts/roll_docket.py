@@ -4,20 +4,23 @@
 For recurring registry entries, the docket cursor is the latest PUBLISHED
 period (recovered from the live catalog by inverting the slug template):
 failed or unpublished attempts keep the cursor in place and are retried on
-the next roll rather than silently skipped (F10). Reviewed annual snapshot
-entries are one-shot seeds with an explicit fiscal year and capture window.
-The records/ directories still provide attempt visibility, and the live
-catalog's slug set is the final duplicate guard.
+the next roll rather than silently skipped (F10). A recurring entry with no
+published cell may declare one reviewed, explicitly dated seed period.
+Reviewed annual snapshot entries are separate one-shot seeds with an explicit
+fiscal year and capture window. The records/ directories still provide
+attempt visibility, and the live catalog's slug set is the final duplicate
+guard.
 
 Usage:
     python3 scripts/roll_docket.py [--cadence weekly|monthly|quarterly|annual]
         [--max-targets N] [--out targets.json] [--dry-run]
 
-Emits a run_thesis_batch.py-compatible targets file. Weekly targets sort
-first (they resolve fastest), then reviewed one-shot snapshot seeds and
-earliest next-period first. Exits 0 with an empty targets list when there
-is nothing to roll — idempotent by construction, so the schedule can fire
-as often as it likes.
+Emits a run_thesis_batch.py-compatible targets file. Reviewed recurring seeds
+sort first by exact release date so the capped scheduler cannot defer them
+past their finite forecasting window. Weekly targets follow (they resolve
+fastest), then reviewed one-shot snapshot seeds and earliest next-period
+first. Exits 0 with an empty targets list when there is nothing to roll —
+idempotent by construction, so the schedule can fire as often as it likes.
 """
 
 from __future__ import annotations
@@ -29,6 +32,7 @@ import json
 import pathlib
 import re
 import sys
+import urllib.parse
 
 from thesis_log_client import load_thesis_log
 
@@ -36,9 +40,11 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "scripts" / "docket_series.json"
 RECORDS = ROOT / "records" / "thesis-analyst"
 LOG_URL = "https://app.thesisinstitute.org/log.json"
-SNAPSHOT_SEED_HORIZON_DAYS = 75
+ROLL_HORIZON_DAYS = 75
+SNAPSHOT_SEED_HORIZON_DAYS = ROLL_HORIZON_DAYS
 
 MONTH_NAMES = [m.lower() for m in calendar.month_name]
+MONTH_ABBREVIATIONS = [m.lower() for m in calendar.month_abbr]
 OFFICIAL_CALENDAR_ADAPTERS = frozenset(
     {
         "abs-data-api",
@@ -148,7 +154,11 @@ def format_slug(template: str, period: str, cadence: str) -> str:
         return template.format(period=period.removeprefix("week_"))
     if cadence == "monthly":
         year, month = period[:4], int(period[5:7])
-        return template.format(month=MONTH_NAMES[month], year=year)
+        return template.format(
+            month=MONTH_NAMES[month],
+            month_abbr=MONTH_ABBREVIATIONS[month],
+            year=year,
+        )
     m = re.fullmatch(r"(\d{4})-Q(\d)", period)
     return template.format(quarter=m.group(2), year=m.group(1))
 
@@ -209,6 +219,7 @@ def template_regex(template: str, cadence: str) -> re.Pattern[str]:
         "weekly": {"period": ("date", r"\d{4}-\d{2}-\d{2}")},
         "monthly": {
             "month": ("month", r"[a-z]+"),
+            "month_abbr": ("month_abbr", r"[a-z]{3}"),
             "year": ("year", r"\d{4}"),
         },
         "quarterly": {
@@ -216,7 +227,7 @@ def template_regex(template: str, cadence: str) -> re.Pattern[str]:
             "year": ("year", r"\d{4}"),
         },
     }.get(cadence, {})
-    token_pattern = re.compile(r"\{([a-z]+)\}")
+    token_pattern = re.compile(r"\{([a-z_]+)\}")
     parts: list[str] = []
     seen_groups: set[str] = set()
     cursor = 0
@@ -244,10 +255,18 @@ def captured_period(match: re.Match[str], cadence: str) -> str | None:
         if cadence == "weekly":
             period = f"week_{match.group('date')}"
         elif cadence == "monthly":
-            month_name = match.group("month")
-            if month_name not in MONTH_NAMES:
+            groups = match.groupdict()
+            month_name = groups.get("month")
+            month_abbr = groups.get("month_abbr")
+            if month_name is not None:
+                month_values = MONTH_NAMES
+                month_value = month_name
+            else:
+                month_values = MONTH_ABBREVIATIONS
+                month_value = month_abbr
+            if month_value not in month_values:
                 return None
-            month = MONTH_NAMES.index(month_name)
+            month = month_values.index(month_value)
             period = f"{match.group('year')}-{month:02d}"
         elif cadence == "quarterly":
             period = f"{match.group('year')}-Q{match.group('quarter')}"
@@ -442,6 +461,130 @@ def snapshot_seed_target(
     }
 
 
+def recurring_seed_target(
+    entry: dict,
+    catalog_slugs: set[str],
+    today: dt.date,
+    *,
+    horizon_days: int = ROLL_HORIZON_DAYS,
+) -> dict | None:
+    """Admit one reviewed seed for a recurring series with no public cursor.
+
+    The seed period and its release date are immutable registry inputs. This
+    helper never cadence-steps either value: after the seed slug is published,
+    the normal published-period cursor owns all future rolls.
+    """
+
+    cadence = entry.get("cadence")
+    if cadence not in {"weekly", "monthly", "quarterly"}:
+        return None
+    if latest_published_period(entry, catalog_slugs) is not None:
+        return None
+
+    period = entry.get("seedPeriod")
+    canonical_pattern = {
+        "weekly": r"week_\d{4}-\d{2}-\d{2}",
+        "monthly": r"\d{4}-\d{2}",
+        "quarterly": r"\d{4}-Q[1-4]",
+    }[cadence]
+    if (
+        not isinstance(period, str)
+        or re.fullmatch(canonical_pattern, period) is None
+        or period_key(period, cadence) is None
+    ):
+        print(
+            f"  warning: skip {entry.get('series', '?')}: recurring seed "
+            f"requires a canonical {cadence} seedPeriod",
+            file=sys.stderr,
+        )
+        return None
+    if not not_too_far_ahead(period, cadence, today):
+        print(
+            f"  warning: skip {entry.get('series', '?')} seed {period}: "
+            "period is outside the normal roll horizon",
+            file=sys.stderr,
+        )
+        return None
+
+    release_dates = entry.get("releaseDates")
+    release_value = (
+        release_dates.get(period) if isinstance(release_dates, dict) else None
+    )
+    try:
+        if not isinstance(release_value, str):
+            raise ValueError
+        release_day = dt.date.fromisoformat(release_value)
+    except ValueError:
+        print(
+            f"  warning: skip {entry.get('series', '?')} seed {period}: "
+            f"requires an explicit ISO releaseDates[{period!r}]",
+            file=sys.stderr,
+        )
+        return None
+    if release_day <= today:
+        print(
+            f"  warning: skip {entry.get('series', '?')} seed {period}: "
+            f"official release {release_day} is not after docket date {today}",
+            file=sys.stderr,
+        )
+        return None
+    if release_day > today + dt.timedelta(days=horizon_days):
+        print(
+            f"  warning: skip {entry.get('series', '?')} seed {period}: "
+            f"official release {release_day} is outside the "
+            f"{horizon_days}-day roll horizon",
+            file=sys.stderr,
+        )
+        return None
+
+    calendar_url = entry.get("releaseCalendarUrl")
+    try:
+        parsed_calendar = (
+            urllib.parse.urlparse(calendar_url)
+            if isinstance(calendar_url, str)
+            else None
+        )
+    except ValueError:
+        parsed_calendar = None
+    if (
+        parsed_calendar is None
+        or parsed_calendar.scheme.lower() != "https"
+        or not parsed_calendar.hostname
+    ):
+        print(
+            f"  warning: skip {entry.get('series', '?')} seed {period}: "
+            "requires an HTTPS releaseCalendarUrl",
+            file=sys.stderr,
+        )
+        return None
+
+    try:
+        slug = format_slug(entry["slug"], period, cadence)
+    except (IndexError, KeyError, TypeError, ValueError):
+        print(
+            f"  warning: skip {entry.get('series', '?')} seed {period}: "
+            "malformed recurring slug template",
+            file=sys.stderr,
+        )
+        return None
+    if slug in catalog_slugs:
+        print(
+            f"  warning: skip {entry.get('series', '?')} seed {period}: "
+            f"catalog slug {slug!r} already exists",
+            file=sys.stderr,
+        )
+        return None
+
+    extras = entry.get("extras")
+    return {
+        "series": entry["series"],
+        "period": period,
+        "seedPeriod": period,
+        "catalogSlug": slug,
+        **(extras if isinstance(extras, dict) else {}),
+        "expectedReleaseDate": release_day.isoformat(),
+        "releaseCalendarUrl": calendar_url,
+    }
 
 
 def target_extras_for_period(entry: dict, period: str) -> dict | None:
@@ -559,17 +702,29 @@ def main() -> int:
                 )
                 continue
             window_start = target["expectedReleaseWindow"]["start"]
-            candidates.append((1, window_start, target))
+            candidates.append((2, window_start, target))
+            continue
+        latest = latest_published_period(entry, existing)
+        if latest is None:
+            target = recurring_seed_target(entry, existing, today)
+            if target is None:
+                print(
+                    f"  skip {entry['series']}: no published cell and no "
+                    "eligible reviewed seed"
+                )
+                continue
+            candidates.append((0, target["expectedReleaseDate"], target))
             continue
         next_result = next_roll_period(entry, existing, observed_slugs, today)
         if next_result is None:
-            print(f"  skip {entry['series']}: no published cell to step from")
+            print(
+                f"  skip {entry['series']}: no eligible successor within horizon"
+            )
             continue
         nxt, latest_slug = next_result
         nxt = advance_past_released_native_periods(entry, nxt, today)
         if nxt is None:
             continue
-        latest = latest_published_period(entry, existing)
         previous_period = next(
             period
             for period, published_slug in published_periods(entry, existing)
@@ -618,7 +773,7 @@ def main() -> int:
             target["previousTarget"]["period"] = previous_period
         # One-shot snapshots get the middle lane so a permanently busy
         # monthly docket cannot starve their finite preregistration window.
-        priority = 0 if entry["cadence"] == "weekly" else 2
+        priority = 1 if entry["cadence"] == "weekly" else 3
         candidates.append((priority, nxt, target))
 
     candidates.sort(key=lambda item: (item[0], item[1]))

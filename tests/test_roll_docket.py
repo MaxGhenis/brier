@@ -12,6 +12,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import register_targets  # noqa: E402
+import roll_docket  # noqa: E402
 from adopt_proven_series import cadence_of, slug_template  # noqa: E402
 from register_targets import (  # noqa: E402
     RegistrationError,
@@ -24,6 +25,7 @@ from roll_docket import (  # noqa: E402
     latest_published_period,
     next_roll_period,
     not_too_far_ahead,
+    recurring_seed_target,
     snapshot_seed_target,
     step_period,
     target_extras_for_period,
@@ -33,6 +35,318 @@ from roll_docket import (  # noqa: E402
 
 def registry_entry(cadence: str, slug: str) -> dict[str, str]:
     return {"series": "fixture.series", "cadence": cadence, "slug": slug}
+
+
+def recurring_seed_entry() -> dict:
+    return {
+        "series": "fixture.series",
+        "cadence": "monthly",
+        "slug": "fixture-{month}-{year}",
+        "seedPeriod": "2026-07",
+        "releaseCalendarUrl": "https://agency.example/release-calendar",
+        "releaseDates": {"2026-07": "2026-08-20"},
+        "extras": {
+            "targetUnit": "percent",
+            "sourceBinding": {
+                "adapter": "alfred-fred",
+                "sourceUrl": "https://api.stlouisfed.org/fred/series/observations",
+                "sourceSeriesId": "FIXTURE",
+                "field": "FIXTURE",
+                "table": "Fixture release",
+                "transform": {"operation": "identity", "factor": 1},
+                "releasePolicy": "first_print",
+            },
+        },
+    }
+
+
+def test_recurring_seed_is_admitted_with_an_exact_registration_window() -> None:
+    entry = recurring_seed_entry()
+
+    target = recurring_seed_target(entry, set(), dt.date(2026, 7, 25))
+
+    assert target == {
+        "series": "fixture.series",
+        "period": "2026-07",
+        "seedPeriod": "2026-07",
+        "catalogSlug": "fixture-july-2026",
+        **entry["extras"],
+        "expectedReleaseDate": "2026-08-20",
+        "releaseCalendarUrl": "https://agency.example/release-calendar",
+    }
+    contract = register_targets.build_contract(target, dt.date(2026, 7, 25))
+    assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+        "start": "2026-08-20",
+        "end": "2026-08-20",
+    }
+    assert contract["seedPeriod"] == "2026-07"
+
+
+def test_recurring_seed_never_reappears_after_publication() -> None:
+    entry = recurring_seed_entry()
+    slug = "fixture-july-2026"
+
+    assert (
+        recurring_seed_target(
+            entry,
+            {slug},
+            dt.date(2026, 7, 25),
+        )
+        is None
+    )
+    assert next_roll_period(
+        entry,
+        {slug},
+        set(),
+        dt.date(2026, 8, 25),
+    ) == ("2026-08", slug)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "warning"),
+    [
+        ("malformed-period", "requires a canonical monthly seedPeriod"),
+        ("future-period", "period is outside the normal roll horizon"),
+        ("missing-date", "requires an explicit ISO releaseDates"),
+        ("past-date", "is not after docket date"),
+        ("far-date", "outside the 75-day roll horizon"),
+        ("missing-calendar", "requires an HTTPS releaseCalendarUrl"),
+        ("malformed-calendar", "requires an HTTPS releaseCalendarUrl"),
+        ("positional-slug", "malformed recurring slug template"),
+    ],
+)
+def test_recurring_seed_refuses_unreviewable_release_metadata(
+    mutation: str,
+    warning: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = recurring_seed_entry()
+    if mutation == "malformed-period":
+        entry["seedPeriod"] = "2026-7"
+    elif mutation == "future-period":
+        entry["seedPeriod"] = "2026-08"
+        entry["releaseDates"] = {"2026-08": "2026-08-20"}
+    elif mutation == "missing-date":
+        entry["releaseDates"] = {}
+    elif mutation == "past-date":
+        entry["releaseDates"]["2026-07"] = "2026-07-25"
+    elif mutation == "far-date":
+        entry["releaseDates"]["2026-07"] = "2026-10-09"
+    elif mutation == "missing-calendar":
+        entry.pop("releaseCalendarUrl")
+    elif mutation == "malformed-calendar":
+        entry["releaseCalendarUrl"] = "https://["
+    else:
+        entry["slug"] = "fixture-{}"
+
+    assert recurring_seed_target(entry, set(), dt.date(2026, 7, 25)) is None
+    assert warning in capsys.readouterr().err
+
+
+def test_recurring_seed_refuses_an_existing_catalog_slug() -> None:
+    entry = recurring_seed_entry()
+
+    assert (
+        recurring_seed_target(
+            entry,
+            {"fixture-july-2026"},
+            dt.date(2026, 7, 25),
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    ("cadence", "slug", "period"),
+    [
+        ("weekly", "fixture-{period}", "week_2026-7-25"),
+        ("quarterly", "fixture-q{quarter}-{year}", "2026-q2"),
+    ],
+)
+def test_recurring_seed_requires_canonical_period_spelling(
+    cadence: str,
+    slug: str,
+    period: str,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    entry = recurring_seed_entry()
+    entry.update(
+        {
+            "cadence": cadence,
+            "slug": slug,
+            "seedPeriod": period,
+            "releaseDates": {period: "2026-08-20"},
+        }
+    )
+
+    assert recurring_seed_target(entry, set(), dt.date(2026, 7, 25)) is None
+    assert f"requires a canonical {cadence} seedPeriod" in capsys.readouterr().err
+
+
+def test_real_recurring_seeds_are_reviewable_and_register_exact_dates() -> None:
+    registry = json.loads((ROOT / "scripts" / "docket_series.json").read_text())
+    entries = [entry for entry in registry["series"] if entry.get("seedPeriod")]
+
+    assert len(entries) == 21
+    for entry in entries:
+        target = recurring_seed_target(entry, set(), dt.date(2026, 7, 25))
+        assert target is not None
+        period = entry["seedPeriod"]
+        assert target["period"] == period
+        assert target["expectedReleaseDate"] == entry["releaseDates"][period]
+        assert target["releaseCalendarUrl"] == entry["releaseCalendarUrl"]
+
+        contract = register_targets.build_contract(
+            target,
+            dt.date(2026, 7, 25),
+        )
+        assert contract["sourceBinding"]["expectedReleaseWindow"] == {
+            "start": entry["releaseDates"][period],
+            "end": entry["releaseDates"][period],
+        }
+        assert contract["seedPeriod"] == period
+
+
+def test_main_prioritizes_dated_seeds_before_a_capped_cursor_target(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    urgent = recurring_seed_entry()
+    urgent.update(
+        {
+            "series": "fixture.seed.urgent",
+            "slug": "urgent-{month}-{year}",
+            "releaseDates": {"2026-07": "2026-07-27"},
+        }
+    )
+    later = copy.deepcopy(urgent)
+    later.update(
+        {
+            "series": "fixture.seed.later",
+            "slug": "later-{month}-{year}",
+            "releaseDates": {"2026-07": "2026-08-20"},
+        }
+    )
+    weekly = {
+        "series": "fixture.cursor.weekly",
+        "cadence": "weekly",
+        "slug": "cursor-{period}",
+        "extras": {"targetUnit": "count"},
+    }
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [later, weekly, urgent]}))
+    output = tmp_path / "targets.json"
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 7, 25)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket, "RECORDS", tmp_path / "records")
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(
+        roll_docket,
+        "live_catalog",
+        lambda: ({"cursor-2026-07-18"}, {}, set()),
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "roll_docket.py",
+            "--max-targets",
+            "2",
+            "--out",
+            str(output),
+        ],
+    )
+
+    assert roll_docket.main() == 0
+
+    targets = json.loads(output.read_text())["targets"]
+    assert [target["series"] for target in targets] == [
+        "fixture.seed.urgent",
+        "fixture.seed.later",
+    ]
+    assert all(target["seedPeriod"] == target["period"] for target in targets)
+
+
+def test_main_hands_a_published_seed_back_to_the_ordinary_cursor(
+    tmp_path: pathlib.Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    entry = recurring_seed_entry()
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [entry]}))
+    output = tmp_path / "targets.json"
+    published_slug = "fixture-july-2026"
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 8, 25)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket, "RECORDS", tmp_path / "records")
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(
+        roll_docket,
+        "live_catalog",
+        lambda: ({published_slug}, {}, set()),
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["roll_docket.py", "--out", str(output)],
+    )
+
+    assert roll_docket.main() == 0
+
+    [target] = json.loads(output.read_text())["targets"]
+    assert target["catalogSlug"] == "fixture-august-2026"
+    assert "seedPeriod" not in target
+    assert "expectedReleaseDate" not in target
+
+
+def test_main_reports_a_published_cursor_without_an_eligible_successor(
+    tmp_path: pathlib.Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    registry_data = json.loads(
+        (ROOT / "scripts" / "docket_series.json").read_text()
+    )
+    entry = next(
+        row for row in registry_data["series"] if row["series"] == "bls.lns11300000"
+    )
+    registry = tmp_path / "docket_series.json"
+    registry.write_text(json.dumps({"series": [entry]}))
+    output = tmp_path / "targets.json"
+
+    class FixedDate(dt.date):
+        @classmethod
+        def today(cls) -> FixedDate:
+            return cls(2026, 7, 25)
+
+    monkeypatch.setattr(roll_docket, "REGISTRY", registry)
+    monkeypatch.setattr(roll_docket, "RECORDS", tmp_path / "records")
+    monkeypatch.setattr(roll_docket.dt, "date", FixedDate)
+    monkeypatch.setattr(
+        roll_docket,
+        "live_catalog",
+        lambda: ({"labor-force-participation-dec-2026"}, {}, set()),
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["roll_docket.py", "--out", str(output)],
+    )
+
+    assert roll_docket.main() == 0
+
+    assert json.loads(output.read_text()) == {"targets": []}
+    stdout = capsys.readouterr().out
+    assert "no eligible successor within horizon" in stdout
+    assert "no published cell" not in stdout
 
 
 def test_template_regex_supports_repeated_tokens_without_duplicate_groups() -> None:
@@ -45,6 +359,20 @@ def test_template_regex_supports_repeated_tokens_without_duplicate_groups() -> N
         registry_entry("monthly", template),
         {"fixture-2026-may-2026-may"},
     ) == ("2026-05", "fixture-2026-may-2026-may")
+
+
+def test_abbreviated_month_template_recovers_legacy_published_cursor() -> None:
+    entry = registry_entry(
+        "monthly", "labor-force-participation-{month_abbr}-{year}"
+    )
+
+    assert latest_published_period(
+        entry, {"labor-force-participation-dec-2026"}
+    ) == ("2026-12", "labor-force-participation-dec-2026")
+    assert (
+        roll_docket.format_slug(entry["slug"], "2027-01", "monthly")
+        == "labor-force-participation-jan-2027"
+    )
 
 
 @pytest.mark.parametrize(

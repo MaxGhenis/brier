@@ -449,9 +449,10 @@ def test_alfred_docket_templates_build_registration_contracts() -> None:
             "series": entry["series"],
             "period": period,
             "catalogSlug": entry["slug"].format(
-                period=period,
-                month="june",
-                quarter=2,
+                    period=period,
+                    month="june",
+                    month_abbr="jun",
+                    quarter=2,
                 year=2030,
             ),
             **entry["extras"],
@@ -866,7 +867,7 @@ def _registered_target_payload(
     registration: dict, relative: pathlib.Path
 ) -> dict:
     contract = registration["contract"]
-    return {
+    target = {
         "series": contract["series"],
         "period": contract["period"],
         "catalogSlug": contract["catalogSlug"],
@@ -879,6 +880,9 @@ def _registered_target_payload(
         "targetContentHash": registration["targetContentHash"],
         "targetRegistrationPath": relative.as_posix(),
     }
+    if "seedPeriod" in contract:
+        target["seedPeriod"] = contract["seedPeriod"]
+    return target
 
 
 def _install_registration_for_bind(
@@ -1602,6 +1606,96 @@ def test_bind_native_registration_requires_committed_calendar_authority(
 
     with pytest.raises(register_targets.RegistrationError, match=message):
         register_targets.bind_registration_commits(targets_path)
+
+
+@pytest.mark.parametrize(
+    ("calendar_case", "message"),
+    [
+        ("valid", None),
+        ("missing-docket-entry", "exactly one committed docket template"),
+        ("template-less-docket-entry", "committed sourceBinding template"),
+        ("missing-seed-period", "committed docket seedPeriod"),
+        ("tampered-release-date", "committed docket calendar"),
+        ("tampered-calendar-url", "releaseCalendarUrl"),
+    ],
+)
+def test_bind_recurring_seed_requires_committed_calendar_authority(
+    tmp_path, monkeypatch, calendar_case, message
+) -> None:
+    generated = configure_registration_root(tmp_path, monkeypatch)
+    _, contract = _binding_upgrade_contracts()
+    contract = json.loads(json.dumps(contract))
+    contract.update(
+        {
+            "series": "bls.fixture.seed",
+            "period": "2026-07",
+            "seedPeriod": "2026-07",
+            "catalogSlug": "bls-fixture-seed-july-2026",
+            "dataPointId": "bls.fixture.seed.2026_07.first_print",
+            "country": "US",
+        }
+    )
+    contract["sourceBinding"].update(
+        {
+            "adapter": "alfred-fred",
+            "sourceUrl": (
+                "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=FIXTURE"
+            ),
+            "sourceSeriesId": "FIXTURE",
+            "field": "FIXTURE",
+            "expectedReleaseWindow": {
+                "start": "2026-08-20",
+                "end": "2026-08-20",
+            },
+            "allowedHosts": ["alfred.stlouisfed.org"],
+        }
+    )
+    calendar_url = "https://www.bls.gov/schedule/news_release/fixture.htm"
+    entries: list[dict] = []
+    if calendar_case != "missing-docket-entry":
+        entry = (
+            {"series": contract["series"]}
+            if calendar_case == "template-less-docket-entry"
+            else _docket_entry(contract)
+        )
+        if calendar_case != "missing-seed-period":
+            entry["seedPeriod"] = contract["seedPeriod"]
+        entry["releaseCalendarUrl"] = calendar_url
+        entry["releaseDates"] = {
+            contract["period"]: (
+                "2026-08-21"
+                if calendar_case == "tampered-release-date"
+                else "2026-08-20"
+            )
+        }
+        entries.append(entry)
+    docket = _write_docket(tmp_path, entries)
+    registration = _registration(
+        contract, "2026-07-25T14:32:05Z", _pin("c" * 40, 128)
+    )
+    snapshot, targets_path = _install_registration_for_bind(
+        tmp_path, generated, registration
+    )
+    payload = json.loads(targets_path.read_text())
+    payload["targets"][0]["releaseCalendarUrl"] = (
+        "https://wrong.example/calendar"
+        if calendar_case == "tampered-calendar-url"
+        else calendar_url
+    )
+    targets_path.write_text(json.dumps(payload, indent=2) + "\n")
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    _commit_files(
+        tmp_path,
+        [generated, docket, snapshot],
+        f"commit recurring seed registration with {calendar_case}",
+    )
+
+    if message is None:
+        metadata = register_targets.bind_registration_commits(targets_path)
+        assert len(metadata["registrationCommits"]) == 1
+    else:
+        with pytest.raises(register_targets.RegistrationError, match=message):
+            register_targets.bind_registration_commits(targets_path)
 
 
 @pytest.mark.parametrize(

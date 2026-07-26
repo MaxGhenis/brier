@@ -1,5 +1,5 @@
 {
-  "comment": "Registry for the auto-roll loop (scripts/roll_docket.py). Recurring series derive their next period from the latest published run; reviewed annual registered-query snapshots instead carry one explicit period and capture window and are never cadence-stepped. The live catalog slug set is the final duplicate guard.",
+  "comment": "Registry for the auto-roll loop (scripts/roll_docket.py). Recurring series derive their next period from the latest published run; a series without a published run may use one reviewed seedPeriod with an exact official release date. Reviewed annual registered-query snapshots instead carry one explicit period and capture window and are never cadence-stepped. Neither seed path cadence-steps itself. The live catalog slug set is the final duplicate guard.",
   "series": [
     {
       "series": "us.dol.initial_claims.sa",
@@ -385,6 +385,11 @@
       "series": "fed.g17.manufacturing_production_mom",
       "cadence": "monthly",
       "slug": "us-manufacturing-production-mom-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.federalreserve.gov/releases/g17/release_dates.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-18"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -425,6 +430,11 @@
       "series": "fed.g17.capacity_utilization.manufacturing",
       "cadence": "monthly",
       "slug": "us-manufacturing-capacity-utilization-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.federalreserve.gov/releases/g17/release_dates.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-18"
+      },
       "extras": {
         "targetUnit": "percent",
         "sourceBinding": {
@@ -466,6 +476,11 @@
       "series": "census.housing.permits_saar",
       "cadence": "monthly",
       "slug": "us-building-permits-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.census.gov/construction/soc/schedule.html",
+      "releaseDates": {
+        "2026-07": "2026-08-18"
+      },
       "extras": {
         "targetUnit": "thousands",
         "sourceBinding": {
@@ -486,6 +501,11 @@
       "series": "census.housing.completions_saar",
       "cadence": "monthly",
       "slug": "us-housing-completions-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.census.gov/construction/soc/schedule.html",
+      "releaseDates": {
+        "2026-07": "2026-08-18"
+      },
       "extras": {
         "targetUnit": "thousands",
         "sourceBinding": {
@@ -526,6 +546,11 @@
       "series": "census.m3.durable_goods_new_orders_mom",
       "cadence": "monthly",
       "slug": "us-durable-goods-orders-mom-{month}-{year}",
+      "seedPeriod": "2026-06",
+      "releaseCalendarUrl": "https://www.census.gov/manufacturing/m3/release_schedule.html",
+      "releaseDates": {
+        "2026-06": "2026-07-27"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -533,7 +558,7 @@
           "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=DGORDER",
           "sourceSeriesId": "DGORDER",
           "field": "DGORDER",
-          "table": "Manufacturers' Shipments, Inventories, and Orders, full report",
+          "table": "Advance Report on Durable Goods Manufacturers' Shipments, Inventories, and Orders",
           "transform": {
             "operation": "multiply",
             "factor": 1
@@ -546,6 +571,11 @@
       "series": "census.m3.durable_goods_shipments_mom",
       "cadence": "monthly",
       "slug": "us-durable-goods-shipments-mom-{month}-{year}",
+      "seedPeriod": "2026-06",
+      "releaseCalendarUrl": "https://www.census.gov/manufacturing/m3/release_schedule.html",
+      "releaseDates": {
+        "2026-06": "2026-07-27"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -553,7 +583,7 @@
           "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=AMDMVS",
           "sourceSeriesId": "AMDMVS",
           "field": "AMDMVS",
-          "table": "Manufacturers' Shipments, Inventories, and Orders, full report",
+          "table": "Advance Report on Durable Goods Manufacturers' Shipments, Inventories, and Orders",
           "transform": {
             "operation": "multiply",
             "factor": 1
@@ -566,6 +596,11 @@
       "series": "census.construction_spending.total_mom",
       "cadence": "monthly",
       "slug": "us-construction-spending-mom-{month}-{year}",
+      "seedPeriod": "2026-06",
+      "releaseCalendarUrl": "https://www.census.gov/construction/c30/release.html",
+      "releaseDates": {
+        "2026-06": "2026-08-03"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -648,6 +683,11 @@
       "series": "bls.export_prices.all_commodities_mom",
       "cadence": "monthly",
       "slug": "us-export-prices-mom-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/ximpim.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-18"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -688,6 +728,11 @@
       "series": "bls.eci.total_compensation_private_industry_qoq",
       "cadence": "quarterly",
       "slug": "us-employment-cost-index-total-compensation-q{quarter}-{year}",
+      "seedPeriod": "2026-Q2",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/eci.htm",
+      "releaseDates": {
+        "2026-Q2": "2026-07-31"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -708,6 +753,11 @@
       "series": "bls.eci.private_wages_salaries_qoq",
       "cadence": "quarterly",
       "slug": "us-eci-private-wages-salaries-q{quarter}-{year}",
+      "seedPeriod": "2026-Q2",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/eci.htm",
+      "releaseDates": {
+        "2026-Q2": "2026-07-31"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -728,6 +778,11 @@
       "series": "bls.productivity.nonfarm_unit_labor_costs_qoq_prelim",
       "cadence": "quarterly",
       "slug": "us-unit-labor-costs-q{quarter}-{year}-prelim",
+      "seedPeriod": "2026-Q2",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/prod2.htm",
+      "releaseDates": {
+        "2026-Q2": "2026-08-06"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -748,6 +803,11 @@
       "series": "fed.g19.consumer_credit_total_annual_rate",
       "cadence": "monthly",
       "slug": "us-consumer-credit-annual-rate-{month}-{year}",
+      "seedPeriod": "2026-06",
+      "releaseCalendarUrl": "https://www.federalreserve.gov/newsevents/2026-august.htm",
+      "releaseDates": {
+        "2026-06": "2026-08-07"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -768,6 +828,11 @@
       "series": "fed.g19.consumer_credit_revolving_annual_rate",
       "cadence": "monthly",
       "slug": "us-revolving-consumer-credit-annual-rate-{month}-{year}",
+      "seedPeriod": "2026-06",
+      "releaseCalendarUrl": "https://www.federalreserve.gov/newsevents/2026-august.htm",
+      "releaseDates": {
+        "2026-06": "2026-08-07"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -788,6 +853,11 @@
       "series": "fed.g19.consumer_credit_nonrevolving_annual_rate",
       "cadence": "monthly",
       "slug": "us-nonrevolving-consumer-credit-annual-rate-{month}-{year}",
+      "seedPeriod": "2026-06",
+      "releaseCalendarUrl": "https://www.federalreserve.gov/newsevents/2026-august.htm",
+      "releaseDates": {
+        "2026-06": "2026-08-07"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -808,6 +878,11 @@
       "series": "bls.cpi.shelter_mom",
       "cadence": "monthly",
       "slug": "us-cpi-shelter-mom-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-12"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -828,6 +903,11 @@
       "series": "bls.cpi.rent_primary_residence_mom",
       "cadence": "monthly",
       "slug": "us-cpi-primary-rent-mom-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-12"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -848,6 +928,11 @@
       "series": "bls.cpi.owners_equivalent_rent_mom",
       "cadence": "monthly",
       "slug": "us-cpi-owners-equivalent-rent-mom-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-12"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -868,6 +953,11 @@
       "series": "bls.cpi.services_less_energy_mom",
       "cadence": "monthly",
       "slug": "us-cpi-services-less-energy-mom-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-12"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -888,6 +978,11 @@
       "series": "bls.cpi.services_less_rent_shelter_mom",
       "cadence": "monthly",
       "slug": "us-cpi-services-less-rent-shelter-mom-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-12"
+      },
       "extras": {
         "targetUnit": "percent_growth",
         "sourceBinding": {
@@ -908,6 +1003,11 @@
       "series": "bls.jolts.hires_rate",
       "cadence": "monthly",
       "slug": "jolts-hires-rate-{month}-{year}",
+      "seedPeriod": "2026-06",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/jolts.htm",
+      "releaseDates": {
+        "2026-06": "2026-08-04"
+      },
       "extras": {
         "targetUnit": "percent",
         "sourceBinding": {
@@ -947,7 +1047,7 @@
     {
       "series": "bls.lns11300000",
       "cadence": "monthly",
-      "slug": "labor-force-participation-{month}-{year}",
+      "slug": "labor-force-participation-{month_abbr}-{year}",
       "extras": {
         "targetUnit": "percent",
         "sourceBinding": {
@@ -968,6 +1068,11 @@
       "series": "bls.cps.u6_underemployment_rate",
       "cadence": "monthly",
       "slug": "u6-underemployment-rate-{month}-{year}",
+      "seedPeriod": "2026-07",
+      "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "releaseDates": {
+        "2026-07": "2026-08-07"
+      },
       "extras": {
         "targetUnit": "percent",
         "sourceBinding": {

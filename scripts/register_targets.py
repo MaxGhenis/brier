@@ -524,6 +524,17 @@ def build_contract(
         "valueScale": value_scale,
         "sourceBinding": binding,
     }
+    seed_period = target.get("seedPeriod")
+    if seed_period is not None:
+        if not isinstance(seed_period, str) or seed_period != contract["period"]:
+            raise RegistrationError(
+                "recurring seedPeriod must exactly match the target period"
+            )
+        # This marker is part of the immutable registration content hash. It
+        # makes the privileged bind step reauthenticate the seed's one-day
+        # release window and calendar against the committed docket after any
+        # register-job rebase.
+        contract["seedPeriod"] = seed_period
     return contract
 
 
@@ -780,14 +791,25 @@ def _binding_matches_template(binding: Any, template: Any) -> bool:
     return canonical_bytes(projection) == canonical_bytes(template)
 
 
-def validate_native_calendar_contract(
+def validate_committed_calendar_contract(
     contract: dict[str, Any], target: dict[str, Any], docket_entry: dict[str, Any]
 ) -> None:
-    """Bind a native registration's exact window to committed calendar data."""
+    """Bind a dated registration's exact window to committed calendar data."""
     binding = contract.get("sourceBinding")
     adapter = binding.get("adapter") if isinstance(binding, dict) else None
-    if adapter not in NATIVE_INTL_SOURCE_ADAPTERS:
+    seed_period = contract.get("seedPeriod")
+    is_recurring_seed = seed_period is not None
+    if adapter not in NATIVE_INTL_SOURCE_ADAPTERS and not is_recurring_seed:
         return
+    if is_recurring_seed and (
+        not isinstance(seed_period, str)
+        or seed_period != contract.get("period")
+        or docket_entry.get("seedPeriod") != seed_period
+    ):
+        raise RegistrationError(
+            "recurring seed registration disagrees with the committed "
+            "docket seedPeriod"
+        )
     release_dates = docket_entry.get("releaseDates")
     release_date = (
         release_dates.get(contract.get("period"))
@@ -797,19 +819,46 @@ def validate_native_calendar_contract(
     calendar_url = docket_entry.get("releaseCalendarUrl")
     if not isinstance(release_date, str) or not isinstance(calendar_url, str):
         raise RegistrationError(
-            "committed native docket entry lacks the target period's "
+            "committed dated docket entry lacks the target period's "
             "release date or calendar URL"
         )
     expected_window = {"start": release_date, "end": release_date}
     if binding.get("expectedReleaseWindow") != expected_window:
         raise RegistrationError(
-            "native target release window disagrees with the committed "
+            "target release window disagrees with the committed "
             "docket calendar"
         )
     if target.get("releaseCalendarUrl") != calendar_url:
         raise RegistrationError(
-            "native target releaseCalendarUrl disagrees with the committed "
+            "target releaseCalendarUrl disagrees with the committed "
             "docket calendar"
+        )
+
+
+def validate_native_calendar_contract(
+    contract: dict[str, Any], target: dict[str, Any], docket_entry: dict[str, Any]
+) -> None:
+    """Backward-compatible entry point for committed calendar validation."""
+    validate_committed_calendar_contract(contract, target, docket_entry)
+
+
+def require_seed_docket_template(
+    contract: dict[str, Any], template_matches: list[dict[str, Any]]
+) -> None:
+    """Require one committed registry authority for a recurring seed."""
+    if contract.get("seedPeriod") is None:
+        return
+    if len(template_matches) != 1:
+        raise RegistrationError(
+            "recurring seed target requires exactly one committed docket "
+            "template"
+        )
+    extras = template_matches[0].get("extras")
+    template = extras.get("sourceBinding") if isinstance(extras, dict) else None
+    if not isinstance(template, dict):
+        raise RegistrationError(
+            "recurring seed target requires a committed sourceBinding "
+            "template"
         )
 
 
@@ -1298,6 +1347,7 @@ def bind_registration_commits(
             "unit": target.get("targetUnit"),
             "valueScale": target.get("valueScale"),
             "sourceBinding": target.get("sourceBinding"),
+            "seedPeriod": target.get("seedPeriod"),
         }
         for key, value in expected.items():
             if canonical_bytes(contract.get(key)) != canonical_bytes(value):
@@ -1312,6 +1362,7 @@ def bind_registration_commits(
             entry for entry in docket_entries if entry["series"] == series
         ]
         require_native_docket_template(contract, template_matches)
+        require_seed_docket_template(contract, template_matches)
         if len(template_matches) > 1:
             raise RegistrationError(
                 "ambiguous committed docket template for "
@@ -1340,7 +1391,7 @@ def bind_registration_commits(
                         "committed docket template for "
                         f"{data_point_id} in series {series}"
                     )
-            validate_native_calendar_contract(contract, target, entry)
+            validate_committed_calendar_contract(contract, target, entry)
         commits = _git_output(
             "log",
             source_commit,

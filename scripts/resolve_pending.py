@@ -648,7 +648,8 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US durable goods new orders, monthly change",
         "source_name": "census_m3",
         "source_table": (
-            "Manufacturers' Shipments, Inventories, and Orders, full report"
+            "Advance Report on Durable Goods Manufacturers' Shipments, "
+            "Inventories, and Orders"
         ),
         "concept_authority": "census",
     },
@@ -659,7 +660,8 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
         "label": "US durable goods shipments, monthly change",
         "source_name": "census_m3",
         "source_table": (
-            "Manufacturers' Shipments, Inventories, and Orders, full report"
+            "Advance Report on Durable Goods Manufacturers' Shipments, "
+            "Inventories, and Orders"
         ),
         "concept_authority": "census",
     },
