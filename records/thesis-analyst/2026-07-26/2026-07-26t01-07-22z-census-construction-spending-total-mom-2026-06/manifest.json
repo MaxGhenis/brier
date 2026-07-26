@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-26T01:07:22Z",
+  "runStartedAt": "2026-07-26T01:07:22Z",
+  "series": "census.construction_spending.total_mom",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-construction-spending-mom-june-2026",
+    "country": "US",
+    "dataPointId": "census.construction_spending.total_mom.2026_06.first_print",
+    "expectedReleaseDate": "2026-08-03",
+    "period": "2026-06",
+    "registeredAt": "2026-07-26T00:55:04Z",
+    "registeredAtUtc": "2026-07-26T00:55:04Z",
+    "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.census.gov/construction/c30/release.html",
+    "seedPeriod": "2026-06",
+    "series": "census.construction_spending.total_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-03",
+        "start": "2026-08-03"
+      },
+      "field": "TTLCONS",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "TTLCONS",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TTLCONS",
+      "table": "Value of Construction Put in Place Survey",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "9556fc5386456478cfc719b06a95f8b8a7e3afbff792293f2bb96d8d77565a3e",
+    "targetRegistrationPath": "records/targets/2026-07-26-9556fc5386456478cfc719b06a95f8b8a7e3afbff792293f2bb96d8d77565a3e.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+  "targetContentHash": "9556fc5386456478cfc719b06a95f8b8a7e3afbff792293f2bb96d8d77565a3e",
+  "targetRegistrationPath": "records/targets/2026-07-26-9556fc5386456478cfc719b06a95f8b8a7e3afbff792293f2bb96d8d77565a3e.json",
+  "registeredAtUtc": "2026-07-26T00:55:04Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-26T01:07:22Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "55c5efb3130bdd201e54854db1ff4dfe3d5b0aa82c3d123d31475027385b860b"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The JSON uses Census as resolutionSourceUrl while the canonical ledger sourceBinding specifies the ALFRED TTLCONS CSV URL and allowed host.",
+        "actionRequested": "Either align the resolver/source fields to the ledger sourceBinding or explicitly state in reasoning that the ledger uses ALFRED/TTLCONS as the mechanical binding while the underlying official first print is Census, without changing the target."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval is defensible but based on only four recent monthly observations; mention that the small sample makes the 80% band approximate."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios would be stronger with rough magnitudes, for example what size public surge or private pullback would push the result outside the interval."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger's ALFRED TTLCONS binding and explicitly distinguishing that mechanical mirror from the underlying Census first-print release; also accepted the small-sample uncertainty note and made the outside-the-interval thresholds more concrete.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger's ALFRED TTLCONS binding and explicitly distinguishing that mechanical mirror from the underlying Census first-print release; also accepted the small-sample uncertainty note and made the outside-the-interval thresholds more concrete.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger's ALFRED TTLCONS binding and explicitly distinguishing that mechanical mirror from the underlying Census first-print release; also accepted the small-sample uncertainty note and made the outside-the-interval thresholds more concrete.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is mostly coherent, but it does not explicitly reconcile its Census resolver fields with the ledger's ALFRED/FRED sourceBinding."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/prompt.md",
+      "sha256": "6ab1d71b41dae083dd9aaf317764045d3b7493fd25c2f873deb27b5d9208bbc1",
+      "bytes": 9697,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_command.json",
+      "sha256": "38db7f9aa2e5820a132604beb0b675bb669aa8b62b79131dbbd1d1ab21c5d0b8",
+      "bytes": 743,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "8bc6972772e0f0ea8aa8181ab214d1ac77be31020f5d03d92464d4dffcc59152",
+      "bytes": 14654,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_codex_stderr.log",
+      "sha256": "8bec4c7dc1739bfb7c2824769e9e7a2b2053379d3103a5f17762e61231249763",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_codex_events.jsonl",
+      "sha256": "e7e341a842881759d2472ec7b11632814887ba9eeaae2986d0be2a0874a1b691",
+      "bytes": 14649,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_codex_last_message.txt",
+      "sha256": "652ec2349388ea4465d33c0e28a69bc829615aad2e6347f60acbad722a508db8",
+      "bytes": 5785,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_codex_trace.json",
+      "sha256": "6e7038b71a803af63a3d68a3bca2c556ee44e5c669b3ad90134bcdb9997cd674",
+      "bytes": 533,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_stdout.txt",
+      "sha256": "652ec2349388ea4465d33c0e28a69bc829615aad2e6347f60acbad722a508db8",
+      "bytes": 5785,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/draft_stderr.txt",
+      "sha256": "4c7b84b6ca049aad3991548e85c98c3f1d36bf08b08917cf3fd1831e299600fc",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_prompt.md",
+      "sha256": "4d932c9a6726e0277eeafad0b7464de3fc4d4389881eb8a8c1e750e87a156be1",
+      "bytes": 8830,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_command.json",
+      "sha256": "1da0d3a77c037d0076d4cc54b4420071a97477e86cd021fa93e9e21a6871093e",
+      "bytes": 739,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "d2cd4508a563a991ef2f2ffe283f28e3cedf77efb65184cebefdecfeab542e51",
+      "bytes": 1390,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "347a01d28609f3971fa8b0d625b3b451308c5f3cc7a1f19c564d9ccdbba9303d",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "496264e1eb08c7bc2680f0b7154073172fa4aa71147b18af4f6075d765159472",
+      "bytes": 1412,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "d286f8e687f29978c7b4ec58f89d442387f2d1198fe95b7dc49395ff694787e2",
+      "bytes": 1030,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "f46f329d589f013d681245e775325fda456eebeb71f6dae9aa6ff0a2ca692d5b",
+      "bytes": 531,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "d286f8e687f29978c7b4ec58f89d442387f2d1198fe95b7dc49395ff694787e2",
+      "bytes": 1030,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "03f837f24abd7f3fc0e233133cd0fa78fb9eea528f243646a867dccc76e5d4e1",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/revision_prompt.md",
+      "sha256": "dd3303983d5a291792ae587c46c0a83f7efb43fb3d2356971f5b3925e2dffc91",
+      "bytes": 17448,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/command.json",
+      "sha256": "ef9bb5922eaf38c49b48496e310428800e367f8fcc61f50864aad13d7ee7bdaf",
+      "bytes": 737,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/codex_stdout.jsonl",
+      "sha256": "08f757936f12dd4e1988b31f7c87fbb13c3e2d6386c3dc1992f9e3ddc96a2dbb",
+      "bytes": 7256,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/codex_stderr.log",
+      "sha256": "20f08e7226eb9d7787755f3ab066c6967a0be46e9df9b387b6137de2a92fac60",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/codex_events.jsonl",
+      "sha256": "8898657ecd4f3fd38baf8a9e231eaeb65564dddc1fe44a1259039ac56a46ff62",
+      "bytes": 7278,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/codex_last_message.txt",
+      "sha256": "4e465c3cda5cda90fdb3de5a48daf450475f4624bf63e994c964f0362deef823",
+      "bytes": 6711,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/codex_trace.json",
+      "sha256": "489fd9e1fc739a35f95e80a06d5e930d6fea30de677f7f8d4c00e092fa5e0112",
+      "bytes": 527,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/stdout.txt",
+      "sha256": "4e465c3cda5cda90fdb3de5a48daf450475f4624bf63e994c964f0362deef823",
+      "bytes": 6711,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/stderr.txt",
+      "sha256": "59ee69566eb9fd353a0a4ea1340831698a0811b31340ce662fead1e7b80bc5f1",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/raw_response.txt",
+      "sha256": "4e465c3cda5cda90fdb3de5a48daf450475f4624bf63e994c964f0362deef823",
+      "bytes": 6711,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/parsed_cells.json",
+      "sha256": "8bd6907782a47f8efa96ab8e4d11e9bf07a12dfa9eb16315b0187c7cd10690a1",
+      "bytes": 7540,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/normalized_cells.json",
+      "sha256": "208252a7dffeec6d2a6cc45511b6cb494d65959ec1666fb536e2441c4b61971e",
+      "bytes": 25125,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/distribution.json",
+      "sha256": "f872d5b4127bcf6ae07867a7995de7ef37f23fdfd8a4f6246a41fef74c898826",
+      "bytes": 13801,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/validation.json",
+      "sha256": "60b08be7a5b8f5f0c9fe5addc43acb092aa162c1af004df6ad3417dc6ac0a821",
+      "bytes": 139,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/cells.with_activity.json",
+      "sha256": "c8edcc47690245a88d5c1e3bbba82dd32fd7df0d4f45a04fbcb0477605528643",
+      "bytes": 40319,
+      "createdAt": "2026-07-26T01:07:22Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-07-22z-census-construction-spending-total-mom-2026-06/manifest.json",
+      "sha256": "817966113ceaad75e19ac78b05ccb29f3e8a0a91525b049fc4bf4b251bdff9d5",
+      "bytes": 15446,
+      "createdAt": "2026-07-26T01:07:22Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-construction-spending-mom-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "a5475fadc8d6178a5af2da28830ad683386a616c19dde4469db7cf12fc311d5f"
+}

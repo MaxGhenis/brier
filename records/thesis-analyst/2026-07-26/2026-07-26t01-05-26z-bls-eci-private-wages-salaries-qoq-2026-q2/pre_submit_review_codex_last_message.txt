@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is mostly publishable, but it should align the resolver/source fields with the canonical ledger contract or explicitly flag the ledger/source discrepancy.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft JSON uses the BLS Table 2 URL as resolutionSourceUrl, while the canonical ledger sourceBinding specifies the ALFRED/FRED ECIWAG first-print adapter and sourceUrl as the bound resolver source.",
+      "actionRequested": "Either set the resolver/source fields to match the ledger binding for this target, or explicitly state in reasoning that the ledger binding uses ALFRED ECIWAG while the official underlying table is BLS Table 2 and keep the target otherwise unchanged."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify that the 0.6 to 1.0 interval is wider than the nine-quarter volatility calculation because one-decimal rounding and small-sample uncertainty are being added.",
+    "The current-evidence adjustment is directionally reasonable, but the CPI and payroll-earnings evidence should be described as weak inside-view evidence rather than a large driver."
+  ]
+}

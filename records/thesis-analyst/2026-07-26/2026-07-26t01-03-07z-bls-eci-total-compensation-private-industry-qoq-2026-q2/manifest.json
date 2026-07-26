@@ -1,0 +1,396 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-26T01:03:07Z",
+  "runStartedAt": "2026-07-26T01:03:07Z",
+  "series": "bls.eci.total_compensation_private_industry_qoq",
+  "period": "2026-Q2",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-employment-cost-index-total-compensation-q2-2026",
+    "country": "US",
+    "dataPointId": "bls.eci.total_compensation_private_industry_qoq.2026_q2.first_print",
+    "expectedReleaseDate": "2026-07-31",
+    "period": "2026-Q2",
+    "registeredAt": "2026-07-26T00:55:04Z",
+    "registeredAtUtc": "2026-07-26T00:55:04Z",
+    "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/eci.htm",
+    "seedPeriod": "2026-Q2",
+    "series": "bls.eci.total_compensation_private_industry_qoq",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-31",
+        "start": "2026-07-31"
+      },
+      "field": "ECICOM",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ECICOM",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECICOM",
+      "table": "Employment Cost Index, Table 1",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "cb74189d41fd785fb7dd87f245217183a3e307cf1bc75c658e4372b1db4f9d7b",
+    "targetRegistrationPath": "records/targets/2026-07-26-cb74189d41fd785fb7dd87f245217183a3e307cf1bc75c658e4372b1db4f9d7b.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+  "targetContentHash": "cb74189d41fd785fb7dd87f245217183a3e307cf1bc75c658e4372b1db4f9d7b",
+  "targetRegistrationPath": "records/targets/2026-07-26-cb74189d41fd785fb7dd87f245217183a3e307cf1bc75c658e4372b1db4f9d7b.json",
+  "registeredAtUtc": "2026-07-26T00:55:04Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-26T01:03:07Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f3e906dea77d5a0ffadd920f2c50f0eff54584db3f7cca3b87714c649e2d7ab2"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The draft JSON uses the BLS Table 1 URL as resolutionSourceUrl, while the canonical ledger sourceBinding specifies ALFRED ECICOM CSV with first_print policy; the reasoning notes this discrepancy, but the resolver fields remain split.",
+        "actionRequested": "Align the resolutionSourceUrl/resolutionRule with the registered sourceBinding, or explicitly state in the resolver text that BLS Table 1 is the official printed source while ALFRED ECICOM is the registered first-vintage mirror used for the ledger target."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "model_prior",
+        "summary": "The draft uses a persistence/base-rate prior but does not explicitly say whether a time-series/model prior was used or ruled out.",
+        "actionRequested": "Add one compact sentence ruling out a separate ARIMA/VAR/model prior, or naming the persistence mean as the deliberate time-series prior."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Mention that final published values are one-decimal percent changes, while the interval is expressed on the latent percent-growth scale."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The tail scenarios are adequate; adding approximate likelihood triggers for 0.7-or-lower and 1.1-or-higher would make them sharper."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification by naming BLS Table 1 as the official print and ALFRED ECICOM as the registered first-vintage ledger mirror; accepted the prior-model critique by explicitly naming the persistence mean as the deliberate time-series prior and not using a separate ARIMA/VAR model; no critique items rejected.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarification by naming BLS Table 1 as the official print and ALFRED ECICOM as the registered first-vintage ledger mirror; accepted the prior-model critique by explicitly naming the persistence mean as the deliberate time-series prior and not using a separate ARIMA/VAR model; no critique items rejected.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification by naming BLS Table 1 as the official print and ALFRED ECICOM as the registered first-vintage ledger mirror; accepted the prior-model critique by explicitly naming the persistence mean as the deliberate time-series prior and not using a separate ARIMA/VAR model; no critique items rejected.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification by naming BLS Table 1 as the official print and ALFRED ECICOM as the registered first-vintage ledger mirror; accepted the prior-model critique by explicitly naming the persistence mean as the deliberate time-series prior and not using a separate ARIMA/VAR model; no critique items rejected.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready, but it should tighten resolver/source alignment with the registered ledger and clarify the model-prior choice."
+  },
+  "ok": false,
+  "cellsPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/prompt.md",
+      "sha256": "1c2e52ffd02d59668ef0c46d793724a061a5705c3dbd53da5845d7b1f3d91d00",
+      "bytes": 8909,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_command.json",
+      "sha256": "66cefbdb791181bc41f097c3a0d147c8666fab8965b7e8a1b80b96644c7b0b9e",
+      "bytes": 752,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_codex_stdout.jsonl",
+      "sha256": "573d7645eefe2c0f765fadeaf4b648644fa3224fa6970a76a39747f989a0d574",
+      "bytes": 12940,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_codex_stderr.log",
+      "sha256": "d5339850ecd9c5c404d4e8ebd75bb1a451a18c04dbe8d5c7c531c98340bc5fed",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_codex_events.jsonl",
+      "sha256": "0681e74990f1dc668c1316107b970936e629fb7131a22a1228290414fe69a207",
+      "bytes": 12926,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_codex_last_message.txt",
+      "sha256": "7f0eab353afb9fd6488852c755146bf2424bdd9ba73b4eeb485b6cbebfe68725",
+      "bytes": 6087,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_codex_trace.json",
+      "sha256": "014e89396f74b2b39d7706f59470e94beb5bd1d961239a711329e3c2635613c8",
+      "bytes": 534,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_stdout.txt",
+      "sha256": "7f0eab353afb9fd6488852c755146bf2424bdd9ba73b4eeb485b6cbebfe68725",
+      "bytes": 6087,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/draft_stderr.txt",
+      "sha256": "f44003c8ea7cb88a52f8bcdda2c959f97daf74c6c52e3a771ac9fa34c8d6fe18",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_prompt.md",
+      "sha256": "d0dd5369ebc87889d5f332309acebdbc75ee04e5634dc3b7686f2526dbff6827",
+      "bytes": 9149,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_command.json",
+      "sha256": "6996fc0bb111eb8e0f19a5da69ce74f9eabfec82b5d51cca324fa689bd1766f1",
+      "bytes": 748,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "b811cb2c44ab5836acfef9f7b25cb6000bf578d319f2c25e9ef9e46b114e7898",
+      "bytes": 1884,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_codex_stderr.log",
+      "sha256": "4a47f19e62c617d3a33dd8add6263bf687829a22f2e4154ccd644b73978368d1",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_codex_events.jsonl",
+      "sha256": "6957e16f28adf0f8c6e42797afa193b6edf8f6778facae1b86e3c40fe18c7726",
+      "bytes": 1906,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_codex_last_message.txt",
+      "sha256": "1c673da488c042300dfa610de335fe9b008f663d0969110e4b3543c0a212854e",
+      "bytes": 1506,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_codex_trace.json",
+      "sha256": "b82b9754a894ac5f0160fc7002a13bce733ad82051519c9d0ff17d2882afdd41",
+      "bytes": 527,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_stdout.txt",
+      "sha256": "1c673da488c042300dfa610de335fe9b008f663d0969110e4b3543c0a212854e",
+      "bytes": 1506,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/pre_submit_review_stderr.txt",
+      "sha256": "f625df9258ac26fbd4c66503986cab368aa998976aea59939464bb18a2cdc48a",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/revision_prompt.md",
+      "sha256": "015254d756f600111bc438fa7f43be68aac7ed2f27dfc7fe7207e330b2dbd132",
+      "bytes": 17438,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/command.json",
+      "sha256": "bd5b2acd9c39d0a901037bc5790dd0c134919c748c0419d50ca39ba275d4afee",
+      "bytes": 746,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/codex_stdout.jsonl",
+      "sha256": "f8c29bffab0bf8644ce5bb220762bed99642f81debed3b6ffd6cc617b0db79a1",
+      "bytes": 7479,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/codex_stderr.log",
+      "sha256": "3f2ca31e63b3a4701899056d18545efe3c58b5829162f5f142917daf3d9723b5",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/codex_events.jsonl",
+      "sha256": "43be26206e9fb99c2933497c56384eb911325edd221763bf4f8aaaa807d5103f",
+      "bytes": 7501,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/codex_last_message.txt",
+      "sha256": "9e1274ad92959d99c2f582940f700d17b7eb148eeab679600ab3a1b520b16576",
+      "bytes": 6930,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/codex_trace.json",
+      "sha256": "78995ef994a7bdfb679d9f453ff9ab9222a3276ee227008b4808f7e3324474b0",
+      "bytes": 527,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/stdout.txt",
+      "sha256": "9e1274ad92959d99c2f582940f700d17b7eb148eeab679600ab3a1b520b16576",
+      "bytes": 6930,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/stderr.txt",
+      "sha256": "1951eaa5890117be37a063fbb466eb67ef7bbd4eb511165b7558b11b208e619e",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/raw_response.txt",
+      "sha256": "9e1274ad92959d99c2f582940f700d17b7eb148eeab679600ab3a1b520b16576",
+      "bytes": 6930,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/parsed_cells.json",
+      "sha256": "29fdf58703bbf8c5c46a2661040165e01ed65637167f540591b2473f53176ab0",
+      "bytes": 7786,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/normalized_cells.json",
+      "sha256": "c5423869c16ab48e60c275a60234edee286881bcd3966f338e00400d95913519",
+      "bytes": 25248,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/distribution.json",
+      "sha256": "1ea7ed373e3ec23d3721f9788f2bc5d2fbc60e273b411bb0897e116f3359a585",
+      "bytes": 13678,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/validation.json",
+      "sha256": "979887b14452b80118f2392c752aa1fde1c4f9a0790367063bc9c237d9025992",
+      "bytes": 288,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/cells.with_activity.json",
+      "sha256": "bdd109ea381d7e15f794feeafeb16d61d84ca740c63242b8b2f50b09b5f3d76c",
+      "bytes": 41839,
+      "createdAt": "2026-07-26T01:03:07Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-03-07z-bls-eci-total-compensation-private-industry-qoq-2026-q2/manifest.json",
+      "sha256": "beb7c1b9b4f3c7ab72b60479770bcd166a6810ee439cae44d37ace6653f1d173",
+      "bytes": 16876,
+      "createdAt": "2026-07-26T01:03:07Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": false,
+    "cells": [
+      {
+        "slug": "us-employment-cost-index-total-compensation-q2-2026",
+        "ok": false,
+        "errors": [
+          "resolutionSourceUrl host 'www.bls.gov' is not among the preregistered source binding hosts ['alfred.stlouisfed.org']"
+        ]
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "26d2686255a863ab094c1b135109f4c97544d2a98c428dd798c405707b9c74ab"
+}

@@ -1,0 +1,15 @@
+{
+  "summary": "Draft is methodologically coherent, but its resolver/source fields conflict with the canonical ledger sourceBinding.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft resolves to the Federal Reserve release URL and says ALFRED/FRED is only a history mirror, while the canonical ledger contract binds this target to the alfred-fred adapter, allowed host alfred.stlouisfed.org, sourceSeriesId REVOLSLAR, and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=REVOLSLAR.",
+      "actionRequested": "Align resolutionSource, resolutionSourceUrl, resolutionRule, and sourceContext with the ledger sourceBinding, or explicitly state in reasoning that the ledger resolver binding appears inconsistent with the official-agency preference while keeping the published fields tied to the canonical target."
+    }
+  ],
+  "optionalSuggestions": [
+    "Add one sentence saying the 2024-Jan through 2026-May sample was chosen as the current-rate-regime reference class rather than a longer pre-2024 sample.",
+    "State whether the interval sigma is the sample standard deviation of monthly annual-rate values, not forecast-error volatility, to remove any ambiguity."
+  ]
+}

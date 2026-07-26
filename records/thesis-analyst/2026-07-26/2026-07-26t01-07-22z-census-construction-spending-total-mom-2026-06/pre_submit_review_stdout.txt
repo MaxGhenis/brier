@@ -1,0 +1,15 @@
+{
+  "summary": "The draft is mostly coherent, but it does not explicitly reconcile its Census resolver fields with the ledger's ALFRED/FRED sourceBinding.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The JSON uses Census as resolutionSourceUrl while the canonical ledger sourceBinding specifies the ALFRED TTLCONS CSV URL and allowed host.",
+      "actionRequested": "Either align the resolver/source fields to the ledger sourceBinding or explicitly state in reasoning that the ledger uses ALFRED/TTLCONS as the mechanical binding while the underlying official first print is Census, without changing the target."
+    }
+  ],
+  "optionalSuggestions": [
+    "The interval is defensible but based on only four recent monthly observations; mention that the small sample makes the 80% band approximate.",
+    "Tail scenarios would be stronger with rough magnitudes, for example what size public surge or private pullback would push the result outside the interval."
+  ]
+}

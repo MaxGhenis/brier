@@ -1,0 +1,21 @@
+{
+  "summary": "The draft is broadly publishable but needs resolver alignment with the canonical ALFRED first-print binding and a clearer statement on the time-series/model prior.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The forecast JSON names BLS Table 2 as the resolution source and URL, while the canonical ledger contract binds this target to the ALFRED/FRED adapter, allowed host alfred.stlouisfed.org, field PRS85006112, first_print policy, and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PRS85006112.",
+      "actionRequested": "Keep the same target, slug, dataPointId, and 2026-08-06 date, but make the resolution fields conform to the canonical ledger binding or explicitly state the ledger discrepancy in the reasoning while preserving the ledger-bound resolver fields."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft uses a persistence/base-rate prior but does not clearly say whether a time-series or model prior was used or intentionally ruled out.",
+      "actionRequested": "Add a compact sentence explaining that no separate AR/time-series model was used, or name the model prior and how it affected the point estimate."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify that the volatility sample used for the interval is revised-vintage history rather than preliminary first-print history, if that is the intended sample.",
+    "Make the resolver text distinguish official BLS publication from the ledger's ALFRED first-print mirror without changing the contracted target."
+  ]
+}

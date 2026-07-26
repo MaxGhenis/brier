@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-26T01:16:00Z",
+  "runStartedAt": "2026-07-26T01:16:00Z",
+  "series": "fed.g19.consumer_credit_revolving_annual_rate",
+  "period": "2026-06",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-revolving-consumer-credit-annual-rate-june-2026",
+    "country": "US",
+    "dataPointId": "fed.g19.consumer_credit_revolving_annual_rate.2026_06.first_print",
+    "expectedReleaseDate": "2026-08-07",
+    "period": "2026-06",
+    "registeredAt": "2026-07-26T00:55:04Z",
+    "registeredAtUtc": "2026-07-26T00:55:04Z",
+    "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.federalreserve.gov/newsevents/2026-august.htm",
+    "seedPeriod": "2026-06",
+    "series": "fed.g19.consumer_credit_revolving_annual_rate",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-07",
+        "start": "2026-08-07"
+      },
+      "field": "REVOLSLAR",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "REVOLSLAR",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=REVOLSLAR",
+      "table": "G.19 Consumer Credit, outstanding, seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "cec067d33e053f0a17dfd4f1ee060bd6b882769ef9a08ee35f3d7cb0a5dbd4e8",
+    "targetRegistrationPath": "records/targets/2026-07-26-cec067d33e053f0a17dfd4f1ee060bd6b882769ef9a08ee35f3d7cb0a5dbd4e8.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+  "targetContentHash": "cec067d33e053f0a17dfd4f1ee060bd6b882769ef9a08ee35f3d7cb0a5dbd4e8",
+  "targetRegistrationPath": "records/targets/2026-07-26-cec067d33e053f0a17dfd4f1ee060bd6b882769ef9a08ee35f3d7cb0a5dbd4e8.json",
+  "registeredAtUtc": "2026-07-26T00:55:04Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-26T01:16:00Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "78033938c5a134e5e8ab326556bc3017fefb0dc63f063ea0bf06b68109d1ab87"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft resolves to the Federal Reserve release URL and says ALFRED/FRED is only a history mirror, while the canonical ledger contract binds this target to the alfred-fred adapter, allowed host alfred.stlouisfed.org, sourceSeriesId REVOLSLAR, and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=REVOLSLAR.",
+        "actionRequested": "Align resolutionSource, resolutionSourceUrl, resolutionRule, and sourceContext with the ledger sourceBinding, or explicitly state in reasoning that the ledger resolver binding appears inconsistent with the official-agency preference while keeping the published fields tied to the canonical target."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Add one sentence saying the 2024-Jan through 2026-May sample was chosen as the current-rate-regime reference class rather than a longer pre-2024 sample."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State whether the interval sigma is the sample standard deviation of monthly annual-rate values, not forecast-error volatility, to remove any ambiguity."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking resolver critique by tying resolutionSource, resolutionSourceUrl, resolutionRule, and sourceContext to the canonical ALFRED/FRED REVOLSLAR first-vintage binding while preserving the substance that the statistic is the Federal Reserve G.19 first print; accepted the optional clarifications on the 2024-Jan through 2026-May reference class and sigma as the sample standard deviation of monthly annual-rate values.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by tying resolutionSource, resolutionSourceUrl, resolutionRule, and sourceContext to the canonical ALFRED/FRED REVOLSLAR first-vintage binding while preserving the substance that the statistic is the Federal Reserve G.19 first print; accepted the optional clarifications on the 2024-Jan through 2026-May reference class and sigma as the sample standard deviation of monthly annual-rate values.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by tying resolutionSource, resolutionSourceUrl, resolutionRule, and sourceContext to the canonical ALFRED/FRED REVOLSLAR first-vintage binding while preserving the substance that the statistic is the Federal Reserve G.19 first print; accepted the optional clarifications on the 2024-Jan through 2026-May reference class and sigma as the sample standard deviation of monthly annual-rate values.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is methodologically coherent, but its resolver/source fields conflict with the canonical ledger sourceBinding."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/prompt.md",
+      "sha256": "14a4033d419f27241e5f3de5d1ef40dbf20241c4b3d818a23f5d28dd34efbe63",
+      "bytes": 8937,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_command.json",
+      "sha256": "3c30b151dda75d086ab9a038c4622e32c7bf271125eebd8f038ba8f0736b5857",
+      "bytes": 750,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_codex_stdout.jsonl",
+      "sha256": "4c946c6d0075133789d6088219f97c01e69b5ae13c3b9a54af00079d24db92eb",
+      "bytes": 11621,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_codex_stderr.log",
+      "sha256": "2af8c52ae592e2d406e214a7ffc7866d2c6cfa93d85f281f3456c317bce33678",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_codex_events.jsonl",
+      "sha256": "611521f8e8bdb268679e80cce944e3f6b107ad46cd6dee3af8717ac8e6622e45",
+      "bytes": 11611,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_codex_last_message.txt",
+      "sha256": "3f847234fb862ed844d28cc7f57400fb24830eed07a147e1b4560394ddc3512a",
+      "bytes": 5284,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_codex_trace.json",
+      "sha256": "bef18e9f2f214a1e18fc745c1aa671a79b868027b56f7cafbecb89e1654eaf8b",
+      "bytes": 534,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_stdout.txt",
+      "sha256": "3f847234fb862ed844d28cc7f57400fb24830eed07a147e1b4560394ddc3512a",
+      "bytes": 5284,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/draft_stderr.txt",
+      "sha256": "b19ab4d86622434be6c896d70c8f14243d535447ac3d55e06fd17d7846f6b61a",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_prompt.md",
+      "sha256": "ec2db10f7becadb16b78ae619d09e188e73ce0dce7c119b92ea3b264144b559e",
+      "bytes": 8374,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_command.json",
+      "sha256": "ada3236d23255d89d9a016983fd9784fdfe298d361cb7c675981be80b1f3e47a",
+      "bytes": 746,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "3dea5767eab95b8bc33da6b60687697217f4402049a6282b8ca69cb00479cfc8",
+      "bytes": 2289,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_codex_stderr.log",
+      "sha256": "d2a6b5034d37e6f7f14563934e7517db96c959d73e0ec416d6bc6642a0549ffd",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_codex_events.jsonl",
+      "sha256": "7f1f980c99d3d2c86bc1dd300801ac851c8b31d6fc7b9dc01a788f6c83b792ad",
+      "bytes": 2310,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_codex_last_message.txt",
+      "sha256": "8ee31a75b53784cb725d578ad19f0574d528df5a4c36a435ad0a73a5df2c1a96",
+      "bytes": 1256,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_codex_trace.json",
+      "sha256": "2352bba055fb0d9ecbb6aaafddff8041f6cb8c00da279fee3c210b95883da99c",
+      "bytes": 527,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_stdout.txt",
+      "sha256": "8ee31a75b53784cb725d578ad19f0574d528df5a4c36a435ad0a73a5df2c1a96",
+      "bytes": 1256,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/pre_submit_review_stderr.txt",
+      "sha256": "78d7b15e1a619fdaae2c1cb3fbcafc8226fce491bca6ba9da2ce0c61ed49ee92",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/revision_prompt.md",
+      "sha256": "c710cd5268187bf0f88266676dfd1e87c4500bd00a8da8e09dc949df5ba5d940",
+      "bytes": 16413,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/command.json",
+      "sha256": "0947770570c1681066616a3595c4bc091ff5429470238b098039c37ba8018235",
+      "bytes": 744,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/codex_stdout.jsonl",
+      "sha256": "5dc11513a607d36dbe4600024b27daa49f23abc42ce6d7891b51d835d2aa4100",
+      "bytes": 6685,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/codex_stderr.log",
+      "sha256": "03b6a5051f06061ca982916f7244e9a2deb6c9aa206749da6bf7142809c218ee",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/codex_events.jsonl",
+      "sha256": "9e6d6bb01610a2b117804bc8563f7f5487009d75161b6f783a428150c879fc38",
+      "bytes": 6707,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/codex_last_message.txt",
+      "sha256": "8aeb5606a31d4d1372ebc62ba72a0a60c5695f7583fd83e725f3897da1e38d00",
+      "bytes": 6136,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/codex_trace.json",
+      "sha256": "3c59f12438f600966e527b112fac474f12283a9c6d68ec15ff11624c3946c1c3",
+      "bytes": 527,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/stdout.txt",
+      "sha256": "8aeb5606a31d4d1372ebc62ba72a0a60c5695f7583fd83e725f3897da1e38d00",
+      "bytes": 6136,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/stderr.txt",
+      "sha256": "2dd5e842f81b58e00dca0b72f4a189073dc69de68bf9605d852645bdb58161aa",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/raw_response.txt",
+      "sha256": "8aeb5606a31d4d1372ebc62ba72a0a60c5695f7583fd83e725f3897da1e38d00",
+      "bytes": 6136,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/parsed_cells.json",
+      "sha256": "b1b32c34f7ad7ef6ad74935d80c3d6bcecee4658da3ba374aab4d12b2712c66b",
+      "bytes": 6992,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/normalized_cells.json",
+      "sha256": "4ad14cd1f80686e812120ae123a5cdfc0ddf0d705ee503f40abdaa2d9ac6f6c1",
+      "bytes": 24142,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/distribution.json",
+      "sha256": "3d8e36d5c66916b810512b9b35f17622d54e6d183c423542a8d764cfb27a4e7f",
+      "bytes": 13366,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/validation.json",
+      "sha256": "a3c9d1cf003d67908475a8e0c86c3731ab84a02b9137c6771c16800d1eda37b7",
+      "bytes": 151,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/cells.with_activity.json",
+      "sha256": "57d87c75f6d7c932bc8afeaadbaf9779c3f14869ece0ad63c8b12f8e7d899088",
+      "bytes": 40164,
+      "createdAt": "2026-07-26T01:16:00Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-16-00z-fed-g19-consumer-credit-revolving-annual-rate-2026-06/manifest.json",
+      "sha256": "c119d9f4f67bef99bda6f284d76b798861004050e25b8d643649f8fee5d51cc1",
+      "bytes": 16357,
+      "createdAt": "2026-07-26T01:16:00Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-revolving-consumer-credit-annual-rate-june-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "f787ae87fbc67eb8d34ef7db771b7c73d17e0374825aad3b3b95104e34daeaf6"
+}

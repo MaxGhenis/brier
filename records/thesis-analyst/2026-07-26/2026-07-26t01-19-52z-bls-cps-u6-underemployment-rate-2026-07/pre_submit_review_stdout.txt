@@ -1,0 +1,21 @@
+{
+  "summary": "The draft is broadly coherent and free of blocking leakage or unit problems, with only source-binding and interval-sample tightening needed before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft correctly names BLS Table A-15 as the official first-print object, but sourceContext cites FRED while the canonical machine sourceBinding is ALFRED U6RATE.",
+      "actionRequested": "Add or substitute the ALFRED U6RATE CSV/sourceBinding URL in sourceContext, and keep FRED explicitly labeled as contextual only if retained."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is based on only four recent monthly changes, which is a very short realized-volatility sample for a predictive interval.",
+      "actionRequested": "Use a longer U-6 monthly-change sample, or explicitly justify why the Feb-Jun 2026 sample is sufficient and whether small-sample uncertainty should widen the interval."
+    }
+  ],
+  "optionalSuggestions": [
+    "State explicitly that no July 2026 outcome data were available at runAt.",
+    "Make the tail scenarios slightly more component-specific, for example U-6 rising through involuntary part-time work versus marginal attachment."
+  ]
+}

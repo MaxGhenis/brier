@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: bls.eci.private_wages_salaries_qoq
+- period: 2026-Q2
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-eci-private-wages-salaries-q2-2026"
+- country: "US"
+- targetUnit: "percent_growth"
+- dataPointId: "bls.eci.private_wages_salaries_qoq.2026_q2.first_print"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org"], "expectedReleaseWindow": {"end": "2026-07-31", "start": "2026-07-31"}, "field": "ECIWAG", "releasePolicy": "first_print", "sourceSeriesId": "ECIWAG", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECIWAG", "table": "Employment Cost Index, Table 2", "transform": {"factor": 1, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-26-3c7fb11350930f5635f80d8c1e6d931c96318f31075e632d8477db9d9eaba66b.json"
+- targetContentHash: "3c7fb11350930f5635f80d8c1e6d931c96318f31075e632d8477db9d9eaba66b"
+- registrationCommit: "145f6612f225710a4621f124b13bf5d5ae5d97ac"
+- registeredAtUtc: "2026-07-26T00:55:04Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+85b227b8dacbff0ebcdcaf64b4d97021c7ee81155c6082eab438cea8a5858cee
+
+# Draft forecast response
+{"slug":"us-eci-private-wages-salaries-q2-2026","country":"US","type":"data","title":"US ECI private wages Q2 2026","question":"What will BLS first report for the seasonally adjusted 3-month percent change in the Employment Cost Index for wages and salaries, private industry workers, all workers, for 2026 Q2?","unit":"percent_growth","pointEstimate":0.8,"ciLow":0.6,"ciHigh":1,"confidence":0.8,"resolutionDate":"2026-07-31","resolutionSource":"U.S. Bureau of Labor Statistics Employment Cost Index Table 2","resolutionSourceUrl":"https://www.bls.gov/news.release/eci.t02.htm","resolutionRule":"Resolve to the first BLS Employment Cost Index Table 2 seasonally adjusted percent change for wages and salaries, private industry workers, all workers, for the 3 months ended June 2026, reported in percent and rounded to one decimal; ignore later revisions or seasonal-adjustment updates.","dataPointId":"bls.eci.private_wages_salaries_qoq.2026_q2.first_print","historicalContext":[{"label":"2026-Q1 first/latest Table 2 SA q/q percent change","value":0.7},{"label":"2025-Q4 Table 2 SA q/q percent change","value":0.7},{"label":"2025-Q3 Table 2 SA q/q percent change","value":0.8},{"label":"2025-Q2 Table 2 SA q/q percent change","value":1},{"label":"2026-Q1 ECIWAG index level","value":177.498}],"drivers":["Recent private wage ECI prints clustered between 0.7 and 1.0 percent","June payroll earnings still rising but not accelerating sharply","Core CPI cooling lowers pass-through pressure","Tight-but-cooling labor market argues for persistence near 0.8 percent"],"sourceContext":["https://www.bls.gov/schedule/2026/07_sched.htm","https://www.bls.gov/news.release/eci.t02.htm","https://fred.stlouisfed.org/data/ECIWAG","https://www.bls.gov/news.release/empsit.nr0.htm?lv=true","https://www.bls.gov/news.release/cpi.htm?lv=true"],"runAt":"2026-07-26T01:05:51Z","reasoning":[{"kind":"heading","text":"US private wages and salaries ECI, 2026 Q2 first print"},{"kind":"text","text":"The target is the BLS Employment Cost Index Table 2 variant: seasonally adjusted wages and salaries, private industry workers, all workers, 3-month percent change for the quarter ended June 2026. I use the official BLS table as the resolution source; FRED/ALFRED is only a public history mirror for the ECIWAG index."},{"kind":"tool","tool":"official.lookup","call":"Checked the BLS July 2026 release schedule for the Employment Cost Index release date.","result":"BLS lists Employment Cost Index for Second Quarter 2026 at 08:30 ET on 2026-07-31."},{"kind":"tool","tool":"official.lookup","call":"Read BLS 2026 Q1 Employment Cost Index Table 2 for the exact target row and recent rounded percent changes.","result":"For private industry workers, all workers, wages and salaries, Table 2 shows index 176.233 in Dec 2025, index 177.498 in Mar 2026, and 3-month percent changes of 1.1, 0.8, 0.8, 0.9, 0.8, 1.0, 0.8, 0.7, 0.7 for Mar 2024 through Mar 2026."},{"kind":"tool","tool":"history.lookup","call":"Checked FRED ECIWAG table data as a history mirror of the BLS source series.","result":"FRED ECIWAG lists quarterly index levels 171.800 for 2025-01-01, 173.563 for 2025-04-01, 174.948 for 2025-07-01, 176.233 for 2025-10-01, and 177.498 for 2026-01-01; date range is 2001-01-01 to 2026-01-01 and last updated 2026-04-30."},{"kind":"tool","tool":"macro.lookup","call":"Checked adjacent BLS labor-market and inflation releases for current-release context.","result":"The June 2026 Employment Situation reported total nonfarm payroll employment +57,000 and unemployment 4.2%; total private average hourly earnings were $37.41 in Apr 2026, $37.51 in May 2026, and $37.64 in Jun 2026. The June 2026 CPI release reported all-items CPI -0.4% m/m, all-items CPI 3.5% y/y, and core CPI 2.6% y/y."},{"kind":"text","text":"Reference class/base rate: the most relevant short-run reference class is the same BLS Table 2 private-industry wages-and-salaries SA q/q series over the last nine published quarters. That base rate is centered near 0.84 percent, with the last two prints both 0.7 percent and the last four prints 1.0, 0.8, 0.7, 0.7."},{"kind":"math","text":"Prior/update/interval: persistence prior from the nine fetched BLS Table 2 q/q percent changes [1.1, 0.8, 0.8, 0.9, 0.8, 1.0, 0.8, 0.7, 0.7] gives mean = 7.6/9 = 0.84 and sample sigma = 0.13 using the values themselves because this is a percent-change series. The 80% normal half-width is about 1.28*sigma = 1.28*0.13 = 0.17. I shade the point from 0.84 to 0.8 because recent Q4/Q1 prints were 0.7 and payroll wage growth is steady rather than reaccelerating, then round/widen the interval to 0.6 to 1.0 to respect one-decimal first-print uncertainty and current wage dispersion."},{"kind":"text","text":"Upside risk: a stronger quarter for professional services, health care, or incentive-heavy pay could put the first print at 1.1 or higher and would land above the interval. Downside risk: continued labor-market cooling plus soft bonuses could print 0.5 or lower and would land below the interval. Outside the interval is most likely if composition or annual seasonal factors make the all-worker private wage aggregate diverge from payroll-average-hourly-earnings signals."},{"kind":"forecast","point":0.8,"ciLow":0.6,"ciHigh":1}]}

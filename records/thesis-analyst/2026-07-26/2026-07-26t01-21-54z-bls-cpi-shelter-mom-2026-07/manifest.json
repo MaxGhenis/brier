@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-26T01:21:54Z",
+  "runStartedAt": "2026-07-26T01:21:54Z",
+  "series": "bls.cpi.shelter_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-cpi-shelter-mom-july-2026",
+    "country": "US",
+    "dataPointId": "bls.cpi.shelter_mom.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-12",
+    "period": "2026-07",
+    "registeredAt": "2026-07-26T00:55:04Z",
+    "registeredAtUtc": "2026-07-26T00:55:04Z",
+    "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+    "seedPeriod": "2026-07",
+    "series": "bls.cpi.shelter_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-12",
+        "start": "2026-08-12"
+      },
+      "field": "CUSR0000SAH1",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "CUSR0000SAH1",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SAH1",
+      "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "5c82767a6ab5fb1c8b9100ba47b05d629ddfb3651373d64f7772cdbd833e5ad9",
+    "targetRegistrationPath": "records/targets/2026-07-26-5c82767a6ab5fb1c8b9100ba47b05d629ddfb3651373d64f7772cdbd833e5ad9.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+  "targetContentHash": "5c82767a6ab5fb1c8b9100ba47b05d629ddfb3651373d64f7772cdbd833e5ad9",
+  "targetRegistrationPath": "records/targets/2026-07-26-5c82767a6ab5fb1c8b9100ba47b05d629ddfb3651373d64f7772cdbd833e5ad9.json",
+  "registeredAtUtc": "2026-07-26T00:55:04Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-26T01:21:54Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "665bef17ffe8c7c3e69fcb76163bcc9b2cbf46bc18210d3218fe404eb9325d4b"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The JSON resolutionSourceUrl points to BLS while the canonical ledger sourceBinding is the ALFRED first-print adapter for CUSR0000SAH1; the reasoning explains this, but the structured fields could look mismatched to the target contract.",
+        "actionRequested": "Clarify in the structured resolver fields that BLS is the official economic release and ALFRED/FRED CUSR0000SAH1 is the canonical first-print binding/mirror used for the registered target, or align the URL/source field with the ledger binding while retaining BLS in the rule text."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Consider stating explicitly that no richer time-series model was used beyond the persistence/reference-class prior because the near-term sample and component judgment are more transparent for this one-month target."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The seven-month volatility basis is acceptable, but noting the small sample size would make the interval caveat cleaner."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publication-ready with only minor source-binding clarity issues around BLS versus the canonical ALFRED first-print adapter."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/prompt.md",
+      "sha256": "39429e0ac45c022fbea33f443df7a94614064216046220c9c0ee6d2603e0912e",
+      "bytes": 8886,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_command.json",
+      "sha256": "1bee42951cf38a25e785e7be83f9ab469e34a78570ef95c73d63fd58df2888ea",
+      "bytes": 724,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "e43626bc4bb11d55b4eee5ad42ae056a23fcd9f8f83e332780fd66dbebe03001",
+      "bytes": 13885,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "bdddff4be2e8a2c85821b074501a966c0e8c5b7298ced9c7e327197e32c36d16",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "7586c52c7d9c13be4b1edcebcb965f9b2951b6a59abfbfacfe4089130774aca9",
+      "bytes": 13842,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "f7e95135bcbd4dc6398d64e3313ac85c34a9c028be1bb9f3b125714de835d1ac",
+      "bytes": 5624,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_trace.json",
+      "sha256": "4a76d2e85d6fc73a59d47e316ed98b666e57e2fa28d31d8b8ca007aad488bf58",
+      "bytes": 533,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_stdout.txt",
+      "sha256": "f7e95135bcbd4dc6398d64e3313ac85c34a9c028be1bb9f3b125714de835d1ac",
+      "bytes": 5624,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_stderr.txt",
+      "sha256": "d174f0e1b7b278e65cdb464f0b9337db1ca3142d2b45dc365f264b5a2e65ec62",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "788af8e82b2f4fda842cb5e10c0905621b0606e56c85b0182790f346575c4a9d",
+      "bytes": 8663,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "fdef62fe03fafb3f99b21560db8eefb61247e600885df11ec32c6e2b6caf6c59",
+      "bytes": 720,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "149d7de51b2faf52eb2ec5a282a92fe179b22ed6740628faffa9f60a904b1dfc",
+      "bytes": 2071,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "04f242b3308919a13fa699db9e996bd9efa37b5b6e684807ca82ca26a7794451",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "53d6913ea413965c1348694fb882a613862994ce8fb3444759f0f9c280e31a16",
+      "bytes": 2092,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "0d1d1b3f1118e9bbfb9c9b13e2d2c9d999cdb5813b7e58816a3f28a52e3f0d08",
+      "bytes": 1129,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "412183b88051046dece9dd3d2dd6f57090f44e55776a4579542fe5c4a9ea4582",
+      "bytes": 528,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "0d1d1b3f1118e9bbfb9c9b13e2d2c9d999cdb5813b7e58816a3f28a52e3f0d08",
+      "bytes": 1129,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "a9b4371b6eaa185cbe7fb84b0125ce59d2ae678f2b0bdee9f20a2b0e7d9c3df2",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/revision_prompt.md",
+      "sha256": "e2f87308bbda1acf30d422cde70337de1661008bfe3659d01e1989e237a746a4",
+      "bytes": 16575,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/command.json",
+      "sha256": "eaa40882f945e733c282f4c4a48fb303ce96073f292e15caf9cdc849006c3db9",
+      "bytes": 718,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "4ba256ee05e6acc4579e40f89c40cf3716d2e46bca26b3aa85d43b2508f365b5",
+      "bytes": 7048,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_stderr.log",
+      "sha256": "3ea7488193a4dc2ab7d826c6c9b7c4f2a75017e5990fce8422ba0cc171fcbd62",
+      "bytes": 233,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_events.jsonl",
+      "sha256": "3129dedf5688dfcece3436f6eda107ba6d1b478216f54961a91d62fa5a883b5f",
+      "bytes": 7070,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_last_message.txt",
+      "sha256": "7c69ed84489893d2e1d8775c762def578e5c099f190e9ba7c2bc4e81556d22bb",
+      "bytes": 6479,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_trace.json",
+      "sha256": "2da4c0e3d3b4d43d648800630f34f6a395d1fbba57f0c44047c0f75301994332",
+      "bytes": 527,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/stdout.txt",
+      "sha256": "7c69ed84489893d2e1d8775c762def578e5c099f190e9ba7c2bc4e81556d22bb",
+      "bytes": 6479,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/stderr.txt",
+      "sha256": "898c89e19b5521a0be82ba46f17d6c2071a2bcd63d59f32610f2a4072863e3f7",
+      "bytes": 248,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/raw_response.txt",
+      "sha256": "7c69ed84489893d2e1d8775c762def578e5c099f190e9ba7c2bc4e81556d22bb",
+      "bytes": 6479,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/parsed_cells.json",
+      "sha256": "5173e088623d78585eee73adc4791a45b7e46ba7ecd6136c305ac9878cf30d09",
+      "bytes": 7437,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/normalized_cells.json",
+      "sha256": "e248355f6128af35cc4360858147bd82fdca46e80dedb9f3d050376672808c03",
+      "bytes": 24980,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/distribution.json",
+      "sha256": "bb3cf0110d39922988a9edd1995a690c7bf24e9fb6a1ee5f3f1e90587eb72007",
+      "bytes": 13759,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/validation.json",
+      "sha256": "7bc8d308ed2334fbfcd4427391d006cee0d0758fce822957d60cf94b6d56be41",
+      "bytes": 129,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/cells.with_activity.json",
+      "sha256": "5dc98a4d9ed613e0e2f974b6d3573d271eb55af42f2b272357bcde8b9e11c5e1",
+      "bytes": 39706,
+      "createdAt": "2026-07-26T01:21:54Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/manifest.json",
+      "sha256": "2da9bfc0ae8847e9efeff8ed1f24dee6993c827351d86067816461a90cdb1b66",
+      "bytes": 14902,
+      "createdAt": "2026-07-26T01:21:54Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-cpi-shelter-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "6e705cfea8db6ddfad01b49d9d5850b05fa7cb59ec6070395e868f236ae61f91"
+}

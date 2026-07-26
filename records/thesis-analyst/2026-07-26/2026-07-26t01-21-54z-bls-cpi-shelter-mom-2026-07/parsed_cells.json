@@ -1,0 +1,123 @@
+[
+  {
+    "slug": "us-cpi-shelter-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI Shelter MoM, July 2026",
+    "question": "What will the first-print seasonally adjusted month-over-month percent change be for BLS CPI-U shelter in U.S. city average, series CUSR0000SAH1, for July 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.24,
+    "ciLow": 0.03,
+    "ciHigh": 0.45,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "ALFRED first-print mirror of the official U.S. Bureau of Labor Statistics CPI-U shelter series CUSR0000SAH1",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SAH1",
+    "resolutionRule": "Resolve to the first-print July 2026 value for the seasonally adjusted CPI-U shelter series for U.S. city average, CUSR0000SAH1, as mirrored by ALFRED/FRED under the registered first-print binding. The underlying official economic release is the BLS Consumer Price Index release scheduled for August 12, 2026. Compute month-over-month percent growth from the first-print July 2026 and June 2026 seasonally adjusted index levels as 100*(July/June - 1), or use the BLS first-print seasonally adjusted percent-change table if exact first-print index levels are not exposed at resolution time. Do not revise for later seasonal-adjustment revisions or subsequent corrections unless the first-print file itself is replaced before ordinary publication.",
+    "dataPointId": "bls.cpi.shelter_mom.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 shelter SA MoM",
+        "value": 0.1
+      },
+      {
+        "label": "2026-05 shelter SA MoM",
+        "value": 0.3
+      },
+      {
+        "label": "2026-04 shelter SA MoM",
+        "value": 0.6
+      },
+      {
+        "label": "2026-03 shelter SA MoM",
+        "value": 0.3
+      },
+      {
+        "label": "2026-02 shelter SA MoM",
+        "value": 0.2
+      },
+      {
+        "label": "2026-01 shelter SA MoM",
+        "value": 0.2
+      },
+      {
+        "label": "2025-12 shelter SA MoM",
+        "value": 0.4
+      }
+    ],
+    "drivers": [
+      "Shelter inflation slowed sharply in June but rent and OER remained positive",
+      "Lodging away from home was a one-month drag that may partly unwind",
+      "Recent seven-month shelter reference class centers near 0.30 percent",
+      "July first print resolves from the same seasonally adjusted CPI-U shelter variant"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/news.release/cpi.t01.htm",
+      "https://fred.stlouisfed.org/series/CUSR0000SAH1",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SAH1"
+    ],
+    "runAt": "2026-07-26T01:22:14Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US CPI-U shelter month-over-month forecast for July 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the first-print July 2026 seasonally adjusted CPI-U shelter index for U.S. city average, series CUSR0000SAH1. The ledger uses ALFRED/FRED as the canonical first-print binding for the registered target, while the underlying official economic release is BLS; FRED/ALFRED is used as the history and first-print mirror."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS CPI release schedule for the July 2026 CPI reference month.",
+        "result": "BLS lists Consumer Price Index for July 2026 on August 12, 2026 at 08:30 AM, and the June CPI release also states the July 2026 CPI is scheduled for Wednesday, August 12, 2026 at 8:30 a.m. ET."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched BLS current CPI release Table A for the same CPI-U shelter seasonally adjusted percent-change variant.",
+        "result": "Shelter seasonally adjusted MoM percent changes were Dec 2025 0.4, Jan 2026 0.2, Feb 2026 0.2, Mar 2026 0.3, Apr 2026 0.6, May 2026 0.3, Jun 2026 0.1; the 12-month shelter change in June 2026 was 3.3."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched BLS CPI Table 1 component details for shelter, rent, and owners' equivalent rent.",
+        "result": "In June 2026 Table 1, shelter relative importance was 35.149, shelter SA MoM was 0.1, rent of primary residence SA MoM was 0.1, and owners' equivalent rent SA MoM was 0.2."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked FRED/ALFRED mirror for CUSR0000SAH1 index levels and latest update timing.",
+        "result": "CUSR0000SAH1 was Jun 2026 428.501, May 2026 427.998, Apr 2026 426.642, Mar 2026 424.069, Feb 2026 422.942; FRED showed updated Jul 14, 2026 8:10 AM CDT and next release date Aug 12, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: the recent same-variant BLS shelter MoM reference class is the seven printed monthly changes from Dec 2025 through Jun 2026. Its mean is 0.30 percent, but the last print was 0.1 and the exact CUSR0000SAH1 index calculation gives Jun about 0.118 and May about 0.318, so the short-term trend is below the mean."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism effects: shelter still has positive rent and OER mechanics, with June rent at 0.1 and OER at 0.2, but the aggregate was pulled down by lodging away from home falling 2.3 percent in June. I treat that lodging move as a partial one-off drag, while keeping some disinflationary momentum from the softer rent/OER prints."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence/reference-class prior is the Dec 2025-Jun 2026 BLS shelter MoM mean of 0.30 percent; no richer time-series model is used because this one-month target is better served by transparent persistence plus component judgment. Updates are -0.08 for June's soft exact 0.118 reading and lower rent/OER momentum, +0.03 for partial lodging-drag reversal, and -0.01 for core services softness, giving 0.30 - 0.08 + 0.03 - 0.01 = 0.24. Interval method uses realized dispersion of the seven BLS printed shelter MoM values themselves, a small but same-variant sample: sigma = 0.163; 1.28*sigma = 0.209, so the 80 percent interval is 0.24 +/- 0.21 = [0.03, 0.45] after rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a rebound in lodging away from home plus firmer OER that would land above the interval, especially if July shelter returns near April's 0.6. Downside risk is another weak lodging month or sharper rent slowdown that would land outside the interval below 0.03."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.24,
+        "ciLow": 0.03,
+        "ciHigh": 0.45
+      }
+    ]
+  }
+]

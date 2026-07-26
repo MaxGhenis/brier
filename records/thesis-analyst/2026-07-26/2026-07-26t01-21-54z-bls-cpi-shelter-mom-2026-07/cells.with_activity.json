@@ -1,0 +1,1237 @@
+[
+  {
+    "slug": "us-cpi-shelter-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI Shelter MoM, July 2026",
+    "question": "What will the first-print seasonally adjusted month-over-month percent change be for BLS CPI-U shelter in U.S. city average, series CUSR0000SAH1, for July 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.24,
+    "ciLow": 0.03,
+    "ciHigh": 0.45,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "ALFRED first-print mirror of the official U.S. Bureau of Labor Statistics CPI-U shelter series CUSR0000SAH1",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SAH1",
+    "resolutionRule": "Resolve to the first-print July 2026 value for the seasonally adjusted CPI-U shelter series for U.S. city average, CUSR0000SAH1, as mirrored by ALFRED/FRED under the registered first-print binding. The underlying official economic release is the BLS Consumer Price Index release scheduled for August 12, 2026. Compute month-over-month percent growth from the first-print July 2026 and June 2026 seasonally adjusted index levels as 100*(July/June - 1), or use the BLS first-print seasonally adjusted percent-change table if exact first-print index levels are not exposed at resolution time. Do not revise for later seasonal-adjustment revisions or subsequent corrections unless the first-print file itself is replaced before ordinary publication.",
+    "dataPointId": "bls.cpi.shelter_mom.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 shelter SA MoM",
+        "value": 0.1
+      },
+      {
+        "label": "2026-05 shelter SA MoM",
+        "value": 0.3
+      },
+      {
+        "label": "2026-04 shelter SA MoM",
+        "value": 0.6
+      },
+      {
+        "label": "2026-03 shelter SA MoM",
+        "value": 0.3
+      },
+      {
+        "label": "2026-02 shelter SA MoM",
+        "value": 0.2
+      },
+      {
+        "label": "2026-01 shelter SA MoM",
+        "value": 0.2
+      },
+      {
+        "label": "2025-12 shelter SA MoM",
+        "value": 0.4
+      }
+    ],
+    "drivers": [
+      "Shelter inflation slowed sharply in June but rent and OER remained positive",
+      "Lodging away from home was a one-month drag that may partly unwind",
+      "Recent seven-month shelter reference class centers near 0.30 percent",
+      "July first print resolves from the same seasonally adjusted CPI-U shelter variant"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://www.bls.gov/news.release/cpi.nr0.htm",
+      "https://www.bls.gov/news.release/cpi.t01.htm",
+      "https://fred.stlouisfed.org/series/CUSR0000SAH1",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SAH1"
+    ],
+    "runAt": "2026-07-26T01:24:03Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US CPI-U shelter month-over-month forecast for July 2026"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the first-print July 2026 seasonally adjusted CPI-U shelter index for U.S. city average, series CUSR0000SAH1. The ledger uses ALFRED/FRED as the canonical first-print binding for the registered target, while the underlying official economic release is BLS; FRED/ALFRED is used as the history and first-print mirror."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS CPI release schedule for the July 2026 CPI reference month.",
+        "result": "BLS lists Consumer Price Index for July 2026 on August 12, 2026 at 08:30 AM, and the June CPI release also states the July 2026 CPI is scheduled for Wednesday, August 12, 2026 at 8:30 a.m. ET."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched BLS current CPI release Table A for the same CPI-U shelter seasonally adjusted percent-change variant.",
+        "result": "Shelter seasonally adjusted MoM percent changes were Dec 2025 0.4, Jan 2026 0.2, Feb 2026 0.2, Mar 2026 0.3, Apr 2026 0.6, May 2026 0.3, Jun 2026 0.1; the 12-month shelter change in June 2026 was 3.3."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched BLS CPI Table 1 component details for shelter, rent, and owners' equivalent rent.",
+        "result": "In June 2026 Table 1, shelter relative importance was 35.149, shelter SA MoM was 0.1, rent of primary residence SA MoM was 0.1, and owners' equivalent rent SA MoM was 0.2."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Checked FRED/ALFRED mirror for CUSR0000SAH1 index levels and latest update timing.",
+        "result": "CUSR0000SAH1 was Jun 2026 428.501, May 2026 427.998, Apr 2026 426.642, Mar 2026 424.069, Feb 2026 422.942; FRED showed updated Jul 14, 2026 8:10 AM CDT and next release date Aug 12, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class/base rate: the recent same-variant BLS shelter MoM reference class is the seven printed monthly changes from Dec 2025 through Jun 2026. Its mean is 0.30 percent, but the last print was 0.1 and the exact CUSR0000SAH1 index calculation gives Jun about 0.118 and May about 0.318, so the short-term trend is below the mean."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, one-off, and mechanism effects: shelter still has positive rent and OER mechanics, with June rent at 0.1 and OER at 0.2, but the aggregate was pulled down by lodging away from home falling 2.3 percent in June. I treat that lodging move as a partial one-off drag, while keeping some disinflationary momentum from the softer rent/OER prints."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence/reference-class prior is the Dec 2025-Jun 2026 BLS shelter MoM mean of 0.30 percent; no richer time-series model is used because this one-month target is better served by transparent persistence plus component judgment. Updates are -0.08 for June's soft exact 0.118 reading and lower rent/OER momentum, +0.03 for partial lodging-drag reversal, and -0.01 for core services softness, giving 0.30 - 0.08 + 0.03 - 0.01 = 0.24. Interval method uses realized dispersion of the seven BLS printed shelter MoM values themselves, a small but same-variant sample: sigma = 0.163; 1.28*sigma = 0.209, so the 80 percent interval is 0.24 +/- 0.21 = [0.03, 0.45] after rounding."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a rebound in lodging away from home plus firmer OER that would land above the interval, especially if July shelter returns near April's 0.6. Downside risk is another weak lodging month or sharper rent slowdown that would land outside the interval below 0.03."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.24,
+        "ciLow": 0.03,
+        "ciHigh": 0.45
+      }
+    ],
+    "agentReportedRunAt": "2026-07-26T01:22:14Z",
+    "runStartedAt": "2026-07-26T01:21:54Z",
+    "promptMode": "fast",
+    "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+    "targetContentHash": "5c82767a6ab5fb1c8b9100ba47b05d629ddfb3651373d64f7772cdbd833e5ad9",
+    "targetRegistrationPath": "records/targets/2026-07-26-5c82767a6ab5fb1c8b9100ba47b05d629ddfb3651373d64f7772cdbd833e5ad9.json",
+    "registeredAtUtc": "2026-07-26T00:55:04Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -0.285,
+        "upper": 0.765
+      },
+      "points": [
+        {
+          "value": -0.285,
+          "probability": 0.0
+        },
+        {
+          "value": -0.27975,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -0.2745,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -0.26925,
+          "probability": 0.005
+        },
+        {
+          "value": -0.264,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -0.25875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -0.2535,
+          "probability": 0.01
+        },
+        {
+          "value": -0.24825,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -0.243,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -0.23775,
+          "probability": 0.015
+        },
+        {
+          "value": -0.2325,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -0.22725,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -0.222,
+          "probability": 0.02
+        },
+        {
+          "value": -0.21675,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -0.2115,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -0.20625,
+          "probability": 0.025
+        },
+        {
+          "value": -0.201,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -0.19575,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -0.1905,
+          "probability": 0.03
+        },
+        {
+          "value": -0.18525,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -0.18,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -0.17475,
+          "probability": 0.035
+        },
+        {
+          "value": -0.1695,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -0.16425,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -0.159,
+          "probability": 0.04
+        },
+        {
+          "value": -0.15375,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -0.1485,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -0.14325,
+          "probability": 0.045
+        },
+        {
+          "value": -0.138,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -0.13275,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -0.1275,
+          "probability": 0.05
+        },
+        {
+          "value": -0.12225,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -0.117,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -0.11175,
+          "probability": 0.055
+        },
+        {
+          "value": -0.1065,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -0.10125,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -0.096,
+          "probability": 0.06
+        },
+        {
+          "value": -0.09075,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -0.0855,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -0.08025,
+          "probability": 0.065
+        },
+        {
+          "value": -0.075,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -0.06975,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -0.0645,
+          "probability": 0.07
+        },
+        {
+          "value": -0.05925,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -0.054,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -0.04875,
+          "probability": 0.075
+        },
+        {
+          "value": -0.0435,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -0.03825,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -0.033,
+          "probability": 0.08
+        },
+        {
+          "value": -0.02775,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -0.0225,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -0.01725,
+          "probability": 0.085
+        },
+        {
+          "value": -0.012,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -0.00675,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -0.0015,
+          "probability": 0.09
+        },
+        {
+          "value": 0.00375,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 0.009,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 0.01425,
+          "probability": 0.095
+        },
+        {
+          "value": 0.0195,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 0.02475,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 0.03,
+          "probability": 0.1
+        },
+        {
+          "value": 0.03525,
+          "probability": 0.11
+        },
+        {
+          "value": 0.0405,
+          "probability": 0.12
+        },
+        {
+          "value": 0.04575,
+          "probability": 0.13
+        },
+        {
+          "value": 0.051,
+          "probability": 0.14
+        },
+        {
+          "value": 0.05625,
+          "probability": 0.15
+        },
+        {
+          "value": 0.0615,
+          "probability": 0.16
+        },
+        {
+          "value": 0.06675,
+          "probability": 0.17
+        },
+        {
+          "value": 0.072,
+          "probability": 0.18
+        },
+        {
+          "value": 0.07725,
+          "probability": 0.19
+        },
+        {
+          "value": 0.0825,
+          "probability": 0.2
+        },
+        {
+          "value": 0.08775,
+          "probability": 0.21
+        },
+        {
+          "value": 0.093,
+          "probability": 0.22
+        },
+        {
+          "value": 0.09825,
+          "probability": 0.23
+        },
+        {
+          "value": 0.1035,
+          "probability": 0.24
+        },
+        {
+          "value": 0.10875,
+          "probability": 0.25
+        },
+        {
+          "value": 0.114,
+          "probability": 0.26
+        },
+        {
+          "value": 0.11925,
+          "probability": 0.27
+        },
+        {
+          "value": 0.1245,
+          "probability": 0.28
+        },
+        {
+          "value": 0.12975,
+          "probability": 0.29
+        },
+        {
+          "value": 0.135,
+          "probability": 0.3
+        },
+        {
+          "value": 0.14025,
+          "probability": 0.31
+        },
+        {
+          "value": 0.1455,
+          "probability": 0.32
+        },
+        {
+          "value": 0.15075,
+          "probability": 0.33
+        },
+        {
+          "value": 0.156,
+          "probability": 0.34
+        },
+        {
+          "value": 0.16125,
+          "probability": 0.35
+        },
+        {
+          "value": 0.1665,
+          "probability": 0.36
+        },
+        {
+          "value": 0.17175,
+          "probability": 0.37
+        },
+        {
+          "value": 0.177,
+          "probability": 0.38
+        },
+        {
+          "value": 0.18225,
+          "probability": 0.39
+        },
+        {
+          "value": 0.1875,
+          "probability": 0.4
+        },
+        {
+          "value": 0.19275,
+          "probability": 0.41
+        },
+        {
+          "value": 0.198,
+          "probability": 0.42
+        },
+        {
+          "value": 0.20325,
+          "probability": 0.43
+        },
+        {
+          "value": 0.2085,
+          "probability": 0.44
+        },
+        {
+          "value": 0.21375,
+          "probability": 0.45
+        },
+        {
+          "value": 0.219,
+          "probability": 0.46
+        },
+        {
+          "value": 0.22425,
+          "probability": 0.47
+        },
+        {
+          "value": 0.2295,
+          "probability": 0.48
+        },
+        {
+          "value": 0.23475,
+          "probability": 0.49
+        },
+        {
+          "value": 0.24,
+          "probability": 0.5
+        },
+        {
+          "value": 0.24525,
+          "probability": 0.51
+        },
+        {
+          "value": 0.2505,
+          "probability": 0.52
+        },
+        {
+          "value": 0.25575,
+          "probability": 0.53
+        },
+        {
+          "value": 0.261,
+          "probability": 0.54
+        },
+        {
+          "value": 0.26625,
+          "probability": 0.55
+        },
+        {
+          "value": 0.2715,
+          "probability": 0.56
+        },
+        {
+          "value": 0.27675,
+          "probability": 0.57
+        },
+        {
+          "value": 0.282,
+          "probability": 0.58
+        },
+        {
+          "value": 0.28725,
+          "probability": 0.59
+        },
+        {
+          "value": 0.2925,
+          "probability": 0.6
+        },
+        {
+          "value": 0.29775,
+          "probability": 0.61
+        },
+        {
+          "value": 0.303,
+          "probability": 0.62
+        },
+        {
+          "value": 0.30825,
+          "probability": 0.63
+        },
+        {
+          "value": 0.3135,
+          "probability": 0.64
+        },
+        {
+          "value": 0.31875,
+          "probability": 0.65
+        },
+        {
+          "value": 0.324,
+          "probability": 0.66
+        },
+        {
+          "value": 0.32925,
+          "probability": 0.67
+        },
+        {
+          "value": 0.3345,
+          "probability": 0.68
+        },
+        {
+          "value": 0.33975,
+          "probability": 0.69
+        },
+        {
+          "value": 0.345,
+          "probability": 0.7
+        },
+        {
+          "value": 0.35025,
+          "probability": 0.71
+        },
+        {
+          "value": 0.3555,
+          "probability": 0.72
+        },
+        {
+          "value": 0.36075,
+          "probability": 0.73
+        },
+        {
+          "value": 0.366,
+          "probability": 0.74
+        },
+        {
+          "value": 0.37125,
+          "probability": 0.75
+        },
+        {
+          "value": 0.3765,
+          "probability": 0.76
+        },
+        {
+          "value": 0.38175,
+          "probability": 0.77
+        },
+        {
+          "value": 0.387,
+          "probability": 0.78
+        },
+        {
+          "value": 0.39225,
+          "probability": 0.79
+        },
+        {
+          "value": 0.3975,
+          "probability": 0.8
+        },
+        {
+          "value": 0.40275,
+          "probability": 0.81
+        },
+        {
+          "value": 0.408,
+          "probability": 0.82
+        },
+        {
+          "value": 0.41325,
+          "probability": 0.83
+        },
+        {
+          "value": 0.4185,
+          "probability": 0.84
+        },
+        {
+          "value": 0.42375,
+          "probability": 0.85
+        },
+        {
+          "value": 0.429,
+          "probability": 0.86
+        },
+        {
+          "value": 0.43425,
+          "probability": 0.87
+        },
+        {
+          "value": 0.4395,
+          "probability": 0.88
+        },
+        {
+          "value": 0.44475,
+          "probability": 0.89
+        },
+        {
+          "value": 0.45,
+          "probability": 0.9
+        },
+        {
+          "value": 0.45525,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 0.4605,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 0.46575,
+          "probability": 0.905
+        },
+        {
+          "value": 0.471,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 0.47625,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 0.4815,
+          "probability": 0.91
+        },
+        {
+          "value": 0.48675,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 0.492,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 0.49725,
+          "probability": 0.915
+        },
+        {
+          "value": 0.5025,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 0.50775,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 0.513,
+          "probability": 0.92
+        },
+        {
+          "value": 0.51825,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 0.5235,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 0.52875,
+          "probability": 0.925
+        },
+        {
+          "value": 0.534,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 0.53925,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 0.5445,
+          "probability": 0.93
+        },
+        {
+          "value": 0.54975,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 0.555,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 0.56025,
+          "probability": 0.935
+        },
+        {
+          "value": 0.5655,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 0.57075,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 0.576,
+          "probability": 0.94
+        },
+        {
+          "value": 0.58125,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 0.5865,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 0.59175,
+          "probability": 0.945
+        },
+        {
+          "value": 0.597,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 0.60225,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 0.6075,
+          "probability": 0.95
+        },
+        {
+          "value": 0.61275,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 0.618,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 0.62325,
+          "probability": 0.955
+        },
+        {
+          "value": 0.6285,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 0.63375,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 0.639,
+          "probability": 0.96
+        },
+        {
+          "value": 0.64425,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 0.6495,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 0.65475,
+          "probability": 0.965
+        },
+        {
+          "value": 0.66,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 0.66525,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 0.6705,
+          "probability": 0.97
+        },
+        {
+          "value": 0.67575,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 0.681,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 0.68625,
+          "probability": 0.975
+        },
+        {
+          "value": 0.6915,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 0.69675,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 0.702,
+          "probability": 0.98
+        },
+        {
+          "value": 0.70725,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 0.7125,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 0.71775,
+          "probability": 0.985
+        },
+        {
+          "value": 0.723,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 0.72825,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 0.7335,
+          "probability": 0.99
+        },
+        {
+          "value": 0.73875,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 0.744,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 0.74925,
+          "probability": 0.995
+        },
+        {
+          "value": 0.7545,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 0.75975,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 0.765,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 0.24,
+        "median": 0.24,
+        "interval80": {
+          "lower": 0.03,
+          "upper": 0.45
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/prompt.md",
+        "sha256": "39429e0ac45c022fbea33f443df7a94614064216046220c9c0ee6d2603e0912e",
+        "bytes": 8886,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_command.json",
+        "sha256": "1bee42951cf38a25e785e7be83f9ab469e34a78570ef95c73d63fd58df2888ea",
+        "bytes": 724,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "e43626bc4bb11d55b4eee5ad42ae056a23fcd9f8f83e332780fd66dbebe03001",
+        "bytes": 13885,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_stderr.log",
+        "sha256": "bdddff4be2e8a2c85821b074501a966c0e8c5b7298ced9c7e327197e32c36d16",
+        "bytes": 233,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_events.jsonl",
+        "sha256": "7586c52c7d9c13be4b1edcebcb965f9b2951b6a59abfbfacfe4089130774aca9",
+        "bytes": 13842,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_last_message.txt",
+        "sha256": "f7e95135bcbd4dc6398d64e3313ac85c34a9c028be1bb9f3b125714de835d1ac",
+        "bytes": 5624,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_codex_trace.json",
+        "sha256": "4a76d2e85d6fc73a59d47e316ed98b666e57e2fa28d31d8b8ca007aad488bf58",
+        "bytes": 533,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_stdout.txt",
+        "sha256": "f7e95135bcbd4dc6398d64e3313ac85c34a9c028be1bb9f3b125714de835d1ac",
+        "bytes": 5624,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_stderr.txt",
+        "sha256": "d174f0e1b7b278e65cdb464f0b9337db1ca3142d2b45dc365f264b5a2e65ec62",
+        "bytes": 248,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_prompt.md",
+        "sha256": "788af8e82b2f4fda842cb5e10c0905621b0606e56c85b0182790f346575c4a9d",
+        "bytes": 8663,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_command.json",
+        "sha256": "fdef62fe03fafb3f99b21560db8eefb61247e600885df11ec32c6e2b6caf6c59",
+        "bytes": 720,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "149d7de51b2faf52eb2ec5a282a92fe179b22ed6740628faffa9f60a904b1dfc",
+        "bytes": 2071,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "04f242b3308919a13fa699db9e996bd9efa37b5b6e684807ca82ca26a7794451",
+        "bytes": 233,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "53d6913ea413965c1348694fb882a613862994ce8fb3444759f0f9c280e31a16",
+        "bytes": 2092,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "0d1d1b3f1118e9bbfb9c9b13e2d2c9d999cdb5813b7e58816a3f28a52e3f0d08",
+        "bytes": 1129,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "412183b88051046dece9dd3d2dd6f57090f44e55776a4579542fe5c4a9ea4582",
+        "bytes": 528,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "0d1d1b3f1118e9bbfb9c9b13e2d2c9d999cdb5813b7e58816a3f28a52e3f0d08",
+        "bytes": 1129,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "a9b4371b6eaa185cbe7fb84b0125ce59d2ae678f2b0bdee9f20a2b0e7d9c3df2",
+        "bytes": 248,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/revision_prompt.md",
+        "sha256": "e2f87308bbda1acf30d422cde70337de1661008bfe3659d01e1989e237a746a4",
+        "bytes": 16575,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/command.json",
+        "sha256": "eaa40882f945e733c282f4c4a48fb303ce96073f292e15caf9cdc849006c3db9",
+        "bytes": 718,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_stdout.jsonl",
+        "sha256": "4ba256ee05e6acc4579e40f89c40cf3716d2e46bca26b3aa85d43b2508f365b5",
+        "bytes": 7048,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_stderr.log",
+        "sha256": "3ea7488193a4dc2ab7d826c6c9b7c4f2a75017e5990fce8422ba0cc171fcbd62",
+        "bytes": 233,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_events.jsonl",
+        "sha256": "3129dedf5688dfcece3436f6eda107ba6d1b478216f54961a91d62fa5a883b5f",
+        "bytes": 7070,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_last_message.txt",
+        "sha256": "7c69ed84489893d2e1d8775c762def578e5c099f190e9ba7c2bc4e81556d22bb",
+        "bytes": 6479,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/codex_trace.json",
+        "sha256": "2da4c0e3d3b4d43d648800630f34f6a395d1fbba57f0c44047c0f75301994332",
+        "bytes": 527,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/stdout.txt",
+        "sha256": "7c69ed84489893d2e1d8775c762def578e5c099f190e9ba7c2bc4e81556d22bb",
+        "bytes": 6479,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/stderr.txt",
+        "sha256": "898c89e19b5521a0be82ba46f17d6c2071a2bcd63d59f32610f2a4072863e3f7",
+        "bytes": 248,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/raw_response.txt",
+        "sha256": "7c69ed84489893d2e1d8775c762def578e5c099f190e9ba7c2bc4e81556d22bb",
+        "bytes": 6479,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/parsed_cells.json",
+        "sha256": "5173e088623d78585eee73adc4791a45b7e46ba7ecd6136c305ac9878cf30d09",
+        "bytes": 7437,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/normalized_cells.json",
+        "sha256": "e248355f6128af35cc4360858147bd82fdca46e80dedb9f3d050376672808c03",
+        "bytes": 24980,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/distribution.json",
+        "sha256": "bb3cf0110d39922988a9edd1995a690c7bf24e9fb6a1ee5f3f1e90587eb72007",
+        "bytes": 13759,
+        "createdAt": "2026-07-26T01:21:54Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/validation.json",
+        "sha256": "7bc8d308ed2334fbfcd4427391d006cee0d0758fce822957d60cf94b6d56be41",
+        "bytes": 129,
+        "createdAt": "2026-07-26T01:21:54Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-26T01:21:54Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "665bef17ffe8c7c3e69fcb76163bcc9b2cbf46bc18210d3218fe404eb9325d4b"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-21-54z-bls-cpi-shelter-mom-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The JSON resolutionSourceUrl points to BLS while the canonical ledger sourceBinding is the ALFRED first-print adapter for CUSR0000SAH1; the reasoning explains this, but the structured fields could look mismatched to the target contract.",
+          "actionRequested": "Clarify in the structured resolver fields that BLS is the official economic release and ALFRED/FRED CUSR0000SAH1 is the canonical first-print binding/mirror used for the registered target, or align the URL/source field with the ledger binding while retaining BLS in the rule text."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider stating explicitly that no richer time-series model was used beyond the persistence/reference-class prior because the near-term sample and component judgment are more transparent for this one-month target."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The seven-month volatility basis is acceptable, but noting the small sample size would make the interval caveat cleaner."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver clarity critique by aligning the structured resolution URL with the canonical ALFRED CUSR0000SAH1 first-print binding while retaining BLS as the official economic release in the source and rule text; accepted the optional clarity notes on the transparent persistence model and small volatility sample.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is publication-ready with only minor source-binding clarity issues around BLS versus the canonical ALFRED first-print adapter."
+    }
+  }
+]

@@ -1,0 +1,1256 @@
+[
+  {
+    "slug": "us-nonrevolving-consumer-credit-annual-rate-june-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US nonrevolving consumer credit annual rate, Jun 2026",
+    "question": "Federal Reserve G.19 Percent Change of Total Nonrevolving Consumer Credit (NONREVSLAR), seasonally adjusted annual rate, June 2026 first print",
+    "unit": "percent_growth",
+    "pointEstimate": 1.9,
+    "ciLow": -0.3,
+    "ciHigh": 4.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-07",
+    "resolutionSource": "ALFRED/FRED official-vintage mirror for Federal Reserve G.19 Consumer Credit",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=NONREVSLAR",
+    "resolutionRule": "Resolve to the first official Federal Reserve G.19 print for June 2026, table Consumer Credit Outstanding, seasonally adjusted, Nonrevolving percent change at annual rate / NONREVSLAR, in percent at annual rate. Use the original vintage for the June 2026 observation released on 2026-08-07 in the ledger-bound ALFRED source series; do not incorporate later revisions or corrected vintages unless the original release itself is withdrawn before publication.",
+    "dataPointId": "fed.g19.consumer_credit_nonrevolving_annual_rate.2026_06.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-05 latest NONREVSLAR",
+        "value": 1.61
+      },
+      {
+        "label": "2026-04 NONREVSLAR",
+        "value": 2.93
+      },
+      {
+        "label": "2026-03 NONREVSLAR",
+        "value": 3.84
+      },
+      {
+        "label": "2026-02 NONREVSLAR",
+        "value": 1.94
+      },
+      {
+        "label": "2026-01 NONREVSLAR",
+        "value": 0.84
+      }
+    ],
+    "drivers": [
+      "May nonrevolving growth slowed to 1.61 percent annualized after stronger March and April prints",
+      "2026 year-to-date readings average near 2.23 percent annualized, close to the 2025 annual pace",
+      "High borrowing rates and softer auto-credit growth cap upside",
+      "Student-loan and federal-holder flows can add month-to-month noise to nonrevolving credit",
+      "Thin recent volatility sample argues for a wider interval than the mechanical five-month sigma alone"
+    ],
+    "sourceContext": [
+      "https://www.federalreserve.gov/releases/g19/current/",
+      "https://www.federalreserve.gov/newsevents/2026-august.htm",
+      "https://fred.stlouisfed.org/series/NONREVSLAR",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=NONREVSLAR",
+      "https://www.federalreserve.gov/datadownload/choose.aspx?rel=g19"
+    ],
+    "runAt": "2026-07-26T01:19:52Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for June 2026 US nonrevolving consumer credit annual rate"
+      },
+      {
+        "kind": "text",
+        "text": "Target is the Federal Reserve G.19 seasonally adjusted nonrevolving consumer credit percent change at annual rate, series NONREVSLAR, for June 2026 first print. The catalog slug, unit, dataPointId, and 2026-08-07 resolution date match the ledger contract; the resolver URL is the ledger-bound ALFRED original-vintage series, while the economic release is the Federal Reserve G.19 table."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Federal Reserve August 2026 statistical release calendar for G.19 Consumer Credit.",
+        "result": "The official calendar lists G.19 - Consumer Credit at 3:00 p.m. with release date 7 in August 2026, verifying the 2026-08-07 resolution date."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Federal Reserve G.19 current release dated July 8, 2026 for the May 2026 print.",
+        "result": "The release states May 2026 total consumer credit was 0.0 percent annualized, revolving credit was -4.7 percent, and nonrevolving credit increased 1.6 percent annualized; the table also shows nonrevolving flow of 30.9 billion dollars annual rate and nonrevolving outstanding of 3810.3 billion dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Opened FRED mirror for Board series NONREVSLAR to read recent exact monthly observations.",
+        "result": "NONREVSLAR observations fetched: May 2026 = 1.61, Apr 2026 = 2.93, Mar 2026 = 3.84, Feb 2026 = 1.94, Jan 2026 = 0.84 percent at annual rate; FRED shows update time Jul 8, 2026 2:01 PM CDT and next release date Aug 7, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Opened Federal Reserve G.19 Data Download Program page to confirm release identity and availability.",
+        "result": "The Board DDP page identifies G.19 - Consumer Credit as last released Wednesday, July 8, 2026, and lists Consumer Credit Outstanding (S.A.) as a 72.4 KB preformatted CSV package."
+      },
+      {
+        "kind": "text",
+        "text": "Variant check: all anchors are the same variant as the resolver, namely Consumer Credit Outstanding, seasonally adjusted, nonrevolving credit, percent change at annual rate. I did not use not-seasonally-adjusted flow or level series as substitutes for the forecast target."
+      },
+      {
+        "kind": "math",
+        "text": "Base rate / reference class: the recent 2026 monthly values themselves are 0.84, 1.94, 3.84, 2.93, and 1.61, with mean (0.84+1.94+3.84+2.93+1.61)/5 = 2.23 percent annualized. The 2025 annual nonrevolving rate in the official release is a weak context anchor at 1.8 percent, so the outside-view anchor is roughly 2 percent rather than the higher March-April pace."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: model prior is simple recent-mean persistence using the Jan-May 2026 NONREVSLAR mean of 2.23; a formal AR model was ruled out for this fast run because only the fetched same-vintage recent observations were used. Adjust down 0.25 for May's slowdown from Apr 2.93 to May 1.61 and down 0.10 for still-tight auto and personal-loan credit conditions, giving a 1.9 point estimate after rounding. Interval method uses the fetched 2026 monthly values themselves because this target is already a change-rate series: sample sigma = 1.17 percentage points, so 1.28*sigma = 1.50; because five observations are a thin volatility sample for a noisy annualized monthly series, widen the half-width to 2.2, which is 1.47x the mechanical half-width, giving 1.9 - 2.2 = -0.3 and 1.9 + 2.2 = 4.1."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk would come from a rebound in auto-loan originations or federal/student-loan components strong enough to put June above 4.1 percent annualized. Downside risk would be a paydown-heavy or weak auto-credit month that lands below -0.3 percent. A technical break or unusually large holder reclassification would be outside the interval mechanism, though the G.19 percent-change method is designed to exclude breaks."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger-bound ALFRED NONREVSLAR series while preserving the Federal Reserve G.19 release as the substantive source; accepted the interval critique by explicitly flagging the five-month volatility sample and widening within the allowed sigma multiplier range; accepted the model-prior critique by naming the prior as simple recent-mean persistence and noting that no formal AR model was used."
+      },
+      {
+        "kind": "forecast",
+        "point": 1.9,
+        "ciLow": -0.3,
+        "ciHigh": 4.1
+      }
+    ],
+    "agentReportedRunAt": "2026-07-26T01:18:16Z",
+    "runStartedAt": "2026-07-26T01:17:59Z",
+    "promptMode": "fast",
+    "registrationCommit": "145f6612f225710a4621f124b13bf5d5ae5d97ac",
+    "targetContentHash": "ee0aa01656ef392fd624659fecbf538a205e3c1b1882afe7426683969f6c050a",
+    "targetRegistrationPath": "records/targets/2026-07-26-ee0aa01656ef392fd624659fecbf538a205e3c1b1882afe7426683969f6c050a.json",
+    "registeredAtUtc": "2026-07-26T00:55:04Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -3.6,
+        "upper": 7.4
+      },
+      "points": [
+        {
+          "value": -3.6,
+          "probability": 0.0
+        },
+        {
+          "value": -3.545,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -3.49,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -3.435,
+          "probability": 0.005
+        },
+        {
+          "value": -3.38,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -3.325,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -3.27,
+          "probability": 0.01
+        },
+        {
+          "value": -3.215,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -3.16,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -3.105,
+          "probability": 0.015
+        },
+        {
+          "value": -3.05,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -2.995,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -2.94,
+          "probability": 0.02
+        },
+        {
+          "value": -2.885,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -2.83,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -2.775,
+          "probability": 0.025
+        },
+        {
+          "value": -2.72,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -2.665,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -2.61,
+          "probability": 0.03
+        },
+        {
+          "value": -2.555,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -2.5,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -2.445,
+          "probability": 0.035
+        },
+        {
+          "value": -2.39,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -2.335,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -2.28,
+          "probability": 0.04
+        },
+        {
+          "value": -2.225,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -2.17,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -2.115,
+          "probability": 0.045
+        },
+        {
+          "value": -2.06,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -2.005,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -1.95,
+          "probability": 0.05
+        },
+        {
+          "value": -1.895,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -1.84,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -1.785,
+          "probability": 0.055
+        },
+        {
+          "value": -1.73,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -1.675,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -1.62,
+          "probability": 0.06
+        },
+        {
+          "value": -1.565,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -1.51,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -1.455,
+          "probability": 0.065
+        },
+        {
+          "value": -1.4,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -1.345,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -1.29,
+          "probability": 0.07
+        },
+        {
+          "value": -1.235,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -1.18,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -1.125,
+          "probability": 0.075
+        },
+        {
+          "value": -1.07,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -1.015,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -0.96,
+          "probability": 0.08
+        },
+        {
+          "value": -0.905,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -0.85,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -0.795,
+          "probability": 0.085
+        },
+        {
+          "value": -0.74,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -0.685,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -0.63,
+          "probability": 0.09
+        },
+        {
+          "value": -0.575,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -0.52,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -0.465,
+          "probability": 0.095
+        },
+        {
+          "value": -0.41,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -0.355,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -0.3,
+          "probability": 0.1
+        },
+        {
+          "value": -0.245,
+          "probability": 0.11
+        },
+        {
+          "value": -0.19,
+          "probability": 0.12
+        },
+        {
+          "value": -0.135,
+          "probability": 0.13
+        },
+        {
+          "value": -0.08,
+          "probability": 0.14
+        },
+        {
+          "value": -0.025,
+          "probability": 0.15
+        },
+        {
+          "value": 0.03,
+          "probability": 0.16
+        },
+        {
+          "value": 0.085,
+          "probability": 0.17
+        },
+        {
+          "value": 0.14,
+          "probability": 0.18
+        },
+        {
+          "value": 0.195,
+          "probability": 0.19
+        },
+        {
+          "value": 0.25,
+          "probability": 0.2
+        },
+        {
+          "value": 0.305,
+          "probability": 0.21
+        },
+        {
+          "value": 0.36,
+          "probability": 0.22
+        },
+        {
+          "value": 0.415,
+          "probability": 0.23
+        },
+        {
+          "value": 0.47,
+          "probability": 0.24
+        },
+        {
+          "value": 0.525,
+          "probability": 0.25
+        },
+        {
+          "value": 0.58,
+          "probability": 0.26
+        },
+        {
+          "value": 0.635,
+          "probability": 0.27
+        },
+        {
+          "value": 0.69,
+          "probability": 0.28
+        },
+        {
+          "value": 0.745,
+          "probability": 0.29
+        },
+        {
+          "value": 0.8,
+          "probability": 0.3
+        },
+        {
+          "value": 0.855,
+          "probability": 0.31
+        },
+        {
+          "value": 0.91,
+          "probability": 0.32
+        },
+        {
+          "value": 0.965,
+          "probability": 0.33
+        },
+        {
+          "value": 1.02,
+          "probability": 0.34
+        },
+        {
+          "value": 1.075,
+          "probability": 0.35
+        },
+        {
+          "value": 1.13,
+          "probability": 0.36
+        },
+        {
+          "value": 1.185,
+          "probability": 0.37
+        },
+        {
+          "value": 1.24,
+          "probability": 0.38
+        },
+        {
+          "value": 1.295,
+          "probability": 0.39
+        },
+        {
+          "value": 1.35,
+          "probability": 0.4
+        },
+        {
+          "value": 1.405,
+          "probability": 0.41
+        },
+        {
+          "value": 1.46,
+          "probability": 0.42
+        },
+        {
+          "value": 1.515,
+          "probability": 0.43
+        },
+        {
+          "value": 1.57,
+          "probability": 0.44
+        },
+        {
+          "value": 1.625,
+          "probability": 0.45
+        },
+        {
+          "value": 1.68,
+          "probability": 0.46
+        },
+        {
+          "value": 1.735,
+          "probability": 0.47
+        },
+        {
+          "value": 1.79,
+          "probability": 0.48
+        },
+        {
+          "value": 1.845,
+          "probability": 0.49
+        },
+        {
+          "value": 1.9,
+          "probability": 0.5
+        },
+        {
+          "value": 1.955,
+          "probability": 0.51
+        },
+        {
+          "value": 2.01,
+          "probability": 0.52
+        },
+        {
+          "value": 2.065,
+          "probability": 0.53
+        },
+        {
+          "value": 2.12,
+          "probability": 0.54
+        },
+        {
+          "value": 2.175,
+          "probability": 0.55
+        },
+        {
+          "value": 2.23,
+          "probability": 0.56
+        },
+        {
+          "value": 2.285,
+          "probability": 0.57
+        },
+        {
+          "value": 2.34,
+          "probability": 0.58
+        },
+        {
+          "value": 2.395,
+          "probability": 0.59
+        },
+        {
+          "value": 2.45,
+          "probability": 0.6
+        },
+        {
+          "value": 2.505,
+          "probability": 0.61
+        },
+        {
+          "value": 2.56,
+          "probability": 0.62
+        },
+        {
+          "value": 2.615,
+          "probability": 0.63
+        },
+        {
+          "value": 2.67,
+          "probability": 0.64
+        },
+        {
+          "value": 2.725,
+          "probability": 0.65
+        },
+        {
+          "value": 2.78,
+          "probability": 0.66
+        },
+        {
+          "value": 2.835,
+          "probability": 0.67
+        },
+        {
+          "value": 2.89,
+          "probability": 0.68
+        },
+        {
+          "value": 2.945,
+          "probability": 0.69
+        },
+        {
+          "value": 3.0,
+          "probability": 0.7
+        },
+        {
+          "value": 3.055,
+          "probability": 0.71
+        },
+        {
+          "value": 3.11,
+          "probability": 0.72
+        },
+        {
+          "value": 3.165,
+          "probability": 0.73
+        },
+        {
+          "value": 3.22,
+          "probability": 0.74
+        },
+        {
+          "value": 3.275,
+          "probability": 0.75
+        },
+        {
+          "value": 3.33,
+          "probability": 0.76
+        },
+        {
+          "value": 3.385,
+          "probability": 0.77
+        },
+        {
+          "value": 3.44,
+          "probability": 0.78
+        },
+        {
+          "value": 3.495,
+          "probability": 0.79
+        },
+        {
+          "value": 3.55,
+          "probability": 0.8
+        },
+        {
+          "value": 3.605,
+          "probability": 0.81
+        },
+        {
+          "value": 3.66,
+          "probability": 0.82
+        },
+        {
+          "value": 3.715,
+          "probability": 0.83
+        },
+        {
+          "value": 3.77,
+          "probability": 0.84
+        },
+        {
+          "value": 3.825,
+          "probability": 0.85
+        },
+        {
+          "value": 3.88,
+          "probability": 0.86
+        },
+        {
+          "value": 3.935,
+          "probability": 0.87
+        },
+        {
+          "value": 3.99,
+          "probability": 0.88
+        },
+        {
+          "value": 4.045,
+          "probability": 0.89
+        },
+        {
+          "value": 4.1,
+          "probability": 0.9
+        },
+        {
+          "value": 4.155,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 4.21,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 4.265,
+          "probability": 0.905
+        },
+        {
+          "value": 4.32,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 4.375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 4.43,
+          "probability": 0.91
+        },
+        {
+          "value": 4.485,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 4.54,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 4.595,
+          "probability": 0.915
+        },
+        {
+          "value": 4.65,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 4.705,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 4.76,
+          "probability": 0.92
+        },
+        {
+          "value": 4.815,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 4.87,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 4.925,
+          "probability": 0.925
+        },
+        {
+          "value": 4.98,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 5.035,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 5.09,
+          "probability": 0.93
+        },
+        {
+          "value": 5.145,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 5.2,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 5.255,
+          "probability": 0.935
+        },
+        {
+          "value": 5.31,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 5.365,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 5.42,
+          "probability": 0.94
+        },
+        {
+          "value": 5.475,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 5.53,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 5.585,
+          "probability": 0.945
+        },
+        {
+          "value": 5.64,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 5.695,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 5.75,
+          "probability": 0.95
+        },
+        {
+          "value": 5.805,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 5.86,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 5.915,
+          "probability": 0.955
+        },
+        {
+          "value": 5.97,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 6.025,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 6.08,
+          "probability": 0.96
+        },
+        {
+          "value": 6.135,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 6.19,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 6.245,
+          "probability": 0.965
+        },
+        {
+          "value": 6.3,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 6.355,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 6.41,
+          "probability": 0.97
+        },
+        {
+          "value": 6.465,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 6.52,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 6.575,
+          "probability": 0.975
+        },
+        {
+          "value": 6.63,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 6.685,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 6.74,
+          "probability": 0.98
+        },
+        {
+          "value": 6.795,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 6.85,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 6.905,
+          "probability": 0.985
+        },
+        {
+          "value": 6.96,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 7.015,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 7.07,
+          "probability": 0.99
+        },
+        {
+          "value": 7.125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 7.18,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 7.235,
+          "probability": 0.995
+        },
+        {
+          "value": 7.29,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 7.345,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 7.4,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 1.9,
+        "median": 1.9,
+        "interval80": {
+          "lower": -0.3,
+          "upper": 4.1
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/prompt.md",
+        "sha256": "2b75e804bbd5f5126b7c9d10bbafbc0bd9b04113448a983ca9b03cbfe2defee8",
+        "bytes": 8949,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_command.json",
+        "sha256": "7f250513518d5a2033f75cd6b370eeebf7a52f7f2c1ff58cfa1e7e9952913c0a",
+        "bytes": 753,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_codex_stdout.jsonl",
+        "sha256": "c3fb9335a8e8aef091babba93e2b5c8064a292784d70b19c83432a23b68a85cf",
+        "bytes": 12035,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_codex_stderr.log",
+        "sha256": "f3db64b80a4347244f5c1e8032cdaea24e82ff7894f0416aaec6bf0b0d5a2fb5",
+        "bytes": 233,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_codex_events.jsonl",
+        "sha256": "9462a132831c025481b6d8afaf4bafb3979efa45c5d65b96f1bff46e39c57218",
+        "bytes": 11996,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_codex_last_message.txt",
+        "sha256": "029034eb5357cff9a6bacbc2a9adb6e26eb9a2a5b66596c35e174e4c56b68bef",
+        "bytes": 5570,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_codex_trace.json",
+        "sha256": "376719be3ca1692d5ffa097b4eaa25f0fb3422752c0cc4136c56c4e81880aeb2",
+        "bytes": 533,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_stdout.txt",
+        "sha256": "029034eb5357cff9a6bacbc2a9adb6e26eb9a2a5b66596c35e174e4c56b68bef",
+        "bytes": 5570,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_stderr.txt",
+        "sha256": "5e8806e0fc23ef157903f2886dc9fc4d83de4688443b83a6bf41deba85f7b22a",
+        "bytes": 248,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_prompt.md",
+        "sha256": "c96c10b1b50ef1c6675c66d94c0e2d07aba7856ed91f69cc9a1b95cd4613ea12",
+        "bytes": 8672,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_command.json",
+        "sha256": "033449491196b6de5207a2290772a0d996dc4d2a2a7320f8ec9d93931458d56f",
+        "bytes": 749,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "3af55d475276d5c6a81d025772f92293f03be8a065846d2f9a3787560bb0e422",
+        "bytes": 2099,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_codex_stderr.log",
+        "sha256": "d1bc653b11355afc3d16a65ce03a896f0eaecb4d7f26fa51369b17254620c8da",
+        "bytes": 233,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_codex_events.jsonl",
+        "sha256": "ae72aa077aae28675a796da53934d831df0b900b965202f4dd78455860750472",
+        "bytes": 2121,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_codex_last_message.txt",
+        "sha256": "875bcd804da8155e54dd5af3536cf37be46458c010523bb319465f6c60d68524",
+        "bytes": 1721,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_codex_trace.json",
+        "sha256": "19f5f6591b4ce156e162708d7756ed68ec467ff28b24720c0140f69d03a05a50",
+        "bytes": 527,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_stdout.txt",
+        "sha256": "875bcd804da8155e54dd5af3536cf37be46458c010523bb319465f6c60d68524",
+        "bytes": 1721,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_stderr.txt",
+        "sha256": "6e17c44013c669a64d391baffa2c0d65f6559b75779e00439c4bacebd9eb55d1",
+        "bytes": 248,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/revision_prompt.md",
+        "sha256": "e174a1a76fcfbe1ec1d877d09be962b267227308355ebc3b85808bfa493d876e",
+        "bytes": 17176,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/command.json",
+        "sha256": "c9201434ad084fe5266fbd2d5d8afa33051ece5931356f478e91645e82c25ce7",
+        "bytes": 747,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/codex_stdout.jsonl",
+        "sha256": "bed8855f19d4dc31f012a49413770f5b67aff24f79e2bdbb1995d75112b4a091",
+        "bytes": 7329,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/codex_stderr.log",
+        "sha256": "724823063f6405a56aee55f198ddbd56fd1630b5f9c1ff8945508d145bdd387a",
+        "bytes": 233,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/codex_events.jsonl",
+        "sha256": "9f25bcf78c7757c0b1610c53a405fe74b2219d00a489ea710e1148355c8b171d",
+        "bytes": 7351,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/codex_last_message.txt",
+        "sha256": "e7ea2bf2ac0f2a140d3d3a25aee3ce53838abf50e39b2bc3ad8aba331235938a",
+        "bytes": 6770,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/codex_trace.json",
+        "sha256": "5f81bc8d35afc30dd591db572ea7fc472cb4c2f4914d025fac28f7a0b162004b",
+        "bytes": 527,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/stdout.txt",
+        "sha256": "e7ea2bf2ac0f2a140d3d3a25aee3ce53838abf50e39b2bc3ad8aba331235938a",
+        "bytes": 6770,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/stderr.txt",
+        "sha256": "d376691ebf2f677abf5020aa1110fb02213fa106f74055d6929b345bfad3e4e0",
+        "bytes": 248,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/raw_response.txt",
+        "sha256": "e7ea2bf2ac0f2a140d3d3a25aee3ce53838abf50e39b2bc3ad8aba331235938a",
+        "bytes": 6770,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/parsed_cells.json",
+        "sha256": "abe96fdb91429d50727bb63550bb576b23edf9160a6d0d71c735b2a90c765340",
+        "bytes": 7667,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/normalized_cells.json",
+        "sha256": "003b5e1c99c2b1c04d4c7995b346edec4d135d8b0d39884aafef5341a79c6f8e",
+        "bytes": 24857,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/distribution.json",
+        "sha256": "2eaef8cb827178330128dafd2904d08ab47e925b6d4457aa1cd2573b626ecccc",
+        "bytes": 13406,
+        "createdAt": "2026-07-26T01:17:59Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/validation.json",
+        "sha256": "ce594b5b4dd4b67824d2a3bad097e5e6c2668eafe9f1c4f47a1e7cc130decd50",
+        "bytes": 154,
+        "createdAt": "2026-07-26T01:17:59Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-26T01:17:59Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "3591f49c3bdb5fea364b6235b36ee1c8ef830d93200b45fc2ff66e8e3a25d38a"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-26/2026-07-26t01-17-59z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-06/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "Draft resolutionSourceUrl points to the Federal Reserve current G.19 page, while the ledger contract binds first-print resolution to ALFRED/FRED sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=NONREVSLAR with allowedHosts [\"alfred.stlouisfed.org\"].",
+          "actionRequested": "Align the JSON resolver/source fields with the ledger sourceBinding, or explicitly state the discrepancy while keeping the same slug/dataPointId/target contract."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is based only on five 2026 monthly observations, which is too short to establish realized volatility for a noisy monthly annualized series.",
+          "actionRequested": "Use a longer same-series historical volatility sample, or explicitly justify why the Jan-May 2026 sample is the intended uncertainty basis and widen/add caveat if needed."
+        },
+        {
+          "findingId": "review.finding.3",
+          "severity": "warning",
+          "rubricItem": "model_prior",
+          "summary": "The draft uses a persistence prior but does not clearly say whether a formal time-series/model prior was used or ruled out.",
+          "actionRequested": "Add one sentence that names the model prior as simple recent-mean persistence, or says a formal AR/time-series model was ruled out and why."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify whether the 2025 annual nonrevolving rate is being used as a weak anchor or only as context."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Keep the tail scenarios tied to specific G.19 components such as auto credit, student-loan/federal-holder flows, and paydowns."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger-bound ALFRED NONREVSLAR series while preserving the Federal Reserve G.19 release as the substantive source; accepted the interval critique by explicitly flagging the five-month volatility sample and widening within the allowed sigma multiplier range; accepted the model-prior critique by naming the prior as simple recent-mean persistence and noting that no formal AR model was used.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger-bound ALFRED NONREVSLAR series while preserving the Federal Reserve G.19 release as the substantive source; accepted the interval critique by explicitly flagging the five-month volatility sample and widening within the allowed sigma multiplier range; accepted the model-prior critique by naming the prior as simple recent-mean persistence and noting that no formal AR model was used.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.3",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger-bound ALFRED NONREVSLAR series while preserving the Federal Reserve G.19 release as the substantive source; accepted the interval critique by explicitly flagging the five-month volatility sample and widening within the allowed sigma multiplier range; accepted the model-prior critique by naming the prior as simple recent-mean persistence and noting that no formal AR model was used.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger-bound ALFRED NONREVSLAR series while preserving the Federal Reserve G.19 release as the substantive source; accepted the interval critique by explicitly flagging the five-month volatility sample and widening within the allowed sigma multiplier range; accepted the model-prior critique by naming the prior as simple recent-mean persistence and noting that no formal AR model was used.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning the resolutionSourceUrl to the ledger-bound ALFRED NONREVSLAR series while preserving the Federal Reserve G.19 release as the substantive source; accepted the interval critique by explicitly flagging the five-month volatility sample and widening within the allowed sigma multiplier range; accepted the model-prior critique by naming the prior as simple recent-mean persistence and noting that no formal AR model was used.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is broadly coherent, but the resolver/source fields do not match the canonical ledger source binding and the interval method rests on a very thin volatility sample."
+    }
+  }
+]
