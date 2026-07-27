@@ -1,0 +1,393 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:07:11Z",
+  "runStartedAt": "2026-07-27T18:07:11Z",
+  "series": "bls.cps.u6_underemployment_rate",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "u6-underemployment-rate-july-2026",
+    "country": "US",
+    "dataPointId": "bls.cps.u6_underemployment_rate.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-07",
+    "period": "2026-07",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/empsit.htm",
+    "seedPeriod": "2026-07",
+    "series": "bls.cps.u6_underemployment_rate",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-07",
+        "start": "2026-08-07"
+      },
+      "field": "U6RATE",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "U6RATE",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=U6RATE",
+      "table": "Employment Situation, Table A-15",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "20ec6a3c168e40892ebc5fe44743cf49c5940add207def0313de53d7f7cb8ed7",
+    "targetRegistrationPath": "records/targets/2026-07-27-20ec6a3c168e40892ebc5fe44743cf49c5940add207def0313de53d7f7cb8ed7.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "20ec6a3c168e40892ebc5fe44743cf49c5940add207def0313de53d7f7cb8ed7",
+  "targetRegistrationPath": "records/targets/2026-07-27-20ec6a3c168e40892ebc5fe44743cf49c5940add207def0313de53d7f7cb8ed7.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:07:11Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d496822f580d311864b48051b0722861c40d67ced51bcefd7150198cc6a7c820"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "Draft JSON uses BLS Table A-15 URL as resolutionSourceUrl, while the ledger sourceBinding resolves mechanically through ALFRED U6RATE first-print capture.",
+        "actionRequested": "Make the resolver text explicitly match the target contract: July 2026 first-print U6RATE via the ledger ALFRED binding, while noting BLS Table A-15 is the underlying official release."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The Jan-Jun-only volatility sample is compact but very short; consider stating that the narrow 80% interval is based on recent monthly realized moves and rounded first-print granularity."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The tail scenarios are adequate; adding explicit example values such as 8.2+ and 7.6 or lower already makes them concrete."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Check that sourceContext does not imply FRED, rather than ALFRED first vintage or BLS Table A-15, is the final resolver."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready, but the resolver/source fields should be aligned with the canonical ledger binding before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/prompt.md",
+      "sha256": "efea07351f76995f159890f1288b1eb230ba9b4876c2b08bacc8ac39a1eff203",
+      "bytes": 8854,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_command.json",
+      "sha256": "dbd4abc3d576a32822f45eac181732e749da1f08989acea02189f48d4fa4c733",
+      "bytes": 736,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "2a87ef2e55c36b12ec7e5a6624165fe8fed79a1fa1021e4c367e7281dd0f612b",
+      "bytes": 12154,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_stderr.log",
+      "sha256": "3ba0340948e75167a8c39a0dadc972a88a828f79080c04ef42395a4bfb25a0ca",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_events.jsonl",
+      "sha256": "133d58c6692e3ef5783c87fc11b4477d3615b9a5363435a887dbefdefc7f45d4",
+      "bytes": 12140,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_last_message.txt",
+      "sha256": "b138d828a2cba3994ecdefe03d4e56ebc1a2517d10042bbb0b84d136b9097eca",
+      "bytes": 5684,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_trace.json",
+      "sha256": "633a9b9712e5a5439db47ae0e216ca6f6a720b102404d2f3e311f83c55c5bfff",
+      "bytes": 533,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_stdout.txt",
+      "sha256": "b138d828a2cba3994ecdefe03d4e56ebc1a2517d10042bbb0b84d136b9097eca",
+      "bytes": 5684,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_stderr.txt",
+      "sha256": "a592a3c7dd02c2af71d85216e73e0e8e70835fafa103cbc853102dc16bedc939",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_prompt.md",
+      "sha256": "bf74f17635c9f7e53dee69690c1862e4e3ccc17900c5f714c7a01d397a0b5279",
+      "bytes": 8691,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_command.json",
+      "sha256": "1f3b2e051641cba30ca3208de5b0fa7d69c5d18ee0c5457f66e3c0834f4e192f",
+      "bytes": 732,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "50ebe8139515645769de240ef06c5ee0eb822737b54db80b54fa4fa1c1a0af86",
+      "bytes": 1484,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "9ba9981724e2ced3c8e7ceb8f76a3700f02719404b49dc69d2887af5384b354d",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "d002570f18d935e4b7cc682b38a147ca47ff7283cf58758a6751ef59420558db",
+      "bytes": 1506,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "c4f1338946a6ce20e9795804fdf3792fcc76b75557321d46599d71a27c1ed5d1",
+      "bytes": 1125,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "e1e2b5b5782c75790d805e93b54c4b24243aa0e35ca552497875aec2974d3b86",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "c4f1338946a6ce20e9795804fdf3792fcc76b75557321d46599d71a27c1ed5d1",
+      "bytes": 1125,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "d9ecb44ea06a002b35c767394e4c7922cf8555cd76c7f93b61b300d3ac186817",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/revision_prompt.md",
+      "sha256": "4708de6bbaeb1178f6a1a20f2bb380c339c9f52054d330f809fefdf56647ad89",
+      "bytes": 16599,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/command.json",
+      "sha256": "1d764be38e13de1082b600a74ac8f8686416cf8f89c94a40d82fb64e28c2ab4d",
+      "bytes": 730,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_stdout.jsonl",
+      "sha256": "6c116d6adc62b7f435c452bdda7412574541ef27347f2c3d8008bd8c039c068e",
+      "bytes": 7051,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_stderr.log",
+      "sha256": "5771c526424f271ddbc8a6efb8f2a546f31c4d33e4f424e4db94d550fa74c891",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_events.jsonl",
+      "sha256": "ccd3ed7a74df4e03a4877293c9090ceba0c71fef15e0c31c7f41b1103a802952",
+      "bytes": 7073,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_last_message.txt",
+      "sha256": "7e196d554492097df61b79ac133b6f05731579a8602d869fa6a0b0c849a56a5e",
+      "bytes": 6486,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_trace.json",
+      "sha256": "d804de15ff783272957ee0f58ac9019e2444b1c3e82f139d2c00023992c6a8ab",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/stdout.txt",
+      "sha256": "7e196d554492097df61b79ac133b6f05731579a8602d869fa6a0b0c849a56a5e",
+      "bytes": 6486,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/stderr.txt",
+      "sha256": "0ef63959430256d279c82f8d112a52b1d9121462c3faf96a84480cc5ce6fec74",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/raw_response.txt",
+      "sha256": "7e196d554492097df61b79ac133b6f05731579a8602d869fa6a0b0c849a56a5e",
+      "bytes": 6486,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/parsed_cells.json",
+      "sha256": "48922500e59a69446d87c2ee34028dd35bc4e3a033177e651efaac07889cb8bc",
+      "bytes": 7417,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/normalized_cells.json",
+      "sha256": "c4b36d0d979ddb07338d5b87f7730a065b27e588953868d71bc1103260bfec2a",
+      "bytes": 24539,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/distribution.json",
+      "sha256": "147e2e513b134262bf8c30b607942edcb66c0fb09e284f41f61fb98a9ddf74de",
+      "bytes": 13338,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/validation.json",
+      "sha256": "a8aa469179a77e62ecdeb3b381f423f6d44908922e1b9926ce4b4bf766a0433e",
+      "bytes": 134,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/cells.with_activity.json",
+      "sha256": "09be9eecb9121eefca48a1ae3e566ee3174b5981571e97766622586fc9b9e409",
+      "bytes": 40360,
+      "createdAt": "2026-07-27T18:07:11Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/manifest.json",
+      "sha256": "243f4e8313564d5e7c9741d19047eff3d9b22a97c8e77459be71973be779853c",
+      "bytes": 15879,
+      "createdAt": "2026-07-27T18:07:11Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "u6-underemployment-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "e2aabd3e186a2ffcf0b2033d78b3d887f2288d1abd250ce923ab42d1e4947e82"
+}

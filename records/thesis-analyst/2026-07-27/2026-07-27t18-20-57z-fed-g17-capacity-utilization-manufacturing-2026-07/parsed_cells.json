@@ -1,0 +1,111 @@
+[
+  {
+    "slug": "us-manufacturing-capacity-utilization-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US manufacturing capacity utilization, July 2026",
+    "question": "What will the Federal Reserve G.17 first-print capacity utilization rate for Manufacturing (NAICS), seasonally adjusted, be for July 2026?",
+    "unit": "percent",
+    "pointEstimate": 75.6,
+    "ciLow": 75.25,
+    "ciHigh": 75.95,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-18",
+    "resolutionSource": "Federal Reserve G.17 Industrial Production and Capacity Utilization, MCUMFN first-print vintage via ALFRED",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN",
+    "resolutionRule": "Resolve to the first-print July 2026 value for Capacity Utilization: Manufacturing (NAICS), seasonally adjusted, percent of capacity, source series MCUMFN, as first available in the 2026-08-18 Federal Reserve G.17 release vintage through the ledger ALFRED/FRED adapter. Transform by factor 1 and report in percent. Do not use later revisions or same-day correction grace unless encoded in the official first-print vintage.",
+    "dataPointId": "fed.g17.capacity_utilization.manufacturing.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "Jun 2026 MCUMFN latest exact",
+        "value": 75.5559
+      },
+      {
+        "label": "May 2026 MCUMFN exact",
+        "value": 75.6179
+      },
+      {
+        "label": "Apr 2026 MCUMFN exact",
+        "value": 75.6059
+      },
+      {
+        "label": "Mar 2026 MCUMFN exact",
+        "value": 75.1141
+      },
+      {
+        "label": "1972-2025 average, Manufacturing NAICS table row",
+        "value": 78.1
+      }
+    ],
+    "drivers": [
+      "June manufacturing NAICS utilization was 75.5559 percent, essentially flat from May",
+      "Official rounded G.17 row shows Manufacturing (NAICS) at 75.6 in April, May, and June",
+      "Capacity utilization is still below the 1972-2025 manufacturing NAICS average of 78.1",
+      "Recent manufacturing output was flat in June after a stronger April, limiting near-term momentum",
+      "No annual revision is scheduled before the August first print; the announced annual revision is planned for autumn 2026"
+    ],
+    "sourceContext": [
+      "https://www.federalreserve.gov/releases/g17/",
+      "https://www.federalreserve.gov/releases/g17/current/table2_sup.htm",
+      "https://fred.stlouisfed.org/series/MCUMFN",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN"
+    ],
+    "runAt": "2026-07-27T18:21:17Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US manufacturing NAICS capacity utilization, July 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Target is Federal Reserve G.17 Capacity Utilization: Manufacturing (NAICS), series MCUMFN, seasonally adjusted percent of capacity. I use the same NAICS variant for anchors and interval work; broader manufacturing and SIC rows are not the resolver. The Federal Reserve table is the official human-facing release, while the machine-resolution path is the ledger ALFRED MCUMFN first-print vintage."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Federal Reserve G.17 release dates page for the July 2026 release date.",
+        "result": "The Federal Reserve G.17 page says 2026 monthly releases include July 17 as the most recent monthly release and August 18 as the next listed release; monthly releases are issued at 9:15 a.m."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Federal Reserve current G.17 Monthly Supplement Table 2 for Manufacturing (NAICS) capacity utilization.",
+        "result": "The Manufacturing (NAICS) row reports 2025 proportion 74.48, 1972-2025 average 78.1, 2025 June 75.6, and rounded 2026 values Jan 74.6, Feb 75.1, Mar 75.1, Apr 75.6, May 75.6, Jun 75.6."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the public FRED/ALFRED mirror for exact MCUMFN observations sourced to the Federal Reserve G.17 release.",
+        "result": "The public MCUMFN mirror shows Jun 2026 75.5559, May 2026 75.6179, Apr 2026 75.6059, Mar 2026 75.1141, and Feb 2026 75.0954, updated July 17, 2026; these are current public vintage observations used as forecasting evidence, not the future July first-print outcome."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked current G.17 release summary and feed for nearby industrial context.",
+        "result": "The G.17 feed states total IP ticked up 0.1 percent in June, manufacturing output was unchanged in June, manufacturing output rose at a 4.7 percent annual rate in Q2, and total industry capacity utilization was 76.1 percent in June."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for a one-month-ahead level forecast on this utilization rate, persistence from the latest exact MCUMFN value is the main prior because monthly movements in utilization are small relative to the level. The last three rounded official NAICS readings all sit at 75.6, while the exact latest is 75.5559."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = Jun exact 75.5559. Historical sample = short-run realized monthly-change proxy using rounded official Jan-Jun NAICS values plus exact current-vintage FRED/ALFRED Feb-Jun detail: Jan-Feb about +0.50, Feb-Mar +0.0187, Mar-Apr +0.4918, Apr-May +0.0120, May-Jun -0.0620. Adjustment components: level persistence +0.00, momentum +0.02 for Q2 firmness but flat June output, capacity-growth drag approximately -0.01, net about +0.04 before rounding, giving point 75.6. Dispersion: sigma = 0.28 percentage point from those recent successive changes; 1.28*sigma = 0.36, so an 80% interval around 75.6 is about 75.24 to 75.96, rounded to 75.25 to 75.95. This is a fragile short-window sigma, but it is appropriate here as a near-term first-print proxy because the resolver is one month ahead and the last three official rounded readings were stable at 75.6."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a July rebound in manufacturing output, especially motor vehicles or high-tech industries, which would land above the interval if utilization prints above 75.95. Downside risk is a broad production pullback or downward first-print capacity-utilization surprise, which would land below the interval if MCUMFN prints below 75.25. Outside the interval would require roughly a 0.4 percentage point or larger move from June, larger than the recent flat May-June pattern."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample."
+      },
+      {
+        "kind": "forecast",
+        "point": 75.6,
+        "ciLow": 75.25,
+        "ciHigh": 75.95
+      }
+    ]
+  }
+]

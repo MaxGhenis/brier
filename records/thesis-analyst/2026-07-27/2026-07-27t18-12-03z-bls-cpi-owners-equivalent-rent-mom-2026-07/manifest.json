@@ -1,0 +1,393 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:12:03Z",
+  "runStartedAt": "2026-07-27T18:12:03Z",
+  "series": "bls.cpi.owners_equivalent_rent_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-cpi-owners-equivalent-rent-mom-july-2026",
+    "country": "US",
+    "dataPointId": "bls.cpi.owners_equivalent_rent_mom.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-12",
+    "period": "2026-07",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+    "seedPeriod": "2026-07",
+    "series": "bls.cpi.owners_equivalent_rent_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-12",
+        "start": "2026-08-12"
+      },
+      "field": "CUSR0000SEHC",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "CUSR0000SEHC",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SEHC",
+      "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "f4b72ba7dad3ac2c455b575ad60048778d8042f7b8fd1be3f386dbf34b25af80",
+    "targetRegistrationPath": "records/targets/2026-07-27-f4b72ba7dad3ac2c455b575ad60048778d8042f7b8fd1be3f386dbf34b25af80.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "f4b72ba7dad3ac2c455b575ad60048778d8042f7b8fd1be3f386dbf34b25af80",
+  "targetRegistrationPath": "records/targets/2026-07-27-f4b72ba7dad3ac2c455b575ad60048778d8042f7b8fd1be3f386dbf34b25af80.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:12:03Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "e1f604486d33ae3cfbc5f2a39e0453ff0dc17d097ea780fae4bb7dfa320a52e2"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft uses BLS data.bls.gov as the resolutionSourceUrl, while the canonical ledger contract specifies the alfred-fred adapter, allowed host alfred.stlouisfed.org, source URL https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SEHC, and first_print policy.",
+        "actionRequested": "Update the resolver/source fields to match the ledger sourceBinding exactly, or explicitly state in reasoning that the ledger appears to use ALFRED as the first-print capture while BLS is the originating official agency; do not leave the JSON resolver URL inconsistent with the target contract."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the Jan-Jun 2026 history is truly first-print vintage or current BLS table history used as a close proxy."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval step is strong; keep the explicit sigma and rounded bounds because they support the stated 80% interval."
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Tail scenarios are concrete and target-specific enough for publication once the resolver mismatch is fixed."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and rule to the canonical ALFRED first-print source binding while preserving BLS as the originating official agency; accepted the clarification that Jan-Jun history is current official history used as a close proxy, not independently certified first-vintage evidence. Kept the sigma-based interval and tail scenarios unchanged.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and rule to the canonical ALFRED first-print source binding while preserving BLS as the originating official agency; accepted the clarification that Jan-Jun history is current official history used as a close proxy, not independently certified first-vintage evidence. Kept the sigma-based interval and tail scenarios unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and rule to the canonical ALFRED first-print source binding while preserving BLS as the originating official agency; accepted the clarification that Jan-Jun history is current official history used as a close proxy, not independently certified first-vintage evidence. Kept the sigma-based interval and tail scenarios unchanged.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.3",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and rule to the canonical ALFRED first-print source binding while preserving BLS as the originating official agency; accepted the clarification that Jan-Jun history is current official history used as a close proxy, not independently certified first-vintage evidence. Kept the sigma-based interval and tail scenarios unchanged.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent, but its resolver/source fields do not match the canonical ledger contract and should be aligned before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/prompt.md",
+      "sha256": "4edf1902ea706038be50fa6ff1fe894631d96f7eb64e2c1e9b31ca0d96bedabb",
+      "bytes": 8931,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_command.json",
+      "sha256": "13913f044b9364e13c59a75e5ad94fcd343996cfcaa6419dc7ca6c9f82575928",
+      "bytes": 739,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "92995e3c63de40ad6985fec58350ad2e31fb31bbf229d28ffb695e045d1bc87a",
+      "bytes": 10141,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "ef30de80cbb19c9dda142cd86a6300d068e710d20863c8d4f2541dd820c6ebf5",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "90dd6675f92e43d66474a9918c8522bc309a74e7072abb251d8d511b3b2c8977",
+      "bytes": 10153,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "08a54f7bee30090e83f2c1e20fe0d0863c5dceaa3e23a80b731ac289cf55d837",
+      "bytes": 5733,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_codex_trace.json",
+      "sha256": "55974b7e684df4ab754f2da3368216e5a6432d58392cc91477e7946a208203b1",
+      "bytes": 533,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_stdout.txt",
+      "sha256": "08a54f7bee30090e83f2c1e20fe0d0863c5dceaa3e23a80b731ac289cf55d837",
+      "bytes": 5733,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/draft_stderr.txt",
+      "sha256": "e5b5da64b13c9ca372287c0b6571e8e8723c57a6d9e3a4d45c74c9c2cf56f934",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "4151e8e536a5704161485f06c1c3788ff3f9c8feb1d6d2bef80cd41510646910",
+      "bytes": 8817,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "2d439c870590080446833b87ecec6b08322b10c8cf617c32e7030d578f5478b9",
+      "bytes": 735,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "6d629594830a838cc7bd6a7455cf9c11fc89722c1776042ffaa571b7d9157f29",
+      "bytes": 1541,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "2ee27128987de1f32dc0e391f22d45c19eeb7499c8250ea97d90aa1ce07a212a",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "f804477fd36a71a9ff3d47af0e17f3ed070fec048ce815373c85741e54253f45",
+      "bytes": 1563,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "69f254b5837032599e7d32227c1aa4b37880e93a085ef9032e6b7b79deed18ac",
+      "bytes": 1197,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "3eff151388fbd52ac7179b885b4ed8422a2c7b9d81dfa3ac490ccba6704d694a",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "69f254b5837032599e7d32227c1aa4b37880e93a085ef9032e6b7b79deed18ac",
+      "bytes": 1197,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "dacfd73c791946cea0f6b00d1c43e525f339bc47361d2ed41c7384c59ee2a386",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/revision_prompt.md",
+      "sha256": "6353f6101d35004073871b00eb6e78e1431a8703998bb96e8ec6399868ff8c50",
+      "bytes": 16797,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/command.json",
+      "sha256": "3b55fd1329e0c81325d99754824606817a8db043553bc9a7441b1407b2f6f73c",
+      "bytes": 733,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "aa80bd18110567cd182ede41387157dbc2e32d45ae0ef3f8d1928e444bf1fe6c",
+      "bytes": 7281,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/codex_stderr.log",
+      "sha256": "f2c0f98feff3d5049765666c6a9c97effcc06350cdeedfd80cb0d6190b3a21c3",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/codex_events.jsonl",
+      "sha256": "4fd1584c2bc84187cb2a8c20f1e498c56467aeefbe682125f13e8b841e51db95",
+      "bytes": 7303,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/codex_last_message.txt",
+      "sha256": "314578b0f4fe7b8afdf0641405c8073e5be40f095e8a609bbed8d6bf3a84fe3d",
+      "bytes": 6730,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/codex_trace.json",
+      "sha256": "0c59d9232ba39e502e5c10e5da0bc99879d9450b28683a2056ba10c6c94ec911",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/stdout.txt",
+      "sha256": "314578b0f4fe7b8afdf0641405c8073e5be40f095e8a609bbed8d6bf3a84fe3d",
+      "bytes": 6730,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/stderr.txt",
+      "sha256": "fb0a759d1d3e32cd46895b1ec5ef05e7afdff01cfa82b869a6c30a824f00d6ca",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/raw_response.txt",
+      "sha256": "314578b0f4fe7b8afdf0641405c8073e5be40f095e8a609bbed8d6bf3a84fe3d",
+      "bytes": 6730,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/parsed_cells.json",
+      "sha256": "6b05ba60f99b4f24d1dcbdb1bc2857351e1a68df1572be8317420f368b91037b",
+      "bytes": 7586,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/normalized_cells.json",
+      "sha256": "a7d0d0cd5f594e4e13fed8103d682d998bb6c68172755aedb3d1d00aee599ddb",
+      "bytes": 25084,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/distribution.json",
+      "sha256": "f9f6fe08072af7e42c671604d3ef8cc9994fbbee44aad426d7d5e010b1f43b6e",
+      "bytes": 13714,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/validation.json",
+      "sha256": "40ae0dc583f863d8f229c2e01f826c52b80a0d2b9166adaa8cfe2271d8d0a0a5",
+      "bytes": 144,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/cells.with_activity.json",
+      "sha256": "f5c80ac22c48cddec54addfd48bfd5f25f32e0c46eaefdc7fab8b77ffa3b0a51",
+      "bytes": 41384,
+      "createdAt": "2026-07-27T18:12:03Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-12-03z-bls-cpi-owners-equivalent-rent-mom-2026-07/manifest.json",
+      "sha256": "5518fe6d4d802eeebcc047ae73a794ce600c3b84523b666def5f417bd92f6406",
+      "bytes": 16449,
+      "createdAt": "2026-07-27T18:12:03Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-cpi-owners-equivalent-rent-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "2a26d784ea1976753c3a319c655515582a744296b6ba5863cfd9995779f0d0e6"
+}

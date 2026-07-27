@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is mostly publishable, but the resolver/source binding should be aligned to the canonical ALFRED first-print target contract and the interval method should avoid relying on an extremely short mixed rounded/exact sample without caveat.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft resolutionSourceUrl points to the Federal Reserve current table, while the canonical ledger sourceBinding resolves through ALFRED/FRED adapter with allowed host alfred.stlouisfed.org and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN.",
+      "actionRequested": "Change the JSON resolver/source URL fields to match the ledger ALFRED first-print binding, or explicitly state in reasoning that the Fed table is the official human-facing source while the machine resolver is the ledger ALFRED MCUMFN first-print vintage."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval is based on only five recent monthly changes and mixes rounded official table values with exact FRED detail, which makes the sigma estimate fragile.",
+      "actionRequested": "Name this as a short-run volatility proxy and either add a longer realized monthly-change reference sample or explicitly justify why the narrow recent-window sigma is appropriate for this target."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the Prior/update/interval step, clarify whether the exact Feb-Jun observations are current vintage or first-print vintage.",
+    "Keep the Fed G.17 current table citation as public evidence, but make the final machine-resolution path unambiguous."
+  ]
+}

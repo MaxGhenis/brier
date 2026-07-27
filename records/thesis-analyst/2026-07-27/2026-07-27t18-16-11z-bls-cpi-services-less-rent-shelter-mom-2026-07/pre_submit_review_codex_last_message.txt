@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is mostly publication-ready methodologically, but its resolver/source fields do not match the canonical ledger sourceBinding.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft JSON uses BLS/data.bls.gov as resolutionSourceUrl, while the ledger contract binds resolution to the ALFRED-FRED adapter, allowed host alfred.stlouisfed.org, and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASL2RS.",
+      "actionRequested": "Align resolutionSourceUrl and resolver wording with the canonical ledger sourceBinding, while optionally noting that ALFRED mirrors the official BLS series and first-print vintage."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "The reasoning correctly notes a ledger ambiguity between the level index source and percent_growth target, but the published resolver fields should make the MoM transformation explicit in the same terms as the target contract.",
+      "actionRequested": "Keep the same target and dataPointId, and ensure the final resolutionRule states that the July 2026 first-print MoM percent growth is computed from the first-print CUSR0000SASL2RS index values."
+    }
+  ],
+  "optionalSuggestions": [
+    "Replace the FRED sourceContext URL with the ALFRED ledger URL or add ALFRED alongside official BLS context.",
+    "State that the interval uses a short 10-observation realized-volatility sample so readers understand the sample-size limitation."
+  ]
+}

@@ -1,0 +1,1250 @@
+[
+  {
+    "slug": "us-cpi-services-less-energy-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI Services Less Energy MoM, July 2026",
+    "question": "BLS Consumer Price Index for All Urban Consumers: Services Less Energy Services in U.S. City Average, seasonally adjusted, month-over-month percent change for July 2026, first print",
+    "unit": "percent_growth",
+    "pointEstimate": 0.27,
+    "ciLow": 0.09,
+    "ciHigh": 0.45,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "ALFRED first-vintage CSV mirror of BLS CPI series CUSR0000SASLE",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASLE",
+    "resolutionRule": "Resolve against the registered ledger sourceBinding: ALFRED/FRED source series CUSR0000SASLE, Consumer Price Index for All Urban Consumers: Services Less Energy Services in U.S. City Average, seasonally adjusted, table Consumer Price Index, U.S. city average, monthly seasonally adjusted, first-print policy, expected release window August 12, 2026. Use the first vintage available for the July 2026 observation from the ALFRED CSV and do not use later revised seasonally adjusted index values. Because the registered targetUnit is percent_growth while the ledger sourceBinding exposes an index series with a multiply-by-1 transform, the intended target is the July 2026 month-over-month percent change for CUSR0000SASLE, computed from first-print index values if the resolver converts the index to MoM growth.",
+    "dataPointId": "bls.cpi.services_less_energy_mom.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "Jun 2026 services less energy MoM, BLS Table A",
+        "value": 0
+      },
+      {
+        "label": "May 2026 services less energy MoM, BLS Table A",
+        "value": 0.3
+      },
+      {
+        "label": "Apr 2026 services less energy MoM, BLS Table A",
+        "value": 0.5
+      },
+      {
+        "label": "Mar 2026 services less energy MoM, BLS Table A",
+        "value": 0.2
+      },
+      {
+        "label": "Jun 2026 CUSR0000SASLE index level, FRED/ALFRED",
+        "value": 444.602
+      },
+      {
+        "label": "May 2026 CUSR0000SASLE index level, FRED/ALFRED",
+        "value": 444.46
+      },
+      {
+        "label": "Apr 2026 CUSR0000SASLE index level, FRED/ALFRED",
+        "value": 443.154
+      }
+    ],
+    "drivers": [
+      "recent services-less-energy base rate near 0.3 percent",
+      "June weakness likely partly one-off in insurance and communication",
+      "shelter still positive but cooling",
+      "medical and recreation services keep upside risk alive",
+      "ledger sourceBinding exposes the index series, so percent-growth resolution may require index-derived MoM conversion"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm?trk=public_post_comment-text",
+      "https://www.bls.gov/cpi/",
+      "https://www.bls.gov/news.release/archives/cpi_07142026.htm",
+      "https://www.bls.gov/news.release/archives/cpi_06102026.htm",
+      "https://www.bls.gov/news.release/archives/cpi_05122026.htm",
+      "https://www.bls.gov/news.release/archives/cpi_04102026.htm",
+      "https://www.bls.gov/news.release/archives/cpi_03112026.htm",
+      "https://www.bls.gov/news.release/archives/cpi_02132026.htm",
+      "https://fred.stlouisfed.org/series/CUSR0000SASLE",
+      "https://alfred.stlouisfed.org/series?seid=CUSR0000SASLE",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASLE"
+    ],
+    "runAt": "2026-07-27T18:16:11Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for July 2026 BLS CPI Services Less Energy MoM"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is the BLS CPI-U Services Less Energy Services series, CUSR0000SASLE, U.S. city average, seasonally adjusted, for July 2026, first print. The registered ledger sourceBinding points to ALFRED/FRED CUSR0000SASLE index levels with only a multiply transform, which is inconsistent with the targetUnit percent_growth and MoM slug; I keep the ledger target and forecast the intended official first-print MoM percent change, using the ALFRED first-vintage index source if the resolver computes growth from first-published index values."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS CPI release schedule page for the July 2026 reference month.",
+        "result": "BLS schedule lists July 2026 CPI release date as Aug. 12, 2026 at 08:30 AM; it also lists June 2026 as Jul. 14, 2026 and August 2026 as Sep. 11, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS CPI home page for the next CPI release and latest aggregate CPI context.",
+        "result": "BLS CPI home says CPI for July 2026 is scheduled for August 12, 2026 at 8:30 A.M. Eastern Time; latest CPI was -0.4% in Jun 2026 and core CPI was 0.0% in Jun 2026, 2.6% over the year."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched BLS June 2026 CPI Table A for the same seasonally adjusted variant.",
+        "result": "For Services less energy services, BLS Table A shows Dec 2025 0.3, Jan 2026 0.4, Feb 2026 0.3, Mar 2026 0.2, Apr 2026 0.5, May 2026 0.3, Jun 2026 0.0, and 12-month change 3.2."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched earlier BLS CPI archived Table A rows for the same series to build the recent reference class.",
+        "result": "BLS archived releases show Services less energy services MoM values of Jul 2025 0.4, Aug 2025 0.3, Sep 2025 0.2, Dec 2025 0.3, Jan 2026 0.4, Feb 2026 0.3, Mar 2026 0.2, Apr 2026 0.5, May 2026 0.3, Jun 2026 0.0."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked FRED and ALFRED CUSR0000SASLE pages as public mirrors for current index levels and source identity.",
+        "result": "FRED/ALFRED show CUSR0000SASLE Jun 2026 index 444.602, May 2026 444.460, Apr 2026 443.154, Mar 2026 440.951, Feb 2026 439.959; units are Index 1982-1984=100, seasonally adjusted, monthly, source U.S. Bureau of Labor Statistics."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: the recent same-series, same-seasonally-adjusted reference class clusters around 0.3 percent MoM. The rounded BLS Table A sequence since mid-2025 has a 0.29 percent mean across the 10 usable non-missing observations, while the first half of 2026 alone averages about 0.28 percent."
+      },
+      {
+        "kind": "text",
+        "text": "Current-release adjustment: June's 0.0 percent print was pulled down by broad core weakness, including motor vehicle insurance at -2.0 percent and communication at -1.5 percent in the BLS June discussion, while shelter still rose 0.1 percent. I treat that as a downside signal but not a new zero-growth regime for services less energy."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is the same-series recent BLS Table A base rate, sample Jul 2025, Aug 2025, Sep 2025, Dec 2025, Jan 2026, Feb 2026, Mar 2026, Apr 2026, May 2026, Jun 2026 = [0.4, 0.3, 0.2, 0.3, 0.4, 0.3, 0.2, 0.5, 0.3, 0.0]. Mean = 0.29; current-release adjustment is -0.04 for June cooling and shelter moderation plus +0.02 for likely partial reversal of one-off service drags, giving point = 0.27. Values are rounded Table A percent-growth observations, so sigma = 0.14 from the sample standard deviation; this may understate or distort first-print index-derived volatility. 1.28*sigma = 0.18, giving a symmetric 80% interval of 0.27 +/- 0.18 = [0.09, 0.45], with uncertainty from monthly noise and possible index-to-MoM resolver conversion."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a rebound in motor vehicle insurance, airfares, medical care, or shelter that would land above the interval if services less energy prints near 0.5 percent or higher. Downside risk is another broad services decline, especially communication, insurance, lodging, and medical care, which would land below the interval if the print is near 0.0 percent or negative. Outside the interval would most likely reflect a concentrated component shock rather than normal monthly noise."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and the resolution rule to the registered ALFRED CUSR0000SASLE first-vintage sourceBinding, while retaining the public note that the ledger exposes an index series for a percent-growth target. Accepted the optional interval clarification that sigma is from rounded Table A values and the interval also inherits index-to-MoM conversion uncertainty."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.27,
+        "ciLow": 0.09,
+        "ciHigh": 0.45
+      }
+    ],
+    "agentReportedRunAt": "2026-07-27T18:14:57Z",
+    "runStartedAt": "2026-07-27T18:13:47Z",
+    "promptMode": "fast",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "targetContentHash": "d4cbafc02be2045165c04afda95ee8ed75921c46bf61e22e936098333d04f69a",
+    "targetRegistrationPath": "records/targets/2026-07-27-d4cbafc02be2045165c04afda95ee8ed75921c46bf61e22e936098333d04f69a.json",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -0.18,
+        "upper": 0.72
+      },
+      "points": [
+        {
+          "value": -0.18,
+          "probability": 0.0
+        },
+        {
+          "value": -0.1755,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -0.171,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -0.1665,
+          "probability": 0.005
+        },
+        {
+          "value": -0.162,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -0.1575,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -0.153,
+          "probability": 0.01
+        },
+        {
+          "value": -0.1485,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -0.144,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -0.1395,
+          "probability": 0.015
+        },
+        {
+          "value": -0.135,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -0.1305,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -0.126,
+          "probability": 0.02
+        },
+        {
+          "value": -0.1215,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -0.117,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -0.1125,
+          "probability": 0.025
+        },
+        {
+          "value": -0.108,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -0.1035,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -0.099,
+          "probability": 0.03
+        },
+        {
+          "value": -0.0945,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -0.09,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -0.0855,
+          "probability": 0.035
+        },
+        {
+          "value": -0.081,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -0.0765,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -0.072,
+          "probability": 0.04
+        },
+        {
+          "value": -0.0675,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -0.063,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -0.0585,
+          "probability": 0.045
+        },
+        {
+          "value": -0.054,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -0.0495,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -0.045,
+          "probability": 0.05
+        },
+        {
+          "value": -0.0405,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -0.036,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -0.0315,
+          "probability": 0.055
+        },
+        {
+          "value": -0.027,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -0.0225,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -0.018,
+          "probability": 0.06
+        },
+        {
+          "value": -0.0135,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -0.009,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -0.0045,
+          "probability": 0.065
+        },
+        {
+          "value": 0.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 0.0045,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 0.009,
+          "probability": 0.07
+        },
+        {
+          "value": 0.0135,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 0.018,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 0.0225,
+          "probability": 0.075
+        },
+        {
+          "value": 0.027,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 0.0315,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 0.036,
+          "probability": 0.08
+        },
+        {
+          "value": 0.0405,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 0.045,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 0.0495,
+          "probability": 0.085
+        },
+        {
+          "value": 0.054,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 0.0585,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 0.063,
+          "probability": 0.09
+        },
+        {
+          "value": 0.0675,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 0.072,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 0.0765,
+          "probability": 0.095
+        },
+        {
+          "value": 0.081,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 0.0855,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 0.09,
+          "probability": 0.1
+        },
+        {
+          "value": 0.0945,
+          "probability": 0.11
+        },
+        {
+          "value": 0.099,
+          "probability": 0.12
+        },
+        {
+          "value": 0.1035,
+          "probability": 0.13
+        },
+        {
+          "value": 0.108,
+          "probability": 0.14
+        },
+        {
+          "value": 0.1125,
+          "probability": 0.15
+        },
+        {
+          "value": 0.117,
+          "probability": 0.16
+        },
+        {
+          "value": 0.1215,
+          "probability": 0.17
+        },
+        {
+          "value": 0.126,
+          "probability": 0.18
+        },
+        {
+          "value": 0.1305,
+          "probability": 0.19
+        },
+        {
+          "value": 0.135,
+          "probability": 0.2
+        },
+        {
+          "value": 0.1395,
+          "probability": 0.21
+        },
+        {
+          "value": 0.144,
+          "probability": 0.22
+        },
+        {
+          "value": 0.1485,
+          "probability": 0.23
+        },
+        {
+          "value": 0.153,
+          "probability": 0.24
+        },
+        {
+          "value": 0.1575,
+          "probability": 0.25
+        },
+        {
+          "value": 0.162,
+          "probability": 0.26
+        },
+        {
+          "value": 0.1665,
+          "probability": 0.27
+        },
+        {
+          "value": 0.171,
+          "probability": 0.28
+        },
+        {
+          "value": 0.1755,
+          "probability": 0.29
+        },
+        {
+          "value": 0.18,
+          "probability": 0.3
+        },
+        {
+          "value": 0.1845,
+          "probability": 0.31
+        },
+        {
+          "value": 0.189,
+          "probability": 0.32
+        },
+        {
+          "value": 0.1935,
+          "probability": 0.33
+        },
+        {
+          "value": 0.198,
+          "probability": 0.34
+        },
+        {
+          "value": 0.2025,
+          "probability": 0.35
+        },
+        {
+          "value": 0.207,
+          "probability": 0.36
+        },
+        {
+          "value": 0.2115,
+          "probability": 0.37
+        },
+        {
+          "value": 0.216,
+          "probability": 0.38
+        },
+        {
+          "value": 0.2205,
+          "probability": 0.39
+        },
+        {
+          "value": 0.225,
+          "probability": 0.4
+        },
+        {
+          "value": 0.2295,
+          "probability": 0.41
+        },
+        {
+          "value": 0.234,
+          "probability": 0.42
+        },
+        {
+          "value": 0.2385,
+          "probability": 0.43
+        },
+        {
+          "value": 0.243,
+          "probability": 0.44
+        },
+        {
+          "value": 0.2475,
+          "probability": 0.45
+        },
+        {
+          "value": 0.252,
+          "probability": 0.46
+        },
+        {
+          "value": 0.2565,
+          "probability": 0.47
+        },
+        {
+          "value": 0.261,
+          "probability": 0.48
+        },
+        {
+          "value": 0.2655,
+          "probability": 0.49
+        },
+        {
+          "value": 0.27,
+          "probability": 0.5
+        },
+        {
+          "value": 0.2745,
+          "probability": 0.51
+        },
+        {
+          "value": 0.279,
+          "probability": 0.52
+        },
+        {
+          "value": 0.2835,
+          "probability": 0.53
+        },
+        {
+          "value": 0.288,
+          "probability": 0.54
+        },
+        {
+          "value": 0.2925,
+          "probability": 0.55
+        },
+        {
+          "value": 0.297,
+          "probability": 0.56
+        },
+        {
+          "value": 0.3015,
+          "probability": 0.57
+        },
+        {
+          "value": 0.306,
+          "probability": 0.58
+        },
+        {
+          "value": 0.3105,
+          "probability": 0.59
+        },
+        {
+          "value": 0.315,
+          "probability": 0.6
+        },
+        {
+          "value": 0.3195,
+          "probability": 0.61
+        },
+        {
+          "value": 0.324,
+          "probability": 0.62
+        },
+        {
+          "value": 0.3285,
+          "probability": 0.63
+        },
+        {
+          "value": 0.333,
+          "probability": 0.64
+        },
+        {
+          "value": 0.3375,
+          "probability": 0.65
+        },
+        {
+          "value": 0.342,
+          "probability": 0.66
+        },
+        {
+          "value": 0.3465,
+          "probability": 0.67
+        },
+        {
+          "value": 0.351,
+          "probability": 0.68
+        },
+        {
+          "value": 0.3555,
+          "probability": 0.69
+        },
+        {
+          "value": 0.36,
+          "probability": 0.7
+        },
+        {
+          "value": 0.3645,
+          "probability": 0.71
+        },
+        {
+          "value": 0.369,
+          "probability": 0.72
+        },
+        {
+          "value": 0.3735,
+          "probability": 0.73
+        },
+        {
+          "value": 0.378,
+          "probability": 0.74
+        },
+        {
+          "value": 0.3825,
+          "probability": 0.75
+        },
+        {
+          "value": 0.387,
+          "probability": 0.76
+        },
+        {
+          "value": 0.3915,
+          "probability": 0.77
+        },
+        {
+          "value": 0.396,
+          "probability": 0.78
+        },
+        {
+          "value": 0.4005,
+          "probability": 0.79
+        },
+        {
+          "value": 0.405,
+          "probability": 0.8
+        },
+        {
+          "value": 0.4095,
+          "probability": 0.81
+        },
+        {
+          "value": 0.414,
+          "probability": 0.82
+        },
+        {
+          "value": 0.4185,
+          "probability": 0.83
+        },
+        {
+          "value": 0.423,
+          "probability": 0.84
+        },
+        {
+          "value": 0.4275,
+          "probability": 0.85
+        },
+        {
+          "value": 0.432,
+          "probability": 0.86
+        },
+        {
+          "value": 0.4365,
+          "probability": 0.87
+        },
+        {
+          "value": 0.441,
+          "probability": 0.88
+        },
+        {
+          "value": 0.4455,
+          "probability": 0.89
+        },
+        {
+          "value": 0.45,
+          "probability": 0.9
+        },
+        {
+          "value": 0.4545,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 0.459,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 0.4635,
+          "probability": 0.905
+        },
+        {
+          "value": 0.468,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 0.4725,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 0.477,
+          "probability": 0.91
+        },
+        {
+          "value": 0.4815,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 0.486,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 0.4905,
+          "probability": 0.915
+        },
+        {
+          "value": 0.495,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 0.4995,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 0.504,
+          "probability": 0.92
+        },
+        {
+          "value": 0.5085,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 0.513,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 0.5175,
+          "probability": 0.925
+        },
+        {
+          "value": 0.522,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 0.5265,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 0.531,
+          "probability": 0.93
+        },
+        {
+          "value": 0.5355,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 0.54,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 0.5445,
+          "probability": 0.935
+        },
+        {
+          "value": 0.549,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 0.5535,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 0.558,
+          "probability": 0.94
+        },
+        {
+          "value": 0.5625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 0.567,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 0.5715,
+          "probability": 0.945
+        },
+        {
+          "value": 0.576,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 0.5805,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 0.585,
+          "probability": 0.95
+        },
+        {
+          "value": 0.5895,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 0.594,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 0.5985,
+          "probability": 0.955
+        },
+        {
+          "value": 0.603,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 0.6075,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 0.612,
+          "probability": 0.96
+        },
+        {
+          "value": 0.6165,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 0.621,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 0.6255,
+          "probability": 0.965
+        },
+        {
+          "value": 0.63,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 0.6345,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 0.639,
+          "probability": 0.97
+        },
+        {
+          "value": 0.6435,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 0.648,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 0.6525,
+          "probability": 0.975
+        },
+        {
+          "value": 0.657,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 0.6615,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 0.666,
+          "probability": 0.98
+        },
+        {
+          "value": 0.6705,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 0.675,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 0.6795,
+          "probability": 0.985
+        },
+        {
+          "value": 0.684,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 0.6885,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 0.693,
+          "probability": 0.99
+        },
+        {
+          "value": 0.6975,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 0.702,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 0.7065,
+          "probability": 0.995
+        },
+        {
+          "value": 0.711,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 0.7155,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 0.72,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 0.27,
+        "median": 0.27,
+        "interval80": {
+          "lower": 0.09,
+          "upper": 0.45
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/prompt.md",
+        "sha256": "bcbe31e9be6ae6210f3cfe18c96d082d0b513592877e7cc338266c0569ff501c",
+        "bytes": 8928,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_command.json",
+        "sha256": "0fbc2c75178f2325b3de39dcc4b192f3e983979829562d7ba8cb2a796119484d",
+        "bytes": 737,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "c6845f173fa0bca428b42d3c7c53b15dca96eb76747ed05362c0ab8c1133a204",
+        "bytes": 14783,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_stderr.log",
+        "sha256": "bca22f3bc66e4d47dadb02ffd5f0605d30549a17e266a62d34ec77cc7d792c0b",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_events.jsonl",
+        "sha256": "9647e7cdd091a9a050203b61ed9db488ff7262fba099459c23191dcd6771e197",
+        "bytes": 14744,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_last_message.txt",
+        "sha256": "faaaa9205bffc40535d831974ef9441b5efc4591a878ad19d8973bebe8dcbde6",
+        "bytes": 7021,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_trace.json",
+        "sha256": "cfabaea6a3112689ba536cdee8179613ca8ec274540686f03f8f8247e319e696",
+        "bytes": 534,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_stdout.txt",
+        "sha256": "faaaa9205bffc40535d831974ef9441b5efc4591a878ad19d8973bebe8dcbde6",
+        "bytes": 7021,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_stderr.txt",
+        "sha256": "9f19c0af47c8cb5fc5a80d29d87787e08caa8db127d15688855d6e4a054aa396",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_prompt.md",
+        "sha256": "5360838c8961c0704e6ca33df665e3db08a4ba134ec87da87349f5f59009582a",
+        "bytes": 10102,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_command.json",
+        "sha256": "71647d3caa5e1c9a01ff60c6d340b96d2d1f8d989a07d35b1d110dc25f8a1b6b",
+        "bytes": 733,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "db7e40b0f27c3941a6caaf5d973dfccbd8aaefd6a23d94e184eece1aa929b269",
+        "bytes": 1456,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "f15319a149512477eb5be72e493c87ce276698a9a6aac435d0b38d6d6269cff2",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "9711d36d5b0bd66c3b1c6b001c144faa662adbfc27431b64fdbd5ba97dd72cfb",
+        "bytes": 1478,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "bbe5a55916ebf6ff99f883ee34ea6b6cc799b521d29165027a6fdfbc3983228b",
+        "bytes": 1114,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "0d36df39e78d2292d2979b03d2a974c6c1b3133c3d4b3ebfe1606e64679f9682",
+        "bytes": 527,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "bbe5a55916ebf6ff99f883ee34ea6b6cc799b521d29165027a6fdfbc3983228b",
+        "bytes": 1114,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "a158f4c1dec4503a80ee1c1a5ee40e11593b16d450860bcd620fa875da3a1019",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/revision_prompt.md",
+        "sha256": "8f576ab67d3b17bc6a8ec9b80f28578c9771402f6f2e7108a49078e1a54c512c",
+        "bytes": 17999,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/command.json",
+        "sha256": "6595ec95c2bf529d1652d828d75eca2c5d99aee794a05d062f8ce98982a7d4c8",
+        "bytes": 731,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_stdout.jsonl",
+        "sha256": "b4d8cf40ea21a5b953c83b5ef58f23da5b7d64aa6be8308cc05e6c651704b961",
+        "bytes": 8651,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_stderr.log",
+        "sha256": "a1fb708bd26b14856a429efb8619efa9a3370cb3fff4db87b61b58fa36458a38",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_events.jsonl",
+        "sha256": "42c5ae0a58ebd7a6b404eaec7252c64ba4366679618580d9ced4a0b7f202682c",
+        "bytes": 8673,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_last_message.txt",
+        "sha256": "6b162be729bc164d78c6c6d7800ecf410977c71d76299d8513703f60125dc8ae",
+        "bytes": 8052,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_trace.json",
+        "sha256": "993b2a77a08beee4e72c1567210bfbc4f119401fa08329d030b64c2cad214fb6",
+        "bytes": 527,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/stdout.txt",
+        "sha256": "6b162be729bc164d78c6c6d7800ecf410977c71d76299d8513703f60125dc8ae",
+        "bytes": 8052,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/stderr.txt",
+        "sha256": "4cf8c70c08baa70aba9d3ce7962dbcfe447c9f9eac3c4fc7fee5c842ec930a2f",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/raw_response.txt",
+        "sha256": "6b162be729bc164d78c6c6d7800ecf410977c71d76299d8513703f60125dc8ae",
+        "bytes": 8052,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/parsed_cells.json",
+        "sha256": "e62b79cc2010610309c10ef639800319abd06878d1b64706d1b6e77283c60437",
+        "bytes": 9113,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/normalized_cells.json",
+        "sha256": "fcbb5305179c13c11d3f2cefaae0c130968435adbb86f2e80567270c9c3c77d6",
+        "bytes": 26482,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/distribution.json",
+        "sha256": "7aeb40f272301ea0dd4e64be00a23307336d0272477b79aa2f47828f48aed777",
+        "bytes": 13585,
+        "createdAt": "2026-07-27T18:13:47Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/validation.json",
+        "sha256": "ce799eabd01c2ffa87c8cc205d45f9c9584aedd8f6c1dbeef6daf29fbb66c2bf",
+        "bytes": 142,
+        "createdAt": "2026-07-27T18:13:47Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-27T18:13:47Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "7633e7a180d835104b0edce45d579c642b01443c9d58624363466675398c0211"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft resolutionSourceUrl and resolver text use BLS/Table A as the operative resolver, while the canonical ledger sourceBinding specifies the ALFRED CUSR0000SASLE CSV and first-print policy as the registered resolver source.",
+          "actionRequested": "Keep the same target, but make the published resolver fields explicitly match the ledger sourceBinding/sourceUrl and first-print rule, while retaining the noted concern that the ledger exposes an index series for a percent-growth target."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the compact prior/update/interval step, state whether the sample standard deviation is computed from rounded Table A values and note that this may understate or distort first-print index-derived volatility."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Clarify that the 80% interval is symmetric around the adjusted point and inherits uncertainty from both monthly noise and the possible index-to-MoM resolver conversion."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and the resolution rule to the registered ALFRED CUSR0000SASLE first-vintage sourceBinding, while retaining the public note that the ledger exposes an index series for a percent-growth target. Accepted the optional interval clarification that sigma is from rounded Table A values and the interval also inherits index-to-MoM conversion uncertainty.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and the resolution rule to the registered ALFRED CUSR0000SASLE first-vintage sourceBinding, while retaining the public note that the ledger exposes an index series for a percent-growth target. Accepted the optional interval clarification that sigma is from rounded Table A values and the interval also inherits index-to-MoM conversion uncertainty.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and the resolution rule to the registered ALFRED CUSR0000SASLE first-vintage sourceBinding, while retaining the public note that the ledger exposes an index series for a percent-growth target. Accepted the optional interval clarification that sigma is from rounded Table A values and the interval also inherits index-to-MoM conversion uncertainty.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "The draft is broadly publishable but needs resolver/source fields aligned with the canonical ledger contract before publication."
+    }
+  }
+]

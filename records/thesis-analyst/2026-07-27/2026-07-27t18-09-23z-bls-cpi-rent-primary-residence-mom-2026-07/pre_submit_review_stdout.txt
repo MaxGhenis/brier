@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is mostly coherent, but it should align the resolver/source fields to the canonical ledger source binding before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft uses BLS/data.bls.gov as the resolution source URL, while the ledger contract binds this target to the ALFRED-FRED adapter, allowed host alfred.stlouisfed.org, source URL alfredgraph.csv?id=CUSR0000SEHA, and first-print policy.",
+      "actionRequested": "Change the resolution source/source URL and resolver wording to explicitly match the ledger sourceBinding, while preserving that the target is the first official print for CUSR0000SEHA and noting any BLS-vs-ALFRED discrepancy in reasoning if needed."
+    },
+    {
+      "rubricItem": "model_prior",
+      "severity": "warning",
+      "summary": "The draft uses a recent-change persistence prior, but it does not clearly state whether a formal time-series/model prior was used or deliberately ruled out.",
+      "actionRequested": "Add one compact sentence saying the model prior is a simple persistence/recent-mean prior, or explicitly state that no AR/ETS/time-series model was used and why."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify that ALFRED/FRED history is used only to recover the first-vintage CUSR0000SEHA index levels for the ledger resolver, not as a subjective alternate resolver.",
+    "In the final JSON, ensure resolutionDate, dataPointId, unit, point, interval, and confidence remain exactly consistent with the stated forecast step."
+  ]
+}

@@ -1,0 +1,394 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:18:38Z",
+  "runStartedAt": "2026-07-27T18:18:38Z",
+  "series": "fed.g17.manufacturing_production_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-manufacturing-production-mom-july-2026",
+    "country": "US",
+    "dataPointId": "fed.g17.manufacturing_production_mom.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-18",
+    "period": "2026-07",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.federalreserve.gov/releases/g17/release_dates.htm",
+    "seedPeriod": "2026-07",
+    "series": "fed.g17.manufacturing_production_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-18",
+        "start": "2026-08-18"
+      },
+      "field": "IPMAN",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "IPMAN",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IPMAN",
+      "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "0d63736cc967eb9230750b56083858fb59e269bc2b8d629918cec1b630bfbc54",
+    "targetRegistrationPath": "records/targets/2026-07-27-0d63736cc967eb9230750b56083858fb59e269bc2b8d629918cec1b630bfbc54.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "0d63736cc967eb9230750b56083858fb59e269bc2b8d629918cec1b630bfbc54",
+  "targetRegistrationPath": "records/targets/2026-07-27-0d63736cc967eb9230750b56083858fb59e269bc2b8d629918cec1b630bfbc54.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:18:38Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "9881ebdfc51c5c115a1eacf1e0587395baeac70f523fa6dfd62046c9e6e5fbb1"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft's resolutionSource and resolutionSourceUrl point to Federal Reserve Table 1, while the canonical ledger sourceBinding specifies the ALFRED/FRED IPMAN CSV, allowed host alfred.stlouisfed.org, and first_print policy.",
+        "actionRequested": "Align the resolver fields with the ledger sourceBinding, or explicitly state the ledger discrepancy while keeping the target tied to the ledger dataPointId and sourceBinding rather than silently substituting a different resolver URL."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval uses sigma from only Jan-Jun 2026, which is a very small and unusually recent sample for realized volatility.",
+        "actionRequested": "Either use a longer realized-volatility sample for Manufacturing m/m changes or justify why the six-month sample is the intended uncertainty basis."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify whether the ALFRED IPMAN index first print will be converted to a monthly percent change or whether the published one-decimal Table 1 percent change is authoritative."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The tail scenarios are concrete, but they could name which July subcomponents would plausibly move the aggregate outside the stated bounds."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl to the ledger ALFRED IPMAN CSV and explicitly naming the IPMAN index-versus-percent-growth discrepancy; accepted the interval critique as a disclosure/justification rather than changing the numbers, because no longer same-variant realized-volatility sample was fetched in the draft evidence set.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl to the ledger ALFRED IPMAN CSV and explicitly naming the IPMAN index-versus-percent-growth discrepancy; accepted the interval critique as a disclosure/justification rather than changing the numbers, because no longer same-variant realized-volatility sample was fetched in the draft evidence set.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl to the ledger ALFRED IPMAN CSV and explicitly naming the IPMAN index-versus-percent-growth discrepancy; accepted the interval critique as a disclosure/justification rather than changing the numbers, because no longer same-variant realized-volatility sample was fetched in the draft evidence set.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl to the ledger ALFRED IPMAN CSV and explicitly naming the IPMAN index-versus-percent-growth discrepancy; accepted the interval critique as a disclosure/justification rather than changing the numbers, because no longer same-variant realized-volatility sample was fetched in the draft evidence set.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent, but the resolver/source fields do not exactly follow the canonical ledger contract and the interval relies on a very short six-month sample."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/prompt.md",
+      "sha256": "4487f0f8a1bf294675f67b60bb557871f2b9c7b37c78f0b8bffabbadf5fb3793",
+      "bytes": 8924,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_command.json",
+      "sha256": "54b45e02a1ea1963d317a3a8a0687e82d5060caca66215de51abc9f1c722896e",
+      "bytes": 741,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c75442998597b5486164d2f0945e655376e89f2f9e0031e0bb95d1c375c48d76",
+      "bytes": 11051,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "f609aced90bb3f4ef015ed60df16d9f3b1ea7fa85291cdb6674d35f940c31edd",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "86011947f2638817c8ac06c8b56a3ae402b7272a60e49cb2f1f166025eea6a76",
+      "bytes": 11027,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "455d9f0f1632abdfeca44ad5305c81d6787bb5432541e5100a92cd1163fcdb95",
+      "bytes": 5499,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_codex_trace.json",
+      "sha256": "ab605bcc7f1a9eae1aa5e55fb29baf22b027a34ae8f12af8a55a1da86962a419",
+      "bytes": 534,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_stdout.txt",
+      "sha256": "455d9f0f1632abdfeca44ad5305c81d6787bb5432541e5100a92cd1163fcdb95",
+      "bytes": 5499,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/draft_stderr.txt",
+      "sha256": "b51398fa5d6c5290ca2dd57febe40caab6fab37018ceacf1095e4d44eb061973",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "1bf0a9a6ef97a6e0ec2d2735699f67c2740fead639e67b54e62621ae7cc64c42",
+      "bytes": 8576,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "9c6890b3100b05fcaae6103ac4dc65da9fd13a7eccf4fd9aa610f8ad1074ef23",
+      "bytes": 737,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "5a1e8f3651799e5f93a33d841004b85129b700ed76a812388ee898fd465533b0",
+      "bytes": 1925,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "7f19e81f63d75e74f54a93834240cd7edc0bf12d61356bb52d5621f3e431a049",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "29531ab1f88b53a0d6b9309024871afe8a80963e3543249f3ab9f1ba90eca022",
+      "bytes": 1947,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "a812c74542774be53c0148867e7b0d3eda845a8ab08a877fcd721fed75206610",
+      "bytes": 1547,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "c077ee5ae8586aeb54e92425c124cc6ef51175e92a5b5a9d709c08688a2a2933",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "a812c74542774be53c0148867e7b0d3eda845a8ab08a877fcd721fed75206610",
+      "bytes": 1547,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "1faa63e325277c319a6981b556fa0fcee3810febcb0d5fde3447a58b1ff53f34",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/revision_prompt.md",
+      "sha256": "c4d2fa7f0486b011ebe6663da6a87adacdea3538aa1496c1a4f2cd7425b30544",
+      "bytes": 16906,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/command.json",
+      "sha256": "e327f79ddb078225dbcba1e30095b8ba8fadd1c9bd3c3b1d30c70cd8c2ea7426",
+      "bytes": 735,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "c139b5ff380d73c04dbc3e1ffecca74aabdd25c5589e572bde6ababb9ee3d5e1",
+      "bytes": 6966,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/codex_stderr.log",
+      "sha256": "980ef931d22112b1dc6ba9958c38bad20edd4310d649d7eaea88b6fbeeabe426",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/codex_events.jsonl",
+      "sha256": "bcd0acc9e73f41170d2c7bce870362faf1e841f0b6853fe481ec721d9ca663ad",
+      "bytes": 6988,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/codex_last_message.txt",
+      "sha256": "971289c21a2d96c0546661dafbeb15f10fc59ae297c5196c5ea3204192071a9e",
+      "bytes": 6423,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/codex_trace.json",
+      "sha256": "fd7bd17b9aa98535ef83e0d1e7108d23990bb37af83e4958b1a63ecea310e25c",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/stdout.txt",
+      "sha256": "971289c21a2d96c0546661dafbeb15f10fc59ae297c5196c5ea3204192071a9e",
+      "bytes": 6423,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/stderr.txt",
+      "sha256": "78dba2b1a5a182e300e4f3b564998c2d9c30a11551dbc1277fd07f49ebc50f19",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/raw_response.txt",
+      "sha256": "971289c21a2d96c0546661dafbeb15f10fc59ae297c5196c5ea3204192071a9e",
+      "bytes": 6423,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/parsed_cells.json",
+      "sha256": "69b7dc30e9925f3c3ea1af48ac66ca4a833161272a41524aed38f35b05d16da7",
+      "bytes": 7245,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/normalized_cells.json",
+      "sha256": "727c306d4da8ed5493035cc2a7dd0bbc8068279e5fd639c5d6d466fb806c137b",
+      "bytes": 24664,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/distribution.json",
+      "sha256": "723977205309aef37247c613f2dfb42b6f95d56a080bd8edd72b13f6dfc8f226",
+      "bytes": 13635,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/validation.json",
+      "sha256": "0f1de6177e6d47294174a8c198f6d7b2e1a2bed9034ada78c6e55196b38aec50",
+      "bytes": 142,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/cells.with_activity.json",
+      "sha256": "eb627ba07c2b760fa846c72caa18f7785274a355a65f7a485bd9e97ad57abe15",
+      "bytes": 41041,
+      "createdAt": "2026-07-27T18:18:38Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-18-38z-fed-g17-manufacturing-production-mom-2026-07/manifest.json",
+      "sha256": "2dd1abdcbfb105f7ae21b59379bced4ac5e97571eacee61b3a5291211735e764",
+      "bytes": 16523,
+      "createdAt": "2026-07-27T18:18:38Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-manufacturing-production-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "4cbbce7e9456fa210b71e95f34c84c5e0518479c704102c9735ce3c1b44ac4c9"
+}

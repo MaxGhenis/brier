@@ -1,0 +1,1238 @@
+[
+  {
+    "slug": "us-manufacturing-capacity-utilization-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US manufacturing capacity utilization, July 2026",
+    "question": "What will the Federal Reserve G.17 first-print capacity utilization rate for Manufacturing (NAICS), seasonally adjusted, be for July 2026?",
+    "unit": "percent",
+    "pointEstimate": 75.6,
+    "ciLow": 75.25,
+    "ciHigh": 75.95,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-18",
+    "resolutionSource": "Federal Reserve G.17 Industrial Production and Capacity Utilization, MCUMFN first-print vintage via ALFRED",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN",
+    "resolutionRule": "Resolve to the first-print July 2026 value for Capacity Utilization: Manufacturing (NAICS), seasonally adjusted, percent of capacity, source series MCUMFN, as first available in the 2026-08-18 Federal Reserve G.17 release vintage through the ledger ALFRED/FRED adapter. Transform by factor 1 and report in percent. Do not use later revisions or same-day correction grace unless encoded in the official first-print vintage.",
+    "dataPointId": "fed.g17.capacity_utilization.manufacturing.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "Jun 2026 MCUMFN latest exact",
+        "value": 75.5559
+      },
+      {
+        "label": "May 2026 MCUMFN exact",
+        "value": 75.6179
+      },
+      {
+        "label": "Apr 2026 MCUMFN exact",
+        "value": 75.6059
+      },
+      {
+        "label": "Mar 2026 MCUMFN exact",
+        "value": 75.1141
+      },
+      {
+        "label": "1972-2025 average, Manufacturing NAICS table row",
+        "value": 78.1
+      }
+    ],
+    "drivers": [
+      "June manufacturing NAICS utilization was 75.5559 percent, essentially flat from May",
+      "Official rounded G.17 row shows Manufacturing (NAICS) at 75.6 in April, May, and June",
+      "Capacity utilization is still below the 1972-2025 manufacturing NAICS average of 78.1",
+      "Recent manufacturing output was flat in June after a stronger April, limiting near-term momentum",
+      "No annual revision is scheduled before the August first print; the announced annual revision is planned for autumn 2026"
+    ],
+    "sourceContext": [
+      "https://www.federalreserve.gov/releases/g17/",
+      "https://www.federalreserve.gov/releases/g17/current/table2_sup.htm",
+      "https://fred.stlouisfed.org/series/MCUMFN",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN"
+    ],
+    "runAt": "2026-07-27T18:22:55Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US manufacturing NAICS capacity utilization, July 2026 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Target is Federal Reserve G.17 Capacity Utilization: Manufacturing (NAICS), series MCUMFN, seasonally adjusted percent of capacity. I use the same NAICS variant for anchors and interval work; broader manufacturing and SIC rows are not the resolver. The Federal Reserve table is the official human-facing release, while the machine-resolution path is the ledger ALFRED MCUMFN first-print vintage."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the Federal Reserve G.17 release dates page for the July 2026 release date.",
+        "result": "The Federal Reserve G.17 page says 2026 monthly releases include July 17 as the most recent monthly release and August 18 as the next listed release; monthly releases are issued at 9:15 a.m."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Federal Reserve current G.17 Monthly Supplement Table 2 for Manufacturing (NAICS) capacity utilization.",
+        "result": "The Manufacturing (NAICS) row reports 2025 proportion 74.48, 1972-2025 average 78.1, 2025 June 75.6, and rounded 2026 values Jan 74.6, Feb 75.1, Mar 75.1, Apr 75.6, May 75.6, Jun 75.6."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the public FRED/ALFRED mirror for exact MCUMFN observations sourced to the Federal Reserve G.17 release.",
+        "result": "The public MCUMFN mirror shows Jun 2026 75.5559, May 2026 75.6179, Apr 2026 75.6059, Mar 2026 75.1141, and Feb 2026 75.0954, updated July 17, 2026; these are current public vintage observations used as forecasting evidence, not the future July first-print outcome."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked current G.17 release summary and feed for nearby industrial context.",
+        "result": "The G.17 feed states total IP ticked up 0.1 percent in June, manufacturing output was unchanged in June, manufacturing output rose at a 4.7 percent annual rate in Q2, and total industry capacity utilization was 76.1 percent in June."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for a one-month-ahead level forecast on this utilization rate, persistence from the latest exact MCUMFN value is the main prior because monthly movements in utilization are small relative to the level. The last three rounded official NAICS readings all sit at 75.6, while the exact latest is 75.5559."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = Jun exact 75.5559. Historical sample = short-run realized monthly-change proxy using rounded official Jan-Jun NAICS values plus exact current-vintage FRED/ALFRED Feb-Jun detail: Jan-Feb about +0.50, Feb-Mar +0.0187, Mar-Apr +0.4918, Apr-May +0.0120, May-Jun -0.0620. Adjustment components: level persistence +0.00, momentum +0.02 for Q2 firmness but flat June output, capacity-growth drag approximately -0.01, net about +0.04 before rounding, giving point 75.6. Dispersion: sigma = 0.28 percentage point from those recent successive changes; 1.28*sigma = 0.36, so an 80% interval around 75.6 is about 75.24 to 75.96, rounded to 75.25 to 75.95. This is a fragile short-window sigma, but it is appropriate here as a near-term first-print proxy because the resolver is one month ahead and the last three official rounded readings were stable at 75.6."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a July rebound in manufacturing output, especially motor vehicles or high-tech industries, which would land above the interval if utilization prints above 75.95. Downside risk is a broad production pullback or downward first-print capacity-utilization surprise, which would land below the interval if MCUMFN prints below 75.25. Outside the interval would require roughly a 0.4 percentage point or larger move from June, larger than the recent flat May-June pattern."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample."
+      },
+      {
+        "kind": "forecast",
+        "point": 75.6,
+        "ciLow": 75.25,
+        "ciHigh": 75.95
+      }
+    ],
+    "agentReportedRunAt": "2026-07-27T18:21:17Z",
+    "runStartedAt": "2026-07-27T18:20:57Z",
+    "promptMode": "fast",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "targetContentHash": "167f5471ea86744d26e7cd36429c333400053dd1c4f2316c37683345a1f29134",
+    "targetRegistrationPath": "records/targets/2026-07-27-167f5471ea86744d26e7cd36429c333400053dd1c4f2316c37683345a1f29134.json",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 74.725,
+        "upper": 76.475
+      },
+      "points": [
+        {
+          "value": 74.725,
+          "probability": 0.0
+        },
+        {
+          "value": 74.73375,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 74.7425,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 74.75125,
+          "probability": 0.005
+        },
+        {
+          "value": 74.76,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 74.76875,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 74.7775,
+          "probability": 0.01
+        },
+        {
+          "value": 74.78625,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 74.795,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 74.80375,
+          "probability": 0.015
+        },
+        {
+          "value": 74.8125,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 74.82125,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 74.83,
+          "probability": 0.02
+        },
+        {
+          "value": 74.83875,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 74.8475,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 74.85625,
+          "probability": 0.025
+        },
+        {
+          "value": 74.865,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 74.87375,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 74.8825,
+          "probability": 0.03
+        },
+        {
+          "value": 74.89125,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 74.9,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 74.90875,
+          "probability": 0.035
+        },
+        {
+          "value": 74.9175,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 74.92625,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 74.935,
+          "probability": 0.04
+        },
+        {
+          "value": 74.94375,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 74.9525,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 74.96125,
+          "probability": 0.045
+        },
+        {
+          "value": 74.97,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 74.97875,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 74.9875,
+          "probability": 0.05
+        },
+        {
+          "value": 74.99625,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 75.005,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 75.01375,
+          "probability": 0.055
+        },
+        {
+          "value": 75.0225,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 75.03125,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 75.04,
+          "probability": 0.06
+        },
+        {
+          "value": 75.04875,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 75.0575,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 75.06625,
+          "probability": 0.065
+        },
+        {
+          "value": 75.075,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 75.08375,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 75.0925,
+          "probability": 0.07
+        },
+        {
+          "value": 75.10125,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 75.11,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 75.11875,
+          "probability": 0.075
+        },
+        {
+          "value": 75.1275,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 75.13625,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 75.145,
+          "probability": 0.08
+        },
+        {
+          "value": 75.15375,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 75.1625,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 75.17125,
+          "probability": 0.085
+        },
+        {
+          "value": 75.18,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 75.18875,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 75.1975,
+          "probability": 0.09
+        },
+        {
+          "value": 75.20625,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 75.215,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 75.22375,
+          "probability": 0.095
+        },
+        {
+          "value": 75.2325,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 75.24125,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 75.25,
+          "probability": 0.1
+        },
+        {
+          "value": 75.25875,
+          "probability": 0.11
+        },
+        {
+          "value": 75.2675,
+          "probability": 0.12
+        },
+        {
+          "value": 75.27625,
+          "probability": 0.13
+        },
+        {
+          "value": 75.285,
+          "probability": 0.14
+        },
+        {
+          "value": 75.29375,
+          "probability": 0.15
+        },
+        {
+          "value": 75.3025,
+          "probability": 0.16
+        },
+        {
+          "value": 75.31125,
+          "probability": 0.17
+        },
+        {
+          "value": 75.32,
+          "probability": 0.18
+        },
+        {
+          "value": 75.32875,
+          "probability": 0.19
+        },
+        {
+          "value": 75.3375,
+          "probability": 0.2
+        },
+        {
+          "value": 75.34625,
+          "probability": 0.21
+        },
+        {
+          "value": 75.355,
+          "probability": 0.22
+        },
+        {
+          "value": 75.36375,
+          "probability": 0.23
+        },
+        {
+          "value": 75.3725,
+          "probability": 0.24
+        },
+        {
+          "value": 75.38125,
+          "probability": 0.25
+        },
+        {
+          "value": 75.39,
+          "probability": 0.26
+        },
+        {
+          "value": 75.39875,
+          "probability": 0.27
+        },
+        {
+          "value": 75.4075,
+          "probability": 0.28
+        },
+        {
+          "value": 75.41625,
+          "probability": 0.29
+        },
+        {
+          "value": 75.425,
+          "probability": 0.3
+        },
+        {
+          "value": 75.43375,
+          "probability": 0.31
+        },
+        {
+          "value": 75.4425,
+          "probability": 0.32
+        },
+        {
+          "value": 75.45125,
+          "probability": 0.33
+        },
+        {
+          "value": 75.46,
+          "probability": 0.34
+        },
+        {
+          "value": 75.46875,
+          "probability": 0.35
+        },
+        {
+          "value": 75.4775,
+          "probability": 0.36
+        },
+        {
+          "value": 75.48625,
+          "probability": 0.37
+        },
+        {
+          "value": 75.495,
+          "probability": 0.38
+        },
+        {
+          "value": 75.50375,
+          "probability": 0.39
+        },
+        {
+          "value": 75.5125,
+          "probability": 0.4
+        },
+        {
+          "value": 75.52125,
+          "probability": 0.41
+        },
+        {
+          "value": 75.53,
+          "probability": 0.42
+        },
+        {
+          "value": 75.53875,
+          "probability": 0.43
+        },
+        {
+          "value": 75.5475,
+          "probability": 0.44
+        },
+        {
+          "value": 75.55625,
+          "probability": 0.45
+        },
+        {
+          "value": 75.565,
+          "probability": 0.46
+        },
+        {
+          "value": 75.57375,
+          "probability": 0.47
+        },
+        {
+          "value": 75.5825,
+          "probability": 0.48
+        },
+        {
+          "value": 75.59125,
+          "probability": 0.49
+        },
+        {
+          "value": 75.6,
+          "probability": 0.5
+        },
+        {
+          "value": 75.60875,
+          "probability": 0.51
+        },
+        {
+          "value": 75.6175,
+          "probability": 0.52
+        },
+        {
+          "value": 75.62625,
+          "probability": 0.53
+        },
+        {
+          "value": 75.635,
+          "probability": 0.54
+        },
+        {
+          "value": 75.64375,
+          "probability": 0.55
+        },
+        {
+          "value": 75.6525,
+          "probability": 0.56
+        },
+        {
+          "value": 75.66125,
+          "probability": 0.57
+        },
+        {
+          "value": 75.67,
+          "probability": 0.58
+        },
+        {
+          "value": 75.67875,
+          "probability": 0.59
+        },
+        {
+          "value": 75.6875,
+          "probability": 0.6
+        },
+        {
+          "value": 75.69625,
+          "probability": 0.61
+        },
+        {
+          "value": 75.705,
+          "probability": 0.62
+        },
+        {
+          "value": 75.71375,
+          "probability": 0.63
+        },
+        {
+          "value": 75.7225,
+          "probability": 0.64
+        },
+        {
+          "value": 75.73125,
+          "probability": 0.65
+        },
+        {
+          "value": 75.74,
+          "probability": 0.66
+        },
+        {
+          "value": 75.74875,
+          "probability": 0.67
+        },
+        {
+          "value": 75.7575,
+          "probability": 0.68
+        },
+        {
+          "value": 75.76625,
+          "probability": 0.69
+        },
+        {
+          "value": 75.775,
+          "probability": 0.7
+        },
+        {
+          "value": 75.78375,
+          "probability": 0.71
+        },
+        {
+          "value": 75.7925,
+          "probability": 0.72
+        },
+        {
+          "value": 75.80125,
+          "probability": 0.73
+        },
+        {
+          "value": 75.81,
+          "probability": 0.74
+        },
+        {
+          "value": 75.81875,
+          "probability": 0.75
+        },
+        {
+          "value": 75.8275,
+          "probability": 0.76
+        },
+        {
+          "value": 75.83625,
+          "probability": 0.77
+        },
+        {
+          "value": 75.845,
+          "probability": 0.78
+        },
+        {
+          "value": 75.85375,
+          "probability": 0.79
+        },
+        {
+          "value": 75.8625,
+          "probability": 0.8
+        },
+        {
+          "value": 75.87125,
+          "probability": 0.81
+        },
+        {
+          "value": 75.88,
+          "probability": 0.82
+        },
+        {
+          "value": 75.88875,
+          "probability": 0.83
+        },
+        {
+          "value": 75.8975,
+          "probability": 0.84
+        },
+        {
+          "value": 75.90625,
+          "probability": 0.85
+        },
+        {
+          "value": 75.915,
+          "probability": 0.86
+        },
+        {
+          "value": 75.92375,
+          "probability": 0.87
+        },
+        {
+          "value": 75.9325,
+          "probability": 0.88
+        },
+        {
+          "value": 75.94125,
+          "probability": 0.89
+        },
+        {
+          "value": 75.95,
+          "probability": 0.9
+        },
+        {
+          "value": 75.95875,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 75.9675,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 75.97625,
+          "probability": 0.905
+        },
+        {
+          "value": 75.985,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 75.99375,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 76.0025,
+          "probability": 0.91
+        },
+        {
+          "value": 76.01125,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 76.02,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 76.02875,
+          "probability": 0.915
+        },
+        {
+          "value": 76.0375,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 76.04625,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 76.055,
+          "probability": 0.92
+        },
+        {
+          "value": 76.06375,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 76.0725,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 76.08125,
+          "probability": 0.925
+        },
+        {
+          "value": 76.09,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 76.09875,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 76.1075,
+          "probability": 0.93
+        },
+        {
+          "value": 76.11625,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 76.125,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 76.13375,
+          "probability": 0.935
+        },
+        {
+          "value": 76.1425,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 76.15125,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 76.16,
+          "probability": 0.94
+        },
+        {
+          "value": 76.16875,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 76.1775,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 76.18625,
+          "probability": 0.945
+        },
+        {
+          "value": 76.195,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 76.20375,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 76.2125,
+          "probability": 0.95
+        },
+        {
+          "value": 76.22125,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 76.23,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 76.23875,
+          "probability": 0.955
+        },
+        {
+          "value": 76.2475,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 76.25625,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 76.265,
+          "probability": 0.96
+        },
+        {
+          "value": 76.27375,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 76.2825,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 76.29125,
+          "probability": 0.965
+        },
+        {
+          "value": 76.3,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 76.30875,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 76.3175,
+          "probability": 0.97
+        },
+        {
+          "value": 76.32625,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 76.335,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 76.34375,
+          "probability": 0.975
+        },
+        {
+          "value": 76.3525,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 76.36125,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 76.37,
+          "probability": 0.98
+        },
+        {
+          "value": 76.37875,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 76.3875,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 76.39625,
+          "probability": 0.985
+        },
+        {
+          "value": 76.405,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 76.41375,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 76.4225,
+          "probability": 0.99
+        },
+        {
+          "value": 76.43125,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 76.44,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 76.44875,
+          "probability": 0.995
+        },
+        {
+          "value": 76.4575,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 76.46625,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 76.475,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 75.6,
+        "median": 75.6,
+        "interval80": {
+          "lower": 75.25,
+          "upper": 75.95
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/prompt.md",
+        "sha256": "355a0c354708f6d1e6b1b4150150aadc8b2b9fa1b2b68b121d9b483d206d9a34",
+        "bytes": 8938,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_command.json",
+        "sha256": "7b2fb4c93240aa2f72e1acaafef8472faf0fde4172c05271ff598c7642fbeb43",
+        "bytes": 747,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "c835654fd8d0dcf253facb8087b31b8e5f2a2119723d95243b79903393009cd7",
+        "bytes": 11705,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_stderr.log",
+        "sha256": "5f2d141ff5ac6d15ae7e2bd97a23093764d30f03b97d787b362568544e8b15f7",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_events.jsonl",
+        "sha256": "d3d304f9183800b5418c83ae6842dc31ba3c304ae23fe09d999733843eed9532",
+        "bytes": 11693,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_last_message.txt",
+        "sha256": "4ef71f6d93896c081c72ecce7f83a40e1b9094c731dad1887b72ea20f45fa706",
+        "bytes": 5610,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_trace.json",
+        "sha256": "17952aa6bc15962c6855065f0752bc03d5c93e446af2215f953475e655b1b4c0",
+        "bytes": 533,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_stdout.txt",
+        "sha256": "4ef71f6d93896c081c72ecce7f83a40e1b9094c731dad1887b72ea20f45fa706",
+        "bytes": 5610,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_stderr.txt",
+        "sha256": "79e85ca1c9bae4378aeabd7f6872736796fa39ace3f2f4f56b33e52509b92d1e",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_prompt.md",
+        "sha256": "0170c80aa57c07b6111a78389f1e6234f51ef23d4184a157f5949e56a1ec1d78",
+        "bytes": 8701,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_command.json",
+        "sha256": "307b66abaedc8bb0264065c73a19036f6214169d008c4d5cf5d46093d8a7fc9f",
+        "bytes": 743,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "9c196a1661328736d48d7a09d1426e9df9e1be959b60e27dbbc63a7fb7ad735b",
+        "bytes": 2080,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "d143d9be4931bae9586eeb2f88c87ccc9aa5848dfa9f9eb171b0abc4e57e67b8",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "28e5e763e2c89ecbc85cc8457a9e58f59809e422beda185325c10d632074629e",
+        "bytes": 2102,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "013a7b5c9199ae062d12e73b2d93b219e9676985cb479c2d08ca66a6a2d98178",
+        "bytes": 1702,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "8fd2c00d48999fe8889a62b16beecf6ba5e1d4f0f2268b1d83c19b23027798eb",
+        "bytes": 527,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "013a7b5c9199ae062d12e73b2d93b219e9676985cb479c2d08ca66a6a2d98178",
+        "bytes": 1702,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "b0e44139aa2809a3a5968303f4ccd93500fe03dfc27a0a7fe5e4125012b8bc0a",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/revision_prompt.md",
+        "sha256": "219c15d5a6164fa92d3122c9a2279d78ebe3577ebb1ce20b7cbcfd906e6f89b9",
+        "bytes": 17186,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/command.json",
+        "sha256": "080e72bce07f2eb3e1664bd68eb18ec3a0dadf5579ccce22d8eb621b9a12b9d1",
+        "bytes": 741,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_stdout.jsonl",
+        "sha256": "01d38a7f30041db3bfe9103aa83a33d9b66e0fc42dc0873d4ac59ad19ef0292e",
+        "bytes": 7051,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_stderr.log",
+        "sha256": "e785bac166586ca7a1ba5cf45850117785c54d6ffe7cf48d01ac1b06ffab2ecd",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_events.jsonl",
+        "sha256": "a98b9ff5a422507f41f1cc18e760fb8bf3f3cd7a39d0348145a3125934c66ef1",
+        "bytes": 7073,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_last_message.txt",
+        "sha256": "7eb5afb28478727e89e93050a8b7c4b3347074032491d5b308e12d342adc318b",
+        "bytes": 6498,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_trace.json",
+        "sha256": "42a879633c9f11e8ce4d8285a7b5ea93a552b0d723d5b1d0bb27909532d67dbc",
+        "bytes": 531,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/stdout.txt",
+        "sha256": "7eb5afb28478727e89e93050a8b7c4b3347074032491d5b308e12d342adc318b",
+        "bytes": 6498,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/stderr.txt",
+        "sha256": "1bca81bc77e5c676f72bd83ef436625fdb4f5b7719a642866deee2cb66c4d8c0",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/raw_response.txt",
+        "sha256": "7eb5afb28478727e89e93050a8b7c4b3347074032491d5b308e12d342adc318b",
+        "bytes": 6498,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/parsed_cells.json",
+        "sha256": "601f4b6d70d6d402a2261c55134d5ea4a3d70680ca63854a84f262779e82c473",
+        "bytes": 7354,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/normalized_cells.json",
+        "sha256": "41659b36bfbce4547cda22fc41264601f4d1846ed5fea81117adc0f355c0bb1e",
+        "bytes": 25023,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/distribution.json",
+        "sha256": "0e046a6a34356e4322caa23f10298925f0ff61b6bc9a741bde75c579c1aa1249",
+        "bytes": 13885,
+        "createdAt": "2026-07-27T18:20:57Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/validation.json",
+        "sha256": "ee81951de00252fb92700224dbf4018abb3817650e319066f67a6d8876532e70",
+        "bytes": 148,
+        "createdAt": "2026-07-27T18:20:57Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-27T18:20:57Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "d30657831484457a338abb93e253f341976cf3df089e799c100fca677b606b4d"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "blocking",
+          "rubricItem": "resolver",
+          "summary": "The draft resolutionSourceUrl points to the Federal Reserve current table, while the canonical ledger sourceBinding resolves through ALFRED/FRED adapter with allowed host alfred.stlouisfed.org and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN.",
+          "actionRequested": "Change the JSON resolver/source URL fields to match the ledger ALFRED first-print binding, or explicitly state in reasoning that the Fed table is the official human-facing source while the machine resolver is the ledger ALFRED MCUMFN first-print vintage."
+        },
+        {
+          "findingId": "review.finding.2",
+          "severity": "warning",
+          "rubricItem": "interval",
+          "summary": "The 80% interval is based on only five recent monthly changes and mixes rounded official table values with exact FRED detail, which makes the sigma estimate fragile.",
+          "actionRequested": "Name this as a short-run volatility proxy and either add a longer realized monthly-change reference sample or explicitly justify why the narrow recent-window sigma is appropriate for this target."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the Prior/update/interval step, clarify whether the exact Feb-Jun observations are current vintage or first-print vintage."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Keep the Fed G.17 current table citation as public evidence, but make the final machine-resolution path unambiguous."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.finding.2",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publishable, but the resolver/source binding should be aligned to the canonical ALFRED first-print target contract and the interval method should avoid relying on an extremely short mixed rounded/exact sample without caveat."
+    }
+  }
+]

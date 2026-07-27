@@ -1,0 +1,1246 @@
+[
+  {
+    "slug": "u6-underemployment-rate-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "U-6 Underemployment Rate, July 2026",
+    "question": "What will the BLS first-print seasonally adjusted U-6 alternative labor underutilization rate be for July 2026 in Employment Situation Table A-15?",
+    "unit": "percent",
+    "pointEstimate": 7.9,
+    "ciLow": 7.7,
+    "ciHigh": 8.1,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-07",
+    "resolutionSource": "ALFRED U6RATE first-vintage capture of the U.S. Bureau of Labor Statistics Employment Situation, Table A-15",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=U6RATE",
+    "resolutionRule": "Resolve to the July 2026 first-print U6RATE value captured by the ledger ALFRED binding, corresponding to the BLS-published seasonally adjusted U-6 value in Employment Situation Table A-15, in percent, as released on August 7, 2026. Use the first print rounded to one decimal place; do not apply later revisions or same-day correction exceptions unless the target binding itself records that first public vintage.",
+    "dataPointId": "bls.cps.u6_underemployment_rate.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 U-6 SA",
+        "value": 7.9
+      },
+      {
+        "label": "2026-05 U-6 SA",
+        "value": 8.1
+      },
+      {
+        "label": "2026-04 U-6 SA",
+        "value": 8.2
+      },
+      {
+        "label": "2026-03 U-6 SA",
+        "value": 8
+      },
+      {
+        "label": "2026-02 U-6 SA",
+        "value": 7.9
+      },
+      {
+        "label": "2026-01 U-6 SA",
+        "value": 8.1
+      }
+    ],
+    "drivers": [
+      "June 2026 U-6 first print was 7.9 percent after May 8.1 and April 8.2",
+      "recent seasonally adjusted U-6 moves are small, with five 2026 monthly changes of -0.2, +0.1, +0.2, -0.1, and -0.2 percentage points",
+      "June official U-3 unemployment was 4.2 percent, down from 4.3 percent in May, limiting near-term U-6 upside",
+      "July first print resolves on the August 7, 2026 Employment Situation release through the ALFRED U6RATE first-vintage binding"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "https://www.bls.gov/cps/publications/release-calendar.htm",
+      "https://www.bls.gov/news.release/empsit.t15.htm?source=news_body_link",
+      "https://fred.stlouisfed.org/series/U6RATE",
+      "https://alfred.stlouisfed.org/series?seid=U6RATE",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=U6RATE"
+    ],
+    "runAt": "2026-07-27T18:09:22Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for BLS July 2026 U-6 first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this targets the BLS CPS household-survey U-6 alternative labor underutilization rate, seasonally adjusted, Table A-15, source code LNS13327709 mirrored by FRED/ALFRED as U6RATE. The ledger mechanically resolves through the ALFRED U6RATE first-vintage binding, while BLS Table A-15 is the underlying official release."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS Schedule of Releases for the Employment Situation for the July 2026 reference month.",
+        "result": "BLS lists July 2026 Employment Situation release date as Aug. 07, 2026 at 08:30 AM; the same schedule lists June 2026 on Jul. 02, 2026 and August 2026 on Sep. 04, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked BLS CPS release calendar for the July 2026 reference period.",
+        "result": "BLS CPS calendar lists Aug. 07, 2026 for July 2026 Employment Situation, with nearby entries Jul. 02, 2026 for June 2026 and Sep. 04, 2026 for August 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched the current official BLS Employment Situation Table A-15 for recent seasonally adjusted U-6 values.",
+        "result": "BLS Table A-15 reports U-6 seasonally adjusted values of Feb. 2026 7.9, Mar. 2026 8.0, Apr. 2026 8.2, May 2026 8.1, and June 2026 7.9; the same table reports June 2025 seasonally adjusted U-6 at 7.7."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.lookup",
+        "call": "Checked FRED/ALFRED U6RATE as the public history mirror and first-vintage resolution binding for the same BLS series LNS13327709.",
+        "result": "FRED/ALFRED U6RATE shows Jun 2026 7.9, May 2026 8.1, Apr 2026 8.2, Mar 2026 8.0, and Feb 2026 7.9, updated Jul 2, 2026 at 8:31 AM CDT, with next release date Aug 7, 2026."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: for a monthly labor-underutilization rate already near 8 percent, the strongest reference class is persistence plus small one-month CPS sampling and composition movement. The 2026 official/mirror history gives recent one-month moves of -0.2, +0.1, +0.2, -0.1, and -0.2 percentage points from Jan through Jun, so unchanged or a one-tenth move is the modal case."
+      },
+      {
+        "kind": "text",
+        "text": "Level, momentum, and mechanism: the latest level is 7.9 percent, down from 8.2 in April and 8.1 in May, while June U-3 in the same Table A-15 was 4.2 after 4.3 in May. That argues against a sharp U-6 rise, but U-6 is broader than U-3 and can move with marginal attachment and part-time-for-economic-reasons even when unemployment is steady."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior = June 2026 U-6 at 7.9 percent; historical sample = Jan-Jun 2026 seasonally adjusted U-6 values 8.1, 7.9, 8.0, 8.2, 8.1, 7.9, with successive changes -0.2, +0.1, +0.2, -0.1, -0.2. Sample sigma = 0.18 percentage point. 80% normal half-width is about 1.28*sigma = 1.28*0.18 = 0.23 percentage point. Adjustment components: level 0.00, recent downward momentum -0.05, mean-reversion from June drop +0.05, policy/mechanism one-off 0.00, leaving point 7.9. Implied continuous 80% bounds are 7.9 +/- 0.23 = 7.67 to 8.13, rounded to 7.7 to 8.1 for the printed one-decimal series. The narrow interval is intentional because it is based on recent realized monthly moves and the one-decimal first-print granularity."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a July jump in part-time-for-economic-reasons or marginal attachment that lifts U-6 to 8.2 or higher, which would land above the 80% interval. Downside risk is a broad household-survey improvement that pushes U-6 to 7.6 or lower, which would land below the interval. Outside the interval would most likely require a larger-than-recent move in the broader underemployment components rather than just a small U-3 change."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity."
+      },
+      {
+        "kind": "forecast",
+        "point": 7.9,
+        "ciLow": 7.7,
+        "ciHigh": 8.1
+      }
+    ],
+    "agentReportedRunAt": "2026-07-27T18:07:25Z",
+    "runStartedAt": "2026-07-27T18:07:11Z",
+    "promptMode": "fast",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "targetContentHash": "20ec6a3c168e40892ebc5fe44743cf49c5940add207def0313de53d7f7cb8ed7",
+    "targetRegistrationPath": "records/targets/2026-07-27-20ec6a3c168e40892ebc5fe44743cf49c5940add207def0313de53d7f7cb8ed7.json",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 7.4,
+        "upper": 8.4
+      },
+      "points": [
+        {
+          "value": 7.4,
+          "probability": 0.0
+        },
+        {
+          "value": 7.405,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 7.41,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 7.415,
+          "probability": 0.005
+        },
+        {
+          "value": 7.42,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 7.425,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 7.43,
+          "probability": 0.01
+        },
+        {
+          "value": 7.435,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 7.44,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 7.445,
+          "probability": 0.015
+        },
+        {
+          "value": 7.45,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 7.455,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 7.46,
+          "probability": 0.02
+        },
+        {
+          "value": 7.465,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 7.47,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 7.475,
+          "probability": 0.025
+        },
+        {
+          "value": 7.48,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 7.485,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 7.49,
+          "probability": 0.03
+        },
+        {
+          "value": 7.495,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 7.5,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 7.505,
+          "probability": 0.035
+        },
+        {
+          "value": 7.51,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 7.515,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 7.52,
+          "probability": 0.04
+        },
+        {
+          "value": 7.525,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 7.53,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 7.535,
+          "probability": 0.045
+        },
+        {
+          "value": 7.54,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 7.545,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 7.55,
+          "probability": 0.05
+        },
+        {
+          "value": 7.555,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 7.56,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 7.565,
+          "probability": 0.055
+        },
+        {
+          "value": 7.57,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 7.575,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 7.58,
+          "probability": 0.06
+        },
+        {
+          "value": 7.585,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 7.59,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 7.595,
+          "probability": 0.065
+        },
+        {
+          "value": 7.6,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 7.605,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 7.61,
+          "probability": 0.07
+        },
+        {
+          "value": 7.615,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 7.62,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 7.625,
+          "probability": 0.075
+        },
+        {
+          "value": 7.63,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 7.635,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 7.64,
+          "probability": 0.08
+        },
+        {
+          "value": 7.645,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 7.65,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 7.655,
+          "probability": 0.085
+        },
+        {
+          "value": 7.66,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 7.665,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 7.67,
+          "probability": 0.09
+        },
+        {
+          "value": 7.675,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 7.68,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 7.685,
+          "probability": 0.095
+        },
+        {
+          "value": 7.69,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 7.695,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 7.7,
+          "probability": 0.1
+        },
+        {
+          "value": 7.705,
+          "probability": 0.11
+        },
+        {
+          "value": 7.71,
+          "probability": 0.12
+        },
+        {
+          "value": 7.715,
+          "probability": 0.13
+        },
+        {
+          "value": 7.72,
+          "probability": 0.14
+        },
+        {
+          "value": 7.725,
+          "probability": 0.15
+        },
+        {
+          "value": 7.73,
+          "probability": 0.16
+        },
+        {
+          "value": 7.735,
+          "probability": 0.17
+        },
+        {
+          "value": 7.74,
+          "probability": 0.18
+        },
+        {
+          "value": 7.745,
+          "probability": 0.19
+        },
+        {
+          "value": 7.75,
+          "probability": 0.2
+        },
+        {
+          "value": 7.755,
+          "probability": 0.21
+        },
+        {
+          "value": 7.76,
+          "probability": 0.22
+        },
+        {
+          "value": 7.765,
+          "probability": 0.23
+        },
+        {
+          "value": 7.77,
+          "probability": 0.24
+        },
+        {
+          "value": 7.775,
+          "probability": 0.25
+        },
+        {
+          "value": 7.78,
+          "probability": 0.26
+        },
+        {
+          "value": 7.785,
+          "probability": 0.27
+        },
+        {
+          "value": 7.79,
+          "probability": 0.28
+        },
+        {
+          "value": 7.795,
+          "probability": 0.29
+        },
+        {
+          "value": 7.8,
+          "probability": 0.3
+        },
+        {
+          "value": 7.805,
+          "probability": 0.31
+        },
+        {
+          "value": 7.81,
+          "probability": 0.32
+        },
+        {
+          "value": 7.815,
+          "probability": 0.33
+        },
+        {
+          "value": 7.82,
+          "probability": 0.34
+        },
+        {
+          "value": 7.825,
+          "probability": 0.35
+        },
+        {
+          "value": 7.83,
+          "probability": 0.36
+        },
+        {
+          "value": 7.835,
+          "probability": 0.37
+        },
+        {
+          "value": 7.84,
+          "probability": 0.38
+        },
+        {
+          "value": 7.845,
+          "probability": 0.39
+        },
+        {
+          "value": 7.85,
+          "probability": 0.4
+        },
+        {
+          "value": 7.855,
+          "probability": 0.41
+        },
+        {
+          "value": 7.86,
+          "probability": 0.42
+        },
+        {
+          "value": 7.865,
+          "probability": 0.43
+        },
+        {
+          "value": 7.87,
+          "probability": 0.44
+        },
+        {
+          "value": 7.875,
+          "probability": 0.45
+        },
+        {
+          "value": 7.88,
+          "probability": 0.46
+        },
+        {
+          "value": 7.885,
+          "probability": 0.47
+        },
+        {
+          "value": 7.89,
+          "probability": 0.48
+        },
+        {
+          "value": 7.895,
+          "probability": 0.49
+        },
+        {
+          "value": 7.9,
+          "probability": 0.5
+        },
+        {
+          "value": 7.905,
+          "probability": 0.51
+        },
+        {
+          "value": 7.91,
+          "probability": 0.52
+        },
+        {
+          "value": 7.915,
+          "probability": 0.53
+        },
+        {
+          "value": 7.92,
+          "probability": 0.54
+        },
+        {
+          "value": 7.925,
+          "probability": 0.55
+        },
+        {
+          "value": 7.93,
+          "probability": 0.56
+        },
+        {
+          "value": 7.935,
+          "probability": 0.57
+        },
+        {
+          "value": 7.94,
+          "probability": 0.58
+        },
+        {
+          "value": 7.945,
+          "probability": 0.59
+        },
+        {
+          "value": 7.95,
+          "probability": 0.6
+        },
+        {
+          "value": 7.955,
+          "probability": 0.61
+        },
+        {
+          "value": 7.96,
+          "probability": 0.62
+        },
+        {
+          "value": 7.965,
+          "probability": 0.63
+        },
+        {
+          "value": 7.97,
+          "probability": 0.64
+        },
+        {
+          "value": 7.975,
+          "probability": 0.65
+        },
+        {
+          "value": 7.98,
+          "probability": 0.66
+        },
+        {
+          "value": 7.985,
+          "probability": 0.67
+        },
+        {
+          "value": 7.99,
+          "probability": 0.68
+        },
+        {
+          "value": 7.995,
+          "probability": 0.69
+        },
+        {
+          "value": 8.0,
+          "probability": 0.7
+        },
+        {
+          "value": 8.005,
+          "probability": 0.71
+        },
+        {
+          "value": 8.01,
+          "probability": 0.72
+        },
+        {
+          "value": 8.015,
+          "probability": 0.73
+        },
+        {
+          "value": 8.02,
+          "probability": 0.74
+        },
+        {
+          "value": 8.025,
+          "probability": 0.75
+        },
+        {
+          "value": 8.03,
+          "probability": 0.76
+        },
+        {
+          "value": 8.035,
+          "probability": 0.77
+        },
+        {
+          "value": 8.04,
+          "probability": 0.78
+        },
+        {
+          "value": 8.045,
+          "probability": 0.79
+        },
+        {
+          "value": 8.05,
+          "probability": 0.8
+        },
+        {
+          "value": 8.055,
+          "probability": 0.81
+        },
+        {
+          "value": 8.06,
+          "probability": 0.82
+        },
+        {
+          "value": 8.065,
+          "probability": 0.83
+        },
+        {
+          "value": 8.07,
+          "probability": 0.84
+        },
+        {
+          "value": 8.075,
+          "probability": 0.85
+        },
+        {
+          "value": 8.08,
+          "probability": 0.86
+        },
+        {
+          "value": 8.085,
+          "probability": 0.87
+        },
+        {
+          "value": 8.09,
+          "probability": 0.88
+        },
+        {
+          "value": 8.095,
+          "probability": 0.89
+        },
+        {
+          "value": 8.1,
+          "probability": 0.9
+        },
+        {
+          "value": 8.105,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 8.11,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 8.115,
+          "probability": 0.905
+        },
+        {
+          "value": 8.12,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 8.125,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 8.13,
+          "probability": 0.91
+        },
+        {
+          "value": 8.135,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 8.14,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 8.145,
+          "probability": 0.915
+        },
+        {
+          "value": 8.15,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 8.155,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 8.16,
+          "probability": 0.92
+        },
+        {
+          "value": 8.165,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 8.17,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 8.175,
+          "probability": 0.925
+        },
+        {
+          "value": 8.18,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 8.185,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 8.19,
+          "probability": 0.93
+        },
+        {
+          "value": 8.195,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 8.2,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 8.205,
+          "probability": 0.935
+        },
+        {
+          "value": 8.21,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 8.215,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 8.22,
+          "probability": 0.94
+        },
+        {
+          "value": 8.225,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 8.23,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 8.235,
+          "probability": 0.945
+        },
+        {
+          "value": 8.24,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 8.245,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 8.25,
+          "probability": 0.95
+        },
+        {
+          "value": 8.255,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 8.26,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 8.265,
+          "probability": 0.955
+        },
+        {
+          "value": 8.27,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 8.275,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 8.28,
+          "probability": 0.96
+        },
+        {
+          "value": 8.285,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 8.29,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 8.295,
+          "probability": 0.965
+        },
+        {
+          "value": 8.3,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 8.305,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 8.31,
+          "probability": 0.97
+        },
+        {
+          "value": 8.315,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 8.32,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 8.325,
+          "probability": 0.975
+        },
+        {
+          "value": 8.33,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 8.335,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 8.34,
+          "probability": 0.98
+        },
+        {
+          "value": 8.345,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 8.35,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 8.355,
+          "probability": 0.985
+        },
+        {
+          "value": 8.36,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 8.365,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 8.37,
+          "probability": 0.99
+        },
+        {
+          "value": 8.375,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 8.38,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 8.385,
+          "probability": 0.995
+        },
+        {
+          "value": 8.39,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 8.395,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 8.4,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 7.9,
+        "median": 7.9,
+        "interval80": {
+          "lower": 7.7,
+          "upper": 8.1
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/prompt.md",
+        "sha256": "efea07351f76995f159890f1288b1eb230ba9b4876c2b08bacc8ac39a1eff203",
+        "bytes": 8854,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_command.json",
+        "sha256": "dbd4abc3d576a32822f45eac181732e749da1f08989acea02189f48d4fa4c733",
+        "bytes": 736,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "2a87ef2e55c36b12ec7e5a6624165fe8fed79a1fa1021e4c367e7281dd0f612b",
+        "bytes": 12154,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_stderr.log",
+        "sha256": "3ba0340948e75167a8c39a0dadc972a88a828f79080c04ef42395a4bfb25a0ca",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_events.jsonl",
+        "sha256": "133d58c6692e3ef5783c87fc11b4477d3615b9a5363435a887dbefdefc7f45d4",
+        "bytes": 12140,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_last_message.txt",
+        "sha256": "b138d828a2cba3994ecdefe03d4e56ebc1a2517d10042bbb0b84d136b9097eca",
+        "bytes": 5684,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_codex_trace.json",
+        "sha256": "633a9b9712e5a5439db47ae0e216ca6f6a720b102404d2f3e311f83c55c5bfff",
+        "bytes": 533,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_stdout.txt",
+        "sha256": "b138d828a2cba3994ecdefe03d4e56ebc1a2517d10042bbb0b84d136b9097eca",
+        "bytes": 5684,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_stderr.txt",
+        "sha256": "a592a3c7dd02c2af71d85216e73e0e8e70835fafa103cbc853102dc16bedc939",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_prompt.md",
+        "sha256": "bf74f17635c9f7e53dee69690c1862e4e3ccc17900c5f714c7a01d397a0b5279",
+        "bytes": 8691,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_command.json",
+        "sha256": "1f3b2e051641cba30ca3208de5b0fa7d69c5d18ee0c5457f66e3c0834f4e192f",
+        "bytes": 732,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "50ebe8139515645769de240ef06c5ee0eb822737b54db80b54fa4fa1c1a0af86",
+        "bytes": 1484,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "9ba9981724e2ced3c8e7ceb8f76a3700f02719404b49dc69d2887af5384b354d",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "d002570f18d935e4b7cc682b38a147ca47ff7283cf58758a6751ef59420558db",
+        "bytes": 1506,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "c4f1338946a6ce20e9795804fdf3792fcc76b75557321d46599d71a27c1ed5d1",
+        "bytes": 1125,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "e1e2b5b5782c75790d805e93b54c4b24243aa0e35ca552497875aec2974d3b86",
+        "bytes": 527,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "c4f1338946a6ce20e9795804fdf3792fcc76b75557321d46599d71a27c1ed5d1",
+        "bytes": 1125,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "d9ecb44ea06a002b35c767394e4c7922cf8555cd76c7f93b61b300d3ac186817",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/revision_prompt.md",
+        "sha256": "4708de6bbaeb1178f6a1a20f2bb380c339c9f52054d330f809fefdf56647ad89",
+        "bytes": 16599,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/command.json",
+        "sha256": "1d764be38e13de1082b600a74ac8f8686416cf8f89c94a40d82fb64e28c2ab4d",
+        "bytes": 730,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_stdout.jsonl",
+        "sha256": "6c116d6adc62b7f435c452bdda7412574541ef27347f2c3d8008bd8c039c068e",
+        "bytes": 7051,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_stderr.log",
+        "sha256": "5771c526424f271ddbc8a6efb8f2a546f31c4d33e4f424e4db94d550fa74c891",
+        "bytes": 233,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_events.jsonl",
+        "sha256": "ccd3ed7a74df4e03a4877293c9090ceba0c71fef15e0c31c7f41b1103a802952",
+        "bytes": 7073,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_last_message.txt",
+        "sha256": "7e196d554492097df61b79ac133b6f05731579a8602d869fa6a0b0c849a56a5e",
+        "bytes": 6486,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/codex_trace.json",
+        "sha256": "d804de15ff783272957ee0f58ac9019e2444b1c3e82f139d2c00023992c6a8ab",
+        "bytes": 527,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/stdout.txt",
+        "sha256": "7e196d554492097df61b79ac133b6f05731579a8602d869fa6a0b0c849a56a5e",
+        "bytes": 6486,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/stderr.txt",
+        "sha256": "0ef63959430256d279c82f8d112a52b1d9121462c3faf96a84480cc5ce6fec74",
+        "bytes": 248,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/raw_response.txt",
+        "sha256": "7e196d554492097df61b79ac133b6f05731579a8602d869fa6a0b0c849a56a5e",
+        "bytes": 6486,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/parsed_cells.json",
+        "sha256": "48922500e59a69446d87c2ee34028dd35bc4e3a033177e651efaac07889cb8bc",
+        "bytes": 7417,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/normalized_cells.json",
+        "sha256": "c4b36d0d979ddb07338d5b87f7730a065b27e588953868d71bc1103260bfec2a",
+        "bytes": 24539,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/distribution.json",
+        "sha256": "147e2e513b134262bf8c30b607942edcb66c0fb09e284f41f61fb98a9ddf74de",
+        "bytes": 13338,
+        "createdAt": "2026-07-27T18:07:11Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/validation.json",
+        "sha256": "a8aa469179a77e62ecdeb3b381f423f6d44908922e1b9926ce4b4bf766a0433e",
+        "bytes": 134,
+        "createdAt": "2026-07-27T18:07:11Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-27T18:07:11Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "d496822f580d311864b48051b0722861c40d67ced51bcefd7150198cc6a7c820"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-07-11z-bls-cps-u6-underemployment-rate-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "Draft JSON uses BLS Table A-15 URL as resolutionSourceUrl, while the ledger sourceBinding resolves mechanically through ALFRED U6RATE first-print capture.",
+          "actionRequested": "Make the resolver text explicitly match the target contract: July 2026 first-print U6RATE via the ledger ALFRED binding, while noting BLS Table A-15 is the underlying official release."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The Jan-Jun-only volatility sample is compact but very short; consider stating that the narrow 80% interval is based on recent monthly realized moves and rounded first-print granularity."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The tail scenarios are adequate; adding explicit example values such as 8.2+ and 7.6 or lower already makes them concrete."
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Check that sourceContext does not imply FRED, rather than ALFRED first vintage or BLS Table A-15, is the final resolver."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.3",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and resolutionRule with the canonical ALFRED U6RATE first-vintage binding while keeping BLS Table A-15 as the underlying official release; accepted the calibration note by stating that the interval is based on recent realized monthly moves and one-decimal first-print granularity.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publication-ready, but the resolver/source fields should be aligned with the canonical ledger binding before publication."
+    }
+  }
+]

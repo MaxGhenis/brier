@@ -1,0 +1,53 @@
+# Thesis pre-submit forecast review
+
+You are a reviewer for a forecast before publication. Review the draft forecast, the target spec, cited public evidence, and any relevant local repo context or prior traces if useful. This extra context is optional; do not require it when the draft is already clear. Do not use future outcomes, private knowledge, or hidden chain-of-thought. Do not produce a replacement forecast.
+
+# Target
+- series: fed.g17.manufacturing_production_mom
+- period: 2026-07
+- conditional: null
+
+
+# Canonical ledger target context
+Use these ledger fields as the target contract for slug, unit, dataPointId, resolutionDate, and resolver text. If you find a concrete ledger error, keep the forecast tied to the same target and state the discrepancy in reasoning rather than silently changing the target.
+- catalogSlug: "us-manufacturing-production-mom-july-2026"
+- country: "US"
+- targetUnit: "percent_growth"
+- dataPointId: "fed.g17.manufacturing_production_mom.2026_07.first_print"
+- sourceBinding: {"adapter": "alfred-fred", "allowedHosts": ["alfred.stlouisfed.org"], "expectedReleaseWindow": {"end": "2026-08-18", "start": "2026-08-18"}, "field": "IPMAN", "releasePolicy": "first_print", "sourceSeriesId": "IPMAN", "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IPMAN", "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted", "transform": {"factor": 1, "operation": "multiply"}}
+- targetRegistrationPath: "records/targets/2026-07-27-0d63736cc967eb9230750b56083858fb59e269bc2b8d629918cec1b630bfbc54.json"
+- targetContentHash: "0d63736cc967eb9230750b56083858fb59e269bc2b8d629918cec1b630bfbc54"
+- registrationCommit: "e494ebc7a9b410a6fcffab9e5439408ff3d09413"
+- registeredAtUtc: "2026-07-27T18:01:44Z"
+# Rubric
+Check these items and name concrete fixes when needed:
+1. Exact resolver, source, first-print rule, and resolution date.
+2. Base-rate or persistence prior stated before inside-view updates.
+3. Time-series/model prior used or explicitly ruled out.
+4. Current evidence justifies material movement from the prior.
+5. Interval size comes from realized volatility or explicit uncertainty.
+6. A compact Prior/update/interval step names the prior, historical sample, adjustment components, interval method, and implied bounds.
+7. Tail scenarios are concrete and tied to the target.
+8. Point, interval, final forecast step, and JSON fields are coherent.
+9. No leakage, catalog point/interval circularity, subjective resolver, or unit ambiguity.
+
+# Required response
+Return JSON only, with this shape:
+{
+  "summary": "one sentence",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver|base_rate|model_prior|update|interval|prior_update_interval|tails|coherence|leakage",
+      "severity": "warning|blocking",
+      "summary": "specific issue",
+      "actionRequested": "specific change requested"
+    }
+  ],
+  "optionalSuggestions": ["short suggestions"]
+}
+
+# Original forecaster prompt hash material
+4487f0f8a1bf294675f67b60bb557871f2b9c7b37c78f0b8bffabbadf5fb3793
+
+# Draft forecast response
+{"slug":"us-manufacturing-production-mom-july-2026","country":"US","type":"data","title":"US manufacturing production m/m, July 2026","question":"Federal Reserve G.17 Manufacturing (NAICS) industrial production, seasonally adjusted monthly percent change for July 2026, first print","unit":"percent_growth","pointEstimate":0.1,"ciLow":-0.32,"ciHigh":0.52,"confidence":0.8,"resolutionDate":"2026-08-18","resolutionSource":"Federal Reserve G.17 Industrial Production and Capacity Utilization, Table 1","resolutionSourceUrl":"https://www.federalreserve.gov/releases/g17/current/table1.htm","resolutionRule":"Resolve to the first-print preliminary July 2026 monthly percent change for the G.17 Table 1 Manufacturing (NAICS) row, seasonally adjusted, as issued on August 18, 2026 at 9:15 a.m.; use the published one-decimal percent change and ignore later revisions or annual-revision updates. The ledger sourceBinding names IPMAN, an index series, while the target unit is percent_growth; this forecast is tied to the same target and interprets it as the official Table 1 monthly percent change implied by the IPMAN manufacturing NAICS index.","dataPointId":"fed.g17.manufacturing_production_mom.2026_07.first_print","historicalContext":[{"label":"June 2026 first/current G.17 Manufacturing (NAICS) m/m","value":0},{"label":"May 2026 G.17 Manufacturing (NAICS) m/m","value":0.1},{"label":"April 2026 G.17 Manufacturing (NAICS) m/m","value":0.7},{"label":"March 2026 G.17 Manufacturing (NAICS) m/m","value":0.1}],"drivers":["Recent manufacturing NAICS momentum slowed to 0.0 percent in June after 0.1 percent in May and 0.7 percent in April.","Second-quarter manufacturing NAICS growth was positive but front-loaded, with no clear June carry-through.","Durable manufacturing slipped in June while nondurable manufacturing rose, suggesting offsetting components rather than a broad surge.","Manufacturing capacity utilization remained below its long-run average, limiting inflationary production pressure but leaving room for modest output gains."],"sourceContext":["https://www.federalreserve.gov/releases/g17/","https://www.federalreserve.gov/releases/g17/current/table1.htm","https://www.federalreserve.gov/releases/g17/current/table4.htm","https://fred.stlouisfed.org/series/IPMAN"],"runAt":"2026-07-27T18:19:18Z","reasoning":[{"kind":"heading","text":"US Manufacturing Production July 2026 First Print"},{"kind":"text","text":"Framing and exact resolver: the target is the Federal Reserve G.17 Manufacturing (NAICS) industrial production monthly percent change, seasonally adjusted, for July 2026. I resolve on the first official print in Table 1; FRED/ALFRED IPMAN is used only as the public index mirror for the same Manufacturing (NAICS) series."},{"kind":"tool","tool":"official.lookup","call":"Federal Reserve G.17 release calendar lookup","result":"Fetched Fed calendar shows 2026 G.17 monthly release dates include July 17 as the most recent monthly release and August 18 as the next release; monthly releases are issued at 9:15 a.m.; listed 2026 dates include Jan 16, Feb 18, Mar 16, Apr 16, May 15, Jun 15, Jul 17, Aug 18, Sep 18, Oct 16, Nov 17, and Dec 16."},{"kind":"tool","tool":"official.lookup","call":"Federal Reserve G.17 current Table 1 percent-change lookup","result":"Fetched Table 1 Manufacturing (NAICS), seasonally adjusted monthly rates: Jan 2026 0.1, Feb 2026 0.7, Mar 2026 0.1, Apr 2026 0.7, May 2026 0.1, Jun 2026 0.0; Q2 2026 annual rate 4.6 and June 2025 to June 2026 change 1.1."},{"kind":"tool","tool":"official.lookup","call":"Federal Reserve G.17 current release industry-detail lookup","result":"Fetched current-release narrative: manufacturing output was unchanged in June at 0.0, durable manufacturing decreased 0.1, nondurable manufacturing increased 0.2, petroleum and coal products increased 2.1, and manufacturing output rose at a 4.7 annual rate in Q2."},{"kind":"tool","tool":"history.lookup","call":"FRED IPMAN exact index mirror lookup","result":"Fetched IPMAN index levels from FRED mirror: Jun 2026 98.6995, May 2026 98.6976, Apr 2026 98.5997, Mar 2026 97.8760, Feb 2026 97.7645; next release date shown as Aug 18, 2026."},{"kind":"text","text":"Reference class/base rate: using the same seasonally adjusted Manufacturing (NAICS) monthly-rate variant, the last six official monthly prints average 0.283 percent. I discount that upward mean because the latest month was flat, durable manufacturing was negative, and the Q2 strength appears front-loaded rather than accelerating into June."},{"kind":"math","text":"Prior/update/interval: persistence prior is recent Fed G.17 Manufacturing (NAICS) m/m prints from Jan-Jun 2026 [0.1, 0.7, 0.1, 0.7, 0.1, 0.0], with base rate mean 0.283; updates are -0.10 for June flatness, -0.05 for durable weakness, and -0.03 for front-loaded Q2, giving about 0.10 after rounding. For the 80% interval, sample dispersion of those monthly percent changes is sigma = 0.33, so half-width = 1.28*sigma = 1.28*0.33 = 0.42; point 0.10 minus/plus 0.42 gives [-0.32, 0.52]."},{"kind":"text","text":"Counter-considerations: upside risk is a July rebound in autos or high-tech manufacturing that would land above the interval; downside risk is a broad durable-goods pullback or plant shutdown effects that would land below the interval; outside the interval would require a monthly move larger than roughly 0.5 percent or below roughly -0.3 percent on the first print."},{"kind":"forecast","point":0.1,"ciLow":-0.32,"ciHigh":0.52}]}

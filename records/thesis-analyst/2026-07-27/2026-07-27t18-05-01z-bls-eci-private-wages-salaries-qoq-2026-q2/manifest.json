@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:05:01Z",
+  "runStartedAt": "2026-07-27T18:05:01Z",
+  "series": "bls.eci.private_wages_salaries_qoq",
+  "period": "2026-Q2",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-eci-private-wages-salaries-q2-2026",
+    "country": "US",
+    "dataPointId": "bls.eci.private_wages_salaries_qoq.2026_q2.first_print",
+    "expectedReleaseDate": "2026-07-31",
+    "period": "2026-Q2",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/eci.htm",
+    "seedPeriod": "2026-Q2",
+    "series": "bls.eci.private_wages_salaries_qoq",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-07-31",
+        "start": "2026-07-31"
+      },
+      "field": "ECIWAG",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "ECIWAG",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=ECIWAG",
+      "table": "Employment Cost Index, Table 2",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "0f63a03dec8b1cb1324bca89ad73fb779cc5a0395655c4675dfaf567a583fd08",
+    "targetRegistrationPath": "records/targets/2026-07-27-0f63a03dec8b1cb1324bca89ad73fb779cc5a0395655c4675dfaf567a583fd08.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "0f63a03dec8b1cb1324bca89ad73fb779cc5a0395655c4675dfaf567a583fd08",
+  "targetRegistrationPath": "records/targets/2026-07-27-0f63a03dec8b1cb1324bca89ad73fb779cc5a0395655c4675dfaf567a583fd08.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:05:01Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "a5ac569b70e0f20faebb148b51b1a4c5e98456092e4eb82d9e6e3b097192639f"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "Draft resolver fields use BLS Table 2 as the resolution source URL, while the canonical target contract binds this target to ALFRED/FRED adapter `alfred-fred`, allowed host `alfred.stlouisfed.org`, field/sourceSeriesId `ECIWAG`, and first-print policy.",
+        "actionRequested": "Either set the JSON resolver/source fields to match the ledger ALFRED first-print binding, or explicitly state in the reasoning that the ledger binding appears inconsistent with the official BLS resolver and that the forecast remains tied to the same catalog target despite that discrepancy."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The compact prior/update/interval step is strong; consider making the blend weights explicit if the validator expects a machine-checkable prior calculation."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The tail scenarios are adequate, but naming specific ECI-sensitive sectors or compensation components would make them slightly more target-specific."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning the resolver fields with the canonical ALFRED/FRED ECIWAG first-print binding while retaining BLS Table 2 as the official underlying source; rejected no numerical changes because the prior, sigma calculation, and risk scenarios remained internally coherent.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning the resolver fields with the canonical ALFRED/FRED ECIWAG first-print binding while retaining BLS Table 2 as the official underlying source; rejected no numerical changes because the prior, sigma calculation, and risk scenarios remained internally coherent.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning the resolver fields with the canonical ALFRED/FRED ECIWAG first-print binding while retaining BLS Table 2 as the official underlying source; rejected no numerical changes because the prior, sigma calculation, and risk scenarios remained internally coherent.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is mostly coherent, but its resolver/source fields conflict with the canonical ledger binding and should be aligned or explicitly flagged as a ledger discrepancy before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/prompt.md",
+      "sha256": "929cf1543882014661a28ce6f371b9e65b4e975bc3e15d94bda32062feccef4f",
+      "bytes": 8869,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_command.json",
+      "sha256": "5484f1c14e924a188c41de496e25e87779e86c69b16874b386c2fde3436e9800",
+      "bytes": 739,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_codex_stdout.jsonl",
+      "sha256": "d45c70db6c794235ea03fa6dc1ba6e62c25bc0e41f61b05f07b7fc8e5411c8fe",
+      "bytes": 15205,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_codex_stderr.log",
+      "sha256": "7702462650d8ae14b00cba22e67c8394f2adf831a1c9d5ec8ee70c6f3dc56f35",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_codex_events.jsonl",
+      "sha256": "5f3a57f2b9323a4fb76a2e41f72e8e83d290fd30263a537ed7bbad00fdfca27a",
+      "bytes": 15174,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_codex_last_message.txt",
+      "sha256": "3f30c3c70324cb576293c017ffd6f3955c4e61a7a8167f70236ba0262f1222aa",
+      "bytes": 5491,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_codex_trace.json",
+      "sha256": "a594f7e0ff380ab91b5fda8db2921a84fec203aa7f8877b1250ac72974a22674",
+      "bytes": 533,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_stdout.txt",
+      "sha256": "3f30c3c70324cb576293c017ffd6f3955c4e61a7a8167f70236ba0262f1222aa",
+      "bytes": 5491,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/draft_stderr.txt",
+      "sha256": "96fd2fb2c7ee16f84003985abb838f24c2fd3fbd26fd8d22de29ae787cd4879a",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_prompt.md",
+      "sha256": "323f2e6ea2368420cf954c411a86e94b265989f415e7b451a8f8b6e5b97af3a9",
+      "bytes": 8513,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_command.json",
+      "sha256": "3b15ecf3bc749fc44c9445287543a3e916a9871caa1489316a5e0828065de629",
+      "bytes": 735,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "02b52c39cb9cdfbde010cf86a06eb9779656f9d7e5599e11bb5d70a60d889dc9",
+      "bytes": 1524,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_codex_stderr.log",
+      "sha256": "9c861c21aac254609cb74bd95a4b750453e376aa014c68d59011a952ff311adc",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_codex_events.jsonl",
+      "sha256": "ef35faddac3f9765737ed1d1f83cf88ab97ac29869b859143ebbc4e07f1e7f8b",
+      "bytes": 1546,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_codex_last_message.txt",
+      "sha256": "fc77bdd8e9c089ee4ff6a2876c8b37ba246b9b1ab10ed28288dd55ab12054ff2",
+      "bytes": 1182,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_codex_trace.json",
+      "sha256": "3d8ddba38953b4d8bbc7c5c6d67ff17e1f2237e69063fcf8500f5a0be313a1aa",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_stdout.txt",
+      "sha256": "fc77bdd8e9c089ee4ff6a2876c8b37ba246b9b1ab10ed28288dd55ab12054ff2",
+      "bytes": 1182,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/pre_submit_review_stderr.txt",
+      "sha256": "b3d432b9c9ddf83a4634310b609e454565eb5eddc7ad4a8a294e78d2a063d787",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/revision_prompt.md",
+      "sha256": "ba347cbd4e87b0be1043d365c099e8bfc46ed55deafd2ec11c2a725c9052c63c",
+      "bytes": 16478,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/command.json",
+      "sha256": "c282d6dba1e24990b618a2d9a7181fe69ef6cbb0be90905552d4e8ee18f38d00",
+      "bytes": 733,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/codex_stdout.jsonl",
+      "sha256": "c41d0d793b9a18786cca831e0bb79d44d540615814d1e40eecdd710004a18b33",
+      "bytes": 6573,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/codex_stderr.log",
+      "sha256": "c27739e7faf1d0d5623047f45da8b3f18adb044928b27e3e0676dd8b1a6f5e2b",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/codex_events.jsonl",
+      "sha256": "f516381dc6a23ec5b3f4d1c600cb90011a28272a9c95f3d952ce7e640d79a867",
+      "bytes": 6595,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/codex_last_message.txt",
+      "sha256": "5d502c07e38c5ec3a2106e4d89c77e65f2353f6360e0acf02638cc5fd12c604a",
+      "bytes": 6018,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/codex_trace.json",
+      "sha256": "fd6b2094b84e5e5f4d6e15dada8bc1e37c7cb56c32ff84a78137e9f17f268d5c",
+      "bytes": 531,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/stdout.txt",
+      "sha256": "5d502c07e38c5ec3a2106e4d89c77e65f2353f6360e0acf02638cc5fd12c604a",
+      "bytes": 6018,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/stderr.txt",
+      "sha256": "82ee19cc4b642e31f05de7b8cbd6f2dca209100f0a4615f7d0a82927655369a9",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/raw_response.txt",
+      "sha256": "5d502c07e38c5ec3a2106e4d89c77e65f2353f6360e0acf02638cc5fd12c604a",
+      "bytes": 6018,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/parsed_cells.json",
+      "sha256": "67c94bcbff09c941142dcb1affc568657eed2a5c08f02a48732fb3854adc872c",
+      "bytes": 6881,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/normalized_cells.json",
+      "sha256": "1a941072962dafd7f7342ce394ed1712e496f6b0d40eb6050fe382745fb6eee1",
+      "bytes": 24373,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/distribution.json",
+      "sha256": "5fbb30bcc8d86eca3a901c7395fc3614843ac7a48798b6da4c3335de62eca24f",
+      "bytes": 13708,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/validation.json",
+      "sha256": "8bf80f8c91a8519848dd68260d938281ee30a1a18476bdd85a501af846a2e239",
+      "bytes": 138,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/cells.with_activity.json",
+      "sha256": "6fdf30252b4b33bda7537878b10245947fe29779ebb21720e31f8477fd84745f",
+      "bytes": 39633,
+      "createdAt": "2026-07-27T18:05:01Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-05-01z-bls-eci-private-wages-salaries-qoq-2026-q2/manifest.json",
+      "sha256": "848317fd716653ab6215a33ff1da3c683122651eb9a92c025a302e995251e3a0",
+      "bytes": 15475,
+      "createdAt": "2026-07-27T18:05:01Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-eci-private-wages-salaries-q2-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "7d4af14ee1de8256ba1de783e5f454c207c1d17787f42b862e29733a5668e1ba"
+}

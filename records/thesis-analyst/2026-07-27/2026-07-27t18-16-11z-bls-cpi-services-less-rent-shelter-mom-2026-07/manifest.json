@@ -1,0 +1,394 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:16:11Z",
+  "runStartedAt": "2026-07-27T18:16:11Z",
+  "series": "bls.cpi.services_less_rent_shelter_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-cpi-services-less-rent-shelter-mom-july-2026",
+    "country": "US",
+    "dataPointId": "bls.cpi.services_less_rent_shelter_mom.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-12",
+    "period": "2026-07",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+    "seedPeriod": "2026-07",
+    "series": "bls.cpi.services_less_rent_shelter_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-12",
+        "start": "2026-08-12"
+      },
+      "field": "CUSR0000SASL2RS",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "CUSR0000SASL2RS",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASL2RS",
+      "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "96ae13a7a4c7892280e19138755800c7274635b165ef4bad3336b4cccc78e6cf",
+    "targetRegistrationPath": "records/targets/2026-07-27-96ae13a7a4c7892280e19138755800c7274635b165ef4bad3336b4cccc78e6cf.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "96ae13a7a4c7892280e19138755800c7274635b165ef4bad3336b4cccc78e6cf",
+  "targetRegistrationPath": "records/targets/2026-07-27-96ae13a7a4c7892280e19138755800c7274635b165ef4bad3336b4cccc78e6cf.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:16:11Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "b40d0d59b853283dc5d53c84c8e9245954551a9d7137f037fb7ba38ce83562b2"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft JSON uses BLS/data.bls.gov as resolutionSourceUrl, while the ledger contract binds resolution to the ALFRED-FRED adapter, allowed host alfred.stlouisfed.org, and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASL2RS.",
+        "actionRequested": "Align resolutionSourceUrl and resolver wording with the canonical ledger sourceBinding, while optionally noting that ALFRED mirrors the official BLS series and first-print vintage."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "coherence",
+        "summary": "The reasoning correctly notes a ledger ambiguity between the level index source and percent_growth target, but the published resolver fields should make the MoM transformation explicit in the same terms as the target contract.",
+        "actionRequested": "Keep the same target and dataPointId, and ensure the final resolutionRule states that the July 2026 first-print MoM percent growth is computed from the first-print CUSR0000SASL2RS index values."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Replace the FRED sourceContext URL with the ALFRED ledger URL or add ALFRED alongside official BLS context."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State that the interval uses a short 10-observation realized-volatility sample so readers understand the sample-size limitation."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the canonical ALFRED ledger URL and making the MoM transformation from first-print CUSR0000SASL2RS index values explicit; accepted the optional ALFRED source-context and short-sample uncertainty clarification.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the canonical ALFRED ledger URL and making the MoM transformation from first-print CUSR0000SASL2RS index values explicit; accepted the optional ALFRED source-context and short-sample uncertainty clarification.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the canonical ALFRED ledger URL and making the MoM transformation from first-print CUSR0000SASL2RS index values explicit; accepted the optional ALFRED source-context and short-sample uncertainty clarification.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl with the canonical ALFRED ledger URL and making the MoM transformation from first-print CUSR0000SASL2RS index values explicit; accepted the optional ALFRED source-context and short-sample uncertainty clarification.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready methodologically, but its resolver/source fields do not match the canonical ledger sourceBinding."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/prompt.md",
+      "sha256": "ad0855d6f3d87a844b1d7c9dc6f9921c73009967d07f5fa43e3cb3fe936df22a",
+      "bytes": 8952,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_command.json",
+      "sha256": "804d6cef3157bc775f7c75a1b189962301bfbe5de9eba46d39165ca28d9a4ec9",
+      "bytes": 743,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "f2cb90b5e90d2086d7863df4b699d0599eeb3099aa0095d7759989cf60bd432d",
+      "bytes": 12240,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "70868026c51716e052a214a7dbf2e1c7e0316fc568df0f366b37896643d5a8b3",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "c7e37d9dce2118054671976d07012b40935f9947ae3339ac8995e3568a4acf1b",
+      "bytes": 12222,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "a37bf52bd5ed71145e8f0ccbfcd986cfca0e4b5cb3c5f7dd7a65b368669b098b",
+      "bytes": 5813,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_codex_trace.json",
+      "sha256": "c77e998135a31c6703e1ed2800e20efde3431edea13a5e92b2ce6dea2c06892e",
+      "bytes": 533,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_stdout.txt",
+      "sha256": "a37bf52bd5ed71145e8f0ccbfcd986cfca0e4b5cb3c5f7dd7a65b368669b098b",
+      "bytes": 5813,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/draft_stderr.txt",
+      "sha256": "6e20a631e790a46691625742b03fcccc889a99e8a54f5b40ec51f9bc447b46f2",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "91800bfc26217ad1ab71519f97be962127464444d833cb9063cd31dfa0fd19d3",
+      "bytes": 8918,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "4fdab68574ee4e7f9232b1ec71dabbe7ac18dffda2004b33ea12a154ddcde87f",
+      "bytes": 739,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "4512affdf65a3ce5f2e74879d62a6e745508f047bccb5d6146a8db91e4c90abf",
+      "bytes": 1935,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "74b99634f29cd5d135ea5864b6341f5706a94fbb71d84d37cb372b1a9a4e0c8d",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "dcaf152a05199c495bf8056c44db75da6ef64037a082be64c52c4cf6536440a4",
+      "bytes": 1957,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "d77b310148c640ab29073a78407e98ccbd4d14bdaaaecde668fd49be96e93fe2",
+      "bytes": 1557,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "96687f8b5a1f4d4c2b0e1bfc2c803ce5934194cbb2b1a2a13b5da043ae709eec",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "d77b310148c640ab29073a78407e98ccbd4d14bdaaaecde668fd49be96e93fe2",
+      "bytes": 1557,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "78fbbd419b204ba137c3d9e26308761b83ad8e221600f07a4e4031674d3b2c5f",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/revision_prompt.md",
+      "sha256": "f052e610cb0b292a65efaef717068fc464d33bd6e8517ff04603ccb94e5c0bb2",
+      "bytes": 17258,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/command.json",
+      "sha256": "b2a3fd797878c3998b9c331450e8fe6627bd775e5430a58fdc44fc3f83ce079b",
+      "bytes": 737,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "86b533fdabd2ee51016765815d7145808b7dfe241836697ca7c91bbc0f54ae96",
+      "bytes": 6753,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/codex_stderr.log",
+      "sha256": "8c15dc39602519d94c9896a044d96afa7e1a45c3013542bd6f513208669c3275",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/codex_events.jsonl",
+      "sha256": "4ba9d63563d661b6123cb5c4f19cf897bd02d235982bfd8fa916b342397a809c",
+      "bytes": 6775,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/codex_last_message.txt",
+      "sha256": "c62927280f556695578d264e96157bd716a44db6cbde48decb9045d21fd6bb55",
+      "bytes": 6208,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/codex_trace.json",
+      "sha256": "59cc3adea4a78c833da1050793f1853177d5b40f5dff2081dd0c06f472582a28",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/stdout.txt",
+      "sha256": "c62927280f556695578d264e96157bd716a44db6cbde48decb9045d21fd6bb55",
+      "bytes": 6208,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/stderr.txt",
+      "sha256": "d51d33963d767ceefb721db93f8728f1364757ee47eb9850b385d2d61e55a093",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/raw_response.txt",
+      "sha256": "c62927280f556695578d264e96157bd716a44db6cbde48decb9045d21fd6bb55",
+      "bytes": 6208,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/parsed_cells.json",
+      "sha256": "2f24b28ebf49ab3f3b4a0cb6fa26e0b02d47a69527a219ab02e57415d287b9a6",
+      "bytes": 7050,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/normalized_cells.json",
+      "sha256": "880803132d7a04bd5cd8aa49207f7fa1e1fe2650b23586f5bfddabe4bb03ad7c",
+      "bytes": 24298,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/distribution.json",
+      "sha256": "9d4166ea0b293af7c04a7671bd69d37a441f8a761b2c1e32667f1bb234abfa93",
+      "bytes": 13464,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/validation.json",
+      "sha256": "053aa3efe345c540e55a393f02c9fba672fc00b43f77aafcaade55454fef0d33",
+      "bytes": 148,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/cells.with_activity.json",
+      "sha256": "2f295184cd0038d193e141f0b39aab48271838a0e694b2d1f0c8ab471882e83c",
+      "bytes": 40431,
+      "createdAt": "2026-07-27T18:16:11Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-16-11z-bls-cpi-services-less-rent-shelter-mom-2026-07/manifest.json",
+      "sha256": "50ae2971884ecba8e17df2d4d259cc2ba5eb20ad30a8a9f64b3a7178f50c2cb5",
+      "bytes": 16307,
+      "createdAt": "2026-07-27T18:16:11Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-cpi-services-less-rent-shelter-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "89b60118fc7115b14524370263bae8830425f493cd07d473b8bc6b804000725b"
+}

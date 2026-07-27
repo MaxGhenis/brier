@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is mostly coherent, but the resolver/source fields do not exactly follow the canonical ledger contract and the interval relies on a very short six-month sample.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft's resolutionSource and resolutionSourceUrl point to Federal Reserve Table 1, while the canonical ledger sourceBinding specifies the ALFRED/FRED IPMAN CSV, allowed host alfred.stlouisfed.org, and first_print policy.",
+      "actionRequested": "Align the resolver fields with the ledger sourceBinding, or explicitly state the ledger discrepancy while keeping the target tied to the ledger dataPointId and sourceBinding rather than silently substituting a different resolver URL."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The 80% interval uses sigma from only Jan-Jun 2026, which is a very small and unusually recent sample for realized volatility.",
+      "actionRequested": "Either use a longer realized-volatility sample for Manufacturing m/m changes or justify why the six-month sample is the intended uncertainty basis."
+    }
+  ],
+  "optionalSuggestions": [
+    "Clarify whether the ALFRED IPMAN index first print will be converted to a monthly percent change or whether the published one-decimal Table 1 percent change is authoritative.",
+    "The tail scenarios are concrete, but they could name which July subcomponents would plausibly move the aggregate outside the stated bounds."
+  ]
+}

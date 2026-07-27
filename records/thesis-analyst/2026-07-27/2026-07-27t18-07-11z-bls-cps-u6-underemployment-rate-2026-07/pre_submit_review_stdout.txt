@@ -1,0 +1,16 @@
+{
+  "summary": "Draft is mostly publication-ready, but the resolver/source fields should be aligned with the canonical ledger binding before publication.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "Draft JSON uses BLS Table A-15 URL as resolutionSourceUrl, while the ledger sourceBinding resolves mechanically through ALFRED U6RATE first-print capture.",
+      "actionRequested": "Make the resolver text explicitly match the target contract: July 2026 first-print U6RATE via the ledger ALFRED binding, while noting BLS Table A-15 is the underlying official release."
+    }
+  ],
+  "optionalSuggestions": [
+    "The Jan-Jun-only volatility sample is compact but very short; consider stating that the narrow 80% interval is based on recent monthly realized moves and rounded first-print granularity.",
+    "The tail scenarios are adequate; adding explicit example values such as 8.2+ and 7.6 or lower already makes them concrete.",
+    "Check that sourceContext does not imply FRED, rather than ALFRED first vintage or BLS Table A-15, is the final resolver."
+  ]
+}

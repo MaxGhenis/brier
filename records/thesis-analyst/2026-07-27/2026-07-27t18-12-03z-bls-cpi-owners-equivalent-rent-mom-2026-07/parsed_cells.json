@@ -1,0 +1,111 @@
+[
+  {
+    "slug": "us-cpi-owners-equivalent-rent-mom-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US CPI OER MoM, July 2026",
+    "question": "What will the first-print month-over-month percent change be for BLS CPI-U Owners' equivalent rent of residences in U.S. city average, seasonally adjusted, series CUSR0000SEHC, for July 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 0.25,
+    "ciLow": 0.1,
+    "ciHigh": 0.4,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-12",
+    "resolutionSource": "ALFRED/FRED first-vintage capture of originating BLS CPI-U series CUSR0000SEHC",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SEHC",
+    "resolutionRule": "Resolve to the first-print July 2026 seasonally adjusted CPI-U Owners' equivalent rent of residences index for U.S. city average, series CUSR0000SEHC, as captured by the ledger's ALFRED first-print source binding after the BLS Consumer Price Index release on August 12, 2026. Compute percent_growth as (July 2026 index / June 2026 index - 1) * 100 using the first published index values, rounded to two decimals for this forecast cell; ignore later revisions, annual seasonal-adjustment revisions, and non-first-vintage backfills.",
+    "dataPointId": "bls.cpi.owners_equivalent_rent_mom.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "Jun 2026 MoM from BLS index 441.741 vs 440.683",
+        "value": 0.24
+      },
+      {
+        "label": "May 2026 MoM from BLS index 440.683 vs 439.379",
+        "value": 0.297
+      },
+      {
+        "label": "Apr 2026 MoM from BLS index 439.379 vs 437.051",
+        "value": 0.533
+      },
+      {
+        "label": "Mar 2026 MoM from BLS index 437.051 vs 435.813",
+        "value": 0.284
+      }
+    ],
+    "drivers": [
+      "Recent OER monthly growth slowed to 0.24% in June after a 0.53% April spike and 0.30% May reading",
+      "June CPI release said shelter rose only 0.1% while OER rose 0.2%, favoring a below-early-2026 pace",
+      "OER is a large and lagged shelter component, so month-to-month volatility is usually limited versus energy or goods",
+      "First-print target is seasonally adjusted CPI-U series CUSR0000SEHC, not NSA shelter or rent of primary residence"
+    ],
+    "sourceContext": [
+      "https://www.bls.gov/schedule/news_release/cpi.htm",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SEHC",
+      "https://data.bls.gov/timeseries/CUSR0000SEHC",
+      "https://www.bls.gov/news.release/cpi.nr0.htm?form=MG0AV3",
+      "https://www.bls.gov/cpi/factsheets/owners-equivalent-rent-and-rent.htm"
+    ],
+    "runAt": "2026-07-27T18:12:12Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "Forecast for July 2026 CPI-U owners' equivalent rent MoM"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: the target is BLS CPI-U Owners' equivalent rent of residences in U.S. city average, seasonally adjusted, series CUSR0000SEHC. The forecast is the July 2026 first-print month-over-month percent change, computed from the first published July and June index levels; this uses the same seasonally adjusted variant for all anchors."
+      },
+      {
+        "kind": "text",
+        "text": "Resolver alignment: BLS is the originating official agency for the CPI-U series, while the canonical ledger target binds resolution to ALFRED/FRED first-vintage capture at alfred.stlouisfed.org for CUSR0000SEHC. The JSON resolver fields follow that ledger source binding and first_print policy."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS Consumer Price Index release calendar for the July 2026 reference month.",
+        "result": "BLS lists Consumer Price Index for July 2026 with release date Aug. 12, 2026 and release time 08:30 AM; adjacent CPI release rows include June 2026 on Jul. 14, 2026 and August 2026 on Sep. 11, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Fetched BLS public time-series table for CUSR0000SEHC, seasonally adjusted CPI-U owners' equivalent rent of residences.",
+        "result": "BLS table shows CUSR0000SEHC values: Dec 2025 433.884, Jan 2026 434.837, Feb 2026 435.813, Mar 2026 437.051, Apr 2026 439.379, May 2026 440.683, Jun 2026 441.741."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the June 2026 BLS CPI news release for contemporaneous shelter and OER context.",
+        "result": "BLS reported all-items CPI -0.4% SA in June 2026, all items less food and energy 0.0%, shelter +0.1%, and owners' equivalent rent +0.2% in June 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked the BLS rent and owners' equivalent rent factsheet for component importance and definition context.",
+        "result": "BLS relative-importance table for December 2025 lists shelter at 35.625, owners' equivalent rent of residences at 26.204, rent of primary residence at 7.840, and lodging away from home at 1.289 percent of the CPI market basket."
+      },
+      {
+        "kind": "text",
+        "text": "Base rate/reference class: using the latest continuous official CUSR0000SEHC history visible before resolution from Dec 2025 through Jun 2026 as a close proxy for first-print-style recent behavior, the six observed 2026 monthly changes are 0.220%, 0.224%, 0.284%, 0.533%, 0.297%, and 0.240%, with a mean near 0.300%. The June rounded OER print of 0.2% and the softer shelter aggregate argue for a July point below that six-month mean but not a break from the positive OER trend."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is recent official CUSR0000SEHC MoM history, with the Jan-Jun 2026 reference class above. Adjustment components: start from the six-month mean 0.300%, subtract 0.04 pp for the latest June 0.240% value being below the mean, subtract 0.01 pp because June shelter was only 0.1%, and keep 0.00 pp for one-off energy/goods effects because they do not directly drive OER. Point = 0.300 - 0.040 - 0.010 = 0.250%. Interval method: realized sample dispersion of the six monthly OER values gives sigma = 0.118 percentage points; 1.28*sigma = 0.151 pp, so the 80% interval is about 0.250 +/- 0.151 = 0.099 to 0.401, rounded to 0.10 to 0.40."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk is a renewed catch-up in sampled rents after April's 0.533% jump, which would land above the interval if July OER prints above 0.40%. Downside risk is a broad shelter deceleration following June's 0.1% shelter increase, which would land below the interval if July OER is under 0.10%. Outside the interval would likely require either another April-like rotation shock or an abrupt near-zero rent-equivalence print."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and rule to the canonical ALFRED first-print source binding while preserving BLS as the originating official agency; accepted the clarification that Jan-Jun history is current official history used as a close proxy, not independently certified first-vintage evidence. Kept the sigma-based interval and tail scenarios unchanged."
+      },
+      {
+        "kind": "forecast",
+        "point": 0.25,
+        "ciLow": 0.1,
+        "ciHigh": 0.4
+      }
+    ]
+  }
+]

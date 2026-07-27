@@ -1,0 +1,394 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:20:57Z",
+  "runStartedAt": "2026-07-27T18:20:57Z",
+  "series": "fed.g17.capacity_utilization.manufacturing",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-manufacturing-capacity-utilization-july-2026",
+    "country": "US",
+    "dataPointId": "fed.g17.capacity_utilization.manufacturing.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-18",
+    "period": "2026-07",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.federalreserve.gov/releases/g17/release_dates.htm",
+    "seedPeriod": "2026-07",
+    "series": "fed.g17.capacity_utilization.manufacturing",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-18",
+        "start": "2026-08-18"
+      },
+      "field": "MCUMFN",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "MCUMFN",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN",
+      "table": "G.17 Industrial Production and Capacity Utilization, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "167f5471ea86744d26e7cd36429c333400053dd1c4f2316c37683345a1f29134",
+    "targetRegistrationPath": "records/targets/2026-07-27-167f5471ea86744d26e7cd36429c333400053dd1c4f2316c37683345a1f29134.json",
+    "targetUnit": "percent",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "167f5471ea86744d26e7cd36429c333400053dd1c4f2316c37683345a1f29134",
+  "targetRegistrationPath": "records/targets/2026-07-27-167f5471ea86744d26e7cd36429c333400053dd1c4f2316c37683345a1f29134.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:20:57Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "d30657831484457a338abb93e253f341976cf3df089e799c100fca677b606b4d"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft resolutionSourceUrl points to the Federal Reserve current table, while the canonical ledger sourceBinding resolves through ALFRED/FRED adapter with allowed host alfred.stlouisfed.org and sourceUrl https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=MCUMFN.",
+        "actionRequested": "Change the JSON resolver/source URL fields to match the ledger ALFRED first-print binding, or explicitly state in reasoning that the Fed table is the official human-facing source while the machine resolver is the ledger ALFRED MCUMFN first-print vintage."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "interval",
+        "summary": "The 80% interval is based on only five recent monthly changes and mixes rounded official table values with exact FRED detail, which makes the sigma estimate fragile.",
+        "actionRequested": "Name this as a short-run volatility proxy and either add a longer realized monthly-change reference sample or explicitly justify why the narrow recent-window sigma is appropriate for this target."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the Prior/update/interval step, clarify whether the exact Feb-Jun observations are current vintage or first-print vintage."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the Fed G.17 current table citation as public evidence, but make the final machine-resolution path unambiguous."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making the ALFRED MCUMFN first-print vintage the machine-resolution URL while retaining the Federal Reserve G.17 table as official release evidence; accepted the interval critique by labeling the sigma as a short-run realized monthly-change proxy and caveating the mixed rounded/exact current-vintage sample.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publishable, but the resolver/source binding should be aligned to the canonical ALFRED first-print target contract and the interval method should avoid relying on an extremely short mixed rounded/exact sample without caveat."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/prompt.md",
+      "sha256": "355a0c354708f6d1e6b1b4150150aadc8b2b9fa1b2b68b121d9b483d206d9a34",
+      "bytes": 8938,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_command.json",
+      "sha256": "7b2fb4c93240aa2f72e1acaafef8472faf0fde4172c05271ff598c7642fbeb43",
+      "bytes": 747,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c835654fd8d0dcf253facb8087b31b8e5f2a2119723d95243b79903393009cd7",
+      "bytes": 11705,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_stderr.log",
+      "sha256": "5f2d141ff5ac6d15ae7e2bd97a23093764d30f03b97d787b362568544e8b15f7",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_events.jsonl",
+      "sha256": "d3d304f9183800b5418c83ae6842dc31ba3c304ae23fe09d999733843eed9532",
+      "bytes": 11693,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_last_message.txt",
+      "sha256": "4ef71f6d93896c081c72ecce7f83a40e1b9094c731dad1887b72ea20f45fa706",
+      "bytes": 5610,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_codex_trace.json",
+      "sha256": "17952aa6bc15962c6855065f0752bc03d5c93e446af2215f953475e655b1b4c0",
+      "bytes": 533,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_stdout.txt",
+      "sha256": "4ef71f6d93896c081c72ecce7f83a40e1b9094c731dad1887b72ea20f45fa706",
+      "bytes": 5610,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/draft_stderr.txt",
+      "sha256": "79e85ca1c9bae4378aeabd7f6872736796fa39ace3f2f4f56b33e52509b92d1e",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_prompt.md",
+      "sha256": "0170c80aa57c07b6111a78389f1e6234f51ef23d4184a157f5949e56a1ec1d78",
+      "bytes": 8701,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_command.json",
+      "sha256": "307b66abaedc8bb0264065c73a19036f6214169d008c4d5cf5d46093d8a7fc9f",
+      "bytes": 743,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "9c196a1661328736d48d7a09d1426e9df9e1be959b60e27dbbc63a7fb7ad735b",
+      "bytes": 2080,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "d143d9be4931bae9586eeb2f88c87ccc9aa5848dfa9f9eb171b0abc4e57e67b8",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "28e5e763e2c89ecbc85cc8457a9e58f59809e422beda185325c10d632074629e",
+      "bytes": 2102,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "013a7b5c9199ae062d12e73b2d93b219e9676985cb479c2d08ca66a6a2d98178",
+      "bytes": 1702,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "8fd2c00d48999fe8889a62b16beecf6ba5e1d4f0f2268b1d83c19b23027798eb",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "013a7b5c9199ae062d12e73b2d93b219e9676985cb479c2d08ca66a6a2d98178",
+      "bytes": 1702,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "b0e44139aa2809a3a5968303f4ccd93500fe03dfc27a0a7fe5e4125012b8bc0a",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/revision_prompt.md",
+      "sha256": "219c15d5a6164fa92d3122c9a2279d78ebe3577ebb1ce20b7cbcfd906e6f89b9",
+      "bytes": 17186,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/command.json",
+      "sha256": "080e72bce07f2eb3e1664bd68eb18ec3a0dadf5579ccce22d8eb621b9a12b9d1",
+      "bytes": 741,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_stdout.jsonl",
+      "sha256": "01d38a7f30041db3bfe9103aa83a33d9b66e0fc42dc0873d4ac59ad19ef0292e",
+      "bytes": 7051,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_stderr.log",
+      "sha256": "e785bac166586ca7a1ba5cf45850117785c54d6ffe7cf48d01ac1b06ffab2ecd",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_events.jsonl",
+      "sha256": "a98b9ff5a422507f41f1cc18e760fb8bf3f3cd7a39d0348145a3125934c66ef1",
+      "bytes": 7073,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_last_message.txt",
+      "sha256": "7eb5afb28478727e89e93050a8b7c4b3347074032491d5b308e12d342adc318b",
+      "bytes": 6498,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/codex_trace.json",
+      "sha256": "42a879633c9f11e8ce4d8285a7b5ea93a552b0d723d5b1d0bb27909532d67dbc",
+      "bytes": 531,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/stdout.txt",
+      "sha256": "7eb5afb28478727e89e93050a8b7c4b3347074032491d5b308e12d342adc318b",
+      "bytes": 6498,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/stderr.txt",
+      "sha256": "1bca81bc77e5c676f72bd83ef436625fdb4f5b7719a642866deee2cb66c4d8c0",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/raw_response.txt",
+      "sha256": "7eb5afb28478727e89e93050a8b7c4b3347074032491d5b308e12d342adc318b",
+      "bytes": 6498,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/parsed_cells.json",
+      "sha256": "601f4b6d70d6d402a2261c55134d5ea4a3d70680ca63854a84f262779e82c473",
+      "bytes": 7354,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/normalized_cells.json",
+      "sha256": "41659b36bfbce4547cda22fc41264601f4d1846ed5fea81117adc0f355c0bb1e",
+      "bytes": 25023,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/distribution.json",
+      "sha256": "0e046a6a34356e4322caa23f10298925f0ff61b6bc9a741bde75c579c1aa1249",
+      "bytes": 13885,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/validation.json",
+      "sha256": "ee81951de00252fb92700224dbf4018abb3817650e319066f67a6d8876532e70",
+      "bytes": 148,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/cells.with_activity.json",
+      "sha256": "52a97361f0f7b26b2677165486954da1af0456311ff4f3b794535205d12e7ace",
+      "bytes": 41701,
+      "createdAt": "2026-07-27T18:20:57Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-20-57z-fed-g17-capacity-utilization-manufacturing-2026-07/manifest.json",
+      "sha256": "606613f264c9aa4331fa07e4caa8164703a48310ee0c3a45645c06122377b5a5",
+      "bytes": 16862,
+      "createdAt": "2026-07-27T18:20:57Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-manufacturing-capacity-utilization-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "86abc621b1c7828a4186d79780216946cb65e3618c503328fdd44a3a628df1cf"
+}

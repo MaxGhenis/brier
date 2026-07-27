@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:13:47Z",
+  "runStartedAt": "2026-07-27T18:13:47Z",
+  "series": "bls.cpi.services_less_energy_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-cpi-services-less-energy-mom-july-2026",
+    "country": "US",
+    "dataPointId": "bls.cpi.services_less_energy_mom.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-12",
+    "period": "2026-07",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/cpi.htm",
+    "seedPeriod": "2026-07",
+    "series": "bls.cpi.services_less_energy_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-12",
+        "start": "2026-08-12"
+      },
+      "field": "CUSR0000SASLE",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "CUSR0000SASLE",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=CUSR0000SASLE",
+      "table": "Consumer Price Index, U.S. city average, monthly seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "d4cbafc02be2045165c04afda95ee8ed75921c46bf61e22e936098333d04f69a",
+    "targetRegistrationPath": "records/targets/2026-07-27-d4cbafc02be2045165c04afda95ee8ed75921c46bf61e22e936098333d04f69a.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "d4cbafc02be2045165c04afda95ee8ed75921c46bf61e22e936098333d04f69a",
+  "targetRegistrationPath": "records/targets/2026-07-27-d4cbafc02be2045165c04afda95ee8ed75921c46bf61e22e936098333d04f69a.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:13:47Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "7633e7a180d835104b0edce45d579c642b01443c9d58624363466675398c0211"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft resolutionSourceUrl and resolver text use BLS/Table A as the operative resolver, while the canonical ledger sourceBinding specifies the ALFRED CUSR0000SASLE CSV and first-print policy as the registered resolver source.",
+        "actionRequested": "Keep the same target, but make the published resolver fields explicitly match the ledger sourceBinding/sourceUrl and first-print rule, while retaining the noted concern that the ledger exposes an index series for a percent-growth target."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the compact prior/update/interval step, state whether the sample standard deviation is computed from rounded Table A values and note that this may understate or distort first-print index-derived volatility."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the 80% interval is symmetric around the adjusted point and inherits uncertainty from both monthly noise and the possible index-to-MoM resolver conversion."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and the resolution rule to the registered ALFRED CUSR0000SASLE first-vintage sourceBinding, while retaining the public note that the ledger exposes an index series for a percent-growth target. Accepted the optional interval clarification that sigma is from rounded Table A values and the interval also inherits index-to-MoM conversion uncertainty.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and the resolution rule to the registered ALFRED CUSR0000SASLE first-vintage sourceBinding, while retaining the public note that the ledger exposes an index series for a percent-growth target. Accepted the optional interval clarification that sigma is from rounded Table A values and the interval also inherits index-to-MoM conversion uncertainty.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the blocking resolver critique by aligning resolutionSourceUrl and the resolution rule to the registered ALFRED CUSR0000SASLE first-vintage sourceBinding, while retaining the public note that the ledger exposes an index series for a percent-growth target. Accepted the optional interval clarification that sigma is from rounded Table A values and the interval also inherits index-to-MoM conversion uncertainty.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is broadly publishable but needs resolver/source fields aligned with the canonical ledger contract before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/prompt.md",
+      "sha256": "bcbe31e9be6ae6210f3cfe18c96d082d0b513592877e7cc338266c0569ff501c",
+      "bytes": 8928,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_command.json",
+      "sha256": "0fbc2c75178f2325b3de39dcc4b192f3e983979829562d7ba8cb2a796119484d",
+      "bytes": 737,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c6845f173fa0bca428b42d3c7c53b15dca96eb76747ed05362c0ab8c1133a204",
+      "bytes": 14783,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "bca22f3bc66e4d47dadb02ffd5f0605d30549a17e266a62d34ec77cc7d792c0b",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "9647e7cdd091a9a050203b61ed9db488ff7262fba099459c23191dcd6771e197",
+      "bytes": 14744,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "faaaa9205bffc40535d831974ef9441b5efc4591a878ad19d8973bebe8dcbde6",
+      "bytes": 7021,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_codex_trace.json",
+      "sha256": "cfabaea6a3112689ba536cdee8179613ca8ec274540686f03f8f8247e319e696",
+      "bytes": 534,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_stdout.txt",
+      "sha256": "faaaa9205bffc40535d831974ef9441b5efc4591a878ad19d8973bebe8dcbde6",
+      "bytes": 7021,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/draft_stderr.txt",
+      "sha256": "9f19c0af47c8cb5fc5a80d29d87787e08caa8db127d15688855d6e4a054aa396",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "5360838c8961c0704e6ca33df665e3db08a4ba134ec87da87349f5f59009582a",
+      "bytes": 10102,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "71647d3caa5e1c9a01ff60c6d340b96d2d1f8d989a07d35b1d110dc25f8a1b6b",
+      "bytes": 733,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "db7e40b0f27c3941a6caaf5d973dfccbd8aaefd6a23d94e184eece1aa929b269",
+      "bytes": 1456,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "f15319a149512477eb5be72e493c87ce276698a9a6aac435d0b38d6d6269cff2",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "9711d36d5b0bd66c3b1c6b001c144faa662adbfc27431b64fdbd5ba97dd72cfb",
+      "bytes": 1478,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "bbe5a55916ebf6ff99f883ee34ea6b6cc799b521d29165027a6fdfbc3983228b",
+      "bytes": 1114,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "0d36df39e78d2292d2979b03d2a974c6c1b3133c3d4b3ebfe1606e64679f9682",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "bbe5a55916ebf6ff99f883ee34ea6b6cc799b521d29165027a6fdfbc3983228b",
+      "bytes": 1114,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "a158f4c1dec4503a80ee1c1a5ee40e11593b16d450860bcd620fa875da3a1019",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/revision_prompt.md",
+      "sha256": "8f576ab67d3b17bc6a8ec9b80f28578c9771402f6f2e7108a49078e1a54c512c",
+      "bytes": 17999,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/command.json",
+      "sha256": "6595ec95c2bf529d1652d828d75eca2c5d99aee794a05d062f8ce98982a7d4c8",
+      "bytes": 731,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "b4d8cf40ea21a5b953c83b5ef58f23da5b7d64aa6be8308cc05e6c651704b961",
+      "bytes": 8651,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_stderr.log",
+      "sha256": "a1fb708bd26b14856a429efb8619efa9a3370cb3fff4db87b61b58fa36458a38",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_events.jsonl",
+      "sha256": "42c5ae0a58ebd7a6b404eaec7252c64ba4366679618580d9ced4a0b7f202682c",
+      "bytes": 8673,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_last_message.txt",
+      "sha256": "6b162be729bc164d78c6c6d7800ecf410977c71d76299d8513703f60125dc8ae",
+      "bytes": 8052,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/codex_trace.json",
+      "sha256": "993b2a77a08beee4e72c1567210bfbc4f119401fa08329d030b64c2cad214fb6",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/stdout.txt",
+      "sha256": "6b162be729bc164d78c6c6d7800ecf410977c71d76299d8513703f60125dc8ae",
+      "bytes": 8052,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/stderr.txt",
+      "sha256": "4cf8c70c08baa70aba9d3ce7962dbcfe447c9f9eac3c4fc7fee5c842ec930a2f",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/raw_response.txt",
+      "sha256": "6b162be729bc164d78c6c6d7800ecf410977c71d76299d8513703f60125dc8ae",
+      "bytes": 8052,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/parsed_cells.json",
+      "sha256": "e62b79cc2010610309c10ef639800319abd06878d1b64706d1b6e77283c60437",
+      "bytes": 9113,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/normalized_cells.json",
+      "sha256": "fcbb5305179c13c11d3f2cefaae0c130968435adbb86f2e80567270c9c3c77d6",
+      "bytes": 26482,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/distribution.json",
+      "sha256": "7aeb40f272301ea0dd4e64be00a23307336d0272477b79aa2f47828f48aed777",
+      "bytes": 13585,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/validation.json",
+      "sha256": "ce799eabd01c2ffa87c8cc205d45f9c9584aedd8f6c1dbeef6daf29fbb66c2bf",
+      "bytes": 142,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/cells.with_activity.json",
+      "sha256": "78f84a92697408c0311891d7ada883ccdf8801eba3749462d88dafa4a64da08e",
+      "bytes": 41937,
+      "createdAt": "2026-07-27T18:13:47Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-13-47z-bls-cpi-services-less-energy-mom-2026-07/manifest.json",
+      "sha256": "1b73d355a67154c51d1df4bed887c54dcf73a948beb268eb5028cfe5d43e9ff0",
+      "bytes": 15725,
+      "createdAt": "2026-07-27T18:13:47Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-cpi-services-less-energy-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "8a93d1a79a695644c6454d1685e65749a1a4af1b606d2152ab927b80d971898f"
+}

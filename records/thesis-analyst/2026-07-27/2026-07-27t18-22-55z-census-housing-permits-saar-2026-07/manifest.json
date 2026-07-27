@@ -1,0 +1,368 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-27T18:22:55Z",
+  "runStartedAt": "2026-07-27T18:22:55Z",
+  "series": "census.housing.permits_saar",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-building-permits-july-2026",
+    "country": "US",
+    "dataPointId": "census.housing.permits_saar.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-18",
+    "period": "2026-07",
+    "registeredAt": "2026-07-27T18:01:44Z",
+    "registeredAtUtc": "2026-07-27T18:01:44Z",
+    "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.census.gov/construction/soc/schedule.html",
+    "seedPeriod": "2026-07",
+    "series": "census.housing.permits_saar",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-18",
+        "start": "2026-08-18"
+      },
+      "field": "PERMIT",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "PERMIT",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=PERMIT",
+      "table": "New Residential Construction, seasonally adjusted annual rates",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "c7a4e40bb0cd9b0e5c28fbfbb3441e05bf8245b1c02cc5b13590b8e7d0f72cd2",
+    "targetRegistrationPath": "records/targets/2026-07-27-c7a4e40bb0cd9b0e5c28fbfbb3441e05bf8245b1c02cc5b13590b8e7d0f72cd2.json",
+    "targetUnit": "thousands",
+    "valueScale": 1
+  },
+  "registrationCommit": "e494ebc7a9b410a6fcffab9e5439408ff3d09413",
+  "targetContentHash": "c7a4e40bb0cd9b0e5c28fbfbb3441e05bf8245b1c02cc5b13590b8e7d0f72cd2",
+  "targetRegistrationPath": "records/targets/2026-07-27-c7a4e40bb0cd9b0e5c28fbfbb3441e05bf8245b1c02cc5b13590b8e7d0f72cd2.json",
+  "registeredAtUtc": "2026-07-27T18:01:44Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-27T18:22:55Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "006a4e57789b3788c53b0058d90b49c7130dbe8ea108600b409a75f315687469"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Name the time-series prior explicitly as a random-walk/persistence model to make rubric item 3 easier to audit."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "If space allows, state that Census links are evidence sources while ALFRED PERMIT first vintage remains the binding resolver."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to name the prior explicitly as a random-walk/persistence model and to clarify that Census pages support the agency-release evidence while ALFRED PERMIT first vintage remains the binding resolver; no required fixes were raised or rejected.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the reviewer suggestions to name the prior explicitly as a random-walk/persistence model and to clarify that Census pages support the agency-release evidence while ALFRED PERMIT first vintage remains the binding resolver; no required fixes were raised or rejected.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is publication-ready with the ledger target, first-print resolver, prior/update/interval logic, tails, and JSON fields aligned."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/prompt.md",
+      "sha256": "b4064112da3320d7b11ffa627229471ab94f4e8be1bb5ef241c77f9ffac5e049",
+      "bytes": 9679,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_command.json",
+      "sha256": "4e3d69e61cc2796dd6399a626f81b4eaa5983e83ac4f9893827c429895c8b126",
+      "bytes": 732,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "213f97196d77232999698e1da1ce23ac4b0b53a5fa6c3ba68de728fbbb405845",
+      "bytes": 13410,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_codex_stderr.log",
+      "sha256": "524b19f25ddec4bf8210603921c2c239631271a7cbf5cd4b904b0d35eb107370",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_codex_events.jsonl",
+      "sha256": "284756d31cd0b7a3eb199e3e422ae1511eb9f26719b9a351819447dd29028a4c",
+      "bytes": 13399,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_codex_last_message.txt",
+      "sha256": "6560f53dacb098528b5d2fa16d3aab4e98f2debac79cba8167f6e80f8b0b8def",
+      "bytes": 6270,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_codex_trace.json",
+      "sha256": "346e9513730129ead5c95841a5d0aa01e1326ad7eadfca58e9240f420af51fc1",
+      "bytes": 534,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_stdout.txt",
+      "sha256": "6560f53dacb098528b5d2fa16d3aab4e98f2debac79cba8167f6e80f8b0b8def",
+      "bytes": 6270,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/draft_stderr.txt",
+      "sha256": "d519ab5cb9560137ad4402a0b83b0e576af6488a40beeec8918c9ec4f1e3c973",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_prompt.md",
+      "sha256": "c4cdefceecbb96d8159e9906061c47b7a6631e2a9bbbfad305225a8d458e019d",
+      "bytes": 9297,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_command.json",
+      "sha256": "9c91b133aa913d7870ea6693ccd629f643e891b833fe6a31f1c2ed9885850d55",
+      "bytes": 728,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "b77e0005746b01b2dad607fc5e6e2ac2764c5b5cd91d163e86089f817b4caea9",
+      "bytes": 758,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "3ce93de92d89a62ded232642d8faf62ddf4aa55f7c4b5b04f1a4f5410bf660cb",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "57769d4fda5aed8f8f70df6242d52bf3aad7cf8016f34c76aacbf8d0867fdbf2",
+      "bytes": 780,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "ec30d9b6f3328d70b4c5d207a67ffa72c5406d5189bc005b230f3ae8d9abc310",
+      "bytes": 432,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "d27a6b367e4b97f1d24fdc58a8aba2e7ad8658774d1bf33da38db58f09fdf9fc",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "ec30d9b6f3328d70b4c5d207a67ffa72c5406d5189bc005b230f3ae8d9abc310",
+      "bytes": 432,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "c08bb0e0088b7b3091d3fa400117d914002242381944667fcc4177ea8a3fc604",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/revision_prompt.md",
+      "sha256": "c5e648a281e26be54187d42e81e800817ad101bcddc65953ab10da5d465a9ee9",
+      "bytes": 17317,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/command.json",
+      "sha256": "f14d7b363128319a0069e73a8f6941f186a6672dcabf9a089d2e944e3dd4086b",
+      "bytes": 726,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/codex_stdout.jsonl",
+      "sha256": "1991e2066f26184706f1b1233a890636929565f472d679deb640a92bbe3dd102",
+      "bytes": 7160,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/codex_stderr.log",
+      "sha256": "9719ab7a4110d65e0d7ba5d2182de21312a3fabd88e825e883fd98e4b3f64788",
+      "bytes": 233,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/codex_events.jsonl",
+      "sha256": "f2e9bdafeba6d687b524e1c35a5c51026adb51c27bc4e29ffd9e36e5e9a4aaf1",
+      "bytes": 7182,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/codex_last_message.txt",
+      "sha256": "9d9916cc2989a3cb86b0372297a32115d58fbc7032025dffdf43b77447b77b21",
+      "bytes": 6611,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/codex_trace.json",
+      "sha256": "e569af82d6ec8071fb8fce45ba72aae3a179a85ded88a3fbe633cf6e9f9d9d88",
+      "bytes": 527,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/stdout.txt",
+      "sha256": "9d9916cc2989a3cb86b0372297a32115d58fbc7032025dffdf43b77447b77b21",
+      "bytes": 6611,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/stderr.txt",
+      "sha256": "1555aae007538d3511836de409abf5226765632b6d90918296db6aef9b72f7c9",
+      "bytes": 248,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/raw_response.txt",
+      "sha256": "9d9916cc2989a3cb86b0372297a32115d58fbc7032025dffdf43b77447b77b21",
+      "bytes": 6611,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/parsed_cells.json",
+      "sha256": "b69c54125255e0b11151ab054001923b506318c4e3ceb9128611f51fd1e9184c",
+      "bytes": 7454,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/normalized_cells.json",
+      "sha256": "7c97762612a573b993e8ff5513bc4e5603b1ce1702ec45460168cec20f025bf4",
+      "bytes": 24899,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/distribution.json",
+      "sha256": "1593a39d6401fa084388d6c50d88016b55b18fad774a16e1ab8da1623d854d5a",
+      "bytes": 13661,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/validation.json",
+      "sha256": "634ada4d448e4df04a912822f354fdad0dd99d2980e40f3aaa90138dc25e5091",
+      "bytes": 130,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/cells.with_activity.json",
+      "sha256": "5cb91e4d52231e816b11fa2c374616f06c933c856509f67f9ed57943f87b35fc",
+      "bytes": 38492,
+      "createdAt": "2026-07-27T18:22:55Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-27/2026-07-27t18-22-55z-census-housing-permits-saar-2026-07/manifest.json",
+      "sha256": "9772d942424c6140b90cd4d108a271ae4ba2e2a3158f1518703aee77960808de",
+      "bytes": 13930,
+      "createdAt": "2026-07-27T18:22:55Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-building-permits-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "435a0556a478bef74c64454de07d3b7ee3ea6ff47e9e8add6e7747c5aad62802"
+}
