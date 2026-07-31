@@ -151,32 +151,29 @@ export default async function BillDetailPage({
           <h1 className="[font-family:var(--font-display)] text-[clamp(1.7rem,3.5vw,2.4rem)] font-light leading-[1.2] tracking-[-0.02em] text-[var(--theme-text)] mb-5">
             {entry.bill.name}
           </h1>
-          <p className="text-[0.95rem] leading-[1.65]">
+          <div className="flex flex-wrap items-center gap-2">
             <a
               href={entry.bill.sourceUrl}
-              className="text-[var(--color-accent)]"
               target="_blank"
               rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface)] px-3 py-[5px] [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)] no-underline transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:no-underline"
             >
-              bill text
+              Bill text ↗
             </a>
             {rawMeta?.axiomDashboardUrl && (
-              <>
-                {" · "}
-                <a
-                  href={rawMeta.axiomDashboardUrl}
-                  className="text-[var(--color-accent)]"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  axiom bills ↗
-                </a>
-              </>
+              <a
+                href={rawMeta.axiomDashboardUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-full border border-[var(--theme-border)] bg-[var(--theme-surface)] px-3 py-[5px] [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)] no-underline transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:no-underline"
+              >
+                Axiom bills ↗
+              </a>
             )}
-          </p>
-          <p className="mt-2 [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
-            analyzed {entry.bill.analysisDate}
-          </p>
+            <span className="ml-1 [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
+              analyzed {entry.bill.analysisDate}
+            </span>
+          </div>
         </header>
 
         <section className="mb-14">
