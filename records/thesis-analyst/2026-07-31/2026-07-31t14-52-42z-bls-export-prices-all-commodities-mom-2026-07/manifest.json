@@ -1,0 +1,381 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-31T14:52:42Z",
+  "runStartedAt": "2026-07-31T14:52:42Z",
+  "series": "bls.export_prices.all_commodities_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-export-prices-mom-july-2026",
+    "country": "US",
+    "dataPointId": "bls.export_prices.all_commodities_mom.2026_07.first_print",
+    "expectedReleaseDate": "2026-08-18",
+    "period": "2026-07",
+    "registeredAt": "2026-07-31T14:48:09Z",
+    "registeredAtUtc": "2026-07-31T14:48:09Z",
+    "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+    "registrationState": "preregistered",
+    "releaseCalendarUrl": "https://www.bls.gov/schedule/news_release/ximpim.htm",
+    "seedPeriod": "2026-07",
+    "series": "bls.export_prices.all_commodities_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-18",
+        "start": "2026-08-18"
+      },
+      "field": "IQ",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "IQ",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=IQ",
+      "table": "U.S. Export Price Indexes, Table 2",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "c70ae67705958d569fcfb915e8c6947a4a000bc066bab9653ace68c2518960c6",
+    "targetRegistrationPath": "records/targets/2026-07-31-c70ae67705958d569fcfb915e8c6947a4a000bc066bab9653ace68c2518960c6.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+  "targetContentHash": "c70ae67705958d569fcfb915e8c6947a4a000bc066bab9653ace68c2518960c6",
+  "targetRegistrationPath": "records/targets/2026-07-31-c70ae67705958d569fcfb915e8c6947a4a000bc066bab9653ace68c2518960c6.json",
+  "registeredAtUtc": "2026-07-31T14:48:09Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-31T14:52:42Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "1f5bc6eeb52a2a047e3559392ed36e975dd48ccb39d83594eded605f16e51e1c"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft resolutionSourceUrl points to the live BLS Table 2 page, while the canonical ledger sourceBinding resolves via ALFRED/FRED series IQ with allowed host alfred.stlouisfed.org and first_print policy.",
+        "actionRequested": "Keep the same target and BLS Table 2 resolver text, but make the source fields explicitly consistent with the ledger binding or explain the BLS-vs-ALFRED discrepancy in the reasoning without silently changing the target."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "State the historical sample as June 2025 through June 2026 excluding missing lapse months, and note that the 80% interval is an approximate normal-volatility interval from that 11-observation sample."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The tail scenarios are acceptable; adding one sentence on how much energy/industrial-supplies weight would have to move to breach the interval would make them more concrete."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning the published source URL with the registered ALFRED series IQ binding and explicitly stating the BLS Table 2 versus ALFRED first-vintage capture relationship; accepted the sample-period and approximate normal-volatility interval clarification.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning the published source URL with the registered ALFRED series IQ binding and explicitly stating the BLS Table 2 versus ALFRED first-vintage capture relationship; accepted the sample-period and approximate normal-volatility interval clarification.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning the published source URL with the registered ALFRED series IQ binding and explicitly stating the BLS Table 2 versus ALFRED first-vintage capture relationship; accepted the sample-period and approximate normal-volatility interval clarification.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly coherent, but it should align the published resolver/source fields with the ledger binding before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/prompt.md",
+      "sha256": "bbfe321b3042cee037c9012ddee27dd6efaad0c8dba97ae880ac9507a8536ca8",
+      "bytes": 8860,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_command.json",
+      "sha256": "6b36a839183c4077a6130314fc5920312ff798779f542951f3167ce73166e796",
+      "bytes": 742,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "9e9ac492c5ffdbbf4c032638d0195cb7ce4699dda3c36322a9e53f123ffd7719",
+      "bytes": 12520,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "3a8995f83b4328afbb19b53cc8d8d1b549f23ce4a91bbe6682944abeecb26910",
+      "bytes": 233,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "1d86ac49a6f186e8793066c803dbfed9d437e3320a221f3ca97019c396ab54ef",
+      "bytes": 12498,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "33c4ca5c7948b123cd8e741bdfc19a238bbad559345aa38b914f9add11b9d913",
+      "bytes": 5358,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_codex_trace.json",
+      "sha256": "c0f192e13f442d225dc4e293bb83220ee9f079110ba0ffe3ccb403c8e25fae40",
+      "bytes": 533,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_stdout.txt",
+      "sha256": "33c4ca5c7948b123cd8e741bdfc19a238bbad559345aa38b914f9add11b9d913",
+      "bytes": 5358,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/draft_stderr.txt",
+      "sha256": "b739ab4e9fa53519d2b2d902188d5039e946cfa69187dcd4273039ed1c3673c0",
+      "bytes": 248,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "318fee35519f91250b85784abb23a7505a82b40719e8a776bb90666e16edc5b8",
+      "bytes": 8371,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "28779ec9f134aed545522351d6a7679e934f24b0dd1bba42c3815105db49f83a",
+      "bytes": 738,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "944697f9049de71e49c1226192b46f23efa00bb0e8c9cab9e344287d375876fd",
+      "bytes": 1410,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "e2ae5a3cd1f79b047d530feced966e780fb94045e69c58fb9ed6fcd5b9e60e4d",
+      "bytes": 233,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "f61d0f6acda731aab1d33284a87690deb280856bddd88185795bfbf95310b3c1",
+      "bytes": 1432,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "08eb89838087f8ff48949a2f842f9837ab90d9a545a078029010650240b51ca2",
+      "bytes": 1068,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "6c5e732f48f2f2480ef78cb6547f8c19e1bbbae89d90a6ea14e791d8758e016c",
+      "bytes": 527,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "08eb89838087f8ff48949a2f842f9837ab90d9a545a078029010650240b51ca2",
+      "bytes": 1068,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "2db78425567459c4994f85d74cb9862f2a220c947d96ca91e51a81dcf9e2aa96",
+      "bytes": 248,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/revision_prompt.md",
+      "sha256": "cb1364fb46514be775255126bbdfa7e346472c09c57c8bf690029f62aa8f5a2d",
+      "bytes": 16222,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/command.json",
+      "sha256": "c0c992f26876f4379fa2361dba6a1c8446bb771967452e435c92cc26b801637e",
+      "bytes": 736,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "bf5643d1cc2040eebafe6ec6d1c0fe9df22b36c23ad4026eb037ee058e068c0f",
+      "bytes": 6435,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/codex_stderr.log",
+      "sha256": "b7725aca660b3dd6fc7d041f490014b630fb00bf065eb21bf5a33c590b3fed67",
+      "bytes": 233,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/codex_events.jsonl",
+      "sha256": "80381be4708800bb8a787f7184cdf2c8a9fdeea44ef9ca390783259c1cd533cc",
+      "bytes": 6457,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/codex_last_message.txt",
+      "sha256": "9fbdc62add6795806590011f6d85502a41a5548d40286ab9774d706552a39f83",
+      "bytes": 5874,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/codex_trace.json",
+      "sha256": "64ae649fdcbed29faf11f2c5337eb849630557c771aa85ebae9fa6244e041963",
+      "bytes": 527,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/stdout.txt",
+      "sha256": "9fbdc62add6795806590011f6d85502a41a5548d40286ab9774d706552a39f83",
+      "bytes": 5874,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/stderr.txt",
+      "sha256": "a71ccb9d10fb9ca6eb8b66dd511c6282a2b58a253a5057a143eddc2008b819f8",
+      "bytes": 248,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/raw_response.txt",
+      "sha256": "9fbdc62add6795806590011f6d85502a41a5548d40286ab9774d706552a39f83",
+      "bytes": 5874,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/parsed_cells.json",
+      "sha256": "b73263e00289b50d4a4477192abcac6066e421b2f91e1f977ecb756f36cf5f17",
+      "bytes": 6778,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/normalized_cells.json",
+      "sha256": "27fc35d64a8d67edd49a55e8173f0f879226e24d97f929f5790429cfe2a144a9",
+      "bytes": 24130,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/distribution.json",
+      "sha256": "ba519149484064d4a27b75a21a74e0bf413b010e8b802e084c8391f31bc845fd",
+      "bytes": 13568,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/validation.json",
+      "sha256": "f4ec85b3d89d1a97b764e0e82449c2e8ffebccd66dbc3339b4200838d9587d9d",
+      "bytes": 131,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/cells.with_activity.json",
+      "sha256": "160db5a7096517ebeb1fc5edfe07285b144b3a9f741a91cc362d818ab405c34f",
+      "bytes": 39314,
+      "createdAt": "2026-07-31T14:52:42Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-52-42z-bls-export-prices-all-commodities-mom-2026-07/manifest.json",
+      "sha256": "3e2cb7b81a737271a9089e4e0139c841c2328051c0daf4de0077542552a1cbc7",
+      "bytes": 15393,
+      "createdAt": "2026-07-31T14:52:42Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-export-prices-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "97bd4e8e5f67870f8e39fb869dd00cb703634247cecfa3582b035a16283aa6e5"
+}

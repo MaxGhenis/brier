@@ -1,0 +1,391 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-31T15:14:57Z",
+  "runStartedAt": "2026-07-31T15:14:57Z",
+  "series": "fed.g19.consumer_credit_nonrevolving_annual_rate",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-nonrevolving-consumer-credit-annual-rate-july-2026",
+    "country": "US",
+    "dataPointId": "fed.g19.consumer_credit_nonrevolving_annual_rate.2026_07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-31T14:48:09Z",
+    "registeredAtUtc": "2026-07-31T14:48:09Z",
+    "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+    "registrationState": "preregistered",
+    "series": "fed.g19.consumer_credit_nonrevolving_annual_rate",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-11",
+        "start": "2026-09-03"
+      },
+      "field": "NONREVSLAR",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "NONREVSLAR",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=NONREVSLAR",
+      "table": "G.19 Consumer Credit, outstanding, seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e2880f2c437abd35592ae643d333e965a87e319dae0af9372925c7fa8bba1f1d",
+    "targetRegistrationPath": "records/targets/2026-07-31-e2880f2c437abd35592ae643d333e965a87e319dae0af9372925c7fa8bba1f1d.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+  "targetContentHash": "e2880f2c437abd35592ae643d333e965a87e319dae0af9372925c7fa8bba1f1d",
+  "targetRegistrationPath": "records/targets/2026-07-31-e2880f2c437abd35592ae643d333e965a87e319dae0af9372925c7fa8bba1f1d.json",
+  "registeredAtUtc": "2026-07-31T14:48:09Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-31T15:14:57Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "3e46085b0a3da8378ed16022ace113fac549e476fd36521836cd87be02836eec"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "blocking",
+        "rubricItem": "resolver",
+        "summary": "The draft JSON uses the Federal Reserve current G.19 page as resolutionSourceUrl, while the ledger sourceBinding specifies the ALFRED first-vintage CSV for NONREVSLAR with allowed host alfred.stlouisfed.org.",
+        "actionRequested": "Set the resolver/source text and URL to match the ledger binding: ALFRED NONREVSLAR first vintage for 2026-07, while optionally noting that ALFRED mirrors the Federal Reserve G.19 first print."
+      },
+      {
+        "findingId": "review.finding.2",
+        "severity": "warning",
+        "rubricItem": "prior_update_interval",
+        "summary": "The math step says the prior is 1.61 and lists adjustments of +0.2, -0.1, and -0.2, which would not produce the stated 2.1 point estimate unless there is also shrinkage toward the 2.23 reference-class mean.",
+        "actionRequested": "Make the compact prior/update step arithmetically explicit, e.g. state the blend between latest persistence and Jan-May mean before applying the named adjustments."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Keep the September 8, 2026 release-date claim only if it is tied to the official Federal Reserve statistical release calendar; otherwise phrase it as expected within the ledger window."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The interval method is acceptable, but note that five observations is a thin volatility sample."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making ALFRED NONREVSLAR first vintage the resolution URL and rule while preserving the Federal Reserve G.19 first print as the underlying official release; accepted the arithmetic critique by making the blend between latest persistence and the Jan-May reference-class mean explicit before adjustments.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.finding.2",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by making ALFRED NONREVSLAR first vintage the resolution URL and rule while preserving the Federal Reserve G.19 first print as the underlying official release; accepted the arithmetic critique by making the blend between latest persistence and the Jan-May reference-class mean explicit before adjustments.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making ALFRED NONREVSLAR first vintage the resolution URL and rule while preserving the Federal Reserve G.19 first print as the underlying official release; accepted the arithmetic critique by making the blend between latest persistence and the Jan-May reference-class mean explicit before adjustments.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by making ALFRED NONREVSLAR first vintage the resolution URL and rule while preserving the Federal Reserve G.19 first print as the underlying official release; accepted the arithmetic critique by making the blend between latest persistence and the Jan-May reference-class mean explicit before adjustments.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publication-ready, but the resolver/source fields should be aligned to the canonical ALFRED first-print binding before publication."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/prompt.md",
+      "sha256": "9ab970141cf45b75b99df8bdd6dfbfbd1c442db73db2a6b3246d700cf4191699",
+      "bytes": 8949,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_command.json",
+      "sha256": "0d020cb8c3e0c87cd5932197395ade456706f4ac0ca7dfca1a44b9be72403b05",
+      "bytes": 753,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "94f89540f8b2396b170f9103ef8713ea11e1473757e2778deee92ac0826f431e",
+      "bytes": 10042,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_codex_stderr.log",
+      "sha256": "3d7870c957aa09da4e2e31309fc797d2d19919b676122d96d8ad0c20b7042c28",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_codex_events.jsonl",
+      "sha256": "00a7719db7a6f4aeec9df89e6ecd7c27884d94b62bd2b1a25c740fdf35b94e75",
+      "bytes": 10042,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_codex_last_message.txt",
+      "sha256": "abba0f6a2c5be89faf89ba1a9c82cd82979cd2425fbc152838835e3729de84c0",
+      "bytes": 5622,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_codex_trace.json",
+      "sha256": "e0c56a0d69418e49c1512069e3872f4f198005a557c2fb80f01779989b8c3918",
+      "bytes": 533,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_stdout.txt",
+      "sha256": "abba0f6a2c5be89faf89ba1a9c82cd82979cd2425fbc152838835e3729de84c0",
+      "bytes": 5622,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/draft_stderr.txt",
+      "sha256": "550e576a8f9493fd529e7af61d8df0a59234ccee6b4e22acf60b8ad0854afa6c",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_prompt.md",
+      "sha256": "651130baacc0421ce5a806643be65bee37280008b62f0c47a04e25fb6d761861",
+      "bytes": 8724,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_command.json",
+      "sha256": "4c41c275a852b3b9f468e145e3398754ffc80c0f9412b178102799c2d620e08f",
+      "bytes": 749,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "12fabc5e8fcd1a42da66dd6cb42f60bd6d5084d756f622bfcc4ac3a6057069b2",
+      "bytes": 1790,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "3c8d5fe559617b114401c4ca49037b51ffa32f75e0ed2a60767fcefc1e01fbf9",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "f0bb1812d68ce409f558d2ef36ad39886dcb8ea67bde33e1df3018612423d955",
+      "bytes": 1812,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "1245cc2d92961b06c1134bb64ae50ddadb68d2ca24baa0c67ea227322034cc7e",
+      "bytes": 1432,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "5d142560413e7c49e9a6be4906ca7ad88cf02ba12e02b98d000013e6479298af",
+      "bytes": 527,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "1245cc2d92961b06c1134bb64ae50ddadb68d2ca24baa0c67ea227322034cc7e",
+      "bytes": 1432,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "ef7d5eaa3ab448bc1d9f571878315bf8d78962a544b40417b1a4113dc978bc77",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/revision_prompt.md",
+      "sha256": "306c40d86b87fd3774d31bf7b1986899e694094c1a372f99f0412d7bfeec0d27",
+      "bytes": 16939,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/command.json",
+      "sha256": "bc8393a44e322be45ce7d447c4e62f83f8e0dafacd55f6ece682cd1094804dc1",
+      "bytes": 747,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/codex_stdout.jsonl",
+      "sha256": "4baace6b0120d46bf60ee7c1d9d4eab5ccffe6e8a5d5fb2d363e6aa15059375f",
+      "bytes": 6681,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/codex_stderr.log",
+      "sha256": "fc0275026ab95ef85f874ba9f5dce79e048bb6108b4e77f3b32a9eb3e43a815f",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/codex_events.jsonl",
+      "sha256": "97c9cf6f171dbd5cb0284e7eab3b1ea7b2af8dea9e571f7128d0bcb0bfc1cd5a",
+      "bytes": 6703,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/codex_last_message.txt",
+      "sha256": "eb24bc8c8ff4a3a4a2e72880ee6eca6440f0e3f58dc2395a873e399c424338d6",
+      "bytes": 6110,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/codex_trace.json",
+      "sha256": "fb9a74778107e403a3609f26e9b410001af521100525057de3c30b677e8aa290",
+      "bytes": 531,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/stdout.txt",
+      "sha256": "eb24bc8c8ff4a3a4a2e72880ee6eca6440f0e3f58dc2395a873e399c424338d6",
+      "bytes": 6110,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/stderr.txt",
+      "sha256": "cd83ac70d57bf4a2c37fc63ded6a78e68cce1f0044e010bc7a637fbc3a87fec8",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/raw_response.txt",
+      "sha256": "eb24bc8c8ff4a3a4a2e72880ee6eca6440f0e3f58dc2395a873e399c424338d6",
+      "bytes": 6110,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/parsed_cells.json",
+      "sha256": "b62b8781a67832795d0d612d146ff9256245610a4af057ee1ef8fb5156eaddfe",
+      "bytes": 7061,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/normalized_cells.json",
+      "sha256": "24e2372d68a5dca24a50ea6aa4db1845c258acfa1f564494290fdf86cb8b893f",
+      "bytes": 24366,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/distribution.json",
+      "sha256": "ac225798ec9a008d10a8f915e83b3820e517d2f653a1817b113ef9b5098de04b",
+      "bytes": 13521,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/validation.json",
+      "sha256": "6184614d94effde2051b886ebb41419d0cf3059ac44de0f0a97e0ca650f978a0",
+      "bytes": 154,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/cells.with_activity.json",
+      "sha256": "e2757a1f5c89978e7a4082b70bf3bc5dcc19d3ce6f6b1110904710ea555448df",
+      "bytes": 41073,
+      "createdAt": "2026-07-31T15:14:57Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-14-57z-fed-g19-consumer-credit-nonrevolving-annual-rate-2026-07/manifest.json",
+      "sha256": "f43fbbede7e665725fad34016b5321d82e8c5d2c25beb7facc17c12aef8234e8",
+      "bytes": 16783,
+      "createdAt": "2026-07-31T15:14:57Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-nonrevolving-consumer-credit-annual-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "ef50b7f886fd3da5da73c67be7b807893253729d8f713abda0fb91a5861912df"
+}
