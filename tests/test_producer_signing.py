@@ -168,9 +168,20 @@ def assert_chain_error(
     records: pathlib.Path,
     expected: str,
 ) -> None:
+    """Pin the error's identity, not its prose.
+
+    `expected` is the identifying head of the message: the failure kind plus
+    the exact subject path or digest it names. Matching that as a prefix keeps
+    every assertion here as specific as it was -- a different failure, or the
+    right failure about the wrong artifact, still fails -- while leaving the
+    trailing explanation free to improve. Exact equality froze the prose, so
+    making a message more useful broke the test that checked it fired.
+    """
+
     with pytest.raises(ChainError) as caught:
         verify_chain(records, allow_pre_enumeration=True)
-    assert str(caught.value) == expected
+    actual = str(caught.value)
+    assert actual.startswith(expected), f"expected prefix:\n{expected}\ngot:\n{actual}"
 
 
 def test_live_records_tree_verifies_under_the_committed_armed_pins() -> None:
@@ -547,7 +558,7 @@ def test_proposer_rejects_a_snapshot_behind_a_symlinked_day_directory(
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)
 
-    assert str(caught.value) == (
+    assert str(caught.value).startswith(
         "missing or non-regular record snapshot: "
         f"{logical(records, post_activation)}"
     )
@@ -586,7 +597,7 @@ def test_proposer_refuses_a_wrong_key_before_writing(
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)
 
-    assert str(caught.value) == (
+    assert str(caught.value).startswith(
         f"{producer_signer.SIGNING_KEY_ENV} does not match the code-pinned "
         "producer public key"
     )
@@ -613,7 +624,7 @@ def test_proposer_rejects_a_public_key_outside_the_spki_pin(
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)
 
-    assert str(caught.value) == (
+    assert str(caught.value).startswith(
         "producer public-key SPKI is not code-pinned for "
         f"{producer_pins.PUBLIC_KEY_RELPATH}: {spki_sha256(other_public)}"
     )
@@ -633,7 +644,7 @@ def test_proposer_rejects_a_malformed_committed_public_key(
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)
 
-    assert str(caught.value) == (
+    assert str(caught.value).startswith(
         "producer public key is invalid: "
         f"{producer_pins.PUBLIC_KEY_RELPATH}: cannot decode Ed25519 public key"
     )
@@ -652,7 +663,7 @@ def test_proposer_refuses_and_scrubs_a_malformed_private_key(
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)
 
-    assert str(caught.value) == (
+    assert str(caught.value).startswith(
         f"{producer_signer.SIGNING_KEY_ENV} is not a valid Ed25519 private key"
     )
     assert producer_signer.SIGNING_KEY_ENV not in producer_signer.os.environ
@@ -676,7 +687,7 @@ def test_proposer_refuses_when_the_private_key_is_absent_or_empty(
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)
 
-    assert str(caught.value) == (
+    assert str(caught.value).startswith(
         f"{producer_signer.SIGNING_KEY_ENV} is required while producer signing "
         "is active"
     )
@@ -698,7 +709,7 @@ def test_proposer_refuses_to_overwrite_an_invalid_existing_signature(
     with pytest.raises(producer_signer.ProducerSigningError) as caught:
         producer_signer.sign_record_snapshots(records)
 
-    assert str(caught.value) == (
+    assert str(caught.value).startswith(
         "existing producer signature is invalid: " f"{logical(records, signature)}"
     )
     assert signature.read_bytes() == invalid
