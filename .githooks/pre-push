@@ -10,31 +10,42 @@
 #   - refs/heads/main: tip-to-tip (remote..local) — there the endpoint diff
 #     is exactly what the push publishes.
 #   - any other ref: the branch's own contribution (origin/main...local,
-#     merge-base three-dot, after a best-effort refresh of origin/main).
-#     Tip-to-tip false-positives here: a branch rebased onto a main that
-#     legitimately gained attested recorder commits shows main's records
-#     growth in the endpoint diff while the push adds zero new records
-#     objects (hit 2026-07-31). Falls back to tip-to-tip when origin/main
-#     cannot be resolved or shares no history with the branch (a three-dot
-#     diff has no merge base there and would fail open).
+#     merge-base three-dot). Tip-to-tip false-positives here: a branch
+#     rebased onto a main that legitimately gained attested recorder
+#     commits shows main's records growth in the endpoint diff while the
+#     push adds zero new records objects (hit 2026-07-31).
+#     The three-dot comparator must be trustworthy, so it is used only
+#     when `git fetch origin main` just succeeded, only via the full ref
+#     refs/remotes/origin/main (a local branch literally named
+#     "origin/main" would otherwise shadow it), and only when a merge
+#     base exists (a disjoint history has none and the swallowed error
+#     would fail open). Every other case — refresh failed, ref missing,
+#     no merge base — falls back to the tip-to-tip endpoint diffs
+#     (adversarial-review findings, 2026-07-31).
 #
 # Break glass, deliberately, when you truly mean it:
 #   THESIS_ALLOW_RECORDS_PUSH=1 git push ...
 ZERO=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 status=0
 fetched=0
+fetch_ok=0
 while read -r _local_ref local_sha remote_ref remote_sha; do
     [ "$local_sha" = "$ZERO" ] && continue
     range=""
     if [ "$remote_ref" != "refs/heads/main" ]; then
         if [ "$fetched" = "0" ]; then
-            GIT_TERMINAL_PROMPT=0 git fetch --quiet origin main \
-                </dev/null >/dev/null 2>&1
             fetched=1
+            if GIT_TERMINAL_PROMPT=0 git fetch --quiet origin main \
+                </dev/null >/dev/null 2>&1; then
+                fetch_ok=1
+            fi
         fi
-        if git rev-parse --quiet --verify origin/main >/dev/null &&
-            git merge-base origin/main "$local_sha" >/dev/null 2>&1; then
-            range="origin/main...$local_sha"
+        if [ "$fetch_ok" = "1" ] &&
+            git rev-parse --quiet --verify refs/remotes/origin/main \
+                >/dev/null &&
+            git merge-base refs/remotes/origin/main "$local_sha" \
+                >/dev/null 2>&1; then
+            range="refs/remotes/origin/main...$local_sha"
         fi
     fi
     if [ -z "$range" ]; then
