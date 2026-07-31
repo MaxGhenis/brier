@@ -111,28 +111,52 @@ summary{cursor:pointer;font-weight:650}
 <p style="margin-top:8px">S.3596-conditional forecasts are recorded against two already-registered targets (census.spm.child_poverty_rate.2027; irs.soi.ctc.qualifying_children.ty2026, the latter carrying a behavioral-uptake claim against a mechanical zero), plus per-configuration lanes on near-resolving targets. Chronology: claimed-time from git history now; the recorder workflow on merge seals custody; witness tier requires re-emission as recorded runs. Nothing here asks anyone to take today&rsquo;s word for it; the lab scores these mechanically as targets resolve.</p></details>
 </section>
 
+<section id="glossary">
+<span class="tag">Glossary</span>
+<h2>What each configuration means.</h2>
+<p class="sub">Closed by default; definitions of every option in the explorer above.</p>
+<details><summary>Elicitation formats</summary><p style="margin-top:8px">
+<b>point+CI</b>: one JSON answer, a point forecast plus an 80% interval. <b>decomposed</b>: the model states a no-policy baseline and a policy delta as separate numbers, then composes them. <b>plain</b>: point+CI with no additional instruction, at maximum reasoning effort. <b>premortem</b>: first forecast, then list the two most plausible ways it is wrong, then revise. <b>quantiles</b>: p10/p50/p90 elicited directly. <b>ref-class</b>: the model must state the base rate of comparable historical moves before adjusting.</p></details>
+<details><summary>Multi-stage scaffolds</summary><p style="margin-top:8px">
+<b>scenario mix</b>: the model assigns probabilities to four scenarios with values; the harness computes the mixture quantiles. <b>var-auditor</b>: a second pass whose only job is to audit and reprice interval width. <b>persona panel</b>: three prior-diverse forecasters (momentum, mean-reversion, base-rate) pooled by a synthesizer. This is a prompting scaffold; it is unrelated to the &ldquo;median of 5 runs&rdquo; aggregation option.</p></details>
+<details><summary>Aggregation</summary><p style="margin-top:8px">
+<b>single run</b>: scores average the 5 independent repeats, i.e. the expected quality of one run. <b>median of 5 runs</b>: the five repeats are pooled into one forecast (median point and interval bounds) before scoring. Pooling improves every arm it applies to; on the leading configuration it moves nCRPS from 0.264 to 0.251 and coverage from 0.77 to 0.81 (gain &minus;0.013 [&minus;0.022,&nbsp;&minus;0.005], 30/36 units).</p></details>
+<details><summary>Context and effort</summary><p style="margin-top:8px">
+<b>none / bill</b>: whether the statute&rsquo;s operative text is in the prompt. <b>default / max effort</b>: the reasoning-effort setting on the request; max forces extended reasoning regardless of how easy the task looks. Instruction styles and scaffolds ran at opus &middot; no-bill &middot; max only, so selecting one snaps the other dials to the nearest measured configuration instead of showing a dead end.</p></details>
+</section>
 <p class="note" style="margin-top:40px;border-top:1px solid var(--hair);padding-top:14px">N is stated on every table. 12 of 44 retrospective units are 6 states &times; 2 months and not independent; retrospective accuracy sits inside model training windows and is treated as an upper bound throughout (Result 1&rsquo;s point). All designs and amendments were committed before their runs; instrument defects found during the day were quarantined, corrected, and documented in the repository. Full record: PR #61.</p>
 </main>
 <script>
-const AGG={"fable|none|pointci|default": {"ncrps": 0.358, "cov": 0.71, "n_units": 36}, "fable|bill|pointci|default": {"ncrps": 0.339, "cov": 0.61, "n_units": 28}, "fable|bill|decomposed|default": {"ncrps": 0.38, "cov": 0.39, "n_units": 28}, "opus|none|pointci|default": {"ncrps": 0.304, "cov": 0.86, "n_units": 36}, "opus|bill|pointci|default": {"ncrps": 0.314, "cov": 0.86, "n_units": 36}, "opus|bill|decomposed|default": {"ncrps": 0.3, "cov": 0.78, "n_units": 36}, "fable|bill|pointci|max": {"ncrps": 0.264, "cov": 0.77, "n_units": 36}, "opus|bill|pointci|max": {"ncrps": 0.247, "cov": 0.79, "n_units": 28}, "opus|none|plain|max": {"ncrps": 0.241, "cov": 0.8, "n_units": 27}, "opus|none|premortem|max": {"ncrps": 0.23, "cov": 0.84, "n_units": 26}, "opus|none|quantiles|max": {"ncrps": 0.253, "cov": 0.68, "n_units": 26}, "opus|none|reference_class|max": {"ncrps": 0.237, "cov": 0.74, "n_units": 26}, "opus|none|scenario_mixture|max": {"ncrps": 0.253, "cov": 0.83, "n_units": 28}, "opus|none|variance_auditor|max": {"ncrps": 0.271, "cov": 0.89, "n_units": 27}, "opus|none|persona_pool|max": {"ncrps": 0.267, "cov": 0.84, "n_units": 27}};
-const DIMS={model:["opus","fable"],context:["none","bill"],elicitation:["pointci","decomposed","plain","premortem","quantiles","reference_class","scenario_mixture","variance_auditor","persona_pool"],effort:["default","max"]};
-const LBL={pointci:"point+CI",decomposed:"decomposed",reference_class:"ref-class",scenario_mixture:"scenario mix",variance_auditor:"var-auditor",persona_pool:"persona pool"};
-let sel={model:"fable",context:"bill",elicitation:"pointci",effort:"max"};
+const AGG={"fable|none|pointci|default|single": {"ncrps": 0.358, "cov": 0.71, "n_units": 36}, "fable|none|pointci|default|pooled": {"ncrps": 0.356, "cov": 0.69, "n_units": 36}, "fable|bill|pointci|default|single": {"ncrps": 0.339, "cov": 0.61, "n_units": 28}, "fable|bill|pointci|default|pooled": {"ncrps": 0.335, "cov": 0.64, "n_units": 28}, "fable|bill|decomposed|default|single": {"ncrps": 0.38, "cov": 0.39, "n_units": 28}, "fable|bill|decomposed|default|pooled": {"ncrps": 0.375, "cov": 0.43, "n_units": 28}, "opus|none|pointci|default|single": {"ncrps": 0.304, "cov": 0.86, "n_units": 36}, "opus|none|pointci|default|pooled": {"ncrps": 0.294, "cov": 0.89, "n_units": 36}, "opus|bill|pointci|default|single": {"ncrps": 0.314, "cov": 0.86, "n_units": 36}, "opus|bill|pointci|default|pooled": {"ncrps": 0.295, "cov": 0.89, "n_units": 36}, "opus|bill|decomposed|default|single": {"ncrps": 0.3, "cov": 0.78, "n_units": 36}, "opus|bill|decomposed|default|pooled": {"ncrps": 0.299, "cov": 0.78, "n_units": 36}, "fable|bill|pointci|max|single": {"ncrps": 0.264, "cov": 0.77, "n_units": 36}, "fable|bill|pointci|max|pooled": {"ncrps": 0.251, "cov": 0.81, "n_units": 36}, "opus|bill|pointci|max|single": {"ncrps": 0.247, "cov": 0.79, "n_units": 28}, "opus|bill|pointci|max|pooled": {"ncrps": 0.239, "cov": 0.82, "n_units": 28}, "opus|none|plain|max|single": {"ncrps": 0.241, "cov": 0.8, "n_units": 27}, "opus|none|plain|max|pooled": {"ncrps": 0.237, "cov": 0.78, "n_units": 27}, "opus|none|premortem|max|single": {"ncrps": 0.23, "cov": 0.84, "n_units": 26}, "opus|none|quantiles|max|single": {"ncrps": 0.253, "cov": 0.68, "n_units": 26}, "opus|none|reference_class|max|single": {"ncrps": 0.237, "cov": 0.74, "n_units": 26}, "opus|none|scenario_mixture|max|single": {"ncrps": 0.253, "cov": 0.83, "n_units": 28}, "opus|none|variance_auditor|max|single": {"ncrps": 0.271, "cov": 0.89, "n_units": 27}, "opus|none|persona_pool|max|single": {"ncrps": 0.267, "cov": 0.84, "n_units": 27}, "opus|none|persona_pool|max|pooled": {"ncrps": 0.259, "cov": 0.85, "n_units": 27}};
+const DIMS={model:["opus","fable"],context:["none","bill"],elicitation:["pointci","decomposed","plain","premortem","quantiles","reference_class","scenario_mixture","variance_auditor","persona_pool"],effort:["default","max"],aggregation:["single","pooled"]};
+const LBL={pointci:"point+CI",decomposed:"decomposed",reference_class:"ref-class",scenario_mixture:"scenario mix",variance_auditor:"var-auditor",persona_pool:"persona panel (scaffold)",single:"single run",pooled:"median of 5 runs"};
+let sel={model:"fable",context:"bill",elicitation:"pointci",effort:"max",aggregation:"pooled"};
 const ctl=document.getElementById("ctl");
 for(const dim in DIMS){
   const lab=document.createElement("span");lab.className="ctllab";lab.textContent=dim;ctl.appendChild(lab);
   DIMS[dim].forEach(v=>{const b=document.createElement("button");b.className="seg";b.textContent=LBL[v]||v;
-    b.onclick=()=>{sel[dim]=v;render()};b.dataset.dim=dim;b.dataset.v=v;ctl.appendChild(b)});
+    b.onclick=()=>{snap(dim,v);render()};b.dataset.dim=dim;b.dataset.v=v;ctl.appendChild(b)});
   ctl.appendChild(document.createElement("br"));
 }
+function keyOf(o){return [o.model,o.context,o.elicitation,o.effort,o.aggregation].join("|")}
+function snap(dim,v){
+  const cand=Object.keys(AGG).map(k=>{const f=k.split("|");
+    return {model:f[0],context:f[1],elicitation:f[2],effort:f[3],aggregation:f[4]}})
+    .filter(o=>o[dim]===v);
+  if(!cand.length)return;
+  cand.sort((a,b)=>{const sc=o=>Object.keys(sel).reduce((n,d)=>n+(o[d]===sel[d]?1:0),0);return sc(b)-sc(a)});
+  sel=cand[0];
+}
 function render(){
-  document.querySelectorAll("button.seg").forEach(b=>b.classList.toggle("on",sel[b.dataset.dim]===b.dataset.v));
-  const k=[sel.model,sel.context,sel.elicitation,sel.effort].join("|");
-  const d=AGG[k];
+  const POS={model:0,context:1,elicitation:2,effort:3,aggregation:4};
+  document.querySelectorAll("button.seg").forEach(b=>{
+    b.classList.toggle("on",sel[b.dataset.dim]===b.dataset.v);
+    b.disabled=!Object.keys(AGG).some(k=>k.split("|")[POS[b.dataset.dim]]===b.dataset.v);
+  });
+  const d=AGG[keyOf(sel)];
   const n=document.getElementById("ro-n"),c=document.getElementById("ro-c"),u=document.getElementById("ro-u"),bar=document.getElementById("ro-bar");
   if(d){n.textContent=d.ncrps.toFixed(3);c.textContent=d.cov.toFixed(2);u.textContent="n="+d.n_units;
     bar.style.width=Math.max(4,Math.min(100,(0.45-d.ncrps)/(0.45-0.15)*100))+"%";}
-  else{n.textContent="not run";c.textContent="—";u.textContent="—";bar.style.width="0%";}
 }
 render();
 </script>
