@@ -80,7 +80,10 @@ export interface BillCompute {
   region?: string;
   status?: string;
   budgetary_impact?: number;
+  ten_year_budgetary_impact?: number;
+  ten_year_window?: string;
   poverty_child_pct_change?: number;
+  beneficiaries_share?: number;
   note?: string;
   source?: string;
 }

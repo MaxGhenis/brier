@@ -52,11 +52,35 @@ const chipBase =
  * dataset build, and whether the model↔data pairing is certified. An
  * uncertified row renders with a warning chip, never silently.
  */
+function fmtBillions(v: number, decimals = 2): string {
+  const sign = v < 0 ? "−" : "+";
+  return `${sign}$${(Math.abs(v) / 1e9).toFixed(decimals)}B`;
+}
+
+function fmtPct(v: number, decimals = 1): string {
+  const sign = v < 0 ? "−" : "";
+  return `${sign}${(Math.abs(v) * 100).toFixed(decimals)}%`;
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+        {label}
+      </div>
+      <div className="text-[1.05rem] font-semibold leading-[1.4] text-[var(--theme-text)]">
+        {value}
+      </div>
+    </div>
+  );
+}
+
 function ComputeCard({ row }: { row: BillCompute }) {
   const certified = row.certification?.certified;
   const buildLabel = row.dataset
     ? (row.dataset.match(/build[a-z]+/i)?.[0] ?? row.dataset.slice(0, 24))
     : null;
+  const hasStats = row.budgetary_impact != null;
   return (
     <div className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] p-4">
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
@@ -83,7 +107,26 @@ function ComputeCard({ row }: { row: BillCompute }) {
           </span>
         )}
       </div>
-      <p className="m-0 mb-2 text-[0.88rem] leading-[1.6] text-[var(--theme-text)]">
+      {hasStats && (
+        <div className="mb-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+          {row.budgetary_impact != null && row.year != null && (
+            <Stat label={`${row.year} impact`} value={fmtBillions(row.budgetary_impact)} />
+          )}
+          {row.ten_year_budgetary_impact != null && (
+            <Stat
+              label={`Ten-year${row.ten_year_window ? ` (${row.ten_year_window})` : ""}`}
+              value={fmtBillions(row.ten_year_budgetary_impact, 1)}
+            />
+          )}
+          {row.poverty_child_pct_change != null && (
+            <Stat label="Child poverty" value={fmtPct(row.poverty_child_pct_change)} />
+          )}
+          {row.beneficiaries_share != null && (
+            <Stat label="People gaining" value={fmtPct(row.beneficiaries_share)} />
+          )}
+        </div>
+      )}
+      <p className="m-0 mb-2 text-[0.88rem] leading-[1.6] text-[var(--theme-text-muted)]">
         {renderInline(row.result_summary)}
       </p>
       <details className="mb-2">

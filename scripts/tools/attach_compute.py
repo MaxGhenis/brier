@@ -36,12 +36,10 @@ ROWS: dict[tuple[str, int], list[dict]] = {
                 }
             },
             "result_summary": (
-                "2026: budgetary impact -$1.83B; SPM child poverty -1.2% (17.02% to "
-                "16.82%); 6.5% of people gain, concentrated in the lowest income "
-                "deciles (decile-1 average +$32/yr vs decile-10 +$0.30); Gini -0.02%. "
-                "Ten-year (2026-2035): -$17.1B, with the annual cost declining from "
-                "$1.86B to $1.53B as nominal earnings growth lifts families past the "
-                "old $2,500 floor."
+                "Gains concentrate in the lowest income deciles (decile 1 averages "
+                "+$32/yr vs +$0.30 for decile 10); Gini falls 0.02%. The annual cost "
+                "declines from $1.86B to $1.53B across the window as earnings growth "
+                "lifts families past the old $2,500 floor."
             ),
             "engine": "modal",
             "pe_us_version": "1.764.6",
@@ -59,12 +57,12 @@ ROWS: dict[tuple[str, int], list[dict]] = {
             "ten_year_budgetary_impact": -17072622631.78,
             "ten_year_window": "2026-2035",
             "poverty_child_pct_change": -0.0115527,
+            "beneficiaries_share": 0.0648,
             "note": (
-                "The statute sets the threshold to $1; PolicyEngine policy 85587 "
-                "models $0 — economically identical, recorded per the audit. Static "
-                "microsim, one evidence stream with its own error bars; anchors: "
-                "previously published PolicyEngine figure -$1.6B on an older data "
-                "build, Tax Policy Center about $1.0B per year."
+                "Statute sets the threshold to $1; PolicyEngine policy 85587 models "
+                "$0 — economically identical, recorded per the audit. Static microsim, "
+                "one evidence stream with its own error bars. Anchors: PolicyEngine "
+                "-$1.6B/yr on an older data build; Tax Policy Center ~$1.0B/yr."
             ),
             "source": (
                 "Audited call path scripts/tools/policyengine.py per POLICYENGINE.md; "
