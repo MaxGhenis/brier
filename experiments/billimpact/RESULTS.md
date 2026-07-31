@@ -17,7 +17,7 @@ first run. Adversarial audit of our own constructions:
 Scope: **Leg B (conditional forecast) plus the S.3596 mechanical arm**; the
 team's extraction leg is out of scope and nothing here merges the two.
 
-**Totals: ~5,600 usable scored runs** — 2,520 (corpus A grid) + 719
+**Totals: ~7,400 usable scored runs** — 2,520 (corpus A grid) + 719
 (amendment arms H/I/J/K) + 180 (arm P) + 180 (A3) + 240 (A4) + 1,380 (CTC) +
 the A5/bake-off arms landing at time of writing — across **28 retrospective
 units (5 enacted laws, 5 programs)** and **14 PolicyEngine-verified household
@@ -206,6 +206,20 @@ Three results, ranked by strength:
    below the plain arms on matched units. The gains all came from model tier,
    reasoning effort, and aggregation (median-of-k improves monotonically,
    0.243 → 0.231 for k=1→5); none came from architecture.
+
+**Cross-type confirmation (N=36; committed as an extension before its runs).**
+Eight new units across four additional bill types (retro tax-parameter: ARPA
+§9611 advance CTC; appropriations: IIJA div. J highways; business-side tax:
+§301 tariffs → customs duties; administrative sunset: FRA §271 loan restart)
+joined the corpus with independently verified first prints. On the pooled 36
+units the headline arm beats its naive same-model configuration
+**−0.094 [−0.174, −0.022]** (26/36) and persistence **−0.518 [−0.863, −0.228]**
+(29/36); it is near-exact on the advance-CTC pulse (nCRPS 0.08 — the phase-in
+window is written in §7527A and the model prices it) and best-or-tied on
+tariffs and the loan restart. The pooled persistence margin is flattered by
+the new units' catastrophic mechanical baselines; the per-family table is in
+`results/final_multimetric.json`. New-type arms ran on a second API transport,
+recorded per run.
 
 Composition (baseline + mechanical delta) cannot be validated on backtests —
 a recall-informed baseline already contains the enacted policy, so adding the

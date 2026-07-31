@@ -8,7 +8,7 @@ which inspection confirmed and sharpened.
 
 As run, `purpose_only` supplied §313's text **under a header naming the
 statute** ("Fiscal Responsibility Act of 2023, Pub. L. 118-5"). The observed
-downward shift (10/12 units, median −2.65% vs `none`, p=0.002) therefore
+downward shift (down in 10/12 units — two unmoved; sign test on the 10 nonzero units, p=0.002 — median −2.65% vs `none`) therefore
 entangles three mechanisms:
 
 1. **Named-statute recall** — the header identifies a law whose operative
