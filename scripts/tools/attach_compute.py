@@ -36,7 +36,9 @@ ROWS: dict[tuple[str, int], list[dict]] = {
                 }
             },
             "result_summary": (
-                "Gains concentrate in the lowest income deciles (decile 1 averages "
+                "Federal aggregation (income_tax minus measured-zero benefits; state "
+                "spillover of ~$0.35M/yr itemized separately). Gains concentrate in "
+                "the lowest income deciles (decile 1 averages "
                 "+$32/yr vs +$0.30 for decile 10); Gini falls 0.02%. The annual cost "
                 "declines from $1.86B to $1.53B across the window as earnings growth "
                 "lifts families past the old $2,500 floor."
@@ -53,8 +55,8 @@ ROWS: dict[tuple[str, int], list[dict]] = {
             "year": 2026,
             "region": "us",
             "status": "ok",
-            "budgetary_impact": -1826396338.82,
-            "ten_year_budgetary_impact": -17072622631.78,
+            "budgetary_impact": -1826050568.80,
+            "ten_year_budgetary_impact": -17069142980.93,
             "ten_year_window": "2026-2035",
             "poverty_child_pct_change": -0.0115527,
             "beneficiaries_share": 0.0648,
