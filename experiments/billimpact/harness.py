@@ -70,16 +70,25 @@ def call_model(
     max_tokens: int = 2000,
     timeout: float = 180.0,
     retries: int = 4,
+    effort: Optional[str] = None,
 ) -> CallResult:
-    """One completion through the Anthropic Messages API. Errors returned, not raised."""
-    body = json.dumps(
-        {
-            "model": model,
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-            "messages": [{"role": "user", "content": prompt}],
-        }
-    ).encode()
+    """One completion through the Anthropic Messages API. Errors returned, not raised.
+
+    `effort` sets reasoning effort ("low"/"medium"/"high"/"max") via adaptive
+    thinking + output_config — an elicitation dimension. None = provider default.
+    """
+    payload: dict = {
+        "model": model,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    if effort is not None:
+        payload["thinking"] = {"type": "adaptive"}
+        payload["output_config"] = {"effort": effort}
+        payload["temperature"] = 1.0
+        payload["max_tokens"] = max(max_tokens, 32000)
+    body = json.dumps(payload).encode()
     start = time.time()
     last = ""
     for attempt in range(retries + 1):
