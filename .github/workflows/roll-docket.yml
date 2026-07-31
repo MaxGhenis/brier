@@ -376,15 +376,72 @@ jobs:
           fi
 
       - name: Test regenerated site
+        id: site_test
         if: steps.publish.outputs.published == '1'
+        # Does NOT gate any less strictly than before: the commit step below
+        # still requires this to have passed. continue-on-error only buys the
+        # chance to quarantine the batch before the job dies.
+        continue-on-error: true
         run: |
+          set -euo pipefail
           cd site
-          bun install --frozen-lockfile
+          # Retry the install. A transient 504 from api.github.com here on
+          # 2026-07-22 discarded a completed analyst batch and left three
+          # targets permanently unforecast.
+          for install_attempt in 1 2 3; do
+            if bun install --frozen-lockfile; then break; fi
+            if [ "$install_attempt" = 3 ]; then
+              echo "bun install failed after 3 attempts" >&2
+              exit 1
+            fi
+            echo "bun install failed (attempt $install_attempt/3); retrying" >&2
+            sleep $((install_attempt * 15))
+          done
           bun run test
           bun run build
 
+      - name: Quarantine the validated batch when the site gate fails
+        if: steps.site_test.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # The bundle has already cleared provenance, custody and record-chain
+          # verification by this point; only the site suite failed, and that
+          # suite is global -- it goes red for reasons that have nothing to do
+          # with this batch (a pre-existing unforecast orphan, an unrelated
+          # test, a flaky install). Dropping the batch here is what turned one
+          # transient failure into permanently unforecast targets, because the
+          # registration is already on main and re-forecasting after the
+          # release window would fabricate chronology. So preserve the work on
+          # a branch. Nothing reaches main: the gate is unchanged.
+          git config user.name "thesis-roller"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/thesis-analyst/ site/src/data 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no publication content to quarantine"
+            exit 0
+          fi
+          python3 scripts/docket_publication.py scan-staged
+          git commit -m "Quarantined auto-roll publication $(date -u +%F) (run ${{ github.run_id }})"
+          BRANCH="docket-quarantine/${{ github.run_id }}"
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          git -c credential.helper= -c credential.helper="$auth_helper" \
+            push origin "HEAD:refs/heads/$BRANCH"
+          echo "Batch preserved on \`$BRANCH\`. Fix the site failure, then" \
+            "re-publish from that branch before the registration leaves its" \
+            "orphan grace window." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail the job after quarantining
+        if: steps.site_test.outcome == 'failure'
+        run: |
+          echo "site gate failed; batch quarantined rather than published" >&2
+          exit 1
+
       - name: Commit records and trusted generated publication
-        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success'
+        # != 'failure' rather than == 'success': a failed-only batch skips the
+        # gate entirely (published=0) and must still record its run.
+        if: needs.register.result == 'success' && needs.register.outputs.count != '0' && needs.generate.result == 'success' && steps.site_test.outcome != 'failure'
         id: commit
         run: |
           set -euo pipefail
@@ -452,7 +509,18 @@ jobs:
             if [ "$PUBLISHED" = "1" ]; then
               (
                 cd site
-                bun install --frozen-lockfile
+                # install_attempt, not attempt: the enclosing publication push
+                # loop owns $attempt, and only the subshell keeps this from
+                # clobbering it.
+                for install_attempt in 1 2 3; do
+                  if bun install --frozen-lockfile; then break; fi
+                  if [ "$install_attempt" = 3 ]; then
+                    echo "bun install failed after 3 attempts" >&2
+                    exit 1
+                  fi
+                  echo "bun install failed (attempt $install_attempt/3); retrying" >&2
+                  sleep $((install_attempt * 15))
+                done
                 bun run test
                 bun run build
               )
