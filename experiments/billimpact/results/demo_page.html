@@ -41,7 +41,7 @@ summary{cursor:pointer;font-weight:650}
 <ul>
 <li>Forecasts track a statute&rsquo;s own numbers only where there is no realized outcome to remember: dose-response flat on a memorized 2021 target, monotone in 6/6 cells on the same statute moved to 2026. Directing the model to derive step by step restores tracking on the memorized period; maximum reasoning effort does not.</li>
 <li>One configuration validates out of sample at N=36 across 8 bill types (fable&nbsp;&middot;&nbsp;bill&nbsp;&middot;&nbsp;max effort): &minus;0.094 [&minus;0.174,&nbsp;&minus;0.022] vs its own naive setup, &minus;0.518 [&minus;0.863,&nbsp;&minus;0.228] vs persistence. The identical recipe at default effort is among the worst arms. Median-pooling its 5 repeats adds a further &minus;0.013 [&minus;0.022,&nbsp;&minus;0.005].</li>
-<li>At default effort, bill text narrowed intervals in 12/12 units while coverage fell: confidence, not accuracy.</li>
+<li>At default effort, bill text narrowed intervals in 12/12 units while coverage fell; the added context made the models more certain of less accurate answers.</li>
 <li>PolicyEngine tool access takes every model tier to 100% on the mechanical leg (weakest tier: 4% without it); an incomplete statutory excerpt degrades even tooled runs.</li>
 <li>The registered S.3596 poverty delta holds in 14/16 harness combinations; both outliers gave the model only the bill&rsquo;s name. Per-configuration forward forecasts are recorded, so these comparisons keep resolving mechanically after today.</li>
 </ul></div>
@@ -78,7 +78,7 @@ summary{cursor:pointer;font-weight:650}
 <span class="tag">Result 3 &middot; robustness of a registered number</span>
 <h2>The recorded S.3596 delta under sixteen harness configurations.</h2>
 <p class="sub">What&rsquo;s here: the spread of the same registered forecast (child-poverty effect of the team&rsquo;s demo bill) when re-run under 4 context levels &times; 2 elicitations &times; 2 models.</p>
-<p>Fourteen of sixteen configurations land in a &minus;0.10 to &minus;0.30pp band. Both outliers are the <em>name-only</em> context: given just &ldquo;S.3596, Stronger Start for Working Families Act&rdquo;, one model swings to &minus;1.5pp and another to 0.00. The uptake delta is sign-stable in 16/16 (+0.3 to +1.2M). Robustness where the text is present; a disclosure requirement where only the name is.</p>
+<p>Fourteen of sixteen configurations land in a &minus;0.10 to &minus;0.30pp band. Both outliers are the <em>name-only</em> context: given just &ldquo;S.3596, Stronger Start for Working Families Act&rdquo;, one model swings to &minus;1.5pp and another to 0.00. The uptake delta is sign-stable in 16/16 (+0.3 to +1.2M). With the bill text present the registered number is stable across harnesses; the name-only cells justify requiring context disclosure alongside any published delta.</p>
 </section>
 
 <section id="pipeline">
@@ -89,7 +89,7 @@ summary{cursor:pointer;font-weight:650}
 <tr><th>change</th><th>anchor</th><th>status</th></tr>
 <tr><td>Quantile-native runs fail closed instead of silently degrading to the interval transform (measured cost of the degradation: &minus;0.034 nCRPS)</td><td>run_thesis_analyst.py:291</td><td class="good">PR #78</td></tr>
 <tr><td>Harness disclosure on every forecast: reasoning effort recorded beside promptMode on predictionRun</td><td>cell-contract.md; spawned_cells_to_ts.py</td><td class="good">PR #79</td></tr>
-<tr><td>Reform validation checks amendatory completeness, not just parameter existence, plus a three-dose elasticity probe (the S.3596 &sect;2(a)-without-&sect;24(h)(6) case prices the wrong bill)</td><td>PR #64 checklist idiom</td><td>proposed in review</td></tr>
+<tr><td>Reform validation additionally checks amendatory completeness before pricing, plus a three-dose elasticity probe (the S.3596 &sect;2(a)-without-&sect;24(h)(6) case prices the wrong bill)</td><td>PR #64 checklist idiom</td><td>proposed in review</td></tr>
 </table>
 </section>
 
@@ -97,7 +97,7 @@ summary{cursor:pointer;font-weight:650}
 <span class="tag">Appendix</span>
 <h2>Supporting results.</h2>
 <p class="sub">Collapsed by default: calibration, the two-legs comparison on S.3596, harness dispersion, the mechanical-leg tables, and the forward program.</p>
-<details><summary>Calibration: bill text bought confidence, not accuracy (and a diagnostic humans can&rsquo;t run)</summary>
+<details><summary>Calibration: bill text tightened intervals while coverage fell, and a sampling diagnostic locates why</summary>
 <p style="margin-top:8px">At default effort, adding bill text narrowed 80% intervals in 12/12 units while coverage fell 0.50&nbsp;&rarr;&nbsp;0.33. Comparing each run&rsquo;s <em>stated</em> interval against the spread of its 5 repeated samples (728 cells): median revealed/stated ratio 0.26, and the ratio predicts miscalibration (&rho;=0.209, p&asymp;10<sup>&minus;8</sup>). The same bill moved fable&rsquo;s sampled spread with stated width flat (belief change) and narrowed opus&rsquo;s stated width with sampled spread flat (confidence change). If quantiles are elicited, honour them: re-deriving through the fixed interval transform costs &minus;0.034 nCRPS [&minus;0.068,&nbsp;&minus;0.003].</p></details>
 <details><summary>Both legs on the demo bill: mechanical &minus;0.20pp vs forecast &minus;0.10 to &minus;0.15pp</summary>
 <p style="margin-top:8px">PR #64 prices S.3596 mechanically on a certified build: child poverty &minus;0.20pp absolute (&minus;1.2% relative), &minus;$1.83B, gains bottom-concentrated. Our forecast-leg conditionals on the Census SPM 2027 target: &minus;0.10 to &minus;0.15pp. Different measure universes; read consistently the legs land within a factor of two, attenuated in the direction the recall mechanism predicts. Composition (baseline + mechanical delta) can only be scored forward: on backtests the baseline already contains the enacted policy, so adding the delta double-counts it.</p></details>
