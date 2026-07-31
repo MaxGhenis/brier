@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 import { Header } from "@/components/Header";
 import {
   BillForecasts,
   type BillForecastView,
 } from "@/components/BillForecasts";
+import { MetricCard } from "@/components/MetricCard";
 import { getBillForecastGroups } from "@/data/bill-forecasts";
 import {
   REGISTRY_LABEL,
@@ -16,6 +16,7 @@ import {
   type RegistryStatus,
 } from "@/data/bills";
 import { formatValue } from "@/data/forecast-cells";
+import { renderInline, stripRegistryNote } from "@/lib/render-inline";
 
 export function generateStaticParams() {
   return loadBills().map((entry) => ({ slug: entry.slug }));
@@ -43,26 +44,6 @@ export async function generateMetadata({
       },
     },
   };
-}
-
-/** Render the light markdown the analysis text uses: **bold** and `code`. */
-function renderInline(text: string): ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i}>{part.slice(2, -2)}</strong>;
-    }
-    if (part.startsWith("`") && part.endsWith("`")) {
-      return (
-        <code
-          key={i}
-          className="[font-family:var(--font-mono)] text-[0.82em] text-[var(--theme-text)]"
-        >
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    return part;
-  });
 }
 
 /** Server-side view models for the client selector — cells stay out of the bundle. */
@@ -135,6 +116,14 @@ const registryBadgeClass: Record<RegistryStatus, string> = {
   unknown: "bg-transparent text-[var(--theme-text-dim)] border-[var(--theme-border)]",
 };
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h4 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
+      {children}
+    </h4>
+  );
+}
+
 export default async function BillDetailPage({
   params,
 }: {
@@ -144,6 +133,11 @@ export default async function BillDetailPage({
   const entry = getBill(slug);
   if (!entry) notFound();
   const forecastViews = buildForecastViews(slug);
+  const totalGoals = entry.provisions.reduce((n, p) => n + p.goals.length, 0);
+  const totalMetrics = entry.provisions.reduce(
+    (n, p) => n + p.metrics.length,
+    0,
+  );
 
   return (
     <div>
@@ -202,144 +196,160 @@ export default async function BillDetailPage({
           )}
         </section>
 
-        <div className="grid gap-14">
-          {entry.provisions.map((provision, index) => (
-            <section
-              key={index}
-              className="border-t border-[var(--theme-border)] pt-8"
-            >
-              <p className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-2">
-                {provision.title}
-              </p>
-              <h2 className="[font-family:var(--font-display)] text-[1.35rem] font-normal leading-[1.3] text-[var(--theme-text)] mb-4">
-                {provision.heading}
-              </h2>
+        <section>
+          <div className="mb-5 flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="[font-family:var(--font-mono)] text-[0.75rem] uppercase tracking-[0.14em] text-[var(--theme-text)]">
+              Provisions · {entry.provisions.length}
+            </h2>
+            <p className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
+              {totalGoals} countersignable goals · {totalMetrics} candidate
+              metrics
+            </p>
+          </div>
 
-              {provision.quote && (
-                <blockquote className="mb-5 border-l-2 border-[var(--color-accent)] pl-4 text-[0.9rem] italic leading-[1.6] text-[var(--theme-text-muted)]">
-                  {renderInline(provision.quote)}
-                </blockquote>
-              )}
-
-              {provision.context && (
-                <p className="mb-6 max-w-[820px] text-[0.92rem] leading-[1.65] text-[var(--theme-text-muted)]">
-                  {renderInline(provision.context)}
-                </p>
-              )}
-
-              {provision.goals.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
-                    Countersignable goals
-                  </h3>
-                  <div className="grid gap-3">
-                    {provision.goals.map((goal, i) => (
-                      <div
-                        key={i}
-                        className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-surface)] p-4 text-[0.92rem] leading-[1.6] text-[var(--theme-text)]"
-                      >
-                        {renderInline(goal)}
-                      </div>
-                    ))}
+          <div className="grid gap-3">
+            {entry.provisions.map((provision, index) => (
+              <details
+                key={index}
+                className="group rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)]"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
+                  <div className="min-w-0">
+                    <p className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-1">
+                      {provision.title}
+                    </p>
+                    <h3 className="[font-family:var(--font-display)] text-[1.05rem] font-normal leading-[1.35] text-[var(--theme-text)]">
+                      {provision.heading}
+                    </h3>
                   </div>
-                </div>
-              )}
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)] max-md:hidden">
+                      {provision.goals.length} goals ·{" "}
+                      {provision.metrics.length} metrics
+                    </span>
+                    <span
+                      aria-hidden
+                      className="text-[var(--theme-text-dim)] transition-transform group-open:rotate-90"
+                    >
+                      ›
+                    </span>
+                  </div>
+                </summary>
 
-              {provision.effects.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
-                    Likely effects — shown regardless of the goals
-                  </h3>
-                  <ul className="grid gap-3 list-none p-0 m-0">
-                    {provision.effects.map((effect, i) => (
-                      <li
-                        key={i}
-                        className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
-                      >
-                        <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                          {effect.mechanism}
-                        </span>
-                        {renderInline(effect.text)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                <div className="border-t border-[var(--theme-border)] px-5 py-6">
+                  {provision.context && (
+                    <p className="mb-5 max-w-[820px] text-[0.92rem] leading-[1.65] text-[var(--theme-text-muted)]">
+                      {renderInline(provision.context)}
+                    </p>
+                  )}
 
-              {provision.barriers.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
-                    Implementation barriers
-                  </h3>
-                  <ul className="grid gap-3 list-none p-0 m-0">
-                    {provision.barriers.map((barrier, i) => (
-                      <li
-                        key={i}
-                        className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
-                      >
-                        <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                          {barrier.actor}
-                        </span>
-                        {renderInline(barrier.text)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                  {provision.quote && (
+                    <details className="mb-6">
+                      <summary className="cursor-pointer list-none [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.1em] text-[var(--color-accent)] [&::-webkit-details-marker]:hidden">
+                        Bill text ▸
+                      </summary>
+                      <blockquote className="mt-3 border-l-2 border-[var(--color-accent)] pl-4 text-[0.9rem] italic leading-[1.6] text-[var(--theme-text-muted)]">
+                        {renderInline(provision.quote)}
+                      </blockquote>
+                    </details>
+                  )}
 
-              {provision.metrics.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
-                    Candidate outcome metrics
-                  </h3>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    {provision.metrics.map((metric, i) => {
-                      const { status } = metricRegistryStatus(metric);
-                      return (
-                        <div
-                          key={i}
-                          className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-surface)] p-4"
-                        >
-                          <div className="mb-2 flex flex-wrap items-center gap-2">
-                            <span
-                              className={`inline-block rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] ${registryBadgeClass[status]}`}
-                            >
-                              {REGISTRY_LABEL[status]}
-                            </span>
-                            <span className="[font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
-                              {metric.kind}
-                            </span>
+                  {provision.goals.length > 0 && (
+                    <div className="mb-6">
+                      <SectionLabel>Countersignable goals</SectionLabel>
+                      <div className="grid gap-3">
+                        {provision.goals.map((goal, i) => (
+                          <div
+                            key={i}
+                            className="rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] p-4 text-[0.92rem] leading-[1.6] text-[var(--theme-text)]"
+                          >
+                            {renderInline(goal)}
                           </div>
-                          <p className="m-0 text-[0.88rem] leading-[1.6] text-[var(--theme-text-muted)]">
-                            {renderInline(metric.text)}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-              {provision.conditionals.length > 0 && (
-                <div>
-                  <h3 className="[font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-3">
-                    Conditional forecast sketches
-                  </h3>
-                  <div className="grid gap-2">
-                    {provision.conditionals.map((conditional, i) => (
-                      <pre
-                        key={i}
-                        className="m-0 overflow-x-auto rounded-lg border border-[var(--theme-border)] bg-[var(--theme-surface)] p-3 [font-family:var(--font-mono)] text-[0.78rem] leading-[1.5] text-[var(--theme-text)] whitespace-pre-wrap"
-                      >
-                        {conditional.replaceAll("`", "")}
-                      </pre>
-                    ))}
-                  </div>
+                  {provision.effects.length > 0 && (
+                    <div className="mb-6">
+                      <SectionLabel>
+                        Likely effects — shown regardless of the goals
+                      </SectionLabel>
+                      <ul className="m-0 grid list-none gap-3 p-0">
+                        {provision.effects.map((effect, i) => (
+                          <li
+                            key={i}
+                            className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
+                          >
+                            <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                              {effect.mechanism}
+                            </span>
+                            {renderInline(effect.text)}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {provision.barriers.length > 0 && (
+                    <div className="mb-6">
+                      <SectionLabel>Implementation barriers</SectionLabel>
+                      <ul className="m-0 grid list-none gap-3 p-0">
+                        {provision.barriers.map((barrier, i) => (
+                          <li
+                            key={i}
+                            className="text-[0.92rem] leading-[1.6] text-[var(--theme-text-muted)]"
+                          >
+                            <span className="mr-2 inline-block rounded-full border border-[var(--theme-border)] px-2 py-[1px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+                              {barrier.actor}
+                            </span>
+                            {renderInline(barrier.text)}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {provision.metrics.length > 0 && (
+                    <div className="mb-6">
+                      <SectionLabel>Candidate outcome metrics</SectionLabel>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        {provision.metrics.map((metric, i) => {
+                          const { status } = metricRegistryStatus(metric);
+                          return (
+                            <MetricCard
+                              key={i}
+                              kind={metric.kind}
+                              text={stripRegistryNote(metric.text)}
+                              badgeLabel={REGISTRY_LABEL[status]}
+                              badgeClass={registryBadgeClass[status]}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {provision.conditionals.length > 0 && (
+                    <div>
+                      <SectionLabel>Conditional forecast sketches</SectionLabel>
+                      <div className="grid gap-2">
+                        {provision.conditionals.map((conditional, i) => (
+                          <pre
+                            key={i}
+                            className="m-0 overflow-x-auto whitespace-pre-wrap rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] p-3 [font-family:var(--font-mono)] text-[0.78rem] leading-[1.5] text-[var(--theme-text)]"
+                          >
+                            {conditional.replaceAll("`", "")}
+                          </pre>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </section>
-          ))}
-        </div>
+              </details>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
