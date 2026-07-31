@@ -214,6 +214,15 @@ Three results, ranked by strength:
    reasoning effort, and aggregation (median-of-k improves monotonically,
    0.243 → 0.231 for k=1→5); none came from architecture.
 
+**Heterogeneity by realized shock size (objective stratifier: |first print −
+last history value| > 1 history SD).** On the 17 big-shock units the leading
+configuration beats persistence 17/17 (−1.016 [−1.606, −0.480]) and its naive
+same-model configuration 16/17 (−0.225 [−0.342, −0.131]); on the 19 quiet
+units both comparisons are null. The margin concentrates exactly where a
+statute moves the series. The stratifier is ex-post (it uses the realized
+move) and is reported as a description of where the skill lives, not a
+selection rule.
+
 **Cross-type confirmation (N=36; committed as an extension before its runs).**
 Eight new units across four additional bill types (retro tax-parameter: ARPA
 §9611 advance CTC; appropriations: IIJA div. J highways; business-side tax:
