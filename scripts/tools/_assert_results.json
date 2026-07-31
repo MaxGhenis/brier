@@ -1,0 +1,86 @@
+[
+  {
+    "id": "ENV",
+    "claim": "record the installed policyengine-us version",
+    "pass": true,
+    "evidence": "policyengine_us_version() = '1.784.3'"
+  },
+  {
+    "id": "VAL-1",
+    "claim": "the real Stronger Start reform validates",
+    "pass": true,
+    "evidence": "ok=True, source=policyengine-us@1.784.3, problems=[]"
+  },
+  {
+    "id": "VAL-2",
+    "claim": "invented param + bad date + string value are all rejected",
+    "pass": true,
+    "evidence": "ok=False; problems=[\"unknown parameter: 'gov.irs.credits.ctc.made_up' (base 'gov.irs.credits.ctc.made_up' not in policyengine-us@1.784.3)\", \"'gov.irs.credits.ctc.made_up': bad date range '2026' (want 'YYYY-MM-DD.YYYY-MM-DD')\", \"'gov.irs.credits.ctc.made_up'[2026]: value must be number/bool, got str\"]"
+  },
+  {
+    "id": "VAL-3",
+    "claim": "the exact parameter the bill edits exists in the model",
+    "pass": true,
+    "evidence": "'gov.irs.credits.ctc.refundable.phase_in.threshold' in policyengine-us@1.784.3: True"
+  },
+  {
+    "id": "API-1",
+    "claim": "POST /us/policy SILENTLY accepts an invented parameter (201)",
+    "pass": true,
+    "evidence": "HTTP 200, body={\"status\": \"ok\", \"message\": \"Policy already exists\", \"result\": {\"policy_id\": 98081}}"
+  },
+  {
+    "id": "API-2",
+    "claim": "POST /us/policy SILENTLY accepts a string where a number belongs (201)",
+    "pass": true,
+    "evidence": "HTTP 200, body={\"status\": \"ok\", \"message\": \"Policy already exists\", \"result\": {\"policy_id\": 98082}}"
+  },
+  {
+    "id": "CERT-1",
+    "claim": "build P's manifest certifies exactly one policyengine-us version",
+    "pass": true,
+    "evidence": "certified_model_version(build P) = '1.764.6'"
+  },
+  {
+    "id": "CERT-2",
+    "claim": "running 1.784.3 on build P is flagged UNCERTIFIED",
+    "pass": "UNCERTIFIED PAIRING: build certifies policyengine-us==1.764.6, running 1.784.3. Install the certified version.",
+    "evidence": "{'build': 'populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z', 'certified_model_version': '1.764.6', 'running_model_version': '1.784.3', 'certified': False, 'warning': 'UNCERTIFIED PAIRING: build certifies policyengine-us==1.764.6, running 1.784.3. Install the certified version.'}"
+  },
+  {
+    "id": "CERT-3",
+    "claim": "running 1.764.6 on build P is certified",
+    "pass": true,
+    "evidence": "certified=True"
+  },
+  {
+    "id": "CERT-4",
+    "claim": "the LOCALLY installed version is NOT certified for build P (must use Modal/1.764.6)",
+    "pass": true,
+    "evidence": "installed='1.784.3' != certified='1.764.6' -> local build-P runs would be uncertified"
+  },
+  {
+    "id": "CALL-1",
+    "claim": "current-law baseline is policy id 2",
+    "pass": true,
+    "evidence": "baseline_id('us') = 2"
+  },
+  {
+    "id": "CALL-2",
+    "claim": "policy 2 is a real current-law policy record",
+    "pass": true,
+    "evidence": "policy/2 label='Current law', keys=['id', 'country_id', 'label', 'api_version', 'policy_json', 'policy_hash']"
+  },
+  {
+    "id": "STAT-1",
+    "claim": "PE baseline threshold is $2,500 (the value the bill removes)",
+    "pass": true,
+    "evidence": "param('2026-01-01') = 2500"
+  },
+  {
+    "id": "STAT-2",
+    "claim": "reform dict encodes threshold=0; statute says $1 (recorded, economically identical)",
+    "pass": true,
+    "evidence": "bill S.3596 sec.2: strike '$3,000'->'$1' and remove sec.24(h)(6) $2,500 => $1; PE policy 85587 & reform.json use 0"
+  }
+]
