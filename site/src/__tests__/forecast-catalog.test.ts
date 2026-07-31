@@ -1060,6 +1060,59 @@ describe("forecast catalog", () => {
     );
   });
 
+  it("attaches the published challenge forecasts to their existing targets", () => {
+    const expected = [
+      {
+        slug: "jolts-hires-rate-june-2026",
+        agent:
+          "github:PavelMakarchuk::Claude Fable 5 (pavel onboarding agent)",
+        model: "Claude Fable 5 (pavel onboarding agent)",
+        runAt: "2026-07-31T14:00:26Z",
+        pointEstimate: 3.3,
+        ciLow: 3.1,
+        ciHigh: 3.45,
+      },
+      {
+        slug: "u6-underemployment-rate-july-2026",
+        agent: "github:khs::Claude Opus 5 (Claude Code)",
+        model: "Claude Opus 5 (Claude Code)",
+        runAt: "2026-07-31T14:05:19Z",
+        pointEstimate: 7.9,
+        ciLow: 7.7,
+        ciHigh: 8.1,
+      },
+    ];
+
+    for (const item of expected) {
+      const forecast = FORECAST_CELLS.find(
+        (candidate) => candidate.slug === item.slug,
+      );
+      const run = forecast
+        ? getForecastRunEntries(forecast).find(
+            (candidate) => candidate.predictionRun?.agent === item.agent,
+          )
+        : undefined;
+
+      expect(forecast).toBeTruthy();
+      expect(run).toBeTruthy();
+      expect(run?.predictionRun?.model).toBe(item.model);
+      expect(run?.predictionRun?.runAt).toBe(item.runAt);
+      expect(run?.predictionRun?.sourceContext).toContain(
+        "records/2026-07-31/digest-30648581183-1.json",
+      );
+      expect(run?.pointEstimate).toBe(item.pointEstimate);
+      expect(run?.ciLow).toBe(item.ciLow);
+      expect(run?.ciHigh).toBe(item.ciHigh);
+      expect(run?.predictionDistribution?.pointCount).toBe(201);
+      expect(run?.predictionDistribution?.provenance).toBe("agent_reported");
+      expect(run?.predictionDistribution?.summary).toEqual({
+        pointEstimate: item.pointEstimate,
+        median: item.pointEstimate,
+        interval80: { lower: item.ciLow, upper: item.ciHigh },
+      });
+    }
+  });
+
   it("builds pack catalog pages from recorded forecast runs", () => {
     const catalog = buildPredictionPackCatalog(FORECAST_CELLS);
     expect(catalog.map((pack) => pack.packId)).toEqual(
