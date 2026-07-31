@@ -1,0 +1,9 @@
+# The custody chain hashes everything under records/ byte-for-byte. Git's
+# line-ending translation (core.autocrlf, on by default in Git for Windows)
+# rewrites LF to CRLF at checkout, which changes those bytes and breaks every
+# digest hash — scripts/verify_record_chain.py reports CHAIN BROKEN on a clean
+# clone even though the records are intact. Never translate these paths.
+records/** -text
+
+# Challenge submissions are hashed on intake for the same reason.
+challenge/** -text

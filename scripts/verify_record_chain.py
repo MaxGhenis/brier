@@ -139,7 +139,7 @@ def sha256_file(path: Path) -> str:
 
 
 def logical_path(records: Path, path: Path) -> str:
-    return str(Path("records") / path.relative_to(records))
+    return (Path("records") / path.relative_to(records)).as_posix()
 
 
 def physical_path(records: Path, value: str) -> Path:
@@ -365,7 +365,7 @@ def _run_openssl(
 ) -> bytes | str:
     command = ["openssl", *arguments]
     process_env = os.environ.copy()
-    process_env.update({"OPENSSL_CONF": "/dev/null", "LC_ALL": "C"})
+    process_env.update({"OPENSSL_CONF": os.devnull, "LC_ALL": "C"})
     if env:
         process_env.update(env)
     try:
@@ -885,7 +885,7 @@ def verify_timestamp_token(
                 "ts",
                 "-reply",
                 "-config",
-                "/dev/null",
+                os.devnull,
                 "-in",
                 str(token_path),
                 "-token_out",
@@ -903,6 +903,7 @@ def verify_timestamp_token(
                 str(token_der),
                 "-noverify",
                 "-nosigs",
+                "-binary",
                 "-out",
                 str(tst_info),
             ]
@@ -941,7 +942,7 @@ def verify_timestamp_token(
 
         verification_env = {
             "SSL_CERT_DIR": str(empty_ca_dir),
-            "SSL_CERT_FILE": "/dev/null",
+            "SSL_CERT_FILE": os.devnull,
         }
         verification_time = str(int(gen_time.timestamp()))
         # No -CAstore here: OpenSSL loads default trust locations only when
@@ -954,7 +955,7 @@ def verify_timestamp_token(
                 "ts",
                 "-verify",
                 "-config",
-                "/dev/null",
+                os.devnull,
                 "-data",
                 str(path),
                 "-in",
