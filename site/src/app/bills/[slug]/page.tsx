@@ -151,9 +151,7 @@ export default async function BillDetailPage({
           <h1 className="[font-family:var(--font-display)] text-[clamp(1.7rem,3.5vw,2.4rem)] font-light leading-[1.2] tracking-[-0.02em] text-[var(--theme-text)] mb-5">
             {entry.bill.name}
           </h1>
-          <p className="max-w-[820px] text-[0.95rem] leading-[1.65] text-[var(--theme-text-muted)]">
-            {entry.bill.analyzed} · {entry.bill.pages.toLocaleString()} pages ·
-            analyzed {entry.bill.analysisDate} ·{" "}
+          <p className="text-[0.95rem] leading-[1.65]">
             <a
               href={entry.bill.sourceUrl}
               className="text-[var(--color-accent)]"
@@ -175,6 +173,9 @@ export default async function BillDetailPage({
                 </a>
               </>
             )}
+          </p>
+          <p className="mt-2 [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
+            analyzed {entry.bill.analysisDate}
           </p>
         </header>
 
