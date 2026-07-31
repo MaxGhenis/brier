@@ -201,18 +201,12 @@ export default async function BillDetailPage({
                       {provision.heading}
                     </h3>
                   </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)] max-md:hidden">
-                      {provision.goals.length} goals ·{" "}
-                      {provision.metrics.length} metrics
-                    </span>
-                    <span
-                      aria-hidden
-                      className="text-[var(--theme-text-dim)] transition-transform group-open:rotate-90"
-                    >
-                      ›
-                    </span>
-                  </div>
+                  <span
+                    aria-hidden
+                    className="shrink-0 text-[var(--theme-text-dim)] transition-transform group-open:rotate-90"
+                  >
+                    ›
+                  </span>
                 </summary>
 
                 <div className="border-t border-[var(--theme-border)] px-5 py-6">
