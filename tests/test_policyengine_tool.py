@@ -69,12 +69,33 @@ def test_empty_reform_rejected():
     assert not pe.validate_reform({}).ok
 
 
-def test_structural_only_warns_when_source_unavailable(monkeypatch):
+def test_unverifiable_existence_REFUSES_by_default(monkeypatch):
+    # FAIL-CLOSED (review finding, #64): a PE failure must refuse, not validate.
     monkeypatch.setattr(pe, "known_parameters", lambda country="us": (None, "structural-only"))
     r = pe.validate_reform(GOOD_REFORM)
-    # structurally fine, but existence unverified -> ok True with a loud WARNING
+    assert not r.ok and not r.checked_existence
+    assert any(p.startswith("REFUSED") for p in r.problems)
+
+
+def test_unverifiable_existence_passes_only_with_explicit_override(monkeypatch):
+    monkeypatch.setattr(pe, "known_parameters", lambda country="us": (None, "structural-only"))
+    r = pe.validate_reform(GOOD_REFORM, allow_unverified=True)
     assert r.ok and not r.checked_existence
-    assert any(p.startswith("WARNING") for p in r.problems)
+    assert any("allow_unverified" in p for p in r.problems)
+
+
+def test_certification_refuses_when_manifest_unreachable(monkeypatch):
+    monkeypatch.setattr(pe, "certified_model_version", lambda build=None: None)
+    note = pe.certification_note("some-build", "1.764.6")
+    assert note["certified"] is False
+    assert note["warning"] and "CANNOT CERTIFY" in note["warning"]
+
+
+def test_certification_refuses_when_running_version_unknown(monkeypatch):
+    monkeypatch.setattr(pe, "certified_model_version", lambda build=None: "1.764.6")
+    note = pe.certification_note("some-build", None)
+    assert note["certified"] is False
+    assert note["warning"] and "CANNOT CERTIFY" in note["warning"]
 
 
 # --------------------------------------------------------------------------- #

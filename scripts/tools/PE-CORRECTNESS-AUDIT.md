@@ -202,7 +202,49 @@ total with **diff $0.000000**. Operational rules distilled into
    was not diffed line-by-line. Magnitudes match the published shape (6.5% vs
    5.9% beneficiaries) but treat sub-point differences as method variance.
 
-## 8. Verdict
+## 8. External review findings (Max, 2026-07-31 — all three CONFIRMED and fixed)
+
+The lane's own reviewer found three defects in the auditor. Recorded here in
+the same evidence discipline the audit demands of everyone else:
+
+1. **Fail-open validation/certification.** `validate_reform` passed (`ok=True`)
+   with only a WARNING when parameter existence could not be checked (no
+   policyengine-us + metadata API down), and `certification_note` returned
+   `certified: False` with a **silent `warning: None`** when the release
+   manifest was unreachable — a PE failure validated instead of refusing.
+   *Fixed:* unverifiable existence now REFUSES unless `allow_unverified=True`
+   is passed explicitly; certification refusals always carry an explicit
+   CANNOT CERTIFY reason (manifest unreachable / running version unknown);
+   the hosted-API engine's certification passes `running_version=None`
+   (api_version is the service version, not the model) and therefore refuses
+   rather than confusing the two. Tests: `test_unverifiable_existence_REFUSES_by_default`,
+   `test_certification_refuses_when_manifest_unreachable`, and siblings.
+
+2. **Federal budget aggregation computed wrong.** `economy_local` and the Modal
+   runner derived "budgetary impact" from the `household_net_income` delta,
+   which lumps **state** tax/benefit spillovers into a federal number (the
+   observed ~0.02% "losers" were state-credit interactions polluting the
+   federal aggregate). *Fixed:* federal = engine's own federal variables —
+   `income_tax` delta (federal 1040 net liability incl. refundable credits)
+   minus `household_benefits` delta; `state_income_tax` delta reported
+   separately as `state_tax_revenue_impact`; the net-income delta demoted to a
+   labeled cross-check field.
+
+3. **The audit artifact bypassed the wrapper it audits.** The committed S.3596
+   numbers were produced by `modal_economy.py` calling `Microsimulation`
+   directly — no `validate_reform` gate, no `compute_block`, no
+   `bills/compute-log` entry. *Fixed:* the Modal entrypoints now validate
+   FAIL-CLOSED through the wrapper before submitting, and every completed run
+   is recorded via `pe.EconomyRun -> pe._log_call` with the bill.json row
+   emitted by `pe.compute_block`.
+
+**Consequence:** the previously committed S.3596 numbers (−$1.83B 2026 /
+−$17.1B 10-yr) were net-income-proxy figures and are re-running through the
+corrected federal aggregation on the certified stack as this section is
+written. They do not go on a slide until the corrected artifacts land and the
+drift guard verifies the page row against them.
+
+## 9. Verdict
 
 With the tool in place, an agent **cannot**: invent a parameter (VAL-2 blocks it
 where the API would accept it — API-1/2), run an uncertified model↔data pairing

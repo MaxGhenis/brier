@@ -77,17 +77,29 @@ def certified_model_version(build: str = POPULACE_BUILD) -> Optional[str]:
 
 
 def certification_note(build: str, running_version: Optional[str]) -> dict:
-    """Compare the running model version to the build's certified version."""
+    """Compare the running model version to the build's certified version.
+    FAIL-CLOSED: certification is granted only on a positive match. An
+    unreachable manifest or an unknown running version REFUSES with an explicit
+    reason — it never yields certified with a silent None warning."""
     certified = certified_model_version(build)
     match = bool(certified and running_version and running_version == certified)
+    if match:
+        warning = None
+    elif certified is None:
+        warning = (f"CANNOT CERTIFY: release manifest for {build} unreachable — "
+                   "refusing to certify; retry with network access to the build manifest.")
+    elif running_version is None:
+        warning = (f"CANNOT CERTIFY: running model version unknown (build certifies "
+                   f"policyengine-us=={certified}) — refusing to certify.")
+    else:
+        warning = (f"UNCERTIFIED PAIRING: build certifies policyengine-us=={certified}, "
+                   f"running {running_version}. Install the certified version.")
     return {
         "build": build,
         "certified_model_version": certified,
         "running_model_version": running_version,
         "certified": match,
-        "warning": None if match or not certified
-        else f"UNCERTIFIED PAIRING: build certifies policyengine-us=={certified}, "
-             f"running {running_version}. Install the certified version.",
+        "warning": warning,
     }
 
 
@@ -213,11 +225,13 @@ class ValidationResult:
         return self.ok
 
 
-def validate_reform(reform: dict, country: str = COUNTRY) -> ValidationResult:
+def validate_reform(reform: dict, country: str = COUNTRY,
+                    allow_unverified: bool = False) -> ValidationResult:
     """First audit gate. Structural checks always run; parameter existence is
-    checked against policyengine-us (preferred) or the metadata API. An agent may
-    not invent parameters — but if existence can't be verified, we say so loudly
-    rather than pass silently."""
+    checked against policyengine-us (preferred) or the metadata API. FAIL-CLOSED:
+    if existence cannot be verified, the reform is REFUSED (ok=False) unless the
+    caller explicitly passes allow_unverified=True — a PE failure must never
+    validate by default."""
     problems: list[str] = []
     if not isinstance(reform, dict) or not reform:
         return ValidationResult(False, ["reform must be a non-empty object mapping "
@@ -242,8 +256,15 @@ def validate_reform(reform: dict, country: str = COUNTRY) -> ValidationResult:
                 problems.append(f"{path!r}[{drange}]: value must be number/bool, "
                                 f"got {type(value).__name__}")
     if not checked:
-        problems.append("WARNING: parameter existence NOT verified (no policyengine-us "
-                        "and metadata API unreachable) — install the `tax` group before trusting this run")
+        if allow_unverified:
+            problems.append("WARNING: parameter existence NOT verified (no policyengine-us "
+                            "and metadata API unreachable) — proceeding ONLY because "
+                            "allow_unverified=True was passed explicitly")
+        else:
+            problems.append("REFUSED: parameter existence cannot be verified (no "
+                            "policyengine-us installed and metadata API unreachable). "
+                            "Install the certified stack (scripts/tools/requirements-tax.txt) "
+                            "or pass allow_unverified=True to override explicitly.")
     hard_problems = [p for p in problems if not p.startswith("WARNING:")]
     return ValidationResult(not hard_problems, problems, source, checked)
 
@@ -446,24 +467,40 @@ def economy_local(
     ds = populace_dataset_uri(build)
 
     def _arm_metrics(sim) -> dict:
-        # net income drives budgetary impact + SPM poverty; compute both here so
-        # only ONE national microsim is resident at a time (16GB box can't hold two).
-        net = float(sim.calculate("household_net_income", year).sum())
+        # FEDERAL aggregation through the engine's own variables — NOT a
+        # household_net_income proxy, which lumps state tax/benefit spillovers
+        # into a "federal" number (review finding, #64). income_tax is the
+        # federal 1040 net liability including refundable credits. One national
+        # microsim resident at a time (16GB box can't hold two).
+        fed_tax = float(sim.calculate("income_tax", year).sum())
+        try:
+            state_tax = float(sim.calculate("state_income_tax", year).sum())
+        except Exception:
+            state_tax = None
+        benefits = float(sim.calculate("household_benefits", year).sum())
+        net = float(sim.calculate("household_net_income", year).sum())  # cross-check only
         all_pov = float(sim.calculate("in_poverty", period=year, map_to="person").mean())
         cp = _weighted_child_poverty(sim, year)
         dcp = _weighted_deep_child_poverty(sim, year)
-        return {"net": net, "all": all_pov, "child": cp, "deep_child": dcp}
+        return {"fed_tax": fed_tax, "state_tax": state_tax, "benefits": benefits,
+                "net": net, "all": all_pov, "child": cp, "deep_child": dcp}
 
     base = _arm_metrics(Microsimulation(dataset=ds))
     gc.collect()  # free the baseline sim before building the reform arm — peak = one sim
     ref = _arm_metrics(Microsimulation(dataset=ds, reform=Reform.from_dict(reform, country_id=COUNTRY)))
     gc.collect()
 
-    budgetary_impact = base["net"] - ref["net"]  # negative = cost to government
+    tax_revenue_impact = ref["fed_tax"] - base["fed_tax"]            # negative = revenue falls
+    benefit_spending_impact = ref["benefits"] - base["benefits"]     # positive = spending rises
+    budgetary_impact = tax_revenue_impact - benefit_spending_impact  # negative = cost
+    state_spillover = (ref["state_tax"] - base["state_tax"]
+                       if ref["state_tax"] is not None and base["state_tax"] is not None else None)
     impact = {
         "budgetary_impact": budgetary_impact,
-        "tax_revenue_impact": budgetary_impact,
-        "benefit_spending_impact": 0.0,
+        "tax_revenue_impact": tax_revenue_impact,
+        "benefit_spending_impact": benefit_spending_impact,
+        "state_tax_revenue_impact": state_spillover,
+        "household_net_income_delta": ref["net"] - base["net"],  # incl. state spillover; cross-check
         "poverty": {
             "all": _pov_block(base["all"], ref["all"]),
             "child": _pov_block(base["child"], ref["child"]),
