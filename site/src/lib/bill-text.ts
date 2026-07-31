@@ -12,18 +12,67 @@ import path from "node:path";
 
 const RAW_DIR = path.join(process.cwd(), "..", "bills", "raw");
 
-// Committee-print page furniture: bare page numbers and draft stamps
-// ("RYA26731 1TW [file 1 of 2]  S.L.C."), plus trailing line-number
-// gutters PDF extraction leaves at line ends.
+// Small-caps extraction splits a word's first letter off ("A UTHORIZATION");
+// joining is safe unless the remainder is itself a real word that
+// legitimately follows a single-letter word in caps headings.
+const CAPS_WORDS = new Set([
+  "AND", "OR", "OF", "THE", "TO", "IN", "ON", "BY", "FOR", "AS", "AT",
+  "AN", "IS", "ARE", "BE", "NO", "NOT", "ACT", "BILL", "LAW", "USE",
+  "PROGRAM", "PROGRAMS", "PLAN", "REPORT", "STATE", "NEW",
+]);
+
+/** A line that begins a new structural unit of statutory text. */
+function startsUnit(line: string): boolean {
+  return /^(?:[‘'"“]{1,2})?\(|^(?:[‘'"“]{1,2})?SEC(?:TION)?\.?\s/i.test(line);
+}
+
+// Reflow committee-print typography into readable paragraphs: drop page
+// furniture ("RYA26731 1TW [file 1 of 2]  S.L.C.", bare page numbers),
+// strip line-number gutters (including the "CYBERSECU -5 / RITY" form
+// where the gutter lands after a typesetting hyphen), rejoin
+// hyphenated word breaks, and merge lines so text wraps naturally,
+// breaking only at SEC. headings and quoted designators like ''(23),
+// ''(A), ''(i).
 function cleanForDisplay(slice: string): string {
-  return slice
+  const lines = slice
     .split("\n")
     .filter((line) => !/^\s*\d+\s*$/.test(line))
     .filter((line) => !/\[file \d+ of \d+\]|S\.L\.C\./.test(line))
-    .map((line) => line.replace(/\s+\d{1,2}\s*$/, ""))
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+    .map((line) =>
+      line
+        .replace(/\s?[-–]\s?\d{1,3}\s*$/, "-")
+        .replace(/\s+\d{1,3}\s*$/, "")
+        .trim(),
+    )
+    .filter((line) => line !== "");
+
+  const paragraphs: string[] = [];
+  let buffer = "";
+  for (const line of lines) {
+    if (buffer === "") {
+      buffer = line;
+    } else if (startsUnit(line)) {
+      paragraphs.push(buffer);
+      buffer = line;
+    } else if (buffer.endsWith("-")) {
+      buffer = buffer.slice(0, -1) + line;
+    } else {
+      buffer += " " + line;
+    }
+  }
+  if (buffer) paragraphs.push(buffer);
+
+  return paragraphs
+    .map((p) =>
+      p
+        .replace(/\b([A-Z]) ([A-Z])\b(?=[ .])/g, "$1$2")
+        .replace(/\b([A-Z]) ([A-Z]{2,})\b/g, (match, first, rest) =>
+          CAPS_WORDS.has(rest) ? match : first + rest,
+        )
+        .replace(/\s+(?=\.—)/g, "")
+        .replace(/\s{2,}/g, " "),
+    )
+    .join("\n\n");
 }
 
 export function loadRawBillText(slug: string): string | null {

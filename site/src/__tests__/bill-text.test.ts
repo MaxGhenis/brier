@@ -54,7 +54,20 @@ describe("extractSections", () => {
   it("strips page furniture and line-number gutters", () => {
     const slice = extractSections(raw, ["2101"]);
     expect(slice).not.toMatch(/S\.L\.C\./);
-    expect(slice).not.toMatch(/\d+\s*$/m ? /  \d+$/m : / {2}\d+$/m);
+    expect(slice).not.toMatch(/ \d{1,2}$/m);
+  });
+
+  it("rejoins hyphenated line breaks with gutter numbers", () => {
+    const hyphenated = [
+      "SEC. 6206. RURAL WATER AND WASTEWATER CYBERSECU -5",
+      "RITY CIRCUIT RIDER PROGRAM.  6",
+      "Section 306(a) is amended by in -8",
+      "serting after paragraph (22) the following:  9",
+    ].join("\n");
+    const slice = extractSections(hyphenated, ["6206"]);
+    expect(slice).toContain("CYBERSECURITY CIRCUIT RIDER PROGRAM.");
+    expect(slice).toContain("inserting after paragraph (22)");
+    expect(slice).not.toMatch(/-\d/);
   });
 
   it("returns null rather than wrong text when nothing matches", () => {
@@ -83,5 +96,19 @@ describe("fullSectionText on the real artifacts", () => {
     expect(text).toContain("SEC. 2105");
     expect(text).toContain("SEC. 2401");
     expect(text).not.toMatch(/S\.L\.C\./);
+  });
+
+  it("reflows the §6206 text cleanly", () => {
+    const text = fullSectionText(
+      "farm-bill-2-0",
+      "3. §6206: Rural Water and Wastewater Cybersecurity Circuit Rider Program",
+      "Title VI — Rural Development",
+    );
+    expect(text).toContain("CYBERSECURITY CIRCUIT RIDER PROGRAM");
+    expect(text).toContain("AUTHORIZATION OF APPROPRIATIONS");
+    expect(text).toContain("inserting after paragraph (22)");
+    // No gutter digits stuck to hyphenated words, no mid-word splits.
+    expect(text).not.toMatch(/[a-z] -\d/);
+    expect(text).not.toContain("CYBERSECU -");
   });
 });
