@@ -545,7 +545,8 @@ ALFRED_ADAPTERS: dict[str, dict[str, Any]] = {
     },
     # US docket expansion (drafted 2026-07-24, anchor-verified 2026-07-25
     # through the alfredgraph vintage transport — three anchors per series,
-    # recorded in ANCHORS.md; six carry one flagged late-vintage anchor).
+    # recorded in docs/anchor-verifications.md; six carry one flagged
+    # late-vintage anchor).
     "fed.g17.industrial_production.total_index_mom": {
         "fred": "INDPRO",
         "transform": "pct_change_1d",
@@ -1066,7 +1067,8 @@ for _spec in BLS_API_ADAPTERS.values():
 
 # QCEW open-data preparation. The parser and fetch path are deliberately
 # fail-closed until the mandatory three live-source anchors can be reproduced
-# and recorded in ANCHORS.md. The current execution environment cannot reach
+# and recorded in docs/anchor-verifications.md. The current execution
+# environment cannot reach
 # data.bls.gov, and a repository forecast is not an acceptable substitute for
 # an official observation. Changing ``anchor_status`` without adding at least
 # three anchors still fails the runtime gate.
@@ -1640,7 +1642,8 @@ _STATCAN_EI_SPEC = {
     # the two freshest anchors are checked, at a tolerance wide enough for
     # documented SA refits but far below any wrong-series miss.
     # Back months revise, so first-print anchors are checked against captured
-    # release payloads in tests/fixtures and ANCHORS.md, not against today's
+    # release payloads in tests/fixtures and docs/anchor-verifications.md,
+    # not against today's
     # mutable table.
     "anchors": {},
     "candidate_anchors": {
