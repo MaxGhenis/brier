@@ -78,6 +78,52 @@ ROWS: dict[tuple[str, int], list[dict]] = {
 }
 
 
+# Run artifacts that ground the registry rows (land via PR #64). When present,
+# attach VERIFIES the registry numbers against them and dies loudly on drift —
+# a hand-transcribed number that no longer matches its source run must never
+# ship silently (that is how the published -$1.6B went stale).
+ARTIFACT_DIR = BILLS_DIR / "stronger-start-working-families-act"
+GROUNDING = {
+    ("s3596-119", 0): {
+        "economy": ARTIFACT_DIR / "buildP-economy-2026.json",
+        "sweep": ARTIFACT_DIR / "buildP-sweep-2026-2035.json",
+    },
+}
+
+
+def _verify_against_artifacts(slug: str, provision_index: int, rows: list[dict]) -> None:
+    ground = GROUNDING.get((slug, provision_index))
+    if not ground:
+        return
+    row = rows[0]
+    checks: list[tuple[str, float, float]] = []
+    econ_path, sweep_path = ground["economy"], ground["sweep"]
+    if econ_path.exists():
+        econ = json.loads(econ_path.read_text(encoding="utf-8"))
+        checks.append(("budgetary_impact", row["budgetary_impact"],
+                       econ["budget"]["budgetary_impact"]))
+        checks.append(("poverty_child_pct_change", row["poverty_child_pct_change"],
+                       econ["poverty"]["child"]["pct_change"]))
+        if econ.get("dataset") != row.get("dataset"):
+            raise SystemExit(f"DRIFT: dataset {row.get('dataset')} != artifact {econ.get('dataset')}")
+    if sweep_path.exists():
+        sweep = json.loads(sweep_path.read_text(encoding="utf-8"))
+        checks.append(("ten_year_budgetary_impact", row["ten_year_budgetary_impact"],
+                       sweep["ten_year_budgetary_impact"]))
+    verified = []
+    for name, registry_val, artifact_val in checks:
+        tol = max(abs(artifact_val) * 1e-4, 1e-6)  # transcriptions are rounded
+        if abs(registry_val - artifact_val) > tol:
+            raise SystemExit(f"DRIFT in {name}: registry {registry_val} != artifact {artifact_val} "
+                             f"— re-transcribe from the run artifact before attaching")
+        verified.append(name)
+    if verified:
+        print(f"verified against run artifacts: {', '.join(verified)}")
+    else:
+        print("note: run artifacts not present on this branch — registry values unverified "
+              "(they verify automatically once PR #64's artifacts land)")
+
+
 def _row_key(row: dict) -> tuple:
     return (
         row.get("model"),
@@ -88,6 +134,7 @@ def _row_key(row: dict) -> tuple:
 
 
 def attach(slug: str, provision_index: int, rows: list[dict]) -> Path:
+    _verify_against_artifacts(slug, provision_index, rows)
     path = BILLS_DIR / f"{slug}.json"
     artifact = json.loads(path.read_text(encoding="utf-8"))
     provisions = artifact["provisions"]
