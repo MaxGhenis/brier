@@ -24,7 +24,7 @@ export default function BillsIndexPage() {
 
   return (
     <div>
-      <Header />
+      <Header activePage="bills" />
       <main className="mx-auto max-w-[1100px] px-8 pb-32 pt-12 max-md:px-5">
         <section className="mb-12 max-w-[760px]">
           <p className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.15em] text-[var(--color-accent)] mb-3">

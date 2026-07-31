@@ -149,6 +149,62 @@ class TestSlugContainment:
         assert outside.read_text() == "original"
 
 
+class TestStatuteMap:
+    ROW = {
+        "touches_rulespec": True,
+        "touches_corpus": True,
+        "needs_new_encoding": False,
+        "diffs": {
+            "statutory_effective_from": "2026-01-01",
+            "sections": [
+                {
+                    "citation": "26 USC 24(d)(1)(B)(i)",
+                    "heading": "In general",
+                    "diff": [{"heavy": "payload"}],
+                    "block_raw": "…",
+                    "encoding": {
+                        "kind": "statute",
+                        "repo": "rulespec-us",
+                        "citation": "26 USC 24(d)",
+                        "file_path": "statutes/26/24/d.yaml",
+                        "github_url": "https://github.com/x/y",
+                    },
+                    "axiom_url": "https://app.axiom-foundation.org/us/statute/26/24/d/1",
+                },
+                {"citation": "26 USC 24(h)(6)", "heading": "Conforming", "encoding": None},
+            ],
+        },
+    }
+
+    def test_trims_to_map_without_diff_bodies(self):
+        m = fetch_bill.trim_statute_map(self.ROW)
+        assert m["touches_rulespec"] is True
+        assert m["sections"][0]["citation"] == "26 USC 24(d)(1)(B)(i)"
+        assert m["sections"][0]["encoded"] is True
+        assert m["sections"][0]["encoding"]["file_path"] == "statutes/26/24/d.yaml"
+        assert "kind" not in m["sections"][0]["encoding"]
+        assert "diff" not in m["sections"][0] and "block_raw" not in m["sections"][0]
+        assert m["sections"][1]["encoded"] is False
+        assert m["sections"][1]["encoding"] is None
+
+    def test_absent_or_empty_diffs_yield_none(self):
+        assert fetch_bill.trim_statute_map({"diffs": None}) is None
+        assert fetch_bill.trim_statute_map({"diffs": {"sections": []}}) is None
+        assert fetch_bill.trim_statute_map({"touches_rulespec": True}) is None
+
+    def test_meta_omits_block_when_absent(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(fetch_bill, "RAW_DIR", tmp_path)
+        result = {
+            "resolved_via": "direct-url", "title": None, "bill_number": None,
+            "text": "x", "version_label": None, "format": "txt",
+            "source_url": "https://example.gov", "source_fetched_at": None,
+            "text_sha256": "s", "source_bytes": None,
+        }
+        fetch_bill.write_artifacts("plain", result)
+        meta = json.loads((tmp_path / "plain.meta.json").read_text())
+        assert "statuteMap" not in meta
+
+
 class TestAxiomBackfill:
     def test_command_targets_axiom_bills_workflow(self):
         cmd = fetch_bill.backfill_command(119, "s", 3596)

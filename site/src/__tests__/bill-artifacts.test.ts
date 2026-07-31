@@ -1,5 +1,28 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { loadBills } from "@/data/bills";
+import { cleanForDisplay, loadRawBillText } from "@/lib/bill-text";
+
+/** Bare alphanumeric stream — quote style, hyphenation, spacing all vanish. */
+function stream(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+/**
+ * The verbatim fragments inside a quote field: curly-quoted spans when
+ * present (quote fields may contain analyst connectors between spans),
+ * otherwise the whole field split on elision ellipses.
+ */
+function quoteFragments(quote: string): string[] {
+  const spans = [...quote.matchAll(/“([^”]+)”/g)].map((m) => m[1]);
+  // Ellipses inside a span are elisions — the text around them is not
+  // contiguous in the source, so each side checks separately.
+  const parts = (spans.length > 0 ? spans : [quote]).flatMap((s) =>
+    s.split(/…|\.\.\./),
+  );
+  return parts.map(stream).filter((f) => f.length >= 12);
+}
 
 /**
  * Fail-closed gate for bill.json artifacts — the bills/ analog of the
@@ -31,6 +54,29 @@ describe("bill artifacts", () => {
         expect(entry.bill.sourceUrl).toMatch(/^https?:\/\//);
         expect(entry.bill.analysisDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
         expect(entry.provisions.length).toBeGreaterThan(0);
+      });
+
+      it("has cached raw text (the pipeline contract)", () => {
+        expect(
+          fs.existsSync(
+            path.join(process.cwd(), "..", "bills", "raw", `${entry.slug}.txt`),
+          ),
+        ).toBe(true);
+      });
+
+      it("every quote fragment appears verbatim in the raw text", () => {
+        const raw = loadRawBillText(entry.slug);
+        expect(raw).toBeTruthy();
+        const rawStream = stream(cleanForDisplay(raw as string));
+        const missing: string[] = [];
+        for (const [i, provision] of entry.provisions.entries()) {
+          for (const fragment of quoteFragments(provision.quote ?? "")) {
+            if (!rawStream.includes(fragment)) {
+              missing.push(`provision ${i}: …${fragment.slice(0, 60)}`);
+            }
+          }
+        }
+        expect(missing).toEqual([]);
       });
 
       for (const [i, provision] of entry.provisions.entries()) {

@@ -1,7 +1,6 @@
-"use client";
-
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { loadBills } from "@/data/bills";
 import { FORECAST_CELLS, formatValue } from "@/data/forecast-cells";
 
 const featuredForecasts = FORECAST_CELLS.filter((forecast) =>
@@ -250,6 +249,63 @@ function ForecastPreview() {
   );
 }
 
+function BillsPreview() {
+  const bills = loadBills();
+  if (bills.length === 0) return null;
+  return (
+    <section className="bg-white px-8 py-[clamp(84px,10vw,132px)] max-md:px-5">
+      <div className="mx-auto max-w-[1120px]">
+        <div className="mb-12 flex items-end justify-between gap-8 max-md:block">
+          <div className="max-w-[680px]">
+            <p className="[font-family:var(--font-mono)] mb-4 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-[#A94E80]">
+              Bill analyses
+            </p>
+            <h2 className="[font-family:var(--font-display)] text-[clamp(1.9rem,3.8vw,2.8rem)] font-light leading-[1.1] tracking-[-0.025em] text-[#14202B]">
+              Start from the bill, derive the outcomes.
+            </h2>
+          </div>
+          <Link
+            href="/bills"
+            className="inline-flex items-center rounded-lg border border-[#BED0DB] bg-white px-5 py-[0.72em] [font-family:var(--font-display)] text-[0.88rem] font-medium text-[#415463] no-underline transition-colors duration-200 hover:border-[#A94E80] hover:text-[#14202B] hover:no-underline max-md:mt-6"
+          >
+            View all bills
+          </Link>
+        </div>
+        <div className="divide-y divide-[#D9E4EC] border-y border-[#D9E4EC]">
+          {bills.map((entry) => {
+            const metricCount = entry.provisions.reduce(
+              (sum, provision) => sum + provision.metrics.length,
+              0,
+            );
+            return (
+              <Link
+                key={entry.slug}
+                href={`/bills/${entry.slug}`}
+                className="grid grid-cols-[minmax(0,1fr)_160px_160px] items-center gap-8 py-6 text-[#14202B] no-underline transition-colors duration-200 hover:text-[#A94E80] hover:no-underline max-md:grid-cols-1 max-md:gap-2"
+              >
+                <div>
+                  <p className="[font-family:var(--font-mono)] mb-2 text-[0.62rem] uppercase tracking-[0.12em] text-[#6B7C89]">
+                    {entry.bill.status}
+                  </p>
+                  <h3 className="[font-family:var(--font-display)] text-[1.2rem] font-medium leading-[1.25]">
+                    {entry.bill.name}
+                  </h3>
+                </div>
+                <p className="[font-family:var(--font-mono)] text-[0.8rem] text-[#415463]">
+                  {entry.provisions.length} provisions · {metricCount} metrics
+                </p>
+                <p className="text-right [font-family:var(--font-mono)] text-[0.68rem] uppercase tracking-[0.1em] text-[#6B7C89] max-md:text-left">
+                  {entry.bill.analysisDate}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Footer() {
   return (
     <footer className="border-t border-[#D9E4EC] bg-white px-8 py-12 max-md:px-5">
@@ -263,6 +319,12 @@ function Footer() {
             className="text-[#6B7C89] no-underline transition-colors hover:text-[#14202B]"
           >
             Forecasts
+          </Link>
+          <Link
+            href="/bills"
+            className="text-[#6B7C89] no-underline transition-colors hover:text-[#14202B]"
+          >
+            Bills
           </Link>
           <Link
             href="/vision"
@@ -296,6 +358,7 @@ export default function HomePage() {
       <StackSection />
       <MethodSection />
       <ForecastPreview />
+      <BillsPreview />
       <Footer />
     </div>
   );
