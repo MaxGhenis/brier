@@ -6,64 +6,130 @@
 # permanently waived, unattested commits (2026-07-20/21 Next50 wave,
 # 2026-07-22 QCEW completion). The CI audit still catches what slips past.
 #
-# The diffed range depends on where the push lands:
-#   - refs/heads/main: tip-to-tip (remote..local) — there the endpoint diff
-#     is exactly what the push publishes.
-#   - any other ref: the branch's own contribution (origin/main...local,
-#     merge-base three-dot). Tip-to-tip false-positives here: a branch
-#     rebased onto a main that legitimately gained attested recorder
-#     commits shows main's records growth in the endpoint diff while the
-#     push adds zero new records objects (hit 2026-07-31).
-#     The three-dot comparator must be trustworthy, so it is used only
-#     when `git fetch origin main` just succeeded, only via the full ref
-#     refs/remotes/origin/main (a local branch literally named
-#     "origin/main" would otherwise shadow it), and only when a merge
-#     base exists (a disjoint history has none and the swallowed error
-#     would fail open). Every other case — refresh failed, ref missing,
-#     no merge base — falls back to the tip-to-tip endpoint diffs
-#     (adversarial-review findings, 2026-07-31).
+# The check is commit-level, mirroring the provenance audit: the push is
+# refused when any commit it would publish touches records/** (a git log
+# --full-history walk — endpoint tree diffs miss add-then-delete commits
+# and depend on an arbitrary merge base under criss-cross histories; the
+# audit walks commits, so the guard walks the same way). Like the audit,
+# a merge whose records tree is byte-identical to at least one of its
+# parents is a no-op for records and exempt — otherwise every
+# update-with-main merge after a recorder push would trip the guard (the
+# audit's own pre-#73 false positive); an evil merge that resolves to
+# records content matching no parent still blocks. The audit is stricter
+# about which parent may vouch (pre-epoch parents never do); that call
+# stays server-side. The walked range depends on where the push lands:
+#   - refs/heads/main: remote..local — every commit published there is
+#     audited on arrival, so every one is checked here.
+#   - any other ref pushed to origin: refs/remotes/origin/main..local —
+#     the branch's own contribution. Tip-to-tip ranges false-positive
+#     here: a branch rebased onto a main that legitimately gained
+#     attested recorder commits showed main's records growth while
+#     pushing zero new records objects (hit 2026-07-31). The comparator
+#     must be trustworthy: the fetch pins it with an explicit refspec (a
+#     bare `fetch origin main` can succeed while updating only
+#     FETCH_HEAD), and the full ref name sidesteps a local branch
+#     literally named "origin/main". If the refresh fails, the endpoint
+#     range is used instead.
+#   - any other ref pushed elsewhere (a fork, a mirror): endpoint range —
+#     origin's main cannot vouch for what some other remote receives.
+# A push with no trustworthy range — a brand-new ref with no endpoint
+# after a failed refresh or on a non-origin remote, or a range that
+# fails to walk (missing ref or history) — is refused, fail closed.
+# Replacement refs are ignored throughout so a local refs/replace/*
+# cannot dress up a records commit.
 #
 # Break glass, deliberately, when you truly mean it:
 #   THESIS_ALLOW_RECORDS_PUSH=1 git push ...
+GIT_NO_REPLACE_OBJECTS=1
+export GIT_NO_REPLACE_OBJECTS
+remote_name=$1
 ZERO=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 status=0
 fetched=0
 fetch_ok=0
+
+refuse_unverifiable() {
+    if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
+        echo "pre-push: unverifiable $1 allowed by THESIS_ALLOW_RECORDS_PUSH=1" >&2
+        return 0
+    fi
+    echo "" >&2
+    echo "BLOCKED: cannot verify $1 against records/** ($2)." >&2
+    echo "Fetch what is missing and retry, or set" >&2
+    echo "THESIS_ALLOW_RECORDS_PUSH=1 to push unverified — that still" >&2
+    echo "lands unattested and costs a permanent public waiver." >&2
+    echo "" >&2
+    return 1
+}
+
 while read -r _local_ref local_sha remote_ref remote_sha; do
     [ "$local_sha" = "$ZERO" ] && continue
     range=""
-    if [ "$remote_ref" != "refs/heads/main" ]; then
+    if [ "$remote_ref" != "refs/heads/main" ] &&
+        [ "$remote_name" = "origin" ]; then
         if [ "$fetched" = "0" ]; then
             fetched=1
-            if GIT_TERMINAL_PROMPT=0 git fetch --quiet origin main \
+            if GIT_TERMINAL_PROMPT=0 git fetch --quiet origin \
+                "+refs/heads/main:refs/remotes/origin/main" \
                 </dev/null >/dev/null 2>&1; then
                 fetch_ok=1
             fi
         fi
         if [ "$fetch_ok" = "1" ] &&
             git rev-parse --quiet --verify refs/remotes/origin/main \
-                >/dev/null &&
-            git merge-base refs/remotes/origin/main "$local_sha" \
-                >/dev/null 2>&1; then
-            range="refs/remotes/origin/main...$local_sha"
+                >/dev/null; then
+            range="refs/remotes/origin/main..$local_sha"
         fi
     fi
     if [ -z "$range" ]; then
-        if [ "$remote_sha" = "$ZERO" ]; then
-            range="origin/main..$local_sha"
-        else
+        if [ "$remote_sha" != "$ZERO" ]; then
             range="$remote_sha..$local_sha"
+        elif [ "$remote_ref" = "refs/heads/main" ]; then
+            range="refs/remotes/origin/main..$local_sha"
+        else
+            refuse_unverifiable "$remote_ref" "new ref, no trusted comparator" \
+                || status=1
+            continue
         fi
     fi
-    touched=$(git diff --name-only "$range" -- records/ 2>/dev/null | head -5)
-    [ -z "$touched" ] && continue
+    walked=$(git log --full-history --format=%H "$range" -- records/ \
+        2>/dev/null)
+    walk_rc=$?
+    if [ "$walk_rc" -ne 0 ]; then
+        refuse_unverifiable "$remote_ref" "range $range failed to walk" \
+            || status=1
+        continue
+    fi
+    offenders=""
+    for c in $walked; do
+        ctree=$(git rev-parse --quiet --verify "$c:records" \
+            2>/dev/null || echo none)
+        nparent=0
+        treesame=0
+        for p in $(git rev-parse "$c^@" 2>/dev/null); do
+            nparent=$((nparent + 1))
+            ptree=$(git rev-parse --quiet --verify "$p:records" \
+                2>/dev/null || echo none)
+            [ "$ptree" = "$ctree" ] && treesame=1
+        done
+        # No-op merge for records: some parent already carries this exact
+        # records tree, so the merge publishes no new records content.
+        if [ "$nparent" -ge 2 ] && [ "$treesame" = "1" ]; then
+            continue
+        fi
+        offenders="$offenders $c"
+    done
+    [ -z "$offenders" ] && continue
+    # shellcheck disable=SC2086
+    touched=$(git log --no-walk --diff-merges=first-parent \
+        --format="%h %s" --name-only $offenders -- records/ 2>/dev/null)
     if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
         echo "pre-push: records/** push allowed by THESIS_ALLOW_RECORDS_PUSH=1" >&2
         continue
     fi
     echo "" >&2
-    echo "BLOCKED: this push changes records/** from a local clone." >&2
-    echo "$touched" | sed 's/^/  /' >&2
+    echo "BLOCKED: this push publishes commits that touch records/**." >&2
+    printf '%s\n' "$touched" | head -8 | sed 's/^/  /' >&2
     echo "" >&2
     echo "records/** is written by the allowlisted workflows, which attest" >&2
     echo "each push. A local push lands unattested and can only be recorded" >&2

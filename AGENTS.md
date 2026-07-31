@@ -224,14 +224,20 @@ committed pre-push hook. Activate it once per clone:
 git config core.hooksPath .githooks
 ```
 
-It refuses any local push that touches `records/**` — judged tip-to-tip
-for pushes to `main`, and by the branch's own contribution (merge-base
-three-dot against a freshly fetched `origin/main`) for any other ref, so a
-branch rebased over main's attested recorder commits does not trip it. It
-prints the offending paths and can be overridden deliberately with
+It refuses any local push that would publish a commit touching
+`records/**` — the same commit-level walk the provenance audit runs, so
+the guard blocks exactly the pushes the audit would redden main for.
+Pushes to `main` are judged on every commit they publish; any other ref
+pushed to `origin` is judged on the branch's own contribution against a
+freshly pinned `refs/remotes/origin/main`, so a branch rebased over
+main's attested recorder commits does not trip it. Pushes the guard
+cannot verify (unfetchable comparator, unwalkable history) fail closed.
+It prints the offending commits and can be overridden deliberately with
 `THESIS_ALLOW_RECORDS_PUSH=1` — an override that still lands unattested and
 still costs a permanent public waiver. Six such waivers already exist
 (`WAIVED_UNATTESTED_COMMITS`); each one is an admission, not an exemption.
+`scripts/test_pre_push_guard.sh` is the guard's regression suite, run by
+CI on every push and PR.
 
 Every workflow that pushes `records/**` to `main` attests a canonical
 subject naming the pushed commit (`scripts/attest_subject.py`, via the
