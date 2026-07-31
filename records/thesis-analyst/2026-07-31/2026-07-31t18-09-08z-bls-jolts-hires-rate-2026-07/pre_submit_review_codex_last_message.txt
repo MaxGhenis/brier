@@ -1,0 +1,21 @@
+{
+  "summary": "Draft is publishable after aligning the resolver/source fields to the canonical ALFRED first-print binding and tightening the interval method for the two-month horizon.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "Resolution source fields do not match the canonical ledger binding: the draft uses a BLS timeseries URL while the target contract binds first-print resolution to ALFRED/FRED series JTSHIR at the ALFRED CSV URL.",
+      "actionRequested": "Set the resolver/source text and URL to the canonical ALFRED first-print binding for JTSHIR while preserving the explanation that it mirrors the BLS JOLTS Table 1 hires-rate first print."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "warning",
+      "summary": "The interval uses one-month change sigma even though the forecast horizon is effectively May-to-July with June still unknown.",
+      "actionRequested": "Either compute realized two-month changes for the historical sample or explicitly justify why the one-month sigma is adequate for a two-month-ahead rounded first-print target."
+    }
+  ],
+  "optionalSuggestions": [
+    "In the Prior/update/interval step, name the historical sample as 2024-01 through 2026-05 and clarify whether sigma is from one-month or target-horizon changes.",
+    "Keep the BLS schedule evidence for the 2026-09-01 release date; it is coherent with the target."
+  ]
+}

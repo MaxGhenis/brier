@@ -1,0 +1,39 @@
+{
+  "summary": "The draft is not publishable as a forecast because it uses the already-released May 2026 value as the point estimate and interval anchor.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "The reasoning states that the Census first print was already published on July 16, 2026 and uses the observed May 2026 value of 2736.158 to set the point estimate.",
+      "actionRequested": "Remove all post-resolution outcome evidence and rebuild the forecast only from information available before the July 16, 2026 release; do not use the realized May 2026 value in the point, interval, drivers, or historicalContext."
+    },
+    {
+      "rubricItem": "resolver",
+      "severity": "warning",
+      "summary": "The draft resolver fields use Census current pages, while the canonical ledger sourceBinding specifies the ALFRED-FRED BUSINV first-print mirror with transform factor 0.001.",
+      "actionRequested": "Align the machine-readable resolver/source fields with the ledger contract, or explicitly preserve the ledger target while noting any claimed Census-vs-ALFRED discrepancy only in reasoning."
+    },
+    {
+      "rubricItem": "base_rate",
+      "severity": "blocking",
+      "summary": "The stated base-rate sample includes the May-April change, which is the target outcome itself.",
+      "actionRequested": "State a prior before inside-view updates using only pre-May-2026 observations, such as recent monthly changes ending with April 2026 or a longer historical same-series sample."
+    },
+    {
+      "rubricItem": "interval",
+      "severity": "blocking",
+      "summary": "The interval is centered on the realized May first print and its volatility sample includes the target-period change.",
+      "actionRequested": "Compute uncertainty from pre-release realized volatility or an explicit ex ante uncertainty model, and center it on the ex ante forecast rather than the observed outcome."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The historicalContext, drivers, reasoning, point estimate, and final forecast are coherent with the realized value rather than with a genuine pre-release forecast.",
+      "actionRequested": "Revise all fields so they describe a forecast made before resolution, with no realized May 2026 first-print value or post-release Census facts."
+    }
+  ],
+  "optionalSuggestions": [
+    "Use April 2026 as the latest permissible level anchor if forecasting before the May release.",
+    "Make the Prior/update/interval step compactly list the pre-release sample window, adjustment components, interval method, and implied bounds."
+  ]
+}

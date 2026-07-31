@@ -1,0 +1,21 @@
+{
+  "summary": "The draft is mostly publishable, but it should align the resolver/source fields with the ledger source binding and clarify the rounded-table versus index-implied resolution rule.",
+  "requiredFixes": [
+    {
+      "rubricItem": "resolver",
+      "severity": "blocking",
+      "summary": "The draft JSON uses BLS Table 2 URL as the resolutionSourceUrl, while the canonical ledger sourceBinding for this target is the ALFRED/FRED ECIWAG first-print binding.",
+      "actionRequested": "Set the resolver/source fields to match the ledger binding, or explicitly state the ledger/source discrepancy in reasoning while keeping the same target."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "warning",
+      "summary": "The reasoning says the target can resolve to the printed one-decimal Table 2 change or equivalently the first-print index vintage, but the forecast fields use two-decimal point and interval values.",
+      "actionRequested": "Clarify whether resolution is the printed one-decimal percent change or the percent change implied from the first-print ECIWAG index, and ensure the final JSON wording is consistent."
+    }
+  ],
+  "optionalSuggestions": [
+    "The prior/update/interval step is strong; keep the stated last-9-quarter sample, sigma, adjustment components, and implied bounds.",
+    "Tail scenarios are concrete enough, but naming one or two specific wage-sensitive sectors in both upside and downside cases would make them tighter."
+  ]
+}
