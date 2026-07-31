@@ -36,12 +36,12 @@ ROWS: dict[tuple[str, int], list[dict]] = {
                 }
             },
             "result_summary": (
-                "Federal aggregation (income_tax minus measured-zero benefits; state "
-                "spillover of ~$0.35M/yr itemized separately). Gains concentrate in "
-                "the lowest income deciles (decile 1 averages "
+                "Gains concentrate in the lowest income deciles (decile 1 averages "
                 "+$32/yr vs +$0.30 for decile 10); Gini falls 0.02%. The annual cost "
                 "declines from $1.86B to $1.53B across the window as earnings growth "
-                "lifts families past the old $2,500 floor."
+                "lifts families past the old $2,500 floor. State income-tax revenue "
+                "falls about $0.35M per year — itemized separately and excluded from "
+                "the federal figures above."
             ),
             "engine": "modal",
             "pe_us_version": "1.764.6",

@@ -110,11 +110,11 @@ function ComputeCard({ row }: { row: BillCompute }) {
       {hasStats && (
         <div className="mb-3 grid grid-cols-2 gap-3 md:grid-cols-4">
           {row.budgetary_impact != null && row.year != null && (
-            <Stat label={`${row.year} impact`} value={fmtBillions(row.budgetary_impact)} />
+            <Stat label={`${row.year} federal impact`} value={fmtBillions(row.budgetary_impact)} />
           )}
           {row.ten_year_budgetary_impact != null && (
             <Stat
-              label={`Ten-year${row.ten_year_window ? ` (${row.ten_year_window})` : ""}`}
+              label={`Ten-year federal${row.ten_year_window ? ` (${row.ten_year_window})` : ""}`}
               value={fmtBillions(row.ten_year_budgetary_impact, 1)}
             />
           )}
