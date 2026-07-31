@@ -73,7 +73,13 @@ def main() -> None:
         for line in out_path.read_text().splitlines():
             if line.strip():
                 try:
-                    done.add(json.loads(line)["cell_key"])
+                    rec = json.loads(line)
+                    # Errored records (e.g. the 2026-07-31 workspace-quota
+                    # exhaustion) do NOT count as done: a rerun retries them.
+                    if rec.get("error") is None and not any(
+                        c.get("error") for c in rec.get("calls", [])
+                    ):
+                        done.add(rec["cell_key"])
                 except Exception:  # noqa: BLE001
                     pass
 

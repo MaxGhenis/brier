@@ -252,5 +252,32 @@ the ALFRED pipeline.
 operative_only × decomposed_json × 5 reps — 60 runs, record schema identical to
 `runs_bakeoff.jsonl` (config `corpus: "B2"`, `cell_key` prefix `W2`, truth = first print).
 Series descriptions and wave-2 provisions are injected into `extended_harness` dicts at
-runtime by the runner; no existing file was modified. Results in `results/wave2_ncrps.json`
-and the wave-2 report.
+runtime by the runner; no existing file was modified.
+
+**BLOCKED 2026-07-31 ~16:20 UTC — workspace API quota exhausted.** All 60 calls returned
+`HTTP 400: "You have reached your specified workspace API usage limits. You will regain
+access on 2026-08-01 at 00:00 UTC."` (same ~/.env key that completed the corpus-B bake-off
+earlier today; no env-var key shadowing — verified). The all-errored `runs_wave2.jsonl` was
+archived out of the repo (scratchpad, `runs_wave2.QUOTA-ERRORED.jsonl`) so the resume logic
+starts clean, and `wave2_sweep.py`'s resume filter now ignores errored records in any case.
+**Rerun after the reset with:** `python3 wave2_sweep.py` (resume-safe), then score. No wave-2
+model-arm numbers exist yet; nothing below substitutes for them.
+
+**Mechanical baselines (no LLM — these DID run):** `wave2_baselines.py` →
+`baselines_wave2.json`, same persistence/drift construction as `baselines.py` with the horizon
+expressed in native observation steps (quarterly h = month-gap/3; the month-count convention
+would have applied 6 quarters of drift to a 2-quarter horizon). nCRPS = CRPS / pstdev(history),
+the `analyze_final.py` convention:
+
+| unit | h (obs) | persistence nCRPS | drift nCRPS |
+|---|---|---|---|
+| `tariff301.us.2018-10` | 2 | 4.385 | 4.254 |
+| `tariff301.us.2019-04` | 4 | 4.080 | 3.817 |
+| `loanrestart.us.2023-09` | 6 | 1.029 | 0.789 |
+| `loanrestart.us.2023-12` | 9 | 1.397 | 1.040 |
+
+Read: the tariff units are far outside mechanical reach (the ~+28 SAAR step above a ~40-45
+baseline is invisible to extrapolation) — exactly where provision text has headroom to show
+value. The loanrestart units sit near mechanical reach because the Sept-2023 basis revision
+happens to offset much of the policy step (§2 caveat 2), so expect compressed arm separation
+there.
