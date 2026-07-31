@@ -18,11 +18,13 @@ export interface BillForecastView {
   example?: boolean;
   question: string;
   eventLabel: string;
-  gapLabel: string;
+  gapLabel?: string;
   gapNote?: string;
   probability?: { pct: number; slug: string };
   enacted: BillForecastArmView;
-  baseline: BillForecastArmView;
+  baseline?: BillForecastArmView;
+  /** Single-arm groups: the unconditional cell shown as reference, never as a baseline claim. */
+  unconditionalRef?: BillForecastArmView;
   unconditional?: { valueLabel: string; formula: string; slug: string };
 }
 
@@ -79,11 +81,11 @@ function ArmCard({
 
 /** Both arms' intervals on one shared axis, so the overlap is visible. */
 function IntervalStrip({ view }: { view: BillForecastView }) {
+  const second = view.baseline ?? view.unconditionalRef;
   const values = [
     view.enacted.ciLow,
     view.enacted.ciHigh,
-    view.baseline.ciLow,
-    view.baseline.ciHigh,
+    ...(second ? [second.ciLow, second.ciHigh] : []),
   ];
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -95,7 +97,11 @@ function IntervalStrip({ view }: { view: BillForecastView }) {
   const bandWidth = (a: number, b: number) => `${((b - a) / width) * 100}%`;
 
   const rows = [
-    { label: "Baseline", arm: view.baseline, color: BASELINE.band },
+    ...(view.baseline
+      ? [{ label: "Baseline", arm: view.baseline, color: BASELINE.band }]
+      : view.unconditionalRef
+        ? [{ label: "Uncond.", arm: view.unconditionalRef, color: BASELINE.band }]
+        : []),
     { label: "Enacted", arm: view.enacted, color: ENACTED.band },
   ];
 
@@ -210,15 +216,27 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
         </div>
       )}
 
-      <div className="mb-5 grid grid-cols-2 gap-5 max-md:grid-cols-1">
+      <div
+        className={`mb-5 grid gap-5 max-md:grid-cols-1 ${
+          view.baseline || view.unconditionalRef ? "grid-cols-2" : "grid-cols-1"
+        }`}
+      >
+        {view.baseline ? (
+          <ArmCard
+            label="Baseline · not enacted"
+            palette={BASELINE}
+            arm={view.baseline}
+            weight={p !== undefined ? 1 - p : undefined}
+          />
+        ) : view.unconditionalRef ? (
+          <ArmCard
+            label="Unconditional · bill or no bill"
+            palette={BASELINE}
+            arm={view.unconditionalRef}
+          />
+        ) : null}
         <ArmCard
-          label="Baseline · not enacted"
-          palette={BASELINE}
-          arm={view.baseline}
-          weight={p !== undefined ? 1 - p : undefined}
-        />
-        <ArmCard
-          label="Bill enacted"
+          label="Conditional · bill enacted"
           palette={ENACTED}
           arm={view.enacted}
           weight={p}
@@ -227,6 +245,7 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
 
       <IntervalStrip view={view} />
 
+      {view.gapLabel && (
       <div className="mt-5 rounded-xl border border-dashed border-[var(--theme-border)] px-6 py-5">
         <div className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)] mb-2">
           The gap is the forecasted effect of the bill
@@ -241,6 +260,7 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
           ) : null}
         </div>
       </div>
+      )}
 
       {view.unconditional && (
         <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)] px-6 py-4">

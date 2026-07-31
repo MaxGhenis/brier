@@ -81,6 +81,9 @@ export default async function ComparePage({
   const resolved = getConditionalGroup(slug);
   if (!resolved) notFound();
   const { group, trueArm, falseArm, probability, unconditional } = resolved;
+  // The compare view is the two-arm presentation; single-arm groups
+  // render on their bill page instead.
+  if (!falseArm) notFound();
   const p = probability ? probability.pointEstimate / 100 : undefined;
   const gap = trueArm.pointEstimate - falseArm.pointEstimate;
 

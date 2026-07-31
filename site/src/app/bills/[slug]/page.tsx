@@ -56,17 +56,21 @@ function buildForecastViews(billSlug: string): BillForecastView[] {
     ({ metricLabel, resolved, example }) => {
     const { group, trueArm, falseArm, probability, unconditional } = resolved;
     const pct = probability?.pointEstimate;
-    const gap = Math.abs(trueArm.pointEstimate - falseArm.pointEstimate);
     return {
       metricLabel,
       example,
       groupSlug: group.slug,
       question: group.question,
       eventLabel: group.eventLabel,
-      gapLabel: `${formatValue(trueArm.pointEstimate, trueArm.unit)} − ${formatValue(
-        falseArm.pointEstimate,
-        falseArm.unit,
-      )} = ${formatValue(gap, trueArm.unit)}`,
+      gapLabel: falseArm
+        ? `${formatValue(trueArm.pointEstimate, trueArm.unit)} − ${formatValue(
+            falseArm.pointEstimate,
+            falseArm.unit,
+          )} = ${formatValue(
+            Math.abs(trueArm.pointEstimate - falseArm.pointEstimate),
+            trueArm.unit,
+          )}`
+        : undefined,
       gapNote: group.gapNote,
       probability:
         probability && pct !== undefined
@@ -83,7 +87,7 @@ function buildForecastViews(billSlug: string): BillForecastView[] {
         )}`,
         slug: trueArm.slug,
       },
-      baseline: {
+      baseline: falseArm ? {
         point: falseArm.pointEstimate,
         ciLow: falseArm.ciLow,
         ciHigh: falseArm.ciHigh,
@@ -93,9 +97,21 @@ function buildForecastViews(billSlug: string): BillForecastView[] {
           falseArm.unit,
         )}`,
         slug: falseArm.slug,
-      },
+      } : undefined,
+      unconditionalRef:
+        !falseArm && unconditional ? {
+        point: unconditional.pointEstimate,
+        ciLow: unconditional.ciLow,
+        ciHigh: unconditional.ciHigh,
+        pointLabel: formatValue(unconditional.pointEstimate, unconditional.unit),
+        ciLabel: `${formatValue(unconditional.ciLow, unconditional.unit)} – ${formatValue(
+          unconditional.ciHigh,
+          unconditional.unit,
+        )}`,
+        slug: unconditional.slug,
+      } : undefined,
       unconditional:
-        unconditional && pct !== undefined
+        unconditional && falseArm && pct !== undefined
           ? {
               valueLabel: formatValue(
                 unconditional.pointEstimate,
