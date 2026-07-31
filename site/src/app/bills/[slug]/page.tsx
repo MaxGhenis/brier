@@ -8,7 +8,10 @@ import {
 } from "@/components/BillForecasts";
 import { ComputeCard } from "@/components/ComputeCard";
 import { ProvisionAnalysis } from "@/components/ProvisionAnalysis";
-import { getBillForecastGroups } from "@/data/bill-forecasts";
+import {
+  getBillForecastGroups,
+  getPendingConditionals,
+} from "@/data/bill-forecasts";
 import {
   REGISTRY_LABEL,
   getBill,
@@ -147,6 +150,7 @@ export default async function BillDetailPage({
   const entry = getBill(slug);
   if (!entry) notFound();
   const forecastViews = buildForecastViews(slug);
+  const pendingConditionals = getPendingConditionals(slug);
   const rawMeta = loadBillMeta(slug);
   // Unconditional cells on the bill's candidate series — the series
   // forecast regardless of this bill, deduped across provisions, each
@@ -219,9 +223,42 @@ export default async function BillDetailPage({
               Conditional forecasts
             </span>
           </div>
-          {forecastViews.length > 0 ? (
-            <BillForecasts views={forecastViews} />
-          ) : (
+          {forecastViews.length > 0 && <BillForecasts views={forecastViews} />}
+
+          {pendingConditionals.length > 0 && (
+            <div className={forecastViews.length > 0 ? "mt-5 grid gap-3" : "grid gap-3"}>
+              {pendingConditionals.map((item, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-surface)] px-6 py-5"
+                >
+                  <div className="mb-2">
+                    <span
+                      className={`inline-block rounded-full border px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.08em] ${
+                        item.status === "refused"
+                          ? "border-[#E5C8C0] bg-[#F9EFEC] text-[#93412A]"
+                          : "border-[#F2DCAF] bg-[#FFF4DD] text-[#7A5C20]"
+                      }`}
+                    >
+                      {item.status === "refused"
+                        ? "Forecast refused — resolution-date rule"
+                        : "Forecast pending — run in flight"}
+                    </span>
+                  </div>
+                  <p className="m-0 max-w-[820px] text-[0.95rem] leading-[1.6] text-[var(--theme-text)]">
+                    {item.question}
+                  </p>
+                  {item.note && (
+                    <p className="m-0 mt-2 max-w-[820px] text-[0.85rem] italic leading-[1.6] text-[var(--theme-text-muted)]">
+                      {item.note}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {forecastViews.length === 0 && pendingConditionals.length === 0 && (
             <div className="rounded-xl border border-dashed border-[var(--theme-border)] px-6 py-5 text-[0.9rem] leading-[1.6] text-[var(--theme-text-muted)]">
               No enacted-vs-baseline pairs for this bill yet. When a pair is
               registered through the privileged path, both arms — the outcome
