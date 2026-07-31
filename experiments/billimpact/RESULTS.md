@@ -214,7 +214,7 @@ Three results, ranked by strength:
    reasoning effort, and aggregation (median-of-k improves monotonically,
    0.243 → 0.231 for k=1→5); none came from architecture.
 
-**The default's cost, isolated to one parameter.** Identical model, prompt and
+**Changing only the reasoning-effort parameter.** Identical model, prompt and
 bill text; only the reasoning-effort setting changes (default → max). fable:
 −0.131 [−0.205, −0.062] (39% lower mean nCRPS, 19/28 units), rising to 53%
 and 10/10 on big-shock units (−0.335 [−0.439, −0.231]); largest single-unit
