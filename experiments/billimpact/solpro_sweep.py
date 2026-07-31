@@ -32,7 +32,7 @@ def run_acc(unit, ctx_level, rep):
                            origin_label=H.month_label(unit["origin_vintage"]),
                            history_block=X.format_history_b(unit["history"]))
     prompt = "\n\n".join(p for p in (base, ctx, H.ELICITATION_INSTRUCTIONS["point_ci_json"]) if p)
-    res = H.call_model(prompt, MODEL, max_tokens=6000, effort="max")
+    res = H.call_model(prompt, MODEL, max_tokens=6000, effort="max", timeout=600.0, retries=2)
     rec = {"unit_id": unit["unit_id"], "config": {"model": MODEL, "policy_context": ctx_level,
            "elicitation": "point_ci_json", "effort": "max"}, "rep": rep,
            "cell_key": f"SP|{unit['unit_id']}|{ctx_level}|{rep}",
@@ -51,7 +51,7 @@ def run_dose(unit, period, dose, rep):
                            origin_label=H.month_label(unit["origin_vintage"]),
                            history_block=X.format_history_b(unit["history"]))
     prompt = "\n\n".join([base, ctx, H.ELICITATION_INSTRUCTIONS["point_ci_json"]])
-    res = H.call_model(prompt, MODEL, max_tokens=6000, effort="max")
+    res = H.call_model(prompt, MODEL, max_tokens=6000, effort="max", timeout=600.0, retries=2)
     rec = {"unit_id": unit["unit_id"], "period": period,
            "config": {"model": MODEL, "dose": dose, "effort": "max"}, "rep": rep,
            "cell_key": f"SPD|{period}|{dose}|{rep}", "context_meta": meta,
