@@ -849,7 +849,8 @@ def _bls_rows_from_annual_averages(
 
 
 def test_bls_annual_cpi_reproduces_official_anchors() -> None:
-    # Live BLS annual-average index levels (also recorded in ANCHORS.md).
+    # Live BLS annual-average index levels (also recorded in
+    # docs/anchor-verifications.md).
     rows = _bls_rows_from_annual_averages(
         {
             "2021": 270.970,
@@ -1057,7 +1058,7 @@ def test_qcew_target_maps_and_the_anchor_gate_is_armed() -> None:
     assert kind == "qcew"
     assert (period_type, period) == ("quarter", "2026-01")
     assert release_date == "2026-08-28"
-    # Armed 2026-07-25: three live-verified anchors (see ANCHORS.md);
+    # Armed 2026-07-25: three live-verified anchors (see docs/anchor-verifications.md);
     # the runtime still re-fetches and re-compares them every run.
     assert resolve_pending.qcew_adapter_verified(spec)
     assert spec["anchor_status"] == "VERIFIED"
