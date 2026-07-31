@@ -228,10 +228,13 @@ It refuses any local push that would publish a commit touching
 `records/**` — the same commit-level walk the provenance audit runs, so
 the guard blocks exactly the pushes the audit would redden main for.
 Pushes to `main` are judged on every commit they publish; any other ref
-pushed to `origin` is judged on the branch's own contribution against a
-freshly pinned `refs/remotes/origin/main`, so a branch rebased over
-main's attested recorder commits does not trip it. Pushes the guard
-cannot verify (unfetchable comparator, unwalkable history) fail closed.
+is judged on the branch's own contribution against the main of the
+destination that push is actually landing in — fetched at push time and
+pinned to an immutable id, so no remote name, URL spelling, or stale
+local ref decides it — and a branch rebased over main's attested
+recorder commits therefore does not trip it. Pushes the guard cannot
+verify (no comparator at the destination, unwalkable history, a shallow
+clone) fail closed.
 It prints the offending commits and can be overridden deliberately with
 `THESIS_ALLOW_RECORDS_PUSH=1` — an override that still lands unattested and
 still costs a permanent public waiver. Nine such waivers already exist

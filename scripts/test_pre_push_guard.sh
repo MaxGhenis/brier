@@ -192,14 +192,15 @@ SN=$(git -C "$S/dev5" rev-parse sneak)
 git -C "$S/dev5" update-ref refs/remotes/origin/main "$SN"     # forge
 hook "$S/dev5" origin "refs/heads/sneak $SN refs/heads/sneak $ZERO40"
 check "19 refspec-less remote: fetch repins comparator, blocks" 1 $rc "$S/err" "records/refspec.txt"
-# the comparator is the guard's own ref, pinned to the destination's main;
-# the user's (here forged) tracking ref is neither trusted nor rewritten
-if [ "$(git -C "$S/dev5" rev-parse refs/prepush-guard/destination-main)" = "$TIP" ] &&
-    [ "$(git -C "$S/dev5" rev-parse refs/remotes/origin/main)" = "$SN" ]; then
-    echo "PASS 19b comparator pinned to the destination, tracking ref untouched"
+# the comparator is fetched from the destination and resolved to an
+# immutable id; the user's (here forged) tracking ref is neither trusted
+# nor rewritten, and no guard ref is left behind
+if [ "$(git -C "$S/dev5" rev-parse refs/remotes/origin/main)" = "$SN" ] &&
+    [ -z "$(git -C "$S/dev5" for-each-ref --format='%(refname)' 'refs/prepush-guard/*')" ]; then
+    echo "PASS 19b forged tracking ref neither trusted nor rewritten"
     pass=$((pass+1))
 else
-    echo "FAIL 19b comparator not pinned to the destination's main"; fail=$((fail+1))
+    echo "FAIL 19b tracking ref altered or guard ref left behind"; fail=$((fail+1))
 fi
 
 # ---- 20-21: fork topology — origin cannot vouch for another remote
@@ -404,6 +405,59 @@ commit_file "$S/dev17" records/eq.txt e "records on equiv"
 hook_url "$S/dev17" origin "file://$S/origin.git" \
     "refs/heads/equiv $(git -C "$S/dev17" rev-parse equiv) refs/heads/equiv $ZERO40"
 check "43 same destination still blocks a records commit" 1 $rc "$S/err" "records/eq.txt"
+
+# ---- 44-45: a nested insteadOf must not redirect the comparator
+# (sol round-5 HIGH 1: git already resolved the destination; feeding it
+# back through fetch rewrites it a second time)
+git init -q --bare "$S/decoy.git"
+git -C "$S/decoy.git" symbolic-ref HEAD refs/heads/main
+git clone -q "$S/origin.git" "$S/seed2" 2>/dev/null
+commit_file "$S/seed2" records/decoy.txt d "decoy main carries the record"
+git -C "$S/seed2" push -q "$S/decoy.git" HEAD:main
+git clone -q "$S/origin.git" "$S/dev18" 2>/dev/null
+git -C "$S/dev18" checkout -qb rewrite
+commit_file "$S/dev18" records/decoy.txt d "same record, pushed from here"
+RW=$(git -C "$S/dev18" rev-parse rewrite)
+# without a rewrite rule the destination's own main is the comparator
+hook_url "$S/dev18" origin "$S/origin.git" \
+    "refs/heads/rewrite $RW refs/heads/rewrite $TIP"
+check "44 records commit blocks against the real destination" 1 $rc "$S/err" "records/decoy.txt"
+# with one, fetching the destination string would land on the decoy whose
+# main already holds the record: the comparator must be refused
+git -C "$S/dev18" config "url.$S/decoy.git.insteadOf" "$S/origin.git"
+hook_url "$S/dev18" origin "$S/origin.git" \
+    "refs/heads/rewrite $RW refs/heads/rewrite $TIP"
+check "45 nested insteadOf cannot vouch, falls back to endpoint" 1 $rc "$S/err" "records/decoy.txt"
+git -C "$S/dev18" config --unset "url.$S/decoy.git.insteadOf"
+
+# ---- 46: the epoch comes from the pushed graph, not ambient HEAD
+# (sol round-5 HIGH 2: a checkout predating the verifier disabled the
+# in-scope test for every ref pushed from it)
+git clone -q "$S/origin.git" "$S/dev19" 2>/dev/null
+PRE2=$(git -C "$S/dev19" rev-parse "$INIT")
+ANC2=$(git -C "$S/dev19" commit-tree "$PRE2^{tree}" -p "$MTIP" -p "$PRE2" \
+    -m "pre-epoch resurrection pushed from an ancient checkout")
+git -C "$S/dev19" checkout -q --detach "$PRE2^" 2>/dev/null ||
+    git -C "$S/dev19" checkout -q --detach "$PRE2"
+hook "$S/dev19" origin "refs/heads/main $ANC2 refs/heads/main $MTIP"
+check "46 epoch read from the pushed ref, not the checkout" 1 $rc "$S/err" "pre-epoch resurrection"
+
+# ---- 47: the comparator is an immutable id, not a shared mutable ref
+# (sol round-5 HIGH 3: concurrent pushes shared one ref name)
+git clone -q "$S/origin.git" "$S/dev20" 2>/dev/null
+git -C "$S/dev20" checkout -qb conc
+commit_file "$S/dev20" records/conc.txt c "records on conc"
+CC=$(git -C "$S/dev20" rev-parse conc)
+# the old shared comparator ref name, pre-pointed at the records commit:
+# a concurrent invocation's ref must never be consulted
+git -C "$S/dev20" update-ref refs/prepush-guard/destination-main "$CC"
+hook "$S/dev20" origin "refs/heads/conc $CC refs/heads/conc $ZERO40"
+check "47 a pre-existing shared guard ref cannot vouch" 1 $rc "$S/err" "records/conc.txt"
+if [ -z "$(git -C "$S/dev20" for-each-ref --format='%(refname)' 'refs/prepush-guard/tmp-*')" ]; then
+    echo "PASS 47b per-invocation comparator ref cleaned up"; pass=$((pass+1))
+else
+    echo "FAIL 47b comparator ref left behind"; fail=$((fail+1))
+fi
 
 echo
 echo "== $pass passed, $fail failed =="

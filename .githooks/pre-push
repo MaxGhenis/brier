@@ -17,10 +17,12 @@
 #     every update-with-main merge after a recorder push trips the guard.
 #     Only an IN-SCOPE parent may exempt, in the audit's exact sense: not a
 #     proven ancestor of the enforcement epoch (the commit that introduced
-#     the verifier, resolved here the same self-anchoring way), and, since
-#     the guard runs before the audit ever sees the commit, also already
+#     the verifier, resolved here the same self-anchoring way, from the
+#     graph BEING PUSHED rather than from ambient HEAD), and, since the
+#     guard runs before the audit ever sees the commit, also already
 #     reachable from the comparator. An ancient records state resurrected
-#     through a pre-epoch parent is what the epoch test refuses.
+#     through a pre-epoch parent is what the epoch test refuses. No
+#     resolvable epoch means no exemption at all — never a weaker one.
 #   - enforce_range_content_closure: if nothing in the range needs
 #     attestation yet the endpoints disagree about records content, the
 #     change rode in through parent-order trickery or a rewind. Applied to
@@ -28,11 +30,14 @@
 #     main's records).
 #
 # The comparator is fetched from the push destination itself — the URL git
-# hands the hook — not from whatever "origin" happens to name. Nothing then
+# hands the hook, verified to survive git's own URL rewriting unchanged, so
+# a nested insteadOf cannot redirect the comparator to a different
+# repository than the one receiving the push — and resolved immediately to
+# an immutable object id, so concurrent pushes cannot swap it. Nothing
 # rests on remote naming or URL spelling: a fork, a mirror, a
 # remote.origin.pushurl, an https-fetch/ssh-push pair and a plain clone all
-# get measured against the main their own push is landing beside. The
-# walked range is:
+# get measured against the main their own push is landing beside; anything
+# unverifiable falls back to the endpoint range. The walked range is:
 #   - refs/heads/main: remote..local — every commit published there is
 #     audited on arrival, so every one is checked here.
 #   - any other ref: destination-main..local — the branch's own
@@ -52,23 +57,19 @@ GIT_NO_REPLACE_OBJECTS=1
 GIT_GRAFT_FILE=/dev/null
 export GIT_NO_REPLACE_OBJECTS GIT_GRAFT_FILE
 destination=$2
-DEST_MAIN=refs/prepush-guard/destination-main
+# Unique per invocation, including across linked worktrees: a shared ref
+# could be repointed by a concurrent push between fetch and walk.
+DEST_REF="refs/prepush-guard/tmp-$$"
 VERIFIER=scripts/verify_records_attestations.py
 ZERO=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 status=0
 fetched=0
-fetch_ok=0
+dest_main=""
+
+cleanup() { git update-ref -d "$DEST_REF" 2>/dev/null; }
+trap cleanup EXIT HUP INT TERM
 
 shallow=$(git rev-parse --is-shallow-repository 2>/dev/null || echo unknown)
-
-# The enforcement epoch, resolved exactly as the audit resolves it: the
-# single commit that introduced the verifier. Empty when it cannot be
-# resolved unambiguously, which only relaxes the exemption to the
-# already-published test below — never widens what counts as a records
-# commit.
-epoch=$(git log --full-history --diff-filter=A --format=%H HEAD -- \
-    "$VERIFIER" 2>/dev/null)
-[ "$(printf '%s\n' "$epoch" | grep -c .)" = "1" ] || epoch=""
 
 refuse() { # refuse <ref> <reason>
     if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
@@ -88,25 +89,43 @@ records_tree() { # records_tree <commit-ish>
     git rev-parse --quiet --verify "$1:records" 2>/dev/null || echo none
 }
 
-# Pin the comparator to the destination's own main, once per push.
+# Pin the comparator to the destination's own main, once per push, as an
+# immutable object id. Git already resolved the destination; if feeding it
+# back through fetch would rewrite it again (a nested insteadOf), the
+# fetched repository need not be the receiving one, so the comparator is
+# refused and the endpoint range is used instead.
 pin_destination_main() {
     if [ "$fetched" = "0" ]; then
         fetched=1
-        [ -n "$destination" ] &&
-            GIT_TERMINAL_PROMPT=0 git fetch --quiet "$destination" \
-                "+refs/heads/main:$DEST_MAIN" </dev/null >/dev/null 2>&1 &&
-            fetch_ok=1
+        if [ -n "$destination" ] &&
+            [ "$(git ls-remote --get-url "$destination" 2>/dev/null)" \
+                = "$destination" ] &&
+            GIT_TERMINAL_PROMPT=0 git fetch --quiet --no-tags \
+                "$destination" "+refs/heads/main:$DEST_REF" \
+                </dev/null >/dev/null 2>&1; then
+            dest_main=$(git rev-parse --quiet --verify "$DEST_REF^{commit}" \
+                2>/dev/null)
+        fi
+        cleanup
     fi
-    [ "$fetch_ok" = "1" ] && git rev-parse --quiet --verify "$DEST_MAIN" >/dev/null
+    [ -n "$dest_main" ]
+}
+
+# The enforcement epoch, resolved exactly as the audit resolves it — the
+# single commit that introduced the verifier — but from the graph being
+# pushed, not from ambient HEAD. Unresolvable means no exemption at all.
+epoch_of() { # epoch_of <commit>
+    commits=$(git log --full-history --diff-filter=A --format=%H "$1" -- \
+        "$VERIFIER" 2>/dev/null)
+    [ "$(printf '%s\n' "$commits" | grep -c .)" = "1" ] || return 1
+    printf '%s\n' "$commits"
 }
 
 # A parent may vouch for a merge only if the audit would let it: in scope
 # (not a proven ancestor of the epoch) and already published.
-parent_may_exempt() { # parent_may_exempt <parent> <base>
-    if [ -n "$epoch" ] &&
-        git merge-base --is-ancestor "$1" "$epoch" 2>/dev/null; then
-        return 1
-    fi
+parent_may_exempt() { # parent_may_exempt <parent> <base> <epoch>
+    [ -n "$3" ] || return 1
+    git merge-base --is-ancestor "$1" "$3" 2>/dev/null && return 1
     git merge-base --is-ancestor "$1" "$2" 2>/dev/null
 }
 
@@ -118,13 +137,13 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
     fi
     base=""
     if [ "$remote_ref" != "refs/heads/main" ] && pin_destination_main; then
-        base=$DEST_MAIN
+        base=$dest_main
     fi
     if [ -z "$base" ]; then
         if [ "$remote_sha" != "$ZERO" ]; then
             base="$remote_sha"
         elif pin_destination_main; then
-            base=$DEST_MAIN
+            base=$dest_main
         else
             refuse "$remote_ref" "new ref, no comparator at the destination" ||
                 status=1
@@ -139,6 +158,7 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
         refuse "$remote_ref" "range $range failed to walk" || status=1
         continue
     fi
+    epoch=$(epoch_of "$local_sha") || epoch=""
     offenders=""
     for c in $walked; do
         ctree=$(records_tree "$c")
@@ -147,7 +167,7 @@ while read -r _local_ref local_sha remote_ref remote_sha; do
         for p in $(git rev-parse "$c^@" 2>/dev/null); do
             nparent=$((nparent + 1))
             [ "$(records_tree "$p")" = "$ctree" ] || continue
-            parent_may_exempt "$p" "$base" && exempt=1
+            parent_may_exempt "$p" "$base" "$epoch" && exempt=1
         done
         if [ "$nparent" -ge 2 ] && [ "$exempt" = "1" ]; then
             continue
