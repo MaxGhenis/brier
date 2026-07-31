@@ -60,6 +60,32 @@ export interface BillCompute {
   model: string;
   reform: Record<string, unknown>;
   result_summary: string;
+  /**
+   * Provenance for the audited PolicyEngine call path (issue #45) —
+   * additive contract fields carried by compute rows produced through
+   * scripts/tools/policyengine.py. `certification` records whether the
+   * model version matches the dataset build's certified pairing; an
+   * uncertified row is inadmissible for a published number.
+   */
+  engine?: string;
+  pe_us_version?: string;
+  pe_core_version?: string;
+  dataset?: string;
+  certification?: {
+    certified_model_version?: string;
+    running_model_version?: string;
+    certified: boolean;
+  };
+  year?: number;
+  region?: string;
+  status?: string;
+  budgetary_impact?: number;
+  ten_year_budgetary_impact?: number;
+  ten_year_window?: string;
+  poverty_child_pct_change?: number;
+  beneficiaries_share?: number;
+  note?: string;
+  source?: string;
 }
 
 export interface BillProvision {

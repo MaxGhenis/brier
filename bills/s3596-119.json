@@ -29,7 +29,7 @@
         },
         {
           "mechanism": "Unchanged parameters",
-          "text": "The $2,000 credit amount, the refundable cap, and the 15 percent phase-in rate are untouched — the provision changes who reaches a given refundable amount at what earnings level, not the credit's ceiling."
+          "text": "The $2,200 credit amount, the refundable cap, and the 15 percent phase-in rate are untouched — the provision changes who reaches a given refundable amount at what earnings level, not the credit's ceiling."
         }
       ],
       "barriers": [
@@ -102,7 +102,36 @@
         "P(IRS SOI TY2026 ACTC returns and dollars | §24(d)(1)(B)(i) threshold of $1 in effect for TY2026 vs not)",
         "P(Census SPM child poverty rate for 2026 | §24(d)(1)(B)(i) threshold of $1 in effect for TY2026 vs not)"
       ],
-      "compute": []
+      "compute": [
+        {
+          "model": "policyengine-us",
+          "reform": {
+            "gov.irs.credits.ctc.refundable.phase_in.threshold": {
+              "2026-01-01.2100-12-31": 0
+            }
+          },
+          "result_summary": "Gains concentrate in the lowest income deciles (decile 1 averages +$32/yr vs +$0.30 for decile 10); Gini falls 0.02%. The annual cost declines from $1.86B to $1.53B across the window as earnings growth lifts families past the old $2,500 floor. State income-tax revenue falls about $0.35M per year — itemized separately and excluded from the federal figures above.",
+          "engine": "modal",
+          "pe_us_version": "1.764.6",
+          "pe_core_version": "3.26.11",
+          "dataset": "populace-us-2024-buildp-sparse-rmloss100-cae8640-20260728T011454Z",
+          "certification": {
+            "certified_model_version": "1.764.6",
+            "running_model_version": "1.764.6",
+            "certified": true
+          },
+          "year": 2026,
+          "region": "us",
+          "status": "ok",
+          "budgetary_impact": -1826050568.8,
+          "ten_year_budgetary_impact": -17069142980.93,
+          "ten_year_window": "2026-2035",
+          "poverty_child_pct_change": -0.0115527,
+          "beneficiaries_share": 0.0648,
+          "note": "Static microsim, one evidence stream with its own error bars. Anchors: PolicyEngine -$1.6B/yr on an older data build; Tax Policy Center ~$1.0B/yr.",
+          "source": "Audited call path scripts/tools/policyengine.py per POLICYENGINE.md; run scripts/tools/modal_economy.py 2026-07-31 on the certified stack; full artifacts bills/stronger-start-working-families-act/buildP-economy-2026.json and buildP-sweep-2026-2035.json (sum-checked; PR #64)."
+        }
+      ]
     }
   ]
 }
