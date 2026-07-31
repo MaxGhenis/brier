@@ -224,14 +224,31 @@ def _verify_producer_signatures(records: Path, ordered: list[Path]) -> None:
     if not active:
         if discovered:
             raise ChainError(
-                "producer signature is present while producer signing is dormant: "
-                f"{logical_path(records, discovered[0])}"
+                "producer signature is present while producer signing is "
+                f"dormant: {logical_path(records, discovered[0])} "
+                f"({len(discovered)} signature file(s) found). Producer "
+                "signing is off in scripts/producer_signing_pins.py (no "
+                "activation snapshot and/or no pinned SPKI), so no signature "
+                "can be attributed to a known key - an unattributable "
+                "signature next to a record is worse than none, because "
+                "readers assume it means something. Either arm the pins "
+                "(activation snapshot plus PRODUCER_SPKI_SHA256) so these "
+                "signatures are actually checked, or find out who wrote them. "
+                "Do not delete them before answering that question."
             )
         return
 
     activation_logical = producer_pins.ACTIVATION_SNAPSHOT
     if activation_logical is None:  # Defended by producer_signing_active().
-        raise ChainError("producer signing pins are half-armed")
+        raise ChainError(
+            "producer signing pins are half-armed: "
+            "producer_signing_active() reported active, but "
+            "ACTIVATION_SNAPSHOT in scripts/producer_signing_pins.py is None. "
+            "Activation requires both the snapshot at which signing starts and "
+            "the pinned public-key SPKI; a half-set pair would mean either "
+            "signatures nobody verifies or verification against no key. Set "
+            "both pins together, or neither."
+        )
     activation = physical_path(records, activation_logical)
     if activation not in ordered:
         raise ChainError(
@@ -246,7 +263,16 @@ def _verify_producer_signatures(records: Path, ordered: list[Path]) -> None:
         if signature in discovered_set:
             raise ChainError(
                 "producer signature is forbidden at or before activation: "
-                f"{logical_path(records, signature)}"
+                f"{logical_path(records, signature)} sits at or before the "
+                f"activation snapshot {activation_logical} (chain position "
+                f"{ordered.index(snapshot)} of {activation_index}). Signing "
+                "starts strictly after activation, and the boundary is exact "
+                "in both directions: a signature before it would imply the "
+                "producer key existed earlier than the pins say, which is how "
+                "a key compromise gets backdated over old records. If these "
+                "snapshots really should be signed, move ACTIVATION_SNAPSHOT "
+                "earlier in scripts/producer_signing_pins.py deliberately - do "
+                "not delete the signature to move past this."
             )
 
     signed_snapshots = ordered[activation_index + 1 :]
@@ -254,8 +280,17 @@ def _verify_producer_signatures(records: Path, ordered: list[Path]) -> None:
     orphaned = sorted(discovered_set - expected)
     if orphaned:
         raise ChainError(
-            "orphan producer signature is not a post-activation snapshot sibling: "
-            f"{logical_path(records, orphaned[0])}"
+            "orphan producer signature is not a post-activation snapshot "
+            f"sibling: {logical_path(records, orphaned[0])} "
+            f"({len(orphaned)} orphan(s) total) has no corresponding snapshot "
+            "in the reachable chain after "
+            f"{activation_logical}. Every signature must sit beside the exact "
+            "snapshot it signs, so the set of signatures is a complete, "
+            "checkable cover of the signed range rather than a loose pile of "
+            "detached blobs. Benign shape: the snapshot was renamed or the "
+            "signature was copied. Attack shape: a signature retained after "
+            "its snapshot was removed from the chain. Find the missing "
+            "snapshot before removing anything."
         )
 
     for signature in sorted(expected):
@@ -625,7 +660,17 @@ def _load_trust_bundle(
         )
     if CODE_PINNED_TRUST_BUNDLES.get(logical) != reference:
         raise ChainError(
-            f"TSA trust bundle is not independently pinned by verifier code: {logical}"
+            "TSA trust bundle is not independently pinned by verifier code: "
+            f"{logical}. The chain data commits to {reference}, while "
+            "CODE_PINNED_TRUST_BUNDLES in scripts/verify_record_chain.py holds "
+            f"{CODE_PINNED_TRUST_BUNDLES.get(logical)}. Which TSA roots are "
+            "trusted is committed in two independent places - the records tree "
+            "and this verifier's source - so that write access to records "
+            "alone cannot change who is allowed to timestamp. A disagreement "
+            "means only one of the two was updated. Introducing a genuinely "
+            "new anchor set requires changing both, in a reviewed commit. Do "
+            "NOT edit the code pin to match the data as a fix-forward: that "
+            "single step is the whole attack this pairing blocks."
         )
     path = physical_path(records, logical)
     if not path.is_file() or path.is_symlink():
@@ -706,10 +751,29 @@ def _activate_trust_bundles(
         path = str(reference["path"])
         bundle_id = str(reference["bundleId"])
         if path in active and active[path] != reference:
-            raise ChainError(f"TSA trust bundle path was reused with new bytes: {path}")
+            raise ChainError(
+                f"TSA trust bundle path was reused with new bytes: {path} is "
+                f"already active committed to sha256 "
+                f"{active[path].get('sha256')}, and a snapshot now introduces "
+                f"it committed to {reference.get('sha256')}. Trust bundles are "
+                "immutable once activated: changing which TSA roots are "
+                "trusted must ship as a new versioned file, never as an edit "
+                "to a path the chain already trusts. This is the exact shape "
+                "of an anchor-swap attack - a path everyone already trusts, "
+                "silently repointed at a new signer. Add "
+                "records/trust/tsa-anchors-v<N+1>.json and introduce it "
+                "through a snapshot's trustBundleUpdates. Do NOT edit the "
+                "existing bundle file or re-pin it to the new digest."
+            )
         if bundle_id in ids and ids[bundle_id] != path:
             raise ChainError(
-                f"TSA trust bundle ID was reused at a new path: {bundle_id}"
+                f"TSA trust bundle ID was reused at a new path: bundleId "
+                f"{bundle_id!r} is already active at {ids[bundle_id]} and is "
+                f"now introduced at {path}. Each bundleId names exactly one "
+                "immutable file, so verifiers that key on the ID cannot be "
+                "shown two different anchor sets under one name. Give the new "
+                "file its own version and bundleId (tsa-anchors-v<N+1>); do "
+                "NOT rename or copy an existing bundle."
             )
         active[path] = reference
         ids[bundle_id] = path
@@ -824,7 +888,19 @@ def _bundle_for_claim(
         bundle_reference = trusted_bundles.get(bundle_path)
         if bundle_reference is None:
             raise ChainError(
-                f"witness selects an untrusted TSA bundle: {bundle_path!r}"
+                f"witness selects an untrusted TSA bundle: {bundle_path!r} is "
+                "not active for this snapshot; active bundles are "
+                f"{sorted(trusted_bundles)}. A trust bundle becomes active "
+                "only after an available witness made under an ALREADY-active "
+                "bundle covers the snapshot that introduces it - a snapshot "
+                "can never bootstrap the bundle its own token was issued "
+                "under, or a new anchor could authorize itself. So a bundle "
+                "listed in trustBundleUpdates is still only pending until an "
+                "old-key witness covers it. Benign shape: the transition "
+                "snapshot's witness is 'unavailable', which leaves the update "
+                "pending for a later witness - supply that witness rather "
+                "than re-anchoring this one. Do NOT add the bundle to genesis "
+                "or hand-activate it to shortcut the transition."
             )
     else:
         bundle_reference = CODE_PINNED_TRUST_BUNDLES.get(bundle_path)
@@ -834,10 +910,31 @@ def _bundle_for_claim(
                 f"{bundle_path!r}"
             )
     if claim.get("trustBundleSha256") != bundle_reference.get("sha256"):
-        raise ChainError("witness TSA trust-bundle hash mismatch")
+        raise ChainError(
+            f"witness TSA trust-bundle hash mismatch for {bundle_path}: the "
+            f"witness claims {claim.get('trustBundleSha256')}, the pinned "
+            f"bundle is {bundle_reference.get('sha256')}. A witness names the "
+            "exact anchor set it was verified against, so a hash disagreement "
+            "means the witness and this verifier do not agree on which TSA "
+            "roots were trusted. Attack shape: pointing a witness at a bundle "
+            "whose anchors were swapped. Trust bundles are immutable and "
+            "versioned - a legitimate anchor change ships as "
+            "records/trust/tsa-anchors-v<N+1>.json. Do NOT edit the bundle "
+            "file or paste the new digest into the witness."
+        )
     _trust_path, trust = _load_trust_bundle(records, bundle_reference)
     if claim.get("trustBundleId") != trust.get("bundleId"):
-        raise ChainError("witness TSA trust-bundle ID mismatch")
+        raise ChainError(
+            f"witness TSA trust-bundle ID mismatch for {bundle_path}: the "
+            f"witness claims bundleId {claim.get('trustBundleId')!r}, the "
+            f"bundle at that path declares {trust.get('bundleId')!r}. The ID "
+            "and the path must identify the same immutable bundle; a "
+            "disagreement usually means a bundle was renamed or copied to a "
+            "new path instead of being introduced as a new version. Ship the "
+            "new anchor set as records/trust/tsa-anchors-v<N+1>.json with a "
+            "matching bundleId and introduce it via a snapshot's "
+            "trustBundleUpdates; do NOT rewrite either side to match."
+        )
     return bundle_reference, trust
 
 
@@ -870,7 +967,20 @@ def verify_timestamp_token(
         raise ChainError(f"witness token is missing for {path}: {token_path}")
     token_sha256 = sha256_file(token_path)
     if token_sha256 != token_claim.get("tokenSha256"):
-        raise ChainError(f"witness token hash mismatch for {path}")
+        raise ChainError(
+            f"witness token hash mismatch for {path}: the witness claims token "
+            f"{token_logical} has SHA-256 {token_claim.get('tokenSha256')}, but "
+            f"that file hashes to {token_sha256}. The witness sidecar commits "
+            "to the exact .tsr bytes it verified, so the claim and the token "
+            "on disk are describing different timestamps. Benign shape: the "
+            "token was re-requested from the TSA - every request returns a "
+            "fresh, differently-serialized token even for the same digest - "
+            "and the sidecar was not updated. Attack shape: a token "
+            "substituted under an unchanged claim. Restore the originally "
+            "witnessed .tsr bytes from git. Do NOT request a new timestamp to "
+            "make the two agree: that re-dates the record to now and discards "
+            "the earlier proof of existence."
+        )
     root_path = physical_path(records, str(anchor["rootCertificate"]["path"]))
 
     with tempfile.TemporaryDirectory(prefix="thesis-tsa-") as temporary:
@@ -1165,7 +1275,19 @@ def _v2_witness_evidence(
     preferred = preferred_active_trust_bundle(trusted_bundles)
     if witness.get("trustBundlePath") != preferred["path"]:
         raise ChainError(
-            "multi-token witness does not use the newest active TSA trust bundle"
+            f"multi-token witness for {path} does not use the newest active "
+            f"TSA trust bundle: it selects "
+            f"{witness.get('trustBundlePath')!r}, newest active is "
+            f"{preferred['path']!r}. Trust may only move forward: once a "
+            "bundle transition has been activated by an available witness, "
+            "every later witness must anchor in the newest active bundle, or "
+            "a retired anchor could keep signing records indefinitely. "
+            "Benign shape: the witness job ran with a stale bundle pin, or a "
+            "witness built before the transition was replayed afterwards. If "
+            "this snapshot is not yet published, re-run witnessing against "
+            "the newest bundle. Do NOT hand-edit trustBundlePath to match: "
+            "the token was issued under the old bundle's anchors and the "
+            "claim has to describe the token that actually exists."
         )
     bundle_reference, trust = _bundle_for_claim(
         records, witness, trusted_bundles, active_required=True
@@ -1293,12 +1415,33 @@ def verify_witness(
     digest_sha = sha256_file(path)
     witness_path = path.with_suffix(".witness.json")
     if not witness_path.is_file():
-        raise ChainError(f"missing explicit witness marker for {path}")
+        raise ChainError(
+            f"missing explicit witness marker for {path}: expected a sibling "
+            f"{witness_path.name}. Every snapshot in the chain must carry a "
+            'witness sidecar - even one with status "unavailable" and a '
+            "reason - so that a record with no trusted timestamp can never "
+            "pass silently as if it had one. Normal cause: the snapshot was "
+            "just appended and the RFC 3161 timestamping step has not run for "
+            "it yet; run the witness/record job for this snapshot. Do not "
+            "delete the snapshot to clear this, and do not hand-write a "
+            'witness claiming "available" without a real .tsr token.'
+        )
     witness = load_json(witness_path)
     if witness.get("digestSha256") != digest_sha:
         raise ChainError(
-            f"witness digest mismatch for {path}: expected {digest_sha}, "
-            f"got {witness.get('digestSha256')}"
+            f"witness digest mismatch for {path}: {witness_path.name} attests "
+            f"digest {witness.get('digestSha256')}, but the snapshot now "
+            f"hashes to {digest_sha}. An RFC 3161 token timestamps one exact "
+            "byte string, so the snapshot changed after it was witnessed and "
+            "the token no longer proves anything about the file on disk. "
+            "Benign shape: the snapshot was re-serialized after witnessing "
+            "(key order, indentation, trailing newline) with identical "
+            "meaning. Attack shape: witnessed content replaced while the old "
+            "token is kept to backdate it. Restore the exact witnessed bytes "
+            "from git. Do NOT delete the witness, and do NOT re-timestamp the "
+            "new bytes: the original token is the only proof of when the "
+            "original content existed, and a fresh one silently re-dates the "
+            "record to now."
         )
     if trusted_bundles is None:
         genesis = load_json(records / "CHAIN_GENESIS.json")
@@ -1314,8 +1457,19 @@ def verify_witness(
             preferred is not None and preferred["bundleId"] != "tsa-anchors-v1"
         ):
             raise ChainError(
-                "legacy witness schema cannot cover a TSA trust transition "
-                "or a chain with v2 active"
+                f"legacy witness schema cannot cover a TSA trust transition "
+                f"or a chain with v2 active: {witness_path.name} declares "
+                "thesis_rfc3161_witness_v1, but this snapshot has "
+                f"{len(transition_bundle_updates)} pending trust-bundle "
+                "update(s) and the newest active bundle is "
+                f"{(preferred or {}).get('bundleId')!r}. A v1 witness records "
+                "one anchor's outcome only, so it cannot state what happened "
+                "at every anchor across a transition - and a transition that "
+                "silently loses an anchor's outcome is how a retired anchor "
+                "stays trusted. Re-emit this witness in the v2 schema, which "
+                "carries an explicit per-anchor outcome (available or "
+                "unavailable-with-reason). Do not strip trustBundleUpdates "
+                "from the snapshot to keep the v1 witness valid."
             )
         return _v1_witness_evidence(
             path,
@@ -1335,7 +1489,18 @@ def verify_witness(
             transition_bundle_updates=transition_bundle_updates,
             now=now,
         )
-    raise ChainError(f"unsupported witness schema for {path}")
+    raise ChainError(
+        f"unsupported witness schema for {path}: {witness_path.name} declares "
+        f"schemaVersion {schema!r}; this verifier accepts only "
+        "'thesis_rfc3161_witness_v1' (single anchor, pre-transition chains) "
+        "and 'thesis_rfc3161_witness_v2' (per-anchor outcomes, required once "
+        "a TSA trust transition exists). An unrecognized value is refused "
+        "rather than skipped, because a verifier that ignores witness "
+        "formats it does not understand accepts unwitnessed records. If the "
+        "sidecar was written by a newer producer, update this verifier; if "
+        "it was hand-edited, restore its committed bytes. Do not delete the "
+        "sidecar - that turns an unreadable witness into a missing one."
+    )
 
 
 def _verify_enumeration_against_git(
@@ -1437,33 +1602,116 @@ def _verify_enumeration(
     reference_path = reference.get("path")
     if CODE_PINNED_GENESIS_ENUMERATIONS.get(str(reference_path)) != reference:
         raise ChainError(
-            "genesis enumeration is not independently pinned by verifier code"
+            "genesis enumeration is not independently pinned by verifier code: "
+            f"CHAIN_GENESIS.json declares {reference}, while "
+            "CODE_PINNED_GENESIS_ENUMERATIONS in scripts/verify_record_chain.py "
+            f"holds {CODE_PINNED_GENESIS_ENUMERATIONS.get(str(reference_path))}. "
+            "The enumeration must be committed identically in the data and in "
+            "verifier source, so that rewriting the records tree alone cannot "
+            "move what the verifier considers genesis. Do NOT edit the code pin "
+            "to match the data - that is the single step this two-place "
+            "commitment exists to prevent. Restore CHAIN_GENESIS.json from git."
         )
     committed = commitments.get("legacyEnumeration")
     if committed != reference:
-        raise ChainError("cutover legacy enumeration commitment differs from genesis")
+        raise ChainError(
+            "cutover legacy enumeration commitment differs from genesis: the "
+            f"cutover snapshot's genesisCommitments.legacyEnumeration is "
+            f"{committed}, CHAIN_GENESIS.json declares {reference}. The "
+            "witnessed cutover snapshot re-commits to the enumeration so the "
+            "RFC 3161 token covers it too; if they disagree, one of the two "
+            "was changed after the cutover was timestamped. Restore both from "
+            "git - do NOT copy one into the other, which would put the "
+            "enumeration outside what the token actually witnessed."
+        )
     enumeration_path = physical_path(records, str(reference.get("path", "")))
     if not enumeration_path.is_file() or enumeration_path.is_symlink():
         raise ChainError(f"committed genesis enumeration is absent: {enumeration_path}")
     raw = enumeration_path.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != reference.get("sha256"):
-        raise ChainError("genesis enumeration raw SHA-256 mismatch")
+    actual_raw_sha = hashlib.sha256(raw).hexdigest()
+    if actual_raw_sha != reference.get("sha256"):
+        raise ChainError(
+            f"genesis enumeration raw SHA-256 mismatch for {reference_path}: "
+            f"CHAIN_GENESIS.json and this verifier's code pin both commit to "
+            f"{reference.get('sha256')}, the file on disk hashes to "
+            f"{actual_raw_sha}. This file is the one-time, frozen list of "
+            "every record that predates the chain; it is what stops a "
+            "pre-chain record from being quietly added or dropped later. It "
+            "is immutable by construction - the only correct outcome here is "
+            "to restore its committed bytes from git. Do NOT regenerate it: "
+            "a regenerated enumeration describes the working tree as it is "
+            "now, which is precisely the claim this check exists to refuse."
+        )
     if len(raw) != reference.get("size"):
-        raise ChainError("genesis enumeration size mismatch")
+        raise ChainError(
+            f"genesis enumeration size mismatch for {reference_path}: pinned "
+            f"size is {reference.get('size')} bytes, file on disk is "
+            f"{len(raw)} bytes. Same frozen-file invariant as the hash pin "
+            "above; restore the committed bytes from git rather than "
+            "regenerating the enumeration."
+        )
     enumeration = load_json(enumeration_path)
     if enumeration_path.read_bytes() != canonical_bytes(enumeration):
-        raise ChainError("genesis enumeration is not canonical JSON")
-    if canonical_sha256(enumeration) != reference.get("canonicalJsonSha256"):
-        raise ChainError("genesis enumeration canonical SHA-256 mismatch")
+        raise ChainError(
+            f"genesis enumeration is not canonical JSON: {reference_path} "
+            "parses correctly but its bytes are not the canonical "
+            "serialization of its own content (sorted keys, no insignificant "
+            "whitespace, no trailing newline). The enumeration is pinned by "
+            "exact bytes in two places, so any reformatting - an editor "
+            "save, a prettier/jq pass - breaks the pin even though the data "
+            "is unchanged. Restore the committed bytes from git; do not "
+            "re-serialize the file to fix the formatting."
+        )
+    actual_canonical_sha = canonical_sha256(enumeration)
+    if actual_canonical_sha != reference.get("canonicalJsonSha256"):
+        raise ChainError(
+            f"genesis enumeration canonical SHA-256 mismatch for "
+            f"{reference_path}: pinned {reference.get('canonicalJsonSha256')}, "
+            f"computed {actual_canonical_sha}. The raw bytes matched their pin "
+            "but the canonical hash did not, so the pins themselves disagree "
+            "rather than the file having been edited - the commitment in "
+            "CHAIN_GENESIS.json was computed over different content. Do NOT "
+            "update either pin to the computed value; find which commitment "
+            "is wrong first."
+        )
     if enumeration.get("schemaVersion") != "thesis_legacy_record_enumeration_v1":
-        raise ChainError("unsupported genesis enumeration schema")
+        raise ChainError(
+            f"unsupported genesis enumeration schema in {reference_path}: "
+            f"{enumeration.get('schemaVersion')!r}; this verifier accepts only "
+            "'thesis_legacy_record_enumeration_v1'. The enumeration is frozen, "
+            "so its schema cannot legitimately have moved; restore the "
+            "committed bytes from git."
+        )
     if enumeration.get("sourceCommit") != reference.get("sourceCommit"):
-        raise ChainError("genesis enumeration source commit mismatch")
+        raise ChainError(
+            f"genesis enumeration source commit mismatch for {reference_path}: "
+            f"the file names sourceCommit {enumeration.get('sourceCommit')!r}, "
+            f"CHAIN_GENESIS.json pins {reference.get('sourceCommit')!r}. The "
+            "enumeration is only meaningful against the exact Git tree it was "
+            "taken from - that commit is what makes 'this is every pre-chain "
+            "record' checkable. Two different commits mean one of the two "
+            "files was rewritten; restore from git rather than reconciling "
+            "them by hand."
+        )
     entries = enumeration.get("entries")
     if not isinstance(entries, list) or len(entries) != reference.get("entryCount"):
-        raise ChainError("genesis enumeration entry count mismatch")
+        raise ChainError(
+            f"genesis enumeration entry count mismatch for {reference_path}: "
+            f"CHAIN_GENESIS.json pins entryCount "
+            f"{reference.get('entryCount')}, the file lists "
+            f"{len(entries) if isinstance(entries, list) else 'a non-list'}. "
+            "Records were added to or removed from the frozen pre-chain "
+            "enumeration. Restore the committed bytes; do NOT re-derive the "
+            "list to match whatever is on disk now."
+        )
     if enumeration.get("entryCount") != len(entries):
-        raise ChainError("genesis enumeration self-declared entry count mismatch")
+        raise ChainError(
+            f"genesis enumeration self-declared entry count mismatch in "
+            f"{reference_path}: its own entryCount field says "
+            f"{enumeration.get('entryCount')} but entries holds "
+            f"{len(entries)} items. The file contradicts itself, so it was "
+            "edited by hand rather than regenerated; restore it from git."
+        )
     previous_path = ""
     listed: set[str] = set()
     total_size = 0
@@ -1495,8 +1743,16 @@ def _verify_enumeration(
         actual = hashlib.sha256(raw_file).hexdigest()
         if actual != digest:
             raise ChainError(
-                f"enumerated legacy record hash mismatch for {logical}: "
-                f"expected {digest}, got {actual}"
+                f"enumerated legacy record hash mismatch for {logical}: the "
+                f"frozen genesis enumeration commits to {digest}, the file now "
+                f"hashes to {actual}. Pre-chain records are immutable once "
+                "enumerated - that enumeration is the only thing standing "
+                "behind records that were never individually timestamped. "
+                "Benign shape: a reformat or line-ending change touched an old "
+                "record. Attack shape: an old published record edited after the "
+                "fact. Restore this file's committed bytes from git. Do NOT "
+                "update the enumeration entry to the new hash and do NOT delete "
+                "the record; either one silently ratifies the change."
             )
         listed.add(logical)
         previous_path = logical
@@ -1564,8 +1820,21 @@ def verify_chain(
         "legacyEnumeration" not in genesis
         or "enumerationCutoverSnapshot" not in genesis
     ):
+        missing = sorted(
+            key
+            for key in ("legacyEnumeration", "enumerationCutoverSnapshot")
+            if key not in genesis
+        )
         raise ChainError(
-            "chain lacks the mandatory complete genesis enumeration cutover"
+            f"chain lacks the mandatory complete genesis enumeration cutover: "
+            f"{genesis_path} is missing {missing}. Both keys are required "
+            "together - legacyEnumeration pins the frozen list of every "
+            "pre-chain record, and enumerationCutoverSnapshot names the "
+            "witnessed snapshot that timestamps that pin - because without "
+            "them, records predating the chain are covered by nothing. Only a "
+            "pre-cutover chain may omit them, and only under "
+            "allow_pre_enumeration=True, which production verification never "
+            "sets. Do not add allow_pre_enumeration to get past this."
         )
 
     legacy_entries = genesis.get("legacyDigests")
@@ -1642,8 +1911,21 @@ def verify_chain(
             expected_sha = sha256_file(previous)
             if chain.get("prevDigestSha256") != expected_sha:
                 raise ChainError(
-                    f"predecessor hash mismatch in {path}: expected {expected_sha}, "
-                    f"got {chain.get('prevDigestSha256')}"
+                    f"predecessor hash mismatch in {logical_path(records, path)}: "
+                    f"its chain.prevDigestSha256 commits to "
+                    f"{chain.get('prevDigestSha256')}, but {previous_logical} "
+                    f"currently hashes to {expected_sha}. Each snapshot commits "
+                    "to the exact bytes of the snapshot before it, so the "
+                    "predecessor was modified after this one was written. "
+                    "Benign shape: the predecessor was reformatted or "
+                    "re-serialized in place (key order, trailing newline). "
+                    "Attack shape: an older record was rewritten to change what "
+                    "the chain says was published. Restore the predecessor's "
+                    "committed bytes (git show <commit>:records/... > the file) "
+                    "so the recorded hash matches again. Do NOT recompute "
+                    "prevDigestSha256 here, and do NOT regenerate either "
+                    "snapshot - either one launders the edit into the chain and "
+                    "destroys the evidence of what changed."
                 )
             successors[previous].append(path)
     ordered = [first]
@@ -1655,10 +1937,30 @@ def verify_chain(
             raise ChainError(
                 f"fork after {logical_path(records, cursor)}: "
                 + ", ".join(logical_path(records, child) for child in children)
+                + " all name it as their chain.prevDigestPath. The record chain "
+                "must be a single line - exactly one successor per snapshot - "
+                "or 'the latest record' is ambiguous. Benign shape: two "
+                "recorder runs appended from the same tip (parallel jobs, or a "
+                "rebase/merge that replayed an append). Attack shape: a branch "
+                "record spliced in so one line hides a snapshot on the other. "
+                "Re-point all but one successor's chain.prevDigestPath and "
+                "chain.prevDigestSha256 at the real tip so they form one line. "
+                "Do NOT delete the extra snapshots: each is separately "
+                "witnessed evidence that it existed."
             )
         cursor = children[0]
         if cursor in visited:
-            raise ChainError(f"cycle at {logical_path(records, cursor)}")
+            raise ChainError(
+                f"cycle at {logical_path(records, cursor)}: following "
+                "chain.prevDigestPath from genesis returns to a snapshot "
+                "already visited. The chain must be acyclic and strictly "
+                "forward-linked; a cycle means at least one chain block was "
+                "rewritten to point backwards, which can only be deliberate "
+                "(a hash-committed link cannot loop by accident). Work out "
+                "which snapshot's chain block was altered by comparing against "
+                "git history, and restore its committed bytes. Do NOT break "
+                "the loop by deleting a snapshot or blanking a chain block."
+            )
         visited.add(cursor)
         ordered.append(cursor)
     if visited != snapshot_set:
@@ -1667,6 +1969,18 @@ def verify_chain(
             + ", ".join(
                 logical_path(records, path) for path in sorted(snapshot_set - visited)
             )
+            + ". Every records/<date>/digest-*.json must be reachable from "
+            f"genesis ({first_logical}) by following "
+            "chain.prevDigestPath; an unreachable snapshot is outside the "
+            "witnessed chain and its claims are unproven. Benign shape: a new "
+            "snapshot whose chain block names a predecessor that is not the "
+            "current tip, so it dangles off to the side. Attack shape: a "
+            "record added out of band, hoping the glob picks it up while the "
+            "chain does not. Point the orphan's chain.prevDigestPath and "
+            "chain.prevDigestSha256 at the real tip "
+            f"({logical_path(records, ordered[-1])}) so it joins the line. Do "
+            "NOT delete the orphan to make this pass - deleting is how a real "
+            "insertion attempt gets covered up."
         )
     _verify_producer_signatures(records, ordered)
     verified_order = ordered
@@ -1783,13 +2097,31 @@ def verify_chain(
     expected_head_sha = sha256_file(verified_order[-1])
     if head.get("snapshotPath") != expected_head_path:
         raise ChainError(
-            f"chain head path mismatch: expected {expected_head_path}, "
-            f"got {head.get('snapshotPath')}"
+            f"chain head path mismatch: records/CHAIN_HEAD.json names "
+            f"{head.get('snapshotPath')}, but the verified chain tip is "
+            f"{expected_head_path}. CHAIN_HEAD.json must always name the last "
+            "snapshot reachable from genesis, so that a reader who trusts only "
+            "the head still learns the full chain length. This one is usually "
+            "benign: a snapshot was appended and the head pointer was not "
+            "updated in the same commit. Update CHAIN_HEAD.json's snapshotPath "
+            "and snapshotSha256 together to the tip named above. The snapshots "
+            "themselves are fine - do NOT regenerate or delete any of them to "
+            "make the pointer fit."
         )
     if head.get("snapshotSha256") != expected_head_sha:
         raise ChainError(
-            f"chain head hash mismatch: expected {expected_head_sha}, "
-            f"got {head.get('snapshotSha256')}"
+            f"chain head hash mismatch for {expected_head_path}: "
+            f"records/CHAIN_HEAD.json commits to {head.get('snapshotSha256')}, "
+            f"but that snapshot now hashes to {expected_head_sha}. The head "
+            "commitment must equal the tip snapshot's exact bytes. Note the "
+            "path matched and only the bytes moved, so this is not a stale "
+            "pointer: either the tip was re-serialized after the head was "
+            "written (benign), or tip content was swapped while the pointer "
+            "stayed put (attack shape). Establish which byte string is "
+            "authentic from git history before changing anything; if the "
+            "snapshot is authentic, update snapshotSha256 in CHAIN_HEAD.json. "
+            "Do NOT regenerate the snapshot to match the pointer - that "
+            "discards the bytes the witness token was issued over."
         )
     return ChainVerification(
         ordered=tuple(verified_order),
