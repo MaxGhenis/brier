@@ -1,0 +1,1216 @@
+[
+  {
+    "slug": "us-consumer-credit-annual-rate-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US consumer credit annual rate, July 2026",
+    "question": "What will the Federal Reserve G.19 first-print total consumer credit percent change at an annual rate, seasonally adjusted, be for July 2026?",
+    "unit": "percent_growth",
+    "pointEstimate": 2.4,
+    "ciLow": -0.2,
+    "ciHigh": 5.0,
+    "confidence": 0.8,
+    "resolutionDate": "2026-09-08",
+    "resolutionSource": "ALFRED/FRED TOTALSLAR first vintage of the Federal Reserve G.19 Consumer Credit release",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TOTALSLAR",
+    "resolutionRule": "Resolve to the first-print value for TOTALSLAR, Total consumer credit percent change at an annual rate, seasonally adjusted, for observation month July 2026, as captured in the first ALFRED vintage of the Federal Reserve G.19 Consumer Credit series after the September 8, 2026 release. Do not use later revisions.",
+    "dataPointId": "fed.g19.consumer_credit_total_annual_rate.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "May 2026 latest TOTALSLAR",
+        "value": -0.04
+      },
+      {
+        "label": "Apr 2026 TOTALSLAR",
+        "value": 4.87
+      },
+      {
+        "label": "Mar 2026 TOTALSLAR",
+        "value": 5.35
+      },
+      {
+        "label": "2023-01 to 2026-05 reference-class mean",
+        "value": 2.29
+      }
+    ],
+    "drivers": [
+      "Recent total consumer credit growth has averaged a little above 2 percent annualized",
+      "May 2026 was flat because revolving credit contracted sharply",
+      "July same-month observations in 2023-2025 were positive but not boom-like",
+      "Higher borrowing costs and credit-card normalization limit upside"
+    ],
+    "sourceContext": [
+      "https://www.federalreserve.gov/newsevents/2026-september.htm",
+      "https://www.federalreserve.gov/releases/g19/current/default.htm",
+      "https://www.federalreserve.gov/releases/g19/about.htm",
+      "https://fred.stlouisfed.org/series/TOTALSLAR",
+      "https://alfred.stlouisfed.org/series?seid=TOTALSLAR",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TOTALSLAR"
+    ],
+    "runAt": "2026-07-31T15:11:54Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US G.19 total consumer credit annual-rate forecast"
+      },
+      {
+        "kind": "text",
+        "text": "The target is the Federal Reserve G.19 Consumer Credit table, seasonally adjusted Total percent change at annual rate, series code TOTALSLAR, for July 2026 first print. The official Fed September 2026 calendar lists G.19 Consumer Credit on September 8 at 3:00 p.m., so resolutionDate is 2026-09-08; the resolved value is read from the ALFRED first vintage for TOTALSLAR."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Federal Reserve current G.19 release and table check for latest same-variant data",
+        "result": "Fed G.19 current release dated July 8, 2026 reports May 2026 total consumer credit was unchanged; the table shows Total percent change annual rate -0.04, Revolving -4.71, Nonrevolving 1.61, and Total outstanding 5154.5 billion dollars."
+      },
+      {
+        "kind": "tool",
+        "tool": "fred.series",
+        "call": "FRED/ALFRED TOTALSLAR recent observations used as public history mirror of Fed G.19",
+        "result": "TOTALSLAR recent values: May 2026 -0.04, Apr 2026 4.87, Mar 2026 5.35, Feb 2026 1.70, Jan 2026 1.05 percent change at annual rate, seasonally adjusted."
+      },
+      {
+        "kind": "tool",
+        "tool": "history.lookup",
+        "call": "Same-month and recent reference-class TOTALSLAR values from public series table",
+        "result": "Same-month July values were 2023 July 2.62, 2024 July 4.73, and 2025 July 2.97; recent annual values include 2025 Dec 3.58, 2024 Dec 4.94, and 2023 Dec -1.20."
+      },
+      {
+        "kind": "text",
+        "text": "The base rate/reference class is the 2023-01 through 2026-05 monthly TOTALSLAR sample, which avoids the 2022 reopening-credit surge but keeps the current high-rate regime. Its mean is 2.29, close to the trailing 12-month mean of 2.36, so the outside-view anchor is near 2.3 percent."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: Persistence/reference class prior is 2023-01 through 2026-05 TOTALSLAR values: mean 2.29 and sigma = 2.03 from the values themselves; half-width = 1.28*sigma = 1.28*2.03 = 2.60. Update components: latest May value -0.04 pulls down, March-April strength and July same-month mean 3.44 pull up, and tight-credit conditions keep the point near the recent mean. Point = 2.40; 80% interval = 2.40 +/- 2.60 = [-0.20, 5.00]."
+      },
+      {
+        "kind": "text",
+        "text": "Upside risk is a rebound in revolving balances after the May -4.71 revolving print plus resilient auto or student nonrevolving flows, which would land above the interval if total credit growth exceeds 5.0. Downside risk is another revolving contraction or weaker auto-credit origination, which would land outside the interval below -0.2."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and the rule with the canonical ALFRED TOTALSLAR first-vintage binding while retaining the Fed G.19 calendar and release as the originating official source; rejected changing the point or interval because the base-rate and sigma calculation remain coherent."
+      },
+      {
+        "kind": "forecast",
+        "point": 2.4,
+        "ciLow": -0.2,
+        "ciHigh": 5.0
+      }
+    ],
+    "agentReportedRunAt": "2026-07-31T15:10:09Z",
+    "runStartedAt": "2026-07-31T15:09:31Z",
+    "promptMode": "fast",
+    "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+    "targetContentHash": "e9da62e6d1dd2f607aa873c6707f868a06e2aec454f41f214170fcead022a76d",
+    "targetRegistrationPath": "records/targets/2026-07-31-e9da62e6d1dd2f607aa873c6707f868a06e2aec454f41f214170fcead022a76d.json",
+    "registeredAtUtc": "2026-07-31T14:48:09Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": -4.1,
+        "upper": 8.9
+      },
+      "points": [
+        {
+          "value": -4.1,
+          "probability": 0.0
+        },
+        {
+          "value": -4.035,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": -3.97,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": -3.905,
+          "probability": 0.005
+        },
+        {
+          "value": -3.84,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": -3.775,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": -3.71,
+          "probability": 0.01
+        },
+        {
+          "value": -3.645,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": -3.58,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": -3.515,
+          "probability": 0.015
+        },
+        {
+          "value": -3.45,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": -3.385,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": -3.32,
+          "probability": 0.02
+        },
+        {
+          "value": -3.255,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": -3.19,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": -3.125,
+          "probability": 0.025
+        },
+        {
+          "value": -3.06,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": -2.995,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": -2.93,
+          "probability": 0.03
+        },
+        {
+          "value": -2.865,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": -2.8,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": -2.735,
+          "probability": 0.035
+        },
+        {
+          "value": -2.67,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": -2.605,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": -2.54,
+          "probability": 0.04
+        },
+        {
+          "value": -2.475,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": -2.41,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": -2.345,
+          "probability": 0.045
+        },
+        {
+          "value": -2.28,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": -2.215,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": -2.15,
+          "probability": 0.05
+        },
+        {
+          "value": -2.085,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": -2.02,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": -1.955,
+          "probability": 0.055
+        },
+        {
+          "value": -1.89,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": -1.825,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": -1.76,
+          "probability": 0.06
+        },
+        {
+          "value": -1.695,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": -1.63,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": -1.565,
+          "probability": 0.065
+        },
+        {
+          "value": -1.5,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": -1.435,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": -1.37,
+          "probability": 0.07
+        },
+        {
+          "value": -1.305,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": -1.24,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": -1.175,
+          "probability": 0.075
+        },
+        {
+          "value": -1.11,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": -1.045,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": -0.98,
+          "probability": 0.08
+        },
+        {
+          "value": -0.915,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": -0.85,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": -0.785,
+          "probability": 0.085
+        },
+        {
+          "value": -0.72,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": -0.655,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": -0.59,
+          "probability": 0.09
+        },
+        {
+          "value": -0.525,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": -0.46,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": -0.395,
+          "probability": 0.095
+        },
+        {
+          "value": -0.33,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": -0.265,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": -0.2,
+          "probability": 0.1
+        },
+        {
+          "value": -0.135,
+          "probability": 0.11
+        },
+        {
+          "value": -0.07,
+          "probability": 0.12
+        },
+        {
+          "value": -0.005,
+          "probability": 0.13
+        },
+        {
+          "value": 0.06,
+          "probability": 0.14
+        },
+        {
+          "value": 0.125,
+          "probability": 0.15
+        },
+        {
+          "value": 0.19,
+          "probability": 0.16
+        },
+        {
+          "value": 0.255,
+          "probability": 0.17
+        },
+        {
+          "value": 0.32,
+          "probability": 0.18
+        },
+        {
+          "value": 0.385,
+          "probability": 0.19
+        },
+        {
+          "value": 0.45,
+          "probability": 0.2
+        },
+        {
+          "value": 0.515,
+          "probability": 0.21
+        },
+        {
+          "value": 0.58,
+          "probability": 0.22
+        },
+        {
+          "value": 0.645,
+          "probability": 0.23
+        },
+        {
+          "value": 0.71,
+          "probability": 0.24
+        },
+        {
+          "value": 0.775,
+          "probability": 0.25
+        },
+        {
+          "value": 0.84,
+          "probability": 0.26
+        },
+        {
+          "value": 0.905,
+          "probability": 0.27
+        },
+        {
+          "value": 0.97,
+          "probability": 0.28
+        },
+        {
+          "value": 1.035,
+          "probability": 0.29
+        },
+        {
+          "value": 1.1,
+          "probability": 0.3
+        },
+        {
+          "value": 1.165,
+          "probability": 0.31
+        },
+        {
+          "value": 1.23,
+          "probability": 0.32
+        },
+        {
+          "value": 1.295,
+          "probability": 0.33
+        },
+        {
+          "value": 1.36,
+          "probability": 0.34
+        },
+        {
+          "value": 1.425,
+          "probability": 0.35
+        },
+        {
+          "value": 1.49,
+          "probability": 0.36
+        },
+        {
+          "value": 1.555,
+          "probability": 0.37
+        },
+        {
+          "value": 1.62,
+          "probability": 0.38
+        },
+        {
+          "value": 1.685,
+          "probability": 0.39
+        },
+        {
+          "value": 1.75,
+          "probability": 0.4
+        },
+        {
+          "value": 1.815,
+          "probability": 0.41
+        },
+        {
+          "value": 1.88,
+          "probability": 0.42
+        },
+        {
+          "value": 1.945,
+          "probability": 0.43
+        },
+        {
+          "value": 2.01,
+          "probability": 0.44
+        },
+        {
+          "value": 2.075,
+          "probability": 0.45
+        },
+        {
+          "value": 2.14,
+          "probability": 0.46
+        },
+        {
+          "value": 2.205,
+          "probability": 0.47
+        },
+        {
+          "value": 2.27,
+          "probability": 0.48
+        },
+        {
+          "value": 2.335,
+          "probability": 0.49
+        },
+        {
+          "value": 2.4,
+          "probability": 0.5
+        },
+        {
+          "value": 2.465,
+          "probability": 0.51
+        },
+        {
+          "value": 2.53,
+          "probability": 0.52
+        },
+        {
+          "value": 2.595,
+          "probability": 0.53
+        },
+        {
+          "value": 2.66,
+          "probability": 0.54
+        },
+        {
+          "value": 2.725,
+          "probability": 0.55
+        },
+        {
+          "value": 2.79,
+          "probability": 0.56
+        },
+        {
+          "value": 2.855,
+          "probability": 0.57
+        },
+        {
+          "value": 2.92,
+          "probability": 0.58
+        },
+        {
+          "value": 2.985,
+          "probability": 0.59
+        },
+        {
+          "value": 3.05,
+          "probability": 0.6
+        },
+        {
+          "value": 3.115,
+          "probability": 0.61
+        },
+        {
+          "value": 3.18,
+          "probability": 0.62
+        },
+        {
+          "value": 3.245,
+          "probability": 0.63
+        },
+        {
+          "value": 3.31,
+          "probability": 0.64
+        },
+        {
+          "value": 3.375,
+          "probability": 0.65
+        },
+        {
+          "value": 3.44,
+          "probability": 0.66
+        },
+        {
+          "value": 3.505,
+          "probability": 0.67
+        },
+        {
+          "value": 3.57,
+          "probability": 0.68
+        },
+        {
+          "value": 3.635,
+          "probability": 0.69
+        },
+        {
+          "value": 3.7,
+          "probability": 0.7
+        },
+        {
+          "value": 3.765,
+          "probability": 0.71
+        },
+        {
+          "value": 3.83,
+          "probability": 0.72
+        },
+        {
+          "value": 3.895,
+          "probability": 0.73
+        },
+        {
+          "value": 3.96,
+          "probability": 0.74
+        },
+        {
+          "value": 4.025,
+          "probability": 0.75
+        },
+        {
+          "value": 4.09,
+          "probability": 0.76
+        },
+        {
+          "value": 4.155,
+          "probability": 0.77
+        },
+        {
+          "value": 4.22,
+          "probability": 0.78
+        },
+        {
+          "value": 4.285,
+          "probability": 0.79
+        },
+        {
+          "value": 4.35,
+          "probability": 0.8
+        },
+        {
+          "value": 4.415,
+          "probability": 0.81
+        },
+        {
+          "value": 4.48,
+          "probability": 0.82
+        },
+        {
+          "value": 4.545,
+          "probability": 0.83
+        },
+        {
+          "value": 4.61,
+          "probability": 0.84
+        },
+        {
+          "value": 4.675,
+          "probability": 0.85
+        },
+        {
+          "value": 4.74,
+          "probability": 0.86
+        },
+        {
+          "value": 4.805,
+          "probability": 0.87
+        },
+        {
+          "value": 4.87,
+          "probability": 0.88
+        },
+        {
+          "value": 4.935,
+          "probability": 0.89
+        },
+        {
+          "value": 5.0,
+          "probability": 0.9
+        },
+        {
+          "value": 5.065,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 5.13,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 5.195,
+          "probability": 0.905
+        },
+        {
+          "value": 5.26,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 5.325,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 5.39,
+          "probability": 0.91
+        },
+        {
+          "value": 5.455,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 5.52,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 5.585,
+          "probability": 0.915
+        },
+        {
+          "value": 5.65,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 5.715,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 5.78,
+          "probability": 0.92
+        },
+        {
+          "value": 5.845,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 5.91,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 5.975,
+          "probability": 0.925
+        },
+        {
+          "value": 6.04,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 6.105,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 6.17,
+          "probability": 0.93
+        },
+        {
+          "value": 6.235,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 6.3,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 6.365,
+          "probability": 0.935
+        },
+        {
+          "value": 6.43,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 6.495,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 6.56,
+          "probability": 0.94
+        },
+        {
+          "value": 6.625,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 6.69,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 6.755,
+          "probability": 0.945
+        },
+        {
+          "value": 6.82,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 6.885,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 6.95,
+          "probability": 0.95
+        },
+        {
+          "value": 7.015,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 7.08,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 7.145,
+          "probability": 0.955
+        },
+        {
+          "value": 7.21,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 7.275,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 7.34,
+          "probability": 0.96
+        },
+        {
+          "value": 7.405,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 7.47,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 7.535,
+          "probability": 0.965
+        },
+        {
+          "value": 7.6,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 7.665,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 7.73,
+          "probability": 0.97
+        },
+        {
+          "value": 7.795,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 7.86,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 7.925,
+          "probability": 0.975
+        },
+        {
+          "value": 7.99,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 8.055,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 8.12,
+          "probability": 0.98
+        },
+        {
+          "value": 8.185,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 8.25,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 8.315,
+          "probability": 0.985
+        },
+        {
+          "value": 8.38,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 8.445,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 8.51,
+          "probability": 0.99
+        },
+        {
+          "value": 8.575,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 8.64,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 8.705,
+          "probability": 0.995
+        },
+        {
+          "value": 8.77,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 8.835,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 8.9,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 2.4,
+        "median": 2.4,
+        "interval80": {
+          "lower": -0.2,
+          "upper": 5.0
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/prompt.md",
+        "sha256": "86654ceb5804d238a5552bad5325e482caf7d1af452b18d6ad21386fd58ce609",
+        "bytes": 8919,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_command.json",
+        "sha256": "a085f93a37ab0ef011092450950a83199d7deb80cd8525564ea46485a432db23",
+        "bytes": 746,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "c17e44d303959abccb159e0ed64d0dc3e04ac474993bfc8a5df18299b479c708",
+        "bytes": 9590,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_stderr.log",
+        "sha256": "bff8ad2f60b197afe56270c11ffac7deefa55a6ca544a0514761797ec9bb25c7",
+        "bytes": 233,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_events.jsonl",
+        "sha256": "585560ecd7f07f35f9c311ce63b1b9d986f01f211317abef9bd3364a9191878f",
+        "bytes": 9628,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_last_message.txt",
+        "sha256": "9f7ec9bdede70b145578cec0d49182aa6cd01e7256ba877c458057216163b8de",
+        "bytes": 4580,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_trace.json",
+        "sha256": "097cdd88c2bc3dc3cbf95edb65d761f88a959e9d328d42e22521b9a3aca4450f",
+        "bytes": 534,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_stdout.txt",
+        "sha256": "9f7ec9bdede70b145578cec0d49182aa6cd01e7256ba877c458057216163b8de",
+        "bytes": 4580,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_stderr.txt",
+        "sha256": "40e7ca1f9e513a3c7a2120236275d016ba5f158d4557aa33f91fcdd9d108ab38",
+        "bytes": 248,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_prompt.md",
+        "sha256": "1a2d61c32e04c34a08e8a9c9ae1141296280dcf78a10eaa4e3f7d359efe7dbb2",
+        "bytes": 7652,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_command.json",
+        "sha256": "ae2ea1840b59cd4d3044b195f89681d342c4c881db4d3144e13722298bbdb4ea",
+        "bytes": 742,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "8c54789ad31c110858d743e1f841f58483c3a46580d80c4fb6984f924500541e",
+        "bytes": 1342,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "d8d48fabf939cacc756f27156f36496fd1a3819ece7c5737e7fa4f92916c6509",
+        "bytes": 233,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "0293e70965a4844c6ee26d7d170f648bc7b686729b3ef6046830334b7a3cfb56",
+        "bytes": 1364,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "f12c1cb5e01fdaf1525d3fe2c1c9d05a55aac329dda486ca18dbfd36d8a8d5c8",
+        "bytes": 986,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "65bdbe76ce56732a47980f10a18edcbcc9a2517c98ae879478171323d942f136",
+        "bytes": 527,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "f12c1cb5e01fdaf1525d3fe2c1c9d05a55aac329dda486ca18dbfd36d8a8d5c8",
+        "bytes": 986,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "dd2e891416c47fad557eca4580cedef5bc8c31d81ea7bad7aad2ba3c9c261b29",
+        "bytes": 248,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/revision_prompt.md",
+        "sha256": "92bbbf59540861d6969e1e75b5b2f41c0ae4705d130e54cbab08915c4117a8fe",
+        "bytes": 15421,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/command.json",
+        "sha256": "5a359475dcec7f4d0c0aa5c292173d248891819eb0cbf394d0d0d4f78b9e2562",
+        "bytes": 740,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_stdout.jsonl",
+        "sha256": "b66aaf0e933df5bbfd671f5b0f281f802a80a7ee557c3779c92ccae838b9f251",
+        "bytes": 5498,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_stderr.log",
+        "sha256": "17aec4d07897369a0769c11b47812b6dc1722b69874ddd668dd2b8425ef2cf26",
+        "bytes": 233,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_events.jsonl",
+        "sha256": "a92f376a2b731eed75be8b9b6d62606fa16d5b9063859edc428d2e8dc183e7dd",
+        "bytes": 5520,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_last_message.txt",
+        "sha256": "8933a4e6f727eb1e379c2f6b6f5eb7d5b0154e72de2fcb8bee3d7d9ced74ecf7",
+        "bytes": 4969,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_trace.json",
+        "sha256": "701054fdd110ddd26d597e1d8ef25f797fa0332150de8ff79acfbe7c7c7ab962",
+        "bytes": 527,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/stdout.txt",
+        "sha256": "8933a4e6f727eb1e379c2f6b6f5eb7d5b0154e72de2fcb8bee3d7d9ced74ecf7",
+        "bytes": 4969,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/stderr.txt",
+        "sha256": "510ab6ae7bfa6f46e43ca749e630deb539e72c087e254bd2fc1f7d85a1902256",
+        "bytes": 248,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/raw_response.txt",
+        "sha256": "8933a4e6f727eb1e379c2f6b6f5eb7d5b0154e72de2fcb8bee3d7d9ced74ecf7",
+        "bytes": 4969,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/parsed_cells.json",
+        "sha256": "41658deebc7cbdd8999d8fe8c82a6c759dfa718fd56189a9e8c962541b10d5e8",
+        "bytes": 5744,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/normalized_cells.json",
+        "sha256": "d5091223ad0b624fbcabc9655ef19903cf6959c53c8d2c4f340f486baa97d1ae",
+        "bytes": 22932,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/distribution.json",
+        "sha256": "7daa0eb32f003c362bbc6b4952b717eedd0dae405d6b9ccf0476b78fc97a06c7",
+        "bytes": 13404,
+        "createdAt": "2026-07-31T15:09:31Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/validation.json",
+        "sha256": "4212574caad36564ae9408b4026dfdbf5a6d3b5f19a5279133d9e2c0b7ac45f1",
+        "bytes": 141,
+        "createdAt": "2026-07-31T15:09:31Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-31T15:09:31Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "f6566a91541b965570850ae8b71491b7af0978b308afe35bfc728435ddab95e0"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.finding.1",
+          "severity": "warning",
+          "rubricItem": "resolver",
+          "summary": "The draft cites the Fed G.19 page as resolutionSourceUrl, while the ledger contract binds resolution to ALFRED/FRED TOTALSLAR via alfred.stlouisfed.org with first_print policy.",
+          "actionRequested": "Set or restate the resolver/source fields to the canonical ALFRED TOTALSLAR first-vintage source binding, while still noting the Fed G.19 release as the originating official release if desired."
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "In the final reasoning, explicitly say the Fed calendar supports the 2026-09-08 release date but the resolved value is read from the ALFRED first vintage."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The prior/update/interval step is compact and coherent; no replacement forecast is needed."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.finding.1",
+          "decision": "accepted",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and the rule with the canonical ALFRED TOTALSLAR first-vintage binding while retaining the Fed G.19 calendar and release as the originating official source; rejected changing the point or interval because the base-rate and sigma calculation remain coherent.",
+          "forecastChanged": true
+        },
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and the rule with the canonical ALFRED TOTALSLAR first-vintage binding while retaining the Fed G.19 calendar and release as the originating official source; rejected changing the point or interval because the base-rate and sigma calculation remain coherent.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and the rule with the canonical ALFRED TOTALSLAR first-vintage binding while retaining the Fed G.19 calendar and release as the originating official source; rejected changing the point or interval because the base-rate and sigma calculation remain coherent.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is mostly publishable, but the resolver/source fields should be aligned with the canonical ALFRED first-print binding rather than a Fed release-page URL."
+    }
+  }
+]

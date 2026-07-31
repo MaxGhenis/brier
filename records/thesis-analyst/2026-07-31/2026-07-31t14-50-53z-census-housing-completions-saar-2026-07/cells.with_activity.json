@@ -1,0 +1,1222 @@
+[
+  {
+    "slug": "us-housing-completions-july-2026",
+    "country": "US",
+    "type": "data",
+    "title": "US housing completions, July 2026",
+    "question": "What will the U.S. Census Bureau and HUD first report for privately-owned housing completions in July 2026, seasonally adjusted annual rate, in thousands of units?",
+    "unit": "thousands",
+    "pointEstimate": 1390,
+    "ciLow": 1270,
+    "ciHigh": 1510,
+    "confidence": 0.8,
+    "resolutionDate": "2026-08-18",
+    "resolutionSource": "U.S. Census Bureau and HUD New Residential Construction release, mirrored as ALFRED/FRED series COMPUTSA first print",
+    "resolutionSourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=COMPUTSA",
+    "resolutionRule": "Resolve to the first official July 2026 print for Census/HUD privately-owned housing completions at a seasonally adjusted annual rate, total United States, in thousands of units, as mirrored by the registered ALFRED/FRED COMPUTSA first-vintage series for the August 18, 2026 release. Use the initial vintage/first print only; do not apply later revisions or same-day correction exceptions unless the registered sourceBinding changes.",
+    "dataPointId": "census.housing.completions_saar.2026_07.first_print",
+    "historicalContext": [
+      {
+        "label": "2026-06 preliminary SAAR",
+        "value": 1392
+      },
+      {
+        "label": "2026-05 revised SAAR",
+        "value": 1347
+      },
+      {
+        "label": "2026-04 revised SAAR",
+        "value": 1454
+      },
+      {
+        "label": "2026-03 SAAR",
+        "value": 1373
+      },
+      {
+        "label": "2026-02 SAAR",
+        "value": 1324
+      },
+      {
+        "label": "2026-01 SAAR",
+        "value": 1439
+      }
+    ],
+    "drivers": [
+      "June completions near 1.39 million SAAR after a May dip",
+      "single-family completions strengthened to 964 thousand SAAR in June",
+      "five-or-more completions remained softer at 413 thousand SAAR",
+      "starts rebounded to 1,427 thousand SAAR in June, supporting near-term completions",
+      "not-seasonally-adjusted completions year to date were 9.5 percent below 2025"
+    ],
+    "sourceContext": [
+      "https://www.census.gov/construction/nrc/current/index.html",
+      "https://www.census.gov/construction/nrc/pdf/newresconst.pdf",
+      "https://www.census.gov/construction/soc/schedule.html",
+      "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=COMPUTSA"
+    ],
+    "runAt": "2026-07-31T14:52:42Z",
+    "reasoning": [
+      {
+        "kind": "heading",
+        "text": "US July 2026 housing completions SAAR first print"
+      },
+      {
+        "kind": "text",
+        "text": "Framing and exact resolver: this forecasts Census/HUD New Residential Construction privately-owned housing completions, seasonally adjusted annual rate, total United States, July 2026, in thousands. The official release is Census/HUD; the registered resolution mirror is ALFRED/FRED sourceSeriesId COMPUTSA under first_print policy, so I keep the final rule tied to that first-vintage target."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Checked Census Survey of Construction release schedule for July 2026 New Residential Construction.",
+        "result": "Fetched schedule shows July 2026 New Residential Construction at 8:30 a.m. on August 18, 2026; the same schedule lists June 2026 on July 17, 2026 and August 2026 on September 17, 2026."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read the June 2026 Census/HUD New Residential Construction current release summary for housing completions.",
+        "result": "Fetched June 2026 housing completions at 1,392 thousand SAAR, revised May at 1,347 thousand SAAR, June 2025 at 1,372 thousand SAAR, single-family completions at 964 thousand SAAR, and five-or-more completions at 413 thousand SAAR."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Census/HUD PDF Table 5a for recent total housing completions SAAR history.",
+        "result": "Fetched total completions SAAR values: January 2026 1,439, February 2026 1,324, March 2026 1,373, April 2026 1,454, May 2026 1,347, June 2026 1,392, all in thousands."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Census/HUD June release for leading construction indicators and completion composition.",
+        "result": "Fetched June 2026 building permits at 1,367 thousand SAAR, housing starts at 1,427 thousand SAAR, May starts at 1,199 thousand SAAR, and units under construction at 1,264 thousand SAAR."
+      },
+      {
+        "kind": "tool",
+        "tool": "official.lookup",
+        "call": "Read Census/HUD PDF Table 5b for not-seasonally-adjusted year-to-date completions.",
+        "result": "Fetched not-seasonally-adjusted completions year to date at 434.5 thousand in 2026 versus 478.9 thousand in 2025, a -9.5 percent change; June 2026 NSA completions were 123.7 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Reference class and base rate: for this same SAAR variant, the near-term reference class is month-to-month changes in recent total completions. A persistence base rate around the latest print, 1,392 thousand, is more informative than the 2025 July level because completions are volatile and the July first print is a one-month SAAR estimate."
+      },
+      {
+        "kind": "math",
+        "text": "Prior/update/interval: persistence prior is June 2026 total completions SAAR = 1,392. Historical sample is the official January-June 2026 Census Table 5a sequence 1,439, 1,324, 1,373, 1,454, 1,347, 1,392, giving successive changes -115, +49, +81, -107, +45; sample sigma = 94 thousand. Adjustment components: -20 thousand for weak 2026 year-to-date NSA completions versus 2025, +10 thousand for high single-family completions, +8 thousand for June starts rebound and still-large under-construction stock, net about -2 thousand from persistence. Point = 1,390. 80% half-width = 1.28*sigma = 1.28*94 = 120 thousand, so bounds are 1,390 - 120 = 1,270 and 1,390 + 120 = 1,510."
+      },
+      {
+        "kind": "text",
+        "text": "Counter-considerations: upside risk would come from June's 1,427 thousand starts rebound pulling through quickly or multifamily completions normalizing upward, which would land above the interval if the first print exceeds 1,510 thousand. Downside risk is a renewed multifamily completion drop or seasonal adjustment reversal after June's single-family strength, which would land below the interval if the first print is under 1,270 thousand."
+      },
+      {
+        "kind": "text",
+        "text": "Review disposition: accepted the reviewer suggestions to make Census/HUD the official release and ALFRED the registered mirror more explicit, and to clarify that the interval volatility uses January-June 2026 month-to-month moves; no required fixes were raised."
+      },
+      {
+        "kind": "forecast",
+        "point": 1390,
+        "ciLow": 1270,
+        "ciHigh": 1510
+      }
+    ],
+    "agentReportedRunAt": "2026-07-31T14:51:46Z",
+    "runStartedAt": "2026-07-31T14:50:53Z",
+    "promptMode": "fast",
+    "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+    "targetContentHash": "d575eb38110952504acebd0ba3e773df5327cd1eb860702d961a00d0b2d45a82",
+    "targetRegistrationPath": "records/targets/2026-07-31-d575eb38110952504acebd0ba3e773df5327cd1eb860702d961a00d0b2d45a82.json",
+    "registeredAtUtc": "2026-07-31T14:48:09Z",
+    "predictionDistribution": {
+      "format": "numeric_cdf_v1",
+      "pointCount": 201,
+      "support": {
+        "lower": 1090.0,
+        "upper": 1690.0
+      },
+      "points": [
+        {
+          "value": 1090.0,
+          "probability": 0.0
+        },
+        {
+          "value": 1093.0,
+          "probability": 0.00166666666667
+        },
+        {
+          "value": 1096.0,
+          "probability": 0.00333333333333
+        },
+        {
+          "value": 1099.0,
+          "probability": 0.005
+        },
+        {
+          "value": 1102.0,
+          "probability": 0.00666666666667
+        },
+        {
+          "value": 1105.0,
+          "probability": 0.00833333333333
+        },
+        {
+          "value": 1108.0,
+          "probability": 0.01
+        },
+        {
+          "value": 1111.0,
+          "probability": 0.0116666666667
+        },
+        {
+          "value": 1114.0,
+          "probability": 0.0133333333333
+        },
+        {
+          "value": 1117.0,
+          "probability": 0.015
+        },
+        {
+          "value": 1120.0,
+          "probability": 0.0166666666667
+        },
+        {
+          "value": 1123.0,
+          "probability": 0.0183333333333
+        },
+        {
+          "value": 1126.0,
+          "probability": 0.02
+        },
+        {
+          "value": 1129.0,
+          "probability": 0.0216666666667
+        },
+        {
+          "value": 1132.0,
+          "probability": 0.0233333333333
+        },
+        {
+          "value": 1135.0,
+          "probability": 0.025
+        },
+        {
+          "value": 1138.0,
+          "probability": 0.0266666666667
+        },
+        {
+          "value": 1141.0,
+          "probability": 0.0283333333333
+        },
+        {
+          "value": 1144.0,
+          "probability": 0.03
+        },
+        {
+          "value": 1147.0,
+          "probability": 0.0316666666667
+        },
+        {
+          "value": 1150.0,
+          "probability": 0.0333333333333
+        },
+        {
+          "value": 1153.0,
+          "probability": 0.035
+        },
+        {
+          "value": 1156.0,
+          "probability": 0.0366666666667
+        },
+        {
+          "value": 1159.0,
+          "probability": 0.0383333333333
+        },
+        {
+          "value": 1162.0,
+          "probability": 0.04
+        },
+        {
+          "value": 1165.0,
+          "probability": 0.0416666666667
+        },
+        {
+          "value": 1168.0,
+          "probability": 0.0433333333333
+        },
+        {
+          "value": 1171.0,
+          "probability": 0.045
+        },
+        {
+          "value": 1174.0,
+          "probability": 0.0466666666667
+        },
+        {
+          "value": 1177.0,
+          "probability": 0.0483333333333
+        },
+        {
+          "value": 1180.0,
+          "probability": 0.05
+        },
+        {
+          "value": 1183.0,
+          "probability": 0.0516666666667
+        },
+        {
+          "value": 1186.0,
+          "probability": 0.0533333333333
+        },
+        {
+          "value": 1189.0,
+          "probability": 0.055
+        },
+        {
+          "value": 1192.0,
+          "probability": 0.0566666666667
+        },
+        {
+          "value": 1195.0,
+          "probability": 0.0583333333333
+        },
+        {
+          "value": 1198.0,
+          "probability": 0.06
+        },
+        {
+          "value": 1201.0,
+          "probability": 0.0616666666667
+        },
+        {
+          "value": 1204.0,
+          "probability": 0.0633333333333
+        },
+        {
+          "value": 1207.0,
+          "probability": 0.065
+        },
+        {
+          "value": 1210.0,
+          "probability": 0.0666666666667
+        },
+        {
+          "value": 1213.0,
+          "probability": 0.0683333333333
+        },
+        {
+          "value": 1216.0,
+          "probability": 0.07
+        },
+        {
+          "value": 1219.0,
+          "probability": 0.0716666666667
+        },
+        {
+          "value": 1222.0,
+          "probability": 0.0733333333333
+        },
+        {
+          "value": 1225.0,
+          "probability": 0.075
+        },
+        {
+          "value": 1228.0,
+          "probability": 0.0766666666667
+        },
+        {
+          "value": 1231.0,
+          "probability": 0.0783333333333
+        },
+        {
+          "value": 1234.0,
+          "probability": 0.08
+        },
+        {
+          "value": 1237.0,
+          "probability": 0.0816666666667
+        },
+        {
+          "value": 1240.0,
+          "probability": 0.0833333333333
+        },
+        {
+          "value": 1243.0,
+          "probability": 0.085
+        },
+        {
+          "value": 1246.0,
+          "probability": 0.0866666666667
+        },
+        {
+          "value": 1249.0,
+          "probability": 0.0883333333333
+        },
+        {
+          "value": 1252.0,
+          "probability": 0.09
+        },
+        {
+          "value": 1255.0,
+          "probability": 0.0916666666667
+        },
+        {
+          "value": 1258.0,
+          "probability": 0.0933333333333
+        },
+        {
+          "value": 1261.0,
+          "probability": 0.095
+        },
+        {
+          "value": 1264.0,
+          "probability": 0.0966666666667
+        },
+        {
+          "value": 1267.0,
+          "probability": 0.0983333333333
+        },
+        {
+          "value": 1270.0,
+          "probability": 0.1
+        },
+        {
+          "value": 1273.0,
+          "probability": 0.11
+        },
+        {
+          "value": 1276.0,
+          "probability": 0.12
+        },
+        {
+          "value": 1279.0,
+          "probability": 0.13
+        },
+        {
+          "value": 1282.0,
+          "probability": 0.14
+        },
+        {
+          "value": 1285.0,
+          "probability": 0.15
+        },
+        {
+          "value": 1288.0,
+          "probability": 0.16
+        },
+        {
+          "value": 1291.0,
+          "probability": 0.17
+        },
+        {
+          "value": 1294.0,
+          "probability": 0.18
+        },
+        {
+          "value": 1297.0,
+          "probability": 0.19
+        },
+        {
+          "value": 1300.0,
+          "probability": 0.2
+        },
+        {
+          "value": 1303.0,
+          "probability": 0.21
+        },
+        {
+          "value": 1306.0,
+          "probability": 0.22
+        },
+        {
+          "value": 1309.0,
+          "probability": 0.23
+        },
+        {
+          "value": 1312.0,
+          "probability": 0.24
+        },
+        {
+          "value": 1315.0,
+          "probability": 0.25
+        },
+        {
+          "value": 1318.0,
+          "probability": 0.26
+        },
+        {
+          "value": 1321.0,
+          "probability": 0.27
+        },
+        {
+          "value": 1324.0,
+          "probability": 0.28
+        },
+        {
+          "value": 1327.0,
+          "probability": 0.29
+        },
+        {
+          "value": 1330.0,
+          "probability": 0.3
+        },
+        {
+          "value": 1333.0,
+          "probability": 0.31
+        },
+        {
+          "value": 1336.0,
+          "probability": 0.32
+        },
+        {
+          "value": 1339.0,
+          "probability": 0.33
+        },
+        {
+          "value": 1342.0,
+          "probability": 0.34
+        },
+        {
+          "value": 1345.0,
+          "probability": 0.35
+        },
+        {
+          "value": 1348.0,
+          "probability": 0.36
+        },
+        {
+          "value": 1351.0,
+          "probability": 0.37
+        },
+        {
+          "value": 1354.0,
+          "probability": 0.38
+        },
+        {
+          "value": 1357.0,
+          "probability": 0.39
+        },
+        {
+          "value": 1360.0,
+          "probability": 0.4
+        },
+        {
+          "value": 1363.0,
+          "probability": 0.41
+        },
+        {
+          "value": 1366.0,
+          "probability": 0.42
+        },
+        {
+          "value": 1369.0,
+          "probability": 0.43
+        },
+        {
+          "value": 1372.0,
+          "probability": 0.44
+        },
+        {
+          "value": 1375.0,
+          "probability": 0.45
+        },
+        {
+          "value": 1378.0,
+          "probability": 0.46
+        },
+        {
+          "value": 1381.0,
+          "probability": 0.47
+        },
+        {
+          "value": 1384.0,
+          "probability": 0.48
+        },
+        {
+          "value": 1387.0,
+          "probability": 0.49
+        },
+        {
+          "value": 1390.0,
+          "probability": 0.5
+        },
+        {
+          "value": 1393.0,
+          "probability": 0.51
+        },
+        {
+          "value": 1396.0,
+          "probability": 0.52
+        },
+        {
+          "value": 1399.0,
+          "probability": 0.53
+        },
+        {
+          "value": 1402.0,
+          "probability": 0.54
+        },
+        {
+          "value": 1405.0,
+          "probability": 0.55
+        },
+        {
+          "value": 1408.0,
+          "probability": 0.56
+        },
+        {
+          "value": 1411.0,
+          "probability": 0.57
+        },
+        {
+          "value": 1414.0,
+          "probability": 0.58
+        },
+        {
+          "value": 1417.0,
+          "probability": 0.59
+        },
+        {
+          "value": 1420.0,
+          "probability": 0.6
+        },
+        {
+          "value": 1423.0,
+          "probability": 0.61
+        },
+        {
+          "value": 1426.0,
+          "probability": 0.62
+        },
+        {
+          "value": 1429.0,
+          "probability": 0.63
+        },
+        {
+          "value": 1432.0,
+          "probability": 0.64
+        },
+        {
+          "value": 1435.0,
+          "probability": 0.65
+        },
+        {
+          "value": 1438.0,
+          "probability": 0.66
+        },
+        {
+          "value": 1441.0,
+          "probability": 0.67
+        },
+        {
+          "value": 1444.0,
+          "probability": 0.68
+        },
+        {
+          "value": 1447.0,
+          "probability": 0.69
+        },
+        {
+          "value": 1450.0,
+          "probability": 0.7
+        },
+        {
+          "value": 1453.0,
+          "probability": 0.71
+        },
+        {
+          "value": 1456.0,
+          "probability": 0.72
+        },
+        {
+          "value": 1459.0,
+          "probability": 0.73
+        },
+        {
+          "value": 1462.0,
+          "probability": 0.74
+        },
+        {
+          "value": 1465.0,
+          "probability": 0.75
+        },
+        {
+          "value": 1468.0,
+          "probability": 0.76
+        },
+        {
+          "value": 1471.0,
+          "probability": 0.77
+        },
+        {
+          "value": 1474.0,
+          "probability": 0.78
+        },
+        {
+          "value": 1477.0,
+          "probability": 0.79
+        },
+        {
+          "value": 1480.0,
+          "probability": 0.8
+        },
+        {
+          "value": 1483.0,
+          "probability": 0.81
+        },
+        {
+          "value": 1486.0,
+          "probability": 0.82
+        },
+        {
+          "value": 1489.0,
+          "probability": 0.83
+        },
+        {
+          "value": 1492.0,
+          "probability": 0.84
+        },
+        {
+          "value": 1495.0,
+          "probability": 0.85
+        },
+        {
+          "value": 1498.0,
+          "probability": 0.86
+        },
+        {
+          "value": 1501.0,
+          "probability": 0.87
+        },
+        {
+          "value": 1504.0,
+          "probability": 0.88
+        },
+        {
+          "value": 1507.0,
+          "probability": 0.89
+        },
+        {
+          "value": 1510.0,
+          "probability": 0.9
+        },
+        {
+          "value": 1513.0,
+          "probability": 0.901666666667
+        },
+        {
+          "value": 1516.0,
+          "probability": 0.903333333333
+        },
+        {
+          "value": 1519.0,
+          "probability": 0.905
+        },
+        {
+          "value": 1522.0,
+          "probability": 0.906666666667
+        },
+        {
+          "value": 1525.0,
+          "probability": 0.908333333333
+        },
+        {
+          "value": 1528.0,
+          "probability": 0.91
+        },
+        {
+          "value": 1531.0,
+          "probability": 0.911666666667
+        },
+        {
+          "value": 1534.0,
+          "probability": 0.913333333333
+        },
+        {
+          "value": 1537.0,
+          "probability": 0.915
+        },
+        {
+          "value": 1540.0,
+          "probability": 0.916666666667
+        },
+        {
+          "value": 1543.0,
+          "probability": 0.918333333333
+        },
+        {
+          "value": 1546.0,
+          "probability": 0.92
+        },
+        {
+          "value": 1549.0,
+          "probability": 0.921666666667
+        },
+        {
+          "value": 1552.0,
+          "probability": 0.923333333333
+        },
+        {
+          "value": 1555.0,
+          "probability": 0.925
+        },
+        {
+          "value": 1558.0,
+          "probability": 0.926666666667
+        },
+        {
+          "value": 1561.0,
+          "probability": 0.928333333333
+        },
+        {
+          "value": 1564.0,
+          "probability": 0.93
+        },
+        {
+          "value": 1567.0,
+          "probability": 0.931666666667
+        },
+        {
+          "value": 1570.0,
+          "probability": 0.933333333333
+        },
+        {
+          "value": 1573.0,
+          "probability": 0.935
+        },
+        {
+          "value": 1576.0,
+          "probability": 0.936666666667
+        },
+        {
+          "value": 1579.0,
+          "probability": 0.938333333333
+        },
+        {
+          "value": 1582.0,
+          "probability": 0.94
+        },
+        {
+          "value": 1585.0,
+          "probability": 0.941666666667
+        },
+        {
+          "value": 1588.0,
+          "probability": 0.943333333333
+        },
+        {
+          "value": 1591.0,
+          "probability": 0.945
+        },
+        {
+          "value": 1594.0,
+          "probability": 0.946666666667
+        },
+        {
+          "value": 1597.0,
+          "probability": 0.948333333333
+        },
+        {
+          "value": 1600.0,
+          "probability": 0.95
+        },
+        {
+          "value": 1603.0,
+          "probability": 0.951666666667
+        },
+        {
+          "value": 1606.0,
+          "probability": 0.953333333333
+        },
+        {
+          "value": 1609.0,
+          "probability": 0.955
+        },
+        {
+          "value": 1612.0,
+          "probability": 0.956666666667
+        },
+        {
+          "value": 1615.0,
+          "probability": 0.958333333333
+        },
+        {
+          "value": 1618.0,
+          "probability": 0.96
+        },
+        {
+          "value": 1621.0,
+          "probability": 0.961666666667
+        },
+        {
+          "value": 1624.0,
+          "probability": 0.963333333333
+        },
+        {
+          "value": 1627.0,
+          "probability": 0.965
+        },
+        {
+          "value": 1630.0,
+          "probability": 0.966666666667
+        },
+        {
+          "value": 1633.0,
+          "probability": 0.968333333333
+        },
+        {
+          "value": 1636.0,
+          "probability": 0.97
+        },
+        {
+          "value": 1639.0,
+          "probability": 0.971666666667
+        },
+        {
+          "value": 1642.0,
+          "probability": 0.973333333333
+        },
+        {
+          "value": 1645.0,
+          "probability": 0.975
+        },
+        {
+          "value": 1648.0,
+          "probability": 0.976666666667
+        },
+        {
+          "value": 1651.0,
+          "probability": 0.978333333333
+        },
+        {
+          "value": 1654.0,
+          "probability": 0.98
+        },
+        {
+          "value": 1657.0,
+          "probability": 0.981666666667
+        },
+        {
+          "value": 1660.0,
+          "probability": 0.983333333333
+        },
+        {
+          "value": 1663.0,
+          "probability": 0.985
+        },
+        {
+          "value": 1666.0,
+          "probability": 0.986666666667
+        },
+        {
+          "value": 1669.0,
+          "probability": 0.988333333333
+        },
+        {
+          "value": 1672.0,
+          "probability": 0.99
+        },
+        {
+          "value": 1675.0,
+          "probability": 0.991666666667
+        },
+        {
+          "value": 1678.0,
+          "probability": 0.993333333333
+        },
+        {
+          "value": 1681.0,
+          "probability": 0.995
+        },
+        {
+          "value": 1684.0,
+          "probability": 0.996666666667
+        },
+        {
+          "value": 1687.0,
+          "probability": 0.998333333333
+        },
+        {
+          "value": 1690.0,
+          "probability": 1.0
+        }
+      ],
+      "summary": {
+        "pointEstimate": 1390,
+        "median": 1390,
+        "interval80": {
+          "lower": 1270,
+          "upper": 1510
+        }
+      },
+      "provenance": "interval_seeded",
+      "transformVersion": "interval_anchor_v1"
+    },
+    "model": "gpt-5.5",
+    "activityLog": [
+      {
+        "artifactType": "prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/prompt.md",
+        "sha256": "eba7a06020f35aac84be0a05d9cf8c0a1e58eb704bdaf7188c6c857b7f505af7",
+        "bytes": 9696,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_command.json",
+        "sha256": "bf6672805492458fbd1bda05fb06b3a0bd561db9666f75bd0a04765c4b0bf3fa",
+        "bytes": 736,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_codex_stdout.jsonl",
+        "sha256": "0345eec67ff1984dc154dff89f465cb6583bd36fed07976a22027626a20dc60f",
+        "bytes": 9851,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_codex_stderr.log",
+        "sha256": "797f8bba92d78b9b38c2279053c04bc2f0f5ab052982b780d326206bb8fc20d6",
+        "bytes": 233,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_codex_events.jsonl",
+        "sha256": "5519d45957044284bb63ee9f91d5baa8ef1b4954158fd4ba62b65ed3833e1f5d",
+        "bytes": 9872,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_codex_last_message.txt",
+        "sha256": "b8702ef17c3b06a5b6f09a0e61a997e0dd0a5ecc40743e676b6f1aa13a198f83",
+        "bytes": 5850,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_codex_trace.json",
+        "sha256": "29b99295c0b0b8f2d2d8e293a98952dc40310dcedb559b642647fa09d1a71805",
+        "bytes": 533,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "draft_forecast",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_stdout.txt",
+        "sha256": "b8702ef17c3b06a5b6f09a0e61a997e0dd0a5ecc40743e676b6f1aa13a198f83",
+        "bytes": 5850,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_stderr.txt",
+        "sha256": "620652e1a6be59ea441444ff96f354cbabcb556469133419ac1bb51de492cc46",
+        "bytes": 248,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "review_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_prompt.md",
+        "sha256": "76fc3a8fa424125758d7ea716652cfcd461373caec7cd4c2dc47ee544d11b6e3",
+        "bytes": 8894,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_command.json",
+        "sha256": "46dd162836f8b87b104b449e7b07936e6b037d0a9ac4568f93d930a08f0694ce",
+        "bytes": 732,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_codex_stdout.jsonl",
+        "sha256": "d114352f1418cda78939be6c40be5caab09273262a4fbf66b3cdad69ded7556c",
+        "bytes": 902,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_codex_stderr.log",
+        "sha256": "1487b71cb4e4b2f27ccb09fb04f9593dc7dee07d1089fec8919ad64ebd3da981",
+        "bytes": 233,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_codex_events.jsonl",
+        "sha256": "ad0fb867cc97a40b69d9dd058923b7a794550ae3ce606a7a73951fbfb94b5ff3",
+        "bytes": 924,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_codex_last_message.txt",
+        "sha256": "b5a24c82403988dd1f32a61ad5a9f71173fa9cb00e3364a744d7912503f67ba3",
+        "bytes": 569,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_codex_trace.json",
+        "sha256": "53726914c48a9d7f9c183ceec10e70c74339fbf66b3e5a60e942129cb8bd5c10",
+        "bytes": 527,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "pre_submit_review",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_stdout.txt",
+        "sha256": "b5a24c82403988dd1f32a61ad5a9f71173fa9cb00e3364a744d7912503f67ba3",
+        "bytes": 569,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_stderr.txt",
+        "sha256": "660c6e3df711af6017ee425b05e072ba9a3bbcae4e895c3775f5987217c9f59b",
+        "bytes": 248,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "revision_prompt",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/revision_prompt.md",
+        "sha256": "560ec88253a9d6a0390cea477aec56069a293b35d1d79fa6afc06ceeea3572dc",
+        "bytes": 17051,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "command",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/command.json",
+        "sha256": "fece6ec19cd5437d592477016293a55f7c67ec3bdaddc5b3b96f4ea1a0a7279c",
+        "bytes": 730,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_stdout_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/codex_stdout.jsonl",
+        "sha256": "70098f4d3cb57ab372aa0e2fb2115712bcd7a6f5acb7b944a30a965eecd38070",
+        "bytes": 6774,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_stderr_log",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/codex_stderr.log",
+        "sha256": "c5a402e1128f6a76d29a4787991bc8adb99125f5fc38963190116a56f02a86db",
+        "bytes": 233,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_events_jsonl",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/codex_events.jsonl",
+        "sha256": "a8841cb38b4f1e4c8325ba123b47c2be214cb4430d2b13add34f6761aa5a5f0e",
+        "bytes": 6796,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_last_message",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/codex_last_message.txt",
+        "sha256": "0a7918b875a4df0cccb752dacc8108f37e5fe6e253faa709308c1e518857bc1a",
+        "bytes": 6204,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "codex_trace",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/codex_trace.json",
+        "sha256": "bcf589b12691ee225bc3bd5e475311f8f0c330203dfd6205fdc96709971921fa",
+        "bytes": 526,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "stdout",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/stdout.txt",
+        "sha256": "0a7918b875a4df0cccb752dacc8108f37e5fe6e253faa709308c1e518857bc1a",
+        "bytes": 6204,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "stderr",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/stderr.txt",
+        "sha256": "80c4b7e098cc727efe7deda9293d48191b8284c85bd452332278025d911d0e5c",
+        "bytes": 248,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "raw_response",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/raw_response.txt",
+        "sha256": "0a7918b875a4df0cccb752dacc8108f37e5fe6e253faa709308c1e518857bc1a",
+        "bytes": 6204,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "parsed_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/parsed_cells.json",
+        "sha256": "0a012e7ce6af4fdca7464308d0873292c16094157dfc4ab08fbb2b26c28504dc",
+        "bytes": 7148,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "normalized_cell",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/normalized_cells.json",
+        "sha256": "3ad9255108fc7bd091a3bd94a3c91952e39b5bd974e32b2cd08bf19a84354059",
+        "bytes": 24593,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "run_distribution",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/distribution.json",
+        "sha256": "15dc52bc9a0b543bd27574845de4eeb35e8f11092a4e002203129d26fc2b38e7",
+        "bytes": 13661,
+        "createdAt": "2026-07-31T14:50:53Z"
+      },
+      {
+        "artifactType": "validation_report",
+        "path": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/validation.json",
+        "sha256": "68857e74203b6011306c6ecae77f6f73f125bde2cede79a9c3f03e3a24a095e3",
+        "bytes": 133,
+        "createdAt": "2026-07-31T14:50:53Z"
+      }
+    ],
+    "preSubmitReview": {
+      "schemaVersion": "thesis_pre_submit_review_v1",
+      "status": "completed",
+      "requestedAt": "2026-07-31T14:50:53Z",
+      "reviewer": {
+        "agent": "thesis.pre_submit_reviewer",
+        "model": "gpt-5.5",
+        "promptVersion": "pre-submit-review-v0.1",
+        "commandHash": "4f7cf0303775c02a540aad495cb574c474cf76da2b4c0c96517755626c8596a3"
+      },
+      "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/draft_stdout.txt",
+      "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/pre_submit_review_stdout.txt",
+      "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t14-50-53z-census-housing-completions-saar-2026-07/revision_prompt.md",
+      "findings": [
+        {
+          "findingId": "review.suggestion.1",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "Consider naming ALFRED as the registered mirror and Census/HUD as the official release more explicitly in the final resolver sentence to avoid any perceived source ambiguity."
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "severity": "info",
+          "rubricItem": "optional_suggestion",
+          "summary": "The volatility sample is very short; note that the 80% interval is based on January-June 2026 month-to-month moves if space allows."
+        }
+      ],
+      "dispositions": [
+        {
+          "findingId": "review.suggestion.1",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestions to make Census/HUD the official release and ALFRED the registered mirror more explicit, and to clarify that the interval volatility uses January-June 2026 month-to-month moves; no required fixes were raised.",
+          "forecastChanged": false
+        },
+        {
+          "findingId": "review.suggestion.2",
+          "decision": "not_applicable",
+          "rationale": "Review disposition: accepted the reviewer suggestions to make Census/HUD the official release and ALFRED the registered mirror more explicit, and to clarify that the interval volatility uses January-June 2026 month-to-month moves; no required fixes were raised.",
+          "forecastChanged": false
+        }
+      ],
+      "summary": "Draft is publication-ready with no blocking issues; it states the registered resolver, first-print rule, prior, update, interval construction, tails, and coherent JSON fields."
+    }
+  }
+]

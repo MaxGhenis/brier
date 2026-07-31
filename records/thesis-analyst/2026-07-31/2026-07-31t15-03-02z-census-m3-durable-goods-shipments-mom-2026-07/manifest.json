@@ -1,0 +1,365 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-31T15:03:02Z",
+  "runStartedAt": "2026-07-31T15:03:02Z",
+  "series": "census.m3.durable_goods_shipments_mom",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-durable-goods-shipments-mom-july-2026",
+    "country": "US",
+    "dataPointId": "census.m3.durable_goods_shipments_mom.2026_07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-31T14:48:09Z",
+    "registeredAtUtc": "2026-07-31T14:48:09Z",
+    "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+    "registrationState": "preregistered",
+    "series": "census.m3.durable_goods_shipments_mom",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-08-31",
+        "start": "2026-08-23"
+      },
+      "field": "AMDMVS",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "AMDMVS",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=AMDMVS",
+      "table": "Advance Report on Durable Goods Manufacturers' Shipments, Inventories, and Orders",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "c41517a667d8f0263c9113e0c85438385b4bddf98a8e86427e6946fb916edb17",
+    "targetRegistrationPath": "records/targets/2026-07-31-c41517a667d8f0263c9113e0c85438385b4bddf98a8e86427e6946fb916edb17.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+  "targetContentHash": "c41517a667d8f0263c9113e0c85438385b4bddf98a8e86427e6946fb916edb17",
+  "targetRegistrationPath": "records/targets/2026-07-31-c41517a667d8f0263c9113e0c85438385b4bddf98a8e86427e6946fb916edb17.json",
+  "registeredAtUtc": "2026-07-31T14:48:09Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-31T15:03:02Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "e24ada05039bc88ff5aaf578bc2a84ee5c672364b3112ff0f98e0b23b8fd1752"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Broaden or explicitly contextualize the five-month persistence sample with a longer same-series base rate so the mean-reversion adjustment is better grounded."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "Clarify that the July MoM calculation should use the July first-print vintage and the prior-month level available in that same first-print release if that is the resolver convention."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification that the July month-over-month calculation should use the July first-print vintage and the prior-month level available in that same first-print release. Accepted the volatility caveat by stating the five-month base-rate sample is short and mainly informs momentum and dispersion; rejected adding a longer numeric history because no additional longer same-series values were fetched in the draft evidence.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver clarification that the July month-over-month calculation should use the July first-print vintage and the prior-month level available in that same first-print release. Accepted the volatility caveat by stating the five-month base-rate sample is short and mainly informs momentum and dispersion; rejected adding a longer numeric history because no additional longer same-series values were fetched in the draft evidence.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "The draft is publishable on the main resolver/date/unit/coherence checks, with only minor strengthening needed around the breadth of the prior and volatility basis."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/prompt.md",
+      "sha256": "e884761edef9de5e8f876aa26945e1d254078735da406c990e35a03cc1c09e53",
+      "bytes": 9734,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_command.json",
+      "sha256": "e9ef3f78bf065c14061b39308c8b990d5c1872fd34a12c50272f899709904cf8",
+      "bytes": 742,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "4b95391b30e1a825aee4fcd13413f52da330cb71494c3297d0813649a8efab27",
+      "bytes": 17156,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_codex_stderr.log",
+      "sha256": "e707ddfd4855f98b97adaff0e2a26a56eac6f313c849f3de62834885301a6b39",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_codex_events.jsonl",
+      "sha256": "3c7b250997627dde5e94748520582476aaccb3082be66019b272db7f64ca8768",
+      "bytes": 17106,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_codex_last_message.txt",
+      "sha256": "a1d0e8532ef3d3d01ceba120250d11d8df47a17632beb800b3ea27912ef4a2cf",
+      "bytes": 7074,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_codex_trace.json",
+      "sha256": "03f57d4a796345abac2144933efd4d00df487d3273239de45311e17c7b092eb4",
+      "bytes": 534,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_stdout.txt",
+      "sha256": "a1d0e8532ef3d3d01ceba120250d11d8df47a17632beb800b3ea27912ef4a2cf",
+      "bytes": 7074,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/draft_stderr.txt",
+      "sha256": "389654baad66bdc4a31506893d35d239efb901fd0673050c326fda5f5bd04d24",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_prompt.md",
+      "sha256": "9a13416c3f0b16a0f7a3c825adec15084b74c7fb1bdcdbc789c49208ef2a516b",
+      "bytes": 10156,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_command.json",
+      "sha256": "3567e2c04b1834b3c986a81e7c23ace14af7f542463ffd962ec1d7544159071e",
+      "bytes": 738,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "8374861d49587284996c772e22887518905cb15d21460306b489cb6dcd2c909f",
+      "bytes": 1805,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "0d433dda4f1f2be0fd4661c2b614e2893bd96cfe65c85ede53ab0c5fc351695a",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "c455b2ac175d6f47a8b9baeb3a8b3780d56340bddd29980c6ffba7609e0175fa",
+      "bytes": 1840,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "241b93c080bf85b914cf8ebef0d00a328d7cd8fa3a0f327a5636c00f7017e58a",
+      "bytes": 567,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "ce75fac2834976b73670649dc2de395df175db9581a54336d0b036f38001649e",
+      "bytes": 529,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "241b93c080bf85b914cf8ebef0d00a328d7cd8fa3a0f327a5636c00f7017e58a",
+      "bytes": 567,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "527dd432da4bd20b1dbdee7e3d5c188e9b7469fd985893cd98dca9e46e8e899b",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/revision_prompt.md",
+      "sha256": "482f40b208fcf5ee94a2747829bd1bd92a8971e7d71abc87636fd0be3d7f51af",
+      "bytes": 18311,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/command.json",
+      "sha256": "d9f51435a218e67a7dcda131786b2217b7ddb38da1d0345b58d8541b8d631426",
+      "bytes": 736,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/codex_stdout.jsonl",
+      "sha256": "deee55747814e0071bb0b5f646a5ba528464d88b49445e58cf6b8720ab7a3486",
+      "bytes": 8327,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/codex_stderr.log",
+      "sha256": "423518f0ec174a583e54c62f99ff2031962c8ac004bb046f91d72fef982cbf4c",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/codex_events.jsonl",
+      "sha256": "efe7fddbac4d5b2a2fd23af4f3473a03d0859b12c7860b97ff32218cd0c6c6d3",
+      "bytes": 8349,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/codex_last_message.txt",
+      "sha256": "3d315bbc271e2590c65e66e05b504c6419bdf8bb5e8a7c5ae725c6b995e3f749",
+      "bytes": 7768,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/codex_trace.json",
+      "sha256": "c939899264ee0c024c1b7ab84700f347de5128d43119d97182b31e063b5cfecf",
+      "bytes": 527,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/stdout.txt",
+      "sha256": "3d315bbc271e2590c65e66e05b504c6419bdf8bb5e8a7c5ae725c6b995e3f749",
+      "bytes": 7768,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/stderr.txt",
+      "sha256": "e3d8df96f2282b0053fda2a64bb40a662d5ffd51bd73f70622f15dc7a1fb5f13",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/raw_response.txt",
+      "sha256": "3d315bbc271e2590c65e66e05b504c6419bdf8bb5e8a7c5ae725c6b995e3f749",
+      "bytes": 7768,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/parsed_cells.json",
+      "sha256": "522605998b10031f97c6467f32c5f1afcdfe84ce9811568e6983daf386a650bb",
+      "bytes": 8665,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/normalized_cells.json",
+      "sha256": "cb826a306bb1afd2a0db44b8d0efd89e412467a2df09ca5ecc0466e69031253f",
+      "bytes": 26025,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/distribution.json",
+      "sha256": "2df27012e493e9264b32efb6541aeb418ade374d8f2ceeb65b6a46a894ecf9a1",
+      "bytes": 13576,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/validation.json",
+      "sha256": "56669e82ab62b8930674f1455f34dc7fc99a1aa5b142cdf2c2543a0d745c67c4",
+      "bytes": 141,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/cells.with_activity.json",
+      "sha256": "54286f2ab1795023498810b4528ec12092464ecf2ee4a15a6df09c99954a1978",
+      "bytes": 40440,
+      "createdAt": "2026-07-31T15:03:02Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-03-02z-census-m3-durable-goods-shipments-mom-2026-07/manifest.json",
+      "sha256": "f3148a6839917406cfa15e515fe0ce839b7842837e6520cf8b991f979d9f3c4e",
+      "bytes": 14713,
+      "createdAt": "2026-07-31T15:03:02Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-durable-goods-shipments-mom-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "b1d50c18a32be78d6d7f8c3f8a3604d281bed3932882a61c2da572c03602a9d4"
+}

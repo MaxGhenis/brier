@@ -1,0 +1,33 @@
+{
+  "summary": "The draft is not publishable as a forecast because it uses the already published May 2026 first-print outcome as the point estimate and evidence.",
+  "requiredFixes": [
+    {
+      "rubricItem": "leakage",
+      "severity": "blocking",
+      "summary": "The run occurs on 2026-07-31 after the 2026-07-16 release and explicitly uses the observed May 2026 first print of 2736.158.",
+      "actionRequested": "Remove all post-release observations and outcome-derived statements, or do not publish this as a prospective forecast."
+    },
+    {
+      "rubricItem": "coherence",
+      "severity": "blocking",
+      "summary": "The point estimate is the realized first-print value while the interval is described as a retained pre-release audit interval.",
+      "actionRequested": "Make the point, interval, historicalContext, drivers, reasoning, and JSON fields all reflect only information available before resolution."
+    },
+    {
+      "rubricItem": "update",
+      "severity": "blocking",
+      "summary": "The material movement from the prior is justified by the resolved target value rather than by pre-release public evidence.",
+      "actionRequested": "Replace the post-release update with an inside-view update based only on pre-release indicators, or explicitly leave the prior with limited adjustment."
+    },
+    {
+      "rubricItem": "prior_update_interval",
+      "severity": "warning",
+      "summary": "The compact prior/update/interval step is structurally good but contaminated by the observed outcome.",
+      "actionRequested": "Keep the prior, sample, sigma, and bounds format, but recompute the final forecast without using the May first print."
+    }
+  ],
+  "optionalSuggestions": [
+    "Keep the ledger resolver tied to ALFRED/FRED BUSINV first print and note Census as the underlying agency source.",
+    "Use the July 16, 2026 release date consistently as the resolution date."
+  ]
+}

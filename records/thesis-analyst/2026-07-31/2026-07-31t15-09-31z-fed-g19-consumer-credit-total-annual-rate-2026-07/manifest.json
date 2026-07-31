@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "thesis_analyst_run_manifest_v1",
+  "createdAt": "2026-07-31T15:09:31Z",
+  "runStartedAt": "2026-07-31T15:09:31Z",
+  "series": "fed.g19.consumer_credit_total_annual_rate",
+  "period": "2026-07",
+  "conditional": null,
+  "targetContext": {
+    "catalogSlug": "us-consumer-credit-annual-rate-july-2026",
+    "country": "US",
+    "dataPointId": "fed.g19.consumer_credit_total_annual_rate.2026_07.first_print",
+    "period": "2026-07",
+    "registeredAt": "2026-07-31T14:48:09Z",
+    "registeredAtUtc": "2026-07-31T14:48:09Z",
+    "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+    "registrationState": "preregistered",
+    "series": "fed.g19.consumer_credit_total_annual_rate",
+    "sourceBinding": {
+      "adapter": "alfred-fred",
+      "allowedHosts": [
+        "alfred.stlouisfed.org"
+      ],
+      "expectedReleaseWindow": {
+        "end": "2026-09-11",
+        "start": "2026-09-03"
+      },
+      "field": "TOTALSLAR",
+      "releasePolicy": "first_print",
+      "sourceSeriesId": "TOTALSLAR",
+      "sourceUrl": "https://alfred.stlouisfed.org/graph/alfredgraph.csv?id=TOTALSLAR",
+      "table": "G.19 Consumer Credit, outstanding, seasonally adjusted",
+      "transform": {
+        "factor": 1,
+        "operation": "multiply"
+      }
+    },
+    "targetContentHash": "e9da62e6d1dd2f607aa873c6707f868a06e2aec454f41f214170fcead022a76d",
+    "targetRegistrationPath": "records/targets/2026-07-31-e9da62e6d1dd2f607aa873c6707f868a06e2aec454f41f214170fcead022a76d.json",
+    "targetUnit": "percent_growth",
+    "valueScale": 1
+  },
+  "registrationCommit": "0249a6f266d1d202c43782056e77403612358765",
+  "targetContentHash": "e9da62e6d1dd2f607aa873c6707f868a06e2aec454f41f214170fcead022a76d",
+  "targetRegistrationPath": "records/targets/2026-07-31-e9da62e6d1dd2f607aa873c6707f868a06e2aec454f41f214170fcead022a76d.json",
+  "registeredAtUtc": "2026-07-31T14:48:09Z",
+  "promptMode": "fast",
+  "agent": {
+    "agent": "thesis.analyst",
+    "agentVersion": "2.4.0",
+    "model": "gpt-5.5",
+    "promptHash": "7ef119647b35d77a18a1699621a07b49cdeb55349488d4f06c299184c58c652f",
+    "toolPolicyHash": "50a06b62f9be2b562902ed3d31b353721f3a885088e2c8aa9ed5cc6ab853b437",
+    "skills": [
+      "axiom.md",
+      "calibration.md",
+      "cms-medicaid.md",
+      "intl-data.md",
+      "policyengine.md",
+      "resolution-rules.md",
+      "treasury-fiscal.md",
+      "us-data.md"
+    ],
+    "configuredModel": "claude-fable-5"
+  },
+  "preSubmitReview": {
+    "schemaVersion": "thesis_pre_submit_review_v1",
+    "status": "completed",
+    "requestedAt": "2026-07-31T15:09:31Z",
+    "reviewer": {
+      "agent": "thesis.pre_submit_reviewer",
+      "model": "gpt-5.5",
+      "promptVersion": "pre-submit-review-v0.1",
+      "commandHash": "f6566a91541b965570850ae8b71491b7af0978b308afe35bfc728435ddab95e0"
+    },
+    "draftArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_stdout.txt",
+    "reviewArtifactPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_stdout.txt",
+    "revisionPromptPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/revision_prompt.md",
+    "findings": [
+      {
+        "findingId": "review.finding.1",
+        "severity": "warning",
+        "rubricItem": "resolver",
+        "summary": "The draft cites the Fed G.19 page as resolutionSourceUrl, while the ledger contract binds resolution to ALFRED/FRED TOTALSLAR via alfred.stlouisfed.org with first_print policy.",
+        "actionRequested": "Set or restate the resolver/source fields to the canonical ALFRED TOTALSLAR first-vintage source binding, while still noting the Fed G.19 release as the originating official release if desired."
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "In the final reasoning, explicitly say the Fed calendar supports the 2026-09-08 release date but the resolved value is read from the ALFRED first vintage."
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "severity": "info",
+        "rubricItem": "optional_suggestion",
+        "summary": "The prior/update/interval step is compact and coherent; no replacement forecast is needed."
+      }
+    ],
+    "dispositions": [
+      {
+        "findingId": "review.finding.1",
+        "decision": "accepted",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and the rule with the canonical ALFRED TOTALSLAR first-vintage binding while retaining the Fed G.19 calendar and release as the originating official source; rejected changing the point or interval because the base-rate and sigma calculation remain coherent.",
+        "forecastChanged": true
+      },
+      {
+        "findingId": "review.suggestion.1",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and the rule with the canonical ALFRED TOTALSLAR first-vintage binding while retaining the Fed G.19 calendar and release as the originating official source; rejected changing the point or interval because the base-rate and sigma calculation remain coherent.",
+        "forecastChanged": false
+      },
+      {
+        "findingId": "review.suggestion.2",
+        "decision": "not_applicable",
+        "rationale": "Review disposition: accepted the resolver critique by aligning resolutionSourceUrl and the rule with the canonical ALFRED TOTALSLAR first-vintage binding while retaining the Fed G.19 calendar and release as the originating official source; rejected changing the point or interval because the base-rate and sigma calculation remain coherent.",
+        "forecastChanged": false
+      }
+    ],
+    "summary": "Draft is mostly publishable, but the resolver/source fields should be aligned with the canonical ALFRED first-print binding rather than a Fed release-page URL."
+  },
+  "ok": true,
+  "cellsPath": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/cells.with_activity.json",
+  "artifacts": [
+    {
+      "artifactType": "prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/prompt.md",
+      "sha256": "86654ceb5804d238a5552bad5325e482caf7d1af452b18d6ad21386fd58ce609",
+      "bytes": 8919,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_command.json",
+      "sha256": "a085f93a37ab0ef011092450950a83199d7deb80cd8525564ea46485a432db23",
+      "bytes": 746,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_stdout.jsonl",
+      "sha256": "c17e44d303959abccb159e0ed64d0dc3e04ac474993bfc8a5df18299b479c708",
+      "bytes": 9590,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_stderr.log",
+      "sha256": "bff8ad2f60b197afe56270c11ffac7deefa55a6ca544a0514761797ec9bb25c7",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_events.jsonl",
+      "sha256": "585560ecd7f07f35f9c311ce63b1b9d986f01f211317abef9bd3364a9191878f",
+      "bytes": 9628,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_last_message.txt",
+      "sha256": "9f7ec9bdede70b145578cec0d49182aa6cd01e7256ba877c458057216163b8de",
+      "bytes": 4580,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_codex_trace.json",
+      "sha256": "097cdd88c2bc3dc3cbf95edb65d761f88a959e9d328d42e22521b9a3aca4450f",
+      "bytes": 534,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "draft_forecast",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_stdout.txt",
+      "sha256": "9f7ec9bdede70b145578cec0d49182aa6cd01e7256ba877c458057216163b8de",
+      "bytes": 4580,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/draft_stderr.txt",
+      "sha256": "40e7ca1f9e513a3c7a2120236275d016ba5f158d4557aa33f91fcdd9d108ab38",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "review_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_prompt.md",
+      "sha256": "1a2d61c32e04c34a08e8a9c9ae1141296280dcf78a10eaa4e3f7d359efe7dbb2",
+      "bytes": 7652,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_command.json",
+      "sha256": "ae2ea1840b59cd4d3044b195f89681d342c4c881db4d3144e13722298bbdb4ea",
+      "bytes": 742,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_stdout.jsonl",
+      "sha256": "8c54789ad31c110858d743e1f841f58483c3a46580d80c4fb6984f924500541e",
+      "bytes": 1342,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_stderr.log",
+      "sha256": "d8d48fabf939cacc756f27156f36496fd1a3819ece7c5737e7fa4f92916c6509",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_events.jsonl",
+      "sha256": "0293e70965a4844c6ee26d7d170f648bc7b686729b3ef6046830334b7a3cfb56",
+      "bytes": 1364,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_last_message.txt",
+      "sha256": "f12c1cb5e01fdaf1525d3fe2c1c9d05a55aac329dda486ca18dbfd36d8a8d5c8",
+      "bytes": 986,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_codex_trace.json",
+      "sha256": "65bdbe76ce56732a47980f10a18edcbcc9a2517c98ae879478171323d942f136",
+      "bytes": 527,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "pre_submit_review",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_stdout.txt",
+      "sha256": "f12c1cb5e01fdaf1525d3fe2c1c9d05a55aac329dda486ca18dbfd36d8a8d5c8",
+      "bytes": 986,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/pre_submit_review_stderr.txt",
+      "sha256": "dd2e891416c47fad557eca4580cedef5bc8c31d81ea7bad7aad2ba3c9c261b29",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "revision_prompt",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/revision_prompt.md",
+      "sha256": "92bbbf59540861d6969e1e75b5b2f41c0ae4705d130e54cbab08915c4117a8fe",
+      "bytes": 15421,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "command",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/command.json",
+      "sha256": "5a359475dcec7f4d0c0aa5c292173d248891819eb0cbf394d0d0d4f78b9e2562",
+      "bytes": 740,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_stdout_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_stdout.jsonl",
+      "sha256": "b66aaf0e933df5bbfd671f5b0f281f802a80a7ee557c3779c92ccae838b9f251",
+      "bytes": 5498,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_stderr_log",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_stderr.log",
+      "sha256": "17aec4d07897369a0769c11b47812b6dc1722b69874ddd668dd2b8425ef2cf26",
+      "bytes": 233,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_events_jsonl",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_events.jsonl",
+      "sha256": "a92f376a2b731eed75be8b9b6d62606fa16d5b9063859edc428d2e8dc183e7dd",
+      "bytes": 5520,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_last_message",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_last_message.txt",
+      "sha256": "8933a4e6f727eb1e379c2f6b6f5eb7d5b0154e72de2fcb8bee3d7d9ced74ecf7",
+      "bytes": 4969,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "codex_trace",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/codex_trace.json",
+      "sha256": "701054fdd110ddd26d597e1d8ef25f797fa0332150de8ff79acfbe7c7c7ab962",
+      "bytes": 527,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "stdout",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/stdout.txt",
+      "sha256": "8933a4e6f727eb1e379c2f6b6f5eb7d5b0154e72de2fcb8bee3d7d9ced74ecf7",
+      "bytes": 4969,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "stderr",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/stderr.txt",
+      "sha256": "510ab6ae7bfa6f46e43ca749e630deb539e72c087e254bd2fc1f7d85a1902256",
+      "bytes": 248,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "raw_response",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/raw_response.txt",
+      "sha256": "8933a4e6f727eb1e379c2f6b6f5eb7d5b0154e72de2fcb8bee3d7d9ced74ecf7",
+      "bytes": 4969,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "parsed_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/parsed_cells.json",
+      "sha256": "41658deebc7cbdd8999d8fe8c82a6c759dfa718fd56189a9e8c962541b10d5e8",
+      "bytes": 5744,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "normalized_cell",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/normalized_cells.json",
+      "sha256": "d5091223ad0b624fbcabc9655ef19903cf6959c53c8d2c4f340f486baa97d1ae",
+      "bytes": 22932,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "run_distribution",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/distribution.json",
+      "sha256": "7daa0eb32f003c362bbc6b4952b717eedd0dae405d6b9ccf0476b78fc97a06c7",
+      "bytes": 13404,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "validation_report",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/validation.json",
+      "sha256": "4212574caad36564ae9408b4026dfdbf5a6d3b5f19a5279133d9e2c0b7ac45f1",
+      "bytes": 141,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "cells_with_activity",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/cells.with_activity.json",
+      "sha256": "16a0b6341c53014e8c57c59c863212f6cb83fc84aee0824781b2128065929d53",
+      "bytes": 38201,
+      "createdAt": "2026-07-31T15:09:31Z"
+    },
+    {
+      "artifactType": "manifest",
+      "path": "records/thesis-analyst/2026-07-31/2026-07-31t15-09-31z-fed-g19-consumer-credit-total-annual-rate-2026-07/manifest.json",
+      "sha256": "ef7b957fdbab0d641d03625408e31936168ff81d55f0fb439c6bc5536974682c",
+      "bytes": 15425,
+      "createdAt": "2026-07-31T15:09:31Z",
+      "hashMode": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "cells": [
+      {
+        "slug": "us-consumer-credit-annual-rate-july-2026",
+        "ok": true,
+        "errors": []
+      }
+    ]
+  },
+  "custodyInventoryVersion": 2,
+  "runMode": "analyst",
+  "manifestHashSemantics": "canonical-json-v1; exclude artifacts where artifactType=manifest and exclude custodyRootSha256",
+  "custodyRootSha256": "e4ffc665ed36b94787bfd914a8acabdfcb10189057388f28cc4da4d61cb0459b"
+}
