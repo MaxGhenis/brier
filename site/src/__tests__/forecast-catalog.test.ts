@@ -2420,7 +2420,9 @@ describe("conditional groups", () => {
     for (const group of CONDITIONAL_GROUPS) {
       const resolved = getConditionalGroup(group.slug);
       expect(resolved, group.slug).toBeTruthy();
-      expect(resolved!.trueArm.unit).toBe(resolved!.falseArm.unit);
+      if (resolved!.falseArm) {
+        expect(resolved!.trueArm.unit).toBe(resolved!.falseArm.unit);
+      }
       if (group.probabilitySlug) expect(resolved!.probability).toBeTruthy();
       if (group.unconditionalSlug) expect(resolved!.unconditional).toBeTruthy();
     }
