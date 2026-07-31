@@ -44,3 +44,17 @@ study sits inside model training windows and is recall-contaminated by
 construction (demonstrated causally in `RESULTS.md` §3a). These targets have
 no realized values. Whatever the harness comparisons show here, they show
 cleanly — and the lab scores them mechanically as the months resolve.
+
+## History-label caveat (SENSE_CHECK items)
+
+The qualifying-children history supplied to the models carried labels inherited
+from the repo's forecast cell that primary-source checking could not fully
+verify as child counts: TY2019 "48" best matches ~48M *returns claiming the
+CTC* (returns≠children); TY2021 "61" is Treasury/IRS advance-payment child
+coverage (real, but not an SOI tabulation); TY2022 "49" was not verified
+against any SOI product. The registered target's own resolution rule hedges to
+"the closest directly comparable official count", so the forecasts stand, but
+the fable delta convention is: Δ = median of within-run (enacted − current-law)
+deltas, which is why fable's displayed levels (48.5 → 48.9) differ from its
+stated +0.3M. Flagged upstream since the labels originate in
+`site/src/data/forecast-cells.ts`.
