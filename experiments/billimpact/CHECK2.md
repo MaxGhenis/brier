@@ -101,3 +101,36 @@ No prior claim — first read.
 | Logical duplicates | Two cell_key formats coexist (B1 6-field × 840; B2 7-field `…|default/max|rep` × 1033 at S2). **789 logical (arm, unit, rep) cells appear under both formats** — the string-level check passes only because the key format changed between batches. Every no-effort arm mixes both batches. | FLAG |
 | Records per arm (S2) | opus none 272 · opus oper 271 · opus decomp 270 · fable none 272 · fable oper 272 · fable decomp 272 · opus max 117 · fable max 127 (total 1873) | — |
 | Truth consistency | record `truth` == baselines `truth` == ground-truth `first_print_value` for all 28 units | MATCH |
+
+---
+
+# Final re-pass (files complete) — snapshot S3 = 12:17:52, `runs_bakeoff.jsonl` n=1960, both batches complete at 28×5/arm, 0 duplicate cell_key strings. Items 11-12 computed on the 7-field-key batch (B2) per instruction; bootstrap = resample the 28 unit diffs, 6000 draws, `random.Random(20260731)`, percentile CI.
+
+## Item 11 — fable operative_only point_ci max, paired tests (B2, n=140/arm, 28 units)
+
+| Test | Claimed | Recomputed | Verdict |
+|---|---|---|---|
+| fable max vs fable none (effort absent, B2) | meanΔ −0.084 [−0.164, −0.008], 20/28 wins | meanΔ −0.0844 [−0.1644, −0.0083], 20/28 | MATCH |
+| fable max vs persistence | meanΔ −0.118 [−0.211, −0.035], 22/28 wins | meanΔ −0.1180 [−0.2094, −0.0317], 22/28 | MATCH — meanΔ and wins exact; CI endpoints differ ≤0.004, within bootstrap stream noise (alt-seed endpoints spanned −0.208…−0.030/−0.035) |
+
+Sensitivity: against fable-none from B1 (−0.0860 [−0.1697, −0.0092], 20/28) or B1+B2 pooled (−0.0852 [−0.1660, −0.0089], 20/28) — conclusion unchanged.
+
+## Item 12 — matched-unit leaderboard (B2, 28 units, n=140/arm; Winkler α=.2 = width + 10×outside-distance; per-unit mean over reps ÷ pstdev, arm mean over units; raw = un-normalized sensitivity)
+
+| Arm | mean nCRPS | nWinkler | nWidth | raw Winkler | raw width | coverage |
+|---|---|---|---|---|---|---|
+| **fable oper MAX** | **0.2079** | **1.2951** | 0.8473 | **135.48** | 93.02 | 0.7500 |
+| opus oper MAX | 0.2470 | 1.4807 | 1.1280 | 150.38 | 107.99 | 0.7857 |
+| opus none | 0.2533 | 1.6116 | 1.1925 | 171.13 | 120.22 | 0.8214 |
+| opus oper | 0.2606 | 1.5881 | 1.2653 | 171.21 | 130.36 | 0.8286 |
+| opus decomp | 0.2612 | 1.5484 | 1.0225 | 169.22 | 110.01 | 0.7214 |
+| fable none | 0.2923 | 1.8404 | 1.0152 | 206.55 | 117.84 | 0.6643 |
+| fable oper | 0.3390 | 2.0506 | 1.0258 | 210.49 | 112.74 | 0.6143 |
+| fable decomp | 0.3804 | 2.6566 | **0.8115** | 286.50 | **86.25** | 0.3929 |
+
+| Claim leg | Recomputed | Verdict |
+|---|---|---|
+| fable+bill+max best on mean nCRPS | Yes — 0.2079 vs next 0.2470 | MATCH |
+| best on Winkler (α=.2, ×10 penalties) | Yes — 1.2951 normalized (135.48 raw) vs next 1.4807 (150.38) | MATCH |
+| best on width | **No — fable decomposed is narrower on every aggregation tried**: normalized mean 0.8115 vs 0.8473; raw mean 86.25 vs 93.02; per-unit-median and arm-median variants agree (and on median raw width fable none 61.30 beats both). fable+bill+max is best on width only if decomposed arms are excluded from the leaderboard — but fable decomp is complete (n=140) and buys its narrow width with 0.39 coverage | MISMATCH |
+| coverage 0.75 | 0.7500 exactly (105/140) | MATCH |

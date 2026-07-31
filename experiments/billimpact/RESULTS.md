@@ -191,7 +191,8 @@ Three results, ranked by strength:
 1. **One configuration significantly beats both its naive elicitation and
    persistence.** fable+bill+max-effort: −0.084 [−0.164, −0.008] vs naive
    (20/28 units) and **−0.118 [−0.211, −0.035] vs persistence** (22/28), while
-   leading Winkler and width simultaneously — no metric traded away. Its wins
+   leading the Winkler interval score at 0.75 coverage — no metric traded
+   away (narrower arms exist only at collapsed coverage; CHECK2.md item 12). Its wins
    spread across all four events (per-event nCRPS 0.12–0.28). The naive-
    comparison CI's upper bound is −0.008: significant at the nominal level,
    marginal under multiplicity correction; the persistence comparison is the
