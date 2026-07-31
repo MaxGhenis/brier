@@ -4,12 +4,18 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { Header } from "@/components/Header";
 import {
+  BillForecasts,
+  type BillForecastView,
+} from "@/components/BillForecasts";
+import { getBillForecastGroups } from "@/data/bill-forecasts";
+import {
   REGISTRY_LABEL,
   getBill,
   loadBills,
   metricRegistryStatus,
   type RegistryStatus,
 } from "@/data/bills";
+import { formatValue } from "@/data/forecast-cells";
 
 export function generateStaticParams() {
   return loadBills().map((entry) => ({ slug: entry.slug }));
@@ -59,6 +65,69 @@ function renderInline(text: string): ReactNode[] {
   });
 }
 
+/** Server-side view models for the client selector — cells stay out of the bundle. */
+function buildForecastViews(billSlug: string): BillForecastView[] {
+  return getBillForecastGroups(billSlug).map(({ metricLabel, resolved }) => {
+    const { group, trueArm, falseArm, probability, unconditional } = resolved;
+    const pct = probability?.pointEstimate;
+    const gap = Math.abs(trueArm.pointEstimate - falseArm.pointEstimate);
+    return {
+      metricLabel,
+      groupSlug: group.slug,
+      question: group.question,
+      eventLabel: group.eventLabel,
+      gapLabel: `${formatValue(trueArm.pointEstimate, trueArm.unit)} − ${formatValue(
+        falseArm.pointEstimate,
+        falseArm.unit,
+      )} = ${formatValue(gap, trueArm.unit)}`,
+      gapNote: group.gapNote,
+      probability:
+        probability && pct !== undefined
+          ? { pct, slug: probability.slug }
+          : undefined,
+      enacted: {
+        point: trueArm.pointEstimate,
+        ciLow: trueArm.ciLow,
+        ciHigh: trueArm.ciHigh,
+        pointLabel: formatValue(trueArm.pointEstimate, trueArm.unit),
+        ciLabel: `${formatValue(trueArm.ciLow, trueArm.unit)} – ${formatValue(
+          trueArm.ciHigh,
+          trueArm.unit,
+        )}`,
+        slug: trueArm.slug,
+      },
+      baseline: {
+        point: falseArm.pointEstimate,
+        ciLow: falseArm.ciLow,
+        ciHigh: falseArm.ciHigh,
+        pointLabel: formatValue(falseArm.pointEstimate, falseArm.unit),
+        ciLabel: `${formatValue(falseArm.ciLow, falseArm.unit)} – ${formatValue(
+          falseArm.ciHigh,
+          falseArm.unit,
+        )}`,
+        slug: falseArm.slug,
+      },
+      unconditional:
+        unconditional && pct !== undefined
+          ? {
+              valueLabel: formatValue(
+                unconditional.pointEstimate,
+                unconditional.unit,
+              ),
+              formula: `${Math.round(pct)}% × ${formatValue(
+                trueArm.pointEstimate,
+                trueArm.unit,
+              )} + ${Math.round(100 - pct)}% × ${formatValue(
+                falseArm.pointEstimate,
+                falseArm.unit,
+              )} = ${formatValue(unconditional.pointEstimate, unconditional.unit)}`,
+              slug: unconditional.slug,
+            }
+          : undefined,
+    };
+  });
+}
+
 const registryBadgeClass: Record<RegistryStatus, string> = {
   reachable: "bg-[#E8F4EA] text-[#1F6B33] border-[#BFDEC7]",
   "not-yet": "bg-[#FFF4DD] text-[#7A5C20] border-[#F2DCAF]",
@@ -74,6 +143,7 @@ export default async function BillDetailPage({
   const { slug } = await params;
   const entry = getBill(slug);
   if (!entry) notFound();
+  const forecastViews = buildForecastViews(slug);
 
   return (
     <div>
@@ -108,6 +178,29 @@ export default async function BillDetailPage({
             </a>
           </p>
         </header>
+
+        <section className="mb-14">
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <span className="inline-block rounded-full border border-[#D8C7EE] bg-[#F4EDFC] px-2 py-[2px] [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] text-[#5B3E86]">
+              Conditional forecasts
+            </span>
+            <span className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.12em] text-[var(--theme-text-dim)]">
+              Outcomes forecast both ways · enacted vs baseline · exactly one
+              arm resolves
+            </span>
+          </div>
+          {forecastViews.length > 0 ? (
+            <BillForecasts views={forecastViews} />
+          ) : (
+            <div className="rounded-xl border border-dashed border-[var(--theme-border)] px-6 py-5 text-[0.9rem] leading-[1.6] text-[var(--theme-text-muted)]">
+              No registered forecast pairs for this bill yet. The candidate
+              metrics below are the demand: when a pair is registered through
+              the privileged path, both arms — the outcome with the bill
+              enacted and the baseline without it — appear here and are scored
+              publicly either way.
+            </div>
+          )}
+        </section>
 
         <div className="grid gap-14">
           {entry.provisions.map((provision, index) => (
