@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildNumericCdfFromQuantiles,
   scoreNumericCdfDistribution,
   validateNumericCdfDistribution,
   type NumericCdfDistribution,
@@ -137,6 +138,46 @@ describe("numeric CDF validation", () => {
     expect(() => scoreNumericCdfDistribution(candidate, 0.5)).toThrow(
       /Malformed numeric CDF/,
     );
+  });
+});
+
+describe("reported quantile materialization", () => {
+  it("encodes all submitted quantile knots in a valid 201-point CDF", () => {
+    const quantiles = [
+      { probability: 0.05, value: 3.05 },
+      { probability: 0.1, value: 3.1 },
+      { probability: 0.25, value: 3.2 },
+      { probability: 0.5, value: 3.3 },
+      { probability: 0.75, value: 3.4 },
+      { probability: 0.9, value: 3.45 },
+      { probability: 0.95, value: 3.5 },
+    ];
+    const built = buildNumericCdfFromQuantiles({
+      pointEstimate: 3.3,
+      quantiles,
+    });
+
+    expect(validateNumericCdfDistribution(built)).toEqual([]);
+    expect(built.pointCount).toBe(201);
+    expect(built.points).toHaveLength(201);
+    expect(built.summary).toEqual({
+      pointEstimate: 3.3,
+      median: 3.3,
+      interval80: { lower: 3.1, upper: 3.45 },
+    });
+    expect(built.provenance).toBe("agent_reported");
+    expect(built.transformVersion).toBe("agent_cdf_v1");
+    for (const quantile of quantiles) {
+      // The published contract uses a uniform 201-point materialization, so
+      // scoring interpolates through the two grid points around most knots.
+      const materializedProbability = scoreNumericCdfDistribution(
+        built,
+        quantile.value,
+      ).probabilityIntegralTransform;
+      expect(
+        Math.abs(materializedProbability - quantile.probability),
+      ).toBeLessThanOrEqual(0.003);
+    }
   });
 });
 
