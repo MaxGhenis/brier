@@ -95,8 +95,8 @@ function IntervalStrip({ view }: { view: BillForecastView }) {
   const bandWidth = (a: number, b: number) => `${((b - a) / width) * 100}%`;
 
   const rows = [
-    { label: "Enacted", arm: view.enacted, color: ENACTED.band },
     { label: "Baseline", arm: view.baseline, color: BASELINE.band },
+    { label: "Enacted", arm: view.enacted, color: ENACTED.band },
   ];
 
   return (
@@ -212,16 +212,16 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
 
       <div className="mb-5 grid grid-cols-2 gap-5 max-md:grid-cols-1">
         <ArmCard
-          label="Bill enacted"
-          palette={ENACTED}
-          arm={view.enacted}
-          weight={p}
-        />
-        <ArmCard
           label="Baseline · not enacted"
           palette={BASELINE}
           arm={view.baseline}
           weight={p !== undefined ? 1 - p : undefined}
+        />
+        <ArmCard
+          label="Bill enacted"
+          palette={ENACTED}
+          arm={view.enacted}
+          weight={p}
         />
       </div>
 
