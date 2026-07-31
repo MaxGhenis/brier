@@ -3,7 +3,7 @@
 Audit gates for every agent PolicyEngine call in the bills lane (issue #45),
 strongest first. A run is **admissible** only if gates 1–2 pass; gate 3
 corroborates the magnitude. Worked examples below are real and reproducible;
-commands assume `uv sync --group tax`.
+commands assume the certified stack from `scripts/tools/requirements-tax.txt` is installed.
 
 ---
 

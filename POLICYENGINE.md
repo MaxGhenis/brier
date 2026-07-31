@@ -20,10 +20,11 @@ logged reform through the same code and diff. "Hand-built invocation" ==
 ## 0. Install
 
 ```bash
-uv sync --group tax        # installs policyengine-us (the offline source of truth)
+uv venv .venv-tax && uv pip install --python .venv-tax -r scripts/tools/requirements-tax.txt
+# (certified exact pins; separate venv — policyengine-core pins pytest<9, which conflicts with brier[dev])
 ```
 
-Without the `tax` group the API path still runs, but validation degrades to
+Without the certified stack installed the API path still runs, but validation degrades to
 structural-only and **says so** — an unverified run is flagged, never silent.
 
 ## 0.1 Two engines — pin the build either way
@@ -139,7 +140,7 @@ or `[structural-only]`. Only the first is a full existence check.
 ## 3. Running it
 
 ```bash
-# validate only (fast, offline with the tax group)
+# validate only (fast, offline with the certified stack installed)
 python scripts/tools/policyengine.py validate bills/<slug>/reform.json
 
 # full economy metrics for one year, server-side, pinned to build P (default)

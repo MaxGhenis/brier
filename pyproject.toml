@@ -57,15 +57,6 @@ dev = [
     "pyyaml>=6.0.2",
 ]
 
-[dependency-groups]
-# Compute leg for the bill pipeline (issue #45). Kept OUT of the base install so
-# plain `uv sync` stays fast; `uv sync --group tax` pulls PolicyEngine for the
-# local hand-built cross-check + offline parameter validation. The API path in
-# scripts/tools/policyengine.py needs none of this (stdlib urllib only).
-tax = [
-    "policyengine-us>=1.784.3",
-]
-
 [tool.setuptools.packages.find]
 include = ["brier*"]
 

@@ -129,10 +129,10 @@ def test_compute_block_pending_widens():
 
 
 # --------------------------------------------------------------------------- #
-# local-model: real parameter existence (needs the tax group)                  #
+# local-model: real parameter existence (needs the certified stack)            #
 # --------------------------------------------------------------------------- #
 _HAS_MODEL = importlib.util.find_spec("policyengine_us") is not None
-local_only = pytest.mark.skipif(not _HAS_MODEL, reason="policyengine-us not installed (uv sync --group tax)")
+local_only = pytest.mark.skipif(not _HAS_MODEL, reason="policyengine-us not installed (see scripts/tools/requirements-tax.txt)")
 
 
 @local_only

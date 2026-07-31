@@ -8,7 +8,7 @@ so it can be audited against a hand-built invocation.
 
 Design choices
 - stdlib only (urllib): the API path needs no extra dependencies, so plain
-  `uv sync` stays fast. The optional `tax` dependency group (policyengine-us) is
+  `uv sync` stays fast. The certified stack (scripts/tools/requirements-tax.txt) is
   only for the local hand-built cross-check, not for this module.
 - One code path for agents and auditors: the CLI subcommands call the same
   functions the agents do, so "hand-built" == "re-run the logged reform".
@@ -125,8 +125,8 @@ def _post(path: str, body: dict, timeout: int = 120) -> tuple[int, Any]:
 # The public API does NOT validate reforms: POST /us/policy returns 201 for
 # invented parameters and bad value types, and the economy run then silently
 # ignores them. So parameter existence MUST be checked before the run. The
-# authoritative offline source is the installed policyengine-us package (the
-# `tax` group). The /us/metadata API is a fallback; structural-only is the last
+# authoritative offline source is the installed policyengine-us package (see
+# requirements-tax.txt). The /us/metadata API is a fallback; structural-only is the last
 # resort and is flagged so the auditor knows existence was NOT verified.
 _PARAM_CACHE: dict[str, tuple[Optional[set[str]], str]] = {}
 
@@ -441,7 +441,7 @@ def economy_local(
         from policyengine_us import Microsimulation  # type: ignore
         from policyengine_core.reforms import Reform  # type: ignore
     except Exception as e:  # pragma: no cover
-        return _finish("error", message=f"policyengine-us not installed (uv sync --group tax): {e}")
+        return _finish("error", message=f"policyengine-us not installed (scripts/tools/requirements-tax.txt): {e}")
 
     ds = populace_dataset_uri(build)
 
