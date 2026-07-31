@@ -85,7 +85,10 @@ def existing_slugs(site_data: pathlib.Path, out_ts: pathlib.Path) -> set[str]:
     ]:
         if f.resolve() == out_ts.resolve():
             continue  # rerunning over our own previous output is not a collision
-        slugs |= set(re.findall(r'slug:\s*"([^"]+)"', f.read_text()))
+        # Explicit encoding: the catalog is UTF-8, but Windows defaults
+        # read_text() to cp1252 and dies on the first non-Latin-1 byte in a
+        # published cell.
+        slugs |= set(re.findall(r'slug:\s*"([^"]+)"', f.read_text(encoding="utf-8")))
     return slugs
 
 
@@ -297,7 +300,7 @@ def sealed_agent_meta(run_dir: pathlib.Path) -> dict | None:
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.exists():
         return None
-    meta = json.loads(manifest_path.read_text()).get("agent")
+    meta = json.loads(manifest_path.read_text(encoding="utf-8")).get("agent")
     if not isinstance(meta, dict):
         return None
     required = ("agent", "agentVersion", "promptHash", "toolPolicyHash")
@@ -358,7 +361,7 @@ def to_forecast_cell(cell: dict) -> dict:
 def load_cells(path: pathlib.Path) -> list[dict]:
     from normalize_spawn_json import scrub_signed_zeros
 
-    cells = scrub_signed_zeros(json.loads(path.read_text()))
+    cells = scrub_signed_zeros(json.loads(path.read_text(encoding="utf-8")))
     if not isinstance(cells, list):
         raise ValueError(f"cell input must be a JSON list: {path}")
     sealed_agent = sealed_agent_meta(path.parent)
@@ -371,7 +374,7 @@ def load_cells(path: pathlib.Path) -> list[dict]:
         from verify_custody import verify_run
 
         verify_run(path.parent)
-        manifest = json.loads(manifest_path.read_text())
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         declared = pathlib.Path(manifest["cellsPath"])
         if not declared.is_absolute():
             declared = ROOT / declared
