@@ -370,6 +370,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T14:05:53Z",
       "witnessDigest": "records/2026-07-10/digest-29098454379-1.json"
     },
+    "1f28e42e0f533788d943ba1861d06bac43c06246ea4c4668ecb09b47b3a1609b": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-31T18:59:12Z",
+      "headlineEligible": false,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-31T18:59:12Z",
+      "witnessDigest": "records/2026-07-31/digest-30656993498-1.json"
+    },
     "205ac1608d4c0c7ddee65ea1e0a73b9750cf414341e32ebf9d52359c785bf09f": {
       "coverage": "direct",
       "custodyInventoryVersion": 1,
@@ -739,6 +748,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-11T00:40:46Z",
       "witnessDigest": "records/2026-07-11/digest-29133064686-1.json"
     },
+    "3ddd204da43d1109a3808f6b72045cd671bb8eefb0b5a3c0fe34dc5f5fbc8a45": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-31T18:59:12Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-31T18:59:12Z",
+      "witnessDigest": "records/2026-07-31/digest-30656993498-1.json"
+    },
     "3f1f982bbf1707ae25e8c518045288dfc5e8d05664e4a500dc3fd2da84c4c3dc": {
       "coverage": "direct",
       "custodyInventoryVersion": 2,
@@ -1090,6 +1108,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "tsaGenTime": "2026-07-10T15:58:33Z",
       "witnessDigest": "records/2026-07-10/digest-29105618542-1.json"
     },
+    "58f6bc7618b090be355ffaf86676c922cf44034c6230dd76c11727b25b67b467": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-31T18:59:12Z",
+      "headlineEligible": false,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-31T18:59:12Z",
+      "witnessDigest": "records/2026-07-31/digest-30656993498-1.json"
+    },
     "592c35b9d6a63d309e2b3a8cf6fb7367844621fe2dca5d4af8f76f46b4a32e5d": {
       "coverage": "direct",
       "custodyInventoryVersion": 2,
@@ -1107,6 +1134,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "inventoryStatus": "complete",
       "tsaGenTime": "2026-07-21T02:39:37Z",
       "witnessDigest": "records/2026-07-21/digest-29796328265-1.json"
+    },
+    "59980c6c0e88a5c413b87af5b0622f671889c820c20f495edf8f720c030a80d1": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-31T18:59:12Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-31T18:59:12Z",
+      "witnessDigest": "records/2026-07-31/digest-30656993498-1.json"
     },
     "59f518539ca46df6a4cb2fcece0ce75465baeefd88b161aec309577f12b77403": {
       "coverage": "direct",
@@ -1764,6 +1800,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "inventoryStatus": "complete",
       "tsaGenTime": "2026-07-10T15:29:57Z",
       "witnessDigest": "records/2026-07-10/digest-29103805372-1.json"
+    },
+    "8f1aa398a5bc17847aef42a43f9c77d5ea92f2a9669ebae2dd534a5b9685da06": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-31T18:59:12Z",
+      "headlineEligible": true,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-31T18:59:12Z",
+      "witnessDigest": "records/2026-07-31/digest-30656993498-1.json"
     },
     "8fbcc19e71b4a007f1fe81413dad8d4bff5bfa0fa081412903cfc26c65914672": {
       "coverage": "direct",
@@ -2889,6 +2934,15 @@ export const WITNESSED_CUSTODY_ROOTS: WitnessedCustodyRootMap =
       "inventoryStatus": "complete",
       "tsaGenTime": "2026-07-31T16:51:47Z",
       "witnessDigest": "records/2026-07-31/digest-30648581183-1.json"
+    },
+    "f43cc9158a6432b1e84da5f1929e6a3947f95e157c590208050ece501c8a2e68": {
+      "coverage": "direct",
+      "custodyInventoryVersion": 2,
+      "earliestWitnessedAt": "2026-07-31T18:59:12Z",
+      "headlineEligible": false,
+      "inventoryStatus": "complete",
+      "tsaGenTime": "2026-07-31T18:59:12Z",
+      "witnessDigest": "records/2026-07-31/digest-30656993498-1.json"
     },
     "f4658eb49b3c6f3bf377cd0c9bced9ed423252a73c548fc42c5a1f9b1f0e88e7": {
       "coverage": "direct",
