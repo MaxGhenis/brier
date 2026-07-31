@@ -246,11 +246,20 @@ def _specific_token(token: str) -> bool:
     return token not in GENERIC_TOKENS and not token.isdigit()
 
 
+_PERIOD_RULE = (
+    "a period is exactly one of YYYY-MM (month), YYYY-Qn (quarter), or "
+    "week_YYYY-MM-DD (week ending) — annual periods and free-text labels "
+    "like 'June 2026' or 'FY2026' are not accepted here"
+)
+
+
 def _period_error(value: Any) -> str | None:
     period = str(value or "")
     month = re.fullmatch(r"(\d{4})-(\d{2})", period)
     if month:
-        return None if 1 <= int(month.group(2)) <= 12 else "bad period"
+        if 1 <= int(month.group(2)) <= 12:
+            return None
+        return f"bad period {period!r}: month must be 01-12; {_PERIOD_RULE}"
     if re.fullmatch(r"\d{4}-Q[1-4]", period):
         return None
     week = re.fullmatch(r"week_(\d{4}-\d{2}-\d{2})", period)
@@ -258,9 +267,12 @@ def _period_error(value: Any) -> str | None:
         try:
             dt.date.fromisoformat(week.group(1))
         except ValueError:
-            return "bad period"
+            return (
+                f"bad period {period!r}: {week.group(1)!r} is not a real "
+                f"calendar date; {_PERIOD_RULE}"
+            )
         return None
-    return "bad period"
+    return f"bad period {period!r}: {_PERIOD_RULE}"
 
 
 def _public_https_error(value: Any, label: str) -> str | None:
@@ -269,7 +281,7 @@ def _public_https_error(value: Any, label: str) -> str | None:
         host = parsed.hostname
         port = parsed.port
     except ValueError:
-        return f"bad {label}"
+        return f"bad {label} {value!r}: not a parseable URL"
     if (
         parsed.scheme != "https"
         or not host
@@ -277,41 +289,71 @@ def _public_https_error(value: Any, label: str) -> str | None:
         or parsed.password is not None
         or port not in {None, 443}
     ):
-        return f"bad {label}"
+        return (
+            f"bad {label} {value!r}: must be https://host/... with no embedded "
+            "credentials and no port other than 443 — the resolver refetches "
+            "this URL unattended months later"
+        )
     lower = host.rstrip(".").lower()
+    unroutable = (
+        f"non-public {label} {value!r}: host {lower!r} is not reachable from "
+        "the public internet, so the resolver could never refetch it — cite "
+        "the publisher's own public page, not a local mirror or proxy"
+    )
     if lower == "localhost" or lower.endswith((".localhost", ".local")):
-        return f"non-public {label}"
+        return unroutable
     try:
         address = ipaddress.ip_address(lower.strip("[]"))
     except ValueError:
         if "." not in lower:
-            return f"non-public {label}"
+            return unroutable
     else:
         if not address.is_global:
-            return f"non-public {label}"
+            return unroutable
     return None
 
 
 def _nonempty_string_error(value: Any, label: str) -> str | None:
-    return None if isinstance(value, str) and value.strip() else f"missing {label}"
+    if isinstance(value, str) and value.strip():
+        return None
+    return (
+        f"missing {label}: expected a non-empty string, got {value!r} — this "
+        "field is part of the resolver's source binding, so an empty value "
+        "would leave the target unresolvable"
+    )
+
+
+TRANSFORM_OPERATIONS = {
+    "difference_previous_period",
+    "identity",
+    "multiply",
+    "percent_change_previous_period",
+    "percent_change_year_ago",
+}
 
 
 def _transform_errors(value: Any, label: str = "transform") -> list[str]:
     if not isinstance(value, dict) or set(value) != TRANSFORM_FIELDS:
-        return [f"bad {label} schema"]
+        got = sorted(value) if isinstance(value, dict) else type(value).__name__
+        return [
+            f"bad {label} schema: expected exactly the keys "
+            f"{sorted(TRANSFORM_FIELDS)}, got {got}"
+        ]
     operation = value.get("operation")
     factor = value.get("factor")
     errors = []
-    if operation not in {
-        "difference_previous_period",
-        "identity",
-        "multiply",
-        "percent_change_previous_period",
-        "percent_change_year_ago",
-    }:
-        errors.append(f"bad {label} operation")
+    if operation not in TRANSFORM_OPERATIONS:
+        errors.append(
+            f"bad {label} operation {operation!r}: must be one of "
+            f"{sorted(TRANSFORM_OPERATIONS)}"
+        )
     if type(factor) not in {int, float} or not math.isfinite(float(factor)):
-        errors.append(f"bad {label} factor")
+        errors.append(
+            f"bad {label} factor {factor!r}: must be a finite int or float. "
+            "`True`/`False` are rejected even though Python treats them as "
+            "ints — a bool here means the field was filled in from the wrong "
+            "template"
+        )
     return errors
 
 
@@ -352,8 +394,9 @@ def _previous_target_errors(value: Any, target: dict[str, Any]) -> list[str]:
     if not isinstance(value, dict) or set(value) != PREVIOUS_TARGET_FIELDS:
         return ["bad previousTarget schema"]
     errors = []
-    if _period_error(value.get("period")):
-        errors.append("bad previousTarget period")
+    previous_period_error = _period_error(value.get("period"))
+    if previous_period_error:
+        errors.append(f"bad previousTarget period — {previous_period_error}")
     for key in ("dataPointId", "resolutionSource"):
         error = _nonempty_string_error(value.get(key), f"previousTarget {key}")
         if error:
@@ -444,22 +487,52 @@ def _common_target_errors(
     period = target.get("period")
     slug = target.get("catalogSlug")
     if not isinstance(series, str) or not SERIES_RE.fullmatch(series):
-        errors.append("bad series id")
+        errors.append(
+            f"bad series id {series!r}: a series id is dotted lowercase "
+            "agency-first, /^[a-z0-9_]+(\\.[a-z0-9_]+)+$/ and needs at least "
+            "one dot, e.g. bls.cpi.all_items_sa — it is not the catalog slug"
+        )
     if series in registry_series:
-        errors.append("series already in registry")
+        errors.append(
+            f"series already in registry: {series!r} is in "
+            "scripts/docket_series.json, so the roll loop already schedules "
+            "its next period — prospecting only seeds NEW series. Drop this "
+            "proposal; do not delete the registry entry to make it land"
+        )
     period_error = _period_error(period)
     if period_error:
         errors.append(period_error)
     if not isinstance(slug, str) or not SLUG_RE.fullmatch(slug):
-        errors.append("bad slug")
+        errors.append(
+            f"bad slug {slug!r}: catalog slugs are lowercase kebab-case, "
+            "/^[a-z0-9]+(-[a-z0-9]+)*$/ — no underscores, capitals, dots, or "
+            "leading/trailing/doubled dashes"
+        )
     elif slug in existing_slugs:
-        errors.append("slug exists")
+        errors.append(
+            f"slug exists: {slug!r} is already published in the catalog (or "
+            "claimed by an earlier proposal in this same batch). Slugs are the "
+            "catalog's primary key — qualify this one with its period; do not "
+            "republish over the existing cell"
+        )
     if target.get("country") not in ALLOWED_COUNTRIES:
-        errors.append("bad country")
+        errors.append(
+            f"bad country {target.get('country')!r}: allowed codes are "
+            f"{sorted(ALLOWED_COUNTRIES)}"
+        )
     if target.get("targetUnit") not in ALLOWED_UNITS:
-        errors.append("bad unit")
+        errors.append(
+            f"bad unit {target.get('targetUnit')!r}: allowed units are "
+            f"{sorted(ALLOWED_UNITS)} — pick the one the official series is "
+            "actually published in, do not rescale the target to fit a unit"
+        )
     if (series, period) in denied:
-        errors.append("target is denylisted")
+        errors.append(
+            f"target is denylisted: ({series!r}, {period!r}) is listed in "
+            "scripts/docket_denylist.json, which records series/periods that "
+            "were tried and found unresolvable. Propose a different series; "
+            "removing the denylist row is a deliberate decision, not a fix"
+        )
     url_error = _public_https_error(
         target.get("resolutionSourceUrl"), "resolution source URL"
     )
@@ -468,15 +541,34 @@ def _common_target_errors(
     if origin == "codex":
         overlap = near_duplicate(str(slug or ""), existing_slugs)
         if overlap:
-            errors.append(f"same quantity as existing {overlap}")
+            errors.append(
+                f"same quantity as existing {overlap}: {slug!r} shares enough "
+                "specific (non-generic) slug tokens with it to be the same "
+                "measured quantity. Web-researched proposals restate covered "
+                "series constantly, so this guard is a near-duplicate filter, "
+                "not an exact-match one — propose a different quantity rather "
+                "than renaming the slug to slip past it"
+            )
         try:
             release = dt.date.fromisoformat(
                 str(target.get("expectedReleaseDate") or "")
             )
             if not (today < release <= today + MAX_RELEASE_HORIZON):
-                errors.append("release outside (today, +75d]")
+                horizon_end = (today + MAX_RELEASE_HORIZON).isoformat()
+                errors.append(
+                    "release outside (today, +75d]: expectedReleaseDate "
+                    f"{release.isoformat()} is not in "
+                    f"({today.isoformat()}, {horizon_end}] — a past date means "
+                    "the number is already published (leakage, not a forecast); "
+                    "a far-future date leaves the cell unresolvable for months"
+                )
         except ValueError:
-            errors.append("bad release date")
+            errors.append(
+                "bad release date "
+                f"{target.get('expectedReleaseDate')!r}: expectedReleaseDate "
+                "must be an ISO YYYY-MM-DD calendar date taken from the "
+                "publisher's release calendar"
+            )
         for key in ("sourceSeriesId", "sourceField", "sourceTable"):
             error = _nonempty_string_error(target.get(key), key)
             if error:
@@ -662,12 +754,26 @@ def _validate_existing_registration(
         # Pre-v3 registrations are read-only history: never retried, never
         # rewritten. The series advances to a fresh target period instead.
         raise ProspectValidationError(
-            "existing pre-v3 registration is not retryable; "
-            "advance the series to a fresh period"
+            "existing pre-v3 registration is not retryable for "
+            f"{contract['catalogSlug']}; advance the series to a fresh period. "
+            "Registrations under a legacy schema are read-only history: "
+            "re-registering one would rewrite a pre-registration after the "
+            "fact. Do not delete or re-canonicalize the old snapshot"
         )
     if related:
+        conflicts = ", ".join(
+            f"{path.name} (catalogSlug={row.get('catalogSlug')!r}, "
+            f"dataPointId={row.get('dataPointId')!r}, "
+            f"series={row.get('series')!r}, period={row.get('period')!r})"
+            for path, _snapshot, row in related
+        )
         raise ProspectValidationError(
-            "target was already attempted or conflicts with an existing registration"
+            "target was already attempted or conflicts with an existing "
+            f"registration: {contract['catalogSlug']} collides on catalogSlug, "
+            f"dataPointId, or series+period with {conflicts}. Pre-registration "
+            "is append-only, so a target may be registered once and only a "
+            "byte-identical v3 retry is allowed — propose the series' NEXT "
+            "period instead of editing or deleting records/targets/*.json"
         )
 
 

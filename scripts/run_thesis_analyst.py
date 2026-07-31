@@ -873,33 +873,73 @@ def decimal_places(value: Any) -> int:
 def ladder_validation_errors(cell: dict[str, Any]) -> list[str]:
     ladder = cell.get("thresholdLadder")
     if not isinstance(ladder, dict):
-        return ["ladder run must include a thresholdLadder object"]
+        return [
+            "ladder run must include a thresholdLadder object: in ladder "
+            "prompt modes the quantile ladder IS the forecast, and the "
+            f"published point/CI are read off it (got {type(ladder).__name__})"
+        ]
     thresholds = ladder.get("thresholds")
     probs = ladder.get("cumulativeProbabilities")
     if not isinstance(thresholds, list) or not isinstance(probs, list):
         return [
-            "thresholdLadder must contain thresholds and cumulativeProbabilities arrays"
+            "thresholdLadder must contain thresholds and cumulativeProbabilities"
+            f" arrays; got thresholds={type(thresholds).__name__}, "
+            f"cumulativeProbabilities={type(probs).__name__}"
         ]
     errors: list[str] = []
     if len(thresholds) != len(probs):
-        return ["thresholdLadder arrays must have equal length"]
+        return [
+            "thresholdLadder arrays must have equal length: "
+            f"{len(thresholds)} thresholds vs {len(probs)} cumulative "
+            "probabilities — each rung is one (threshold, P(X <= threshold)) pair"
+        ]
     if not (9 <= len(thresholds) <= 21):
-        errors.append(f"thresholdLadder has {len(thresholds)} rungs; want 11-15")
+        errors.append(
+            f"thresholdLadder has {len(thresholds)} rungs; want 11-15, hard "
+            "limit 9-21 — too few rungs cannot pin the 10th/90th percentiles "
+            "by interpolation, too many are usually a mechanical grid rather "
+            "than a considered distribution"
+        )
     try:
         thresholds = [float(value) for value in thresholds]
         probs = [float(value) for value in probs]
     except (TypeError, ValueError):
-        return ["thresholdLadder arrays must be numeric"]
+        return [
+            "thresholdLadder arrays must be numeric: thresholds are values in "
+            "the cell's unit and cumulativeProbabilities are floats in [0, 1] "
+            "— no percent signs, thousands separators, or nulls"
+        ]
     if any(b <= a for a, b in zip(thresholds, thresholds[1:])):
-        errors.append("thresholds must be strictly increasing")
+        errors.append(
+            f"thresholds must be strictly increasing, got {thresholds} — a "
+            "repeated or out-of-order threshold makes the CDF non-invertible"
+        )
     if any(b < a for a, b in zip(probs, probs[1:])):
-        errors.append("cumulativeProbabilities must be non-decreasing")
+        errors.append(
+            f"cumulativeProbabilities must be non-decreasing, got {probs}: "
+            "these are cumulative P(X <= threshold), not per-bin probabilities "
+            "— a dip means per-bin masses were written into the field"
+        )
     if probs and (probs[0] < 0.005 or probs[-1] > 0.995):
-        errors.append("cumulative probabilities must stay within [0.01, 0.99]")
+        errors.append(
+            "cumulative probabilities must stay within [0.01, 0.99] (hard "
+            f"limit [0.005, 0.995]), got first={probs[0]}, last={probs[-1]} — "
+            "the ladder must leave real tail mass outside its own ends"
+        )
     if probs and probs[0] > 0.12:
-        errors.append(f"first rung cumulative probability {probs[0]} must be <= 0.10")
+        errors.append(
+            f"first rung cumulative probability {probs[0]} must be <= 0.10 "
+            "(hard limit 0.12): the bottom rung has to sit below the 10th "
+            "percentile, or ciLow cannot be interpolated from the ladder — "
+            "add a lower threshold rather than shrinking the stated CI"
+        )
     if probs and probs[-1] < 0.88:
-        errors.append(f"last rung cumulative probability {probs[-1]} must be >= 0.90")
+        errors.append(
+            f"last rung cumulative probability {probs[-1]} must be >= 0.90 "
+            "(hard limit 0.88): the top rung has to sit above the 90th "
+            "percentile, or ciHigh cannot be interpolated from the ladder — "
+            "add a higher threshold rather than shrinking the stated CI"
+        )
     if errors:
         return errors
     # The published numbers must be the ladder's own quantiles (to print
@@ -908,7 +948,11 @@ def ladder_validation_errors(cell: dict[str, Any]) -> list[str]:
     ci_low = cell.get("ciLow")
     ci_high = cell.get("ciHigh")
     if not all(isinstance(v, (int, float)) for v in (point, ci_low, ci_high)):
-        return ["cell is missing numeric pointEstimate/ciLow/ciHigh"]
+        return [
+            "cell is missing numeric pointEstimate/ciLow/ciHigh: got "
+            f"pointEstimate={point!r}, ciLow={ci_low!r}, ciHigh={ci_high!r} — "
+            "a ladder run still has to publish the three numbers read off it"
+        ]
     step = 10 ** -max(
         decimal_places(point), decimal_places(ci_low), decimal_places(ci_high)
     )
@@ -920,12 +964,19 @@ def ladder_validation_errors(cell: dict[str, Any]) -> list[str]:
     ):
         derived = ladder_interpolate(thresholds, probs, q)
         if derived is None:
-            errors.append(f"ladder does not span cumulative {q} for {label}")
+            errors.append(
+                f"ladder does not span cumulative {q} for {label}: the rungs "
+                f"only cover P(X <= t) in [{probs[0]}, {probs[-1]}], so "
+                f"q{int(q * 100)} cannot be interpolated — extend the ladder"
+            )
         elif abs(derived - stated) > tolerance:
             errors.append(
                 f"{label} {stated} deviates from ladder-derived "
                 f"q{int(q * 100)} {round(derived, 6)} beyond tolerance "
-                f"{round(tolerance, 6)}"
+                f"{round(tolerance, 6)}: the published numbers must BE the "
+                "ladder's own quantiles, so the ladder and the headline "
+                "forecast disagree — re-read point/CI off the ladder rather "
+                "than reshaping the ladder around the headline"
             )
     return errors
 
@@ -3031,7 +3082,14 @@ def main() -> int:
     if hygiene_mutations:
         print(
             "workspace hygiene: agent stage mutated the workspace "
-            f"({len(hygiene_mutations)} violation(s)); failing the run",
+            f"({len(hygiene_mutations)} violation(s)); failing the run.\n"
+            + "\n".join(f"  - {mutation}" for mutation in hygiene_mutations)
+            + "\nA network-enabled run needs the workspace-write sandbox, so "
+            "this guard is what keeps the honesty contract mechanical: the "
+            "run's own artifacts are sealed under its custody root, and "
+            "anything the agent changed outside them is unattested. The run "
+            "is kept as a failed trace — rerun so the agent only fetches and "
+            "reports, and never relax the guard to let the mutation through.",
             file=sys.stderr,
         )
     manifest = {
