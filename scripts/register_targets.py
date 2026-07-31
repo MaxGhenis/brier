@@ -500,6 +500,44 @@ def derive_source_binding(
     }
 
 
+def reject_stale_release_window(
+    target: dict[str, Any],
+    window: dict[str, str],
+    registration_date: dt.date,
+) -> None:
+    """Refuse to preregister a target whose release window already opened.
+
+    Preregistration only means anything while the answer is still unknown.
+    Once the release window opens, the first print may already be public, so
+    a forecast registered against it is not a forecast -- and the grace
+    window will later expire it unforecast no matter how promptly the
+    analyst runs, because it was never forecastable.
+
+    This has fired for real: census.mtis total business inventories was
+    registered 2026-07-25 against a window that closed 2026-07-21, and BLS
+    CES average hourly earnings on the same day against one that closed
+    2026-07-09. Four such registrations exist in the repo's history.
+
+    Equality is allowed: registered_query_snapshot sets start to the
+    registered query date by construction.
+    """
+
+    start = window.get("start")
+    end = window.get("end")
+    if not start:
+        return
+    if start >= registration_date.isoformat():
+        return
+    label = target.get("catalogSlug") or target.get("series") or "?"
+    closed = bool(end and end < registration_date.isoformat())
+    raise RegistrationError(
+        f"{label}: release window {start}..{end} "
+        f"{'closed' if closed else 'opened'} before the registration date "
+        f"{registration_date.isoformat()}; the first print may already be "
+        "public, so this target cannot be honestly preregistered"
+    )
+
+
 def build_contract(
     target: dict[str, Any], registration_date: dt.date
 ) -> dict[str, Any]:
@@ -511,6 +549,7 @@ def build_contract(
         raise RegistrationError(f"{target.get('catalogSlug', '?')} has no target unit")
     value_scale = float(target.get("valueScale", 1))
     window = expected_release_window(target, previous, registration_date)
+    reject_stale_release_window(target, window, registration_date)
     binding = derive_source_binding(target, previous, window, value_scale)
     contract = {
         "series": str(target["series"]),

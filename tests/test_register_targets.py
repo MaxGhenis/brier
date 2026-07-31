@@ -73,6 +73,46 @@ def configure_generator_root(
     monkeypatch.setattr(generate_ledger_targets, "HAND_AUTHORED", hand_authored)
 
 
+def test_stale_release_window_is_refused_at_registration() -> None:
+    window = {"start": "2030-03-01", "end": "2030-03-08"}
+
+    # Before the window opens: the normal, honest case.
+    register_targets.reject_stale_release_window(
+        {"catalogSlug": "ok"}, window, dt.date(2030, 2, 20)
+    )
+    # Same day is allowed -- registered_query_snapshot sets start to the
+    # registration date by construction.
+    register_targets.reject_stale_release_window(
+        {"catalogSlug": "same-day"}, window, dt.date(2030, 3, 1)
+    )
+    # No window recorded: nothing to judge, stays permissive for legacy rows.
+    register_targets.reject_stale_release_window(
+        {"catalogSlug": "legacy"}, {}, dt.date(2030, 3, 20)
+    )
+
+    # Opened but not closed: the first print may already be public.
+    with pytest.raises(register_targets.RegistrationError, match="opened before"):
+        register_targets.reject_stale_release_window(
+            {"catalogSlug": "mid-window"}, window, dt.date(2030, 3, 4)
+        )
+    # Closed before registration: certainly public. This is the real
+    # census.mtis (window closed 2026-07-21, registered 07-25) and bls.ces
+    # (closed 2026-07-09, registered 07-25) case.
+    with pytest.raises(register_targets.RegistrationError, match="closed before"):
+        register_targets.reject_stale_release_window(
+            {"catalogSlug": "born-dead"}, window, dt.date(2030, 3, 20)
+        )
+
+
+def test_guard_leaves_a_normal_registration_bindable() -> None:
+    contract = register_targets.build_contract(sample_target(), dt.date(2030, 1, 10))
+    window = contract["sourceBinding"]["expectedReleaseWindow"]
+    # Reaching here at all means the guard passed, which is exactly the
+    # assertion: a forward-dated target still binds.
+    assert window["start"] and window["end"]
+    assert window["start"] >= "2030-01-10"
+
+
 def test_registration_snapshot_round_trip_and_hash_stability(
     tmp_path: pathlib.Path, monkeypatch
 ) -> None:
