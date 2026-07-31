@@ -6,134 +6,177 @@
 # permanently waived, unattested commits (2026-07-20/21 Next50 wave,
 # 2026-07-22 QCEW completion). The CI audit still catches what slips past.
 #
-# The check is commit-level, mirroring the provenance audit: the push is
-# refused when any commit it would publish touches records/** (a git log
-# --full-history walk — endpoint tree diffs miss add-then-delete commits
-# and depend on an arbitrary merge base under criss-cross histories; the
-# audit walks commits, so the guard walks the same way). Like the audit,
-# a merge whose records tree is byte-identical to at least one of its
-# parents is a no-op for records and exempt — otherwise every
-# update-with-main merge after a recorder push would trip the guard (the
-# audit's own pre-#73 false positive); an evil merge that resolves to
-# records content matching no parent still blocks. The audit is stricter
-# about which parent may vouch (pre-epoch parents never do); that call
-# stays server-side. The walked range depends on where the push lands:
+# The check is commit-level, mirroring scripts/verify_records_attestations.py:
+# the push is refused when any commit it would publish touches records/**
+# (a git log --full-history walk — endpoint tree diffs miss add-then-delete
+# commits and depend on an arbitrary merge base under criss-cross histories;
+# the audit walks commits, so the guard walks the same way). Both halves of
+# the audit's merge rule are mirrored:
+#   - merge_is_records_noop: a merge whose records tree is byte-identical to
+#     a parent publishes no new records content and is exempt — otherwise
+#     every update-with-main merge after a recorder push trips the guard.
+#     The audit only lets an IN-SCOPE (post-epoch) parent exempt; the local
+#     analogue is a parent already reachable from the trusted comparator,
+#     i.e. content main already published and the audit already covered.
+#     A merge resolving to records content matching no such parent — an
+#     evil merge, a stale-parent swap — still blocks.
+#   - enforce_range_content_closure: if nothing in the range needs
+#     attestation yet the endpoints disagree about records content, the
+#     change rode in through parent-order trickery or a rewind. Applied to
+#     main pushes, where the audit applies it (a branch legitimately lags
+#     main's records).
+#
+# The walked range depends on where the push lands:
 #   - refs/heads/main: remote..local — every commit published there is
 #     audited on arrival, so every one is checked here.
-#   - any other ref pushed to origin: refs/remotes/origin/main..local —
-#     the branch's own contribution. Tip-to-tip ranges false-positive
-#     here: a branch rebased onto a main that legitimately gained
-#     attested recorder commits showed main's records growth while
+#   - any other ref pushed to the trusted origin: the branch's own
+#     contribution against refs/remotes/origin/main. Tip-to-tip ranges
+#     false-positive here: a branch rebased onto a main that legitimately
+#     gained attested recorder commits showed main's records growth while
 #     pushing zero new records objects (hit 2026-07-31). The comparator
-#     must be trustworthy: the fetch pins it with an explicit refspec (a
-#     bare `fetch origin main` can succeed while updating only
-#     FETCH_HEAD), and the full ref name sidesteps a local branch
-#     literally named "origin/main". If the refresh fails, the endpoint
-#     range is used instead.
-#   - any other ref pushed elsewhere (a fork, a mirror): endpoint range —
-#     origin's main cannot vouch for what some other remote receives.
-# A push with no trustworthy range — a brand-new ref with no endpoint
-# after a failed refresh or on a non-origin remote, or a range that
-# fails to walk (missing ref or history) — is refused, fail closed.
-# Replacement refs are ignored throughout so a local refs/replace/*
+#     must be trustworthy, so it is used only when the push URL is
+#     origin's own fetch URL (a remote.origin.pushurl sends elsewhere),
+#     the fetch pins it with an explicit refspec (a bare `fetch origin
+#     main` can succeed while updating only FETCH_HEAD), and the full ref
+#     name sidesteps a local branch literally named "origin/main".
+#   - anywhere else (a fork, a mirror, a differing push URL): the endpoint
+#     range — origin's main cannot vouch for what another remote receives.
+# A push with no trustworthy comparator, an unwalkable range, or a shallow
+# repository (whose walk can succeed while missing history) is refused.
+# Replacement refs and grafts are neutralized so local graph overlays
 # cannot dress up a records commit.
 #
 # Break glass, deliberately, when you truly mean it:
 #   THESIS_ALLOW_RECORDS_PUSH=1 git push ...
 GIT_NO_REPLACE_OBJECTS=1
-export GIT_NO_REPLACE_OBJECTS
+GIT_GRAFT_FILE=/dev/null
+export GIT_NO_REPLACE_OBJECTS GIT_GRAFT_FILE
 remote_name=$1
+remote_url=$2
 ZERO=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 status=0
 fetched=0
 fetch_ok=0
 
-refuse_unverifiable() {
+# The branch-contribution comparator is origin's main, so it may only be
+# trusted when this push is going to origin itself — same name AND same
+# URL, since remote.origin.pushurl can point somewhere else entirely.
+trusted_origin=0
+if [ "$remote_name" = "origin" ] && [ -n "$remote_url" ] &&
+    [ "$remote_url" = "$(git remote get-url origin 2>/dev/null)" ]; then
+    trusted_origin=1
+fi
+shallow=$(git rev-parse --is-shallow-repository 2>/dev/null || echo unknown)
+
+refuse() { # refuse <ref> <reason>
     if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
         echo "pre-push: unverifiable $1 allowed by THESIS_ALLOW_RECORDS_PUSH=1" >&2
         return 0
     fi
     echo "" >&2
     echo "BLOCKED: cannot verify $1 against records/** ($2)." >&2
-    echo "Fetch what is missing and retry, or set" >&2
+    echo "Fetch or unshallow what is missing and retry, or set" >&2
     echo "THESIS_ALLOW_RECORDS_PUSH=1 to push unverified — that still" >&2
     echo "lands unattested and costs a permanent public waiver." >&2
     echo "" >&2
     return 1
 }
 
-while read -r _local_ref local_sha remote_ref remote_sha; do
-    [ "$local_sha" = "$ZERO" ] && continue
-    range=""
-    if [ "$remote_ref" != "refs/heads/main" ] &&
-        [ "$remote_name" = "origin" ]; then
-        if [ "$fetched" = "0" ]; then
-            fetched=1
-            if GIT_TERMINAL_PROMPT=0 git fetch --quiet origin \
-                "+refs/heads/main:refs/remotes/origin/main" \
-                </dev/null >/dev/null 2>&1; then
-                fetch_ok=1
-            fi
-        fi
-        if [ "$fetch_ok" = "1" ] &&
-            git rev-parse --quiet --verify refs/remotes/origin/main \
-                >/dev/null; then
-            range="refs/remotes/origin/main..$local_sha"
+records_tree() { # records_tree <commit-ish>
+    git rev-parse --quiet --verify "$1:records" 2>/dev/null || echo none
+}
+
+pin_origin_main() {
+    if [ "$fetched" = "0" ]; then
+        fetched=1
+        if GIT_TERMINAL_PROMPT=0 git fetch --quiet origin \
+            "+refs/heads/main:refs/remotes/origin/main" \
+            </dev/null >/dev/null 2>&1; then
+            fetch_ok=1
         fi
     fi
-    if [ -z "$range" ]; then
+    [ "$fetch_ok" = "1" ] &&
+        git rev-parse --quiet --verify refs/remotes/origin/main >/dev/null
+}
+
+while read -r _local_ref local_sha remote_ref remote_sha; do
+    [ "$local_sha" = "$ZERO" ] && continue
+    if [ "$shallow" != "false" ]; then
+        refuse "$remote_ref" "shallow or unreadable repository" || status=1
+        continue
+    fi
+    base=""
+    if [ "$trusted_origin" = "1" ] && [ "$remote_ref" != "refs/heads/main" ] &&
+        pin_origin_main; then
+        base="refs/remotes/origin/main"
+    fi
+    if [ -z "$base" ]; then
         if [ "$remote_sha" != "$ZERO" ]; then
-            range="$remote_sha..$local_sha"
-        elif [ "$remote_ref" = "refs/heads/main" ]; then
-            range="refs/remotes/origin/main..$local_sha"
+            base="$remote_sha"
+        elif [ "$trusted_origin" = "1" ] &&
+            [ "$remote_ref" = "refs/heads/main" ] && pin_origin_main; then
+            base="refs/remotes/origin/main"
         else
-            refuse_unverifiable "$remote_ref" "new ref, no trusted comparator" \
-                || status=1
+            refuse "$remote_ref" "new ref, no trusted comparator" || status=1
             continue
         fi
     fi
+    range="$base..$local_sha"
     walked=$(git log --full-history --format=%H "$range" -- records/ \
         2>/dev/null)
     walk_rc=$?
     if [ "$walk_rc" -ne 0 ]; then
-        refuse_unverifiable "$remote_ref" "range $range failed to walk" \
-            || status=1
+        refuse "$remote_ref" "range $range failed to walk" || status=1
         continue
     fi
     offenders=""
     for c in $walked; do
-        ctree=$(git rev-parse --quiet --verify "$c:records" \
-            2>/dev/null || echo none)
+        ctree=$(records_tree "$c")
         nparent=0
-        treesame=0
+        exempt=0
         for p in $(git rev-parse "$c^@" 2>/dev/null); do
             nparent=$((nparent + 1))
-            ptree=$(git rev-parse --quiet --verify "$p:records" \
-                2>/dev/null || echo none)
-            [ "$ptree" = "$ctree" ] && treesame=1
+            [ "$(records_tree "$p")" = "$ctree" ] || continue
+            # Only already-published history may exempt: an in-scope
+            # parent in the audit's sense.
+            git merge-base --is-ancestor "$p" "$base" 2>/dev/null &&
+                exempt=1
         done
-        # No-op merge for records: some parent already carries this exact
-        # records tree, so the merge publishes no new records content.
-        if [ "$nparent" -ge 2 ] && [ "$treesame" = "1" ]; then
+        if [ "$nparent" -ge 2 ] && [ "$exempt" = "1" ]; then
             continue
         fi
         offenders="$offenders $c"
     done
-    [ -z "$offenders" ] && continue
-    # shellcheck disable=SC2086
-    touched=$(git log --no-walk --diff-merges=first-parent \
-        --format="%h %s" --name-only $offenders -- records/ 2>/dev/null)
+    if [ -z "$offenders" ]; then
+        # enforce_range_content_closure, for the ref the audit audits.
+        if [ "$remote_ref" = "refs/heads/main" ] &&
+            [ "$(records_tree "$base")" != "$(records_tree "$local_sha")" ]; then
+            refuse "$remote_ref" \
+                "records content differs across $range with no attestable commit" ||
+                status=1
+        fi
+        continue
+    fi
     if [ "$THESIS_ALLOW_RECORDS_PUSH" = "1" ]; then
         echo "pre-push: records/** push allowed by THESIS_ALLOW_RECORDS_PUSH=1" >&2
         continue
     fi
     echo "" >&2
     echo "BLOCKED: this push publishes commits that touch records/**." >&2
-    printf '%s\n' "$touched" | head -8 | sed 's/^/  /' >&2
+    # shellcheck disable=SC2086
+    git log --no-walk=unsorted --format="  %h %s" $offenders >&2 2>/dev/null
+    # shellcheck disable=SC2086
+    paths=$(git log --no-walk --diff-merges=first-parent --format= \
+        --name-only $offenders -- records/ 2>/dev/null |
+        grep -v '^$' | sort -u)
+    if [ -n "$paths" ]; then
+        echo "  paths:" >&2
+        printf '%s\n' "$paths" | head -5 | sed 's/^/    /' >&2
+    fi
     echo "" >&2
     echo "records/** is written by the allowlisted workflows, which attest" >&2
     echo "each push. A local push lands unattested and can only be recorded" >&2
-    echo "as a permanent public waiver (six already exist)." >&2
+    echo "as a permanent public waiver (see WAIVED_UNATTESTED_COMMITS)." >&2
     echo "Use the workflow that owns this record, or set" >&2
     echo "THESIS_ALLOW_RECORDS_PUSH=1 if you genuinely mean to waive it." >&2
     echo "" >&2

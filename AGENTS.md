@@ -234,7 +234,7 @@ main's attested recorder commits does not trip it. Pushes the guard
 cannot verify (unfetchable comparator, unwalkable history) fail closed.
 It prints the offending commits and can be overridden deliberately with
 `THESIS_ALLOW_RECORDS_PUSH=1` — an override that still lands unattested and
-still costs a permanent public waiver. Six such waivers already exist
+still costs a permanent public waiver. Nine such waivers already exist
 (`WAIVED_UNATTESTED_COMMITS`); each one is an admission, not an exemption.
 `scripts/test_pre_push_guard.sh` is the guard's regression suite, run by
 CI on every push and PR.
@@ -284,7 +284,7 @@ under `--owner MaxGhenis`, not under the current repo; every acceptance
 additionally requires the certificate to name the immutable repository
 id 1113415529. A manual `gh attestation verify --repo
 ThesisInstitute/thesis` therefore works only for post-transfer commits,
-and five 2026-07-2x commits are permanently waived as unattested local
+and nine 2026-07-2x commits are permanently waived as unattested local
 pushes (`WAIVED_UNATTESTED_COMMITS` in the verifier — a public admission
 list, separate by design from `waivers.json`'s grandfather sets, which
 cover data-shape grandfathering rather than provenance misses).

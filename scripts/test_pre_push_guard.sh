@@ -35,8 +35,17 @@ check() { # check <name> <expected_rc> <actual_rc> [stderr_file must_contain]
     fi
 }
 hook() { # hook <clone_dir> <remote_name> <line...> -> rc in $rc, stderr in $S/err
+    # $2 of a pre-push hook is the push URL; the guard only trusts the
+    # branch-contribution comparator when that URL is origin's own.
     local d=$1 rn=$2; shift 2
-    printf '%s\n' "$@" | (cd "$d" && sh "$HOOK" "$rn" ignored-url 2>"$S/err")
+    local url
+    url=$(git -C "$d" remote get-url "$rn" 2>/dev/null || echo "other-url")
+    printf '%s\n' "$@" | (cd "$d" && sh "$HOOK" "$rn" "$url" 2>"$S/err")
+    rc=$?
+}
+hook_url() { # hook_url <clone_dir> <remote_name> <url> <line...>
+    local d=$1 rn=$2 u=$3; shift 3
+    printf '%s\n' "$@" | (cd "$d" && sh "$HOOK" "$rn" "$u" 2>"$S/err")
     rc=$?
 }
 commit_file() { # commit_file <dir> <path> <content> <msg>
@@ -265,6 +274,98 @@ git -C "$S/dev9" add -A
 git -C "$S/dev9" commit -qm "evil merge writes records"
 hook "$S/dev9" origin "refs/heads/em $(git -C "$S/dev9" rev-parse em) refs/heads/em $ZERO40"
 check "29 evil merge resolving to new records content blocks" 1 $rc "$S/err" "records/evil-merge.txt"
+
+# ---- 30-33: the merge exemption admits only already-published content
+# (the audit's in-scope-parent rule; round-3 adversarial findings)
+git clone -q "$S/origin.git" "$S/dev10" 2>/dev/null
+MTIP=$(git -C "$S/dev10" rev-parse origin/main)
+# stale-parent swap: a merge whose records tree matches a STALE local
+# parent reverts main's records while looking TREESAME to a parent
+git -C "$S/dev10" checkout -qb stale "$INIT"
+commit_file "$S/dev10" src/j.txt j "src on stale base"
+STALE=$(git -C "$S/dev10" rev-parse stale)
+SWAP=$(git -C "$S/dev10" commit-tree "$STALE^{tree}" -p "$MTIP" -p "$STALE" \
+    -m "fast-forward merge carrying the stale records tree")
+hook "$S/dev10" origin "refs/heads/main $SWAP refs/heads/main $MTIP"
+# blocked by the in-scope-parent rule before content closure is reached:
+# the stale parent was never published, so it cannot exempt the merge
+check "30 stale-parent swap merge on main blocks (unpublished parent)" 1 $rc "$S/err" "carrying the stale records tree"
+# two exempt merges: add then delete a record, endpoints agreeing
+git -C "$S/dev10" checkout -q -B carrier "$INIT"
+commit_file "$S/dev10" records/transient.txt t "carrier holds a record"
+CARRIER=$(git -C "$S/dev10" rev-parse carrier)
+ADD=$(git -C "$S/dev10" commit-tree "$CARRIER^{tree}" -p "$MTIP" -p "$CARRIER" \
+    -m "merge resurrecting a record from a stale line")
+DEL=$(git -C "$S/dev10" commit-tree "$MTIP^{tree}" -p "$ADD" -p "$MTIP" \
+    -m "merge removing it again")
+hook "$S/dev10" origin "refs/heads/main $DEL refs/heads/main $MTIP"
+check "31 two exempt merges smuggling a record block" 1 $rc "$S/err" "records/transient.txt"
+# the legitimate shape this exemption exists for still passes
+git -C "$S/dev10" checkout -qb legit "$INIT"
+commit_file "$S/dev10" src/k.txt k "src on legit"
+git -C "$S/dev10" merge -q --no-edit origin/main
+hook "$S/dev10" origin "refs/heads/legit $(git -C "$S/dev10" rev-parse legit) refs/heads/legit $ZERO40"
+check "32 update-merge with main still exempt (published parent)" 0 $rc
+# force-rewinding main to an ancestor changes records with an empty walk
+git -C "$S/dev10" checkout -q -B rewind "$INIT"
+hook "$S/dev10" origin "refs/heads/main $INIT refs/heads/main $MTIP"
+check "33 force rewind of main blocks (content closure)" 1 $rc "$S/err" "cannot verify"
+
+# ---- 34-35: a new main needs a comparator from its own destination
+git init -q --bare "$S/empty.git"
+git -C "$S/empty.git" symbolic-ref HEAD refs/heads/main
+hook_url "$S/dev10" upstream "$S/empty.git" \
+    "refs/heads/main $MTIP refs/heads/main $ZERO40"
+check "34 new main on another remote refuses (no comparator there)" 1 $rc "$S/err" "cannot verify"
+# origin's own main is a valid comparator for a new main only when the
+# pinned fetch succeeds; a dead origin refuses rather than trusting it
+git clone -q "$S/origin.git" "$S/dev11" 2>/dev/null
+git -C "$S/dev11" remote set-url origin "$S/does-not-exist.git"
+hook "$S/dev11" origin "refs/heads/main $MTIP refs/heads/main $ZERO40"
+check "35 new main with unreachable origin refuses" 1 $rc "$S/err" "cannot verify"
+
+# ---- 36: remote.origin.pushurl sends elsewhere — origin cannot vouch
+git clone -q "$S/origin.git" "$S/dev12" 2>/dev/null
+git -C "$S/dev12" checkout -qb pu
+commit_file "$S/dev12" src/l.txt l "src on pu"
+PU=$(git -C "$S/dev12" rev-parse pu)
+hook_url "$S/dev12" origin "$S/victim.git" \
+    "refs/heads/pu $PU refs/heads/pu $INIT"
+check "36 differing push URL falls back to endpoint range, blocks" 1 $rc "$S/err" "records/r1.txt"
+
+# ---- 37: a shallow clone can walk successfully with missing history
+git clone -q --depth 1 "file://$S/origin.git" "$S/dev13" 2>/dev/null
+if [ "$(git -C "$S/dev13" rev-parse --is-shallow-repository)" = "true" ]; then
+    commit_file "$S/dev13" src/m.txt m "src on shallow"
+    hook "$S/dev13" origin \
+        "refs/heads/main $(git -C "$S/dev13" rev-parse HEAD) refs/heads/main $MTIP"
+    check "37 shallow repository refuses as unverifiable" 1 $rc "$S/err" "shallow"
+else
+    echo "FAIL 37 could not create a shallow clone to test"; fail=$((fail+1))
+fi
+
+# ---- 38: a legacy graft must not rewrite the walk
+git clone -q "$S/origin.git" "$S/dev14" 2>/dev/null
+git -C "$S/dev14" checkout -qb graft
+commit_file "$S/dev14" records/grafted.txt g "records via graft"
+GR=$(git -C "$S/dev14" rev-parse graft)
+mkdir -p "$S/dev14/.git/info"
+echo "$GR $INIT" > "$S/dev14/.git/info/grafts"
+hook "$S/dev14" origin "refs/heads/graft $GR refs/heads/graft $MTIP"
+check "38 legacy graft ignored, records commit still blocks" 1 $rc "$S/err" "records/grafted.txt"
+
+# ---- 39: every offending commit is named, not truncated away by paths
+git clone -q "$S/origin.git" "$S/dev15" 2>/dev/null
+git -C "$S/dev15" checkout -qb wide
+commit_file "$S/dev15" records/older.txt o "older offender"
+OLDER=$(git -C "$S/dev15" rev-parse --short wide)
+mkdir -p "$S/dev15/records"
+for i in 1 2 3 4 5 6 7 8 9 10; do echo "$i" > "$S/dev15/records/w$i.txt"; done
+git -C "$S/dev15" add -A
+git -C "$S/dev15" commit -qm "newest wide offender"
+hook "$S/dev15" origin \
+    "refs/heads/wide $(git -C "$S/dev15" rev-parse wide) refs/heads/wide $MTIP"
+check "39 older offender still named beside a wide newest commit" 1 $rc "$S/err" "$OLDER"
 
 echo
 echo "== $pass passed, $fail failed =="
