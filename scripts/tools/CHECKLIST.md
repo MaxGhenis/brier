@@ -81,12 +81,15 @@ CTC earnings threshold:
 
 | Source | 10-yr cost | ~annual | notes |
 |--------|-----------:|--------:|-------|
-| **This run — build P, certified stack** (Modal, 2026-07-31) | pending sweep | **$1.83B (2026)** | child poverty −1.2%; 6.5% gain; Gini −0.02% |
+| **This run — build P, certified stack** (Modal, 2026-07-31) | **$17.1B** (sum-checked) | **$1.83B (2026)** | child poverty −1.2%; 6.5% gain; Gini −0.02%; per-year cost declines $1.86B→$1.53B as nominal earnings clear the old floor |
 | PolicyEngine published (older data build) | $14.6B | $1.6B (2026) | child poverty −0.4%; 5.9% benefit — **stale, superseded** |
 | Tax Policy Center | ~$9.5B | ~$1.0B/yr | ~$100 avg gain, bottom quintile; 3.5M families |
 
 Same order of magnitude across all three, low-single-digit $B/yr →
-**corroborated**. The build-P refresh moved the cost +14% vs the stale
+**corroborated** (10-yr: $17.1B vs published PE $14.6B (+17%) vs TPC $9.5B —
+consistent with the +14% single-year gap; artifact
+`bills/stronger-start-working-families-act/buildP-sweep-2026-2035.json`,
+assembled sum matches the sweep run's printed total to the cent). The build-P refresh moved the cost +14% vs the stale
 published figure and tripled the measured child-poverty effect (−0.4% → −1.2%)
 — the reason fresh certified runs are mandatory before publication.
 (Tax Foundation, Urban, and Yale Budget Lab also score this provision in the
@@ -128,3 +131,21 @@ than assuming the reform dict equals the bill text.
   output variable null (e.g. `"refundable_ctc": {"2026": null}`) to read it back.
 - Economy runs are **minutes** long. → `status: pending` at timeout is normal;
   widen the interval, never treat pending as zero.
+
+## Operational traps (running the compute — learned 2026-07-31, the hard way, twice)
+
+- **Never pipe a compute driver through `tail`/`head`/`grep`.** The 10-year
+  sweep's only copy of its printed results went through `| tail -60`, which
+  silently discarded the first three year-rows. Capture full stdout to a file;
+  filter afterwards.
+- **Result writes use absolute (script-anchored) paths.** Both sweep drivers
+  wrote artifacts with cwd-relative paths and died on `FileNotFoundError`
+  after computing successfully. `modal run`'s local entrypoint cwd is not
+  guaranteed — resolve output paths from `__file__`.
+- **Print the full result JSON BEFORE writing any file.** That ordering is why
+  both failures above were recoverable from the log instead of costing a
+  re-run.
+- **Deterministic microsim ⇒ sum-check assembled artifacts.** Rows recovered
+  from logs/backfills must re-sum to the original run's printed total exactly
+  (the 2026-2035 assembly matched to the cent) — commit the artifact only if
+  it does.

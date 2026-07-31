@@ -85,6 +85,18 @@ sim substrate) with the certified stack pinned — see
 returns the full app-v2 metric set (budget, poverty by group, deciles,
 winners/losers, inequality). `modal run scripts/tools/modal_economy.py`
 (set `PYTHONIOENCODING=utf-8` on Windows or the CLI's `✓` crashes cp1252).
+Ten-year sweep: `modal run scripts/tools/modal_economy.py::sweep` — one
+container per year in parallel.
+
+Capture rules for compute drivers (each violated once on 2026-07-31; both
+failures were recoverable only because results print before any file write):
+- capture FULL stdout to a file — never pipe the driver through
+  `tail`/`head`/`grep`, which silently truncates the only copy of the results;
+- write artifacts to absolute, `__file__`-anchored paths (`modal run` cwd is
+  not guaranteed);
+- print the complete result JSON before writing files;
+- when assembling rows from logs or backfills, re-sum against the original
+  run's printed total — deterministic microsim means the match must be exact.
 
 ---
 

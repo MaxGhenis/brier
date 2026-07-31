@@ -171,15 +171,33 @@ build-P: −$1.83B (+14% vs stale PE; same order as TPC) and child poverty −1.
 (≈3× the stale figure) — the data refresh materially moved the poverty result,
 which is why stale numbers were inadmissible.
 
+## 7a. Ten-year sweep — VERIFIED (Modal, certified stack, 2026-07-31 ~13:00–13:35)
+
+Full 2026–2035 sweep, one 32 GB container per year in parallel, certified stack
+(us==1.764.6 + core==3.26.11) on build P. **Ten-year budgetary impact:
+−$17,072,622,631.78 (−$17.1B)**, per-year cost declining $1.86B (2027) →
+$1.53B (2035) — coherent: nominal earnings growth organically lifts families
+past the old $2,500 floor, shrinking the provision's bite. Child-poverty effect
+−0.7% to −1.8% in every year. Anchors: +17% vs the stale published PE $14.6B
+(older build; consistent with the +14% 2026-only gap), same order as TPC $9.5B.
+Artifact: `bills/stronger-start-working-families-act/buildP-sweep-2026-2035.json`.
+
+**Assembly + integrity (captured):** the driver's file-write failed twice
+(cwd-relative path under `modal run`) and the launch pipeline's `tail -60`
+truncated the log copy of three year-rows — the results survived because the
+driver prints the full JSON before writing. Rows were recovered from the log
+(2029–35 + total), the 2026 row from the single-year run, 2027–28 from a
+two-container backfill; the assembled sum matches the sweep run's printed
+total with **diff $0.000000**. Operational rules distilled into
+`CHECKLIST.md` § "Operational traps".
+
 ## 7b. Still not verified (pending — explicitly NOT claimed)
 
-1. **Multi-year (2026–2035) sweep** — single year 2026 only so far; the 10-yr
-   figure in external anchors is theirs, not ours.
-2. **`economy_local` end-to-end on a certified pairing** — code path exists and
+1. **`economy_local` end-to-end on a certified pairing** — code path exists and
    is unit-tested for validation/normalization, but a full local national run
    has only been attempted on this laptop (OOM) and with an uncertified pairing
    (killed); treat `--local` as big-memory-box-only, certified-stack-only.
-3. **Winners/losers denominators vs app-v2** — our intra-decile shares are
+2. **Winners/losers denominators vs app-v2** — our intra-decile shares are
    person-weighted via `household_count_people`; app-v2's exact grouping code
    was not diffed line-by-line. Magnitudes match the published shape (6.5% vs
    5.9% beneficiaries) but treat sub-point differences as method variance.

@@ -11,6 +11,8 @@ Output: prints JSON metrics; the local entrypoint also writes it under bills/.
 """
 
 import json
+from pathlib import Path
+
 import modal
 
 # Certified stack for build P (per the build's release_manifest.json).
@@ -132,10 +134,43 @@ def economy(reform: dict, year: int) -> dict:
     }
 
 
+# Output paths are __file__-anchored, NEVER cwd-relative: `modal run`'s local
+# entrypoint cwd is not guaranteed, and on 2026-07-31 two drivers computed
+# successfully then died writing relative paths. Print-before-write is load-
+# bearing for the same reason — stdout is the recovery path.
+_REPO = Path(__file__).resolve().parents[2]
+_OUT_DIR = _REPO / "bills" / "stronger-start-working-families-act"
+
+STRONGER_START = {"gov.irs.credits.ctc.refundable.phase_in.threshold": {"2026-01-01.2100-12-31": 0}}
+
+
 @app.local_entrypoint()
 def main():
-    reform = {"gov.irs.credits.ctc.refundable.phase_in.threshold": {"2026-01-01.2100-12-31": 0}}
-    result = economy.remote(reform, 2026)
+    result = economy.remote(STRONGER_START, 2026)
     print(json.dumps(result, indent=2))
-    with open("bills/stronger-start-working-families-act/buildP-economy-2026.json", "w") as f:
+    with open(_OUT_DIR / "buildP-economy-2026.json", "w") as f:
         json.dump(result, f, indent=2)
+
+
+@app.local_entrypoint()
+def sweep(start: int = 2026, end: int = 2035):
+    """Ten-year sweep, one container per year in parallel:
+    modal run scripts/tools/modal_economy.py::sweep"""
+    years = list(range(start, end + 1))
+    rows = []
+    for res in economy.map([STRONGER_START] * len(years), years):
+        rows.append({
+            "year": res["year"],
+            "budgetary_impact": res["budget"]["budgetary_impact"],
+            "child_poverty_baseline": res["poverty"]["child"]["baseline"],
+            "child_poverty_reform": res["poverty"]["child"]["reform"],
+        })
+    rows.sort(key=lambda r: r["year"])
+    total = sum(r["budgetary_impact"] for r in rows)
+    out = {"dataset": BUILD_P, "pe_us_version": PE_US, "pe_core_version": PE_CORE,
+           "engine": "modal", "reform": STRONGER_START, "years": rows,
+           "ten_year_budgetary_impact": total}
+    print(json.dumps(out, indent=2))
+    with open(_OUT_DIR / f"buildP-sweep-{start}-{end}.json", "w") as f:
+        json.dump(out, f, indent=2)
+    print(f"TOTAL {start}-{end}: ${total/1e9:,.1f}B")
