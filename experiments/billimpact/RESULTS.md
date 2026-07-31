@@ -11,7 +11,7 @@ first run. Adversarial audit of our own constructions:
 Scope: **Leg B (conditional forecast) plus the S.3596 mechanical arm**; the
 team's extraction leg is out of scope and nothing here merges the two.
 
-**Totals: ~5,100 scored runs** — 2,520 (corpus A grid) + 720 (amendment arms
+**Totals: ~5,900 scored runs** — 2,520 (corpus A grid) + 720 (amendment arms
 H/I/J/K) + 180 (arm P) + ~1,400 (CTC arm) + 260 quarantined-and-rerun — across
 **20 retrospective units (5 enacted laws, 5 programs)** and **14
 PolicyEngine-verified household cases**. All first prints frozen before any
@@ -90,6 +90,35 @@ Corpus A's version of the same finding: 6/12 units returned *identical*
 forecasts under a 20-year-stricter and a 20-year-looser rewrite while being
 displaced from the unmodified statute — the models react to the *existence* of
 an amendment, not its *content*.
+
+### 3a · The causal test (Amendment 3): recall-anchoring, proven by moving the period
+
+Same FPUC statute, same $100/$300/$900 doses, with the operative window moved
+to Sept–Dec 2026 — a period with no realized trajectory to recall (the future
+arm is never scored; the measurand is dose-response only):
+
+| Period | Elicitation | Monotone in dose | Spread ÷ repeat noise |
+|---|---|---|---|
+| future 2026 | point+CI or derivation | **6/6 cells** | 2.3–47× |
+| retro 2021 | point+CI | **0/3** | 0.2–2.0× |
+| retro 2021 | directed derivation | **3/3** | 3.0–10.8× |
+
+The models can derive: in the future arm, fable reads the rate, estimates ~2M
+weekly claimants, computes the annualized contribution (9.9/31.2/84.2 for the
+three doses — 1:3:9), and composes it onto the baseline. On the memorized
+period the same models under default elicitation ignore the dose and return
+the remembered trajectory. A decomposed derivation format restores
+dose-sensitivity there too.
+
+### 3b · Compute does not substitute for structure (Amendment 4)
+
+Reasoning effort (adaptive thinking, low → max; opus-5 and fable-5; 240 runs):
+future-period dose-response is monotone at **every** effort level, including
+low (~200 completion tokens). Retro-period dose-response stays flat at every
+effort level — opus at max effort spends ~4,400 tokens arriving at the same
+remembered number (at low effort its retro forecast is 570, the realized
+first print to within rounding). **Raising effort does not break
+recall-anchoring; restructuring the elicitation does.**
 
 ## 4 · The control: mechanical statutory analysis works — and tools close the tier gap
 
