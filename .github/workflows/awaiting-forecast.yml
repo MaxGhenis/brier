@@ -1,0 +1,464 @@
+name: Forecast awaiting registrations
+
+# The repair loop: a target preregistered in privileged Git history whose
+# generate or publish leg failed is not reliably retried. Prospect and
+# ledger-gap registrations name series the docket registry does not contain,
+# so the roll never rolls them; a registry-backed orphan is retried only as an
+# accident of cursor arithmetic, never because its release window is still
+# open. This lane picks those orphans up while that window is still in the
+# FUTURE, runs the untrusted analyst pipeline at the registered ref, and
+# publishes only a validated data bundle.
+#
+# It never mints a registration. Every target it emits is rebuilt from the
+# committed docket registry and rebound to its existing immutable snapshot,
+# in both the unprivileged and the privileged leg, so a reconstruction that
+# drifted from the preregistered contract fails closed instead of forecasting.
+
+on:
+  schedule:
+    # Daily 05:40 UTC: long after the previous day's roll/prospect writers
+    # have released the docket-writers group, and before the 13:40 resolution
+    # cycle, so a failed batch is retried the very next morning.
+    - cron: "40 5 * * *"
+  workflow_dispatch:
+    inputs:
+      max_targets:
+        description: "Cap on retries this run"
+        default: "10"
+      prompt_mode:
+        description: "Analyst prompt mode: fast|full|ladder"
+        default: "fast"
+      codex_model:
+        description: "Codex model for the analyst (empty = pipeline default)"
+        default: ""
+      dry_run:
+        description: "true = select and bind only; no analyst, no publish"
+        default: "false"
+
+permissions:
+  contents: read
+
+concurrency:
+  # One writer at a time across ALL docket loops (roll + prospect + retry).
+  group: docket-writers
+  cancel-in-progress: false
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # This job creates no registration and pushes nothing: it reads main,
+    # rebinds existing snapshots, and uploads an artifact. Read-only.
+    permissions:
+      contents: read
+    outputs:
+      count: ${{ steps.targets.outputs.count }}
+      batch: ${{ steps.targets.outputs.batch }}
+      source_sha: ${{ steps.targets.outputs.base_sha }}
+      registration_set_hash: ${{ steps.bind.outputs.registration_set_hash }}
+      registration_artifact: ${{ steps.targets.outputs.registration_artifact }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select awaiting-forecast targets with trusted repository code
+        id: targets
+        env:
+          MAX_TARGETS: ${{ github.event.inputs.max_targets || 10 }}
+        run: |
+          set -euo pipefail
+          python3 scripts/awaiting_forecast_targets.py \
+            --max-targets "$MAX_TARGETS" \
+            --out /tmp/awaiting-targets.json
+          COUNT=$(python3 -c "import json;print(len(json.load(open('/tmp/awaiting-targets.json'))['targets']))")
+          DAY=$(date -u +%F)
+          {
+            echo "count=$COUNT"
+            echo "batch=records/thesis-analyst/batches/$DAY/awaiting-forecast-${GITHUB_RUN_ID}-a${GITHUB_RUN_ATTEMPT}.json"
+            echo "base_sha=$(git rev-parse HEAD)"
+            echo "registration_artifact=awaiting-forecast-registration-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Bind the selection to its existing registration commits
+        if: steps.targets.outputs.count != '0'
+        id: bind
+        run: |
+          set -euo pipefail
+          # The whole safety of this lane. Each selected target is re-derived
+          # from the targets file and matched against the immutable snapshot
+          # its registration commit introduced; an unfaithful reconstruction
+          # cannot be forecast because it never gets past this step.
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/awaiting-targets.json \
+            --bind-registration-commits \
+            --head HEAD \
+            --metadata-out /tmp/registration.json
+          SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/registration.json'))['registrationSetHash'])")
+          echo "registration_set_hash=$SET_HASH" >> "$GITHUB_OUTPUT"
+
+      - name: Stage privileged target artifact
+        if: steps.targets.outputs.count != '0'
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/registered-targets
+          install -m 0644 \
+            /tmp/awaiting-targets.json /tmp/registered-targets/awaiting-targets.json
+          install -m 0644 /tmp/registration.json /tmp/registered-targets/registration.json
+
+      - name: Upload privileged target artifact
+        if: steps.targets.outputs.count != '0'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.targets.outputs.registration_artifact }}
+          path: /tmp/registered-targets/
+          if-no-files-found: error
+          retention-days: 7
+
+  generate:
+    # dry_run stops here: select + bind are the novel legs and the ones worth
+    # exercising first. Everything below is roll-docket's publish path, and
+    # running it for real spends analyst budget and pushes records to main.
+    if: >-
+      ${{ needs.select.result == 'success'
+      && needs.select.outputs.count != '0'
+      && github.event.inputs.dry_run != 'true' }}
+    needs: select
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: read
+    outputs:
+      publication_artifact: ${{ steps.bundle.outputs.publication_artifact }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.select.outputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Download privileged target artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.select.outputs.registration_artifact }}
+          path: /tmp/trusted-registration
+
+      - name: Verify the registered source ref
+        env:
+          EXPECTED_SHA: ${{ needs.select.outputs.source_sha }}
+          EXPECTED_SET_HASH: ${{ needs.select.outputs.registration_set_hash }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/trusted-registration/awaiting-targets.json \
+            --bind-registration-commits \
+            --head "$EXPECTED_SHA" \
+            --metadata-out /tmp/generate-registration-check.json
+          ACTUAL_SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/generate-registration-check.json'))['registrationSetHash'])")
+          test "$ACTUAL_SET_HASH" = "$EXPECTED_SET_HASH"
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install codex CLI
+        run: bun add -g @openai/codex@0.144.0
+
+      - name: Authenticate codex
+        run: printenv OPENAI_API_KEY | codex login --with-api-key
+
+      - name: Run the analyst batch
+        env:
+          BATCH_MANIFEST: ${{ needs.select.outputs.batch }}
+          PROMPT_MODE: ${{ github.event.inputs.prompt_mode || 'fast' }}
+          THESIS_CODEX_MODEL: ${{ github.event.inputs.codex_model || '' }}
+        run: |
+          set -euo pipefail
+          python3 scripts/run_thesis_batch.py \
+            --targets-file /tmp/trusted-registration/awaiting-targets.json \
+            --prompt-mode "$PROMPT_MODE" \
+            --timeout-seconds 540 \
+            --out "$BATCH_MANIFEST" || true
+          # Failures remain immutable run records; partial success is allowed.
+
+      - name: Stage data-only publication bundle
+        id: bundle
+        env:
+          BATCH_MANIFEST: ${{ needs.select.outputs.batch }}
+        run: |
+          python3 scripts/docket_publication.py stage \
+            --bundle-dir /tmp/docket-publication \
+            --batch "$BATCH_MANIFEST" \
+            --trusted-targets /tmp/trusted-registration/awaiting-targets.json
+          echo "publication_artifact=awaiting-forecast-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated data bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.bundle.outputs.publication_artifact }}
+          path: /tmp/docket-publication/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    if: ${{ always() && github.event.inputs.dry_run != 'true' }}
+    needs: [select, generate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+      issues: write
+      actions: write # dispatches the recorder after publishing
+      id-token: write # Sigstore attestation of records pushes
+      attestations: write
+    steps:
+      - name: Propagate upstream failure
+        if: >-
+          needs.select.result != 'success' ||
+          (needs.select.outputs.count != '0' && needs.generate.result != 'success')
+        run: |
+          echo "The select or unprivileged generation job failed" >&2
+          exit 1
+
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@v5
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+
+      - name: Download untrusted data bundle
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.generate.outputs.publication_artifact }}
+          path: /tmp/docket-publication
+
+      - name: Download privileged target artifact
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.select.outputs.registration_artifact }}
+          path: /tmp/trusted-registration
+
+      - name: Verify privileged target artifact and registration ancestry
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        env:
+          EXPECTED_SET_HASH: ${{ needs.select.outputs.registration_set_hash }}
+        run: |
+          set -euo pipefail
+          python3 scripts/register_targets.py \
+            --targets-file /tmp/trusted-registration/awaiting-targets.json \
+            --bind-registration-commits \
+            --head HEAD \
+            --metadata-out /tmp/publish-registration-check.json
+          ACTUAL_SET_HASH=$(python3 -c "import json;print(json.load(open('/tmp/publish-registration-check.json'))['registrationSetHash'])")
+          test "$ACTUAL_SET_HASH" = "$EXPECTED_SET_HASH"
+
+      - name: Validate then apply the data bundle
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        env:
+          BATCH_MANIFEST: ${{ needs.select.outputs.batch }}
+        run: |
+          VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          python3 scripts/docket_publication.py validate \
+            --bundle-dir /tmp/docket-publication \
+            --batch "$BATCH_MANIFEST" \
+            --trusted-targets /tmp/trusted-registration/awaiting-targets.json \
+            --publish-validated-at-utc "$VALIDATED_AT" \
+            --allow-published-wave \
+            --apply
+
+      - name: Verify complete record chain and custody graph
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        run: |
+          set -euo pipefail
+          uv run --locked --extra custody python scripts/verify_record_chain.py records
+          while IFS= read -r -d '' root; do
+            python3 scripts/verify_custody.py "$(dirname "$root")"
+          done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+
+      - name: Regenerate publication TypeScript with trusted code
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        id: publish
+        env:
+          BATCH_MANIFEST: ${{ needs.select.outputs.batch }}
+        run: |
+          set -euo pipefail
+          DAY=$(basename "$(dirname "$BATCH_MANIFEST")")
+          WAVE_HASH=$(shasum -a 256 "$BATCH_MANIFEST" | awk '{print $1}')
+          if python3 scripts/register_wave.py \
+              --name "awaiting-$DAY-$WAVE_HASH" \
+              --batch "$BATCH_MANIFEST" \
+              --allow-missing; then
+            echo "published=1" >> "$GITHUB_OUTPUT"
+          else
+            code=$?
+            if [ "$code" = "2" ]; then
+              echo "published=0" >> "$GITHUB_OUTPUT"
+            else
+              exit "$code"
+            fi
+          fi
+
+      - name: Test regenerated site
+        if: steps.publish.outputs.published == '1'
+        run: |
+          cd site
+          bun install --frozen-lockfile
+          bun run test
+          bun run build
+
+      - name: Commit records and trusted generated publication
+        if: needs.select.result == 'success' && needs.select.outputs.count != '0' && needs.generate.result == 'success'
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name "thesis-roller"
+          git config user.email "recorder@thesisinstitute.org"
+          git add records/thesis-analyst/ site/src/data 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "publication is already present at $(git rev-parse HEAD)"
+            echo "committed=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/docket_publication.py scan-staged
+          git commit -m "Forecast awaiting registrations $(date -u +%F)"
+          echo "committed=1" >> "$GITHUB_OUTPUT"
+
+      - name: Rebase, reverify, and push once
+        id: final_push
+        if: steps.commit.outputs.committed == '1'
+        timeout-minutes: 30
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BATCH_MANIFEST: ${{ needs.select.outputs.batch }}
+          PUBLISHED: ${{ steps.publish.outputs.published }}
+        run: |
+          set -euo pipefail
+          auth_helper="!f() { echo username=x-access-token; echo \"password=\$GH_TOKEN\"; }; f"
+          pushed=0
+          for attempt in 1 2 3; do
+            echo "publication push attempt $attempt"
+            if [ -n "$(git status --porcelain)" ]; then
+              echo "publication tree is dirty before rebase" >&2
+              exit 1
+            fi
+            git pull --rebase origin main
+            DAY=$(basename "$(dirname "$BATCH_MANIFEST")")
+            WAVE_HASH=$(shasum -a 256 "$BATCH_MANIFEST" | awk '{print $1}')
+            WAVE_NAME="awaiting-$DAY-$WAVE_HASH"
+            if python3 scripts/register_wave.py \
+                --name "$WAVE_NAME" \
+                --batch "$BATCH_MANIFEST" \
+                --allow-missing; then
+              :
+            else
+              code=$?
+              if [ "$code" != "2" ]; then
+                exit "$code"
+              fi
+            fi
+            # A rebase may introduce a competing slug or change trusted
+            # generator code. The rebased commit must already be the exact
+            # deterministic output of the trusted generators at final HEAD.
+            git diff --exit-code
+            git diff --cached --exit-code
+            VALIDATED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            python3 scripts/docket_publication.py validate \
+              --bundle-dir /tmp/docket-publication \
+              --batch "$BATCH_MANIFEST" \
+              --trusted-targets /tmp/trusted-registration/awaiting-targets.json \
+              --publish-validated-at-utc "$VALIDATED_AT" \
+              --allow-published-wave
+            uv run --locked --extra custody python scripts/verify_record_chain.py records
+            while IFS= read -r -d '' root; do
+              python3 scripts/verify_custody.py "$(dirname "$root")"
+            done < <(find records/thesis-analyst -name custody_root.json -type f -print0 | sort -z)
+            if [ "$PUBLISHED" = "1" ]; then
+              (
+                cd site
+                bun install --frozen-lockfile
+                bun run test
+                bun run build
+              )
+            fi
+            if [ "$(git rev-list --count origin/main..HEAD)" = "0" ]; then
+              echo "nothing of ours survived the rebase; refusing a no-op push" >&2
+              exit 1
+            fi
+            LOCAL=$(git rev-parse HEAD)
+            if git -c credential.helper= -c credential.helper="$auth_helper" push origin main; then
+              REMOTE=$(git ls-remote origin refs/heads/main | awk '{print $1}')
+              if [ "$REMOTE" = "$LOCAL" ]; then
+                pushed=1
+                break
+              fi
+            fi
+            sleep 2
+          done
+          if [ "$pushed" != "1" ]; then
+            echo "publication push did not converge after 3 attempts" >&2
+            exit 1
+          fi
+          echo "attest_commit=$LOCAL" >> "$GITHUB_OUTPUT"
+
+      - name: Attest the publication push
+        if: steps.final_push.outputs.attest_commit != ''
+        uses: ./.github/actions/attest-records-push
+        with:
+          commit: ${{ steps.final_push.outputs.attest_commit }}
+
+      - name: Stamp the record
+        if: steps.commit.conclusion == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MANUAL_DEPLOY_HOOK_URL: ${{ secrets.MANUAL_DEPLOY_HOOK_URL }}
+          PUBLISHED: ${{ steps.publish.outputs.published }}
+        run: |
+          set -euo pipefail
+          SHA=$(git rev-parse HEAD)
+          if [ "$PUBLISHED" != "1" ]; then
+            # A failed-only batch has no new live forecast surface and may not
+            # trigger a Vercel deployment. The recorder's scheduled-mode path
+            # accepts the deployed build as an ancestor while attesting this
+            # exact current main checkout and its registration/run records.
+            gh workflow run record-forecasts.yml --ref main
+            exit 0
+          fi
+          GOT=""
+          for i in $(seq 1 24); do
+            GOT=$(curl -sf https://app.thesisinstitute.org/build.json \
+              | python3 -c 'import json,sys;print(json.load(sys.stdin).get("commit",""))' \
+              2>/dev/null || true)
+            [ "$GOT" = "$SHA" ] && break
+            if [ "$i" = "12" ] && [ -n "$MANUAL_DEPLOY_HOOK_URL" ]; then
+              curl -sf -X POST "$MANUAL_DEPLOY_HOOK_URL" > /dev/null || true
+            fi
+            sleep 30
+          done
+          if [ "$GOT" != "$SHA" ]; then
+            echo "production never reached $SHA (canary shows: $GOT)" >&2
+            exit 1
+          fi
+          gh workflow run record-forecasts.yml --ref main -f expected_sha="$SHA"
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          title="Awaiting-forecast lane failed $(date -u +%F)"
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number' || true)
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" \
+              --body "The awaiting-forecast loop failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          fi

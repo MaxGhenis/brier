@@ -54,6 +54,18 @@ OFFICIAL_CALENDAR_ADAPTERS = frozenset(
         "statcan-wds",
     }
 )
+# The published-cell fields a rolled target inherits as its previousTarget.
+PREVIOUS_TARGET_FIELDS = (
+    "country",
+    "unit",
+    "dataPointId",
+    "resolutionDate",
+    "resolutionSource",
+    "resolutionSourceUrl",
+    "resolutionRule",
+    "resolutionPolicy",
+    "sourceContext",
+)
 
 
 def slugify_series(series: str) -> str:
@@ -293,6 +305,74 @@ def published_periods(entry: dict, catalog_slugs: set[str]) -> list[tuple[str, s
             continue
         periods.append((period, slug))
     return periods
+
+
+def latest_published_before(
+    entry: dict, period: str, catalog_slugs: set[str]
+) -> tuple[str, str] | None:
+    """Greatest published (period, slug) strictly before ``period``.
+
+    Both roll paths that build a previousTarget pick exactly this cell: the
+    normal successor roll (whose cursor IS the maximum published period) and
+    the gap-recovery roll (which selects the maximum published period below
+    the recovered candidate). A retry of an already-registered period can
+    therefore rebuild the same block without replaying the roll's cursor.
+    """
+    cadence = entry["cadence"]
+    key = period_key(period, cadence)
+    if key is None:
+        warn_malformed_period("previous lookup", period, cadence)
+        return None
+    earlier = [
+        item
+        for item in published_periods(entry, catalog_slugs)
+        if (period_key(item[0], cadence) or ()) < key
+    ]
+    if not earlier:
+        return None
+    return max(earlier, key=lambda item: period_key(item[0], cadence) or ())
+
+
+def release_window_already_open(target: dict, today: dt.date) -> bool:
+    """True when this candidate's release window has already opened.
+
+    The cursor picks the next unpublished period by arithmetic and knows
+    nothing about release dates, so a series that has fallen behind yields
+    candidates whose first print may already be out. Preregistering one is
+    pointless: it cannot be honestly forecast, and it will sit unforecast
+    until it expires. census.mtis 2026-05 and bls.ces 2026-06 were both
+    registered 2026-07-25 against windows that had closed on 07-21 and
+    07-09, and both duly expired unforecast.
+
+    register_targets.build_contract refuses these outright; this only stops
+    the roll from spending a target slot on one and reporting it as skipped
+    further downstream. The rule is deliberately identical to that guard --
+    reject once start < today -- so the roll never emits a candidate the
+    registrar will refuse. Any failure to derive a window is not fatal: the
+    registrar remains the authority and fails closed on its own.
+    """
+
+    try:
+        import register_targets
+
+        window = register_targets.expected_release_window(
+            target, target.get("previousTarget"), today
+        )
+        start = window.get("start")
+    except Exception:  # noqa: BLE001 - never let a pre-filter break the roll
+        return False
+    return bool(start and start < today.isoformat())
+
+
+def previous_target_block(published_cell: dict, previous_period: str) -> dict:
+    """Project a published cell into the next target's previousTarget block."""
+    block = {
+        key: published_cell[key]
+        for key in PREVIOUS_TARGET_FIELDS
+        if published_cell.get(key) not in (None, "")
+    }
+    block["period"] = previous_period
+    return block
 
 
 def latest_published_period(
@@ -755,22 +835,13 @@ def main() -> int:
         }
         previous = published_forecasts.get(latest_slug)
         if previous:
-            target["previousTarget"] = {
-                key: previous[key]
-                for key in (
-                    "country",
-                    "unit",
-                    "dataPointId",
-                    "resolutionDate",
-                    "resolutionSource",
-                    "resolutionSourceUrl",
-                    "resolutionRule",
-                    "resolutionPolicy",
-                    "sourceContext",
-                )
-                if previous.get(key) not in (None, "")
-            }
-            target["previousTarget"]["period"] = previous_period
+            target["previousTarget"] = previous_target_block(previous, previous_period)
+        if release_window_already_open(target, today):
+            print(
+                f"  skip {entry['series']} {nxt}: its release window opened "
+                "before today, so the first print may already be public"
+            )
+            continue
         # One-shot snapshots get the middle lane so a permanently busy
         # monthly docket cannot starve their finite preregistration window.
         priority = 1 if entry["cadence"] == "weekly" else 3

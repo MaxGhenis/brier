@@ -59,6 +59,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SELF_RELPATH = "scripts/verify_records_attestations.py"
 PROTECTED_PREFIX = "records/"
 ALLOWED_WORKFLOWS = {
+    ".github/workflows/awaiting-forecast.yml",
     ".github/workflows/roll-docket.yml",
     ".github/workflows/strategy-docket.yml",
     ".github/workflows/prospect-docket.yml",
