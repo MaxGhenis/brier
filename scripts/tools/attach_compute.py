@@ -61,10 +61,9 @@ ROWS: dict[tuple[str, int], list[dict]] = {
             "poverty_child_pct_change": -0.0115527,
             "beneficiaries_share": 0.0648,
             "note": (
-                "Statute sets the threshold to $1; PolicyEngine policy 85587 models "
-                "$0 — economically identical, recorded per the audit. Static microsim, "
-                "one evidence stream with its own error bars. Anchors: PolicyEngine "
-                "-$1.6B/yr on an older data build; Tax Policy Center ~$1.0B/yr."
+                "Static microsim, one evidence stream with its own error bars. "
+                "Anchors: PolicyEngine -$1.6B/yr on an older data build; Tax Policy "
+                "Center ~$1.0B/yr."
             ),
             "source": (
                 "Audited call path scripts/tools/policyengine.py per POLICYENGINE.md; "
