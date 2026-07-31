@@ -52,6 +52,7 @@ export function MetricCard({
   badgeClass,
   rationale,
   stance,
+  forecast,
 }: {
   kind: string;
   text: string;
@@ -59,6 +60,13 @@ export function MetricCard({
   badgeClass: string;
   rationale?: string;
   stance?: StanceFold | null;
+  forecast?: {
+    slug: string;
+    pointLabel: string;
+    ciLabel: string;
+    resolutionDate: string;
+    moreCount: number;
+  };
 }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = text.length > 220;
@@ -98,6 +106,23 @@ export function MetricCard({
         >
           {expanded ? "Less ↑" : "Full sourcing ↓"}
         </button>
+      )}
+      {forecast && (
+        <a
+          href={`/${forecast.slug}`}
+          className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-lg border border-[#BFDEC7] bg-[#F4FAF6] px-3 py-2 no-underline hover:border-[#1F6B33]"
+        >
+          <span className="[font-family:var(--font-display)] text-[1.15rem] font-normal leading-none text-[#1F6B33]">
+            {forecast.pointLabel}
+          </span>
+          <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-muted)]">
+            80% {forecast.ciLabel}
+          </span>
+          <span className="[font-family:var(--font-mono)] text-[0.62rem] uppercase tracking-[0.08em] text-[var(--theme-text-dim)]">
+            resolves {forecast.resolutionDate}
+            {forecast.moreCount > 0 ? ` · +${forecast.moreCount} more` : ""} →
+          </span>
+        </a>
       )}
       {rationale && (
         <details className="mt-3 border-t border-[var(--theme-border)] pt-3">

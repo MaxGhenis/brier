@@ -16,6 +16,13 @@ export interface ProvisionMetricView {
   badgeClass: string;
   rationale?: string;
   stances?: MetricStance[];
+  forecast?: {
+    slug: string;
+    pointLabel: string;
+    ciLabel: string;
+    resolutionDate: string;
+    moreCount: number;
+  };
 }
 
 export interface ProvisionAnalysisProps {
@@ -198,6 +205,7 @@ export function ProvisionAnalysis({
                 badgeClass={metric.badgeClass}
                 rationale={metric.rationale}
                 stance={foldStances(metric.stances, goalStates)}
+                forecast={metric.forecast}
               />
             ))}
           </div>

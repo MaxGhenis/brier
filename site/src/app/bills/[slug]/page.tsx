@@ -18,6 +18,7 @@ import {
 } from "@/data/bills";
 import { formatValue } from "@/data/forecast-cells";
 import { fullSectionText } from "@/lib/bill-text";
+import { resolveMetricCell } from "@/lib/metric-cells";
 import { renderInline, stripRegistryNote } from "@/lib/render-inline";
 
 export function generateStaticParams() {
@@ -265,7 +266,13 @@ export default async function BillDetailPage({
                     effects={provision.effects}
                     barriers={provision.barriers}
                     metrics={provision.metrics.map((metric) => {
-                      const { status } = metricRegistryStatus(metric);
+                      const liveCell = resolveMetricCell(metric.series_hint);
+                      // A registered cell on the series is the docket's
+                      // own answer: reachable — live join supersedes any
+                      // stored badge.
+                      const status = liveCell
+                        ? "reachable"
+                        : metricRegistryStatus(metric).status;
                       return {
                         kind: metric.kind,
                         text: stripRegistryNote(metric.text),
@@ -273,6 +280,7 @@ export default async function BillDetailPage({
                         badgeClass: registryBadgeClass[status],
                         rationale: metric.rationale,
                         stances: metric.stances,
+                        forecast: liveCell ?? undefined,
                       };
                     })}
                     conditionals={provision.conditionals}
