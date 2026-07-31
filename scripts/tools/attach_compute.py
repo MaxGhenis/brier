@@ -38,7 +38,10 @@ ROWS: dict[tuple[str, int], list[dict]] = {
             "result_summary": (
                 "2026: budgetary impact -$1.83B; SPM child poverty -1.2% (17.02% to "
                 "16.82%); 6.5% of people gain, concentrated in the lowest income "
-                "deciles (decile-1 average +$32/yr vs decile-10 +$0.30); Gini -0.02%."
+                "deciles (decile-1 average +$32/yr vs decile-10 +$0.30); Gini -0.02%. "
+                "Ten-year (2026-2035): -$17.1B, with the annual cost declining from "
+                "$1.86B to $1.53B as nominal earnings growth lifts families past the "
+                "old $2,500 floor."
             ),
             "engine": "modal",
             "pe_us_version": "1.764.6",
@@ -53,6 +56,8 @@ ROWS: dict[tuple[str, int], list[dict]] = {
             "region": "us",
             "status": "ok",
             "budgetary_impact": -1826396338.82,
+            "ten_year_budgetary_impact": -17072622631.78,
+            "ten_year_window": "2026-2035",
             "poverty_child_pct_change": -0.0115527,
             "note": (
                 "The statute sets the threshold to $1; PolicyEngine policy 85587 "
@@ -64,8 +69,9 @@ ROWS: dict[tuple[str, int], list[dict]] = {
             "source": (
                 "Audited call path scripts/tools/policyengine.py per POLICYENGINE.md; "
                 "run scripts/tools/modal_economy.py 2026-07-31 on the certified stack; "
-                "full artifact bills/stronger-start-working-families-act/"
-                "buildP-economy-2026.json (PR #64)."
+                "full artifacts bills/stronger-start-working-families-act/"
+                "buildP-economy-2026.json and buildP-sweep-2026-2035.json "
+                "(sum-checked; PR #64)."
             ),
         }
     ],
