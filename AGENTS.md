@@ -198,8 +198,11 @@ committed pre-push hook. Activate it once per clone:
 git config core.hooksPath .githooks
 ```
 
-It refuses any local push that touches `records/**`, prints the offending
-paths, and can be overridden deliberately with
+It refuses any local push that touches `records/**` — judged tip-to-tip
+for pushes to `main`, and by the branch's own contribution (merge-base
+three-dot against a freshly fetched `origin/main`) for any other ref, so a
+branch rebased over main's attested recorder commits does not trip it. It
+prints the offending paths and can be overridden deliberately with
 `THESIS_ALLOW_RECORDS_PUSH=1` — an override that still lands unattested and
 still costs a permanent public waiver. Six such waivers already exist
 (`WAIVED_UNATTESTED_COMMITS`); each one is an admission, not an exemption.
