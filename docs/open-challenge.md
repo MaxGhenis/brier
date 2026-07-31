@@ -1,8 +1,18 @@
 # The open challenge: external forecasters on the registered docket
 
-*Design, 2026-07-19. Status: schema + intake validator implemented; intake
-workflow and site surfaces staged behind cross-model review (the intake
-path is a trust surface).*
+*Design, 2026-07-19. Status (2026-07-31): the lane is live with a simpler
+intake than sketched below — challengers PR one JSON file into
+`challenge/inbox/<github-login>/<cell>.json` (template:
+`challenge/README.md`) and the PR is reviewed and merged (first:
+[#49](https://github.com/ThesisInstitute/thesis/pull/49)). The publish
+adapter that copies accepted submissions into `records/` through the
+attested workflow path is in progress. Submitter-side keyless signing
+shipped per [#52](https://github.com/ThesisInstitute/thesis/issues/52) —
+optional Sigstore signatures give submissions platform-independent
+digest + chronology proof; see `docs/challenge-signing.md`. The
+`challenge-inbox/` close-PR mechanism described under "Mechanism" below
+is the original sketch, kept for design history; the validator it
+references was deleted when the design was held on 2026-07-20.*
 
 ## Why
 

@@ -134,6 +134,32 @@ Useful pack comparisons show at least:
 - trace or reasoning difference;
 - eventual score difference when resolved.
 
+### Verify Challenge Submissions
+
+External forecasts arrive as PRs adding
+`challenge/inbox/<github-login>/<cell>.json`, optionally signed with
+Sigstore keyless (a `<cell>.json.sigstore.json` sidecar; see
+`docs/challenge-signing.md`). Before publishing any of them, sweep the
+inbox:
+
+```bash
+uv run --extra challenge python scripts/verify_challenge_signatures.py
+```
+
+Unsigned submissions stay valid (schema-checked only; full intake
+validation happens at publication) — signing is optional. A
+present-but-invalid bundle, a bundle without a Signed Entry Timestamp,
+an orphan bundle, a symlink, or any file not shaped `<login>/<cell>.json`
+must fail the sweep and must never be published. The sweep always covers
+the whole inbox; in `--json` mode stdout is exactly one JSON document of
+`thesis_challenge_signature_v1` blocks, which the publish adapter stores
+alongside the merge SHA it already records. The signature never
+authenticates the `challenger` account — the adapter must separately
+require `challenger == github:<PR opener>` (and the matching inbox
+directory) and persist PR number, opener, and merge SHA. Submitter
+signing distributes proof, never signing authority: publish-side signing
+stays CI-only and challenger PRs never touch `records/**`.
+
 ### Work On Resolution Or Scoring
 
 Resolution and scoring code should preserve these invariants:
