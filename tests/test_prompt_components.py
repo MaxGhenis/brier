@@ -6,9 +6,14 @@ forked literal, which means a component edit reaches every track that shares
 it — deliberately. This test makes that reach visible: any wording change
 fails here, listing exactly which track/condition moved.
 
-If a failure is intended, regenerate with::
+If a failure is intended, regenerate from the repo root with::
 
-    python tests/test_prompt_components.py --update
+    python -m tests.test_prompt_components --update
+
+(the ``-m`` form matters: running the file by path puts ``tests/`` on sys.path
+instead of the repo root, so ``brier`` resolves to whatever is pip-installed —
+in a worktree that is a *different* checkout, and the fixture would be
+regenerated from the wrong tree.)
 
 and treat the fixture diff as the record of which conditions changed. Results
 collected under the old wording are not comparable to results collected under
@@ -144,9 +149,13 @@ class TestSharedExtraction:
 
 
 def _update() -> None:
+    # newline="\n" so regenerating on Windows does not rewrite every line as
+    # CRLF. The fixture's only job is to produce a readable diff when wording
+    # changes; a platform-dependent whole-file diff would defeat that.
     FIXTURE.write_text(
         json.dumps(current_prompts(), indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     print(f"wrote {FIXTURE}")
 

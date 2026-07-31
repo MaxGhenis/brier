@@ -475,14 +475,19 @@ def format_probe_battery_name(probe_battery: str) -> str:
     )
 
 
-#: The four-part structure the format control asks for. Reused by the probe
-#: prompt so the control cannot silently change shape mid-conversation.
-_FORMAT_CONTROL_STRUCTURE = [
-    components.SITUATION_SUMMARY,
-    components.KEY_OPERATIONAL_CONSIDERATIONS,
-    components.POINT_ESTIMATE_AND_CI,
-    components.UNCERTAINTY_SOURCES,
-]
+def _format_control_structure(estimate_step: str) -> list[str]:
+    """The four-part structure the format control asks for.
+
+    Shared by the initial and probe prompts so the control cannot silently
+    change shape mid-conversation; only the estimate step differs, which is
+    why it is a parameter rather than a positional edit of a shared list.
+    """
+    return [
+        components.SITUATION_SUMMARY,
+        components.KEY_OPERATIONAL_CONSIDERATIONS,
+        estimate_step,
+        components.UNCERTAINTY_SOURCES,
+    ]
 
 
 def generate_naive_prompt(case: QuantitativeCase) -> str:
@@ -509,7 +514,9 @@ def generate_format_control_prompt(case: QuantitativeCase) -> str:
     """Generate formatting-only control prompt."""
     preamble = components.paragraphs(
         "You are a decision analyst. Use a clear four-part structure:\n"
-        + components.numbered(_FORMAT_CONTROL_STRUCTURE),
+        + components.numbered(
+            _format_control_structure(components.POINT_ESTIMATE_AND_CI)
+        ),
         components.NO_NAMED_FRAMEWORK,
     )
     return components.estimate_task(preamble, case.scenario, case.estimate_question)
@@ -586,11 +593,11 @@ def generate_probe_prompt(
     elif condition == "estimate_only":
         instruction = "Return only the revised estimate and 80% confidence interval in JSON."
     elif condition == "format_control":
-        structure = list(_FORMAT_CONTROL_STRUCTURE)
-        structure[2] = components.REVISED_ESTIMATE_AND_CI
         instruction = components.paragraphs(
             "Update your response using the same four-part structure:\n"
-            + components.numbered(structure),
+            + components.numbered(
+                _format_control_structure(components.REVISED_ESTIMATE_AND_CI)
+            ),
             components.NO_NAMED_FRAMEWORK_INLINE,
         )
     elif condition == "cot":
