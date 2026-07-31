@@ -15,6 +15,7 @@ export interface BillForecastArmView {
 export interface BillForecastView {
   metricLabel: string;
   groupSlug: string;
+  example?: boolean;
   question: string;
   eventLabel: string;
   gapLabel: string;
@@ -143,6 +144,17 @@ export function BillForecasts({ views }: { views: BillForecastView[] }) {
 
   return (
     <div>
+      {view.example && (
+        <div className="mb-5 rounded-lg border border-[#F2DCAF] bg-[#FFF9EC] px-4 py-3 text-[0.85rem] leading-[1.6] text-[#7A5C20]">
+          <strong className="[font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em]">
+            Example rendering
+          </strong>{" "}
+          — these are real registered Thesis forecast pairs for other policy
+          states, shown here to demonstrate the bill-forecast view. They are
+          not anchored to this bill; bill-anchored pairs replace them once
+          registered.
+        </div>
+      )}
       {views.length > 1 && (
         <div className="mb-5 flex flex-wrap gap-2">
           {views.map((v, i) => (

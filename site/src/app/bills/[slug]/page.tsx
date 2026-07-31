@@ -48,12 +48,14 @@ export async function generateMetadata({
 
 /** Server-side view models for the client selector — cells stay out of the bundle. */
 function buildForecastViews(billSlug: string): BillForecastView[] {
-  return getBillForecastGroups(billSlug).map(({ metricLabel, resolved }) => {
+  return getBillForecastGroups(billSlug).map(
+    ({ metricLabel, resolved, example }) => {
     const { group, trueArm, falseArm, probability, unconditional } = resolved;
     const pct = probability?.pointEstimate;
     const gap = Math.abs(trueArm.pointEstimate - falseArm.pointEstimate);
     return {
       metricLabel,
+      example,
       groupSlug: group.slug,
       question: group.question,
       eventLabel: group.eventLabel,
