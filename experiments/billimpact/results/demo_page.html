@@ -46,6 +46,17 @@ summary{cursor:pointer;font-weight:650}
 <li>The registered S.3596 poverty delta holds in 14/16 harness combinations; both outliers gave the model only the bill&rsquo;s name. Per-configuration forward forecasts are recorded, so these comparisons keep resolving mechanically after today.</li>
 </ul></div>
 
+<section id="against-defaults">
+<span class="tag">The three results that cut against defaults</span>
+<h2>Each is non-obvious; two are significant; current practice sits on the wrong side of two of the three.</h2>
+<table>
+<tr><th>finding</th><th>evidence</th><th>the default it contradicts</th></tr>
+<tr><td><b>Model ranking is harness-dependent.</b> Naive-vs-naive favors opus (+0.055 [&minus;0.022,&nbsp;+0.145], n.s., fable worse in 22/36); under bill + max effort, fable becomes the significantly best system measured while the identical recipe adds nothing for opus (&minus;0.014 [&minus;0.056,&nbsp;+0.034]).</td><td class="n">N=36</td><td>picking the model by tier reputation and holding the harness fixed</td></tr>
+<tr><td><b>Bill text harms at default effort and pays only at max.</b> Pasting the statute into the prompt at default effort made fable significantly worse (+0.052 [+0.012,&nbsp;+0.093]) and left opus flat; the same text at max effort is the best arm (&minus;0.094 [&minus;0.174,&nbsp;&minus;0.022]).</td><td class="n">n=28 / N=36</td><td>bill-in-prompt at default settings, which is what bill tools do</td></tr>
+<tr><td><b>Effort and structure fix different failures.</b> Max effort improves accuracy and calibration but leaves statute-tracking flat (dose-response 0/4 effort levels on the memorized period); a directed-derivation format restores tracking (3/3) but does not improve accuracy. Two failure modes, two fixes; neither substitutes for the other.</td><td class="n">240 + 180 runs</td><td>treating &ldquo;more reasoning&rdquo; or &ldquo;more scaffolding&rdquo; as a general-purpose fix</td></tr>
+</table>
+<p class="note">Multi-stage scaffolds (debate, personas, auditors) improved nothing anywhere they were tested, at any effort level.</p>
+</section>
 <section id="recall">
 <span class="tag">Result 1 &middot; causal test</span>
 <h2>Forecasts track the statute only where there is nothing to remember.</h2>
