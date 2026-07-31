@@ -73,3 +73,20 @@ dose-tracking.
 ## Null
 
 No dose spread anywhere above the repeat noise floor.
+
+---
+
+## Deconfound arm (appended ~15:10 EDT, committed before its runs; responds to the #61 review)
+
+The review is correct that the original arms differ in statute-name visibility
+as well as period: the retro header names Pub. L. 116-260, the future header
+does not — and §2 of this study shows the name alone moves forecasts. New arm:
+retro2021, identical dose machinery, with the header anonymized to match the
+future arm's framing ("verbatim text of a statute; assume it is in force
+through the target month"; no law name, no public-law number). opus-5 and
+fable-5 × 3 doses × {point+CI, directed derivation} × 5 reps. Registered
+predictions: if recall-anchoring is period-driven, unnamed-retro stays flat
+under point+CI (matching named-retro) and derivation still restores tracking;
+if the original flatness was name-driven, unnamed-retro shows dose-response
+and the period claim must be withdrawn in favor of a name claim. Either
+outcome is reported.
