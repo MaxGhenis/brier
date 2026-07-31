@@ -419,10 +419,77 @@ def verify_commit(
             last_error = (completed.stderr or completed.stdout).strip()
             if attempt < attempts:
                 time.sleep(VERIFY_RETRY_DELAY_SECONDS)
+        detail = last_error.splitlines()[-1] if last_error else "no detail"
         raise ProvenanceError(
             f"{commit}: no valid attestation for its records push subject "
-            f"({last_error.splitlines()[-1] if last_error else 'no detail'})"
+            f"({detail})\n" + explain_missing_attestation(commit)
         )
+
+
+def explain_missing_attestation(commit: str) -> str:
+    """Spell out what this failure means and the only two ways to clear it.
+
+    "no valid attestation" states a symptom. Without the allowlist and the
+    two legitimate outcomes in front of them, a reader cannot tell whether
+    they are looking at a broken workflow, a local push, or a real attack,
+    and the tempting fix -- adding the sha to the waiver list -- is wrong in
+    two of those three cases.
+    """
+
+    try:
+        subject_line = git_output("log", "-1", "--format=%s", commit)
+    except Exception:  # noqa: BLE001 - diagnostics must never mask the failure
+        subject_line = "<unreadable>"
+    try:
+        touched = git_output(
+            "show", "--name-only", "--format=", commit, "--", PROTECTED_PREFIX
+        ).splitlines()
+    except Exception:  # noqa: BLE001
+        touched = []
+
+    workflows = "\n".join(f"      {name}" for name in sorted(ALLOWED_WORKFLOWS))
+    sample = "\n".join(f"      {path}" for path in touched[:5])
+    if len(touched) > 5:
+        sample += f"\n      ... and {len(touched) - 5} more"
+
+    return "\n".join(
+        [
+            "",
+            f"  commit subject: {subject_line}",
+            f"  it changed {len(touched)} file(s) under {PROTECTED_PREFIX}:",
+            sample or "      (none resolved -- see the merge note below)",
+            "",
+            "  Records may only reach main via one of these workflows, each of",
+            f"  which attests the exact sha it pushes on {ALLOWED_REF}:",
+            workflows,
+            "",
+            "  So this commit is one of three things, and they are NOT",
+            "  interchangeable:",
+            "",
+            "   1. An allowlisted workflow pushed it but attestation failed or",
+            "      has not propagated yet. Attestations can lag a push by a",
+            "      minute or two; a run this recent is retried automatically",
+            f"      ({VERIFY_RETRIES} attempts, {VERIFY_RETRY_DELAY_SECONDS}s"
+            " apart) before reaching here.",
+            "      Re-run the job before doing anything else.",
+            "",
+            "   2. Someone pushed records from a local machine. That is a real",
+            "      provenance gap: the content may be fine, but nothing proves",
+            "      which run produced it. It is admitted by adding the sha to",
+            "      WAIVED_UNATTESTED_COMMITS with a comment saying what",
+            "      happened. That list is a permanent public admission and is",
+            "      shrink-only -- it is not a way to silence this check.",
+            "",
+            "   3. A merge commit that introduced no records bytes of its own.",
+            "      Those are unattestable by construction and should already",
+            "      have been filtered by introduces_records_change(); if one",
+            "      reaches here, fix that filter rather than waiving the sha.",
+            "",
+            "  Do not waive a commit for case 1 or 3. A waiver for a workflow",
+            "  push logs a confession that never happened and leaves the real",
+            "  fault in place.",
+        ]
+    )
 
 
 def commit_in_scope(commit: str, epoch: str) -> bool:
