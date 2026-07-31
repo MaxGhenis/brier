@@ -1,4 +1,7 @@
-import { formatValue, type Unit } from "@/data/forecast-cells";
+// Imported from forecast-units, not forecast-cells: this component needs only
+// the formatter, and going through the catalog module would pull ~19 MB of
+// generated cell data into every bundle and test that renders a chart.
+import { formatValue, type Unit } from "@/data/forecast-units";
 
 type HistoricalPoint = { label: string; value: number };
 

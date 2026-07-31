@@ -83,11 +83,33 @@ const PRIVATE_SOURCE_PATTERN =
 describe("forecast catalog", () => {
   let policyEngineLedger: PolicyEngineLedgerEntry[] = [];
   let resolvedForecastCells: ForecastCell[] = [];
+  // Built once and shared. Projecting the whole catalog costs seconds, and
+  // these three were each rebuilt from identical inputs in several tests,
+  // which is what pushed this file past the timeout. They are read-only
+  // fixtures; nothing below mutates them. Production does the same thing
+  // through the *Once() runtime caches.
+  let sharedLogData: ReturnType<typeof buildThesisLogData>;
+  let sharedLogExport: ReturnType<typeof buildThesisLogExport>;
+  let sharedTargetArchitecture: ReturnType<
+    typeof buildTargetArchitectureProjection
+  >;
 
   beforeAll(async () => {
     policyEngineLedger = await loadPolicyEngineLedger();
     resolvedForecastCells = withResolvedOutcomes(
       FORECAST_CELLS,
+      policyEngineLedger,
+    );
+    sharedLogData = buildThesisLogData(
+      resolvedForecastCells,
+      policyEngineLedger,
+    );
+    sharedLogExport = buildThesisLogExport(
+      resolvedForecastCells,
+      policyEngineLedger,
+    );
+    sharedTargetArchitecture = buildTargetArchitectureProjection(
+      resolvedForecastCells,
       policyEngineLedger,
     );
   });
@@ -100,14 +122,8 @@ describe("forecast catalog", () => {
   it("does not publish private-source provenance", () => {
     const publicCatalogPayload = JSON.stringify({
       forecasts: FORECAST_CELLS,
-      thesisLog: buildThesisLogExport(
-        resolvedForecastCells,
-        policyEngineLedger,
-      ),
-      targetArchitecture: buildTargetArchitectureProjection(
-        resolvedForecastCells,
-        policyEngineLedger,
-      ),
+      thesisLog: sharedLogExport,
+      targetArchitecture: sharedTargetArchitecture,
     });
 
     expect(publicCatalogPayload).not.toMatch(PRIVATE_SOURCE_PATTERN);
@@ -212,14 +228,8 @@ describe("forecast catalog", () => {
   });
 
   it("exports a normalized Thesis Log payload with scores and a resolution queue", () => {
-    const logData = buildThesisLogData(
-      resolvedForecastCells,
-      policyEngineLedger,
-    );
-    const exportPayload = buildThesisLogExport(
-      resolvedForecastCells,
-      policyEngineLedger,
-    );
+    const logData = sharedLogData;
+    const exportPayload = sharedLogExport;
     const resolutionQueue = buildResolutionQueue(
       FORECAST_CELLS,
       policyEngineLedger,
@@ -527,10 +537,7 @@ describe("forecast catalog", () => {
       resolvedForecastCells,
       specs,
     );
-    const exportPayload = buildTargetArchitectureProjection(
-      resolvedForecastCells,
-      policyEngineLedger,
-    );
+    const exportPayload = sharedTargetArchitecture;
     const strategyVersionIds = new Set(
       exportPayload.strategyVersions.map(
         (strategyVersion) => strategyVersion.strategyVersionId,

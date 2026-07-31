@@ -19,15 +19,22 @@ describe("Python/TypeScript canonical JSON parity", () => {
       },
     };
     const input = JSON.stringify(value);
+    // This vector exists to catch UTF-16 ordering drift, so it is exactly
+    // the input a locale-dependent stdin decoder corrupts. Python reads
+    // stdin in the host ANSI codepage on Windows (cp1252), which mangles
+    // the astral and private-use keys and reorders them -- the test could
+    // never pass on a Windows checkout. PYTHONUTF8 pins UTF-8 everywhere;
+    // it is already the default on the POSIX runners, so CI is unchanged.
+    const python = { ...process.env, PYTHONUTF8: "1" };
     const pythonCanonical = execFileSync(
       "python3",
       ["../scripts/canonical_json.py"],
-      { input, encoding: "utf8" },
+      { input, encoding: "utf8", env: python },
     ).trimEnd();
     const pythonSha = execFileSync(
       "python3",
       ["../scripts/canonical_json.py", "--sha256"],
-      { input, encoding: "utf8" },
+      { input, encoding: "utf8", env: python },
     ).trim();
 
     expect(pythonCanonical).toBe(canonicalStringify(value));

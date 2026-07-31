@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { sha256Hex } from "@/data/canonical-json";
 import {
   FORECAST_CELLS,
@@ -26,6 +26,21 @@ import {
 const FULL_DIGEST = /^[0-9a-f]{64}$/;
 
 describe("target architecture hashing", () => {
+  // Projecting the real catalog costs seconds; two tests below assert over
+  // the identical (FORECAST_CELLS, THESIS_TARGET_LEDGER) projection, so it
+  // is built once here. The determinism check keeps its own second build --
+  // that rebuild IS the assertion and must not be shared away.
+  let realCatalogProjection: ReturnType<
+    typeof buildTargetArchitectureProjection
+  >;
+
+  beforeAll(() => {
+    realCatalogProjection = buildTargetArchitectureProjection(
+      FORECAST_CELLS,
+      THESIS_TARGET_LEDGER,
+    );
+  });
+
   it("commits every canonical chunk and table manifest into one root", () => {
     const projection = buildTargetArchitectureProjection([FORECAST_CELLS[0]]);
     const manifest = buildTargetArchitectureManifest(projection, {
@@ -152,10 +167,7 @@ describe("target architecture hashing", () => {
     // wave, so this asserts the invariants the snapshot stood for instead:
     // globally unique identifiers, counts that describe the projection
     // exactly, and a fully deterministic ID projection for identical input.
-    const projection = buildTargetArchitectureProjection(
-      FORECAST_CELLS,
-      THESIS_TARGET_LEDGER,
-    );
+    const projection = realCatalogProjection;
     const identifierProjection = (candidate: typeof projection) => ({
       targetIds: candidate.targets.map((row) => row.targetId),
       sourceSeriesIds: candidate.sourceSeries.map((row) => row.sourceSeriesId),
@@ -209,10 +221,7 @@ describe("target architecture hashing", () => {
   });
 
   it("retains full payload digests while truncating public IDs to 16 hex", () => {
-    const projection = buildTargetArchitectureProjection(
-      FORECAST_CELLS,
-      THESIS_TARGET_LEDGER,
-    );
+    const projection = realCatalogProjection;
 
     expect(projection.observations.length).toBeGreaterThan(0);
     expect(
