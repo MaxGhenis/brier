@@ -83,7 +83,11 @@ def test_ladder_v2_derivation_gate_accepts_quantile_inversion() -> None:
         "at 21.3."
     )
     errors = spawned_cells_to_ts.validate(compliant, set())
-    assert not any("derivation" in error for error in errors), errors
+    # Match "interval derivation" — the derivation gate's own wording, and what
+    # the sibling assertions below already use. A bare "derivation" substring
+    # also matches unrelated errors that merely use the word in prose, so any
+    # improvement to another message's text would fail this test spuriously.
+    assert not any("interval derivation" in error for error in errors), errors
     assert not any("ladder_v2 math step" in error for error in errors), errors
 
 
