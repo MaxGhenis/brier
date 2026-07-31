@@ -214,6 +214,12 @@ Three results, ranked by strength:
    reasoning effort, and aggregation (median-of-k improves monotonically,
    0.243 → 0.231 for k=1→5); none came from architecture.
 
+**The default's cost, isolated to one parameter.** Identical model, prompt and
+bill text; only the reasoning-effort setting changes (default → max). fable:
+−0.131 [−0.205, −0.062] (39% lower mean nCRPS, 19/28 units), rising to 53%
+and 10/10 on big-shock units (−0.335 [−0.439, −0.231]); largest single-unit
+swings 0.98→0.36 and 0.85→0.30. opus: −0.014 [−0.038, +0.015] (5%, n.s.).
+
 **Heterogeneity by realized shock size (objective stratifier: |first print −
 last history value| > 1 history SD).** On the 17 big-shock units the leading
 configuration beats persistence 17/17 (−1.016 [−1.606, −0.480]) and its naive
