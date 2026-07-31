@@ -1,0 +1,69 @@
+{
+  "bill": {
+    "slug": "s3596-119",
+    "name": "Stronger Start for Working Families Act (S. 3596)",
+    "status": "Introduced in Senate · Hassan / Young · draft example analysis",
+    "pages": 2,
+    "analyzed": "Full bill (Section 2)",
+    "analysisDate": "2026-07-31",
+    "sourceUrl": "https://www.congress.gov/bill/119th-congress/senate-bill/3596"
+  },
+  "provisions": [
+    {
+      "title": "Section 2",
+      "heading": "Earned income threshold for the refundable child tax credit: $3,000 → $1",
+      "quote": "Section 24(d)(1)(B)(i) of the Internal Revenue Code of 1986 is amended by striking ``$3,000'' and inserting ``$1''. … Section 24(h) of such Code is amended by striking paragraph (6). … The amendments made by this section shall apply to taxable years beginning after December 31, 2025.",
+      "context": "Under current law the refundable portion of the child tax credit (the additional child tax credit) phases in at 15 percent of earned income above a threshold — $3,000 in the permanent statute at §24(d)(1)(B)(i), overridden to $2,500 by §24(h)(6). The bill lowers the permanent threshold to $1 and strikes the $2,500 override, so the phase-in starts from the first dollar of earned income. The 15 percent phase-in rate and the refundable cap are unchanged; the change takes effect for taxable years beginning after December 31, 2025.",
+      "goals": [
+        "Extend the refundable child tax credit to working families with the lowest earnings by starting the phase-in at the first dollar earned.",
+        "Raise refund amounts for families whose earnings currently fall at or below the phase-in threshold."
+      ],
+      "effects": [
+        {
+          "mechanism": "Phase-in floor",
+          "text": "Families with earned income below the current $2,500 threshold become newly eligible for a refundable credit; every family whose refundable credit is limited by the earnings formula gains up to 15 percent of $2,499 (about $375), holding the rate and cap fixed."
+        },
+        {
+          "mechanism": "Filing requirement",
+          "text": "The newly eligible population is concentrated among very-low-income households, many of whom are not currently required to file; claiming the credit requires filing a return, so realized take-up depends on filing behavior, not only on eligibility."
+        },
+        {
+          "mechanism": "Unchanged parameters",
+          "text": "The $2,000 credit amount, the refundable cap, and the 15 percent phase-in rate are untouched — the provision changes who reaches a given refundable amount at what earnings level, not the credit's ceiling."
+        }
+      ],
+      "barriers": [
+        {
+          "actor": "IRS",
+          "text": "The threshold change must land in TY2026 forms, instructions, and e-file schema for the 2027 filing season; the conforming strike of §24(h)(6) also touches guidance that currently cites the $2,500 figure."
+        },
+        {
+          "actor": "Outreach / VITA",
+          "text": "Reaching newly eligible non-filers is an outreach problem: the households gaining eligibility are those least connected to the filing system."
+        }
+      ],
+      "metrics": [
+        {
+          "kind": "Direct implementation/outcome",
+          "text": "IRS Statistics of Income, Individual Income Tax Returns (Publication 1304 line-item tables): number of returns claiming the additional child tax credit and total ACTC dollars, TY2026 versus prior years.",
+          "series_hint": "irs.soi.actc"
+        },
+        {
+          "kind": "Downstream outcome",
+          "text": "Census Bureau Supplemental Poverty Measure, child poverty rate — the SPM accounts for refundable credits, so a phase-in change for the lowest earners shows up here if realized take-up is material.",
+          "series_hint": "census.spm.child_poverty"
+        },
+        {
+          "kind": "Honest gap",
+          "text": "No official series separates ACTC claims by earnings band at the threshold margin in a timely publication; SOI tabulations by AGI band are the closest proxy and lag by about two years.",
+          "series_hint": ""
+        }
+      ],
+      "conditionals": [
+        "P(IRS SOI TY2026 ACTC returns and dollars | §24(d)(1)(B)(i) threshold of $1 in effect for TY2026 vs not)",
+        "P(Census SPM child poverty rate for 2026 | §24(d)(1)(B)(i) threshold of $1 in effect for TY2026 vs not)"
+      ],
+      "compute": []
+    }
+  ]
+}
