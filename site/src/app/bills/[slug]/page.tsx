@@ -237,9 +237,6 @@ export default async function BillDetailPage({
                         <p className="m-0 mt-1 max-w-[640px] text-[0.85rem] leading-[1.55] text-[var(--theme-text-muted)]">
                           {cell.question}
                         </p>
-                        <p className="m-0 mt-1.5 [font-family:var(--font-mono)] text-[0.6rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)]">
-                          candidate metric in {from.join(" · ")}
-                        </p>
                       </div>
                       <div>
                         <div className="flex items-baseline justify-between gap-3">
