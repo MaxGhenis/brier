@@ -12,11 +12,13 @@ export function MetricCard({
   text,
   badgeLabel,
   badgeClass,
+  rationale,
 }: {
   kind: string;
   text: string;
   badgeLabel: string;
   badgeClass: string;
+  rationale?: string;
 }) {
   const [expanded, setExpanded] = useState(false);
   const isLong = text.length > 220;
@@ -48,6 +50,16 @@ export function MetricCard({
         >
           {expanded ? "Less ↑" : "Full sourcing ↓"}
         </button>
+      )}
+      {rationale && (
+        <details className="mt-3 border-t border-[var(--theme-border)] pt-3">
+          <summary className="cursor-pointer list-none [font-family:var(--font-mono)] text-[0.65rem] uppercase tracking-[0.1em] text-[var(--theme-text-dim)] hover:text-[var(--color-accent)] [&::-webkit-details-marker]:hidden">
+            Why this metric ▸
+          </summary>
+          <p className="mb-0 mt-2 text-[0.85rem] leading-[1.6] text-[var(--theme-text-muted)]">
+            {renderInline(rationale)}
+          </p>
+        </details>
       )}
     </div>
   );

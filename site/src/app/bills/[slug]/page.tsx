@@ -310,6 +310,7 @@ export default async function BillDetailPage({
                               text={stripRegistryNote(metric.text)}
                               badgeLabel={REGISTRY_LABEL[status]}
                               badgeClass={registryBadgeClass[status]}
+                              rationale={metric.rationale}
                             />
                           );
                         })}

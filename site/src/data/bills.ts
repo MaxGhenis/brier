@@ -34,6 +34,12 @@ export interface BillMetric {
   series_hint?: string;
   /** Frozen analysis-day badge carried by ported artifacts. */
   registry?: string;
+  /**
+   * Why this metric was selected — considered alternatives, resolution
+   * properties, known weaknesses. Additive contract field; rendered as
+   * a disclosure when present.
+   */
+  rationale?: string;
 }
 
 export interface BillCompute {
