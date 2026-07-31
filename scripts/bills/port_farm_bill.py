@@ -9,7 +9,7 @@ badge as fallback until the live registry mapper computes status at
 build time, at which point the frozen field is ignorable.
 
 Usage:
-  uv run --group bills scripts/bills/port_farm_bill.py
+  uv run --extra bills scripts/bills/port_farm_bill.py
 """
 
 from __future__ import annotations

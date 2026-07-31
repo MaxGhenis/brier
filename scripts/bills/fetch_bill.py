@@ -27,10 +27,10 @@ the sharp edges first: stage-ranked version picking (alphabetical label
 sort chose bill text by spelling luck) and Congress.gov rate budgeting.
 
 Usage:
-  uv run --group bills scripts/bills/fetch_bill.py 119/hr/818
-  uv run --group bills scripts/bills/fetch_bill.py \
+  uv run --extra bills scripts/bills/fetch_bill.py 119/hr/818
+  uv run --extra bills scripts/bills/fetch_bill.py \
       https://www.congress.gov/bill/119th-congress/house-bill/818
-  uv run --group bills scripts/bills/fetch_bill.py \
+  uv run --extra bills scripts/bills/fetch_bill.py \
       --url https://agriculture.house.gov/uploadedfiles/farm_bill.pdf \
       --slug farm-bill-2-0
 """
@@ -90,7 +90,9 @@ _FORMAT_PREF = {"xml": 0, "html": 1, "txt": 2, "pdf": 3}
 def stage_rank(label: str | None) -> int:
     if not label:
         return 0
-    lowered = label.lower()
+    # Labels arrive both spaced ("Enrolled Bill") and slugified
+    # ("enrolled-bill-html") — normalize separators before matching.
+    lowered = label.lower().replace("-", " ").replace("_", " ")
     return max((r for k, r in _STAGE_KEYWORDS if k in lowered), default=0)
 
 
