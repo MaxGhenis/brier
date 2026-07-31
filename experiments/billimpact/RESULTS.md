@@ -60,7 +60,7 @@ baseline (all four point estimates worse; every CI spans 0).
 
 FRA §313 is a real enacted purpose clause with zero mechanical content. Shown
 *only* this clause (statute named in the header), forecasts fell in 10/12
-units, median −2.65% (p=0.002) — **more** than the operative sections
+units (two unmoved; sign test on the 10 nonzero units, p=0.002), median −2.65% — **more** than the operative sections
 themselves (−0.69%). Amendment 2 decomposed the mechanism:
 
 | Arm | Construction | Median shift | Sign test |

@@ -1,16 +1,19 @@
-# SENSE CHECK — pre-demo audit against the room (2026-07-31, ~12:45 EDT)
+# SENSE CHECK — pre-demo audit against the room (2026-07-31, finalized ~12:50 EDT)
 
 Reviewer stance: knowledgeable, skeptical-but-fair audience member — Max Ghenis,
 David Trimmer, policy researchers, AI-tool builders. People who know CRPS, know
-model tiers cold, know these benefit programs, and recompute sign tests in
-their heads. Surfaces reviewed: `RESULTS.md`, `TWO_LEGS_S3596.md`,
-`forward/FORWARD-S3596.md`, `results/demo_page.html` (present, reviewed in
-full, including the embedded JS data), both demo figures (read as images), the
-PR #61 body, plus the substrate they cite (`results/*.md`, `CHECK2.md`,
-`final_multimetric.json`, `runs_envelope.jsonl`, `s3596_conditional_runs.jsonl`,
-`envelope_sweep.py`, the ground-truth files, and PR #64). Every inherited
-number was checked against primary sources on the web; the verification
-appendix at the bottom records exactly what was and was not confirmed.
+model tiers cold, know these programs, and recompute sign tests in their heads.
+
+Surfaces reviewed, at their **current** states: `RESULTS.md` (12:20 commit,
+"§§1–5 final, checker-gated"), `TWO_LEGS_S3596.md` (11:54, unchanged since),
+`forward/FORWARD-S3596.md` (11:34), `results/demo_page.html` — reviewed
+**twice**, before and after its 12:15 revision (new title/h1, new §08 "Both
+legs, same bill", new §09 "sixteen harnesses", revised lever) — both demo
+figures read as images, the PR #61 body, and the substrate they cite
+(`results/*.md`, `CHECK2.md`, `final_multimetric.json`, `runs_envelope.jsonl`,
+`s3596_conditional_runs.jsonl`, `envelope_sweep.py`, ground-truth files, PR
+#64). Every inherited number was checked against primary sources on the web;
+the appendix records exactly what was and was not confirmed.
 
 Ranked. Each item: where, why it is a red flag *to this audience*, exact
 replacement wording.
@@ -19,372 +22,366 @@ replacement wording.
 
 ## RED FLAGS
 
-### 1. TWO_LEGS_S3596.md misreads PR #64's "−1.2%" as "−1.2pp" — the "10x delta gap" is a units artifact, and the file says it isn't
+### 1. "−1.2pp" misreads PR #64's relative "−1.2%" — the mechanical effect is −0.20pp, and the page's new §08 headline ("roughly ten times") is a units artifact
 
-**Where:** `TWO_LEGS_S3596.md` lines 7 ("**child poverty −1.2pp** (17.02% →
-16.82% …)"), 8–9 ("stale published numbers (−$1.6B / **−0.4pp**)"), and the
-entire "The gap is the finding" paragraph (lines 18–27), including the
-sentence "a 10x delta gap is not a units artifact."
+**Where:** `results/demo_page.html` §08 — display-type card "**−1.2pp** child
+poverty · Mechanical leg · PR #64", h2 "The mechanical leg prices S.3596 at
+roughly ten times what the forecast leg concedes," and the paragraph "Its
+direction and size are what recall-anchoring (04) predicts." Also
+`TWO_LEGS_S3596.md` lines 7–9 ("**child poverty −1.2pp** (17.02% → 16.82% …)",
+"stale published numbers (−$1.6B / **−0.4pp**)") and its "The gap is the
+finding" paragraph ("a 10x delta gap is not a units artifact").
 
 **Why it's fatal here:** PR #64 (Trimmer's own PR) reports "child poverty
 **−1.2%** (17.02%→16.82%)". 17.02 − 16.82 = **0.20 percentage points**; −1.2%
-is the *relative* change (0.20/17.02), which is PolicyEngine's house
-convention — their published research page for this same bill says "Reduces
-child poverty by 0.4%" alongside "Gini … by 0.024%", both relative (verified
-today; see appendix). TWO_LEGS quotes the very levels that refute its own
-label. The downstream synthesis — "the forecast leg concedes roughly a tenth
-of the mechanical effect" — compares PE's *relative* −1.2% against the
-forecast leg's *absolute* −0.10/−0.15pp. Compared consistently (pp vs pp:
-−0.20 vs −0.10/−0.15; or relative vs relative: −1.2% vs ≈−0.7/−1.1%), the
-forecast leg concedes **one-half to three-quarters** of the mechanical effect,
-not a tenth. The sentence "a 10x delta gap is not a units artifact" asserts
-the exact opposite of what is true. Trimmer wrote the source PR; Max builds
-microsims; either will spot 17.02−16.82≠1.2 in seconds, and the error sits in
-the one file that is *about their work*.
+is the *relative* change (0.20/17.02) — PolicyEngine's house convention, which
+their published page for this same bill uses ("Reduces child poverty by 0.4%"
+beside "Gini … 0.024%"; verified today). Both docs quote the very levels that
+refute their own "pp" label. Compared consistently, the forecast leg
+(−0.10/−0.15pp against −0.20pp; or ≈−0.7/−1.1% against −1.2% relative)
+concedes **one-half to three-quarters** of the mechanical effect — a factor of
+1.3–2.0, not 10. "Roughly ten times" is wrong by ~5–7x; "not a units artifact"
+asserts the opposite of what is true; and the recall-anchoring *size* claim
+dies with it (the direction survives, weakly). Trimmer wrote the source PR;
+Max builds microsims; either spots 17.02−16.82 ≠ 1.2 in seconds, on a
+conference screen, in a section that is *about their work*.
 
-**Replacement:** rewrite the two numbers and the synthesis. Suggested:
+**Replacement (page §08):** card value "−0.20pp <small>child poverty · −1.2%
+relative</small>"; h2 → "Composed at the reference config, the two legs land
+within a factor of two." Body paragraph →
 
-> **Mechanical leg** (PR #64, D. Trimmer): … budgetary impact −$1.83B; child
-> poverty **−0.20pp** (17.02% → 16.82%; −1.2% relative, PE poverty measure,
-> 2026) … stale published numbers (−$1.6B / −0.4% relative) superseded by the
-> refresh — the poverty effect tripled, which is the PR's own argument for
-> admissibility gates.
+> The two legs measure different things — PolicyEngine's poverty measure on
+> the build-P population (2026, static) against the Census SPM child rate for
+> CY2027 — so the levels are indicative, not commensurable. Read that way,
+> the registered forecast deltas (−0.10 to −0.15pp) sit at one-half to
+> three-quarters of the mechanical −0.20pp: the composed forecast is
+> *consistent with* the mechanical leg at the reference config. The
+> order-of-magnitude risk is not in the composition — it is in the harness
+> (see 09: the same delta runs −1.5pp to 0.00pp when only the bill's name is
+> shown). Keep the closing double-count paragraph as is — "no backtest can
+> validate the composition step" is exactly right.
 
-> **The comparison holds up — and the harness result is where the gap lives.**
-> The forecast leg's conditional delta (−0.10 to −0.15pp) is roughly half to
-> three-quarters of the mechanical −0.20pp, on measures that are not
-> commensurable (PE poverty measure on build P, 2026 static, vs Census SPM
-> child rate, 2027 realized), so the levels should not be over-read in either
-> direction. The 10x effect in this study is elsewhere: hold the models fixed
-> and vary only *what they are shown* — full bill text yields Δ −0.1 to
-> −0.2pp, the bill's *name alone* yields −1.5pp (fable-5, paired elicitation,
-> `runs_envelope.jsonl`). The delta a bill-conditioned forecaster reports can
-> swing an order of magnitude on context alone, which is the study's actual
-> thesis — and why the mechanical delta must be injected from the mechanical
-> leg, not re-derived inside the forecast.
-
-Note: the commit message for `8f4f9894` ("mechanical (-1.2pp, PR64)") carries
-the same error and is immutable — one more reason the doc itself must be
+**Replacement (TWO_LEGS):** "budgetary impact −$1.83B; child poverty
+**−0.20pp** (17.02% → 16.82%; −1.2% relative, PE poverty measure, 2026)" and
+"stale published numbers (−$1.6B / −0.4% relative)". Rewrite "The gap is the
+finding" along the §08 lines above — the honest 10x in this study is
+context-vs-context (full-bill −0.1/−0.2pp vs name-only −1.5pp), not
+mechanical-vs-forecast. Note: commit message `8f4f9894` ("mechanical
+(-1.2pp, PR64)") carries the error immutably; one more reason the docs must be
 corrected before anyone reads the log.
 
-### 2. Demo page §07 claims the witness tier for records that are claimed-time at best
+Incidental upside: correcting this *dissolves* the worst adjacency on the page
+— §08's "−1.2pp" currently sits one scroll above §09's "name-only · fable-5 ·
+−1.5pp", inviting "the recall arm approximately reproduces the mechanical
+number." At −0.20pp there is no coincidence left to misread.
 
-**Where:** `results/demo_page.html`, section 07 lede: "runs committed with
-timestamps and **sealed by the recorder workflow (RFC-3161 witness)**"; and
-the chip "**per-config lanes registered**" with "(4 lanes × 3 reps running)".
+### 2. The page's §5-family claims are five minutes older than the checker-gated final §5 — and they now disagree on the headline result
 
-**Why:** the chronology tiers are the hosts' own credibility machinery
-(`site/src/data/thesis-log.ts`). The recorder has not run — the PR is open,
-and `FORWARD-S3596.md`'s own §"To register" lists merge + `gh workflow run
-record-forecasts.yml` as *future* steps. Until then everything is
-claimed-time-from-git-history, which FORWARD states correctly. Claiming
-"sealed … RFC-3161 witness" on the demo surface is precisely the vocabulary
-misuse this room owns, aimed at the people who built the tiers. Same problem
-with "registered" for the lanes: 16 targets were *selected*; runs exist for
-T01–T04 only (the lane session was cancelled mid-run, per FORWARD); nothing is
-merged or sealed.
+**Where:** demo page (12:15) §06 Leg 2 ("Best measured arm — **opus-5, no
+bill text: nCRPS 0.243** vs persistence 0.326 (N=28); 19/28; bootstrap CI
+excludes zero"), §06 h2 ("…forecast **without bill text**…"), §06 lever
+("opus-5 + bill, effort max: nCRPS **0.214** · coverage 0.83 (default: 0.268 ·
+0.79; n=117) · as of 12:00"), §03 chip ("Δ +0.052 … out of sample the
+bill-text arm loses"). Versus `RESULTS.md` §5 (12:20, "final", CHECK2 items
+11–12) whose canonical-batch table says:
 
-**Replacement (lede):** "…runs committed with timestamps — claimed-time
-chronology from git history, upgraded to the witness-verified tier when the
-recorder workflow runs on merge (RFC-3161 seal; one command, listed in
-`forward/FORWARD-S3596.md`)."
-**Replacement (chip):** title "And the harness becomes a live experiment" →
-value "**per-config lanes prepared**" → body: "16 near-resolving
-program-level targets selected for per-configuration forecast lanes; 4 lanes ×
-3 reps complete on the first four targets, the rest queued. Registration =
-merge + recorder seal, pending. Finding 1 then re-measures itself — out of
-training distribution, scored mechanically as targets resolve (first
-resolutions from August 2026; the S.3596 targets in 2028)."
+- best arm = **fable · bill · effort=max: 0.208**, Winkler 1.30, cov 0.75;
+  **−0.118 [−0.211, −0.035] vs persistence** (22/28) and −0.084 [−0.164,
+  −0.008] vs its naive;
+- opus · no-bill = **0.253** (not 0.243 — that was batch B1), cov 0.82;
+- opus · bill · effort=max = **0.247 vs default 0.261 — n.s.** (−0.006
+  [−0.046, +0.042]): the opus effort win the lever quotes evaporated in the
+  final batch; the significant effort effect is *fable's*;
+- result 2 is an *interaction*: "Bill text harms at default effort and pays
+  only at max effort" (fable +0.047 → −0.084).
 
-### 3. The §06 lever quotes a superseded n=7 read (0.178), and CHECK2 already says so
+**Why:** anyone cross-reading the page and RESULTS.md — the natural first act
+of this room — finds the page naming a different best arm than the repo's own
+final, checker-gated table, with numbers from a batch CHECK2 explicitly says
+has drifted. Worse, the page's architecture plank "forecast leg: frontier
+tier, **no bill text**" is now contradicted by the repo's own headline: the
+best measured arm *reads the bill* at max effort. And §03's "out of sample the
+bill-text arm loses" is true only at default effort — the file's own result 2
+says so.
 
-**Where:** `results/demo_page.html` §06: "reasoning effort → max: nCRPS 0.267
-→ 0.178 (partial n · final n pending)". Also anywhere the §5 refresh inherits
-these numbers when it lands in `RESULTS.md`.
+**Replacement:** re-derive every §5-family number on the page from the final
+table (one batch state, per CHECK2's own instruction) and restate the leg:
 
-**Why:** `CHECK2.md` Item 3 verdict is **SUPERSEDED** — the 0.178 was an n=7
-read; at S2 (n=117, 25/28 units) the cell is **0.2143 with cov80 0.829**, and
-still filling. The "0.267" base matches no current row either (B1 opus
-operative_only is 0.268; `final_multimetric.json` has opus bill 0.261 →
-effort=max 0.247, opus no-bill 0.253 → max[plain] 0.198). Anyone who opens
-`final_multimetric.json` (committed in the same PR) cannot reproduce either
-number — a stale-derived-state failure on the page's single most quotable
-product claim. The badge "partial n" does not save it: the *direction*
-survives, the *magnitude* roughly halved.
+- Leg 2 title: "Outcome forecast: frontier tier — bill text only with max
+  reasoning effort". Bullets: "Best measured arm — fable-5 · bill · max
+  effort: nCRPS 0.208, Winkler-leading, coverage 0.75; beats persistence
+  −0.118 [−0.211, −0.035] (22/28 units, N=28)." / "The same recipe at default
+  effort is among the worst arms (+0.047 vs its naive; coverage 0.61) — bill
+  text harms at default effort and pays only when the reasoning budget is
+  there to use it." / "Best bill-blind arm: opus-5 no-bill 0.253 (cov 0.82) —
+  the safe default when effort is constrained." Add the anti-pull-quote
+  sentence regardless of framing chosen: "**The statutory delta still never
+  comes from model memory** — it enters computed, from Leg 1, at composition
+  (Findings 3–4)."
+- Lever chip: quote the final batch or drop numerals: "Reasoning effort ×
+  bill text is the dominant interaction: fable+bill goes from worst-arm
+  (+0.047) at default effort to best-arm (−0.084) at max. Effort still does
+  not restore statute-tracking on memorized periods (0/4 levels, 240 runs) —
+  structure does (04)." (Also fixes the current chip's "improved accuracy and
+  calibration": 0.79 → 0.83 coverage is a move *away* from nominal, not
+  improved calibration.)
+- §03 chip: append "at default effort (the max-effort interaction is Finding
+  5's result 2)" to "the bill-text arm loses".
 
-**Replacement:** re-derive from the pinned batch at page-freeze and quote that
-batch state, e.g.: "reasoning effort → max: nCRPS 0.253 → 0.198 (opus-5,
-no-bill, n=24 of 28 units — final n pending)" — or, if the batch is still
-moving at freeze, drop the numbers: "reasoning effort → max was the largest
-single accuracy lever measured (final magnitude landing; direction stable
-across every batch cut)." Keep the existing Finding-3 caveat sentence — it is
-the best line in the section. Also add the coverage: the effort-max cells run
-cov80 0.83–0.94 against nominal 0.80 (see item 4).
-Corollary: the Leg-2 numbers (0.243 / 0.326 / 19-28 wins / CI excludes zero)
-**are** verified — but on batch B1 specifically (`CHECK2.md` Items 1–2, which
-also note the full file has drifted: 18/28 at S2). Add "(batch-pinned
-analysis; `CHECK2.md`)" somewhere on the page footer and quote one batch state
-everywhere, which is CHECK2's own instruction.
+### 3. Witness-tier and "registered" overclaims on the page
 
-### 4. Over-coverage arms are about to land in §5 — do not let cov80 > 0.90 read as a win
+**Where:** §07 lede: "runs committed with timestamps and **sealed by the
+recorder workflow (RFC-3161 witness)**" (survives the 12:15 revision —
+line 589); §07 chip "**per-config lanes registered**" with "4 lanes × 3 reps
+running"; §09 lede "the S.3596 deltas **registered this morning**".
 
-**Where (prospective, RESULTS.md §5 refresh + any spoken claim):**
-instruction-style arms run cov80 **0.88–0.96** (CHECK2 Item 8), MAS arms
-**0.90–1.00** (Item 9: variance_auditor literally 1.00), effort-max cells
-0.83–0.94, `final_multimetric.json` rows up to 0.922. And in corpus A
-(`results/results_table.md`), opus-5's cells sit at cov80 **0.97–1.00**.
+**Why:** the chronology tiers are the hosts' own credibility machinery. The
+recorder has not run — the PR is open; `FORWARD-S3596.md`'s own "To register"
+section lists merge + `gh workflow run record-forecasts.yml` as *future*
+steps, and correctly calls the current state "claimed-time chronology from git
+history." Claiming "sealed … RFC-3161" on the demo surface is the exact
+vocabulary misuse this room owns. Same for "registered": the *targets* are
+registered; the conditionals are committed; the lanes are prepared (runs exist
+for 4 of 16 targets; the lane session was cancelled mid-run per FORWARD).
 
-**Why:** the room is full of forecasters; for a nominal-80% interval, 0.95
-coverage is *miscalibration in the wide direction*, not caution. The trap is
-presenting "premortem style: nCRPS 0.183!" with its 0.95 coverage either
-unmentioned or mentioned approvingly. Similarly, if anyone asks "which model
-was calibrated?", the honest corpus-A answer is *none*: sonnet/haiku
-under-cover (0.50 → 0.02–0.32), opus over-covers (0.97–1.00, widths 3.8–4.0
-history-SDs), fable is nearest nominal (0.82–0.87).
+**Replacement:** §07 lede: "…runs committed with timestamps — claimed-time
+chronology from git history, sealed to the witness-verified tier when the
+recorder workflow runs on merge (RFC-3161; one command, in
+`forward/FORWARD-S3596.md`)." §07 chip: value "per-config lanes **prepared**";
+body "16 near-resolving targets selected; 4 lanes × 3 reps complete on the
+first four, rest queued; registration = merge + recorder seal, pending…" §09:
+"the S.3596 deltas recorded this morning (registration pending merge)".
 
-**Prescription:** every nCRPS comparison in the §5 refresh ships its cov80 and
-width beside it; label anything ≥0.90 "over-wide (nominal 0.80)"; never
-present coverage above nominal as favorable. Have the corpus-A calibration
-answer ready as one sentence: "nobody was calibrated — the small models were
-overconfident, opus bought its CRPS with intervals twice as wide as nominal,
-and bill text made the miscalibration worse in every case."
+### 4. FORWARD's fable-CTC row doesn't reconcile, and the page card papers over it with "agrees"
 
-### 5. The "best arm ignores the bill" pull-quote is one screenshot away — and the fable CTC row doesn't reconcile
+**Where:** `forward/FORWARD-S3596.md` table — fable CTC row "48.5 · 48.9 ·
+**+0.3 M**" (48.9 − 48.5 = **+0.4**); demo page §07 CTC card — "fable-5
+**agrees, at** +0.3M" with fable's levels omitted.
 
-**Where:** demo page §06 Leg 2 ("Outcome forecast: frontier tier, **no bill
-text in the prompt**" / "Best measured arm — opus-5, no bill text");
-`forward/FORWARD-S3596.md` table (fable row: 48.5 → 48.9 labeled **+0.3**);
-demo page §07 CTC card ("fable-5 **agrees, at** +0.3M").
+**Why:** this room reproduces derived numbers from the payload as published; a
+Δ column that its own adjacent columns contradict is the cheapest possible
+catch. The +0.3 is legitimate (median of within-run deltas: 0.4/0.3/0.2) but
+nothing says so. And "agrees" is corroboration language between two arms of
+the same experiment — two LLMs sharing a prior is not agreement evidence.
 
-**Why (a):** Leg 2's summary line, screenshotted alone, is the devastating
-quote: "their bill-impact tool works best when you don't show it the bill."
-The composition framing lives in Leg 3 and the footer — not inside Leg 2,
-where the quote will be cropped from.
-**Fix (a):** add as Leg 2's first bullet: "**Bill-blind by design** — the
-statute's effect enters through Leg 1's computed delta at composition (Leg 3),
-not by pasting the bill into the forecast prompt, where Findings 2–3 show it
-buys recall and overconfidence, not information."
-
-**Why (b):** in FORWARD's table, 48.9 − 48.5 = **+0.4**, but the Δ column says
-+0.3 (it is the median of within-run deltas: 0.4/0.3/0.2 — a legitimate
-statistic, but the table's own columns don't reproduce it, and this room
-reproduces derived numbers from the payload). The demo page hides fable's
-levels behind "agrees, at +0.3M" — which both dodges the arithmetic and uses
-corroboration language for two arms of the same experiment (two LLMs agreeing
-is shared prior, not evidence).
-**Fix (b):** FORWARD table footnote: "Δ = median of within-run deltas; for
+**Replacement:** FORWARD footnote: "Δ = median of within-run deltas; for
 fable-CTC this differs from the difference of scenario medians (48.5 → 48.9;
-per-rep Δ 0.4/0.3/0.2, median +0.3)." Demo card: replace "agrees, at +0.3M"
-with fable's actual levels "48.5M → 48.9M · within-run Δ +0.3M" and drop the
-word "agrees".
+per-rep Δ 0.4/0.3/0.2 → +0.3)." Page card: replace "agrees, at +0.3M" with
+"48.5M → 48.9M · within-run Δ +0.3M" and delete the word "agrees". (All other
+medians in the table and cards reproduce exactly from
+`s3596_conditional_runs.jsonl` — independently recomputed here and in CHECK2
+item 10.)
 
-### 6. Envelope results: never let fable's name-only −1.5pp sit near the mechanical number
+### 5. "10/12 units, p=0.002" reads as a wrong sign test — state the denominator
 
-**Where (prospective):** the S.3596-envelope arm is landing in `RESULTS.md`
-this afternoon (banner). Its strongest cell: fable-5, `named_only`, paired →
-SPM delta median **−1.5pp** (reps −1.5/−1.9/−1.1; `runs_envelope.jsonl`).
-Trimmer's mechanical number is "−1.2" (relative %; item 1). Two files apart
-today; one table apart if drafted carelessly.
-
-**Why:** "−1.5 ≈ −1.2" invites the exact accidental-corroboration reading the
-study exists to kill — different quantities (pp vs relative %), different
-measures (Census SPM 2027 vs PE measure 2026), and above all different
-*mechanisms*: the name-only arm is the **recall** arm. If its output lands
-near the mechanical estimate, that is a coincidence of scale that would
-*indict* the arm, not validate it.
-
-**Prescription:** in the envelope write-up, (i) never tabulate any mechanical
-number in or beside the envelope table; (ii) frame the envelope result as
-context-sensitivity of the delta itself: "full bill −0.1/−0.2pp → name alone
-−1.5pp: a 10x swing from context alone, in the direction Finding 3 predicts —
-the name invites the model to price in what it remembers the bill's coverage
-saying, not what the text computes to"; (iii) state per-cell n — one cell
-(CTC · summary · fable · paired) has **n=2**, so say "medians of 3 (one cell
-n=2)" rather than a blanket "3 reps".
-
-### 7. "10/12 units, p=0.002" reads as a wrong sign test — state the denominator
-
-**Where:** `RESULTS.md` §2 ("forecasts fell in 10/12 units, median −2.65%
-(p=0.002)") and the §2 table row; demo page §04 fine print ("down in 10/12
-units, p=0.002"); `PREREG-AMENDMENT-2.md` line 11.
+**Where:** `RESULTS.md` §2 text and table; demo page §02 purpose-clause chip
+("moved forecasts down in 10/12 units — … p=0.002" wording family) and §04
+fine print ("10/12 down, p=0.002"); `PREREG-AMENDMENT-2.md` line 11.
 
 **Why:** a sign test on 10/12 is p=0.039 two-sided, and this crowd computes
-binomial tails in their head. The actual construction is correct — zero-shift
-units are dropped, so it is 10/10 nonzero → p=0.00195
-(`analyze.py:1347`, `binom_two_sided_p(purpose_neg, n_purpose_nonzero)`) — but
-none of the three surfaces says so, so the reported p looks wrong by 20x.
+binomial tails in their head. The construction is actually correct —
+zero-shift units drop, so it is 10/10 nonzero → p=0.00195
+(`analyze.py:1347`) — but no surface says so, making a right number look wrong
+by 20x.
 
-**Replacement (all three places):** "fell in 10 of 12 units (two unmoved; sign
-test on the 10 nonzero units, p=0.002)". The neighboring claims are already
-denominator-clean ("12/12, p=0.0005" ✓; "8/9 *moving* units, p=0.039" ✓ —
-that wording is the model to copy).
+**Replacement (everywhere the pair appears):** "down in 10 of 12 units (two
+unmoved; sign test on the 10 nonzero units, p=0.002)". The neighboring "8/9
+*moving* units (p=0.039)" is the model wording — copy it.
 
-### 8. Inherited history tables: SPM row fully verified; the CTC row is not — fix labels before anyone projects it
+### 6. Inherited history tables: SPM row fully verified; the CTC row is not — relabel before anyone projects a prompt
 
-**Where:** `envelope_sweep.py` TARGETS (in-prompt "HISTORY (as published)");
-`site/src/data/forecast-cells.ts` (SPM: lines 642–647, 1104–1110; CTC: lines
-2937–2942 and the `irs.lookup` reasoning step at 2965–2967). Not displayed on
-the demo page — exposure is via projected prompts, the site cell pages, or a
-direct question.
+**Where:** `envelope_sweep.py` TARGETS (in-prompt "HISTORY (as published)":
+SPM 2021 5.2 / 2022 12.4 / 2023 13.7 / 2024 13.4; CTC TY2019 48 / TY2021 61 /
+TY2022 49) and `site/src/data/forecast-cells.ts` (lines 642–647, 1104–1110,
+2937–2942, and the `irs.lookup` reasoning step at 2965–2967). Not rendered on
+the demo page — exposure is projected prompts, the site's cell pages, or a
+direct "where's that from?".
 
-**Verified (keep as-is):** SPM child poverty **2021 5.2 / 2022 12.4 / 2023
-13.7 / 2024 13.4** — all four confirmed against Census-derived primary
-reporting (appendix). The "(expanded monthly CTC in effect)" annotation on
-2021 is good; keep it.
+**Verified — keep:** all four SPM values, including 2024 = 13.4 (Census
+September-2025 release; appendix). Keep the "(expanded monthly CTC in
+effect)" annotation on 2021.
 
-**Not verified (fix):** CTC qualifying children **TY2019 48 / TY2021 61 /
-TY2022 49**, implicitly sourced to IRS SOI:
-- **61 (TY2021)** — real and children-denominated, but it is the
-  Treasury/IRS *advance-payment* coverage figure ("more than 61 million
-  children", December 2021 disbursement), not an SOI tabulation of qualifying
-  children claimed on returns. Right number, wrong implied source.
-- **48 (TY2019)** — could not be verified as *children*. The best-sourced
-  match is ~48 million **filers/returns** claiming the CTC (Tax Foundation
-  primer; consistent with the SOI CTC+ODC returns line). If the true TY2019
-  qualifying-children count differs, every surface repeating 48 "children" is
-  wrong; if it coincidentally matches, the label is still an unsourced
-  coincidence.
-- **49 (TY2022)** — found **no** source. IRS SOI TY2022 shows ACTC on 17.8M
-  returns and $110.4B total CTC; no qualifying-children count surfaced in the
-  SOI TY2022 CTC research paper's extractable text or anywhere else I
-  searched.
+**Not verified — fix:**
+- **61 (TY2021):** real and children-denominated, but it is Treasury/IRS
+  *advance-payment* coverage ("more than 61 million children", Dec-2021
+  disbursement) — not an SOI tabulation of children claimed on returns. Right
+  number, wrong implied source.
+- **48 (TY2019):** could not be verified as *children*. Best-sourced match:
+  ~48 million **filers/returns** claiming the CTC (Tax Foundation primer) — a
+  returns-vs-children conflation until shown otherwise.
+- **49 (TY2022):** **no source found.** SOI TY2022 materials show ACTC on
+  17.8M returns and $110.4B total CTC; the SOI TY2022 CTC research paper
+  (24rpctcunderclaims.pdf, read in full) yields no qualifying-children total.
 
-**Prescription:** before 17:00, relabel the history block per-row, e.g.
-"TY2019 ~48 (returns claiming CTC — children count not published) · TY2021
-61 (children covered by advance payments, Treasury) · TY2022 —", or drop
-TY2019/TY2022 and keep only the Treasury-sourced 61 with its label. The
+**Prescription:** relabel per-row (e.g. "TY2021 61 — children covered by
+advance payments, Treasury; TY2019 ~48 — returns claiming CTC, children count
+not published; TY2022 — none published") or drop TY2019/TY2022. The
 registered target's own resolution rule already hedges ("…or the closest
 directly comparable official count") — align the history label with that
-hedge. Do not re-run the forecasts over this; disclose that the prompt's
-history block carried these labels if asked. Also pre-brief the presenter:
-fable's raw `mechanism` text says "$3,000 to $1" (the statutory layer — §2(a)
-literally strikes "$3,000" from IRC §24(d)(1)(B)(i), and §2(b) strikes
-§24(h)(6), the $2,500 override), while every page surface says "$2,500 → $1"
-(the correct *operational* delta under current law). Both are right at their
-own layer; FORWARD links the raw JSONL, so someone may open it and ask.
+hedge. No re-runs; disclose the prompt's labels if asked. Also pre-brief the
+presenter: fable's raw `mechanism` text says "$3,000 to $1" — the *statutory*
+layer (§2(a) strikes "$3,000" from IRC §24(d)(1)(B)(i); §2(b) strikes
+§24(h)(6), the $2,500 override), while every surface says "$2,500 → $1" — the
+correct *operational* delta. Both are right at their own layer; FORWARD links
+the raw JSONL, so someone may open it.
 
-### 9. The FPUC surfaces never say the units — and this is a BEA-literate room
+### 7. The FPUC surfaces never say the units — and this is a BEA-literate room
 
-**Where:** `results/demo_recall_anchoring.png` y-axis "median forecast, UI
-outlays (**units as published**)"; demo page §04 chip "(first print 570.6)"
-and stepper line "≈ the remembered 570"; §04 derivation panel "(UI outlays,
-annualized $B)" with "baseline 36 + 31 = 67".
+**Where:** `results/demo_recall_anchoring.png` y-axis "UI outlays (**units as
+published**)"; page §04 chip "(first print 570.6)" and stepper "≈ the
+remembered 570"; §04 derivation panel "(UI outlays, annualized $B)".
 
-**Why:** 570.6 is `W825RC1` — Personal current transfer receipts: government
-social benefits to persons: **unemployment insurance**, monthly, **billions of
-dollars at a seasonally adjusted annual rate**. Verified: BEA "Personal Income
-and Outlays, January 2021" (released 2021-02-26), Table 3 line 26 reads
-"…281.1  307.8  **570.6**" — Nov, Dec 2020, Jan 2021 at SAAR; the Dec→Jan jump
-*is* the $300 FPUC restart the corpus targets. "Units as published" is a
-dodge; a BEA-literate reader either does the SAAR conversion silently and
-wonders why the page didn't, or — worse — a non-BEA reader takes 570.6 as a
-monthly or quarterly flow. "Annualized $B" in the derivation panel is close
-but nonstandard.
+**Why:** 570.6 is `W825RC1` — personal current transfer receipts:
+unemployment insurance — monthly, **billions of dollars at a seasonally
+adjusted annual rate**. Verified: BEA "Personal Income and Outlays, January
+2021" (2021-02-26), Table 3 line 26: "…281.1 307.8 **570.6**" (Nov, Dec 2020,
+Jan 2021, SAAR) — the Dec→Jan jump *is* the $300 FPUC restart the corpus
+targets. "Units as published" is a dodge; a BEA-literate reader silently
+converts and wonders why the page didn't; anyone else may read 570.6 as a
+monthly flow.
 
-**Replacement:** figure y-axis: "UI benefits, $B (seasonally adjusted annual
-rate — BEA W825RC1)". Figcaption add: "Values are SAAR: Jan-2021's first print
-of 570.6 corresponds to ~$47B of benefits paid in the month." §04 chip: "first
-print 570.6 ($B, SAAR)". Derivation panel title: "(UI outlays, $B SAAR)" — the
-arithmetic (300 × 2.0M × 52 ≈ 31; 36 + 31 = 67) is already exactly right *as*
-SAAR, which is worth saying out loud: the model annualized correctly.
+**Replacement:** y-axis "UI benefits, $B (seasonally adjusted annual rate —
+BEA W825RC1)"; figcaption add "Values are SAAR: Jan-2021's 570.6 ≈ $47B paid
+in the month"; chip "first print 570.6 ($B, SAAR)"; derivation title "(UI
+outlays, $B SAAR)". The widget's arithmetic (300 × 2.0M × 52 ≈ 31; 36 + 31 =
+67) is already exactly right *as* SAAR — worth saying aloud that the model
+annualized correctly.
 
-### 10. Smaller, still worth 10 minutes
+### 8. §09 envelope surface — three small pins before it is quoted
+
+**Where:** page §09 (new at 12:15) and the "S.3596 envelope §9 integration"
+still landing in `RESULTS.md` per the banner.
+
+The band numbers all reproduce from `runs_envelope.jsonl` (recomputed here:
+14/16 poverty configs in [−0.30, −0.10]; both outliers name-only — fable
+paired −1.5 (reps −1.5/−1.9/−1.1), fable decomposed 0.00; CTC 16/16 positive,
++0.3 to +1.2M). Pins: (i) one CTC cell (summary · fable · paired) has **n=2**
+— say "medians of 3 reps (one cell n=2)"; (ii) when the RESULTS §9 lands,
+keep every mechanical number out of and away from the envelope table (with
+item 1 fixed, −1.5-vs-−0.20 has no accidental-corroboration reading left —
+preserve that); (iii) frame the name-only outlier as the *recall channel*
+("where only the name is shown, the delta can inflate ten-fold or vanish" —
+the page's current sentence, which is right; if it ever landed near the
+mechanical number, agreement would indict the arm, not validate it).
+
+### 9. Internal staleness inside RESULTS.md after the §5 refresh
+
+**Where:** `RESULTS.md` §8 — "N = 20 retrospective units across 5 laws … the
+bake-off is N=8" — contradicting §5 ("Corpus B expanded to 28 units", powered,
+significant) and the totals line ("28 retrospective units"). Totals line also
+still reads "~5,600 … arms landing at time of writing" although the banner
+says §§1–5 final (bake-off alone added ~1,900 records per CHECK2). And §5's
+aggregation claim quotes 0.243 (batch B1) two lines under a table whose
+canonical opus·no-bill row is 0.253 — quote one batch state (CHECK2's own
+instruction).
+
+**Replacement (§8):** "The held-out evaluation is N=28 units within 4 events
+(months within an event are not independent); the original amendment-frozen
+bake-off was N=8 before the powered expansion." Update the totals line at
+freeze; tag the 0.243→0.231 aggregation claim with its batch.
+
+### 10. Smaller, still worth ten minutes
 
 - **Uncommitted design vs the "100%" stat.** `quantile_sweep.py` +
-  `runs_quantile.jsonl` are untracked (git status) while the page stat-strip
-  claims "100% of designs committed to git before their first run." If any
-  quantile-CDF number reaches a surface, that claim is falsified by the repo's
-  own status output. Commit the runner before citing the arm, or scope the
-  stat ("every pre-registered arm's design committed before its first run;
-  one exploratory probe (quantile-CDF) labeled as such").
-- **Run-count sync.** Hero says "roughly 6,000 scored runs"; `RESULTS.md`
-  says "~5,600 … at time of writing." Pick the freeze-time number and make
-  hero, statstrip, and RESULTS totals agree.
-- **RESULTS §4 editing scar:** "fable ran only the full-bill conditions and is
-  marked — elsewhere." reads as a broken sentence. Suggest: "fable-5 ran only
-  the full-bill conditions; its other cells are marked '—' in the table."
-- **Dispersion figure verdict boxes** show the naive ratios ("EXCEEDS 1.81×
-  noise") that §1 itself calls the wrong construction. Verdicts match the
-  pre-registered bootstrap test, so it is defensible — add one figcaption
-  clause: "verdict boxes show the pre-registered ratio test; the red-team
-  permutation restatement (RESULTS §1) strengthens every EXCEEDS verdict."
+  `runs_quantile.jsonl` are untracked while the page stat-strip claims "100%
+  of designs committed to git before their first run" and the banner lists
+  quantile-CDF as landing. Commit the runner before any quantile number
+  surfaces, or scope the stat.
+- **Footer honesty notes were compressed in the 12:15 revision.** The
+  specific defect list (calendar-year parser, 214 runs; 1.17 → 0.97
+  denominator correction; 20 CTC cells counted as wrong) is now "documented
+  in the repository." For this room the specifics were a credibility asset —
+  restore one line: "including a prose parser that read calendar years as
+  forecasts (214 runs, corrected offline with v1 parses preserved) and a
+  denominator-selection artifact our red team caught (1.17 → 0.97)."
+- **Run-count sync:** hero "roughly 6,000 scored runs" vs RESULTS "~5,600 …
+  at time of writing" — pick the freeze number and make hero, statstrip, and
+  RESULTS agree.
+- **RESULTS §4 editing scar:** "fable ran only the full-bill conditions and
+  is marked — elsewhere." is a broken sentence; suggest "…conditions; its
+  other cells are marked '—' in the table."
+- **Dispersion figure verdict boxes** show the naive ratio construction §1
+  itself corrects; verdicts match the pre-registered bootstrap test, so add
+  one figcaption clause: "verdict boxes show the pre-registered ratio test;
+  the red-team permutation restatement (RESULTS §1) strengthens every EXCEEDS
+  verdict."
 - **Hero tone (optional):** "Teams everywhere are building bill→forecast
   tools. Nobody measures the plumbing." — in front of the team whose lab
-  measures forecasts for a living, consider self-implication: "Nobody —
-  including us, until this morning — measures the plumbing." Cheap insurance;
-  the current line is defensible since the harness (not accuracy) is the
-  unmeasured thing.
-- **Spoken-register guard:** nothing in any file calls sonnet "mid-tier"
-  (checked) — keep it that way live; say "the smaller/faster tier" or name
-  models plainly. Same guard for haiku: the only correct frame for the §05
-  table is the one already used — the tool saturates every tier; the 4%
-  no-tool row is the model's own capability.
+  measures forecasts for a living, consider "Nobody — including us, until
+  this morning — measures the plumbing."
+- **Spoken-register guard:** no file calls sonnet "mid-tier" (checked) — keep
+  it that way live ("smaller/faster tier", or name models plainly). For §05,
+  the only correct frame is the one already used: the tool saturates every
+  tier; the 4% no-tool row is haiku's own capability. And have the corpus-A
+  calibration answer ready: *nobody* was calibrated — sonnet/haiku
+  under-cover (0.50 → 0.02–0.32 with bill text), opus over-covers (0.97–1.00,
+  widths ~4 history-SDs), fable nearest nominal (0.82–0.87); coverage above
+  0.90 on a nominal-80 interval is miscalibration in the wide direction, not
+  caution.
 
 ---
 
 ## CLEARED (checked, fine as they stand)
 
+- **§5 final table's metric discipline** — Winkler beside nCRPS with the
+  "charges for width and for misses" gloss, coverage on every row, "narrower
+  arms exist only at collapsed coverage," instruction/scaffold arms shown as
+  ranges and marked n.s. This is exactly how to survive a forecaster
+  audience; mirror it in anything spoken (see item 10's guard for the arms
+  with cov80 0.90–1.00 in `final_multimetric.json`/CHECK2 items 8–9).
 - **Haiku/tools framing** (`RESULTS.md` §4; page §05): "the tool converts
-  every model to 100% — haiku 4→100" is the correct frame everywhere it
-  appears; the no-tools view is the page default, so capability shows first.
-  No "mid-tier" phrasing anywhere in the reviewed surfaces.
-- **"Ground truth" doctrine:** applied to first prints (data) only.
+  every model to 100% — haiku 4→100" everywhere; no-tools is the page's
+  default view, so capability shows first; the §2(a)-trap and
+  tools-fix-arithmetic-not-extraction (86%, n=70) framings are correct and
+  now N-stated.
+- **"Ground truth" doctrine:** applied to first prints (data) only;
   PolicyEngine is "reference implementation … a model input, never ground
-  truth for behavior" in both `RESULTS.md` §4 and the page footer (#7).
-  `FORWARD-S3596.md` is careful ("claimed-time chronology from git history"
-  until the recorder runs) — the §07 page lede (item 2) is the only witness
-  overclaim found.
+  truth for behavior" in RESULTS §4 and the page footer. `FORWARD-S3596.md`
+  is careful about claimed-time vs witness tiers — the page §07/§09 wording
+  (item 3) is the only overclaim found.
 - **S.3596 mechanics:** "$2,500 → $1" is the correct operational description —
-  verified against the bill text itself (§2(a) strikes "$3,000" from IRC
-  §24(d)(1)(B)(i); §2(b) strikes §24(h)(6), the $2,500 override; effective
-  TY2026+) and corroborated by TPC and the sponsors' releases. It **is**
-  S.3596, 119th Congress (2025–2026), Hassan/Young — the reintroduced bill
-  really does carry the same number as the 118th-Congress version, so
-  "currently pending" and "(119th Congress)" in `envelope_sweep.py` are right.
-- **S.3596 conditional medians:** every number in FORWARD's table and the page
-  §07 cards reproduces from `s3596_conditional_runs.jsonl` (independently
-  recomputed here; also CHECK2 Item 10) — sole caveat is the fable-CTC Δ
-  convention (item 5b).
-- **Behavioral-uptake framing (seeded item 9):** present at every appearance
-  of +0.2–0.3M — FORWARD's "NOT mechanical … behavioral uptake claim," and the
-  page card's *visible* details-summary "Behavioral-uptake claim — the
-  mechanical Δ is zero," plus "If uptake is a fiction, this row gets scored
-  for it," which is the right sentence for this room.
-- **Demo page §02 widget vs substrate:** all FL·2023-12 medians, spreads, and
-  noise floors match `dispersion.md` exactly (models 1.054/1.007/1.137/1.054;
-  contexts 1.000/1.018/1.007/0.982/0.982; elicitation 1.007/1.018/1.036/1.125;
-  spreads 13.0/11.8/3.6; noise 2.0/2.9/4.3); the unconditioned median 2.80M
-  reproduces from `runs_api.jsonl` (2.65–2.85M reps); truth 3,004,132 as
-  frozen. "One dial at a time … this page does not invent them" is exactly the
-  right guard against off-axis interpolation.
+  verified against the bill text (§2(a) strikes "$3,000"; §2(b) strikes
+  §24(h)(6), the $2,500 override; effective TY2026+), and it **is** S.3596,
+  119th Congress, Hassan/Young — the reintroduced bill really does carry the
+  same number as its 118th-Congress predecessor, so `envelope_sweep.py`'s
+  "(119th Congress)" and "currently pending" are right.
+- **S.3596 conditional medians:** every number in FORWARD's table and the
+  page §07 cards reproduces from `s3596_conditional_runs.jsonl` (recomputed
+  here; CHECK2 item 10) — sole caveat is item 4's Δ convention.
+- **Behavioral-uptake framing (the +0.2–0.3M rows):** present at every
+  appearance — FORWARD's "NOT mechanical … behavioral uptake"; the page
+  card's visible summary "Behavioral-uptake claim — the mechanical Δ is
+  zero" and "If uptake is a fiction, this row gets scored for it"; §09's CTC
+  band explicitly calls magnitude-variation the thing the lanes will score.
+- **Demo page §02 widget vs substrate:** all FL·2023-12 medians, spreads,
+  noise floors match `dispersion.md` exactly; the unconditioned 2.80M
+  reproduces from `runs_api.jsonl`; "one dial at a time … off-axis
+  combinations were not run, and this page does not invent them" is the right
+  guard, and the 12:15 revision added the dispersion-ratio CIs to the chips.
 - **§03 calibration numbers:** widths/coverages match `results_table.md`
-  (none: 309k/0.50; operative: 234k/0.32; pooled shown-context coverage
-  0.325→"0.33"). Under-coverage presented as the failure it is; `skill.md`
-  says "badly over-confident," correct polarity, and the coverage-drop table
-  uses bucketed p-values, labeled as such.
-- **The N=8 bake-off (`RESULTS.md` §5 current text):** "directional, not
-  significant at N=8" with the contamination-direction caveat is exactly
-  right; the sonnet-loses-to-persistence sentence is plain naming, not tier
-  disparagement.
-- **Statistical hygiene generally:** "12/12 (p=0.0005)" ✓ exact; "8/9 moving
-  units (p=0.039)" ✓ exact with the right denominator wording; N-statements
-  footer (#1–#8) is strong, and #8 ("Where a 'best measured arm' is named, it
-  is a comparison inside this study, not a product endorsement") defuses the
-  0-configs-recommended vs best-arm tension explicitly. Bootstrap/paired
-  constructions are producible on request (`CHECK2.md` documents them,
-  including seeds and batch definitions).
-- **PR #61 body:** framing matches the repo (dispersion-is-the-deliverable, no
-  praise of weak models, "$374.85, PolicyEngine-verified" household delta);
-  the closing forecast-api CDF-drift flag is a constructive bug report, cited
-  to `PR_STATUS.md`, and the right kind of thing to hand the hosts.
+  (none 309k/0.50; operative 234k/0.32; pooled shown-context 0.325→"0.33");
+  under-coverage presented as failure; the new "no CRPS gain from any context
+  level (60 runs per level)" chip states the skill null with its N.
+- **§04 (recall) after revision:** denominators added ("cells monotone",
+  "240 runs"), future-arm-never-scored disclosed twice, fable's $900-extreme
+  exception disclosed in the caption, and the "0/4 effort levels" claim
+  matches the A4 recomputation (CHECK2 item 5).
+- **Statistical hygiene generally:** "12/12 (p=0.0005)" exact; "8/9 moving
+  units (p=0.039)" exact with the right denominator wording; footer
+  N-statements retained post-revision, including "State N. Always." and the
+  best-arm-is-not-an-endorsement clause; bootstrap constructions are
+  producible on request (`CHECK2.md`, with seeds and batch definitions).
+- **PR #61 body:** dispersion-is-the-deliverable framing, no praise of weak
+  models, "$374.85, PolicyEngine-verified" household delta; the closing
+  forecast-api CDF-drift flag is a constructive, evidenced bug report — the
+  right kind of thing to hand the hosts.
 - **TWO_LEGS certification note** (household checks on 1.784.3 vs certified
-  1.764.6-on-build-P): correctly scoped — certification governs
-  model↔data-build pairing for population runs; household arithmetic uses no
-  population build; stating the version anyway is the right call. (Keep this;
-  fix only the units, item 1.)
-- **Recall figure honesty details:** future arm "never scored; the measurand
-  is dose-response" appears on both the page and the figure caption; fable's
-  $900-extreme exception is disclosed in the caption rather than hidden.
+  1.764.6-on-build-P): correctly scoped — keep it; fix only item 1's units.
+- **§08's closing double-count paragraph** ("a model that has already priced
+  the policy into its forecast double-counts any mechanical delta composed on
+  top, so no backtest can validate the composition step") — the sharpest new
+  sentence on the page, and it matches RESULTS §5's composition note. Keep
+  verbatim through any §08 rewrite.
 
 ---
 
@@ -392,20 +389,23 @@ SAAR, which is worth saying out loud: the model annualized correctly.
 
 | Claim | Verdict | Source |
 |---|---|---|
-| SPM child poverty 2021 = 5.2% (record low, expanded-CTC year) | **Verified** | Census SEHSD wp2022-24 + census.gov "Record Drop in Child Poverty" (2022-09) |
+| SPM child poverty 2021 = 5.2% (record low, expanded-CTC year) | **Verified** | Census SEHSD wp2022-24; census.gov "Record Drop in Child Poverty" (2022-09) |
 | SPM child poverty 2022 = 12.4% (more than doubled) | **Verified** | Census-derived reporting (Columbia CPSP; census.gov SPM pages) |
-| SPM child poverty 2023 = 13.7% | **Verified** | Census 2024-09 release, echoed in CRS R48854 and First Focus |
-| SPM child poverty 2024 = 13.4% (no stat. change vs 13.7) | **Verified** | Census 2025-09 release ("Poverty in the United States: 2024"); CRS R48854; AAP/First Focus coverage |
-| CTC qualifying children TY2021 = 61M | **Number real, source mislabeled** — Treasury/IRS advance-payment coverage ("more than 61 million children," Dec-2021 disbursement), not an SOI return tabulation | Treasury press releases + JEC |
-| CTC qualifying children TY2019 = 48M | **NOT verified as children** — best match is ~48M *filers/returns* claiming CTC (Tax Foundation primer). Possible returns-vs-children conflation | Tax Foundation "The Child Tax Credit: A Primer" |
-| CTC qualifying children TY2022 = 49M | **NOT verified** — no source found; SOI TY2022 shows ACTC on 17.8M returns, $110.4B total CTC, no child count in extractable text of the SOI TY2022 CTC paper (24rpctcunderclaims.pdf, read in full) | irs.gov SOI |
-| W825RC1 units = $B, seasonally adjusted annual rate, monthly, BEA | **Verified** | FRED series metadata (title/mirror), BEA release table headers |
-| W825RC1 Jan-2021 first print = 570.6 | **Verified** | BEA "Personal Income and Outlays, January 2021" (2021-02-26), pi0121.pdf Table 3 line 26: …307.8 (Dec) → 570.6 (Jan) |
-| PR #64 "child poverty −1.2%" is relative, = −0.20pp | **Verified** | PR #64 body (17.02→16.82); PolicyEngine research page publishes "Reduces child poverty by 0.4%" alongside "Gini … 0.024%" — relative convention |
-| S.3596 = 119th Congress, Hassan/Young, strikes "$3,000"→"$1" in §24(d)(1)(B)(i) + strikes §24(h)(6), TY2026+ | **Verified** | Bill text PDF (scratchpad copy = repo copy, diff-identical §2); congress.gov 119th listing; TPC/R Street/sponsor releases for the $2,500 operational framing |
-| FL·2023-12 demo-widget numbers, S.3596 conditional medians, B1 bake-off numbers, A3/A4 monotonicity claims | **Reproduced** from repo substrate (this review + `CHECK2.md`) | local recomputation |
+| SPM child poverty 2023 = 13.7% | **Verified** | Census 2024-09 release; CRS R48854; First Focus |
+| SPM child poverty 2024 = 13.4% (no stat. change vs 13.7) | **Verified** | Census 2025-09 "Poverty in the United States: 2024"; CRS R48854; AAP/First Focus coverage |
+| CTC TY2021 = 61M qualifying children | **Number real, source mislabeled** — Treasury/IRS advance-payment coverage ("more than 61 million children," Dec-2021), not an SOI return tabulation | Treasury press releases; JEC |
+| CTC TY2019 = 48M qualifying children | **NOT verified as children** — best match ~48M *filers/returns* claiming CTC | Tax Foundation, "The Child Tax Credit: A Primer" |
+| CTC TY2022 = 49M qualifying children | **NOT verified** — no source found; SOI TY2022 shows ACTC on 17.8M returns, $110.4B total CTC; no child count in the SOI TY2022 CTC paper (read in full) | irs.gov SOI (24rpctcunderclaims.pdf) |
+| W825RC1 units = $B, seasonally adjusted annual rate, monthly, BEA | **Verified** | FRED series metadata; BEA release table conventions |
+| W825RC1 Jan-2021 first print = 570.6 | **Verified** | BEA pi0121.pdf (2021-02-26), Table 3 line 26: …307.8 (Dec) → 570.6 (Jan), SAAR |
+| PR #64 "child poverty −1.2%" is relative = −0.20pp | **Verified** | PR #64 body (17.02→16.82); PolicyEngine research page publishes relative ("Reduces child poverty by 0.4%", "Gini … 0.024%") |
+| S.3596 = 119th Congress, Hassan/Young; strikes "$3,000"→"$1" in §24(d)(1)(B)(i) + strikes §24(h)(6); TY2026+ | **Verified** | Bill text (repo copy = clean extraction of the same §2); congress.gov 119th-Congress listing; TPC/R Street/sponsor releases for the $2,500 operational framing |
+| FL·2023-12 widget numbers; S.3596 conditional medians; §09 envelope bands; B1 bake-off numbers; A3/A4 monotonicity | **Reproduced** from repo substrate (this review + `CHECK2.md`) | local recomputation |
 
-Nothing in this file modifies any other file; every fix above is wording, a
-label, a footnote, or a re-derivation at freeze — no re-runs required, except
-that item 3's lever number must be re-read from the pinned batch before it is
-spoken aloud.
+File states at finalization: `demo_page.html` md5 a32bfb7f… (12:15),
+`RESULTS.md` @ `73c8bbf9` (12:20), `TWO_LEGS_S3596.md` (11:54, unchanged),
+`FORWARD-S3596.md` (11:34). If any of these move again before 17:00, items 1–4
+and 9 are the ones to re-derive — they are assertions about *current* file
+contents, not about the underlying runs. Nothing in this file modifies any
+other file; every fix is wording, a label, a footnote, or a re-derivation at
+freeze — no re-runs required.
